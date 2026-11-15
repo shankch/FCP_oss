@@ -1,0 +1,135 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FN-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The function candidate(n) must be given a complete body that produces its answer for every valid n.
+  kind: guarantee
+  depends:
+  - R-FN-2
+  - R-COL-1
+  ambiguity:
+  - phrase: Complete this function
+    readings:
+    - return the number of collisions between the left-to-right cars and the right-to-left cars, the quantity the truncated docstring leads up to
+    - the request never states what the function returns (the docstring stops mid-sentence), so any returned value is acceptable
+    - also finish the truncated docstring, not only the function body
+  lines:
+  - 1
+- id: R-FN-2
+  doc: SPEC
+  quote: 'def candidate(n: int):'
+  text: The function is named candidate and takes exactly one argument, n, annotated as int; no return type is declared.
+  kind: definition
+  lines:
+  - 4
+- id: R-RD-1
+  doc: SPEC
+  quote: Imagine a road that's a perfectly straight infinitely long line.
+  text: The road in the model is a perfectly straight line of infinite length, so cars on it never reach an end.
+  kind: definition
+  lines:
+  - 6
+- id: R-CAR-1
+  doc: SPEC
+  quote: n cars are driving left to right
+  text: Exactly n cars, where n is the argument of candidate, drive along the road from left to right.
+  kind: definition
+  depends:
+  - R-RD-1
+  ambiguity:
+  - phrase: n cars
+    readings:
+    - n is any non-negative count; n = 0 means there are no cars in either set
+    - n is at least 1; a road without cars (n = 0) is outside the request
+  lines:
+  - 7
+- id: R-CAR-2
+  doc: SPEC
+  quote: simultaneously, a different set of n cars are driving right to left.
+  text: At the same time as the left-to-right cars, a second set of n cars, disjoint from the first set, drives along the road from right to left.
+  kind: definition
+  depends:
+  - R-CAR-1
+  ambiguity:
+  - phrase: simultaneously
+    readings:
+    - both sets are moving during the same period of time
+    - both sets start moving at the same instant
+  - phrase: driving right to left
+    readings:
+    - the second set moves in the opposite direction to the first set, at the same speed magnitude (consistent with R-CAR-4)
+    - if 'the same speed' in R-CAR-4 means the same velocity, every car moves in one direction, which contradicts the second set driving right to left while the first drives left to right
+  lines:
+  - 7
+  - 8
+- id: R-CAR-3
+  doc: SPEC
+  quote: The two sets of cars start out being very far from each other.
+  text: At the start, the left-to-right set and the right-to-left set are very far apart from each other.
+  kind: assumption
+  depends:
+  - R-CAR-1
+  - R-CAR-2
+  ambiguity:
+  - phrase: very far from each other
+    readings:
+    - every left-to-right car starts to the left of every right-to-left car, so each left-to-right car approaches each right-to-left car
+    - the two sets start a large distance apart, but no ordering of their positions (which set is on which side) is implied
+    - the distance only ensures that no collision has happened at the start
+  lines:
+  - 8
+  - 9
+- id: R-CAR-4
+  doc: SPEC
+  quote: All cars move in the same speed.
+  text: Every car of both sets moves at one common speed.
+  kind: definition
+  depends:
+  - R-CAR-1
+  - R-CAR-2
+  ambiguity:
+  - phrase: the same speed
+    readings:
+    - every car has the same speed magnitude, the two sets moving in opposite directions
+    - every car has the same velocity (speed and direction), which contradicts the two sets driving in opposite directions (R-CAR-1, R-CAR-2)
+  - phrase: move in the same speed
+    readings:
+    - the common speed is constant over time
+    - all cars share the same speed at each instant, but that speed may change over time
+  lines:
+  - 9
+- id: R-COL-1
+  doc: SPEC
+  quote: Two cars are said to collide
+  text: The request begins to define when two cars collide, but the sentence ends before the condition is given, so no collision condition is stated.
+  kind: definition
+  depends:
+  - R-CAR-1
+  - R-CAR-2
+  - R-CAR-3
+  - R-CAR-4
+  ambiguity:
+  - phrase: Two cars are said to collide
+    readings:
+    - two cars collide when a car moving left to right meets a car moving right to left
+    - two cars collide whenever they occupy the same point, whatever their directions
+    - the condition is missing, so collision is undefined and nothing about it can be checked
+  - phrase: collide
+    readings:
+    - cars continue moving along their path after a collision, as if they had not collided
+    - cars that collide stop or are removed, so later cars may hit the wreck or pass freely
+  lines:
+  - 9
+- id: R-FR-1
+  doc: FRAME
+  quote: '`result` is 0 unless `outcome` is 0.'
+  text: Whenever outcome is not 0 (the call did not return an integer that fits result), result is 0.
+  kind: guarantee
+  lines:
+  - 40

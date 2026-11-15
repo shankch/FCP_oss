@@ -1,0 +1,26 @@
+fcp: '0.1'
+design: code_largest_prime_factor
+summary: A Python function on integers treated as a chip without memory. Each cycle is one call of largest_prime_factor(n); the argument is an input, the returned integer and the way the call ended are outputs. The request is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Request: largest_prime_factor'}
+- {id: FRAME, path: frame.md, title: 'FCP function adapter, version 0.1'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: n, dir: in, width: 16, desc: 'n argument, 0 to 65,535'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned an integer that fits, 1 any exception or no answer, 2 returned anything else'}
+  - {name: factor, dir: out, width: 16, desc: 'the returned integer (outcome 0)'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> factor == 0'}
+function:
+  name: largest_prime_factor
+  args:
+  - {name: n, signal: n, type: int}
+  returns: {signal: factor, type: int}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    n: {dense: [0, 2100], random: 400, values: [2048, 13195]}

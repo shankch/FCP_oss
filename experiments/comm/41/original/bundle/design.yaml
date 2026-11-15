@@ -1,0 +1,26 @@
+fcp: '0.1'
+design: review
+summary: A Python function on integers treated as a chip without memory. Each cycle is one call of car_race_collision(n); the argument is an input, the returned number and the way the call ended are outputs. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt: car_race_collision'}
+- {id: FRAME, path: frame.md, title: 'FCP function adapter, version 0.1'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: n, dir: in, width: 10, desc: 'n argument: the number of cars in each set, 0 to 1,023'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned an integer that fits, 1 exception or no answer, 2 returned anything else'}
+  - {name: collisions, dir: out, width: 21, desc: 'the returned number of collisions (outcome 0), 0 to 2,097,151'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> collisions == 0'}
+function:
+  name: car_race_collision
+  args:
+  - {name: n, signal: n, type: int}
+  returns: {signal: collisions, type: int}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    n: {dense: [0, 1023]}

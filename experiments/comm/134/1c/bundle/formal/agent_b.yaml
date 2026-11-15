@@ -1,0 +1,155 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# The function keeps no state between calls (frame.md), so the specification
+# model is combinational: defs computed from the argument of the current call,
+# against which both outputs (outcome, result) are checked.
+defs:
+  # code of the last character of txt (txt[-1]); 0 when txt is empty
+  last_ch: 'txt[len(txt) - 1]'
+  # txt has a last character and it is an ASCII letter (a-z, A-Z)
+  last_alpha: 'len(txt) >= 1 && isalpha(last_ch)'
+  # the last character stands alone: it is the first character of txt or the
+  # character before it is a space (code 32), so its group is that one character
+  last_alone: 'len(txt) == 1 || (len(txt) >= 2 && txt[len(txt) - 2] == " ")'
+  # the condition of the rule: an alphabetical last character not part of a word
+  lone_letter: 'last_alpha && last_alone'
+
+properties:
+  - id: RB-RES-1
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'lone_letter', cond: 'outcome == 0 && result'}
+    note: >-
+      The rule is taken as written (reading 1 of "returns True"): when the
+      last character txt[-1] (reading 1 of "the last character", trailing
+      spaces are not skipped) is an ASCII letter (reading 1 of "an
+      alphabetical character"; Latin-1 letters above code 127 are not
+      letters) and stands alone, i.e. it is the first character or follows a
+      space (reading 1 of "is not a part of a word"), the call returns True.
+      This uses the R-DEF-1 reading that a word has two or more characters,
+      so a lone letter is not part of a word. The rule contradicts example
+      R-EX-2: "apple pi e" ends in a lone e, so this property demands True
+      while RB-EX-2 demands False. The contradiction is left in place, not
+      repaired.
+
+  - id: RB-RES-2
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: '!lone_letter', cond: 'outcome == 0 && !result'}
+    note: >-
+      "False otherwise" is taken as written (reading 1): every call outside
+      the condition of R-RES-1 returns False. That covers an empty txt (no
+      last character), a last character that is not an ASCII letter
+      (including a space or a Latin-1 letter), and a last letter preceded by
+      a non-space character of any kind (part of a word). This contradicts
+      examples R-EX-1 ("apple pie"), R-EX-3 ("apple pi e ") and R-EX-4 (""),
+      which say True. Those examples are formalized literally in RB-EX-1,
+      RB-EX-3 and RB-EX-4, so the set is inconsistent on those three
+      arguments, as the specification is.
+
+  - id: RB-RES-3
+    req: R-RES-3
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      Every call, including one with an empty txt, returns a boolean: it does
+      not raise an exception, fail to finish, or return a value of another
+      type (outcome 0).
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'txt == "apple pie"', cond: 'outcome == 0 && result'}
+    note: >-
+      The example is taken as written (reading 1): the call on "apple pie"
+      returns True. The function is deterministic, so the example fixes the
+      value returned for this argument. RB-EX-1S is the matching scenario.
+      This conflicts with RB-RES-2: the last character e follows i, so it is
+      part of the word "pie" and the rule gives False.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e"', cond: 'outcome == 0 && !result'}
+    note: >-
+      The example is taken as written (reading 1): the call on "apple pi e"
+      returns False. This conflicts with RB-RES-1: the last character e
+      follows a space, so it stands alone and the rule gives True.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e "', cond: 'outcome == 0 && result'}
+    note: >-
+      The example is taken as written (reading 1): the call on "apple pi e "
+      (with a trailing space) returns True. This conflicts with RB-RES-2: the
+      last character is a space, not an alphabetical character, so the rule
+      gives False.
+
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'len(txt) == 0', cond: 'outcome == 0 && result'}
+    note: >-
+      The example is taken as written (reading 1): the call on the empty
+      string returns True. This conflicts with RB-RES-2: "" has no last
+      character, so the rule gives False.
+
+scenarios:
+  - id: RB-EX-1S
+    req: R-EX-1
+    cover: 'txt == "apple pie" && outcome == 0 && result'
+    note: The call on "apple pie" returning True must be possible (example as written). This is unreachable together with RB-RES-2.
+  - id: RB-EX-2S
+    req: R-EX-2
+    cover: 'txt == "apple pi e" && outcome == 0 && !result'
+    note: The call on "apple pi e" returning False must be possible (example as written). This is unreachable together with RB-RES-1.
+  - id: RB-EX-3S
+    req: R-EX-3
+    cover: 'txt == "apple pi e " && outcome == 0 && result'
+    note: The call on "apple pi e " returning True must be possible (example as written). This is unreachable together with RB-RES-2.
+  - id: RB-EX-4S
+    req: R-EX-4
+    cover: 'len(txt) == 0 && outcome == 0 && result'
+    note: The call on "" returning True must be possible (example as written). This is unreachable together with RB-RES-2.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the name of the function and its single parameter txt.
+      The function section of design.yaml binds them to the interface, and
+      they are not a property of the trace.
+  - req: R-IN-1
+    reason: >-
+      Holds by construction of the interface encoding: txt is a sequence
+      signal (a string of Latin-1 characters), and frame.md says that calls
+      whose argument is not a string are not part of the trace. No
+      environment constraint is left to state.
+  - req: R-DEF-1
+    reason: >-
+      Definition. It is realized by the defs last_alone and lone_letter, which
+      RB-RES-1 and RB-RES-2 use. Readings taken: a word is a maximal run of
+      two or more characters (of any kind, not only letters), separated only
+      by the space character (code 32). So the last character is part of a
+      word exactly when it is not a space and the character before it is
+      not a space. A tab or other whitespace character is part of a word.
+    covered_by: [RB-RES-1, RB-RES-2]
+  - req: R-FR-1
+    reason: Frame rule of the adapter. Frame item F-ZERO (outcome != 0 -> !result) is added to every formalization set and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-DEF-1, phrase: 'a group of characters', reading: 2}
+  - {req: R-DEF-1, phrase: 'separated by space', reading: 1}
+  - {req: R-DEF-1, phrase: '"word" is a group', reading: 1}
+  - {req: R-RES-1, phrase: 'the last character', reading: 1}
+  - {req: R-RES-1, phrase: 'an alphabetical character', reading: 1}
+  - {req: R-RES-1, phrase: 'is not a part of a word', reading: 1}
+  - {req: R-RES-1, phrase: 'returns True', reading: 1}
+  - {req: R-RES-2, phrase: 'False otherwise', reading: 1}
+  - {req: R-EX-1, phrase: '"apple pie") ➞ True', reading: 1}
+  - {req: R-EX-2, phrase: '"apple pi e") ➞ False', reading: 1}
+  - {req: R-EX-3, phrase: '"apple pi e ") ➞ True', reading: 1}
+  - {req: R-EX-4, phrase: '("") ➞ True', reading: 1}

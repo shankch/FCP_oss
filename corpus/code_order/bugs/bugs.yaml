@@ -1,0 +1,40 @@
+# Planted bugs: one textual patch of impl/ref.py each (the target text must
+# occur exactly once).  `violates` is the gold requirement each one breaks.
+design: code_order
+bugs:
+- id: C1
+  desc: a quantity of 100 is rejected
+  violates: [R-ERR-1]
+  patch: {from: 'if not 1 <= qty <= 100:', to: 'if not 1 <= qty < 100:'}
+- id: C2
+  desc: an amount of 0 is accepted
+  violates: [R-ERR-1]
+  patch: {from: 'if not 1 <= amount <= 1_000_000:', to: 'if not 0 <= amount <= 1_000_000:'}
+- id: C3
+  desc: an error of the payment service leaves the function, and the stock stays reserved
+  violates: [R-STOP-1]
+  patch: {from: 'except payments.PaymentError:', to: 'except shipping.ShippingError:'}
+- id: C4
+  desc: the stock is not released when the charge is refused
+  violates: [R-UNDO-1]
+  patch: {from: "        inventory.release(sku, qty)\n        return False\n    try:", to: "        return False\n    try:"}
+- id: C5
+  desc: the charge is not refunded when the booking fails
+  violates: [R-UNDO-1]
+  patch: {from: "        payments.refund(order_id, amount)\n", to: ""}
+- id: C6
+  desc: the refund is for the quantity, not the amount
+  violates: [R-ARGS-1]
+  patch: {from: 'payments.refund(order_id, amount)', to: 'payments.refund(order_id, qty)'}
+- id: C7
+  desc: a booking that raises is tried a second time
+  violates: [R-ONCE-1]
+  patch: {from: "    except shipping.ShippingError:\n        booked = False", to: "    except shipping.ShippingError:\n        booked = shipping.book(order_id) == 'ok'"}
+- id: C8
+  desc: stock that was never reserved is released
+  violates: [R-UNDO-1]
+  patch: {from: "    if not reserved:\n        return False", to: "    if not reserved:\n        inventory.release(sku, qty)\n        return False"}
+- id: C9
+  desc: 'refactoring: the reservation tests for "refused" instead of "ok"'
+  violates: []
+  patch: {from: "inventory.reserve(sku, qty) == 'ok'", to: "inventory.reserve(sku, qty) != 'refused'"}

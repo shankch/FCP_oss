@@ -1,0 +1,233 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # q reads the same forwards and backwards (true of the empty list as well)
+  palin: 'all(i < len(q): q[i] == q[len(q) - 1 - i])'
+  # balanced: a palindromic list; the empty list is not balanced (R-DEF-2, reading 2)
+  balanced: 'len(q) > 0 && palin'
+  total: 'sum(i < len(q): q[i])'
+  # weight condition: the sum is strictly less than w (R-DEF-3, reading 2)
+  light: 'total < w'
+  # the answer is True, or a value of another kind (outcome 2) whose truthiness
+  # the trace does not record; any truthy/falsy value is acceptable (R-OUT-1, reading 2)
+  answers_true: 'outcome == 0 && flies || outcome == 2'
+  answers_false: 'outcome == 0 && !flies || outcome == 2'
+
+properties:
+  - id: RV-OUT-1
+    req: R-OUT-1
+    expr: 'outcome != 1'
+    note: >-
+      Every call returns: it neither raises nor fails to finish. Reading 2 of
+      "returns True if the object q will fly, and False otherwise" (as
+      instructed): any truthy or falsy value is acceptable as the answer, so
+      returning a value other than a bool (outcome 2) is allowed; only outcome 1
+      is excluded.
+
+  - id: RV-FLY-1-T
+    req: R-FLY-1
+    pattern: implies
+    args: {trigger: 'balanced && light', cond: answers_true}
+    note: >-
+      A non-empty palindrome whose sum is strictly less than w gets a truthy
+      answer. Readings taken as instructed: "less than or equal the maximum
+      possible weight w" read as sum(q) < w, as the example comments phrase it
+      (reading 2); "palindromic list" read so that the empty list is not
+      balanced (reading 2); "returns True" read under R-OUT-1 reading 2, so any
+      truthy value is acceptable (outcome 2 is accepted because the trace does
+      not record its truthiness). This contradicts the rule's literal "less
+      than or equal".
+
+  - id: RV-FLY-1-EQ
+    req: R-FLY-1
+    pattern: implies
+    args: {trigger: 'balanced && total == w', cond: answers_false}
+    note: >-
+      Reading 2 of "less than or equal the maximum possible weight w" (as
+      instructed): a balanced q whose sum equals w does not fly, so the answer
+      is False. The literal rule text says such a q flies; this item follows
+      the instructed reading and contradicts it. "palindromic list" is read
+      with reading 2 (the empty list is not balanced). "False" is read under
+      R-OUT-1 reading 2: any falsy value is acceptable.
+
+  - id: RV-FLY-1-E
+    req: R-FLY-1
+    pattern: implies
+    args: {trigger: 'len(q) == 0', cond: answers_false}
+    note: >-
+      Reading 2 of "palindromic list" (as instructed): the empty list is not a
+      balanced object, so will_it_fly([], w) returns False for every w. The
+      more natural reading (the empty list equals its reverse) would give True.
+      "False" is read under R-OUT-1 reading 2: any falsy value is acceptable.
+
+  - id: RV-FLY-2-E
+    req: R-FLY-2
+    pattern: implies
+    args: {trigger: 'len(q) == 0', cond: answers_false}
+    note: >-
+      Reading 2 of "palindromic list" (as instructed): the empty list is not a
+      balanced object, so will_it_fly([], w) returns False. This is the only
+      obligation formalized for R-FLY-2. With reading 2 of "The object q will
+      fly if", 'if' is only a sufficient condition and 'False otherwise' does
+      not decide the answer for an unbalanced q (see RV-FLY-2-D). "False" is
+      read under R-OUT-1 reading 2: any falsy value is acceptable.
+
+  - id: RV-FLY-3-EQ
+    req: R-FLY-3
+    pattern: implies
+    args: {trigger: 'total == w', cond: answers_false}
+    note: >-
+      Reading 2 of "less than or equal the maximum possible weight w" (as
+      instructed): only sum(q) < w flies, so False is required when
+      sum(q) == w, palindrome or not. Reading 2 of "The object q will fly if"
+      (as instructed): 'if' is only a sufficient condition, so this requirement's
+      own obligation for a q heavier than w (sum(q) > w) is not formalized here:
+      'False otherwise' does not decide it. Taken literally together, the two
+      readings leave R-FLY-3 requiring False only when the sum equals w. This
+      is an odd outcome, since the requirement is about sums greater than w.
+      Heavier q are still constrained by RV-EX-2, RV-EX-3-R and RV-EX-4-R.
+      "False" is read under R-OUT-1 reading 2: any falsy value is acceptable.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'q == [1, 2] && w == 5', cond: answers_false}
+    note: >-
+      Example will_it_fly([1, 2], 5) -> False. "False" is read under R-OUT-1
+      reading 2 (as instructed): any falsy value is acceptable. The example
+      fixes this call even though R-FLY-2 (reading 2) leaves unbalanced q
+      otherwise undetermined.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'q == [3, 2, 3] && w == 1', cond: answers_false}
+    note: >-
+      Example will_it_fly([3, 2, 3], 1) -> False. "False" is read under R-OUT-1
+      reading 2 (as instructed): any falsy value is acceptable.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'q == [3, 2, 3] && w == 9', cond: answers_true}
+    note: >-
+      Example will_it_fly([3, 2, 3], 9) -> True. "True" is read under R-OUT-1
+      reading 2 (as instructed): any truthy value is acceptable.
+
+  - id: RV-EX-3-R
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'total >= w', cond: answers_false}
+    note: >-
+      Reading 2 of "is less than the maximum possible weight" (as instructed):
+      the comment states the rule that the sum must be strictly less than w.
+      Read literally, 'must' makes sum(q) < w necessary for flying, so any q
+      whose sum is at least w does not fly and gets False. This contradicts
+      the rule's 'less than or equal' when the sum equals w. "False" is read
+      under R-OUT-1 reading 2: any falsy value is acceptable.
+
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'q == [3] && w == 5', cond: answers_true}
+    note: >-
+      Example will_it_fly([3], 5) -> True. "True" is read under R-OUT-1
+      reading 2 (as instructed): any truthy value is acceptable.
+
+  - id: RV-EX-4-R
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'total >= w', cond: answers_false}
+    note: >-
+      Reading 2 of "is less than the maximum possible weight" (as instructed):
+      the comment states the rule that the sum must be strictly less than w.
+      Read literally, 'must' makes sum(q) < w necessary for flying, so any q
+      whose sum is at least w does not fly and gets False. This contradicts
+      the rule's 'less than or equal' when the sum equals w. "False" is read
+      under R-OUT-1 reading 2: any falsy value is acceptable.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'q == [1, 2] && w == 5 && outcome == 0 && !flies'
+    note: The call will_it_fly([1, 2], 5) returning False must be possible.
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'q == [3, 2, 3] && w == 1 && outcome == 0 && !flies'
+    note: The call will_it_fly([3, 2, 3], 1) returning False must be possible.
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'q == [3, 2, 3] && w == 9 && outcome == 0 && flies'
+    note: The call will_it_fly([3, 2, 3], 9) returning True must be possible.
+  - id: RV-EX-4-S
+    req: R-EX-4
+    cover: 'q == [3] && w == 5 && outcome == 0 && flies'
+    note: The call will_it_fly([3], 5) returning True must be possible.
+
+dont_cares:
+  - id: RV-FLY-2-D
+    req: R-FLY-2
+    signal: flies
+    when: 'len(q) > 0 && !palin && light && !(q == [1, 2] && w == 5)'
+    note: >-
+      Reading 2 of "The object q will fly if" (as instructed): 'if' is only a
+      sufficient condition, so the prompt does not say whether a non-empty,
+      non-palindromic q flies, and 'False otherwise' does not decide its
+      answer. R-DEF-1 (reading 2) says the same. The region excludes calls that
+      other requirements decide: sums of at least w (RV-EX-3-R, RV-EX-4-R,
+      reading 2 of "is less than the maximum possible weight") and the example
+      call will_it_fly([1, 2], 5) (RV-EX-1). "palindromic list" is read with
+      reading 2 (the empty list is not balanced and returns False, RV-FLY-2-E),
+      and the weight condition with R-DEF-3 reading 2 (sum < w). RV-OUT-1 still
+      requires the call to return.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function name will_it_fly and its two positional
+      parameters q and w. They fix how the adapter calls the code (design.yaml
+      `function`), not a property of the call trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized by the defs balanced and light. Reading 2 of "The
+      object q will fly if" (as instructed): the condition is only sufficient.
+      q flies at least when it is balanced and light (RV-FLY-1-T), and the
+      prompt does not say whether it can fly otherwise (RV-FLY-2-D).
+    covered_by: [RV-FLY-1-T, RV-FLY-2-D]
+  - req: R-DEF-2
+    reason: >-
+      Definition, realized by the def balanced (a non-empty palindrome).
+      Reading 2 of "palindromic list" (as instructed): the empty list is not a
+      balanced object and never flies, so it gets False (RV-FLY-1-E,
+      RV-FLY-2-E). This departs from the literal meaning: the empty list equals
+      its reverse.
+    covered_by: [RV-FLY-1-T, RV-FLY-1-E, RV-FLY-2-E]
+  - req: R-DEF-3
+    reason: >-
+      Definition, realized by the def light (sum(q) < w, the sum of the empty
+      list being 0). Reading 2 of "less than or equal the maximum possible
+      weight w" (as instructed): a sum equal to w does not meet the condition,
+      contrary to the literal 'less than or equal'.
+    covered_by: [RV-FLY-1-T, RV-FLY-1-EQ, RV-FLY-3-EQ]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter (frame.md). design.yaml states it as
+      frame item F-ZERO, which is part of every formalization set and need not
+      be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-OUT-1, phrase: 'returns True if the object q will fly, and False otherwise', reading: 2}
+  - {req: R-FLY-1, phrase: 'less than or equal the maximum possible weight w', reading: 2}
+  - {req: R-FLY-1, phrase: 'palindromic list', reading: 2}
+  - {req: R-FLY-2, phrase: 'The object q will fly if', reading: 2}
+  - {req: R-FLY-2, phrase: 'palindromic list', reading: 2}
+  - {req: R-FLY-3, phrase: 'The object q will fly if', reading: 2}
+  - {req: R-FLY-3, phrase: 'less than or equal the maximum possible weight w', reading: 2}
+  - {req: R-DEF-1, phrase: 'The object q will fly if', reading: 2}
+  - {req: R-DEF-2, phrase: 'palindromic list', reading: 2}
+  - {req: R-DEF-3, phrase: 'less than or equal the maximum possible weight w', reading: 2}
+  - {req: R-EX-3, phrase: 'is less than the maximum possible weight', reading: 2}
+  - {req: R-EX-4, phrase: 'is less than the maximum possible weight', reading: 2}

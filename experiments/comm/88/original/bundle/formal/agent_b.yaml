@@ -1,0 +1,191 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model.
+# sort_array keeps no state between calls (frame.md, "Calls"), so the model is
+# combinational: every quantity below is a function of the argument `array` of
+# the current call, and every output (outcome, result) is checked against it.
+defs:
+  n: "len(array)"
+  # first index value + last index value (reading 1: the stored values)
+  fl_sum: "array[0] + array[len(array) - 1]"
+  # which order rule the argument selects; the empty array selects neither
+  # (reading 1 of "the sum( first index value, last index value) is odd/even")
+  asc_case: "len(array) > 0 && fl_sum % 2 == 1"
+  desc_case: "len(array) > 0 && fl_sum % 2 == 0"
+  # the call returned a list that fits the result signal
+  returned: "outcome == 0"
+  # checks of the returned list against the argument
+  same_len: "len(result) == len(array)"
+  same_counts: "all(j < len(array): count(i < len(result): result[i] == array[j]) == count(i < len(array): array[i] == array[j]))"
+  is_rearrangement: "same_len && same_counts"
+  non_decreasing: "all(i < len(result) - 1: result[i] <= result[i + 1])"
+  non_increasing: "all(i < len(result) - 1: result[i] >= result[i + 1])"
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: "returned"}
+    note: >-
+      Every call in the trace has an argument that is a list of non-negative
+      integers (the encoding admits nothing else, see R-IN-1), so every call
+      must end with outcome 0: it returns a list, does not raise and finishes.
+      A returned value that does not fit (outcome 2) also violates this item.
+
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "returned", cond: "is_rearrangement"}
+    note: >-
+      The returned list has the length of the argument and holds every value
+      of the argument exactly as many times as the argument does. With equal
+      lengths this also excludes values that are not in the argument.
+      Conditioned on outcome 0 because only then is there a returned list;
+      that the call does return is RB-RET-1.
+
+  - id: RB-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args: {trigger: "returned && asc_case", cond: "non_decreasing"}
+    note: >-
+      Literal reading: "first index value, last index value" are the values
+      array[0] and array[len(array) - 1] (the requirement text says so; the
+      examples also fit the index-number reading). "Ascending" is
+      non-decreasing (result[i] <= result[i + 1]), as the requirement text
+      states; a strict order is impossible with repeated values. The rule is
+      defined only for a non-empty array. For a one-element array the sum is
+      twice the element, always even, so this rule never applies to it.
+
+  - id: RB-ORD-2
+    req: R-ORD-2
+    pattern: implies
+    args: {trigger: "returned && desc_case", cond: "non_increasing"}
+    note: >-
+      Same readings as RB-ORD-1: the values at the first and last index,
+      non-increasing order (result[i] >= result[i + 1]), and a rule defined
+      only for a non-empty array. For the empty array the readings do not
+      differ in effect: the result is then empty (RB-RET-2) and trivially in
+      descending order.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "len(array) == 0", cond: "returned && len(result) == 0"}
+    note: >-
+      The example is a statement about the (deterministic) function on one
+      argument, so besides the scenario RB-EX-1-cover it is stated as a
+      guarantee: the call with the empty list returns the empty list.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "array == [5]", cond: "returned && result == [5]"}
+    note: >-
+      Guarantee form of the example. Consistent with RB-ORD-2: 5 + 5 = 10 is
+      even, and a one-element list is in descending order.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "array == [2, 4, 3, 0, 1, 5]", cond: "returned && result == [0, 1, 2, 3, 4, 5]"}
+    note: >-
+      Guarantee form of the example. Consistent with RB-ORD-1 (2 + 5 = 7 is
+      odd, ascending) and RB-RET-2.
+
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "array == [2, 4, 3, 0, 1, 5, 6]", cond: "returned && result == [6, 5, 4, 3, 2, 1, 0]"}
+    note: >-
+      Guarantee form of the example. Consistent with RB-ORD-2 (2 + 6 = 8 is
+      even, descending) and RB-RET-2.
+
+scenarios:
+  - id: RB-EX-1-cover
+    req: R-EX-1
+    cover: "len(array) == 0 && returned && len(result) == 0"
+    note: "sort_array([]) => [] is a possible call."
+
+  - id: RB-EX-2-cover
+    req: R-EX-2
+    cover: "array == [5] && returned && result == [5]"
+    note: "sort_array([5]) => [5] is a possible call."
+
+  - id: RB-EX-3-cover
+    req: R-EX-3
+    cover: "array == [2, 4, 3, 0, 1, 5] && returned && result == [0, 1, 2, 3, 4, 5]"
+    note: "sort_array([2, 4, 3, 0, 1, 5]) => [0, 1, 2, 3, 4, 5] is a possible call."
+
+  - id: RB-EX-4-cover
+    req: R-EX-4
+    cover: "array == [2, 4, 3, 0, 1, 5, 6] && returned && result == [6, 5, 4, 3, 2, 1, 0]"
+    note: "sort_array([2, 4, 3, 0, 1, 5, 6]) => [6, 5, 4, 3, 2, 1, 0] is a possible call."
+
+  - id: RB-ORD-1-dup
+    req: R-ORD-1
+    cover: "returned && asc_case && len(result) >= 2 && result[0] == result[1]"
+    note: >-
+      An ascending result with equal neighbours must be possible: this pins
+      the non-decreasing reading of "ascending order" (a strict reading would
+      leave no conforming result for an argument with repeated values).
+
+  - id: RB-ORD-2-dup
+    req: R-ORD-2
+    cover: "returned && desc_case && len(result) >= 2 && result[0] == result[1]"
+    note: >-
+      A descending result with equal neighbours must be possible (the
+      non-increasing reading of "descending order").
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: it concerns the deliverable (a complete function rather
+      than a stub), not the behaviour of a call. Its observable part, that a
+      call returns a list instead of raising or returning None as a stub
+      would, is checked by RB-RET-1.
+
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the function name and its single parameter are the
+      binding of the function adapter (design.yaml, function section), not a
+      property of the trace.
+
+  - req: R-IN-1
+    reason: >-
+      The environment obligation holds by construction of the interface
+      encoding: `array` is an unsigned list of at most 8 slots of 8 bits, and
+      frame.md excludes negative integers, non-integers and longer lists from
+      the trace. An assumption would be a tautology, so none is stated; every
+      property is therefore required for every argument in the trace.
+
+  - req: R-RET-3
+    reason: >-
+      Not observable: frame.md ("Inputs") states that whether the returned
+      list is the same object as `array` is not recorded in the trace. The
+      values of the copy are constrained by RB-RET-2, RB-ORD-1 and RB-ORD-2.
+
+  - req: R-NC-1
+    reason: >-
+      Not observable: frame.md ("Inputs") states that what the list passed as
+      `array` holds after the call is not recorded in the trace.
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; frame.md says frame rules are part
+      of every formalization set and need not be restated. It is realized by
+      the frame item F-EMPTY of design.yaml.
+
+decisions:
+  - {req: R-RET-3, phrase: "a copy of the given array after sorting", reading: 1}
+  - {req: R-RET-3, phrase: "a copy", reading: 1}
+  - {req: R-ORD-1, phrase: "first index value, last index value", reading: 1}
+  - {req: R-ORD-1, phrase: "ascending order", reading: 1}
+  - {req: R-ORD-1, phrase: "you will sort the given array", reading: 1}
+  - {req: R-ORD-1, phrase: "the sum( first index value, last index value) is odd", reading: 1}
+  - {req: R-ORD-2, phrase: "first index value, last index value", reading: 1}
+  - {req: R-ORD-2, phrase: "descending order", reading: 1}
+  - {req: R-ORD-2, phrase: "sort it", reading: 1}
+  - {req: R-ORD-2, phrase: "the sum( first index value, last index value) is even", reading: 1}
+  - {req: R-NC-1, phrase: "don't change the given array", reading: 1}

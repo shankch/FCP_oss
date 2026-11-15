@@ -1,0 +1,146 @@
+fcp: '0.1'
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # x = "<numerator>/<denominator>": shape, characters, and the two values.
+  # x_slash is the index of the '/' (meaningful only when x_form holds).
+  x_slash: 'sum(i < len(x): x[i] == "/" ? i : 0)'
+  x_form: 'count(i < len(x): x[i] == "/") == 1 && x[0] != "/" && x[len(x) - 1] != "/"'
+  x_digits: 'all(i < len(x): x[i] == "/" || isdigit(x[i]))'
+  x_num: '(x[x_slash - 1] - "0") + 10 * (x_slash >= 2 ? x[x_slash - 2] - "0" : 0) + 100 * (x_slash >= 3 ? x[x_slash - 3] - "0" : 0) + 1000 * (x_slash >= 4 ? x[x_slash - 4] - "0" : 0) + 10000 * (x_slash >= 5 ? x[x_slash - 5] - "0" : 0) + 100000 * (x_slash >= 6 ? x[x_slash - 6] - "0" : 0)'
+  x_den: '(x[len(x) - 1] - "0") + 10 * (len(x) - x_slash >= 3 ? x[len(x) - 2] - "0" : 0) + 100 * (len(x) - x_slash >= 4 ? x[len(x) - 3] - "0" : 0) + 1000 * (len(x) - x_slash >= 5 ? x[len(x) - 4] - "0" : 0) + 10000 * (len(x) - x_slash >= 6 ? x[len(x) - 5] - "0" : 0) + 100000 * (len(x) - x_slash >= 7 ? x[len(x) - 6] - "0" : 0)'
+  x_valid: 'x_form && x_digits && x_num >= 1 && x_den >= 1'
+  # n, the same way.
+  n_slash: 'sum(i < len(n): n[i] == "/" ? i : 0)'
+  n_form: 'count(i < len(n): n[i] == "/") == 1 && n[0] != "/" && n[len(n) - 1] != "/"'
+  n_digits: 'all(i < len(n): n[i] == "/" || isdigit(n[i]))'
+  n_num: '(n[n_slash - 1] - "0") + 10 * (n_slash >= 2 ? n[n_slash - 2] - "0" : 0) + 100 * (n_slash >= 3 ? n[n_slash - 3] - "0" : 0) + 1000 * (n_slash >= 4 ? n[n_slash - 4] - "0" : 0) + 10000 * (n_slash >= 5 ? n[n_slash - 5] - "0" : 0) + 100000 * (n_slash >= 6 ? n[n_slash - 6] - "0" : 0)'
+  n_den: '(n[len(n) - 1] - "0") + 10 * (len(n) - n_slash >= 3 ? n[len(n) - 2] - "0" : 0) + 100 * (len(n) - n_slash >= 4 ? n[len(n) - 3] - "0" : 0) + 1000 * (len(n) - n_slash >= 5 ? n[len(n) - 4] - "0" : 0) + 10000 * (len(n) - n_slash >= 6 ? n[len(n) - 5] - "0" : 0) + 100000 * (len(n) - n_slash >= 7 ? n[len(n) - 6] - "0" : 0)'
+  n_valid: 'n_form && n_digits && n_num >= 1 && n_den >= 1'
+  # Both arguments valid; the product x * n as the fraction prod_num / prod_den.
+  valid: 'x_valid && n_valid'
+  prod_num: 'x_num * n_num'
+  prod_den: 'x_den * n_den'
+
+rigids:
+  # A candidate quotient. 999999/1 * 999999/1 is the largest product of two
+  # valid 8-character arguments, so every quotient lies in this range.
+  - {name: q, range: [0, 999998000001]}
+
+assumptions:
+  - id: RA-IN-2-X
+    req: R-IN-2
+    expr: 'x_form'
+    note: 'x contains exactly one "/", which is neither its first nor its last character, so a non-empty numerator and denominator surround it. Reading 1 (no other characters such as spaces or signs) is completed by RA-IN-3-X, which requires every other character to be a digit.'
+  - id: RA-IN-2-N
+    req: R-IN-2
+    expr: 'n_form'
+    note: 'As RA-IN-2-X, for n.'
+  - id: RA-IN-3-X
+    req: R-IN-3
+    pattern: implies
+    args: {trigger: 'x_form', cond: 'x_digits && x_num >= 1 && x_den >= 1'}
+    note: 'The numerator and denominator of x are written in decimal digits only, and each has value at least 1 ("positive", reading 1). Leading zeros are allowed ("whole numbers", reading 1): the text constrains the values, not the spelling, so "05/3" is valid while "00/3" is not.'
+  - id: RA-IN-3-N
+    req: R-IN-3
+    pattern: implies
+    args: {trigger: 'n_form', cond: 'n_digits && n_num >= 1 && n_den >= 1'}
+    note: 'As RA-IN-3-X, for n.'
+  - id: RA-IN-4-X
+    req: R-IN-4
+    expr: 'x_valid'
+    note: 'Reading 1: a valid fraction is exactly a string of the form <numerator>/<denominator> with both parts positive whole numbers in decimal digits (the conjunction of R-IN-2 and R-IN-3).'
+  - id: RA-IN-4-N
+    req: R-IN-4
+    expr: 'n_valid'
+    note: 'As RA-IN-4-X, for n.'
+  - id: RA-IN-5-X
+    req: R-IN-5
+    pattern: implies
+    args: {trigger: 'x_form && x_digits', cond: 'x_den != 0'}
+    note: 'The denominator of x does not have value 0 (a zero spelled with several digits, such as "00", is excluded too). Reading 1: this restates part of R-IN-3. It does not permit a zero numerator, which RA-IN-3-X still excludes.'
+  - id: RA-IN-5-N
+    req: R-IN-5
+    pattern: implies
+    args: {trigger: 'n_form && n_digits', cond: 'n_den != 0'}
+    note: 'As RA-IN-5-X, for n.'
+
+properties:
+  - id: RA-RES-1
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'valid && prod_num == q * prod_den', cond: 'outcome == 0 && result'}
+    note: 'For every q: if both arguments are valid and x * n equals the integer q exactly (exact rational arithmetic, "evaluates to" reading 1), the call returns the bool True. Because q is universally quantified, this says: whenever the product is a whole number, the call returns True. The rule is taken as stated (reading 1). It contradicts the example R-EX-1: 1/5 * 5/1 = 1 must return True here, but the example says False (see RA-EX-1). "whole number" is taken as reading 2 (q >= 0). On valid arguments the product is positive, so readings 1, 2 and 3 coincide.'
+  - id: RA-RES-2
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: 'valid && q * prod_den < prod_num && prod_num < (q + 1) * prod_den', cond: 'outcome == 0 && !result'}
+    note: 'For every q: if both arguments are valid and x * n lies strictly between the integers q and q + 1 (exact rational arithmetic), the call returns the bool False. Such a q (the floor of the product) exists exactly when the product is not a whole number. A rigid q is needed because FCP-PL "%" takes only a constant divisor. "False otherwise" is taken as stated (reading 1), which contradicts the examples R-EX-2 and R-EX-3 (products 1/3 and 7/2 must return False here). "otherwise" is limited to valid arguments (reading 1). Invalid arguments are left free by RA-IN-6-*.'
+  - id: RA-RES-3
+    req: R-RES-3
+    pattern: implies
+    args: {trigger: 'valid', cond: 'outcome == 0'}
+    note: 'On valid arguments the call returns a bool. It does not raise, fail to finish or return another type. The function returns only True or False ("The function returns", reading 1), and True and False mean the bool objects ("True", reading 1), so a truthy non-bool such as 1 is outcome 2 and violates this.'
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: 'x == "1/5" && n == "5/1" && outcome == 0 && !result'
+    note: 'Formalized literally: the call simplify("1/5", "5/1") returns False (reading 2, the example taken as written). This CONTRADICTS the stated rule: 1/5 * 5/1 = 1 is a whole number, so RA-RES-1 forces True. The scenario is therefore unreachable together with RA-RES-1. Not repaired here: the specification states both.'
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: 'x == "1/6" && n == "2/1" && outcome == 0 && result'
+    note: 'Formalized literally: the call simplify("1/6", "2/1") returns True (reading 2). This CONTRADICTS the stated rule: 1/6 * 2/1 = 1/3 is not a whole number, so RA-RES-2 forces False. The scenario is unreachable together with RA-RES-2. Not repaired here.'
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: 'x == "7/10" && n == "10/2" && outcome == 0 && result'
+    note: 'Formalized literally: the call simplify("7/10", "10/2") returns True (reading 2). This CONTRADICTS the stated rule: 7/10 * 10/2 = 7/2 is not a whole number, so RA-RES-2 forces False. The scenario is unreachable together with RA-RES-2. Not repaired here.'
+
+dont_cares:
+  - id: RA-IN-6-OUTCOME
+    req: R-IN-6
+    signal: outcome
+    when: '!valid'
+    note: 'Reading 1 of "You can assume": a call with an invalid argument (or a zero denominator, which is invalid) has no obligation, so it may raise, return a bool or return anything else. Under the R-IN-4 assumptions such calls do not occur, so this only matters where the assumptions are not imposed.'
+  - id: RA-IN-6-RESULT
+    req: R-IN-6
+    signal: result
+    when: '!valid'
+    note: 'As RA-IN-6-OUTCOME: the returned value is free on invalid calls (still subject to the frame rule F-ZERO).'
+
+unformalized:
+  - req: R-IF-1
+    reason: 'Names the Python function and its parameter order. This is how the code is bound to the trace (design.yaml function section: simplify with arguments x, n), not a property of the calls. A missing or misnamed function shows as outcome 1 on every call, which RA-RES-3 rejects.'
+  - req: R-OP-1
+    reason: 'Reading 1: "simplify the expression x * n" states the purpose. Its observable content is the bool decision of R-RES-1..3. Reading 2 (return the reduced fraction) cannot be represented by the 1-bit result and contradicts R-RES-3.'
+    covered_by: [RA-RES-1, RA-RES-2, RA-RES-3]
+  - req: R-IN-1
+    reason: 'That x and n are strings is given by the interface (sequence signals). That each "represents a fraction" is made precise by the format and number assumptions of the same sentence (R-IN-2, R-IN-3).'
+    covered_by: [RA-IN-2-X, RA-IN-2-N, RA-IN-3-X, RA-IN-3-N]
+  - req: R-FR-1
+    reason: 'Frame rule of the function adapter. It holds by construction of the trace and design.yaml adds it to every formalization set as F-ZERO.'
+    covered_by: [F-ZERO]
+  - req: R-FR-2
+    reason: 'Frame rule of the function adapter. It holds by construction of the trace and design.yaml adds it to every formalization set as F-CODE.'
+    covered_by: [F-CODE]
+
+decisions:
+  - {req: R-OP-1, phrase: 'simplify the expression x * n', reading: 1}
+  - {req: R-RES-1, phrase: 'returns True if x * n evaluates to a whole number', reading: 1}
+  - {req: R-RES-1, phrase: 'evaluates to', reading: 1}
+  - {req: R-RES-1, phrase: 'whole number', reading: 2}
+  - {req: R-RES-2, phrase: 'False otherwise', reading: 1}
+  - {req: R-RES-2, phrase: 'otherwise', reading: 1}
+  - {req: R-RES-2, phrase: 'evaluates to a whole number', reading: 1}
+  - {req: R-RES-3, phrase: 'The function returns', reading: 1}
+  - {req: R-RES-3, phrase: 'True', reading: 1}
+  - {req: R-IN-2, phrase: '<numerator>/<denominator>', reading: 1}
+  - {req: R-IN-3, phrase: 'positive', reading: 1}
+  - {req: R-IN-3, phrase: 'whole numbers', reading: 1}
+  - {req: R-IN-4, phrase: 'valid fractions', reading: 1}
+  - {req: R-IN-5, phrase: 'do not have zero as denominator', reading: 1}
+  - {req: R-IN-6, phrase: 'You can assume', reading: 1}
+  - {req: R-EX-1, phrase: 'simplify("1/5", "5/1") = False', reading: 2}
+  - {req: R-EX-2, phrase: 'simplify("1/6", "2/1") = True', reading: 2}
+  - {req: R-EX-3, phrase: 'simplify("7/10", "10/2") = True', reading: 2}

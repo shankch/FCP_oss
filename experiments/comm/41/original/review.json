@@ -1,0 +1,144 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 26,
+    "checked": 26,
+    "seconds": 0.04
+   },
+   "open": {
+    "open": {},
+    "checked": 209
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 26,
+    "checked": 26,
+    "seconds": 0.04
+   },
+   "open": {
+    "open": {},
+    "checked": 209
+   }
+  }
+ },
+ "readings": {
+  "R-OUT-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-CARS-2",
+   "phrase": "simultaneously",
+   "taken": 1,
+   "variant": 2,
+   "text": "both sets of cars start moving at the same instant"
+  },
+  {
+   "req": "R-CARS-3",
+   "phrase": "start out being very far from each other",
+   "taken": 1,
+   "variant": 2,
+   "text": "the sets are only said to be far apart; their relative order is not stated, so they may be moving away from each other and never meet"
+  },
+  {
+   "req": "R-CARS-3",
+   "phrase": "very far",
+   "taken": 1,
+   "variant": 2,
+   "text": "infinitely far apart, so that meetings may never actually happen"
+  },
+  {
+   "req": "R-CARS-4",
+   "phrase": "the same speed",
+   "taken": 1,
+   "variant": 2,
+   "text": "all cars have equal speed at every instant, but that common speed may vary over time"
+  },
+  {
+   "req": "R-COL-1",
+   "phrase": "Two cars are said to collide when a car that's moving left to right hits a car that's moving right to left",
+   "taken": 1,
+   "variant": 2,
+   "text": "seemingly contradicted by 'as if they did not collide' (R-COL-2): if the cars pass through each other unaffected, a meeting may not count as a collision at all"
+  },
+  {
+   "req": "R-COL-1",
+   "phrase": "collide",
+   "taken": 1,
+   "variant": 2,
+   "text": "a collision is counted per meeting event, and the same pair could be counted more than once"
+  },
+  {
+   "req": "R-COL-2",
+   "phrase": "as if they did not collide",
+   "taken": 1,
+   "variant": 2,
+   "text": "seemingly contradicts 'Two cars are said to collide' (R-COL-1): the cars behave as if no collision happened, which could be read as the meeting not being a collision"
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "outputs",
+   "taken": 1,
+   "variant": 2,
+   "text": "prints the number (to standard output)"
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "the number of such collisions",
+   "taken": 1,
+   "variant": 2,
+   "text": "the number of collisions under a different count of meetings (for example none, if the sets never approach each other, or one per car, n), depending on how R-CARS-3 and R-COL-1 are read"
+  }
+ ],
+ "depends": {},
+ "certified": [],
+ "queue": [
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"outputs\" can mean: returns the number as the function's return value / prints the number (to standard output). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"the number of such collisions\" can mean: the total count of collision events between pairs of one left-to-right car and one right-to-left car over all time (each such pair meets once, so n * n) / the number of collisions under a different count of meetings (for example none, if the sets never approach each other, or one per car, n), depending on how R-CARS-3 and R-COL-1 are read. Which is meant?"
+  }
+ ],
+ "limits": []
+}

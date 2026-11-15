@@ -1,0 +1,109 @@
+[      22s] analyses of the readings
+[     954s] the prompt alone
+[    5877s] readings compared
+[    8132s] scope of haiku: 132023 calls
+[   10383s] scope of sonnet: 132510 calls
+[   12689s] scope of opus: 133598 calls
+[   12691s] scope of ref: 132023 calls
+[   12693s] scope of C1: 132023 calls
+[   12695s] scope of C2: 132023 calls
+[   12697s] scope of C3: 132023 calls
+[   12699s] scope of C4: 132023 calls
+[   12702s] scope of C5: 132023 calls
+[   12704s] scope of C6: 132023 calls
+[   15026s] scope of C7: 131795 calls
+[   15028s] scope of C8: 132023 calls
+[   17377s] scope of C9: 131295 calls
+[   17392s] every implementation against every reading
+[   17397s] disagreements
+[   17407s] answer key
+[   17408s] the models' own tests
+[   17421s] planted bugs
+[   18494s] mutants of haiku
+[   19535s] mutants of sonnet
+[   20540s] mutants of opus
+[   20543s] mutants of ref
+[   20543s] mutants
+[   20543s] false assurance
+== 1. The prompt, before any code
+[gold] trigger situations consistent: True; boundary conflicts: 1 (290 pairs, 91.52s); tautologies: none
+    R-LAST4-1 + R-QUARTER-1 + R-RET-1:  mask_card("219011401821")
+[agent_a] trigger situations consistent: False; boundary conflicts: 1 (607 pairs, 213.95s); tautologies: none
+    R-LAST4-1 + R-QUARTER-1 + R-RET-1:  mask_card("325252841748")
+[agent_b] trigger situations consistent: False; boundary conflicts: 1 (876 pairs, 345.34s); tautologies: none
+    R-LAST4-1 + R-QUARTER-1 + R-RET-1:  mask_card("103202341030")
+  gold vs agent_a: 
+    R-RET-1    A-WEAKER      in context EQUIVALENT
+  gold vs agent_b: 
+    R-RET-1    A-WEAKER      in context EQUIVALENT
+  agent_a vs agent_b: 
+    R-RET-1    A-STRONGER    in context EQUIVALENT
+== 2. Every implementation against every reading (failing requirements)
+  haiku  132023 calls  gold: R-LAST4-1  agent_a: R-LAST4-1  agent_b: R-LAST4-1
+      G-LAST4: mask_card("177111444150") -> "*********150"  (3151 failing calls, replay confirmed)
+  sonnet 132510 calls  gold: R-LAST4-1  agent_a: R-LAST4-1  agent_b: R-LAST4-1
+      G-LAST4: mask_card("041018022743") -> "*********743"  (2152 failing calls, replay confirmed)
+  opus   133598 calls  gold: R-LAST4-1  agent_a: R-LAST4-1  agent_b: R-LAST4-1
+      G-LAST4: mask_card("010009081109") -> "*********109"  (2355 failing calls, replay confirmed)
+  ref    132023 calls  gold: R-QUARTER-1  agent_a: R-QUARTER-1  agent_b: R-QUARTER-1
+      G-QUARTER: mask_card("177111444150") -> "********4150"  (3151 failing calls, replay confirmed)
+  C1     132023 calls  gold: R-ERR-1,R-EX-1,R-QUARTER-1,R-RET-1  agent_a: R-ERR-1,R-EX-1,R-QUARTER-1,R-RET-1  agent_b: R-ERR-1,R-EX-1,R-QUARTER-1,R-RET-1
+      G-RET: mask_card("444601216344") -> raised ValueError  (2322 failing calls, replay confirmed)
+      G-ERR: mask_card("051000411656") -> "********1656"  (984 failing calls, replay confirmed)
+      G-QUARTER: mask_card("051000411656") -> "********1656"  (2047 failing calls, replay confirmed)
+  C2     132023 calls  gold: R-ERR-1,R-LAST4-1,R-QUARTER-1  agent_a: R-ERR-1,R-LAST4-1,R-QUARTER-1  agent_b: R-ERR-1,R-LAST4-1,R-QUARTER-1
+      G-ERR: mask_card("18402\u00b2320117") -> "********0117"  (361 failing calls, replay confirmed)
+      G-LAST4: mask_card("14518446\u00b2626") -> "********\u00b2626"  (68 failing calls, replay confirmed)
+      G-QUARTER: mask_card("177111444150") -> "********4150"  (3369 failing calls, replay confirmed)
+  C3     132023 calls  gold: R-LAST4-1,R-QUARTER-1  agent_a: R-LAST4-1,R-QUARTER-1  agent_b: R-LAST4-1,R-QUARTER-1
+      G-LAST4: mask_card("1404004424 00") -> "*********4 00"  (4102 failing calls, replay confirmed)
+      G-QUARTER: mask_card("002045102130") -> "********2130"  (563 failing calls, replay confirmed)
+  C4     132023 calls  gold: R-QUARTER-1,R-RET-1  agent_a: R-QUARTER-1,R-RET-1  agent_b: R-IN-1,R-QUARTER-1,R-RET-1
+      G-RET: mask_card("5838417688450542995") -> raised ValueError  (728 failing calls, replay confirmed)
+      G-QUARTER: mask_card("177111444150") -> "********4150"  (3151 failing calls, replay confirmed)
+  C5     132023 calls  gold: R-QUARTER-1,R-RET-1  agent_a: R-QUARTER-1,R-RET-1  agent_b: R-IN-2,R-QUARTER-1,R-RET-1
+      G-RET: mask_card("0510008116-56") -> raised ValueError  (4277 failing calls, replay confirmed)
+      G-QUARTER: mask_card("002045102130") -> "********2130"  (616 failing calls, replay confirmed)
+  C6     132023 calls  gold: R-LAST4-1,R-MASK-1,R-QUARTER-1,R-SEP-1  agent_a: R-LAST4-1,R-MASK-1,R-QUARTER-1,R-SEP-1  agent_b: R-LAST4-1,R-MASK-1,R-QUARTER-1,R-SEP-1
+      G-MASK: mask_card(" 444601216344") -> "********6344"  (757 failing calls, replay confirmed)
+      G-LAST4: mask_card(" 444601216344") -> "********6344"  (757 failing calls, replay confirmed)
+      G-LEN: mask_card(" 444601216344") -> "********6344"  (1572 failing calls, replay confirmed)
+      G-SEP: mask_card(" 444601216344") -> "********6344"  (1572 failing calls, replay confirmed)
+      G-QUARTER: mask_card("177111444150") -> "********4150"  (3151 failing calls, replay confirmed)
+  C7     131795 calls  gold: R-EX-1,R-MASK-1,R-QUARTER-1  agent_a: R-EX-1,R-MASK-1,R-QUARTER-1  agent_b: R-EX-1,R-MASK-1,R-QUARTER-1
+      G-MASK: mask_card("717102860011") -> "XXXXXXXX0011"  (4846 failing calls, replay confirmed)
+      G-QUARTER: mask_card("717102860011") -> "XXXXXXXX0011"  (3228 failing calls, replay confirmed)
+  C8     132023 calls  gold: R-EX-1,R-RET-1  agent_a: R-EX-1,R-RET-1  agent_b: R-EX-1,R-IN-1,R-IN-2,R-RET-1
+      G-RET: mask_card("051000811656") -> returned something else  (5037 failing calls, replay confirmed)
+  C9     131295 calls  gold: R-QUARTER-1  agent_a: R-QUARTER-1  agent_b: R-QUARTER-1
+      G-QUARTER: mask_card("010025402016") -> "********2016"  (2622 failing calls, replay confirmed)
+== 3. Where the AI implementations disagree
+   answer key
+  [conflict] ['R-LAST4-1', 'R-QUARTER-1', 'R-RET-1']: mask_card("219011401821")
+      haiku  "*********821"   broken: {'gold': ['G-LAST4'], 'agent_a': ['PA-LAST4-1'], 'agent_b': ['PB-LAST4-1']}
+      sonnet "*********821"   broken: {'gold': ['G-LAST4'], 'agent_a': ['PA-LAST4-1'], 'agent_b': ['PB-LAST4-1']}
+      opus   "*********821"   broken: {'gold': ['G-LAST4'], 'agent_a': ['PA-LAST4-1'], 'agent_b': ['PB-LAST4-1']}
+      ref    "********1821"   broken: {'gold': ['G-QUARTER'], 'agent_a': ['PA-QUARTER-1'], 'agent_b': ['PB-QUARTER-1']}
+== 4. The tests each model wrote, against every implementation (tests failing / run)
+  haiku  haiku:0/38 sonnet:0/38 opus:0/38 ref:5/38 C1:13/38 C2:6/38 C3:7/38 C4:6/38 C5:11/38 C6:6/38 C7:17/38 C8:17/38 C9:5/38
+  sonnet haiku:4/146 sonnet:0/146 opus:0/146 ref:29/146 C1:56/146 C2:32/146 C3:37/146 C4:37/146 C5:40/146 C6:42/146 C7:56/146 C8:56/146 C9:29/146
+  opus   haiku:3/119 sonnet:1/119 opus:0/119 ref:17/119 C1:45/119 C2:23/119 C3:27/119 C4:22/119 C5:47/119 C6:27/119 C7:45/119 C8:45/119 C9:16/119
+   planted bugs: requirements FCP flags (gold), and tests of each model that fail beyond the reference
+  C1: the Luhn check doubles every second digit from the left, which is wrong for an even number of digits; planted ['R-RET-1', 'R-ERR-1']; FCP ['R-ERR-1', 'R-QUARTER-1', 'R-RET-1']; tests {'haiku': 8, 'sonnet': 27, 'opus': 28}
+  C2: digits are recognized with str.isdigit, which also accepts a superscript two; planted ['R-ERR-1']; FCP ['R-ERR-1', 'R-LAST4-1', 'R-QUARTER-1']; tests {'haiku': 1, 'sonnet': 3, 'opus': 6}
+  C3: the last four characters stay, instead of the last four digits; planted ['R-LAST4-1']; FCP ['R-LAST4-1', 'R-QUARTER-1']; tests {'haiku': 2, 'sonnet': 8, 'opus': 11}
+  C4: a 19-digit number is rejected; planted ['R-RET-1']; FCP ['R-RET-1']; tests {'haiku': 1, 'sonnet': 8, 'opus': 5}
+  C5: hyphens are rejected; planted ['R-RET-1']; FCP ['R-QUARTER-1', 'R-RET-1']; tests {'haiku': 6, 'sonnet': 11, 'opus': 30}
+  C6: the number is stripped of surrounding whitespace first, so a tab is accepted and a leading space shortens the result; planted ['R-ERR-1', 'R-SEP-1']; FCP ['R-LAST4-1', 'R-MASK-1', 'R-SEP-1']; tests {'haiku': 1, 'sonnet': 13, 'opus': 10}
+  C7: digits are hidden with X instead of *; planted ['R-MASK-1']; FCP ['R-MASK-1']; tests {'haiku': 12, 'sonnet': 27, 'opus': 28}
+  C8: the masked characters are returned as a list; planted ['R-RET-1']; FCP ['R-QUARTER-1', 'R-RET-1']; tests {'haiku': 12, 'sonnet': 27, 'opus': 28}
+  C9: the last four digits are found with a regular expression; the same behaviour, written differently; planted []; FCP -; tests {'haiku': 0, 'sonnet': 0, 'opus': 0}
+== 5. Mutants: observable, killed per reading, survivors
+  haiku  39/43 observable; killed gold:39 agent_a:39 agent_b:39
+  sonnet 40/44 observable; killed gold:40 agent_a:40 agent_b:40
+  opus   39/43 observable; killed gold:39 agent_a:39 agent_b:39
+  ref    38/40 observable; killed gold:38 agent_a:38 agent_b:38
+== 6. False assurance on the AI implementations (requirement violated under gold, but certified)
+  violations 3; naive (own tests pass) certifies 3; FCP certifies 0; FCP certified 9/21 cells
+total 20542.9s
+EXIT mask 0

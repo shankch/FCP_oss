@@ -1,0 +1,161 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # the three calls of the prompt's examples
+  ex1: 'arr == [1, 2, 3, 5, 4, 7, 9, 6]'
+  ex2: 'arr == [1, 2, 3, 4, 3, 2, 2]'
+  ex3: 'arr == [1, 2, 3, 2, 1]'
+
+properties:
+  - id: RV-EX-1
+    req: R-EX-1
+    expr: 'ex1 -> (outcome == 0 && changes == 4) || outcome == 2'
+    note: >-
+      Literal reading of `smallest_change([1,2,3,5,4,7,9,6]) == 4`: the call returns a
+      value that compares equal to 4. Reading given for R-RES-1 "the minimum number"
+      (taken here as instructed, not the more natural one): any numeric value equal to
+      the count passes, e.g. the float 4.0. The trace records a returned float as
+      outcome 2 and does not keep its value, so outcome 2 is allowed as a whole. This
+      lets through other values in outcome 2 too (a string, None, a negative number).
+      An exception (outcome 1) makes the comparison fail and is excluded. Reading given
+      for R-RES-1 "find" (taken as instructed): R-RES-1 does not constrain the return
+      value. The example itself still compares the call's value, so it is formalized
+      on the return value.
+  - id: RV-EX-2
+    req: R-EX-2
+    expr: 'ex2 -> (outcome == 0 && changes == 1) || outcome == 2'
+    note: >-
+      Literal reading of `smallest_change([1, 2, 3, 4, 3, 2, 2]) == 1`: the call returns
+      a value that compares equal to 1. Reading given for R-RES-1 "the minimum number"
+      (taken as instructed): any numeric value equal to 1 passes, e.g. 1.0. That is
+      outcome 2, whose value the trace does not keep, so outcome 2 is allowed as a
+      whole (an over-approximation). An exception (outcome 1) is excluded. Reading given
+      for R-RES-1 "find" (taken as instructed): R-RES-1 leaves the return value free,
+      but this example compares the call's value, so it constrains the return value.
+  - id: RV-EX-3
+    req: R-EX-3
+    expr: 'ex3 -> (outcome == 0 && changes == 0) || outcome == 2'
+    note: >-
+      Literal reading of `smallest_change([1, 2, 3, 2, 1]) == 0`: the call returns a
+      value that compares equal to 0. Reading given for R-RES-1 "the minimum number"
+      (taken as instructed): any numeric value equal to 0 passes, e.g. 0.0. That is
+      outcome 2, whose value the trace does not keep, so outcome 2 is allowed as a
+      whole (an over-approximation; it also admits None or a string, which are not
+      == 0). An exception (outcome 1) is excluded. Reading given for R-RES-1 "find"
+      (taken as instructed): R-RES-1 leaves the return value free, but this example
+      compares the call's value, so it constrains the return value.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'ex1 && ((outcome == 0 && changes == 4) || outcome == 2)'
+    note: >-
+      The example call must be possible and can end as the example states. Same
+      readings as RV-EX-1: a numeric value equal to 4 (such as 4.0, outcome 2) counts.
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'ex2 && ((outcome == 0 && changes == 1) || outcome == 2)'
+    note: >-
+      The example call must be possible and can end as the example states. Same
+      readings as RV-EX-2: a numeric value equal to 1 (such as 1.0, outcome 2) counts.
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'ex3 && ((outcome == 0 && changes == 0) || outcome == 2)'
+    note: >-
+      The example call must be possible and can end as the example states. Same
+      readings as RV-EX-3: a numeric value equal to 0 (such as 0.0, outcome 2) counts.
+
+dont_cares:
+  - id: RV-IN-EMPTY-O
+    req: R-IN-1
+    signal: outcome
+    when: 'len(arr) == 0'
+    note: >-
+      Reading given for R-IN-1 "an array arr of integers" (taken as instructed, not
+      the more natural one): only non-empty arrays are covered, and the behaviour for
+      [] is unspecified (don't care). So how a call on [] ends is left free. Reading
+      given for "an array arr" (taken as instructed): arr may be any sequence of
+      integers (list, tuple, array.array, ...), and the function must accept all of
+      them. The adapter only ever passes lists, so the trace cannot observe whether
+      tuples and other sequences are accepted. That part is not formalized. Integer
+      elements need no assumption, because every list in the trace holds integers
+      0 to 15.
+  - id: RV-IN-EMPTY-V
+    req: R-IN-1
+    signal: changes
+    when: 'len(arr) == 0 && outcome == 0'
+    note: >-
+      Reading given for R-IN-1 "an array arr of integers" (taken as instructed): the
+      behaviour for [] is unspecified (don't care), so a returned integer for [] is
+      left free. When outcome is not 0, frame rule F-ZERO already sets changes to 0.
+      Reading given for "an array arr" (taken as instructed): any sequence type must be
+      accepted. The trace only passes lists, so that part is not observable here.
+  - id: RV-RES-O
+    req: R-RES-1
+    signal: outcome
+    when: 'len(arr) != 0 && !ex1 && !ex2 && !ex3'
+    note: >-
+      Reading given for R-RES-1 "find" (taken as instructed, not the more natural
+      one): the function computes and outputs (e.g. prints) the minimum number, and
+      its return value is not constrained. Printed output is not part of the trace,
+      and printing does not require the call to end normally afterwards, so R-RES-1
+      leaves how the call ends free. Reading given for "the minimum number" (taken as
+      instructed): any numeric value equal to the count passes. That only matters for
+      the printed value, which the trace does not see. R-DEF-1 (textual palindrome,
+      the reading given) and R-DEF-2 feed only this unobservable value. The three
+      example calls are left out of this item because R-EX-1..3 constrain them. [] is
+      left out because R-IN-1 already leaves it free.
+  - id: RV-RES-V
+    req: R-RES-1
+    signal: changes
+    when: 'len(arr) != 0 && !ex1 && !ex2 && !ex3 && outcome == 0'
+    note: >-
+      Reading given for R-RES-1 "find" (taken as instructed): the minimum number is
+      output (e.g. printed), and the return value is not constrained. So the returned
+      integer is left free on every non-empty call except the three examples, which
+      R-EX-1..3 constrain. Reading given for "the minimum number" (taken as
+      instructed): any numeric value equal to the count passes, which is not
+      observable for a value that is only printed. When outcome is not 0, frame rule
+      F-ZERO already sets changes to 0.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      The deliverable form (a complete Python function named smallest_change with one
+      parameter arr) is not a property of the call trace. The adapter's function
+      binding in design.yaml realizes it (name smallest_change, single argument arr).
+      A missing or misnamed function shows up only as calls ending in outcome 1, which
+      the example properties RV-EX-1..3 already reject.
+  - req: R-DEF-1
+    reason: >-
+      Definition. It is used only by R-RES-1. Reading given for "read the same
+      backwards and forwards" (taken as instructed, not the more natural one):
+      textually, the written form of the array (its concatenated decimal digits) reads
+      the same reversed, so [10, 1], written 101, is palindromic. Under the reading
+      given for R-RES-1 "find", the minimum that depends on this definition is only
+      output (e.g. printed), never returned, so no signal of the trace depends on it
+      (see RV-RES-O, RV-RES-V). It is left as text, and no unused macro is added.
+  - req: R-DEF-2
+    reason: >-
+      Definition. It is used only by R-RES-1, whose result is not observable in the
+      trace under the reading given for "find" (see RV-RES-O, RV-RES-V). Reading taken
+      for "any other element": an element may be changed to any integer value
+      (reading 1, the decomposer's wording). Together with the textual palindrome
+      reading of R-DEF-1, this makes the minimum for [1,2,3,5,4,7,9,6] equal 1, not 4:
+      changing the first element to 697453 gives 6974532354796, a palindrome. That
+      conflicts with example R-EX-1. It is reported, not repaired.
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO (`outcome != 0 -> changes == 0`). It holds by construction and
+      is added to every formalization set from design.yaml, so it is not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: 'an array arr', reading: 2}
+  - {req: R-IN-1, phrase: 'an array arr of integers', reading: 2}
+  - {req: R-RES-1, phrase: 'find', reading: 2}
+  - {req: R-RES-1, phrase: 'the minimum number', reading: 2}
+  - {req: R-DEF-1, phrase: 'read the same backwards and forwards', reading: 2}
+  - {req: R-DEF-2, phrase: 'any other element', reading: 1}

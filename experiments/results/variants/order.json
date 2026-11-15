@@ -1,0 +1,398 @@
+{
+ "task": "order",
+ "readers": {
+  "variant1": {
+   "k": 1,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-UNDO-1",
+     "phrase": "refund the charge ... and release the stock",
+     "reading": 1,
+     "text": "in either order"
+    },
+    {
+     "req": "R-UNDO-1",
+     "phrase": "if the customer was charged ... if it was reserved",
+     "reading": 1,
+     "text": "only then - no refund or release when there is nothing to undo"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-UNDO-1",
+     "phrase": "refund the charge ... and release the stock",
+     "reading": 1
+    },
+    {
+     "req": "R-UNDO-1",
+     "phrase": "if the customer was charged ... if it was reserved",
+     "reading": 1
+    }
+   ],
+   "pairs": {
+    "agent_a|variant1": {
+     "seconds": 11,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-4": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ARGS-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-STEPS-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 10,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "lines": [
+         "[order_id=1048574, sku=65535, qty=255, amount=2097151]",
+         "payments.charge(1048575, 2097151) -> answer 3"
+        ]
+       }
+      },
+      "R-ORDER-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ONCE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-RET-1": {
+       "plain": "A-WEAKER",
+       "bounded": 10,
+       "context": "EQUIVALENT"
+      },
+      "R-STOP-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-UNDO-1": {
+       "plain": "A-WEAKER",
+       "bounded": 10,
+       "context": "EQUIVALENT"
+      },
+      "R-LIMIT-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      }
+     },
+     "under": {
+      "assumptions": "EQUIVALENT",
+      "engine": "47a823a",
+      "seconds": 0
+     }
+    },
+    "agent_b|variant1": {
+     "seconds": 11,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-4": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ARGS-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-STEPS-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 10,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "lines": [
+         "[order_id=1048575, sku=65534, qty=1, amount=2]",
+         "(no call)",
+         "returns False"
+        ]
+       }
+      },
+      "R-ORDER-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ONCE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-RET-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 10,
+       "context": "EQUIVALENT"
+      },
+      "R-STOP-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-UNDO-1": {
+       "plain": "A-WEAKER",
+       "bounded": 10,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "lines": [
+         "[order_id=1048575, sku=65535, qty=1, amount=1]",
+         "inventory.reserve(65535, 1) -> \"error\"",
+         "inventory.release(65535, 1)"
+        ]
+       }
+      },
+      "R-LIMIT-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      }
+     },
+     "under": {
+      "assumptions": "EQUIVALENT",
+      "engine": "47a823a",
+      "seconds": 0
+     }
+    }
+   }
+  },
+  "variant2": {
+   "k": 2,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-UNDO-1",
+     "phrase": "refund the charge ... and release the stock",
+     "reading": 2,
+     "text": "the refund before the release, as written (the reverse of the steps)"
+    },
+    {
+     "req": "R-UNDO-1",
+     "phrase": "if the customer was charged ... if it was reserved",
+     "reading": 2,
+     "text": "at least then - a refund or release with nothing to undo is not ruled out"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-UNDO-1",
+     "phrase": "refund the charge ... and release the stock",
+     "reading": 2
+    },
+    {
+     "req": "R-UNDO-1",
+     "phrase": "if the customer was charged ... if it was reserved",
+     "reading": 2
+    }
+   ],
+   "pairs": {
+    "agent_a|variant2": {
+     "seconds": 9,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-4": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ARGS-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-STEPS-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ORDER-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ONCE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-STOP-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-UNDO-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 10,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "lines": [
+         "[order_id=1048575, sku=65535, qty=1, amount=16961]",
+         "inventory.reserve(65535, 1) -> \"ok\"",
+         "inventory.release(65535, 1)",
+         "shipping.book(1048574) -> \"ok\"",
+         "inventory.reserve(65535, 0) -> \"refused\"",
+         "inventory.reserve(65534, 0) -> answer 3"
+        ]
+       },
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, sku=65535, qty=1, amount=475712]",
+         "inventory.release(65535, 1)",
+         "shipping.book(1048574) -> \"ok\"",
+         "payments.charge(1048575, 1524289) -> \"ok\"",
+         "inventory.reserve(65535, 1) -> \"ok\"",
+         "shipping.book(1048574) -> \"ok\"",
+         "inventory.release(65535, 0)",
+         "inventory.release(65535, 1)"
+        ]
+       }
+      },
+      "R-LIMIT-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      }
+     },
+     "under": {
+      "assumptions": "EQUIVALENT",
+      "engine": "47a823a",
+      "seconds": 0
+     }
+    },
+    "agent_b|variant2": {
+     "seconds": 12,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-4": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ARGS-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-STEPS-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "EQUIVALENT"
+      },
+      "R-ORDER-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ONCE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-RET-1": {
+       "plain": "A-WEAKER",
+       "bounded": 10,
+       "context": "EQUIVALENT"
+      },
+      "R-STOP-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-UNDO-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 10,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "lines": [
+         "[order_id=1048575, sku=65535, qty=1, amount=1524288]",
+         "payments.charge(1048575, 1524288) -> answer 3",
+         "payments.charge(1048575, 1524288) -> \"ok\"",
+         "inventory.reserve(65535, 0) -> \"ok\"",
+         "inventory.release(65535, 1)",
+         "payments.refund(1048575, 1524288)"
+        ]
+       },
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, sku=65535, qty=1, amount=2]",
+         "inventory.reserve(65535, 1) -> \"ok\"",
+         "returns True"
+        ]
+       }
+      },
+      "R-LIMIT-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      }
+     },
+     "under": {
+      "assumptions": "EQUIVALENT",
+      "engine": "47a823a",
+      "seconds": 0
+     }
+    }
+   }
+  }
+ },
+ "settings": {
+  "jobs": 2,
+  "bit_jobs": 1
+ }
+}

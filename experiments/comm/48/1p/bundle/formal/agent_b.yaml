@@ -1,0 +1,108 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate is memoryless (frame.md: every cycle is one
+# independent call), so the model needs no ghost state: it is a combinational
+# function of the call.
+#   outcome: always 0, the call returns True or False (R-CHK-1).
+#   result:  not determined by the prompt, whose docstring stops after "is a"
+#            (R-CHK-2, R-CHK-3: dont_cares). It still reports a property of
+#            the given string, so a repeated string gets the same answer.
+defs:
+  spec_outcome: "0"
+  returned: "outcome == spec_outcome"
+  repeat: "text == prev(text) && returned && prev(returned)"
+
+properties:
+  - id: RB-CHK1-BOOL
+    req: R-CHK-1
+    pattern: invariant
+    args: {cond: "outcome == spec_outcome"}
+    note: >-
+      Ambiguity "Checks if": reading 1 taken, the answer is a bool. Every call
+      finishes and returns True or False: it raises nothing, does not hang
+      (outcome 1) and returns no other type (outcome 2). The literal reading of
+      "Checks if" is a predicate; readings 2 and 3 would allow outcome 2 or 1.
+
+  - id: RB-CHK2-REPEAT
+    req: R-CHK-2
+    pattern: implies
+    args: {trigger: "repeat && prev(result)", cond: "result"}
+    note: >-
+      The prompt does not say which property is checked, but whatever it is,
+      it is a property of the given string. A string answered True has the
+      property (by R-CHK-3) and so must be answered True again (R-CHK-2).
+      Only consecutive calls can be compared in past-time FCP-PL; the checker
+      orders calls freely, so this covers any pair of calls. With R-CHK-3's
+      half (RB-CHK3-REPEAT) the answer is a function of text alone.
+
+  - id: RB-CHK3-REPEAT
+    req: R-CHK-3
+    pattern: implies
+    args: {trigger: "repeat && !prev(result)", cond: "!result"}
+    note: >-
+      The False half of RB-CHK2-REPEAT. A string answered False lacks the
+      property (by R-CHK-2) and so must be answered False again (R-CHK-3).
+      No particular answer is required for any string (reading 3 of "is a").
+
+dont_cares:
+  - id: RB-CHK2-FREE
+    req: R-CHK-2
+    signal: result
+    when: "returned"
+    note: >-
+      Ambiguity "is a": reading 3 taken. The docstring stops after "is a" and
+      the text states no property. "Palindrome" (readings 1 and 2) is not in
+      the prompt, and choosing it would repair the specification, so when
+      True must be returned is left open. Ambiguity "given string": reading 1
+      taken, the empty string is judged like every other string; under reading
+      3 this changes nothing. The only constraint on result is the repeat rule
+      RB-CHK2-REPEAT. Under reading 1 the property would be
+      result == all(i < len(text): text[i] == text[len(text) - 1 - i]).
+
+  - id: RB-CHK3-FREE
+    req: R-CHK-3
+    signal: result
+    when: "returned"
+    note: >-
+      Ambiguity "is a": reading 3 taken, as for RB-CHK2-FREE. The text states
+      no property, so when False must be returned is left open, apart from
+      the repeat rule RB-CHK3-REPEAT. Ambiguity "given string": reading 1
+      taken (the empty string is not special).
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: what the deliverable is (a completed function body), not
+      a property of a call. Ambiguity "Complete this function": reading 1
+      taken, the body is written and the given signature and truncated
+      docstring are left as they are. No property is chosen to complete the
+      docstring (see RB-CHK2-FREE).
+  - req: R-IF-1
+    reason: >-
+      Definition of the interface (name candidate, one parameter text, no
+      return type). The design.yaml function binding realizes it, and FCP-PL
+      cannot name a function or a parameter.
+  - req: R-IF-2
+    reason: >-
+      Ambiguity "text: str": reading 1 taken, a type hint only: callers always
+      pass a str. The interface encoding realizes it, because the text signal
+      carries only strings (frame.md: calls with other arguments are not part
+      of the trace), so no assumption on the inputs is left to state. Reading
+      2 (reject other types) could not be observed in the trace either.
+  - req: R-FR-1
+    reason: >-
+      A frame rule of the adapter (frame.md: "part of every formalization set
+      and need not be restated"); design.yaml frame item F-ZERO states it
+      exactly: outcome != 0 -> !result.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-TASK-1, phrase: "Complete this function", reading: 1}
+  - {req: R-IF-2, phrase: "text: str", reading: 1}
+  - {req: R-CHK-1, phrase: "Checks if", reading: 1}
+  - {req: R-CHK-2, phrase: "is a", reading: 3}
+  - {req: R-CHK-2, phrase: "given string", reading: 1}
+  - {req: R-CHK-3, phrase: "is a", reading: 3}
+  - {req: R-CHK-3, phrase: "given string", reading: 1}

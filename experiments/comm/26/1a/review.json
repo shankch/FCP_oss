@@ -1,0 +1,285 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 41,
+    "checked": 41,
+    "seconds": 3.64
+   },
+   "open": {
+    "open": {},
+    "checked": 27
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 52,
+    "checked": 52,
+    "seconds": 9.02
+   },
+   "open": {
+    "open": {},
+    "checked": 37,
+    "left_out": [
+     "RB-FN-1",
+     "RB-FN-2"
+    ],
+    "rejected": 8
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FN-1": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-FN-2": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-FN-3": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-IO-2": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FN-1",
+   "phrase": "K",
+   "taken": 1,
+   "variant": 2,
+   "text": "K stands for 'more than once', as in the usual remove-duplicates task: every value occurring 2 or more times is removed"
+  },
+  {
+   "req": "R-FN-1",
+   "phrase": "occur K time(s)",
+   "taken": 1,
+   "variant": 2,
+   "text": "at least K times: a value occurring K or more times is removed"
+  },
+  {
+   "req": "R-FN-1",
+   "phrase": "time(s)",
+   "taken": 2,
+   "variant": 1,
+   "text": "contradiction with the example R-EX-1: the singular 'time' admits K = 1, and removing values that occur once turns [1, 2, 3, 2, 4] into [2, 2], not [1, 3, 4]; likewise any K of 3 or more removes nothing and returns [1, 2, 3, 2, 4]"
+  },
+  {
+   "req": "R-FN-1",
+   "phrase": "remove",
+   "taken": 1,
+   "variant": 2,
+   "text": "delete those elements from the argument numbers in place (and return that list)"
+  },
+  {
+   "req": "R-FN-2",
+   "phrase": "K",
+   "taken": 1,
+   "variant": 2,
+   "text": "K stands for 'more than once', as in the usual remove-duplicates task: every value occurring 2 or more times is removed"
+  },
+  {
+   "req": "R-FN-2",
+   "phrase": "occur K time(s)",
+   "taken": 1,
+   "variant": 2,
+   "text": "at least K times: a value occurring more than K times is also removed, so only values occurring fewer than K times are kept"
+  },
+  {
+   "req": "R-FN-2",
+   "phrase": "remove all elements that occur K time(s)",
+   "taken": 1,
+   "variant": 2,
+   "text": "the request only obliges the removal of those elements and states nothing about keeping the others"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "[1, 3, 4]",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradiction with R-FN-1: for any other K the rule gives a different result, e.g. K = 1 (allowed by the singular 'time') gives [2, 2] and K of 3 or more gives [1, 2, 3, 2, 4]"
+  }
+ ],
+ "depends": {
+  "R-EX-1": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": null
+  },
+  "R-FN-1": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": null
+  },
+  "R-FN-2": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate([0]) -> []"
+   ]
+  },
+  "R-FN-3": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": null
+  },
+  "R-IO-2": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": null
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-EX-1",
+    "R-FN-1",
+    "R-FN-2",
+    "R-FN-3",
+    "R-IO-2"
+   ],
+   "calls": [
+    "candidate([0]) -> []"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-FN-2"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1",
+    "R-FN-2"
+   ],
+   "calls": [],
+   "question": "\"K\" can mean: K is 2, the only value consistent with the example (2 occurs twice and is removed; 1, 3 and 4 occur once and are kept) / K stands for 'more than once', as in the usual remove-duplicates task: every value occurring 2 or more times is removed / K is an undefined placeholder (possibly a missing second parameter of candidate, which takes only numbers), so the removal count is not determined by the request. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"occur K time(s)\" can mean: exactly K times: a value occurring more than K times is kept / at least K times: a value occurring K or more times is removed. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"time(s)\" can mean: contradiction with the example R-EX-1: the singular 'time' admits K = 1, and removing values that occur once turns [1, 2, 3, 2, 4] into [2, 2], not [1, 3, 4]; likewise any K of 3 or more removes nothing and returns [1, 2, 3, 2, 4] / no contradiction: K = 2 (exactly or at least), which gives [1, 3, 4] as in the example; '(s)' is only template wording. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"remove\" can mean: return a new list without those elements, leaving the argument numbers unchanged / delete those elements from the argument numbers in place (and return that list). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-2"
+   ],
+   "calls": [],
+   "question": "\"occur K time(s)\" can mean: exactly K times: every occurrence of a value occurring more than K times is kept / at least K times: a value occurring more than K times is also removed, so only values occurring fewer than K times are kept. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-2"
+   ],
+   "calls": [],
+   "question": "\"remove all elements that occur K time(s)\" can mean: only the elements occurring K times are removed; every other element is kept with all of its occurrences (implied by 'elements left' and by the example) / the request only obliges the removal of those elements and states nothing about keeping the others. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"[1, 3, 4]\" can mean: consistent with R-FN-1 and R-FN-2 only if K = 2 (exactly 2 or at least 2); the example does not decide between 'exactly' and 'at least' / contradiction with R-FN-1: for any other K the rule gives a different result, e.g. K = 1 (allowed by the singular 'time') gives [2, 2] and K of 3 or more gives [1, 2, 3, 2, 4]. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the conflicts and open choices of agent_b: these searches leave out RB-FN-1, RB-FN-2 (rules stated for every value of a variable); 8 calls with two answers that break them are not reported",
+  "the comparison of agent_a and agent_b",
+  "the comparison of agent_a and agent_b: it cannot assume RB-FN-1, RB-FN-2 (rules stated for every value of a variable), and requirements they bear on stay undecided",
+  "the comparison of agent_a and variant",
+  "the comparison of agent_b and variant",
+  "the comparison of agent_b and variant: it cannot assume RB-FN-1, RB-FN-2 (rules stated for every value of a variable), and requirements they bear on stay undecided"
+ ]
+}

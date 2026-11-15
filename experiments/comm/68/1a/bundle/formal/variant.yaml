@@ -1,0 +1,232 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # some node of arr has an even value (the value R-SEL-2 selects exists)
+  has_even: 'any(i < len(arr): arr[i] % 2 == 0)'
+  # the smallest even value of arr occurs at two or more positions
+  even_tie: 'any(i < len(arr): arr[i] % 2 == 0 && all(k < len(arr): arr[k] % 2 == 0 -> arr[i] <= arr[k]) && count(j < len(arr): arr[j] == arr[i]) >= 2)'
+
+assumptions:
+  - id: RV-IN-2
+    req: R-IN-2
+    expr: 'len(arr) >= 1'
+    note: >-
+      Variant readings. '1 <= nodes.length' is read as: arr is never empty, so
+      the empty-array behaviour of R-EMP-1 and Example 3 (R-EX-3) is outside
+      the input domain (don't care); this contradicts R-EMP-1 and R-EX-3.
+      'nodes.length' is read as the number of nodes of the whole tree, of
+      which arr is only one branch. The whole tree is not an argument of the
+      function, so the lower bound is stated on arr, as the first reading
+      says. The upper bound 10000 is R-IN-3.
+
+properties:
+  - id: RV-SEL-1
+    req: R-SEL-1
+    expr: 'outcome == 2'
+    note: >-
+      Variant readings. 'pluck one of the nodes' is read as: a node is plucked
+      and returned for every input; this contradicts R-EMP-1 and R-EMP-2,
+      which return [] for some inputs, so the property is unconditional.
+      'return it' is read as: return the plucked node itself, i.e. its value
+      alone (an integer, not a list); this contradicts R-OUT-1. The adapter
+      reports a returned value that is not a list as outcome 2 and does not
+      record it, so the property is that every call ends with outcome 2 and
+      the value itself is not observable. 'pluck' is read as: remove the node
+      from arr (mutate the argument) and return it; arr is an input and its
+      contents after the call are not recorded, so the removal is not
+      formalized. R-DEF-1 is read as arr encoding tree structure that affects
+      which node may be plucked; no such rule is given and the plucked node
+      is not observable here, so it changes nothing in this item.
+  - id: RV-SEL-2
+    req: R-SEL-2
+    pattern: implies
+    args:
+      trigger: 'outcome == 0 && len(plucked) != 0'
+      cond: 'plucked[0] % 2 == 0 && plucked[0] in arr && all(j < len(arr): arr[j] % 2 == 0 -> plucked[0] <= arr[j])'
+    note: >-
+      Variant reading: 'the node with the value' is the node with the
+      smallest even value (a qualifier seems to have been dropped). The
+      plucked node's value is visible only when the call returns a list, so
+      the rule is stated on the first element of a returned list. Under the
+      readings taken for R-SEL-1 ('return it': the value alone) and R-OUT-1
+      (the result is the node itself, not a list), no list is ever returned
+      (RV-SEL-1 requires outcome 2), so in this set the item is vacuous; the
+      choice of node is then not observable. R-DEF-1 is read as arr encoding
+      tree structure that affects which node may be plucked, but the text
+      gives no such rule, so the choice ranges over every position of arr.
+      R-IN-4 is read as arr holding node objects; the adapter passes their
+      values, so arr[j] stands for node.value of node j.
+  - id: RV-SEL-3
+    req: R-SEL-3
+    pattern: implies
+    args:
+      trigger: 'even_tie'
+      cond: 'outcome == 2'
+    note: >-
+      Variant readings. 'the value' is the smallest even value of arr (as in
+      R-SEL-2 reading 1), so the trigger is that the smallest even value
+      occurs at two or more positions. 'return the node' is read as: return
+      the node's value alone, an integer, which the adapter reports as
+      outcome 2. All tied nodes have the same value, so returning the value
+      alone makes the smallest-index rule unobservable in the result; it
+      would show only in which node is removed from arr ('pluck' read as
+      mutating arr, R-SEL-1), which the interface does not record. Only the
+      form of the result is therefore formalized. R-DEF-1 is read as arr
+      encoding tree structure that affects which node may be plucked; no rule
+      is given, so positions in arr are used. R-IN-4 is read as arr holding
+      node objects; arr[i] stands for node.value of node i.
+  - id: RV-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args:
+      trigger: 'has_even'
+      cond: 'outcome == 2'
+    note: >-
+      Variant reading: 'returned in a list, [ value, its index ]' is read as:
+      the result is the node itself as R-SEL-1 says ('return it', read as the
+      value alone); the list form contradicts R-SEL-1. A returned integer is
+      outcome 2 for the adapter, without its value. 'When a node is plucked'
+      is taken as: some node has the value R-SEL-2 selects (an even value,
+      R-SEL-2 reading 1). R-IN-4 is read as arr holding node objects; arr[i]
+      stands for node.value of node i.
+  - id: RV-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args:
+      trigger: 'outcome == 0 && len(plucked) == 2'
+      cond: 'plucked[1] >= 1 && plucked[1] <= len(arr) && plucked[0] == arr[plucked[1] - 1]'
+    note: >-
+      Variant reading: 'its index' is the 1-based position of the plucked
+      node in arr, so the second element i of a returned [value, index] list
+      lies in 1 .. len(arr) and the first element equals arr[i - 1]. This
+      contradicts Examples 1 and 4 (R-EX-1, R-EX-4), whose second elements
+      are 0-based positions. Under the reading taken for R-OUT-1 (the result
+      is the node itself, not a list) no list is returned (RV-SEL-1 requires
+      outcome 2), so in this set the item is vacuous. R-DEF-1 is read as arr
+      encoding tree structure; no rule is given, so the position in arr is
+      used. R-IN-4 is read as arr holding node objects; arr[k] stands for
+      node.value of node k.
+  - id: RV-EMP-1
+    req: R-EMP-1
+    pattern: implies
+    args:
+      trigger: 'len(arr) == 0'
+      cond: 'outcome == 0 && len(plucked) == 0'
+    note: >-
+      Variant readings. 'the given array is empty' is read as: an empty arr
+      is excluded by the constraint 1 <= nodes.length (RV-IN-2), so this
+      clause is vacuous; this contradicts R-IN-2. The clause is stated as
+      written and never triggers under RV-IN-2. 'return []' is read as: R-SEL-1
+      requires a node to be plucked for every input, contradicting this
+      clause; RV-SEL-1 (outcome 2 always) would conflict with it on an empty
+      arr, which RV-IN-2 excludes.
+  - id: RV-EMP-2
+    req: R-EMP-2
+    pattern: implies
+    args:
+      trigger: '!has_even'
+      cond: 'outcome == 0 && len(plucked) == 0'
+    note: >-
+      Variant reading: 'no values' means no node of arr has the value R-SEL-2
+      selects (no even value, R-SEL-2 reading 1), so a non-empty arr can
+      return []. This contradicts R-SEL-1 read as 'a node is plucked and
+      returned for every input': RV-SEL-1 and this item conflict on every arr
+      with no even element, e.g. [1]. R-IN-4 is read as arr holding node
+      objects; arr[i] stands for node.value of node i.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'arr == [4, 2, 3] && outcome == 0 && plucked == [2, 1]'
+    note: >-
+      Example 1 as written (no flagged phrase). Under the readings taken for
+      R-SEL-1 ('return it': the value alone) and R-OUT-1 (the result is the
+      node itself) the list [2, 1] cannot be returned (RV-SEL-1, RV-OUT-1
+      require outcome 2), and under the 1-based reading of 'its index'
+      (R-OUT-2) index 1 names arr[0] = 4, not 2 (RV-OUT-2). The scenario is
+      kept as stated, so these contradictions stay visible.
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'arr == [5, 0, 3, 0, 4, 2] && outcome == 0 && plucked == [0, 1]'
+    note: >-
+      Example 4 as written (no flagged phrase). Under the readings taken for
+      R-SEL-1 ('return it': the value alone), R-SEL-3 ('return the node': the
+      value alone) and R-OUT-1 (the result is the node itself) the list
+      [0, 1] cannot be returned (RV-SEL-1, RV-SEL-3, RV-OUT-1 require outcome
+      2), and under the 1-based reading of 'its index' (R-OUT-2) index 1
+      names arr[0] = 5, not 0 (RV-OUT-2). The scenario is kept as stated, so
+      these contradictions stay visible.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a Python function pluck(arr). The
+      design's function section realizes it; there is no behaviour to state.
+  - req: R-DEF-1
+    reason: >-
+      Variant reading 2: 'a branch of a tree' means arr encodes tree structure
+      (e.g. parent/child positions) that affects which node may be plucked.
+      The text gives neither the encoding nor the rule, so no constraint can
+      be stated; the selection items (RV-SEL-2, RV-SEL-3, RV-OUT-2) use
+      positions in arr and say so in their notes.
+  - req: R-IN-1
+    reason: >-
+      Holds by construction of the interface: arr carries unsigned integers
+      (0 to 65,535) and calls with negative numbers are not part of the trace
+      (FRAME, Inputs). Note that R-IN-4 is read here as arr holding node
+      objects, which conflicts with 'integer nodes'; the adapter passes
+      integers either way.
+  - req: R-IN-3
+    reason: >-
+      Variant reading 2: 'nodes.length' is the number of nodes of the whole
+      tree, of which arr is only one branch. The whole tree is not an
+      argument, so the bound 10000 cannot be stated on the interface; its
+      only consequence for arr, len(arr) <= 10000, holds by construction (arr
+      has at most 8 elements).
+  - req: R-IN-4
+    reason: >-
+      Variant reading 2: 'node.value' is a value attribute of a node object,
+      i.e. arr holds node objects rather than integers. The list adapter
+      passes a list of integers and cannot represent node objects; the items
+      that read arr take arr[i] as the value of node i (see their notes). The
+      bound 0 <= node.value then holds by construction (unsigned slots).
+  - req: R-EX-2
+    reason: >-
+      Variant reading 2: 'Output: [2, 1]' is in error; under the
+      smallest-value reading of R-SEL-2 the answer would be [1, 0]
+      (contradicts R-SEL-2 reading 2). The example is therefore not taken as
+      a behaviour that must be possible. The corrected answer [1, 0] is not
+      stated by the text and is not formalized either; it would also
+      contradict the smallest-even reading taken for R-SEL-2 here (RV-SEL-2),
+      under which [2, 1] is the expected value.
+  - req: R-EX-3
+    reason: >-
+      Variant reading 2: 'Input: []' is excluded by the constraint
+      1 <= nodes.length (RV-IN-2); this contradicts R-IN-2. The empty list is
+      outside the input domain (don't care, as the R-IN-2 reading says), so
+      no behaviour on it must be possible and no scenario is stated.
+  - req: R-FR-1
+    reason: Frame rule of the adapter, added to every set by construction.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-DEF-1, phrase: 'a branch of a tree', reading: 2}
+  - {req: R-IN-2, phrase: '1 <= nodes.length', reading: 1}
+  - {req: R-IN-2, phrase: 'nodes.length', reading: 2}
+  - {req: R-IN-3, phrase: 'nodes.length', reading: 2}
+  - {req: R-IN-4, phrase: 'node.value', reading: 2}
+  - {req: R-SEL-1, phrase: 'pluck one of the nodes', reading: 1}
+  - {req: R-SEL-1, phrase: 'return it', reading: 1}
+  - {req: R-SEL-1, phrase: 'pluck', reading: 2}
+  - {req: R-SEL-2, phrase: 'the node with the value', reading: 1}
+  - {req: R-SEL-3, phrase: 'the value', reading: 1}
+  - {req: R-SEL-3, phrase: 'return the node', reading: 1}
+  - {req: R-OUT-1, phrase: 'returned in a list, [ value, its index ]', reading: 2}
+  - {req: R-OUT-2, phrase: 'its index', reading: 2}
+  - {req: R-EMP-1, phrase: 'the given array is empty', reading: 2}
+  - {req: R-EMP-1, phrase: 'return []', reading: 2}
+  - {req: R-EMP-2, phrase: 'no values', reading: 1}
+  - {req: R-EX-2, phrase: 'Output: [2, 1]', reading: 2}
+  - {req: R-EX-3, phrase: 'Input: []', reading: 2}

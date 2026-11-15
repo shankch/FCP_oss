@@ -1,0 +1,207 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # number of "(" and of ")" in the argument; every other character is ignored
+  nopen: 'count(i < len(brackets): brackets[i] == "(")'
+  nclose: 'count(i < len(brackets): brackets[i] == ")")'
+  # "every opening bracket has a corresponding closing bracket", read as
+  # order-insensitive matching with full balance: only the counts matter
+  balanced: 'nopen == nclose'
+  # the call returned a truthy value: the bool True, or a value of another
+  # type (outcome 2), whose truthiness the trace does not record
+  truthy: '(outcome == 0 && result) || outcome == 2'
+  # this call and the previous one (any call) have the same sequence of "("
+  # and ")" characters, in order, once every other character is removed
+  same_brackets: >-
+    count(i < len(brackets): brackets[i] == "(" || brackets[i] == ")")
+    == count(i < len(prev(brackets)): prev(brackets)[i] == "(" || prev(brackets)[i] == ")")
+    && all(r < 16:
+         (any(i < len(brackets): brackets[i] == ")"
+              && count(j < i: brackets[j] == "(" || brackets[j] == ")") == r))
+         <-> (any(i < len(prev(brackets)): prev(brackets)[i] == ")"
+              && count(j < i: prev(brackets)[j] == "(" || prev(brackets)[j] == ")") == r)))
+
+properties:
+  - id: RV-IN-1
+    req: R-IN-1
+    pattern: implies
+    args:
+      trigger: 'len(brackets) > 0 && len(prev(brackets)) > 0 && same_brackets'
+      cond: 'outcome == prev(outcome) && result == prev(result)'
+    note: >-
+      Variant reading, taken as instructed even where another reading seems
+      more natural: "a string of "(" and ")"" is read as a description of
+      the characters that matter (reading 2), not as a precondition. Other
+      characters may occur and are ignored, so the answer (outcome and
+      result) depends only on the "(" and ")" characters, in order. Stated
+      as a relation between any two calls (prev is any call, frame.md) whose
+      bracket subsequences are equal. "a string of" is read as a non-empty
+      string (reading 2), so the empty string, whose answer is
+      unconstrained, is excluded from both calls.
+
+  - id: RV-RES-1
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: 'len(brackets) > 0 && balanced'
+      cond: 'truthy'
+    note: >-
+      Variant readings, taken as instructed even where another reading
+      seems more natural. "corresponding closing bracket": order-insensitive
+      matching (reading 2), each "(" paired one-to-one with some ")"
+      anywhere, so only the counts matter. "every opening bracket has": full
+      balance (reading 1), no ")" may be left without a "(". Combined, the
+      condition is count("(") == count(")"); the order-sensitive part of
+      reading 1 (running count never negative) has no force once matching
+      ignores order. "return True": any truthy value (reading 2), encoded as
+      a returned True or a returned value of another type (outcome 2); the
+      trace does not record the truthiness of such a value, so falsy
+      non-bools (None, 0, "") are admitted as well. From R-IN-1 (readings
+      2 and 2): characters other than "(" and ")" are ignored, and the
+      empty string is excluded. CONTRADICTION with R-EX-4: ")(()" has two
+      "(" and two ")", so this item requires a truthy answer, while RV-EX-4
+      requires False.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'brackets == "("'
+      cond: 'outcome == 0 && !result'
+    note: The doctest output False is the bool False.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'brackets == "()"'
+      cond: 'outcome == 0 && result'
+    note: >-
+      The doctest output True is the bool True, which is stricter here than
+      the truthy reading taken for R-RES-1.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'brackets == "(()())"'
+      cond: 'outcome == 0 && result'
+    note: >-
+      The doctest output True is the bool True, which is stricter here than
+      the truthy reading taken for R-RES-1.
+
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: 'brackets == ")(()"'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      Variant reading, taken as instructed even where another reading seems
+      more natural (reading 2): this example CONTRADICTS R-RES-1 under
+      order-insensitive matching. ")(()" has two "(" and two ")", so both
+      "(" can be paired and RV-RES-1 requires a truthy answer, while the
+      doctest requires the bool False. Formalized literally; the
+      contradiction is not repaired.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'brackets == "(" && outcome == 0 && !result'
+    note: The documented call correct_bracketing("(") returning False is possible.
+
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'brackets == "()" && outcome == 0 && result'
+    note: The documented call correct_bracketing("()") returning True is possible.
+
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'brackets == "(()())" && outcome == 0 && result'
+    note: The documented call correct_bracketing("(()())") returning True is possible.
+
+  - id: RV-EX-4-S
+    req: R-EX-4
+    cover: 'brackets == ")(()" && outcome == 0 && !result'
+    note: >-
+      Variant reading (reading 2), taken as instructed: under
+      order-insensitive matching this behaviour contradicts RV-RES-1, so the
+      cover is expected to be unreachable under the full set, exposing the
+      contradiction between R-RES-1 and R-EX-4.
+
+dont_cares:
+  - id: RV-IN-1-D-RES
+    req: R-IN-1
+    signal: result
+    when: 'len(brackets) == 0'
+    note: >-
+      Variant reading, taken as instructed even where another reading seems
+      more natural: "a string of" means a non-empty string (reading 2), so
+      the answer for the empty string is unconstrained.
+
+  - id: RV-IN-1-D-OUT
+    req: R-IN-1
+    signal: outcome
+    when: 'len(brackets) == 0'
+    note: >-
+      Variant reading, taken as instructed even where another reading seems
+      more natural: "a string of" means a non-empty string (reading 2), so
+      the answer for the empty string, including how the call ends, is
+      unconstrained.
+
+  - id: RV-RES-2-D-RES
+    req: R-RES-2
+    signal: result
+    when: 'len(brackets) > 0 && !balanced'
+    note: >-
+      Variant readings, taken as instructed even where another reading
+      seems more natural. "return True if": one direction only (reading 2),
+      so the sentence does not say what is returned when the condition
+      fails; the requirement text's "returns False" is not stated by the
+      prompt and is not formalized as a guarantee. The condition uses
+      "corresponding closing bracket" as order-insensitive matching
+      (reading 2) and "every opening bracket has" as full balance (reading
+      1): it fails exactly when count("(") != count(")"). Only the examples
+      pin some of these strings to False (RV-EX-1), and RV-IN-1 carries
+      those answers to strings with the same brackets.
+
+  - id: RV-RES-2-D-OUT
+    req: R-RES-2
+    signal: outcome
+    when: 'len(brackets) > 0 && !balanced'
+    note: >-
+      Variant readings, taken as instructed even where another reading
+      seems more natural: "return True if" one direction only (reading 2),
+      "corresponding closing bracket" order-insensitive (reading 2), "every
+      opening bracket has" full balance (reading 1). How the call ends is
+      not stated when count("(") != count(")"), apart from the examples.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a body for the given function. It
+      is not a property of the calls; the adapter (design.yaml function
+      section) runs the completed function.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name and the single str parameter are fixed by the
+      adapter's function section and the brackets input signal; a trace of
+      calls cannot express the signature.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, part of every formalization set by
+      construction (frame.md: "need not be restated").
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: 'a string of "(" and ")"', reading: 2}
+  - {req: R-IN-1, phrase: 'a string of', reading: 2}
+  - {req: R-RES-1, phrase: 'corresponding closing bracket', reading: 2}
+  - {req: R-RES-1, phrase: 'every opening bracket has', reading: 1}
+  - {req: R-RES-1, phrase: 'return True', reading: 2}
+  - {req: R-RES-2, phrase: 'return True if', reading: 2}
+  - {req: R-RES-2, phrase: 'corresponding closing bracket', reading: 2}
+  - {req: R-RES-2, phrase: 'every opening bracket has', reading: 1}
+  - {req: R-EX-4, phrase: 'correct_bracketing(")(()") False', reading: 2}

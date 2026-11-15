@@ -1,0 +1,150 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. frame.md: every cycle is one independent call and the
+# function keeps no state, so a cross-cycle ghost would model nothing. The
+# reference model is instead the left-to-right scan of the argument within the
+# call: depth(k) = number of '(' minus number of ')' in brackets[0..k].
+defs:
+  # R-IN-1: every character is '(' or ')' (the empty string included)
+  only_brackets: 'all(i < len(brackets): brackets[i] == "(" || brackets[i] == ")")'
+  # R-DEF-1: scanning left to right, the number of ')' never exceeds the
+  # number of '(' seen so far (depth never negative) ...
+  depth_ok: 'all(k < len(brackets): sum(j < k + 1: (brackets[j] == "(") - (brackets[j] == ")")) >= 0)'
+  # ... and both numbers are equal at the end (final depth 0)
+  depth_end: 'sum(j < len(brackets): (brackets[j] == "(") - (brackets[j] == ")"))'
+  correct: 'depth_ok && depth_end == 0'
+  returned_true: 'outcome == 0 && result'
+  returned_false: 'outcome == 0 && !result'
+
+assumptions:
+  - id: RB-IN-1
+    req: R-IN-1
+    expr: 'only_brackets'
+    note: >-
+      Literal reading of 'brackets is a string of "(" and ")"': a precondition
+      on the caller that every character is '(' or ')'; the empty string is a
+      string of zero such characters and is allowed. Since calls are
+      independent, every guarantee below is also guarded by only_brackets,
+      as R-RET-1, R-RES-1 and R-RES-2 state ("for an argument allowed by
+      R-IN-1"), so an out-of-contract call never weakens a later call.
+
+dont_cares:
+  - id: RB-IN-DC-OUTCOME
+    req: R-IN-1
+    signal: outcome
+    when: '!only_brackets'
+    note: The behaviour on any other argument is not specified (R-IN-1); it may return anything or raise.
+  - id: RB-IN-DC-RESULT
+    req: R-IN-1
+    signal: result
+    when: '!only_brackets'
+    note: The returned value on an out-of-contract argument is not specified (R-IN-1); only the frame rule F-ZERO still applies.
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: 'only_brackets'
+      cond: 'outcome == 0'
+    note: >-
+      Every in-contract call returns True or False (outcome 0): no exception,
+      no non-bool value, no failure to finish. Taken from the example's
+      answer False and the adjective reading of the name; the spec gives no
+      return annotation.
+
+  - id: RB-RES-1
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: 'only_brackets && correct'
+      cond: 'returned_true'
+    note: >-
+      Correctly bracketed (properly nested: depth never negative, final depth
+      0) in-contract arguments return True. The meaning comes only from the
+      function name; the docstring never says what is returned.
+
+  - id: RB-RES-2
+    req: R-RES-2
+    pattern: implies
+    args:
+      trigger: 'only_brackets && !correct'
+      cond: 'returned_false'
+    note: >-
+      In-contract arguments that are not correctly bracketed return False.
+      The meaning comes only from the function name.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'brackets == "("'
+      cond: 'returned_false'
+    note: >-
+      The doctest is an assertion about that call: correct_bracketing("(")
+      evaluates to False (a bool), so it must hold on every such call, not
+      just be possible. Not guarded by only_brackets: the doctest names the
+      argument outright, and "(" is in contract anyway.
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: 'brackets == "(" && returned_false'
+    note: The documented call returns False.
+  - id: RB-RES-1-S-EMPTY
+    req: R-RES-1
+    cover: 'len(brackets) == 0 && returned_true'
+    note: >-
+      Under R-DEF-1 the empty string is correctly bracketed (no ')' ever
+      exceeds the '(' seen, and 0 == 0 at the end), so "" returns True.
+  - id: RB-RES-1-S-NESTED
+    req: R-RES-1
+    cover: 'brackets == "(()())" && returned_true'
+    note: A nested, balanced argument returns True.
+  - id: RB-RES-2-S-ORDER
+    req: R-RES-2
+    cover: 'brackets == ")(" && returned_false'
+    note: Equal counts in the wrong order are not correctly bracketed (proper nesting is required).
+  - id: RB-RES-2-S-EXTRA-CLOSE
+    req: R-RES-2
+    cover: 'brackets == "())" && returned_false'
+    note: An unmatched ')' makes the argument not correctly bracketed.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: concerns the form of the deliverable (a Python body
+      completing the given signature and docstring), which is not observable
+      in the trace of calls.
+  - req: R-IF-1
+    reason: >-
+      Interface definition (name correct_bracketing, one str parameter
+      brackets). It is realized by the function section of design.yaml,
+      which maps the argument to the input signal brackets; it is not a
+      property of the calls.
+  - req: R-DEF-1
+    reason: >-
+      Definition, not a behaviour. Realized by the defs depth_ok, depth_end
+      and correct (the left-to-right scan model), used by RB-RES-1 and
+      RB-RES-2.
+    covered_by: [RB-RES-1, RB-RES-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; F-ZERO in design.yaml is added to
+      every formalization set and frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-TASK-1, phrase: 'Complete this function', reading: 1}
+  - {req: R-IN-1, phrase: 'a string of "(" and ")"', reading: 1}
+  - {req: R-IN-1, phrase: 'brackets is a string of "(" and ")"', reading: 1}
+  - {req: R-RET-1, phrase: 'False', reading: 1}
+  - {req: R-RET-1, phrase: 'correct_bracketing', reading: 1}
+  - {req: R-DEF-1, phrase: 'correct_bracketing', reading: 1}
+  - {req: R-DEF-1, phrase: 'correct_bracketing(brackets: str)', reading: 1}
+  - {req: R-RES-1, phrase: 'correct_bracketing', reading: 1}
+  - {req: R-RES-2, phrase: 'correct_bracketing', reading: 1}
+  - {req: R-EX-1, phrase: 'correct_bracketing("(")', reading: 1}
+  - {req: R-EX-1, phrase: 'False', reading: 1}

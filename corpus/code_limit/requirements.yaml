@@ -1,0 +1,96 @@
+fcp: '0.1'
+design: code_limit
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def allow(self, user: int, now: int) -> bool:'
+  text: The class, its method, the arguments and the result type.
+  kind: definition
+  lines:
+  - 6
+- id: R-RET-1
+  doc: SPEC
+  quote: It returns True if the attempt may go ahead.
+  text: For a valid call, allow returns True or False.
+  kind: guarantee
+  lines:
+  - 8
+- id: R-IN-1
+  doc: SPEC
+  quote: with the customer's id `user`, from 0 to 1,000, and the time `now` in whole seconds.
+  text: The range of user, and the meaning of now.
+  kind: definition
+  lines:
+  - 8
+- id: R-ERR-1
+  doc: SPEC
+  quote: Raise ValueError if `user` is out of range, or if `now` is earlier than in the previous call.
+  text: A call with user above 1,000, or with now earlier than in the previous call, raises ValueError.
+  kind: guarantee
+  ambiguity:
+  - phrase: the previous call
+    readings:
+    - the previous call of any customer
+    - the previous call that did not raise
+  lines:
+  - 12
+- id: R-MAX-1
+  doc: SPEC
+  quote: Allow at most 3 attempts per customer in any 60 seconds.
+  text: No customer has more than 3 allowed attempts within any 60 seconds.
+  kind: guarantee
+  ambiguity:
+  - phrase: in any 60 seconds
+    readings:
+    - attempts at t and t + 60 are within 60 seconds of each other
+    - attempts at t and t + 60 are not
+  lines:
+  - 13
+- id: R-COUNT-1
+  doc: SPEC
+  quote: Attempts that are not allowed do not count.
+  text: Only allowed attempts count toward the limit.
+  kind: guarantee
+  lines:
+  - 14
+- id: R-FAIR-1
+  doc: SPEC
+  quote: Allow an attempt whenever the customer had fewer than 3 allowed attempts in the last 60 seconds.
+  text: An attempt is allowed if the customer had fewer than 3 allowed attempts in the 60 seconds before it.
+  kind: guarantee
+  lines:
+  - 15
+- id: R-PEN-1
+  doc: SPEC
+  quote: After a denied attempt, deny that customer's attempts for the next 10 seconds.
+  text: For 10 seconds after a denied attempt, every attempt of the same customer is denied.
+  kind: guarantee
+  ambiguity:
+  - phrase: for the next 10 seconds
+    readings:
+    - an attempt exactly 10 seconds after the denial is denied
+    - it is not
+  - phrase: After a denied attempt
+    readings:
+    - every denied attempt, including one denied by this rule, starts 10 seconds
+    - only an attempt denied by the limit starts 10 seconds
+  lines:
+  - 16
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: attempts by one customer at 0, 1 and 2 seconds are allowed, and a fourth at 3 seconds is denied.'
+  text: Attempts by one customer at 0, 1 and 2 seconds are allowed, and one at 3 seconds is denied.
+  kind: scenario
+  lines:
+  - 18
+- id: R-FR-1
+  doc: FRAME
+  quote: '`allowed` is false unless `outcome` is 0.'
+  text: The result is false unless the call returned True or False.
+  kind: definition
+  lines:
+  - 40

@@ -1,0 +1,171 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. vowels_count keeps no state between calls (frame.md),
+# so the reference model is a set of combinational defs over the argument s,
+# and every output (outcome, count) is checked against them.
+defs:
+  # R-IN-1: s represents a single word: a non-empty string of ASCII letters.
+  is_word: 'len(s) >= 1 && all(i < len(s): isalpha(s[i]))'
+  # R-VOW-1: occurrences of a, e, i, o, u in either case (ASCII only, exhaustive list).
+  n_aeiou: 'count(i < len(s): s[i] == "a" || s[i] == "e" || s[i] == "i" || s[i] == "o" || s[i] == "u" || s[i] == "A" || s[i] == "E" || s[i] == "I" || s[i] == "O" || s[i] == "U")'
+  # R-VOW-2 / R-VOW-3: the last character of s is y or Y.
+  y_end: 'len(s) >= 1 && (s[len(s) - 1] == "y" || s[len(s) - 1] == "Y")'
+  # R-VOW-3: occurrences of y or Y that are not the last character of s.
+  n_y_inner: 'count(i < len(s) - 1: s[i] == "y" || s[i] == "Y")'
+  # R-CNT-1: the reference result, vowel occurrences counted with repetition.
+  n_vowels: 'n_aeiou + y_end'
+
+assumptions:
+  - id: RB-IN-1
+    req: R-IN-1
+    pattern: invariant
+    args: {cond: is_word}
+    note: >-
+      Reading 1 of both flagged phrases: callers pass exactly one word, read as a
+      non-empty string of ASCII letters (no spaces, digits, punctuation or
+      non-ASCII characters). The properties below are also guarded by is_word, so
+      each call is judged on its own; for any other string the outputs are free
+      (RB-IN-1-DC-COUNT, RB-IN-1-DC-OUTCOME).
+
+dont_cares:
+  - id: RB-IN-1-DC-COUNT
+    req: R-IN-1
+    signal: count
+    when: '!is_word'
+    note: Reading 1 of "a string representing a word" says the result for a string that is not a word is a don't-care.
+  - id: RB-IN-1-DC-OUTCOME
+    req: R-IN-1
+    signal: outcome
+    when: '!is_word'
+    note: >-
+      Reading 1 of "a string representing a word": for a string that is not a word
+      the call may also raise or return something other than an integer.
+
+properties:
+  - id: RB-CNT-1
+    req: R-CNT-1
+    pattern: implies
+    args:
+      trigger: is_word
+      cond: 'outcome == 0 && count == n_vowels'
+    note: >-
+      For a word, the call returns an integer (outcome 0) equal to the number of
+      vowel occurrences counted with repetition (reading 1 of "the number of
+      vowels"): every a/e/i/o/u in either case, plus one if the last character is
+      y or Y. At most 32 characters, so the result always fits in count.
+
+  - id: RB-VOW-1
+    req: R-VOW-1
+    pattern: implies
+    args:
+      trigger: 'is_word && n_y_inner == 0 && !y_end'
+      cond: 'outcome == 0 && count == n_aeiou'
+    note: >-
+      Isolates the a/e/i/o/u rule on words with no y at all: each a, e, i, o, u
+      counts once and no other character counts. "'a', 'e', 'i', 'o', 'u'" is
+      taken case-insensitively (reading 2). The literal quoted characters are
+      lowercase, and the lowercase-only reading (reading 1) contradicts the
+      example vowels_count("ACEDY") == 3 (R-EX-2); reading 2 is the only reading
+      under which both the definition and the example hold. The list is taken as
+      exhaustive (reading 1 of "Vowels in this case are"): accented Latin-1
+      letters are not vowels. Under RB-IN-1 they are outside the input domain
+      anyway.
+
+  - id: RB-VOW-2
+    req: R-VOW-2
+    pattern: implies
+    args:
+      trigger: 'is_word && y_end && n_y_inner == 0'
+      cond: 'outcome == 0 && count == n_aeiou + 1'
+    note: >-
+      Isolates the final-y rule on words whose only y is the last character: the
+      final y adds exactly one. 'y' is matched in either case (reading 2), as the
+      example "ACEDY" needs; the lowercase-only reading (reading 1) contradicts
+      R-EX-2.
+
+  - id: RB-VOW-3
+    req: R-VOW-3
+    pattern: implies
+    args:
+      trigger: 'is_word && n_y_inner >= 1'
+      cond: 'outcome == 0 && count == n_aeiou + y_end'
+    note: >-
+      On words that contain a y or Y before the last character, those y's add
+      nothing: the result is the a/e/i/o/u count plus one only if the last
+      character is y/Y. "At the end of the given word" is read as the last
+      character of the whole string s (reading 1); under RB-IN-1 s is one word of
+      letters, so readings 2 and 3 coincide with it on the input domain. 'y' is
+      matched in either case (reading 2).
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 's == "abcde"'
+      cond: 'outcome == 0 && count == 2'
+    note: The doctest states the result of this call, so it is also a guarantee for this input (the function is deterministic).
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 's == "ACEDY"'
+      cond: 'outcome == 0 && count == 3'
+    note: >-
+      The example is taken as authoritative (reading 1): A and E count and the
+      final uppercase Y counts. Under a lowercase-only reading of R-VOW-1 and
+      R-VOW-2 the definitions would give 0 here, so the specification contradicts
+      itself under that reading.
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: 's == "abcde" && outcome == 0 && count == 2'
+    note: The docstring example vowels_count("abcde") returning 2 must be possible.
+
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: 's == "ACEDY" && outcome == 0 && count == 3'
+    note: The docstring example vowels_count("ACEDY") returning 3 must be possible.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: whether the response is a complete implementation rather
+      than a stub is not a property of one call. Its observable consequence, that
+      every call on a word returns the correct integer, is checked by the
+      properties listed.
+    covered_by: [RB-CNT-1]
+  - req: R-TASK-2
+    reason: >-
+      Definition of the interface: the adapter (design.yaml, function section)
+      binds the calls to vowels_count with the single argument s. A function with
+      another name or signature cannot be called, so every call would end with
+      outcome 1, which RB-CNT-1 forbids for words.
+    covered_by: [RB-CNT-1]
+  - req: R-TASK-3
+    reason: >-
+      Non-functional: test cases in the response are not observable in the trace
+      of calls of vowels_count. Reading 1 (an instruction to add test cases) is
+      taken as the literal one, though the text sits in a FIX string constant,
+      which suggests reading 2. Either reading leaves the call trace unconstrained.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter (frame.md). It holds by construction and
+      is added to every formalization set as F-ZERO in design.yaml, so it is not
+      restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-TASK-3, phrase: "Add more test cases.", reading: 1}
+  - {req: R-IN-1, phrase: "a string representing a word", reading: 1}
+  - {req: R-IN-1, phrase: "a word", reading: 1}
+  - {req: R-CNT-1, phrase: "the number of vowels", reading: 1}
+  - {req: R-VOW-1, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 2}
+  - {req: R-VOW-1, phrase: "Vowels in this case are", reading: 1}
+  - {req: R-VOW-2, phrase: "'y'", reading: 2}
+  - {req: R-VOW-3, phrase: "at the end of the given word", reading: 1}
+  - {req: R-VOW-3, phrase: "'y'", reading: 2}
+  - {req: R-EX-2, phrase: 'vowels_count("ACEDY")', reading: 1}

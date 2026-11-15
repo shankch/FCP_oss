@@ -1,0 +1,3 @@
+31 requirements anchored (21 guarantees, 4 assumptions, 4 definitions, 1 dont_care, 1 non-functional); 27 carry ambiguity entries.
+Contradictions: (1) "at most one command accepted per cycle" vs "both c0_ready and c1_ready may be high" after reset (two acceptances in one cycle); (2) the 12-cycle acceptance bound looks infeasible under the worst-case environment (estimate ~20 cycles; flagged as potential because BRG-1 timing was not in the workspace); (3) hold/stability obligations vs reset (no stated exception).
+Gaps: BRG-1 referenced but not provided; initial arbitration priority after reset; undefined "pending"/"accepted first"; transaction boundary; cycle-counting conventions; write-response rdata; spurious transfers not excluded; reset values of several outputs.

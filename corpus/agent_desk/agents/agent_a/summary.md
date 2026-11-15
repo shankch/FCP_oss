@@ -1,0 +1,1 @@
+11 items (10 properties, 1 scenario), rigids o and a, no ghosts. Found the R-HUM-1/R-END-1 conflict (and R-BIG-1 handoff vs R-END-1) itself. Workspace defect: design.yaml cites frame.md at the root but the workspace had it under docs/; the agent added a symlink (fixed since in fcp.agents.workspace).

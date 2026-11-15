@@ -1,0 +1,115 @@
+{
+ "readings": {
+  "gold|agent_a": {
+   "R-ARGS-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-ERR-1": {
+    "plain": "A-STRONGER",
+    "context": "EQUIVALENT"
+   },
+   "R-LIMIT-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-ONCE-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-ORDER-1": {
+    "plain": "A-WEAKER",
+    "context": "EQUIVALENT"
+   },
+   "R-RET-1": {
+    "plain": "INCOMPARABLE",
+    "context": "A-WEAKER",
+    "a_not_b": {
+     "lines": [
+      "[order_id=1048575, sku=65535, qty=64, amount=983617]",
+      "inventory.reserve(65535, 64) -> \"ok\"",
+      "payments.charge(1048575, 983617) -> \"ok\"",
+      "(no call)",
+      "shipping.book(1048575) -> \"ok\"",
+      "returns True"
+     ]
+    }
+   },
+   "R-STEPS-1": {
+    "plain": "A-WEAKER",
+    "context": "EQUIVALENT"
+   },
+   "R-STOP-1": {
+    "plain": "INCOMPARABLE",
+    "context": "EQUIVALENT"
+   },
+   "R-UNDO-1": {
+    "plain": "INCOMPARABLE",
+    "context": "A-STRONGER",
+    "b_not_a": {
+     "lines": [
+      "[order_id=1048575, sku=65535, qty=1, amount=1]",
+      "inventory.reserve(65535, 1) -> \"ok\"",
+      "inventory.release(65535, 1)"
+     ]
+    }
+   }
+  },
+  "gold|agent_b": {
+   "R-ARGS-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-ERR-1": {
+    "plain": "A-STRONGER",
+    "context": "EQUIVALENT"
+   },
+   "R-LIMIT-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-ONCE-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-ORDER-1": {
+    "plain": "A-WEAKER",
+    "context": "EQUIVALENT"
+   },
+   "R-RET-1": {
+    "plain": "INCOMPARABLE",
+    "context": "A-WEAKER",
+    "a_not_b": {
+     "lines": [
+      "[order_id=1048575, sku=65535, qty=1, amount=1]",
+      "inventory.reserve(65535, 1) -> \"ok\"",
+      "(no call)",
+      "payments.charge(1048575, 1) -> \"ok\"",
+      "shipping.book(1048575) -> \"ok\"",
+      "returns True"
+     ]
+    }
+   },
+   "R-STEPS-1": {
+    "plain": "A-WEAKER",
+    "context": "EQUIVALENT"
+   },
+   "R-STOP-1": {
+    "plain": "INCOMPARABLE",
+    "context": "EQUIVALENT"
+   },
+   "R-UNDO-1": {
+    "plain": "INCOMPARABLE",
+    "context": "A-STRONGER",
+    "b_not_a": {
+     "lines": [
+      "[order_id=1048575, sku=65535, qty=1, amount=1]",
+      "inventory.release(65535, 1)",
+      "inventory.reserve(65535, 1) -> \"error\""
+     ]
+    }
+   }
+  }
+ },
+ "seconds": 0.3
+}

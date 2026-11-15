@@ -1,0 +1,7616 @@
+{
+ "benchmark": "HumanEvalComm (Wu and Fard, ACM TOSEM 2025), HumanEvalComm_v2.jsonl at commit 794a91f",
+ "model": "opus",
+ "tasks": [
+  "HumanEval/26",
+  "HumanEval/41",
+  "HumanEval/46",
+  "HumanEval/48",
+  "HumanEval/49",
+  "HumanEval/59",
+  "HumanEval/61",
+  "HumanEval/64",
+  "HumanEval/68",
+  "HumanEval/72",
+  "HumanEval/73",
+  "HumanEval/80",
+  "HumanEval/88",
+  "HumanEval/124",
+  "HumanEval/134",
+  "HumanEval/138",
+  "HumanEval/144",
+  "HumanEval/154",
+  "HumanEval/159",
+  "HumanEval/163"
+ ],
+ "by_variant": {
+  "original": {
+   "prompts": 20,
+   "reviewed": 19,
+   "fcp_asks": 19,
+   "fcp_asks_with_a_call": 13,
+   "fcp_questions": 136,
+   "fcp_questions_with_a_call": 19,
+   "fcp_asks_hard": 3,
+   "fcp_questions_hard": 6,
+   "per_prompt": {
+    "hard": {
+     "mean": 0.32,
+     "median": 0,
+     "max": 2
+    },
+    "depends": {
+     "mean": 0.68,
+     "median": 1,
+     "max": 1
+    },
+    "ambiguity": {
+     "mean": 5.89,
+     "median": 6,
+     "max": 12
+    },
+    "undecided": {
+     "mean": 0.26,
+     "median": 0,
+     "max": 3
+    },
+    "all": {
+     "mean": 7.16,
+     "median": 7,
+     "max": 13
+    }
+   },
+   "kinds": {
+    "undecided": 5,
+    "ambiguity": 112,
+    "depends": 13,
+    "open": 1,
+    "readings": 4,
+    "scenario": 1
+   },
+   "b1_asks": 0,
+   "b2_asks": 1,
+   "b0_code": 20
+  },
+  "1a": {
+   "prompts": 20,
+   "reviewed": 17,
+   "fcp_asks": 17,
+   "fcp_asks_with_a_call": 16,
+   "fcp_questions": 170,
+   "fcp_questions_with_a_call": 30,
+   "fcp_asks_hard": 9,
+   "fcp_questions_hard": 16,
+   "per_prompt": {
+    "hard": {
+     "mean": 0.94,
+     "median": 1,
+     "max": 3
+    },
+    "depends": {
+     "mean": 0.82,
+     "median": 1,
+     "max": 1
+    },
+    "ambiguity": {
+     "mean": 8,
+     "median": 8,
+     "max": 18
+    },
+    "undecided": {
+     "mean": 0.24,
+     "median": 0,
+     "max": 2
+    },
+    "all": {
+     "mean": 10,
+     "median": 10,
+     "max": 19
+    }
+   },
+   "kinds": {
+    "open": 6,
+    "scenario": 3,
+    "depends": 14,
+    "readings": 1,
+    "ambiguity": 136,
+    "conflict": 6,
+    "undecided": 4
+   },
+   "b1_asks": 9,
+   "b2_asks": 17,
+   "b0_code": 20,
+   "good": {
+    "fcp": 17,
+    "fcp_formal": 15,
+    "fcp_hard": 7,
+    "b1": 9,
+    "b2": 17,
+    "b0": 15
+   },
+   "fair": {
+    "fcp": 0,
+    "fcp_formal": 1,
+    "fcp_hard": 2,
+    "b1": 0,
+    "b2": 0,
+    "b0": 0
+   },
+   "alone_missed": {
+    "b1": {
+     "missed": 9,
+     "fcp": 9,
+     "fcp_formal": 8,
+     "fcp_hard": 3
+    },
+    "b2": {
+     "missed": 2,
+     "fcp": 2,
+     "fcp_formal": 2,
+     "fcp_hard": 0
+    },
+    "b0": {
+     "missed": 4,
+     "fcp": 4,
+     "fcp_formal": 4,
+     "fcp_hard": 0
+    }
+   },
+   "fcp_missed": {
+    "fcp": {
+     "missed": 0,
+     "b1": 0,
+     "b2": 0,
+     "b0": 0
+    },
+    "fcp_formal": {
+     "missed": 2,
+     "b1": 1,
+     "b2": 2,
+     "b0": 2
+    },
+    "fcp_hard": {
+     "missed": 10,
+     "b1": 4,
+     "b2": 8,
+     "b0": 6
+    }
+   }
+  },
+  "1c": {
+   "prompts": 20,
+   "reviewed": 18,
+   "fcp_asks": 18,
+   "fcp_asks_with_a_call": 17,
+   "fcp_questions": 281,
+   "fcp_questions_with_a_call": 98,
+   "fcp_asks_hard": 15,
+   "fcp_questions_hard": 82,
+   "per_prompt": {
+    "hard": {
+     "mean": 4.56,
+     "median": 3.0,
+     "max": 12
+    },
+    "depends": {
+     "mean": 0.89,
+     "median": 1.0,
+     "max": 1
+    },
+    "ambiguity": {
+     "mean": 9.89,
+     "median": 9.5,
+     "max": 22
+    },
+    "undecided": {
+     "mean": 0.28,
+     "median": 0.0,
+     "max": 3
+    },
+    "all": {
+     "mean": 15.61,
+     "median": 14.5,
+     "max": 33
+    }
+   },
+   "kinds": {
+    "depends": 16,
+    "ambiguity": 178,
+    "conflict": 18,
+    "scenario": 59,
+    "open": 2,
+    "readings": 3,
+    "undecided": 5
+   },
+   "b1_asks": 17,
+   "b2_asks": 20,
+   "b0_code": 20,
+   "good": {
+    "fcp": 18,
+    "fcp_formal": 17,
+    "fcp_hard": 14,
+    "b1": 17,
+    "b2": 20,
+    "b0": 19
+   },
+   "fair": {
+    "fcp": 0,
+    "fcp_formal": 0,
+    "fcp_hard": 1,
+    "b1": 0,
+    "b2": 0,
+    "b0": 0
+   },
+   "alone_missed": {
+    "b1": {
+     "missed": 2,
+     "fcp": 2,
+     "fcp_formal": 1,
+     "fcp_hard": 1
+    },
+    "b2": {
+     "missed": 0,
+     "fcp": 0,
+     "fcp_formal": 0,
+     "fcp_hard": 0
+    },
+    "b0": {
+     "missed": 1,
+     "fcp": 1,
+     "fcp_formal": 1,
+     "fcp_hard": 0
+    }
+   },
+   "fcp_missed": {
+    "fcp": {
+     "missed": 0,
+     "b1": 0,
+     "b2": 0,
+     "b0": 0
+    },
+    "fcp_formal": {
+     "missed": 1,
+     "b1": 0,
+     "b2": 1,
+     "b0": 1
+    },
+    "fcp_hard": {
+     "missed": 4,
+     "b1": 3,
+     "b2": 4,
+     "b0": 3
+    }
+   }
+  },
+  "1p": {
+   "prompts": 20,
+   "reviewed": 18,
+   "fcp_asks": 18,
+   "fcp_asks_with_a_call": 17,
+   "fcp_questions": 129,
+   "fcp_questions_with_a_call": 31,
+   "fcp_asks_hard": 10,
+   "fcp_questions_hard": 16,
+   "per_prompt": {
+    "hard": {
+     "mean": 0.89,
+     "median": 1.0,
+     "max": 3
+    },
+    "depends": {
+     "mean": 0.83,
+     "median": 1.0,
+     "max": 1
+    },
+    "ambiguity": {
+     "mean": 5.28,
+     "median": 6.0,
+     "max": 9
+    },
+    "undecided": {
+     "mean": 0.17,
+     "median": 0.0,
+     "max": 2
+    },
+    "all": {
+     "mean": 7.17,
+     "median": 7.0,
+     "max": 12
+    }
+   },
+   "kinds": {
+    "open": 12,
+    "depends": 15,
+    "ambiguity": 95,
+    "undecided": 3,
+    "readings": 2,
+    "conflict": 1,
+    "scenario": 1
+   },
+   "b1_asks": 14,
+   "b2_asks": 19,
+   "b0_code": 20,
+   "good": {
+    "fcp": 17,
+    "fcp_formal": 15,
+    "fcp_hard": 2,
+    "b1": 14,
+    "b2": 19,
+    "b0": 14
+   },
+   "fair": {
+    "fcp": 1,
+    "fcp_formal": 2,
+    "fcp_hard": 8,
+    "b1": 0,
+    "b2": 0,
+    "b0": 1
+   },
+   "alone_missed": {
+    "b1": {
+     "missed": 5,
+     "fcp": 5,
+     "fcp_formal": 5,
+     "fcp_hard": 0
+    },
+    "b2": {
+     "missed": 1,
+     "fcp": 1,
+     "fcp_formal": 1,
+     "fcp_hard": 0
+    },
+    "b0": {
+     "missed": 6,
+     "fcp": 6,
+     "fcp_formal": 5,
+     "fcp_hard": 1
+    }
+   },
+   "fcp_missed": {
+    "fcp": {
+     "missed": 1,
+     "b1": 1,
+     "b2": 1,
+     "b0": 1
+    },
+    "fcp_formal": {
+     "missed": 3,
+     "b1": 3,
+     "b2": 3,
+     "b0": 2
+    },
+    "fcp_hard": {
+     "missed": 16,
+     "b1": 11,
+     "b2": 15,
+     "b0": 11
+    }
+   }
+  }
+ },
+ "rewrites": {
+  "reviewed_and_judged": 53,
+  "good": {
+   "fcp": 52,
+   "fcp_formal": 47,
+   "fcp_hard": 23,
+   "b1": 37,
+   "b2": 50,
+   "b0": 42
+  },
+  "alone_missed": {
+   "b1": {
+    "missed": 16,
+    "fcp": 16,
+    "fcp_formal": 14,
+    "fcp_hard": 4
+   },
+   "b2": {
+    "missed": 3,
+    "fcp": 3,
+    "fcp_formal": 3,
+    "fcp_hard": 0
+   },
+   "b0": {
+    "missed": 11,
+    "fcp": 11,
+    "fcp_formal": 10,
+    "fcp_hard": 1
+   }
+  },
+  "fcp_missed": {
+   "fcp": {
+    "missed": 1,
+    "b1": 1,
+    "b2": 1,
+    "b0": 1
+   },
+   "fcp_formal": {
+    "missed": 6,
+    "b1": 4,
+    "b2": 6,
+    "b0": 5
+   },
+   "fcp_hard": {
+    "missed": 30,
+    "b1": 18,
+    "b2": 27,
+    "b0": 20
+   }
+  },
+  "all": {
+   "judged": 60,
+   "not_reviewed": 7,
+   "good": {
+    "fcp": 52,
+    "fcp_formal": 47,
+    "fcp_hard": 23,
+    "b1": 40,
+    "b2": 56,
+    "b0": 48
+   },
+   "alone_missed": {
+    "b1": {
+     "missed": 20,
+     "fcp": 16,
+     "fcp_formal": 14,
+     "fcp_hard": 4
+    },
+    "b2": {
+     "missed": 4,
+     "fcp": 3,
+     "fcp_formal": 3,
+     "fcp_hard": 0
+    },
+    "b0": {
+     "missed": 12,
+     "fcp": 11,
+     "fcp_formal": 10,
+     "fcp_hard": 1
+    }
+   },
+   "fcp_missed": {
+    "fcp": {
+     "missed": 8,
+     "b1": 4,
+     "b2": 7,
+     "b0": 7
+    },
+    "fcp_formal": {
+     "missed": 13,
+     "b1": 7,
+     "b2": 12,
+     "b0": 11
+    },
+    "fcp_hard": {
+     "missed": 37,
+     "b1": 21,
+     "b2": 33,
+     "b0": 26
+    }
+   }
+  }
+ },
+ "agents": {
+  "failed": [],
+  "lint_errors": [],
+  "check_errors": [
+   "HumanEval/49 1a: TimeoutExpired: Command '['/repo/.tools/oss-cad-suite/bin/yosys', '-q', '-p', 'read -formal mon_agent_a.v harness.v; prep -top fcp_harness; flatten; memory_map; async2sync; chformal -remove; formalff -setundef -clk2ff -ff2anyinit; setundef -undriven -anyseq; opt_clean; dffunmap; write_smt2 -wires model.smt2']' timed out after 300 seconds",
+   "HumanEval/49 1c: TimeoutExpired: Command '['/repo/.tools/oss-cad-suite/bin/yosys', '-q', '-p', 'read -formal mon_agent_a.v harness.v; prep -top fcp_harness; flatten; memory_map; async2sync; chformal -remove; formalff -setundef -clk2ff -ff2anyinit; setundef -undriven -anyseq; opt_clean; dffunmap; write_smt2 -wires model.smt2']' timed out after 300 seconds",
+   "HumanEval/49 1p: TimeoutExpired: Command '['/repo/.tools/oss-cad-suite/bin/yosys', '-q', '-p', 'read -formal mon_agent_a.v harness.v; prep -top fcp_harness; flatten; memory_map; async2sync; chformal -remove; formalff -setundef -clk2ff -ff2anyinit; setundef -undriven -anyseq; opt_clean; dffunmap; write_smt2 -wires model.smt2']' timed out after 300 seconds",
+   "HumanEval/59 original: stopped: more than 8 GB of memory",
+   "HumanEval/59 1a: stopped: more than 8 GB of memory",
+   "HumanEval/59 1c: stopped: more than 8 GB of memory",
+   "HumanEval/59 1p: stopped: more than 8 GB of memory",
+   "HumanEval/144 1a: stopped: more than 8 GB of memory"
+  ],
+  "unsandboxed": [],
+  "seconds": 61491,
+  "cost_usd": 309.78
+ },
+ "check_seconds": 27256,
+ "prompts": [
+  {
+   "task": "HumanEval/46",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 1553,
+    "check": 351
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 104,
+     "cost_usd": 0.5555313,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 122,
+     "cost_usd": 0.515979,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 1015,
+     "cost_usd": 3.3514492000000007,
+     "turns": 34,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 753,
+     "cost_usd": 2.0050174999999997,
+     "turns": 36,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 310,
+     "cost_usd": 1.1541047,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 7.58,
+   "sandboxed": true,
+   "questions": {
+    "undecided": 1,
+    "ambiguity": 6
+   },
+   "formal": 0,
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 6,
+    "undecided": 1
+   },
+   "settled": 5,
+   "requirements": 9,
+   "flagged_phrases": 12,
+   "limits": 1,
+   "third_reader": 12,
+   "unformalized": {
+    "agent_a": [
+     "R-IN-1",
+     "R-IN-2",
+     "R-NF-1",
+     "R-NF-2",
+     "R-SIG-1"
+    ],
+    "agent_b": [
+     "R-IN-1",
+     "R-IN-2",
+     "R-NF-1",
+     "R-NF-2",
+     "R-SIG-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.048,
+   "dry": {
+    "questions": {
+     "open": 1,
+     "depends": 1,
+     "ambiguity": 7
+    },
+    "levels": {
+     "hard": 1,
+     "depends": 1,
+     "ambiguity": 7,
+     "undecided": 0
+    }
+   }
+  },
+  {
+   "task": "HumanEval/46",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 2930,
+    "check": 532
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 135,
+     "cost_usd": 0.6384310999999999,
+     "turns": 21,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 216,
+     "cost_usd": 0.8276676000000002,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 309,
+     "cost_usd": 1.1226528,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 1215,
+     "cost_usd": 4.076959,
+     "turns": 44,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 1364,
+     "cost_usd": 4.942140499999999,
+     "turns": 32,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "stopped: more than 8 GB of memory",
+     "seconds": 10,
+     "why": "stopped by the memory cap before the bound on engine tasks"
+    },
+    {
+     "check": "ok",
+     "seconds": 510,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 11.61,
+   "sandboxed": true,
+   "questions": {
+    "open": 1,
+    "scenario": 1,
+    "depends": 1,
+    "readings": 1,
+    "ambiguity": 6
+   },
+   "formal": 4,
+   "levels": {
+    "hard": 3,
+    "depends": 1,
+    "ambiguity": 6,
+    "undecided": 0
+   },
+   "settled": 4,
+   "requirements": 9,
+   "flagged_phrases": 9,
+   "limits": 2,
+   "third_reader": 6,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-NF-2",
+     "R-TASK-1"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-NF-2",
+     "R-TASK-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.132,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   },
+   "dry": {
+    "questions": {
+     "open": 2,
+     "scenario": 1,
+     "depends": 1,
+     "readings": 1,
+     "ambiguity": 7
+    },
+    "levels": {
+     "hard": 4,
+     "depends": 1,
+     "ambiguity": 7,
+     "undecided": 0
+    },
+    "judge": {
+     "b1": 2,
+     "b2": 2,
+     "b0": 2,
+     "fcp": 2,
+     "fcp_formal": 2
+    }
+   }
+  },
+  {
+   "task": "HumanEval/46",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 1288,
+    "check": 16
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 141,
+     "cost_usd": 0.6958256,
+     "turns": 18,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 131,
+     "cost_usd": 0.5646842,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 261,
+     "cost_usd": 1.048668,
+     "turns": 18,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 664,
+     "cost_usd": 2.0462148000000004,
+     "turns": 39,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 351,
+     "cost_usd": 1.3680198999999997,
+     "turns": 21,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 5.72,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 7
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 7,
+    "undecided": 0
+   },
+   "settled": 4,
+   "requirements": 9,
+   "flagged_phrases": 10,
+   "limits": 0,
+   "third_reader": 10,
+   "unformalized": {
+    "agent_a": [
+     "R-ENV-1",
+     "R-IF-1",
+     "R-NF-1",
+     "R-NF-2",
+     "R-TASK-1"
+    ],
+    "agent_b": [
+     "R-ENV-1",
+     "R-IF-1",
+     "R-NF-1",
+     "R-NF-2",
+     "R-TASK-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.083,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2
+   },
+   "dry": {
+    "questions": {
+     "open": 1,
+     "scenario": 3,
+     "depends": 1,
+     "ambiguity": 6
+    },
+    "levels": {
+     "hard": 4,
+     "depends": 1,
+     "ambiguity": 6,
+     "undecided": 0
+    },
+    "judge": {
+     "b1": 2,
+     "b2": 2,
+     "b0": 2,
+     "fcp": 2,
+     "fcp_formal": 2
+    }
+   }
+  },
+  {
+   "task": "HumanEval/46",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 1428,
+    "check": 4
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 87,
+     "cost_usd": 0.5044621,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 248,
+     "cost_usd": 0.9297891999999999,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 190,
+     "cost_usd": 0.75511,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 188,
+     "cost_usd": 0.7370692999999999,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 902,
+     "cost_usd": 3.7503131,
+     "turns": 48,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 6.68,
+   "sandboxed": true,
+   "questions": {
+    "open": 1,
+    "depends": 1,
+    "ambiguity": 5
+   },
+   "formal": 2,
+   "levels": {
+    "hard": 1,
+    "depends": 1,
+    "ambiguity": 5,
+    "undecided": 0
+   },
+   "settled": 2,
+   "requirements": 5,
+   "flagged_phrases": 9,
+   "limits": 0,
+   "third_reader": 8,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IF-2",
+     "R-NF-1",
+     "R-NF-2"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-NF-1",
+     "R-NF-2"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.058,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 1
+   },
+   "dry": {
+    "questions": {
+     "open": 2,
+     "depends": 1,
+     "readings": 1,
+     "ambiguity": 6
+    },
+    "levels": {
+     "hard": 3,
+     "depends": 1,
+     "ambiguity": 6,
+     "undecided": 0
+    },
+    "judge": {
+     "b1": 2,
+     "b2": 2,
+     "b0": 2,
+     "fcp": 2,
+     "fcp_formal": 2
+    }
+   }
+  },
+  {
+   "task": "HumanEval/138",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 452,
+    "check": 2
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 56,
+     "cost_usd": 0.3819122,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 94,
+     "cost_usd": 0.4340514000000001,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 129,
+     "cost_usd": 0.5720088000000001,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 115,
+     "cost_usd": 0.5202813000000001,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 172,
+     "cost_usd": 0.7064541999999998,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.61,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 7
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 7,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 6,
+   "flagged_phrases": 10,
+   "limits": 0,
+   "third_reader": 9,
+   "unformalized": {
+    "agent_a": [
+     "R-API-2"
+    ],
+    "agent_b": [
+     "R-API-2",
+     "R-FR-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.031,
+   "dry": {
+    "questions": {
+     "depends": 1,
+     "ambiguity": 10
+    },
+    "levels": {
+     "hard": 0,
+     "depends": 1,
+     "ambiguity": 10,
+     "undecided": 0
+    }
+   }
+  },
+  {
+   "task": "HumanEval/138",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 538,
+    "check": 3
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 56,
+     "cost_usd": 0.3888526,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 97,
+     "cost_usd": 0.3667866,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 129,
+     "cost_usd": 0.5683100999999999,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 183,
+     "cost_usd": 0.7283794999999998,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 202,
+     "cost_usd": 0.7721137000000001,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.82,
+   "sandboxed": true,
+   "questions": {
+    "conflict": 2,
+    "depends": 1,
+    "ambiguity": 9
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 9,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 5,
+   "flagged_phrases": 11,
+   "limits": 0,
+   "third_reader": 10,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-2"
+    ],
+    "agent_b": [
+     "R-IF-2"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.06,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 1
+   },
+   "dry": {
+    "questions": {
+     "scenario": 4,
+     "depends": 1,
+     "readings": 2,
+     "ambiguity": 12
+    },
+    "levels": {
+     "hard": 6,
+     "depends": 1,
+     "ambiguity": 12,
+     "undecided": 0
+    },
+    "judge": {
+     "b1": 2,
+     "b2": 2,
+     "b0": 2,
+     "fcp": 2,
+     "fcp_formal": 2
+    }
+   }
+  },
+  {
+   "task": "HumanEval/138",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 387,
+    "check": 3
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 70,
+     "cost_usd": 0.4204399,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 74,
+     "cost_usd": 0.2988866,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 110,
+     "cost_usd": 0.50789,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 108,
+     "cost_usd": 0.49903,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 133,
+     "cost_usd": 0.5702509,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.3,
+   "sandboxed": true,
+   "questions": {
+    "conflict": 3,
+    "depends": 1,
+    "ambiguity": 7
+   },
+   "formal": 4,
+   "levels": {
+    "hard": 3,
+    "depends": 1,
+    "ambiguity": 7,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 6,
+   "flagged_phrases": 8,
+   "limits": 0,
+   "third_reader": 8,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1"
+    ],
+    "agent_b": [
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.05,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   },
+   "dry": {
+    "questions": {
+     "scenario": 6,
+     "depends": 1,
+     "ambiguity": 7
+    },
+    "levels": {
+     "hard": 6,
+     "depends": 1,
+     "ambiguity": 7,
+     "undecided": 0
+    },
+    "judge": {
+     "b1": 2,
+     "b2": 2,
+     "b0": 2,
+     "fcp": 2,
+     "fcp_formal": 2
+    }
+   }
+  },
+  {
+   "task": "HumanEval/138",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 405,
+    "check": 1
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 59,
+     "cost_usd": 0.3863026,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 82,
+     "cost_usd": 0.3824008,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 145,
+     "cost_usd": 0.6095265,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 171,
+     "cost_usd": 0.6614281,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 92,
+     "cost_usd": 0.4375096,
+     "turns": 5,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 2,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 2.48,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 6
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 6,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 4,
+   "flagged_phrases": 9,
+   "limits": 0,
+   "third_reader": 9,
+   "unformalized": {
+    "agent_a": [
+     "R-DOM-1",
+     "R-IF-1",
+     "R-IF-2"
+    ],
+    "agent_b": [
+     "R-DOM-1",
+     "R-IF-2"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.052,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2
+   },
+   "dry": {
+    "questions": {
+     "depends": 1,
+     "ambiguity": 4
+    },
+    "levels": {
+     "hard": 0,
+     "depends": 1,
+     "ambiguity": 4,
+     "undecided": 0
+    },
+    "judge": {
+     "b1": 2,
+     "b2": 2,
+     "b0": 2,
+     "fcp": 2,
+     "fcp_formal": 2
+    }
+   }
+  },
+  {
+   "task": "HumanEval/73",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 580,
+    "check": 8
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 65,
+     "cost_usd": 0.42110220000000004,
+     "turns": 18,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 89,
+     "cost_usd": 0.41078099999999995,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 97,
+     "cost_usd": 0.46280389999999993,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 222,
+     "cost_usd": 0.8270545999999999,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 204,
+     "cost_usd": 0.77522,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.9,
+   "sandboxed": true,
+   "questions": {
+    "ambiguity": 2
+   },
+   "formal": 0,
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 2,
+    "undecided": 0
+   },
+   "settled": 3,
+   "requirements": 4,
+   "flagged_phrases": 6,
+   "limits": 0,
+   "third_reader": 5,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IN-1"
+    ],
+    "agent_b": [
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.04
+  },
+  {
+   "task": "HumanEval/73",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 644,
+    "check": 102
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 76,
+     "cost_usd": 0.45077900000000004,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 97,
+     "cost_usd": 0.4324792,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 163,
+     "cost_usd": 0.6596107,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 145,
+     "cost_usd": 0.6275303000000001,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 307,
+     "cost_usd": 1.1570833,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.33,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 5
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 5,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 5,
+   "flagged_phrases": 9,
+   "limits": 0,
+   "third_reader": 9,
+   "unformalized": {
+    "agent_a": [
+     "R-FN-1",
+     "R-FN-2"
+    ],
+    "agent_b": []
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.041,
+   "judge": {
+    "b0": 0,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/73",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 466,
+    "check": 6
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 75,
+     "cost_usd": 0.45329099999999994,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 71,
+     "cost_usd": 0.3573882,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 163,
+     "cost_usd": 0.6687921,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 209,
+     "cost_usd": 0.8165546000000001,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 109,
+     "cost_usd": 0.5134920000000001,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.81,
+   "sandboxed": true,
+   "questions": {
+    "scenario": 3,
+    "depends": 1,
+    "ambiguity": 4
+   },
+   "formal": 4,
+   "levels": {
+    "hard": 3,
+    "depends": 1,
+    "ambiguity": 4,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 4,
+   "flagged_phrases": 6,
+   "limits": 0,
+   "third_reader": 3,
+   "unformalized": {
+    "agent_a": [
+     "R-API-1"
+    ],
+    "agent_b": [
+     "R-API-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.064,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/73",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 477,
+    "check": 4
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 58,
+     "cost_usd": 0.3804148,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 77,
+     "cost_usd": 0.3621302,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 146,
+     "cost_usd": 0.6097647,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 212,
+     "cost_usd": 0.8248019,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 129,
+     "cost_usd": 0.5421809,
+     "turns": 6,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.72,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 3
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 3,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 2,
+   "flagged_phrases": 8,
+   "limits": 0,
+   "third_reader": 8,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1"
+    ],
+    "agent_b": []
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.033,
+   "judge": {
+    "b0": 0,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/163",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 504,
+    "check": 15
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 63,
+     "cost_usd": 0.4051851,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 128,
+     "cost_usd": 0.5449684,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 116,
+     "cost_usd": 0.5457484,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 139,
+     "cost_usd": 0.5926210000000002,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 173,
+     "cost_usd": 0.7039569,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 19,
+     "why": "open choice not confirmed over the rigid range"
+    },
+    {
+     "check": "ok",
+     "seconds": 17,
+     "why": "the bit-level comparison left out rules over more than 64 values of a rigid variable (fixed: fcp/software.py)"
+    }
+   ],
+   "cost_usd": 2.79,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 7
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 7,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 7,
+   "flagged_phrases": 11,
+   "limits": 1,
+   "third_reader": 11,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IF-2"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IF-2"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.058
+  },
+  {
+   "task": "HumanEval/163",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 676,
+    "check": 957
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 84,
+     "cost_usd": 0.44035219999999997,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 106,
+     "cost_usd": 0.4744216,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 193,
+     "cost_usd": 0.7858154999999999,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 254,
+     "cost_usd": 0.9460715000000001,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 230,
+     "cost_usd": 0.9079599,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.55,
+   "sandboxed": true,
+   "questions": {
+    "open": 1,
+    "undecided": 1,
+    "ambiguity": 8
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 1,
+    "depends": 0,
+    "ambiguity": 8,
+    "undecided": 1
+   },
+   "settled": 0,
+   "requirements": 10,
+   "flagged_phrases": 10,
+   "limits": 3,
+   "third_reader": 9,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1"
+    ],
+    "agent_b": [
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.068,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 1,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/163",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 708,
+    "check": 136
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 84,
+     "cost_usd": 0.4754391,
+     "turns": 24,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 198,
+     "cost_usd": 0.7688462,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 193,
+     "cost_usd": 0.7729037999999999,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 217,
+     "cost_usd": 0.8413513999999997,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 207,
+     "cost_usd": 0.8471485999999999,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 153,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 3.71,
+   "sandboxed": true,
+   "questions": {
+    "conflict": 3,
+    "open": 1,
+    "depends": 1,
+    "readings": 1,
+    "ambiguity": 10
+   },
+   "formal": 6,
+   "levels": {
+    "hard": 5,
+    "depends": 1,
+    "ambiguity": 10,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 10,
+   "flagged_phrases": 11,
+   "limits": 2,
+   "third_reader": 10,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1"
+    ],
+    "agent_b": [
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.089,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/163",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 517,
+    "check": 773
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 93,
+     "cost_usd": 0.5022506,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 124,
+     "cost_usd": 0.5137534,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 139,
+     "cost_usd": 0.6132997,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 158,
+     "cost_usd": 0.6495758,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 140,
+     "cost_usd": 0.6141262,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.89,
+   "sandboxed": true,
+   "questions": {
+    "open": 1,
+    "depends": 1,
+    "ambiguity": 9
+   },
+   "formal": 2,
+   "levels": {
+    "hard": 1,
+    "depends": 1,
+    "ambiguity": 9,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 5,
+   "flagged_phrases": 13,
+   "limits": 1,
+   "third_reader": 13,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IF-2"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IF-2"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.062,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 1,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/61",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 573,
+    "check": 823
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 65,
+     "cost_usd": 0.38293940000000004,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 121,
+     "cost_usd": 0.4923419,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 198,
+     "cost_usd": 0.7872216999999999,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 207,
+     "cost_usd": 0.8131714000000001,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 180,
+     "cost_usd": 0.7486184,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 849,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 3.22,
+   "sandboxed": true,
+   "questions": {
+    "undecided": 1,
+    "ambiguity": 7
+   },
+   "formal": 0,
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 7,
+    "undecided": 1
+   },
+   "settled": 0,
+   "requirements": 6,
+   "flagged_phrases": 9,
+   "limits": 2,
+   "third_reader": 9,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IF-2"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IF-2"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.051
+  },
+  {
+   "task": "HumanEval/61",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 430,
+    "check": 138
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 65,
+     "cost_usd": 0.42041999999999996,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 127,
+     "cost_usd": 0.525574,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 120,
+     "cost_usd": 0.5414931000000001,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 134,
+     "cost_usd": 0.5870813000000001,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 103,
+     "cost_usd": 0.4955975,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.57,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 5
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 5,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 6,
+   "flagged_phrases": 8,
+   "limits": 0,
+   "third_reader": 8,
+   "unformalized": {
+    "agent_a": [
+     "R-NF-1"
+    ],
+    "agent_b": [
+     "R-NF-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.036,
+   "judge": {
+    "b0": 0,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/61",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 622,
+    "check": 134
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 60,
+     "cost_usd": 0.3575195,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 123,
+     "cost_usd": 0.5232813,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 226,
+     "cost_usd": 0.8876866,
+     "turns": 18,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 311,
+     "cost_usd": 1.1608863999999999,
+     "turns": 19,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 127,
+     "cost_usd": 0.5802838000000001,
+     "turns": 6,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.51,
+   "sandboxed": true,
+   "questions": {
+    "conflict": 2,
+    "open": 1,
+    "depends": 1,
+    "ambiguity": 9
+   },
+   "formal": 4,
+   "levels": {
+    "hard": 3,
+    "depends": 1,
+    "ambiguity": 9,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 6,
+   "flagged_phrases": 11,
+   "limits": 0,
+   "third_reader": 11,
+   "unformalized": {
+    "agent_a": [
+     "R-FN-1"
+    ],
+    "agent_b": [
+     "R-FN-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.057,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/61",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 484,
+    "check": 121
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 54,
+     "cost_usd": 0.36406400000000005,
+     "turns": 18,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 103,
+     "cost_usd": 0.4553718000000001,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 140,
+     "cost_usd": 0.6059167,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 125,
+     "cost_usd": 0.5888448999999999,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 187,
+     "cost_usd": 0.7371806,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 125,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 2.75,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 6
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 6,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 4,
+   "flagged_phrases": 11,
+   "limits": 0,
+   "third_reader": 11,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-TASK-1"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-TASK-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.045,
+   "judge": {
+    "b2": 2,
+    "b0": 0,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/124",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 907,
+    "check": 587
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 76,
+     "cost_usd": 0.4582621,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 145,
+     "cost_usd": 0.600552,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 236,
+     "cost_usd": 0.9674766999999999,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 186,
+     "cost_usd": 0.7818589000000001,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 449,
+     "cost_usd": 1.6740695999999997,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 4.48,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 6
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 6,
+    "undecided": 0
+   },
+   "settled": 11,
+   "requirements": 17,
+   "flagged_phrases": 7,
+   "limits": 1,
+   "third_reader": 6,
+   "unformalized": {
+    "agent_a": [
+     "R-ARG-1",
+     "R-IF-1"
+    ],
+    "agent_b": [
+     "R-ARG-1",
+     "R-FR-1",
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.077
+  },
+  {
+   "task": "HumanEval/124",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 998,
+    "check": 846
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 52,
+     "cost_usd": 0.34074540000000003,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 142,
+     "cost_usd": 0.5865317,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 337,
+     "cost_usd": 1.2773507000000002,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 267,
+     "cost_usd": 1.0068947,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 466,
+     "cost_usd": 1.7348553000000002,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 4.95,
+   "sandboxed": true,
+   "questions": {
+    "conflict": 1,
+    "scenario": 1,
+    "depends": 1,
+    "ambiguity": 11
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 11,
+    "undecided": 0
+   },
+   "settled": 6,
+   "requirements": 15,
+   "flagged_phrases": 12,
+   "limits": 1,
+   "third_reader": 12,
+   "unformalized": {
+    "agent_a": [
+     "R-API-1",
+     "R-IN-1"
+    ],
+    "agent_b": [
+     "R-API-1",
+     "R-IN-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.089,
+   "judge": {
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/124",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 1043,
+    "check": 155
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 71,
+     "cost_usd": 0.420166,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 193,
+     "cost_usd": 0.7773994999999999,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 290,
+     "cost_usd": 1.2281105,
+     "turns": 28,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 224,
+     "cost_usd": 0.9174199000000001,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 487,
+     "cost_usd": 1.8132314999999999,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 5.16,
+   "sandboxed": true,
+   "questions": {
+    "scenario": 10,
+    "depends": 1,
+    "ambiguity": 19
+   },
+   "formal": 11,
+   "levels": {
+    "hard": 10,
+    "depends": 1,
+    "ambiguity": 19,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 15,
+   "flagged_phrases": 22,
+   "limits": 0,
+   "third_reader": 22,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IN-1"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IN-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.072,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/124",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 453,
+    "check": 3
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 67,
+     "cost_usd": 0.4458368999999999,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 85,
+     "cost_usd": 0.3991643,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 107,
+     "cost_usd": 0.4948304,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 84,
+     "cost_usd": 0.42105560000000003,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 194,
+     "cost_usd": 0.7394811,
+     "turns": 6,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.5,
+   "sandboxed": true,
+   "questions": {
+    "ambiguity": 2
+   },
+   "formal": 0,
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 2,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 3,
+   "flagged_phrases": 7,
+   "limits": 0,
+   "third_reader": 7,
+   "unformalized": {
+    "agent_a": [
+     "R-API-1",
+     "R-API-2",
+     "R-IN-1"
+    ],
+    "agent_b": [
+     "R-API-1",
+     "R-API-2",
+     "R-IN-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.063,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 1
+   }
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 1454,
+    "check": 35
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 101,
+     "cost_usd": 0.525542,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 125,
+     "cost_usd": 0.514737,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 145,
+     "cost_usd": 0.6113168999999999,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 1065,
+     "cost_usd": 2.677737500000001,
+     "turns": 50,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 158,
+     "cost_usd": 0.6436913000000001,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "RuntimeError: yosys failed:\n\ninput buffer overflow, can't enlarge buffer because scanner uses REJECT\n",
+     "seconds": 7,
+     "why": "a constant wider than 32 bits was written in a form yosys does not read (fixed: fcp/lang.py, vconst)"
+    },
+    {
+     "check": "ok",
+     "seconds": 31,
+     "why": "the bit-level comparison left out rules over more than 64 values of a rigid variable (fixed: fcp/software.py)"
+    },
+    {
+     "check": "ok",
+     "seconds": 32,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 4.97,
+   "sandboxed": true,
+   "questions": {
+    "open": 1,
+    "depends": 1,
+    "readings": 1,
+    "ambiguity": 4
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 4,
+    "undecided": 0
+   },
+   "settled": 4,
+   "requirements": 6,
+   "flagged_phrases": 6,
+   "limits": 4,
+   "third_reader": 5,
+   "unformalized": {
+    "agent_a": [
+     "R-SIG-1",
+     "R-TASK-1"
+    ],
+    "agent_b": [
+     "R-SIG-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.041
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "TimeoutExpired: Command '['/repo/.tools/oss-cad-suite/bin/yosys', '-q', '-p', 'read -formal mon_agent_a.v harness.v; prep -top fcp_harness; flatten; memory_map; async2sync; chformal -remove; formalff -setundef -clk2ff -ff2anyinit; setundef -undriven -anyseq; opt_clean; dffunmap; write_smt2 -wires model.smt2']' timed out after 300 seconds",
+   "attempts": 1,
+   "seconds": {
+    "agents": 836,
+    "check": 663
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 78,
+     "cost_usd": 0.41516489999999995,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 151,
+     "cost_usd": 0.51838,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 327,
+     "cost_usd": 1.2665162,
+     "turns": 26,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 267,
+     "cost_usd": 1.0668087999999998,
+     "turns": 23,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 279,
+     "cost_usd": 1.0210854999999999,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 4.29,
+   "sandboxed": true,
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.048,
+   "judge": {
+    "b0": 0
+   }
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "TimeoutExpired: Command '['/repo/.tools/oss-cad-suite/bin/yosys', '-q', '-p', 'read -formal mon_agent_a.v harness.v; prep -top fcp_harness; flatten; memory_map; async2sync; chformal -remove; formalff -setundef -clk2ff -ff2anyinit; setundef -undriven -anyseq; opt_clean; dffunmap; write_smt2 -wires model.smt2']' timed out after 300 seconds",
+   "attempts": 1,
+   "seconds": {
+    "agents": 557,
+    "check": 663
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 83,
+     "cost_usd": 0.47236809999999996,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 84,
+     "cost_usd": 0.3991627,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 229,
+     "cost_usd": 0.8886525999999999,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 233,
+     "cost_usd": 0.8721032000000001,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 157,
+     "cost_usd": 0.6839283,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.32,
+   "sandboxed": true,
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.063,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2
+   }
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "TimeoutExpired: Command '['/repo/.tools/oss-cad-suite/bin/yosys', '-q', '-p', 'read -formal mon_agent_a.v harness.v; prep -top fcp_harness; flatten; memory_map; async2sync; chformal -remove; formalff -setundef -clk2ff -ff2anyinit; setundef -undriven -anyseq; opt_clean; dffunmap; write_smt2 -wires model.smt2']' timed out after 300 seconds",
+   "attempts": 1,
+   "seconds": {
+    "agents": 592,
+    "check": 301
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 117,
+     "cost_usd": 0.5633423,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 90,
+     "cost_usd": 0.3996154,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 239,
+     "cost_usd": 0.9459796,
+     "turns": 28,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 225,
+     "cost_usd": 0.8400299000000002,
+     "turns": 19,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 144,
+     "cost_usd": 0.5846708,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.33,
+   "sandboxed": true,
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.044,
+   "judge": {
+    "b2": 2,
+    "b0": 2
+   }
+  },
+  {
+   "task": "HumanEval/88",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 501,
+    "check": 40
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 94,
+     "cost_usd": 0.480556,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 138,
+     "cost_usd": 0.5539217,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 95,
+     "cost_usd": 0.47974289999999997,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 157,
+     "cost_usd": 0.660162,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 112,
+     "cost_usd": 0.5081095000000001,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.68,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 10
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 10,
+    "undecided": 0
+   },
+   "settled": 6,
+   "requirements": 10,
+   "flagged_phrases": 11,
+   "limits": 0,
+   "third_reader": 11,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IF-2",
+     "R-IN-1",
+     "R-NC-1",
+     "R-RET-3"
+    ],
+    "agent_b": [
+     "R-FR-1",
+     "R-IF-1",
+     "R-IF-2",
+     "R-IN-1",
+     "R-NC-1",
+     "R-RET-3"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.046
+  },
+  {
+   "task": "HumanEval/88",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 655,
+    "check": 40
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 72,
+     "cost_usd": 0.41004299999999994,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 128,
+     "cost_usd": 0.5423336,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 170,
+     "cost_usd": 0.6910491,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 217,
+     "cost_usd": 0.8756647,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 237,
+     "cost_usd": 0.9260505,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.45,
+   "sandboxed": true,
+   "questions": {
+    "conflict": 2,
+    "depends": 1,
+    "ambiguity": 10
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 10,
+    "undecided": 0
+   },
+   "settled": 2,
+   "requirements": 9,
+   "flagged_phrases": 12,
+   "limits": 0,
+   "third_reader": 10,
+   "unformalized": {
+    "agent_a": [
+     "R-API-1",
+     "R-MUT-1"
+    ],
+    "agent_b": [
+     "R-API-1",
+     "R-MUT-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.063,
+   "judge": {
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/88",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 572,
+    "check": 30
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 68,
+     "cost_usd": 0.40283779999999997,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 138,
+     "cost_usd": 0.5728567000000001,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 185,
+     "cost_usd": 0.7688267000000001,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 217,
+     "cost_usd": 0.8333190999999999,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 149,
+     "cost_usd": 0.6407191,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.22,
+   "sandboxed": true,
+   "questions": {
+    "scenario": 2,
+    "depends": 1,
+    "ambiguity": 11
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 11,
+    "undecided": 0
+   },
+   "settled": 3,
+   "requirements": 9,
+   "flagged_phrases": 14,
+   "limits": 0,
+   "third_reader": 12,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IN-1",
+     "R-MUT-1"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-MUT-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.069,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/88",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 708,
+    "check": 740
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 65,
+     "cost_usd": 0.4181879,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 127,
+     "cost_usd": 0.514637,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 193,
+     "cost_usd": 0.7102808,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 203,
+     "cost_usd": 0.8091385999999998,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 312,
+     "cost_usd": 1.1207814000000003,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.57,
+   "sandboxed": true,
+   "questions": {
+    "open": 2,
+    "depends": 1,
+    "undecided": 1,
+    "ambiguity": 7
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 7,
+    "undecided": 1
+   },
+   "settled": 0,
+   "requirements": 7,
+   "flagged_phrases": 11,
+   "limits": 1,
+   "third_reader": 9,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IF-2",
+     "R-IN-1",
+     "R-RET-4",
+     "R-RET-5"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IF-2",
+     "R-RET-4",
+     "R-RET-5"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.05,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/26",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 563,
+    "check": 146
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 63,
+     "cost_usd": 0.3977856,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 87,
+     "cost_usd": 0.4044412,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 214,
+     "cost_usd": 0.8646439,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 242,
+     "cost_usd": 0.9505415000000002,
+     "turns": 21,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 170,
+     "cost_usd": 0.7005929000000001,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 1985,
+     "why": "a definition was walked and computed again at every use (fixed: fcp/software.py)"
+    }
+   ],
+   "cost_usd": 3.32,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 6
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 6,
+    "undecided": 0
+   },
+   "settled": 2,
+   "requirements": 6,
+   "flagged_phrases": 7,
+   "limits": 0,
+   "third_reader": 7,
+   "unformalized": {
+    "agent_a": [
+     "R-IN-1",
+     "R-SIG-1",
+     "R-TASK-1"
+    ],
+    "agent_b": [
+     "R-FR-1",
+     "R-IN-1",
+     "R-SIG-1",
+     "R-TASK-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.031
+  },
+  {
+   "task": "HumanEval/26",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 706,
+    "check": 947
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 78,
+     "cost_usd": 0.45259560000000004,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 108,
+     "cost_usd": 0.4629595,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 221,
+     "cost_usd": 0.858654,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 271,
+     "cost_usd": 0.9926317000000001,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 248,
+     "cost_usd": 0.9410153999999998,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "stopped after 45 minutes",
+     "seconds": 2700,
+     "why": "a definition was walked and computed again at every use (fixed: fcp/software.py)"
+    },
+    {
+     "check": "ok",
+     "seconds": 790,
+     "why": "the bit-level comparison left out rules over more than 64 values of a rigid variable (fixed: fcp/software.py)"
+    }
+   ],
+   "cost_usd": 3.71,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "undecided": 2,
+    "ambiguity": 7
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 7,
+    "undecided": 2
+   },
+   "settled": 0,
+   "requirements": 5,
+   "flagged_phrases": 8,
+   "limits": 6,
+   "third_reader": 8,
+   "unformalized": {
+    "agent_a": [
+     "R-IO-1",
+     "R-NF-1"
+    ],
+    "agent_b": [
+     "R-IO-1",
+     "R-NF-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.057,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/26",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 841,
+    "check": 637
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 86,
+     "cost_usd": 0.47768229999999995,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 118,
+     "cost_usd": 0.4763102,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 280,
+     "cost_usd": 1.0356636000000001,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 318,
+     "cost_usd": 1.1580751999999999,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 318,
+     "cost_usd": 1.1457766,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 653,
+     "why": "the bit-level comparison left out rules over more than 64 values of a rigid variable (fixed: fcp/software.py)"
+    }
+   ],
+   "cost_usd": 4.29,
+   "sandboxed": true,
+   "questions": {
+    "scenario": 2,
+    "depends": 1,
+    "ambiguity": 5
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 5,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 6,
+   "flagged_phrases": 6,
+   "limits": 5,
+   "third_reader": 4,
+   "unformalized": {
+    "agent_a": [
+     "R-IN-1"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IF-2",
+     "R-IN-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.051,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/26",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 506,
+    "check": 388
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 67,
+     "cost_usd": 0.40157640000000006,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 91,
+     "cost_usd": 0.3882966,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 189,
+     "cost_usd": 0.725452,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 198,
+     "cost_usd": 0.785201,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 150,
+     "cost_usd": 0.6313044,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "held back: a reading here uses each definition of a chain several times, as the reading that the check of e979a6870783 did not get through; to be checked after the fix",
+     "seconds": 0,
+     "why": "held back before its check: its readings have chains of definitions; checked once, with the fix (fcp/software.py)"
+    }
+   ],
+   "cost_usd": 2.93,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 6
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 6,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 5,
+   "flagged_phrases": 6,
+   "limits": 1,
+   "third_reader": 6,
+   "unformalized": {
+    "agent_a": [
+     "R-IN-1",
+     "R-SIG-1",
+     "R-TASK-1"
+    ],
+    "agent_b": [
+     "R-IN-1",
+     "R-SIG-1",
+     "R-TASK-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.047,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/159",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 748,
+    "check": 138
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 72,
+     "cost_usd": 0.4601395,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 169,
+     "cost_usd": 0.6785597000000001,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 166,
+     "cost_usd": 0.7123704999999999,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 194,
+     "cost_usd": 0.7906848000000001,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 312,
+     "cost_usd": 1.1747348,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.82,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 5
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 5,
+    "undecided": 0
+   },
+   "settled": 4,
+   "requirements": 10,
+   "flagged_phrases": 13,
+   "limits": 0,
+   "third_reader": 12,
+   "unformalized": {
+    "agent_a": [
+     "R-FN-1",
+     "R-FN-2"
+    ],
+    "agent_b": [
+     "R-FN-2"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.049
+  },
+  {
+   "task": "HumanEval/159",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 715,
+    "check": 20
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 83,
+     "cost_usd": 0.4541149,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 191,
+     "cost_usd": 0.7531235,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 114,
+     "cost_usd": 0.5798546,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 157,
+     "cost_usd": 0.7159284,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 283,
+     "cost_usd": 1.1191864,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.62,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 11
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 11,
+    "undecided": 0
+   },
+   "settled": 2,
+   "requirements": 11,
+   "flagged_phrases": 18,
+   "limits": 0,
+   "third_reader": 18,
+   "unformalized": {
+    "agent_a": [],
+    "agent_b": []
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.066,
+   "judge": {
+    "b2": 2,
+    "b0": 0,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/159",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 677,
+    "check": 7
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 88,
+     "cost_usd": 0.47570200000000007,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 157,
+     "cost_usd": 0.6502422,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 142,
+     "cost_usd": 0.6205944999999999,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 145,
+     "cost_usd": 0.6686158,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 286,
+     "cost_usd": 1.0997839,
+     "turns": 6,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.51,
+   "sandboxed": true,
+   "questions": {
+    "conflict": 4,
+    "scenario": 4,
+    "depends": 1,
+    "ambiguity": 10
+   },
+   "formal": 9,
+   "levels": {
+    "hard": 8,
+    "depends": 1,
+    "ambiguity": 10,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 9,
+   "flagged_phrases": 16,
+   "limits": 0,
+   "third_reader": 16,
+   "unformalized": {
+    "agent_a": [
+     "R-API-1"
+    ],
+    "agent_b": [
+     "R-API-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.074,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/159",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 792,
+    "check": 1
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 102,
+     "cost_usd": 0.5301236,
+     "turns": 23,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 159,
+     "cost_usd": 0.5973458,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 181,
+     "cost_usd": 0.6771647000000001,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 217,
+     "cost_usd": 0.8214143,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 313,
+     "cost_usd": 1.1877087999999998,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.81,
+   "sandboxed": true,
+   "questions": {
+    "open": 1,
+    "ambiguity": 4
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 1,
+    "depends": 0,
+    "ambiguity": 4,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 3,
+   "flagged_phrases": 15,
+   "limits": 0,
+   "third_reader": 12,
+   "unformalized": {
+    "agent_a": [
+     "R-CTX-1",
+     "R-DEF-1",
+     "R-DEF-2",
+     "R-DEF-3",
+     "R-EAT-1",
+     "R-EAT-2",
+     "R-TASK-1"
+    ],
+    "agent_b": [
+     "R-CTX-1",
+     "R-EAT-1",
+     "R-EAT-2",
+     "R-ENV-3",
+     "R-TASK-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.049,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 0,
+    "fcp": 2,
+    "fcp_formal": 1,
+    "fcp_hard": 1
+   }
+  },
+  {
+   "task": "HumanEval/64",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 678,
+    "check": 610
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 61,
+     "cost_usd": 0.37550520000000004,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 95,
+     "cost_usd": 0.42585720000000005,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 308,
+     "cost_usd": 1.1014833000000002,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 218,
+     "cost_usd": 0.8496591,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 213,
+     "cost_usd": 0.8021549,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.55,
+   "sandboxed": true,
+   "questions": {
+    "scenario": 1,
+    "depends": 1,
+    "readings": 1,
+    "ambiguity": 2
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 2,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 3,
+   "flagged_phrases": 10,
+   "limits": 1,
+   "third_reader": 6,
+   "unformalized": {
+    "agent_a": [
+     "R-TASK-3"
+    ],
+    "agent_b": [
+     "R-TASK-3"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.058
+  },
+  {
+   "task": "HumanEval/64",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 891,
+    "check": 302
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 74,
+     "cost_usd": 0.4119465,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 102,
+     "cost_usd": 0.44451719999999995,
+     "turns": 6,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 286,
+     "cost_usd": 1.0444851,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 267,
+     "cost_usd": 0.9664374,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 428,
+     "cost_usd": 1.4583412999999998,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 4.33,
+   "sandboxed": true,
+   "questions": {
+    "open": 1,
+    "depends": 1,
+    "ambiguity": 8
+   },
+   "formal": 2,
+   "levels": {
+    "hard": 1,
+    "depends": 1,
+    "ambiguity": 8,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 6,
+   "flagged_phrases": 13,
+   "limits": 0,
+   "third_reader": 12,
+   "unformalized": {
+    "agent_a": [
+     "R-FIX-1",
+     "R-IF-1",
+     "R-IF-2"
+    ],
+    "agent_b": [
+     "R-FIX-1",
+     "R-IF-1",
+     "R-IF-2"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.074,
+   "judge": {
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/64",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 923,
+    "check": 805
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 71,
+     "cost_usd": 0.4110274,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 113,
+     "cost_usd": 0.41845569999999993,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 397,
+     "cost_usd": 1.398806,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 268,
+     "cost_usd": 1.0108367,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 343,
+     "cost_usd": 1.2396498,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 4.48,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "readings": 1,
+    "ambiguity": 4
+   },
+   "formal": 2,
+   "levels": {
+    "hard": 1,
+    "depends": 1,
+    "ambiguity": 4,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 4,
+   "flagged_phrases": 15,
+   "limits": 2,
+   "third_reader": 10,
+   "unformalized": {
+    "agent_a": [
+     "R-FIX-1",
+     "R-TASK-1"
+    ],
+    "agent_b": [
+     "R-FIX-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.06,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 0,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 1
+   }
+  },
+  {
+   "task": "HumanEval/64",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 746,
+    "check": 8
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 77,
+     "cost_usd": 0.43512130000000004,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 91,
+     "cost_usd": 0.3257819,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 179,
+     "cost_usd": 0.7127698000000001,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 235,
+     "cost_usd": 0.873107,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 342,
+     "cost_usd": 1.2272218999999998,
+     "turns": 6,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.57,
+   "sandboxed": true,
+   "questions": {
+    "open": 2,
+    "ambiguity": 2
+   },
+   "formal": 2,
+   "levels": {
+    "hard": 2,
+    "depends": 0,
+    "ambiguity": 2,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 2,
+   "flagged_phrases": 12,
+   "limits": 0,
+   "third_reader": 12,
+   "unformalized": {
+    "agent_a": [
+     "R-TASK-1",
+     "R-TASK-2",
+     "R-TASK-3",
+     "R-VOW-1",
+     "R-VOW-2",
+     "R-VOW-3",
+     "R-VOW-4"
+    ],
+    "agent_b": [
+     "R-TASK-1",
+     "R-TASK-2",
+     "R-TASK-3",
+     "R-VOW-1",
+     "R-VOW-2",
+     "R-VOW-3",
+     "R-VOW-4"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.059,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 1
+   }
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "stopped: more than 8 GB of memory",
+   "attempts": 1,
+   "seconds": {
+    "agents": 1219,
+    "check": 77
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 77,
+     "cost_usd": 0.4360013,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 89,
+     "cost_usd": 0.40461400000000003,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 559,
+     "cost_usd": 1.8157440000000002,
+     "turns": 23,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 637,
+     "cost_usd": 2.078611,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 401,
+     "cost_usd": 1.319041,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 6.05,
+   "sandboxed": true,
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.034
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "stopped: more than 8 GB of memory",
+   "attempts": 1,
+   "seconds": {
+    "agents": 2527,
+    "check": 19
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 88,
+     "cost_usd": 0.4715201,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 75,
+     "cost_usd": 0.3626679,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 1554,
+     "cost_usd": 5.538412400000001,
+     "turns": 49,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 672,
+     "cost_usd": 2.2448783999999997,
+     "turns": 30,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 802,
+     "cost_usd": 2.6422985000000003,
+     "turns": 18,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 11.26,
+   "sandboxed": true,
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.046,
+   "judge": {
+    "b2": 2,
+    "b0": 2
+   }
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "stopped: more than 8 GB of memory",
+   "attempts": 1,
+   "seconds": {
+    "agents": 1252,
+    "check": 13
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 72,
+     "cost_usd": 0.4252742,
+     "turns": 21,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 61,
+     "cost_usd": 0.3207098,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 266,
+     "cost_usd": 0.9733473000000001,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 1002,
+     "cost_usd": 3.3782766000000004,
+     "turns": 29,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 117,
+     "cost_usd": 0.5195666,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 5.62,
+   "sandboxed": true,
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.045,
+   "judge": {
+    "b2": 2,
+    "b0": 2
+   }
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "stopped: more than 8 GB of memory",
+   "attempts": 1,
+   "seconds": {
+    "agents": 1098,
+    "check": 17
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 77,
+     "cost_usd": 0.4380006,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 106,
+     "cost_usd": 0.4548676,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 442,
+     "cost_usd": 1.4800503,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 351,
+     "cost_usd": 1.2118609,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 472,
+     "cost_usd": 1.5939594999999998,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 5.18,
+   "sandboxed": true,
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.047,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2
+   }
+  },
+  {
+   "task": "HumanEval/41",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 373,
+    "check": 2
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 54,
+     "cost_usd": 0.3666295000000001,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 93,
+     "cost_usd": 0.369551,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 97,
+     "cost_usd": 0.44353360000000003,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 90,
+     "cost_usd": 0.43261040000000006,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 129,
+     "cost_usd": 0.5742159000000001,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.19,
+   "sandboxed": true,
+   "questions": {
+    "ambiguity": 2
+   },
+   "formal": 0,
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 2,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 1,
+   "flagged_phrases": 9,
+   "limits": 0,
+   "third_reader": 9,
+   "unformalized": {
+    "agent_a": [],
+    "agent_b": []
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.037
+  },
+  {
+   "task": "HumanEval/41",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 504,
+    "check": 2
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 84,
+     "cost_usd": 0.4508799,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 125,
+     "cost_usd": 0.5107932000000001,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 108,
+     "cost_usd": 0.4907201,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 136,
+     "cost_usd": 0.5561062,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 158,
+     "cost_usd": 0.6519054000000001,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.66,
+   "sandboxed": true,
+   "questions": {
+    "open": 1,
+    "ambiguity": 3
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 1,
+    "depends": 0,
+    "ambiguity": 3,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 2,
+   "flagged_phrases": 12,
+   "limits": 0,
+   "third_reader": 12,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1"
+    ],
+    "agent_b": [
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.055,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/41",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 428,
+    "check": 1
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 67,
+     "cost_usd": 0.4364508,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 89,
+     "cost_usd": 0.4065541999999999,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 67,
+     "cost_usd": 0.35048169999999995,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 99,
+     "cost_usd": 0.4653825,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 173,
+     "cost_usd": 0.6777278999999999,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 2,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 2.34,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 3
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 3,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 1,
+   "flagged_phrases": 5,
+   "limits": 0,
+   "third_reader": 5,
+   "unformalized": {
+    "agent_a": [
+     "R-FN-1"
+    ],
+    "agent_b": []
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.046,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/41",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 492,
+    "check": 1
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 85,
+     "cost_usd": 0.46158980000000005,
+     "turns": 22,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 85,
+     "cost_usd": 0.39248089999999997,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 161,
+     "cost_usd": 0.6468281,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 158,
+     "cost_usd": 0.6386137000000001,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 161,
+     "cost_usd": 0.6608910000000001,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.8,
+   "sandboxed": true,
+   "questions": {
+    "open": 1,
+    "depends": 1,
+    "ambiguity": 1
+   },
+   "formal": 2,
+   "levels": {
+    "hard": 1,
+    "depends": 1,
+    "ambiguity": 1,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 1,
+   "flagged_phrases": 9,
+   "limits": 0,
+   "third_reader": 9,
+   "unformalized": {
+    "agent_a": [
+     "R-CAR-2",
+     "R-CAR-3",
+     "R-CAR-4",
+     "R-COL-1",
+     "R-FN-2",
+     "R-RD-1"
+    ],
+    "agent_b": [
+     "R-CAR-3",
+     "R-CAR-4",
+     "R-COL-1",
+     "R-FN-2",
+     "R-RD-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.049,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 1
+   }
+  },
+  {
+   "task": "HumanEval/68",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 787,
+    "check": 75
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 88,
+     "cost_usd": 0.47605939999999997,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 96,
+     "cost_usd": 0.44375020000000004,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 208,
+     "cost_usd": 0.8525096000000001,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 209,
+     "cost_usd": 0.8722357,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 393,
+     "cost_usd": 1.414733,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 4.06,
+   "sandboxed": true,
+   "questions": {
+    "ambiguity": 10
+   },
+   "formal": 0,
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 10,
+    "undecided": 0
+   },
+   "settled": 2,
+   "requirements": 10,
+   "flagged_phrases": 13,
+   "limits": 0,
+   "third_reader": 13,
+   "unformalized": {
+    "agent_a": [
+     "R-FN-1",
+     "R-IN-2"
+    ],
+    "agent_b": [
+     "R-FN-1",
+     "R-IN-2"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.047
+  },
+  {
+   "task": "HumanEval/68",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 845,
+    "check": 20
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 105,
+     "cost_usd": 0.5223607,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 158,
+     "cost_usd": 0.6566444,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 211,
+     "cost_usd": 0.8620452000000001,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 224,
+     "cost_usd": 0.8975886000000002,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 357,
+     "cost_usd": 1.3126274999999998,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 4.25,
+   "sandboxed": true,
+   "questions": {
+    "open": 2,
+    "depends": 1,
+    "ambiguity": 13
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 13,
+    "undecided": 0
+   },
+   "settled": 2,
+   "requirements": 11,
+   "flagged_phrases": 18,
+   "limits": 0,
+   "third_reader": 18,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IN-2"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IN-2"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.074,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 1
+   }
+  },
+  {
+   "task": "HumanEval/68",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 817,
+    "check": 1926
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 95,
+     "cost_usd": 0.4945609,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 128,
+     "cost_usd": 0.5585751,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 288,
+     "cost_usd": 1.0898754000000002,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 267,
+     "cost_usd": 1.0606968,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 305,
+     "cost_usd": 1.1304887999999997,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 4.33,
+   "sandboxed": true,
+   "questions": {
+    "scenario": 4,
+    "readings": 1,
+    "undecided": 2,
+    "ambiguity": 13
+   },
+   "formal": 5,
+   "levels": {
+    "hard": 5,
+    "depends": 0,
+    "ambiguity": 13,
+    "undecided": 2
+   },
+   "settled": 0,
+   "requirements": 11,
+   "flagged_phrases": 15,
+   "limits": 6,
+   "third_reader": 11,
+   "unformalized": {
+    "agent_a": [],
+    "agent_b": [
+     "R-IN-2"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.077,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/68",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 558,
+    "check": 5
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 96,
+     "cost_usd": 0.5295954999999999,
+     "turns": 23,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 91,
+     "cost_usd": 0.32609980000000005,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 201,
+     "cost_usd": 0.7710899999999999,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 221,
+     "cost_usd": 0.8367852,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 149,
+     "cost_usd": 0.6321613999999999,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.1,
+   "sandboxed": true,
+   "questions": {
+    "open": 2,
+    "depends": 1,
+    "undecided": 2,
+    "ambiguity": 7
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 7,
+    "undecided": 2
+   },
+   "settled": 0,
+   "requirements": 3,
+   "flagged_phrases": 12,
+   "limits": 1,
+   "third_reader": 8,
+   "unformalized": {
+    "agent_a": [
+     "R-FN-1",
+     "R-FN-2",
+     "R-IN-1",
+     "R-SEL-1"
+    ],
+    "agent_b": [
+     "R-FN-1",
+     "R-FN-2"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.057,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 1,
+    "fcp_hard": 1
+   }
+  },
+  {
+   "task": "HumanEval/80",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 668,
+    "check": 758
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 72,
+     "cost_usd": 0.43155760000000004,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 143,
+     "cost_usd": 0.5778095999999999,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 141,
+     "cost_usd": 0.6305377000000001,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 145,
+     "cost_usd": 0.632617,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 305,
+     "cost_usd": 1.1648987000000002,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 881,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 3.44,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 12
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 12,
+    "undecided": 0
+   },
+   "settled": 4,
+   "requirements": 10,
+   "flagged_phrases": 19,
+   "limits": 2,
+   "third_reader": 19,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IF-2",
+     "R-IN-1"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IF-2"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.039
+  },
+  {
+   "task": "HumanEval/80",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 655,
+    "check": 504
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 66,
+     "cost_usd": 0.4070910000000001,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 121,
+     "cost_usd": 0.5178448,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 209,
+     "cost_usd": 0.8565442,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 201,
+     "cost_usd": 0.8425799,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 259,
+     "cost_usd": 0.9807745,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.6,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 18
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 18,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 11,
+   "flagged_phrases": 25,
+   "limits": 1,
+   "third_reader": 24,
+   "unformalized": {
+    "agent_a": [
+     "R-API-1",
+     "R-API-2"
+    ],
+    "agent_b": [
+     "R-API-1",
+     "R-API-2"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.06,
+   "judge": {
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/80",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 861,
+    "check": 519
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 67,
+     "cost_usd": 0.41446059999999996,
+     "turns": 19,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 209,
+     "cost_usd": 0.8028367999999999,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 186,
+     "cost_usd": 0.7918765000000002,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 213,
+     "cost_usd": 0.9134857,
+     "turns": 21,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 369,
+     "cost_usd": 1.3384728,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 563,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 4.26,
+   "sandboxed": true,
+   "questions": {
+    "conflict": 4,
+    "scenario": 6,
+    "depends": 1,
+    "ambiguity": 22
+   },
+   "formal": 11,
+   "levels": {
+    "hard": 10,
+    "depends": 1,
+    "ambiguity": 22,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 10,
+   "flagged_phrases": 27,
+   "limits": 1,
+   "third_reader": 27,
+   "unformalized": {
+    "agent_a": [
+     "R-API-1",
+     "R-FR-1",
+     "R-IN-1"
+    ],
+    "agent_b": [
+     "R-API-1",
+     "R-IN-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.062,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/80",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 488,
+    "check": 43
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 77,
+     "cost_usd": 0.43793469999999995,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 108,
+     "cost_usd": 0.47271779999999997,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 126,
+     "cost_usd": 0.5708058,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 159,
+     "cost_usd": 0.6931626999999999,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 143,
+     "cost_usd": 0.6220715000000001,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.8,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 7
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 7,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 8,
+   "flagged_phrases": 11,
+   "limits": 0,
+   "third_reader": 11,
+   "unformalized": {
+    "agent_a": [
+     "R-API-1",
+     "R-API-2",
+     "R-FR-1",
+     "R-FR-2"
+    ],
+    "agent_b": [
+     "R-API-1",
+     "R-API-2",
+     "R-FR-1",
+     "R-FR-2"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.054,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/154",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 691,
+    "check": 1708
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 69,
+     "cost_usd": 0.4170994,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 125,
+     "cost_usd": 0.525006,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 235,
+     "cost_usd": 0.8994521000000001,
+     "turns": 18,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 202,
+     "cost_usd": 0.8222541000000001,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 261,
+     "cost_usd": 0.9781903000000002,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.64,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "readings": 2,
+    "ambiguity": 2
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 2,
+    "undecided": 0
+   },
+   "settled": 6,
+   "requirements": 9,
+   "flagged_phrases": 7,
+   "limits": 6,
+   "third_reader": 5,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IN-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.05
+  },
+  {
+   "task": "HumanEval/154",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 554,
+    "check": 908
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 57,
+     "cost_usd": 0.37917369999999995,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 114,
+     "cost_usd": 0.48926109999999995,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 210,
+     "cost_usd": 0.8070498,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 211,
+     "cost_usd": 0.8474674000000001,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 172,
+     "cost_usd": 0.7195866000000001,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 946,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 3.24,
+   "sandboxed": true,
+   "questions": {
+    "undecided": 1,
+    "ambiguity": 12
+   },
+   "formal": 0,
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 12,
+    "undecided": 1
+   },
+   "settled": 0,
+   "requirements": 8,
+   "flagged_phrases": 14,
+   "limits": 5,
+   "third_reader": 14,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1"
+    ],
+    "agent_b": [
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.06,
+   "judge": {
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2
+   }
+  },
+  {
+   "task": "HumanEval/154",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 904,
+    "check": 1369
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 104,
+     "cost_usd": 0.5511052999999999,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 168,
+     "cost_usd": 0.6810533999999999,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 229,
+     "cost_usd": 0.8999004,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 273,
+     "cost_usd": 1.0248522,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 358,
+     "cost_usd": 1.3024498000000002,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 4.46,
+   "sandboxed": true,
+   "questions": {
+    "scenario": 12,
+    "depends": 1,
+    "ambiguity": 15
+   },
+   "formal": 13,
+   "levels": {
+    "hard": 12,
+    "depends": 1,
+    "ambiguity": 15,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 8,
+   "flagged_phrases": 19,
+   "limits": 2,
+   "third_reader": 19,
+   "unformalized": {
+    "agent_a": [
+     "R-NF-1"
+    ],
+    "agent_b": [
+     "R-NF-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.084,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/154",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 775,
+    "check": 1910
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 77,
+     "cost_usd": 0.44766729999999993,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 141,
+     "cost_usd": 0.5699527999999999,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 171,
+     "cost_usd": 0.7313551,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 194,
+     "cost_usd": 0.8302645000000001,
+     "turns": 24,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 360,
+     "cost_usd": 1.3254384999999997,
+     "turns": 24,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.9,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 7
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 7,
+    "undecided": 0
+   },
+   "settled": 6,
+   "requirements": 9,
+   "flagged_phrases": 8,
+   "limits": 2,
+   "third_reader": 8,
+   "unformalized": {
+    "agent_a": [
+     "R-SIG-1"
+    ],
+    "agent_b": [
+     "R-SIG-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.062,
+   "judge": {
+    "b2": 2,
+    "b0": 0,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/48",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 364,
+    "check": 14
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 67,
+     "cost_usd": 0.4064187,
+     "turns": 21,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 81,
+     "cost_usd": 0.3098116,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 79,
+     "cost_usd": 0.40649440000000003,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 74,
+     "cost_usd": 0.3926717,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 136,
+     "cost_usd": 0.5761506000000001,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.09,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 2
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 2,
+    "undecided": 0
+   },
+   "settled": 4,
+   "requirements": 7,
+   "flagged_phrases": 5,
+   "limits": 0,
+   "third_reader": 5,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-2",
+     "R-IF-3"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IF-2",
+     "R-IF-3"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.034
+  },
+  {
+   "task": "HumanEval/48",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 490,
+    "check": 305
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 58,
+     "cost_usd": 0.38174579999999997,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 143,
+     "cost_usd": 0.6009776,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 164,
+     "cost_usd": 0.6940001,
+     "turns": 17,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 138,
+     "cost_usd": 0.6072459,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 125,
+     "cost_usd": 0.5635360999999999,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.85,
+   "sandboxed": true,
+   "questions": {
+    "conflict": 1,
+    "scenario": 1,
+    "depends": 1,
+    "ambiguity": 5
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 5,
+    "undecided": 0
+   },
+   "settled": 2,
+   "requirements": 7,
+   "flagged_phrases": 8,
+   "limits": 0,
+   "third_reader": 8,
+   "unformalized": {
+    "agent_a": [
+     "R-ENV-1",
+     "R-FR-1",
+     "R-IF-1",
+     "R-IF-2"
+    ],
+    "agent_b": [
+     "R-ENV-1",
+     "R-IF-1",
+     "R-IF-2"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.065,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/48",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 505,
+    "check": 43
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 63,
+     "cost_usd": 0.4256427,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 123,
+     "cost_usd": 0.5219149,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 96,
+     "cost_usd": 0.4560415,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 142,
+     "cost_usd": 0.5957244,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 176,
+     "cost_usd": 0.7257856000000001,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.73,
+   "sandboxed": true,
+   "questions": {
+    "scenario": 8,
+    "depends": 1,
+    "ambiguity": 7
+   },
+   "formal": 9,
+   "levels": {
+    "hard": 8,
+    "depends": 1,
+    "ambiguity": 7,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 7,
+   "flagged_phrases": 9,
+   "limits": 0,
+   "third_reader": 9,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IF-2"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IF-2"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.056,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/48",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 401,
+    "check": 2
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 68,
+     "cost_usd": 0.426168,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 79,
+     "cost_usd": 0.3769914000000001,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 66,
+     "cost_usd": 0.3586853,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 133,
+     "cost_usd": 0.5488744999999999,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 121,
+     "cost_usd": 0.5257931,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.24,
+   "sandboxed": true,
+   "questions": {
+    "open": 1,
+    "depends": 1,
+    "ambiguity": 3
+   },
+   "formal": 2,
+   "levels": {
+    "hard": 1,
+    "depends": 1,
+    "ambiguity": 3,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 3,
+   "flagged_phrases": 7,
+   "limits": 0,
+   "third_reader": 7,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IF-2",
+     "R-TASK-1"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IF-2",
+     "R-TASK-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.045,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 1
+   }
+  },
+  {
+   "task": "HumanEval/72",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 548,
+    "check": 17
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 65,
+     "cost_usd": 0.39478479999999994,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 135,
+     "cost_usd": 0.5727981999999999,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 76,
+     "cost_usd": 0.4145326,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 107,
+     "cost_usd": 0.5293489,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 240,
+     "cost_usd": 0.9499504999999999,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "TypeError: unhashable type: 'list'",
+     "seconds": 1,
+     "why": "the configured lists of a list argument were taken for integers of the scope (fixed: fcp/software.py, scope)"
+    },
+    {
+     "check": "ok",
+     "seconds": 16,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 2.86,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 9
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 9,
+    "undecided": 0
+   },
+   "settled": 2,
+   "requirements": 8,
+   "flagged_phrases": 12,
+   "limits": 0,
+   "third_reader": 12,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1"
+    ],
+    "agent_b": [
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.046
+  },
+  {
+   "task": "HumanEval/72",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 600,
+    "check": 10
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 86,
+     "cost_usd": 0.4923237000000001,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 137,
+     "cost_usd": 0.5705615,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 127,
+     "cost_usd": 0.5630181000000001,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 251,
+     "cost_usd": 0.9569369999999999,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 126,
+     "cost_usd": 0.5635958,
+     "turns": 6,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "TypeError: unhashable type: 'list'",
+     "seconds": 1,
+     "why": "the configured lists of a list argument were taken for integers of the scope (fixed: fcp/software.py, scope)"
+    }
+   ],
+   "cost_usd": 3.15,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 1
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 1,
+    "undecided": 0
+   },
+   "settled": 3,
+   "requirements": 6,
+   "flagged_phrases": 5,
+   "limits": 0,
+   "third_reader": 5,
+   "unformalized": {
+    "agent_a": [
+     "R-EX-2",
+     "R-IF-1"
+    ],
+    "agent_b": [
+     "R-EX-2",
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.057,
+   "judge": {
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/72",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 646,
+    "check": 27
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 85,
+     "cost_usd": 0.48410900000000007,
+     "turns": 22,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 167,
+     "cost_usd": 0.7074092000000001,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 115,
+     "cost_usd": 0.5486371000000001,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 167,
+     "cost_usd": 0.7369476000000001,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 227,
+     "cost_usd": 0.9259219000000001,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "TypeError: unhashable type: 'list'",
+     "seconds": 2,
+     "why": "the configured lists of a list argument were taken for integers of the scope (fixed: fcp/software.py, scope)"
+    }
+   ],
+   "cost_usd": 3.4,
+   "sandboxed": true,
+   "questions": {
+    "scenario": 8,
+    "depends": 1,
+    "ambiguity": 11
+   },
+   "formal": 9,
+   "levels": {
+    "hard": 8,
+    "depends": 1,
+    "ambiguity": 11,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 11,
+   "flagged_phrases": 13,
+   "limits": 0,
+   "third_reader": 13,
+   "unformalized": {
+    "agent_a": [
+     "R-API-1",
+     "R-IN-1",
+     "R-IN-2"
+    ],
+    "agent_b": [
+     "R-API-1",
+     "R-IN-1",
+     "R-IN-2"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.063,
+   "judge": {
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/72",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 512,
+    "check": 18
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 73,
+     "cost_usd": 0.4499343,
+     "turns": 22,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 114,
+     "cost_usd": 0.48900970000000005,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 74,
+     "cost_usd": 0.3940785,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 100,
+     "cost_usd": 0.48356319999999997,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 225,
+     "cost_usd": 0.830182,
+     "turns": 7,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "TypeError: unhashable type: 'list'",
+     "seconds": 1,
+     "why": "the configured lists of a list argument were taken for integers of the scope (fixed: fcp/software.py, scope)"
+    }
+   ],
+   "cost_usd": 2.65,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 6
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 6,
+    "undecided": 0
+   },
+   "settled": 4,
+   "requirements": 8,
+   "flagged_phrases": 6,
+   "limits": 0,
+   "third_reader": 6,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IF-2"
+    ],
+    "agent_b": [
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.064,
+   "judge": {
+    "b2": 2,
+    "b0": 0,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/144",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 1333,
+    "check": 2044
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 66,
+     "cost_usd": 0.4333427,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 98,
+     "cost_usd": 0.4600304,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 338,
+     "cost_usd": 1.2611043999999998,
+     "turns": 21,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 341,
+     "cost_usd": 1.2734074,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 828,
+     "cost_usd": 2.8503651000000003,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "stopped after 45 minutes",
+     "seconds": 2700,
+     "why": "stopped at its 45 minutes, in the comparison of the variant reading; its readings state a rule for every value of a rigid variable over 10^20 values, which the integer encoding now declines (fixed: fcp/software.py, RIGID_CASES); whether that rule made the run long was not established"
+    },
+    {
+     "check": "ok",
+     "seconds": 1560,
+     "why": "the bit-level comparison left out rules over more than 64 values of a rigid variable (fixed: fcp/software.py)"
+    },
+    {
+     "check": "ok",
+     "seconds": 2104,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 6.28,
+   "sandboxed": true,
+   "questions": {
+    "undecided": 3,
+    "ambiguity": 7
+   },
+   "formal": 0,
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 7,
+    "undecided": 3
+   },
+   "settled": 3,
+   "requirements": 5,
+   "flagged_phrases": 15,
+   "limits": 17,
+   "third_reader": 15,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1"
+    ],
+    "agent_b": [
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.036
+  },
+  {
+   "task": "HumanEval/144",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "stopped: more than 8 GB of memory",
+   "attempts": 1,
+   "seconds": {
+    "agents": 1363,
+    "check": 497
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 56,
+     "cost_usd": 0.3765038,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 150,
+     "cost_usd": 0.6004885,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 335,
+     "cost_usd": 1.2273024,
+     "turns": 21,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 651,
+     "cost_usd": 2.4503392999999996,
+     "turns": 33,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 504,
+     "cost_usd": 1.7312001000000001,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "held back: a reading here uses each definition of a chain several times, as the reading that the check of e979a6870783 did not get through; to be checked after the fix",
+     "seconds": 0,
+     "why": "held back before its check: its readings have chains of definitions; checked once, with the fix (fcp/software.py)"
+    }
+   ],
+   "cost_usd": 6.39,
+   "sandboxed": true,
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.077,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2
+   }
+  },
+  {
+   "task": "HumanEval/144",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 1298,
+    "check": 1758
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 92,
+     "cost_usd": 0.48339500000000013,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 174,
+     "cost_usd": 0.6756038,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 414,
+     "cost_usd": 1.4829940999999998,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 347,
+     "cost_usd": 1.2949301,
+     "turns": 14,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 617,
+     "cost_usd": 2.0747292,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "MemoryError: ",
+     "seconds": 130,
+     "why": "a rule over 10^12 values of a rigid variable was listed instance by instance (fixed: fcp/software.py, RIGID_CASES)"
+    },
+    {
+     "check": "ok",
+     "seconds": 1474,
+     "why": "the bit-level comparison left out rules over more than 64 values of a rigid variable (fixed: fcp/software.py)"
+    }
+   ],
+   "cost_usd": 6.01,
+   "sandboxed": true,
+   "questions": {
+    "undecided": 3,
+    "ambiguity": 12
+   },
+   "formal": 0,
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 12,
+    "undecided": 3
+   },
+   "settled": 0,
+   "requirements": 7,
+   "flagged_phrases": 18,
+   "limits": 17,
+   "third_reader": 18,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1"
+    ],
+    "agent_b": [
+     "R-FR-1",
+     "R-FR-2",
+     "R-IF-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.062,
+   "judge": {
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2
+   }
+  },
+  {
+   "task": "HumanEval/144",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 971,
+    "check": 285
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 141,
+     "cost_usd": 0.6440068,
+     "turns": 15,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 83,
+     "cost_usd": 0.3899768,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 239,
+     "cost_usd": 0.8872279000000001,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 228,
+     "cost_usd": 0.8885555,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 507,
+     "cost_usd": 1.78274,
+     "turns": 31,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "earlier": [
+    {
+     "check": "ok",
+     "seconds": 664,
+     "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+    }
+   ],
+   "cost_usd": 4.59,
+   "sandboxed": true,
+   "questions": {
+    "open": 1,
+    "depends": 1,
+    "readings": 2,
+    "ambiguity": 6
+   },
+   "formal": 4,
+   "levels": {
+    "hard": 3,
+    "depends": 1,
+    "ambiguity": 6,
+    "undecided": 0
+   },
+   "settled": 0,
+   "requirements": 2,
+   "flagged_phrases": 12,
+   "limits": 0,
+   "third_reader": 9,
+   "unformalized": {
+    "agent_a": [],
+    "agent_b": []
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.059,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 1
+   }
+  },
+  {
+   "task": "HumanEval/134",
+   "variant": "original",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 476,
+    "check": 33
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 53,
+     "cost_usd": 0.355039,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 106,
+     "cost_usd": 0.4720225,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 97,
+     "cost_usd": 0.47396210000000005,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 113,
+     "cost_usd": 0.5184467,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 202,
+     "cost_usd": 0.7973869000000001,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.62,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 6
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 6,
+    "undecided": 0
+   },
+   "settled": 3,
+   "requirements": 7,
+   "flagged_phrases": 9,
+   "limits": 0,
+   "third_reader": 9,
+   "unformalized": {
+    "agent_a": [
+     "R-API-1",
+     "R-IN-1"
+    ],
+    "agent_b": [
+     "R-API-1",
+     "R-IN-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": false,
+   "b0_code": true,
+   "baseline_cost_usd": 0.05
+  },
+  {
+   "task": "HumanEval/134",
+   "variant": "1a",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 506,
+    "check": 46
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 71,
+     "cost_usd": 0.4415808,
+     "turns": 18,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 133,
+     "cost_usd": 0.5549047,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 108,
+     "cost_usd": 0.5090437,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 124,
+     "cost_usd": 0.5673277,
+     "turns": 12,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 177,
+     "cost_usd": 0.7412319999999999,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 2.81,
+   "sandboxed": true,
+   "questions": {
+    "depends": 1,
+    "ambiguity": 4
+   },
+   "formal": 1,
+   "levels": {
+    "hard": 0,
+    "depends": 1,
+    "ambiguity": 4,
+    "undecided": 0
+   },
+   "settled": 3,
+   "requirements": 6,
+   "flagged_phrases": 11,
+   "limits": 0,
+   "third_reader": 11,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-2",
+     "R-IF-3"
+    ],
+    "agent_b": [
+     "R-IF-2",
+     "R-IF-3"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.054,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 0,
+    "fcp": 2,
+    "fcp_formal": 2
+   }
+  },
+  {
+   "task": "HumanEval/134",
+   "variant": "1c",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 651,
+    "check": 18
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 79,
+     "cost_usd": 0.48687079999999994,
+     "turns": 16,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 144,
+     "cost_usd": 0.6004147000000001,
+     "turns": 10,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 154,
+     "cost_usd": 0.6547333,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 165,
+     "cost_usd": 0.6765766999999999,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 261,
+     "cost_usd": 1.0007817,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.42,
+   "sandboxed": true,
+   "questions": {
+    "conflict": 2,
+    "depends": 1,
+    "ambiguity": 9
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 9,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 7,
+   "flagged_phrases": 12,
+   "limits": 0,
+   "third_reader": 12,
+   "unformalized": {
+    "agent_a": [
+     "R-IF-1",
+     "R-IN-1"
+    ],
+    "agent_b": [
+     "R-IF-1",
+     "R-IN-1"
+    ]
+   },
+   "b1_asks": true,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.069,
+   "judge": {
+    "b1": 2,
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 2
+   }
+  },
+  {
+   "task": "HumanEval/134",
+   "variant": "1p",
+   "agents": "ok",
+   "lint": "clean",
+   "check": "ok",
+   "attempts": 1,
+   "seconds": {
+    "agents": 607,
+    "check": 21
+   },
+   "runs": {
+    "adapter": {
+     "seconds": 61,
+     "cost_usd": 0.39187029999999995,
+     "turns": 13,
+     "error": false,
+     "sandbox": true
+    },
+    "decomposer": {
+     "seconds": 145,
+     "cost_usd": 0.5865471999999999,
+     "turns": 9,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_a": {
+     "seconds": 123,
+     "cost_usd": 0.5472197000000001,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    },
+    "agent_b": {
+     "seconds": 172,
+     "cost_usd": 0.6930959999999999,
+     "turns": 11,
+     "error": false,
+     "sandbox": true
+    },
+    "variant": {
+     "seconds": 227,
+     "cost_usd": 0.8802249999999999,
+     "turns": 8,
+     "error": false,
+     "sandbox": true
+    }
+   },
+   "cost_usd": 3.1,
+   "sandboxed": true,
+   "questions": {
+    "conflict": 1,
+    "scenario": 1,
+    "depends": 1,
+    "ambiguity": 8
+   },
+   "formal": 3,
+   "levels": {
+    "hard": 2,
+    "depends": 1,
+    "ambiguity": 8,
+    "undecided": 0
+   },
+   "settled": 1,
+   "requirements": 7,
+   "flagged_phrases": 12,
+   "limits": 0,
+   "third_reader": 12,
+   "unformalized": {
+    "agent_a": [
+     "R-DEF-1",
+     "R-IF-1",
+     "R-IN-1",
+     "R-NF-1"
+    ],
+    "agent_b": [
+     "R-DEF-1",
+     "R-IF-1",
+     "R-NF-1"
+    ]
+   },
+   "b1_asks": false,
+   "b2_asks": true,
+   "b0_code": true,
+   "baseline_cost_usd": 0.062,
+   "judge": {
+    "b2": 2,
+    "b0": 2,
+    "fcp": 2,
+    "fcp_formal": 2,
+    "fcp_hard": 1
+   }
+  }
+ ]
+}

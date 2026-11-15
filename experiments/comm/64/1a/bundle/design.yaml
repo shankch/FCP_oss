@@ -1,0 +1,26 @@
+fcp: '0.1'
+design: code_candidate
+summary: A Python function on strings treated as a chip without memory. Each cycle is one call of candidate(s); the argument is an input string of at most 32 characters, the returned integer and the way the call ended are outputs. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt: candidate(s) on a word'}
+- {id: FRAME, path: frame.md, title: 'FCP function adapter, version 0.2'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: s, dir: in, width: 8, length: 32, desc: 'the s argument: a string of at most 32 characters, codes 0 to 255'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned an integer that fits, 1 any exception or no answer, 2 returned anything else'}
+  - {name: result, dir: out, width: 6, desc: 'the returned integer (outcome 0), 0 to 63'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> result == 0'}
+function:
+  name: candidate
+  args:
+  - {name: s, signal: s, type: str}
+  returns: {signal: result, type: int}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    s: {alphabet: 'aeiouyAEIOUYbcdxzBCDXZ', random: 3000, values: ['abcde', 'ACEDY']}

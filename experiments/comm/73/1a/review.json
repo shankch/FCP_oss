@@ -1,0 +1,227 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 72,
+    "checked": 72,
+    "seconds": 0.84
+   },
+   "open": {
+    "open": {},
+    "checked": 47
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 95,
+    "checked": 95,
+    "seconds": 1.52
+   },
+   "open": {
+    "open": {},
+    "checked": 60
+   }
+  }
+ },
+ "readings": {
+  "R-DEF-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-IN-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-CH-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-CH-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "an array arr of integers",
+   "taken": 1,
+   "variant": 2,
+   "text": "arr is implicitly non-empty; the result for the empty array is unspecified (don't care)"
+  },
+  {
+   "req": "R-CH-1",
+   "phrase": "the number of elements that need to be changed",
+   "taken": 1,
+   "variant": 2,
+   "text": "the number of elements that differ from their mirrored element, i.e. both elements of every differing pair are counted (twice the number of differing pairs); this reading contradicts R-EX-1 (8, not 4) and R-EX-2 (2, not 1)"
+  },
+  {
+   "req": "R-CH-1",
+   "phrase": "to make the array palindromic",
+   "taken": 1,
+   "variant": 2,
+   "text": "the function also turns arr into a palindrome (in place) and returns how many elements it changed"
+  },
+  {
+   "req": "R-CH-2",
+   "phrase": "find the number",
+   "taken": 1,
+   "variant": 2,
+   "text": "output (e.g. print) the number; the return value is unspecified"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "read the same backwards and forwards",
+   "taken": 1,
+   "variant": 2,
+   "text": "textually: the written-out digits of the elements, read in reverse, are the same (e.g. [12, 21] reads 1221 and is palindromic)"
+  },
+  {
+   "req": "R-DEF-2",
+   "phrase": "any other element",
+   "taken": 2,
+   "variant": 1,
+   "text": "any other integer value, whether or not it occurs in the array"
+  },
+  {
+   "req": "R-DEF-2",
+   "phrase": "In one change, you can change one element",
+   "taken": 1,
+   "variant": 2,
+   "text": "any replacement counts as a change, even one that leaves the value the same"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "== 4",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-CH-1 read as counting every element that differs from its mirror, which gives 8"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "== 1",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-CH-1 read as counting every element that differs from its mirror, which gives 2"
+  }
+ ],
+ "depends": {
+  "R-CH-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate([4, 100, 0, 101, 201, 10, 0, 100, 200, 13]) -> 5"
+   ]
+  },
+  "R-DEF-1": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_b"
+   ],
+   "witness": [
+    "candidate([1, 102, 102, 232, 5, 232, 102, 102, 1]) -> 0"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-3"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-CH-1",
+    "R-DEF-1"
+   ],
+   "calls": [
+    "candidate([4, 100, 0, 101, 201, 10, 0, 100, 200, 13]) -> 5"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CH-1"
+   ],
+   "calls": [],
+   "question": "\"the number of elements that need to be changed\" can mean: the minimum number of single-element changes that make arr palindromic, i.e. the number of mirrored index pairs (i, len(arr)-1-i) with i < len(arr)-1-i whose two elements differ / the number of elements that differ from their mirrored element, i.e. both elements of every differing pair are counted (twice the number of differing pairs); this reading contradicts R-EX-1 (8, not 4) and R-EX-2 (2, not 1) / any number of changes that suffices to make arr palindromic, not necessarily the smallest. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CH-1"
+   ],
+   "calls": [],
+   "question": "\"to make the array palindromic\" can mean: the function only computes and returns the count; arr itself is left as it was / the function also turns arr into a palindrome (in place) and returns how many elements it changed. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CH-2"
+   ],
+   "calls": [],
+   "question": "\"find the number\" can mean: return the number as the function's integer result / output (e.g. print) the number; the return value is unspecified. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"== 4\" can mean: consistent with R-CH-1 read as the minimum number of changes: all 4 mirrored pairs (1,6), (2,9), (3,7), (5,4) differ / contradicts R-CH-1 read as counting every element that differs from its mirror, which gives 8. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"== 1\" can mean: consistent with R-CH-1 read as the minimum number of changes: only the pair (1,2) differs; the middle element 4 has no mirror / contradicts R-CH-1 read as counting every element that differs from its mirror, which gives 2. Which is meant?"
+  }
+ ],
+ "limits": []
+}

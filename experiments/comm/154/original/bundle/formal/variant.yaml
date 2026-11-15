@@ -1,0 +1,191 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # The second word b, or one of its "rotations", "is a substring in the first word" a.
+  # Readings taken (see decisions):
+  #  - "rotations" = any rearrangement (permutation) of the characters of b, b itself included;
+  #  - "a substring" = a proper substring: a contiguous run of a strictly shorter than a;
+  #  - letters are compared ignoring case (lower(), the ASCII case mapping of FCP-PL).
+  # Some permutation of b equals (ignoring case) the window a[i : i + len(b)] exactly when the
+  # window and b hold the same characters with the same multiplicities after case folding.
+  # Since the window has len(b) characters, it suffices to compare, for every character of b,
+  # how often it occurs in b and in the window (the IR's `perm` idiom).
+  hit: >-
+    len(b) < len(a) &&
+    any(i < len(a) - len(b) + 1:
+      all(j < len(b):
+        count(k < len(b): lower(a[i + k]) == lower(b[j])) ==
+        count(k < len(b): lower(b[k]) == lower(b[j]))))
+
+properties:
+  - id: RV-RES-1
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: hit
+      cond: "(outcome == 0 && result) || outcome == 2"
+    note: >-
+      If b or one of its rotations is a substring of a, the call returns True. Variant readings
+      applied: R-DEF-1 "rotations" is read as ANY rearrangement (permutation, anagram) of the
+      characters of b, not only cyclic shifts; R-DEF-2 "a substring" is read as a PROPER
+      substring (strictly shorter than a), so b, or a rearrangement of it, equal to the whole of
+      a does not count and nothing is required when len(b) >= len(a); R-DEF-2 "substring in the
+      first word" is read as comparing letters ignoring case ('A' matches 'a'). FCP-PL lower()
+      is the ASCII case mapping, so accented Latin-1 letters (e.g. codes 0xC0 and 0xE0) are
+      compared exactly, a limit of the available operator. R-RES-3 "return True" is read as any
+      value Python treats as true: the bool True (outcome 0, result 1) or a returned non-bool
+      (outcome 2). The trace does not record the truth value of a non-bool return, so outcome 2
+      is accepted whatever value was returned; this over-approximates "a truthy value". Under
+      the permutation reading the docstring example whassup/psus => False contradicts this
+      property: "ssup" (a[3:7]) is a rearrangement of "psus" and a proper substring of
+      "whassup" (see RV-EX-3). An empty b is a proper substring of every non-empty a, so such a
+      call must return True; an empty a never triggers.
+
+  - id: RV-RES-3
+    req: R-RES-3
+    expr: "outcome == 0 || outcome == 2"
+    note: >-
+      Every call returns a value: it neither raises nor fails to finish (outcome 1), and the
+      undefined code 3 does not occur. Variant reading of R-RES-3 "return True": any value Python
+      treats as true or false is acceptable, so returning 1 or 0 (or None for false), outcome 2,
+      satisfies the requirement as well as the bool True/False, outcome 0. The trace cannot tell
+      whether a non-bool's truth value is defined, so every returned value is accepted. Under
+      the reading taken for R-IN-1 ("words": any strings, empty ones included) this applies to
+      every call.
+
+dont_cares:
+  - id: RV-RES-2
+    req: R-RES-2
+    signal: result
+    when: "!hit"
+    note: >-
+      Variant reading of R-RES-2 "return True if": a sufficient condition only. The text states
+      when True is returned and says nothing about the other calls, so when neither b nor any
+      rotation of b is a substring of a the returned value is intentionally unconstrained (True
+      or False); the call must still return (RV-RES-3). "Rotation" and "substring" are read as
+      in RV-RES-1 (R-DEF-1: any permutation of b; R-DEF-2: proper substring of a, letters
+      compared ignoring case), so this also leaves free every call with len(b) >= len(a),
+      including b == a and a == b == "".
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'a == "abcd" && b == "abd" && outcome == 0 && !result'
+    note: >-
+      The example call may return False. Not a hit under the variant readings: the windows of
+      length 3 of "abcd" are "abc" and "bcd", neither a rearrangement of "abd" (R-DEF-1 reading:
+      any permutation; R-DEF-2: proper substring, case ignored). Because R-RES-2 is read as a
+      sufficient condition only, the docstring's False is a behaviour that must be possible, not
+      an obligation, so this is a scenario. Under the R-RES-3 reading a falsy non-bool (0, None)
+      would also be acceptable, but the trace cannot see the truth value of a non-bool return,
+      so the scenario names the example's literal value, the bool False.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'a == "hello" && b == "ell" && outcome == 0 && result'
+    note: >-
+      The example call may return True. "ell" is a proper substring of "hello", so RV-RES-1 also
+      requires a true value here (the bool True or, under the variant R-RES-3 reading, a truthy
+      non-bool); the scenario names the example's literal value, the bool True.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'a == "whassup" && b == "psus" && outcome == 0 && !result'
+    note: >-
+      The example call may return False. CONFLICT under the variant reading of R-DEF-1
+      ("rotations" = any rearrangement of b): the window "ssup" = a[3:7] holds the same letters
+      as "psus" and is a proper substring of "whassup" (R-DEF-2 reading), so RV-RES-1 requires a
+      true value and this scenario is unreachable. The specification's example contradicts the
+      imposed reading; it is formalized as written, not repaired. Under R-RES-2 read as a
+      sufficient condition, the False is a possible behaviour, hence a scenario; the bool False
+      is named because the trace cannot see the truth value of a non-bool return (R-RES-3
+      reading).
+
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'a == "abab" && b == "baa" && outcome == 0 && result'
+    note: >-
+      The example call may return True. Under the variant readings the window "aba" of "abab" is
+      a rearrangement of "baa" (R-DEF-1: any permutation) and a proper substring (R-DEF-2), so
+      RV-RES-1 also requires a true value; the scenario names the literal bool True (R-RES-3
+      reading admits truthy non-bools, whose truth value the trace cannot see).
+
+  - id: RV-EX-5
+    req: R-EX-5
+    cover: 'a == "efef" && b == "eeff" && outcome == 0 && !result'
+    note: >-
+      The example call may return False. The note on the variant reading of R-DEF-1 says this
+      example rules the permutation reading out, since "efef" is a permutation of "eeff" and a
+      substring of "efef". Combined with the variant reading of R-DEF-2 ("a substring" = proper
+      substring, strictly shorter than a) it does not: the only candidate is the whole first word
+      (both have length 4), which does not count, so the call is not a hit and its result is free
+      (R-RES-2 read as a sufficient condition only). False is thus a possible behaviour, as the
+      example states. The bool False is named (R-RES-3 reading: see RV-EX-1).
+
+  - id: RV-EX-6
+    req: R-EX-6
+    cover: 'a == "himenss" && b == "simen" && outcome == 0 && result'
+    note: >-
+      The example call may return True. Under the variant readings the window "imens" of
+      "himenss" is a rearrangement of "simen" (R-DEF-1: any permutation; a cyclic shift as well)
+      and a proper substring (R-DEF-2), so RV-RES-1 also requires a true value; the scenario
+      names the literal bool True (R-RES-3 reading admits truthy non-bools, whose truth value
+      the trace cannot see).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a complete implementation of the given function. It is
+      not a property of a call trace; that the function answers every call is RV-RES-3.
+
+  - req: R-IF-2
+    reason: >-
+      Definition realized by the interface: the first word is input signal a and the second word
+      is input signal b, as used by def `hit` in every item below.
+    covered_by: [RV-RES-1, RV-RES-2]
+
+  - req: R-IN-1
+    reason: >-
+      Reading 1 taken for both flagged phrases ("words": any strings, whatever characters they
+      contain; "2 words": either word may be empty). Under these readings the obligation is only
+      that both arguments are strings, which the interface encoding already guarantees (frame.md:
+      every argument is a string of at most 12 characters, codes 0 to 255), so no assumption
+      restricts the inputs and every item applies to every call. Note that under the variant
+      proper-substring reading of R-DEF-2 the parenthetical of reading 1 ("an empty second word
+      ... the result is True") holds only for a non-empty a.
+
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized by def `hit`. Variant reading of "rotations": any rearrangement
+      (permutation, anagram) of the characters of b, b itself included, rather than the cyclic
+      shifts b[k:] + b[:k] the requirement text gives. The note of that reading says the example
+      efef/eeff => False rules it out; combined with the proper-substring reading of R-DEF-2 it
+      does not (RV-EX-5), but the example whassup/psus => False does contradict it (RV-EX-3).
+    covered_by: [RV-RES-1, RV-RES-2]
+
+  - req: R-DEF-2
+    reason: >-
+      Definition, realized by def `hit`. Variant readings: "a substring" is a contiguous run of a
+      strictly shorter than a (a proper substring), so a second word, or a rearrangement of it,
+      equal to the whole first word does not count; "substring in the first word" compares
+      letters ignoring case, with lower() (ASCII case mapping; non-ASCII Latin-1 letters compared
+      exactly).
+    covered_by: [RV-RES-1, RV-RES-2]
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, realized by frame item F-ZERO of design.yaml
+      (outcome != 0 -> !result), which is added to every formalization set and need not be
+      restated (frame.md).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: words, reading: 1}
+  - {req: R-IN-1, phrase: 2 words, reading: 1}
+  - {req: R-DEF-1, phrase: rotations, reading: 2}
+  - {req: R-DEF-2, phrase: a substring, reading: 2}
+  - {req: R-DEF-2, phrase: substring in the first word, reading: 2}
+  - {req: R-RES-2, phrase: return True if, reading: 2}
+  - {req: R-RES-3, phrase: return True, reading: 2}

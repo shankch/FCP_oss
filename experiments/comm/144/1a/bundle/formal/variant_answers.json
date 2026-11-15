@@ -1,0 +1,100 @@
+[
+ {
+  "req": "R-FN-2",
+  "phrase": "a, b",
+  "taken": 1,
+  "variant": 2,
+  "text": "The docstring never ties x and n to a and b; the mapping is unspecified (the result is the same either way, because * and + are commutative)."
+ },
+ {
+  "req": "R-FN-3",
+  "phrase": "simplify the expression",
+  "taken": 1,
+  "variant": 2,
+  "text": "The function must produce the simplified expression (e.g. a reduced fraction); this contradicts R-RES-1 and R-RES-2, which say it returns True or False."
+ },
+ {
+  "req": "R-FN-3",
+  "phrase": "x * n, or x + n",
+  "taken": 3,
+  "variant": 1,
+  "text": "The expression is the product x * n only."
+ },
+ {
+  "req": "R-IN-1",
+  "phrase": "<numerator>/<denominator>",
+  "taken": 1,
+  "variant": 2,
+  "text": "Numerator and denominator may be written with leading zeros (e.g. '05/1'); only their values matter."
+ },
+ {
+  "req": "R-IN-2",
+  "phrase": "positive whole numbers",
+  "taken": 1,
+  "variant": 2,
+  "text": "Whole numbers in the sense of non-negative integers: the separate statement that the denominator is not zero (R-IN-4) would be needed only if zero could occur, which suggests a numerator of 0 may be passed."
+ },
+ {
+  "req": "R-IN-3",
+  "phrase": "valid fractions",
+  "taken": 1,
+  "variant": 2,
+  "text": "Any string that denotes a fraction, possibly in other forms (e.g. '3', or with spaces)."
+ },
+ {
+  "req": "R-IN-4",
+  "phrase": "do not have zero as denominator",
+  "taken": 1,
+  "variant": 2,
+  "text": "Zero is excluded only for the denominator, implying 'whole numbers' in R-IN-2 includes zero and a numerator of 0 may occur (in tension with 'positive' in R-IN-2)."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "x * n or x + n evaluates to a whole number",
+  "taken": 1,
+  "variant": 2,
+  "text": "True when the product x * n is a whole number; the sum is not considered (matches all three examples)."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "evaluates",
+  "taken": 1,
+  "variant": 2,
+  "text": "Floating-point evaluation (e.g. float division) whose result has an integral value, which can differ from exact arithmetic through rounding."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "whole number",
+  "taken": 1,
+  "variant": 2,
+  "text": "A non-negative integer (0 counts as whole)."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "returns True",
+  "taken": 1,
+  "variant": 2,
+  "text": "R-FN-3 says the function simplifies the expression, suggesting it returns the simplified expression; this contradicts returning True or False."
+ },
+ {
+  "req": "R-RES-2",
+  "phrase": "otherwise",
+  "taken": 1,
+  "variant": 2,
+  "text": "False when the product x * n is not a whole number, whatever the sum."
+ },
+ {
+  "req": "R-RES-2",
+  "phrase": "False",
+  "taken": 1,
+  "variant": 2,
+  "text": "R-FN-3 says the function simplifies the expression, suggesting it returns the simplified expression; this contradicts returning True or False."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "simplify(\"1/5\", \"5/1\") = True",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradicts R-RES-1 if the sum must be whole (alone or together with the product): 1/5 + 5/1 = 26/5 is not a whole number."
+ }
+]

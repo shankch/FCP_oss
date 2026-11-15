@@ -1,0 +1,166 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # the six calls shown in the prompt
+  ex: >-
+    (a == "abcd" && b == "abd") || (a == "hello" && b == "ell") ||
+    (a == "whassup" && b == "psus") || (a == "abab" && b == "baa") ||
+    (a == "efef" && b == "eeff") || (a == "himenss" && b == "simen")
+  # the following defs are macros used inside the quantifiers of `match`, where
+  # p (start in a), k (rotation amount) and j (position in the pattern) are bound
+  # index of b that holds character j of the rotation of b by k ((j + k) mod len(b))
+  rot: '(j + k < len(b) ? j + k : j + k - len(b))'
+  # character j of the window of a that starts at p
+  ca: 'a[p + j]'
+  # character j of the rotation of b by k (its first k characters moved to the end)
+  cr: 'b[rot]'
+  # character j of the rotation by k of the reverse of b
+  cv: 'b[len(b) - 1 - rot]'
+  # the same characters with case ignored: the lower-case mapping of Python's
+  # str.lower on Latin-1 (A-Z and the capitals 192-222 except 215 move up by 32)
+  fa: '(ca >= 192 && ca <= 222 && ca != 215 ? ca + 32 : lower(ca))'
+  fr: '(cr >= 192 && cr <= 222 && cr != 215 ? cr + 32 : lower(cr))'
+  fv: '(cv >= 192 && cv <= 222 && cv != 215 ? cv + 32 : lower(cv))'
+  # b is not empty, and some rotation of b or some rotation of the reverse of b
+  # occurs as a contiguous substring of a, letters compared ignoring case
+  match: >-
+    len(b) > 0 && any(p < len(a): p + len(b) <= len(a) && any(k < len(b):
+    all(j < len(b): fa == fr) || all(j < len(b): fa == fv)))
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'ex', cond: 'outcome != 1'}
+    note: >-
+      Variant readings taken as instructed: "Complete this function" is read as
+      reading 2 (only the six calls shown in the examples must return; on every
+      other call, e.g. with an empty string, raising, not finishing or returning
+      another type is allowed, see RV-RET-1-DC), and "=> True / => False" is read
+      as reading 2 (any truthy or falsy value such as 1, 0, "" or None is
+      acceptable). Under that second reading a non-bool return (outcome 2) is
+      acceptable on the example calls too, so the only obligation left is that
+      these calls return some value: outcome is not 1. The interface does not
+      record the value of a non-bool return, so its truthiness cannot be checked
+      here; the value of a bool return is checked by RV-RULE-1/RV-RULE-2 and the
+      RV-EX scenarios.
+  - id: RV-RULE-1
+    req: R-RULE-1
+    pattern: implies
+    args: {trigger: 'outcome == 0', cond: 'result == match'}
+    note: >-
+      Variant readings taken as instructed. "the prompt states no rule, only six
+      examples": reading 2, True exactly when some rotation of b or some rotation
+      of the reverse of b is a contiguous substring of a (checked by hand against
+      all six examples); "exactly when" is formalized literally, as both
+      directions. "an empty b": reading 2, an empty pattern never matches, so an
+      empty b gives False (len(b) > 0 in `match`). "upper and lower case":
+      reading 2, letters compared ignoring case; taken as Python's lower-case
+      mapping on Latin-1, so A-Z match a-z and the Latin-1 capitals (codes
+      192-222 except 215) match their small letters, while the small letters with
+      no capital in Latin-1 (the sharp s 223, micro sign 181, y with diaeresis
+      255) match only themselves (no case folding of the sharp s to "ss"). The
+      rule is stated only for calls that return a bool (outcome 0): because of
+      the variant readings of R-RET-1 a call may raise outside the examples, and
+      a truthy or falsy non-bool return (outcome 2) is acceptable but its value
+      is not observable; the requirement's "returns True" is not taken to forbid
+      either. A b longer than a has no window, so `match` is false.
+  - id: RV-RULE-2
+    req: R-RULE-2
+    pattern: implies
+    args: {trigger: 'outcome == 0', cond: '(!result <-> !match)'}
+    note: >-
+      Variant readings taken as instructed. "the prompt states no rule, only six
+      examples": reading 2, False exactly when no rotation of b and no rotation of
+      the reverse of b is a contiguous substring of a; "exactly when" is
+      formalized literally, as both directions, so this item states the same
+      relation as RV-RULE-1 in the opposite polarity. "an empty b": reading 2, an
+      empty b never matches, so the call returns False (len(b) > 0 in `match`).
+      "upper and lower case": reading 2, letters compared ignoring case, with
+      the same Latin-1 lower-case mapping as RV-RULE-1. When b is longer than a,
+      `match` is false, so the call returns False. As in RV-RULE-1 the rule
+      applies only when the call returns a bool (outcome 0), because of the
+      variant readings of R-RET-1; for any other outcome result is 0 by F-ZERO
+      anyway.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'a == "abcd" && b == "abd" && outcome != 1 && !result'
+    note: >-
+      "=> False" is read with the variant reading 2 of R-RET-1: any falsy value
+      is acceptable, so the call may return False (outcome 0, result 0) or a
+      non-bool value (outcome 2, result 0 by F-ZERO); the interface cannot tell
+      a falsy non-bool from a truthy one.
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'a == "hello" && b == "ell" && (outcome == 0 && result || outcome == 2)'
+    note: >-
+      "=> True" is read with the variant reading 2 of R-RET-1: any truthy value
+      is acceptable, so the call may return True (outcome 0, result 1) or a
+      non-bool value (outcome 2), whose truthiness the interface does not record.
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'a == "whassup" && b == "psus" && outcome != 1 && !result'
+    note: >-
+      "=> False" is read with the variant reading 2 of R-RET-1: any falsy value
+      is acceptable, so the call may return False (outcome 0, result 0) or a
+      non-bool value (outcome 2, result 0 by F-ZERO); the interface cannot tell
+      a falsy non-bool from a truthy one. "psus" reversed is "susp", itself a
+      rotation of "psus", so the variant rule of R-RULE-1/2 also gives False.
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'a == "abab" && b == "baa" && (outcome == 0 && result || outcome == 2)'
+    note: >-
+      "=> True" is read with the variant reading 2 of R-RET-1: any truthy value
+      is acceptable, so the call may return True (outcome 0, result 1) or a
+      non-bool value (outcome 2), whose truthiness the interface does not record.
+  - id: RV-EX-5
+    req: R-EX-5
+    cover: 'a == "efef" && b == "eeff" && outcome != 1 && !result'
+    note: >-
+      "=> False" is read with the variant reading 2 of R-RET-1: any falsy value
+      is acceptable, so the call may return False (outcome 0, result 0) or a
+      non-bool value (outcome 2, result 0 by F-ZERO); the interface cannot tell
+      a falsy non-bool from a truthy one. "eeff" reversed is "ffee", itself a
+      rotation of "eeff", so the variant rule of R-RULE-1/2 also gives False.
+  - id: RV-EX-6
+    req: R-EX-6
+    cover: 'a == "himenss" && b == "simen" && (outcome == 0 && result || outcome == 2)'
+    note: >-
+      "=> True" is read with the variant reading 2 of R-RET-1: any truthy value
+      is acceptable, so the call may return True (outcome 0, result 1) or a
+      non-bool value (outcome 2), whose truthiness the interface does not record.
+
+dont_cares:
+  - id: RV-RET-1-DC
+    req: R-RET-1
+    signal: outcome
+    when: '!ex'
+    note: >-
+      Variant reading 2 of "Complete this function", taken as instructed: on
+      every call other than the six shown in the examples, raising an exception
+      or returning another type is allowed, so how the call ends is left free
+      (outcome 0, 1 or 2; 3 is excluded by F-CODE). Not finishing is also
+      outcome 1, since the interface does not tell it apart from raising. On the example
+      calls outcome is only constrained to be 0 or 2 (RV-RET-1).
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the function's name and argument order. It is realized by
+      the function section of design.yaml (name candidate, a first, b second) and
+      by the frame (each cycle is one call candidate(a, b)), not by a property of
+      the trace.
+
+decisions:
+  - {req: R-RET-1, phrase: 'Complete this function', reading: 2}
+  - {req: R-RET-1, phrase: '=> True / => False (the result notation of the examples)', reading: 2}
+  - {req: R-RULE-1, phrase: 'the prompt states no rule, only six examples', reading: 2}
+  - {req: R-RULE-1, phrase: 'an empty b (no example has one)', reading: 2}
+  - {req: R-RULE-1, phrase: 'upper and lower case (every example is lower case)', reading: 2}
+  - {req: R-RULE-2, phrase: 'the prompt states no rule, only six examples', reading: 2}
+  - {req: R-RULE-2, phrase: 'an empty b (no example has one)', reading: 2}
+  - {req: R-RULE-2, phrase: 'upper and lower case (every example is lower case)', reading: 2}

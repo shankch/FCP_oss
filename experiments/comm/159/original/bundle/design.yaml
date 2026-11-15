@@ -1,0 +1,33 @@
+fcp: '0.1'
+design: review
+summary: A Python function on integers treated as a chip without memory. Each cycle is one call of eat(number, need, remaining); the arguments are inputs, the two elements of the returned list and the way the call ended are outputs. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt: eat, the hungry rabbit'}
+- {id: FRAME, path: frame.md, title: 'FCP function adapter, version 0.1'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: number, dir: in, width: 10, desc: 'number argument: the carrots already eaten'}
+  - {name: need, dir: in, width: 10, desc: 'need argument: the carrots still to eat'}
+  - {name: remaining, dir: in, width: 10, desc: 'remaining argument: the carrots in stock'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a list of two integers that fit, 1 any exception or no answer, 2 returned anything else'}
+  - {name: eaten, dir: out, width: 11, desc: 'first element of the returned list (outcome 0)'}
+  - {name: left, dir: out, width: 10, desc: 'second element of the returned list (outcome 0)'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> eaten == 0 && left == 0'}
+function:
+  name: eat
+  args:
+  - {name: number, signal: number, type: int}
+  - {name: need, signal: need, type: int}
+  - {name: remaining, signal: remaining, type: int}
+  returns: {signals: [eaten, left]}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    number: {dense: [0, 12], values: [999, 1000, 1001], random: 20}
+    need: {dense: [0, 12], values: [999, 1000, 1001], random: 20}
+    remaining: {dense: [0, 12], values: [999, 1000, 1001], random: 20}

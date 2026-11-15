@@ -1,0 +1,1021 @@
+{
+ "consistency": {
+  "agent_a": {
+   "consistent": true,
+   "conflicts": [],
+   "tautologies": []
+  },
+  "agent_b": {
+   "consistent": true,
+   "conflicts": [],
+   "tautologies": []
+  },
+  "gold": {
+   "consistent": false,
+   "conflicts": [
+    {
+     "reqs": [
+      "R-END-1",
+      "R-FEAT-1",
+      "R-FEAT-2",
+      "R-FEAT-3",
+      "R-GREET-1",
+      "R-LEN-1",
+      "R-SUBJ-1"
+     ],
+     "frame": [
+      "R-FR-3",
+      "R-FR-4"
+     ]
+    },
+    {
+     "reqs": [
+      "R-FEAT-1",
+      "R-FEAT-2",
+      "R-FEAT-3",
+      "R-GREET-1",
+      "R-LEN-1",
+      "R-SUBJ-1"
+     ],
+     "frame": [
+      "R-FR-2",
+      "R-FR-3",
+      "R-FR-4"
+     ]
+    }
+   ],
+   "tautologies": []
+  }
+ },
+ "compare": {
+  "agent_a|agent_b": {
+   "R-SUBJ-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-GREET-1": {
+    "relation": "INCOMPARABLE",
+    "witness_a_not_b": [
+     "unit 0: greet",
+     "unit 1: -",
+     "unit 2: -",
+     "unit 3: -",
+     "unit 4: -",
+     "unit 5: -",
+     "unit 6: -",
+     "unit 7: signoff",
+     "unit 8: -",
+     "unit 9: -",
+     "(end of response)"
+    ],
+    "witness_b_not_a": [
+     "unit 0: -",
+     "unit 1: subject greet",
+     "unit 2: -",
+     "unit 3: -",
+     "unit 4: -",
+     "unit 5: -",
+     "unit 6: -",
+     "unit 7: -",
+     "(end of response)"
+    ]
+   },
+   "R-FEAT-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-FEAT-2": {
+    "relation": "ONLY-A"
+   },
+   "R-FEAT-3": {
+    "relation": "EQUIVALENT"
+   },
+   "R-PRICE-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-OFFER-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-RIVAL-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-LEN-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-END-1": {
+    "relation": "A-WEAKER",
+    "witness_a_not_b": [
+     "unit 0: signoff",
+     "unit 1: -",
+     "unit 2: -",
+     "unit 3: -",
+     "unit 4: -",
+     "unit 5: -",
+     "unit 6: -",
+     "unit 7: -",
+     "unit 8: -",
+     "unit 9: -",
+     "unit 10: -",
+     "unit 11: -",
+     "unit 12: cta",
+     "unit 13: signoff",
+     "(end of response)"
+    ]
+   }
+  },
+  "agent_a|gold": {
+   "R-SUBJ-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-GREET-1": {
+    "relation": "INCOMPARABLE",
+    "witness_a_not_b": [
+     "unit 0: greet",
+     "unit 1: -",
+     "unit 2: -",
+     "unit 3: -",
+     "unit 4: -",
+     "unit 5: -",
+     "unit 6: -",
+     "unit 7: signoff",
+     "unit 8: -",
+     "unit 9: -",
+     "(end of response)"
+    ],
+    "witness_b_not_a": [
+     "unit 0: -",
+     "unit 1: subject greet",
+     "unit 2: -",
+     "unit 3: -",
+     "unit 4: -",
+     "unit 5: -",
+     "unit 6: -",
+     "unit 7: -",
+     "(end of response)"
+    ]
+   },
+   "R-FEAT-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-FEAT-2": {
+    "relation": "A-WEAKER",
+    "witness_a_not_b": [
+     "unit 0: feature cta",
+     "unit 1: -",
+     "unit 2: -",
+     "unit 3: -",
+     "unit 4: -",
+     "unit 5: -",
+     "unit 6: -",
+     "unit 7: -",
+     "unit 8: -",
+     "unit 9: -",
+     "(end of response)"
+    ]
+   },
+   "R-FEAT-3": {
+    "relation": "EQUIVALENT"
+   },
+   "R-PRICE-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-OFFER-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-RIVAL-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-LEN-1": {
+    "relation": "INCOMPARABLE",
+    "witness_a_not_b": [
+     "unit 0: feature",
+     "unit 1: feature",
+     "unit 2: feature",
+     "unit 3: subject",
+     "unit 4: subject",
+     "unit 5: subject",
+     "unit 6: -",
+     "unit 7: -",
+     "(end of response)"
+    ],
+    "witness_b_not_a": [
+     "unit 0: -",
+     "unit 1: -",
+     "unit 2: -",
+     "unit 3: feature",
+     "unit 4: feature",
+     "unit 5: -",
+     "unit 6: -",
+     "(end of response)"
+    ]
+   },
+   "R-END-1": {
+    "relation": "A-STRONGER",
+    "witness_b_not_a": [
+     "(end of response)"
+    ]
+   }
+  },
+  "agent_b|gold": {
+   "R-SUBJ-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-GREET-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-FEAT-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-FEAT-3": {
+    "relation": "EQUIVALENT"
+   },
+   "R-PRICE-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-OFFER-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-RIVAL-1": {
+    "relation": "EQUIVALENT"
+   },
+   "R-LEN-1": {
+    "relation": "INCOMPARABLE",
+    "witness_a_not_b": [
+     "unit 0: -",
+     "unit 1: -",
+     "unit 2: -",
+     "unit 3: -",
+     "unit 4: greet",
+     "unit 5: subject",
+     "unit 6: subject",
+     "unit 7: -",
+     "(end of response)"
+    ],
+    "witness_b_not_a": [
+     "unit 0: ends",
+     "unit 1: feature",
+     "unit 2: -",
+     "unit 3: feature",
+     "unit 4: feature",
+     "unit 5: feature",
+     "unit 6: -",
+     "unit 7: signoff",
+     "unit 8: signoff",
+     "(end of response)"
+    ]
+   },
+   "R-END-1": {
+    "relation": "A-STRONGER",
+    "witness_b_not_a": [
+     "(end of response)"
+    ]
+   },
+   "R-FEAT-2": {
+    "relation": "ONLY-B"
+   }
+  }
+ },
+ "verdicts": {
+  "agent_a": {
+   "empty": {
+    "failed": [
+     "R-END-1",
+     "R-FEAT-1",
+     "R-GREET-1",
+     "R-PRICE-1",
+     "R-SUBJ-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "FAILED",
+     "R-GREET-1": "FAILED",
+     "R-FEAT-1": "FAILED",
+     "R-FEAT-2": "PROVED-VACUOUS",
+     "R-FEAT-3": "PROVED-VACUOUS",
+     "R-PRICE-1": "FAILED",
+     "R-OFFER-1": "PROVED-VACUOUS",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "FAILED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "PROVED-VACUOUS",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "haiku_la": {
+    "failed": [
+     "R-FEAT-2"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "FAILED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "haiku_lb": {
+    "failed": [
+     "R-FEAT-2"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "FAILED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "haiku_lh": {
+    "failed": [
+     "R-FEAT-2"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "FAILED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "opus_la": {
+    "failed": [],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "PROVED-DISPUTED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "opus_lb": {
+    "failed": [],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "PROVED-DISPUTED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "opus_lh": {
+    "failed": [],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "PROVED-DISPUTED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "sonnet_la": {
+    "failed": [
+     "R-FEAT-1",
+     "R-FEAT-3"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "FAILED",
+     "R-FEAT-2": "PROVED-DISPUTED",
+     "R-FEAT-3": "FAILED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "sonnet_lb": {
+    "failed": [
+     "R-FEAT-1",
+     "R-FEAT-2",
+     "R-FEAT-3"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "FAILED",
+     "R-FEAT-2": "FAILED",
+     "R-FEAT-3": "FAILED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "sonnet_lh": {
+    "failed": [],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "PROVED-DISPUTED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   }
+  },
+  "agent_b": {
+   "empty": {
+    "failed": [
+     "R-END-1",
+     "R-FEAT-1",
+     "R-GREET-1",
+     "R-PRICE-1",
+     "R-SUBJ-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "FAILED",
+     "R-GREET-1": "FAILED",
+     "R-FEAT-1": "FAILED",
+     "R-FEAT-2": "COVERED-FAILED",
+     "R-FEAT-3": "PROVED-VACUOUS",
+     "R-PRICE-1": "FAILED",
+     "R-OFFER-1": "PROVED-VACUOUS",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "FAILED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "PROVED-VACUOUS",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "haiku_la": {
+    "failed": [],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "COVERED-PROVED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "haiku_lb": {
+    "failed": [],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "COVERED-PROVED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "haiku_lh": {
+    "failed": [],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "COVERED-PROVED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "opus_la": {
+    "failed": [],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "COVERED-PROVED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "opus_lb": {
+    "failed": [],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "COVERED-PROVED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "opus_lh": {
+    "failed": [],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "COVERED-PROVED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "sonnet_la": {
+    "failed": [
+     "R-FEAT-1",
+     "R-FEAT-3"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "FAILED",
+     "R-FEAT-2": "COVERED-FAILED",
+     "R-FEAT-3": "FAILED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "sonnet_lb": {
+    "failed": [
+     "R-FEAT-1",
+     "R-FEAT-3"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "FAILED",
+     "R-FEAT-2": "COVERED-FAILED",
+     "R-FEAT-3": "FAILED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   },
+   "sonnet_lh": {
+    "failed": [],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "UNFORMALIZED",
+     "R-SUBJ-1": "ASSURED",
+     "R-GREET-1": "PROVED-DISPUTED",
+     "R-FEAT-1": "ASSURED",
+     "R-FEAT-2": "COVERED-PROVED",
+     "R-FEAT-3": "ASSURED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-DISPUTED",
+     "R-END-1": "PROVED-DISPUTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "ASSURED",
+     "R-FR-3": "ASSURED",
+     "R-FR-4": "ASSURED"
+    }
+   }
+  },
+  "gold": {
+   "empty": {
+    "failed": [
+     "R-FEAT-1",
+     "R-GREET-1",
+     "R-PRICE-1",
+     "R-SUBJ-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "MISSING",
+     "R-SUBJ-1": "FAILED",
+     "R-GREET-1": "FAILED",
+     "R-FEAT-1": "FAILED",
+     "R-FEAT-2": "PROVED-VACUOUS",
+     "R-FEAT-3": "PROVED-VACUOUS",
+     "R-PRICE-1": "FAILED",
+     "R-OFFER-1": "PROVED-VACUOUS",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "PROVED-CONFLICTED",
+     "R-END-1": "PROVED-VACUOUS",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "PROVED-CONFLICTED",
+     "R-FR-3": "PROVED-VACUOUS",
+     "R-FR-4": "PROVED-CONFLICTED"
+    }
+   },
+   "haiku_la": {
+    "failed": [
+     "R-FEAT-2",
+     "R-LEN-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "MISSING",
+     "R-SUBJ-1": "PROVED-CONFLICTED",
+     "R-GREET-1": "PROVED-CONFLICTED",
+     "R-FEAT-1": "PROVED-CONFLICTED",
+     "R-FEAT-2": "FAILED",
+     "R-FEAT-3": "PROVED-CONFLICTED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "FAILED",
+     "R-END-1": "PROVED-CONFLICTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "PROVED-CONFLICTED",
+     "R-FR-3": "PROVED-CONFLICTED",
+     "R-FR-4": "PROVED-CONFLICTED"
+    }
+   },
+   "haiku_lb": {
+    "failed": [
+     "R-FEAT-2",
+     "R-LEN-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "MISSING",
+     "R-SUBJ-1": "PROVED-CONFLICTED",
+     "R-GREET-1": "PROVED-CONFLICTED",
+     "R-FEAT-1": "PROVED-CONFLICTED",
+     "R-FEAT-2": "FAILED",
+     "R-FEAT-3": "PROVED-CONFLICTED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "FAILED",
+     "R-END-1": "PROVED-CONFLICTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "PROVED-CONFLICTED",
+     "R-FR-3": "PROVED-CONFLICTED",
+     "R-FR-4": "PROVED-CONFLICTED"
+    }
+   },
+   "haiku_lh": {
+    "failed": [
+     "R-FEAT-2",
+     "R-LEN-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "MISSING",
+     "R-SUBJ-1": "PROVED-CONFLICTED",
+     "R-GREET-1": "PROVED-CONFLICTED",
+     "R-FEAT-1": "PROVED-CONFLICTED",
+     "R-FEAT-2": "FAILED",
+     "R-FEAT-3": "PROVED-CONFLICTED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "FAILED",
+     "R-END-1": "PROVED-CONFLICTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "PROVED-CONFLICTED",
+     "R-FR-3": "PROVED-CONFLICTED",
+     "R-FR-4": "PROVED-CONFLICTED"
+    }
+   },
+   "opus_la": {
+    "failed": [
+     "R-LEN-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "MISSING",
+     "R-SUBJ-1": "PROVED-CONFLICTED",
+     "R-GREET-1": "PROVED-CONFLICTED",
+     "R-FEAT-1": "PROVED-CONFLICTED",
+     "R-FEAT-2": "PROVED-CONFLICTED",
+     "R-FEAT-3": "PROVED-CONFLICTED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "FAILED",
+     "R-END-1": "PROVED-CONFLICTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "PROVED-CONFLICTED",
+     "R-FR-3": "PROVED-CONFLICTED",
+     "R-FR-4": "PROVED-CONFLICTED"
+    }
+   },
+   "opus_lb": {
+    "failed": [
+     "R-LEN-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "MISSING",
+     "R-SUBJ-1": "PROVED-CONFLICTED",
+     "R-GREET-1": "PROVED-CONFLICTED",
+     "R-FEAT-1": "PROVED-CONFLICTED",
+     "R-FEAT-2": "PROVED-CONFLICTED",
+     "R-FEAT-3": "PROVED-CONFLICTED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "FAILED",
+     "R-END-1": "PROVED-CONFLICTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "PROVED-CONFLICTED",
+     "R-FR-3": "PROVED-CONFLICTED",
+     "R-FR-4": "PROVED-CONFLICTED"
+    }
+   },
+   "opus_lh": {
+    "failed": [
+     "R-LEN-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "MISSING",
+     "R-SUBJ-1": "PROVED-CONFLICTED",
+     "R-GREET-1": "PROVED-CONFLICTED",
+     "R-FEAT-1": "PROVED-CONFLICTED",
+     "R-FEAT-2": "PROVED-CONFLICTED",
+     "R-FEAT-3": "PROVED-CONFLICTED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "FAILED",
+     "R-END-1": "PROVED-CONFLICTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "PROVED-CONFLICTED",
+     "R-FR-3": "PROVED-CONFLICTED",
+     "R-FR-4": "PROVED-CONFLICTED"
+    }
+   },
+   "sonnet_la": {
+    "failed": [
+     "R-FEAT-1",
+     "R-FEAT-2",
+     "R-FEAT-3",
+     "R-LEN-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "MISSING",
+     "R-SUBJ-1": "PROVED-CONFLICTED",
+     "R-GREET-1": "PROVED-CONFLICTED",
+     "R-FEAT-1": "FAILED",
+     "R-FEAT-2": "FAILED",
+     "R-FEAT-3": "FAILED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "FAILED",
+     "R-END-1": "PROVED-CONFLICTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "PROVED-CONFLICTED",
+     "R-FR-3": "PROVED-CONFLICTED",
+     "R-FR-4": "PROVED-CONFLICTED"
+    }
+   },
+   "sonnet_lb": {
+    "failed": [
+     "R-FEAT-1",
+     "R-FEAT-2",
+     "R-FEAT-3",
+     "R-LEN-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "MISSING",
+     "R-SUBJ-1": "PROVED-CONFLICTED",
+     "R-GREET-1": "PROVED-CONFLICTED",
+     "R-FEAT-1": "FAILED",
+     "R-FEAT-2": "FAILED",
+     "R-FEAT-3": "FAILED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "FAILED",
+     "R-END-1": "PROVED-CONFLICTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "PROVED-CONFLICTED",
+     "R-FR-3": "PROVED-CONFLICTED",
+     "R-FR-4": "PROVED-CONFLICTED"
+    }
+   },
+   "sonnet_lh": {
+    "failed": [
+     "R-LEN-1"
+    ],
+    "frame_failed": [],
+    "levels": {
+     "R-FACT-1": "MISSING",
+     "R-SUBJ-1": "PROVED-CONFLICTED",
+     "R-GREET-1": "PROVED-CONFLICTED",
+     "R-FEAT-1": "PROVED-CONFLICTED",
+     "R-FEAT-2": "PROVED-CONFLICTED",
+     "R-FEAT-3": "PROVED-CONFLICTED",
+     "R-PRICE-1": "ASSURED",
+     "R-OFFER-1": "ASSURED",
+     "R-RIVAL-1": "ASSURED",
+     "R-LEN-1": "FAILED",
+     "R-END-1": "PROVED-CONFLICTED",
+     "R-TONE-1": "UNFORMALIZED",
+     "R-FR-1": "ASSURED",
+     "R-FR-2": "PROVED-CONFLICTED",
+     "R-FR-3": "PROVED-CONFLICTED",
+     "R-FR-4": "PROVED-CONFLICTED"
+    }
+   }
+  }
+ },
+ "label_disputes": {
+  "haiku": [],
+  "opus": [],
+  "sonnet": [
+   {
+    "unit": 5,
+    "label": "feature",
+    "a": false,
+    "b": true,
+    "text": "That's days of listening between charges, so you can leave the charger at home."
+   }
+  ]
+ },
+ "runtime": 50.25
+}

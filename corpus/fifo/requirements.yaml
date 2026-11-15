@@ -1,0 +1,205 @@
+fcp: '0.1'
+design: sync_fifo
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+  note: expert reference decomposition used as ground truth
+requirements:
+- id: R-PAR-1
+  doc: SPEC
+  lines:
+  - 15
+  quote: Any value of 2 or more is legal; it need not be a power of two.
+  text: DEPTH may be any integer >= 2, including non-powers of two.
+  kind: definition
+- id: R-RST-1
+  doc: SPEC
+  lines:
+  - 38
+  quote: When rst_n is sampled low, the FIFO discards all stored words.
+  text: A reset discards all stored words.
+  kind: guarantee
+- id: R-RST-2
+  doc: SPEC
+  lines:
+  - 38
+  - 40
+  quote: In the cycle after reset, empty shall be asserted, full and almost_full shall be deasserted and count shall be zero.
+  text: 'In the cycle after a reset cycle: empty=1, full=0, almost_full=0, count=0.'
+  kind: guarantee
+- id: R-WR-1
+  doc: SPEC
+  lines:
+  - 44
+  - 45
+  quote: When push is sampled high and the FIFO is not full, push_data is stored at the tail of the FIFO and count increases by one.
+  text: A push when not full appends push_data at the tail and increments count by one.
+  kind: guarantee
+  depends:
+  - R-ST-4
+- id: R-WR-2
+  doc: SPEC
+  lines:
+  - 45
+  - 46
+  quote: 'A push while the FIFO is full is ignored: the stored words and count are unchanged by it.'
+  text: A push while full has no effect on the stored words or on count.
+  kind: guarantee
+  depends:
+  - R-ST-4
+- id: R-RD-1
+  doc: SPEC
+  lines:
+  - 50
+  - 51
+  quote: The word at the head of the FIFO is always presented on pop_data while the FIFO is not empty.
+  text: Whenever the FIFO is not empty, pop_data equals the oldest stored word (first-word fall-through).
+  kind: guarantee
+  depends:
+  - R-ORD-1
+- id: R-RD-2
+  doc: SPEC
+  lines:
+  - 51
+  - 52
+  quote: When pop is sampled high and the FIFO is not empty, the head word is removed and count decreases by one.
+  text: A pop when not empty removes the head word and decrements count by one.
+  kind: guarantee
+  depends:
+  - R-ST-4
+- id: R-RD-3
+  doc: SPEC
+  lines:
+  - 52
+  - 53
+  quote: A pop while the FIFO is empty is ignored.
+  text: A pop while empty has no effect.
+  kind: guarantee
+  depends:
+  - R-ST-4
+- id: R-RD-4
+  doc: SPEC
+  lines:
+  - 53
+  quote: The value of pop_data while the FIFO is empty is undefined.
+  text: pop_data is unconstrained while the FIFO is empty.
+  kind: dont_care
+- id: R-SIM-1
+  doc: SPEC
+  lines:
+  - 57
+  - 58
+  quote: If push and pop are asserted in the same cycle, both operations take effect and count is unchanged.
+  text: Simultaneous push and pop both take effect and leave count unchanged.
+  kind: guarantee
+  depends:
+  - R-WR-2
+  - R-RD-3
+  ambiguity:
+  - phrase: both operations take effect
+    readings:
+    - applies in every state, contradicting R-WR-2 when full and R-RD-3 when empty
+    - applies only when the FIFO is neither full nor empty
+- id: R-ORD-1
+  doc: SPEC
+  lines:
+  - 62
+  quote: Words are read in exactly the order in which they were written.
+  text: Words are delivered in write order.
+  kind: guarantee
+- id: R-ORD-2
+  doc: SPEC
+  lines:
+  - 62
+  - 64
+  quote: Every word that is accepted is read out exactly once, and its value is not modified by the FIFO.
+  text: No accepted word is lost, duplicated or corrupted.
+  kind: guarantee
+- id: R-ST-1
+  doc: SPEC
+  lines:
+  - 68
+  quote: full is asserted if and only if count equals DEPTH.
+  text: full == (count == DEPTH).
+  kind: guarantee
+- id: R-ST-2
+  doc: SPEC
+  lines:
+  - 68
+  - 69
+  quote: empty is asserted if and only if count is zero.
+  text: empty == (count == 0).
+  kind: guarantee
+- id: R-ST-3
+  doc: SPEC
+  lines:
+  - 69
+  - 70
+  quote: almost_full is asserted when count is greater than or equal to AF_LEVEL.
+  text: almost_full == (count >= AF_LEVEL).
+  kind: guarantee
+  depends:
+  - R-TM-2
+  ambiguity:
+  - phrase: asserted when
+    readings:
+    - if and only if count >= AF_LEVEL
+    - if count >= AF_LEVEL (no constraint otherwise)
+- id: R-ST-4
+  doc: SPEC
+  lines:
+  - 70
+  - 71
+  quote: count always reflects the number of words stored in the FIFO.
+  text: count equals the number of stored words at all times.
+  kind: guarantee
+- id: R-TM-1
+  doc: SPEC
+  lines:
+  - 77
+  quote: Registered; they change in the cycle after the operation that changes them.
+  text: 'full, empty and count are registered: they reflect operations from earlier cycles only.'
+  kind: guarantee
+- id: R-TM-2
+  doc: SPEC
+  lines:
+  - 78
+  quote: Asserted when count is greater than AF_LEVEL.
+  text: almost_full == (count > AF_LEVEL).
+  kind: guarantee
+  depends:
+  - R-ST-3
+- id: R-TM-3
+  doc: SPEC
+  lines:
+  - 79
+  quote: Returns the oldest stored word when pop is asserted.
+  text: When pop is asserted (and the FIFO is not empty), pop_data is the oldest stored word.
+  kind: guarantee
+  depends:
+  - R-RD-1
+  ambiguity:
+  - phrase: when pop is asserted
+    readings:
+    - in the same cycle as pop (first-word fall-through)
+    - in the cycle after pop (registered read)
+- id: R-USE-1
+  doc: SPEC
+  lines:
+  - 83
+  - 84
+  quote: The producer shall not assert push while full is asserted, and the consumer shall not assert pop while empty is asserted.
+  text: 'Usage rule: no push while full, no pop while empty.'
+  kind: assumption
+- id: R-USE-2
+  doc: SPEC
+  lines:
+  - 84
+  - 85
+  quote: The FIFO nevertheless tolerates such requests, as described in Sections 4.2 and 4.3.
+  text: Violations of R-USE-1 are tolerated (handled per R-WR-2 and R-RD-3).
+  kind: guarantee
+  depends:
+  - R-WR-2
+  - R-RD-3

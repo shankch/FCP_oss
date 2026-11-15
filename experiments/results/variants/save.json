@@ -1,0 +1,976 @@
+{
+ "task": "save",
+ "readers": {
+  "variant1": {
+   "k": 1,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-SYNC-1",
+     "phrase": "call `os.fsync` on the temporary file",
+     "reading": 1,
+     "text": "os.fsync on its descriptor"
+    },
+    {
+     "req": "R-CLEAN-1",
+     "phrase": "Leave no temporary file behind",
+     "reading": 1,
+     "text": "when the function returns, no temporary file exists"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-SYNC-1",
+     "phrase": "call `os.fsync` on the temporary file",
+     "reading": 1
+    },
+    {
+     "req": "R-CLEAN-1",
+     "phrase": "Leave no temporary file behind",
+     "reading": 1
+    }
+   ],
+   "pairs": {
+    "agent_a|variant1": {
+     "seconds": 13,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-SIG-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "EQUIVALENT"
+      },
+      "R-ERR-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=100000000]",
+         "open(2, 4)",
+         "os.fsync(7)",
+         "f7.close()"
+        ]
+       }
+      },
+      "R-STORE-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=83882240]",
+         "open(2, 4)",
+         "os.fsync(7)",
+         "f7.close()",
+         "f7.write(83882240)",
+         "os.replace(2, 1) -> \"ok\"",
+         "os.replace(1, 3) -> \"ok\"",
+         "returns False"
+        ]
+       }
+      },
+      "R-TMP-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "lines": [
+         "[cents=16773376]",
+         "open(2, 4)",
+         "os.fsync(7)",
+         "f7.close()",
+         "f7.write(16773376)",
+         "os.replace(2, 1) -> \"fail\"",
+         "os.remove(2)",
+         "f7.write(67108863)"
+        ]
+       },
+       "b_not_a": {
+        "lines": [
+         "[cents=83882241]",
+         "open(2, 4)",
+         "open(1, 5)"
+        ]
+       }
+      },
+      "R-SYNC-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=83882240]",
+         "os.replace(3, 2) -> \"ok\"",
+         "os.replace(2, 3) -> \"fail\"",
+         "os.replace(2, 0) -> \"ok\""
+        ]
+       }
+      },
+      "R-RET-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=99999999]",
+         "open(2, 4)",
+         "os.fsync(7)",
+         "f7.close()",
+         "f7.write(99999998)",
+         "os.replace(2, 1) -> \"ok\"",
+         "returns raised ValueError"
+        ]
+       }
+      },
+      "R-CLEAN-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=100000000]",
+         "open(2, 4)",
+         "returns raised ValueError"
+        ]
+       }
+      },
+      "R-KEEP-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "lines": [
+         "[cents=100000000]",
+         "open(2, 4)",
+         "f2.write(100000000)",
+         "os.fsync(2)",
+         "f2.close()",
+         "os.replace(2, 1) -> \"ok\"",
+         "os.replace(2, 3) -> \"ok\"",
+         "returns True"
+        ]
+       },
+       "b_not_a": {
+        "lines": [
+         "[cents=100000000]",
+         "os.replace(3, 2) -> \"fail\"",
+         "returns raised ValueError"
+        ]
+       }
+      }
+     },
+     "under": {
+      "assumptions": "A-WEAKER",
+      "engine": "47a823a",
+      "relations": {
+       "R-FR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-FR-2": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-FR-3": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-SIG-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-ERR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-STORE-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       },
+       "R-TMP-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "INCOMPARABLE",
+        "a_not_b": {
+         "lines": [
+          "[cents=83882240]",
+          "open(2, 4)",
+          "os.fsync(7)",
+          "f7.close()",
+          "f7.write(83882240)",
+          "os.replace(2, 1) -> \"fail\"",
+          "os.remove(2)",
+          "f7.write(83882240)"
+         ]
+        },
+        "b_not_a": {
+         "lines": [
+          "[cents=100000000]",
+          "open(2, 4)",
+          "f1.write(100000000)",
+          "f1.write(100000001)",
+          "os.fsync(1)",
+          "f1.close()",
+          "os.replace(2, 1) -> \"ok\""
+         ]
+        }
+       },
+       "R-SYNC-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-RET-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       },
+       "R-CLEAN-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-KEEP-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "A-WEAKER",
+        "a_not_b": {
+         "lines": [
+          "[cents=66445568]",
+          "open(2, 4)",
+          "os.fsync(1)",
+          "f1.write(66445568)",
+          "f1.close()",
+          "os.replace(2, 1) -> \"ok\"",
+          "os.replace(2, 3) -> \"ok\"",
+          "returns True"
+         ]
+        }
+       }
+      },
+      "seconds": 9
+     }
+    },
+    "agent_b|variant1": {
+     "seconds": 15,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-SIG-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "EQUIVALENT"
+      },
+      "R-ERR-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=100000000]",
+         "open(2, 3)",
+         "os.fsync(1)",
+         "open(2, 4)"
+        ]
+       }
+      },
+      "R-STORE-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=83882241]",
+         "open(2, 3)",
+         "f1.write(83882240)",
+         "os.fsync(1)",
+         "f1.close()",
+         "os.replace(2, 1) -> \"ok\"",
+         "os.remove(1)",
+         "returns False"
+        ]
+       }
+      },
+      "R-TMP-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "lines": [
+         "[cents=83882240]",
+         "open(2, 3)",
+         "f6.write(83882240)",
+         "open(2, 3)",
+         "os.fsync(6)",
+         "f6.close()",
+         "os.replace(2, 1) -> \"fail\""
+        ]
+       },
+       "b_not_a": {
+        "lines": [
+         "[cents=83882241]",
+         "os.replace(1, 1) -> \"ok\"",
+         "os.replace(3, 2) -> \"ok\""
+        ]
+       }
+      },
+      "R-SYNC-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "lines": [
+         "[cents=83882240]",
+         "open(2, 3)",
+         "f1.write(83882240)",
+         "f1.close()",
+         "os.fsync(1)",
+         "os.replace(2, 1) -> \"fail\""
+        ]
+       },
+       "b_not_a": {
+        "lines": [
+         "[cents=83882241]",
+         "open(2, 3)",
+         "f1.write(83882240)",
+         "os.replace(2, 1) -> \"fail\"",
+         "open(2, 3)",
+         "os.replace(2, 1) -> \"ok\""
+        ]
+       }
+      },
+      "R-RET-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=83882241]",
+         "open(2, 3)",
+         "f4.write(83882240)",
+         "os.fsync(4)",
+         "f4.close()",
+         "os.replace(2, 1) -> \"ok\"",
+         "returns False"
+        ]
+       }
+      },
+      "R-CLEAN-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=100000000]",
+         "open(2, 3)",
+         "returns raised ValueError"
+        ]
+       }
+      },
+      "R-KEEP-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=83882240]",
+         "open(2, 3)",
+         "f2.write(83882241)",
+         "os.fsync(2)",
+         "f2.close()",
+         "os.replace(2, 1) -> \"fail\"",
+         "os.replace(2, 1) -> \"ok\"",
+         "returns True"
+        ]
+       }
+      }
+     },
+     "under": {
+      "assumptions": "A-WEAKER",
+      "engine": "47a823a",
+      "relations": {
+       "R-FR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-FR-2": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-FR-3": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-SIG-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-ERR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-STORE-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       },
+       "R-TMP-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "INCOMPARABLE",
+        "a_not_b": {
+         "lines": [
+          "[cents=67105024]",
+          "open(2, 3)",
+          "f1.write(67105024)",
+          "open(2, 3)",
+          "os.fsync(1)",
+          "f1.close()",
+          "os.replace(2, 1) -> \"fail\"",
+          "open(2, 4)"
+         ]
+        },
+        "b_not_a": {
+         "lines": [
+          "[cents=83882240]",
+          "os.replace(1, 1) -> \"ok\""
+         ]
+        }
+       },
+       "R-SYNC-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "A-WEAKER",
+        "a_not_b": {
+         "lines": [
+          "[cents=67105024]",
+          "open(2, 3)",
+          "f5.write(67105024)",
+          "f5.close()",
+          "os.fsync(5)",
+          "os.replace(2, 1) -> \"fail\"",
+          "open(2, 4)"
+         ]
+        }
+       },
+       "R-RET-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       },
+       "R-CLEAN-1": {
+        "plain": "A-WEAKER",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       },
+       "R-KEEP-1": {
+        "plain": "A-STRONGER",
+        "bounded": 12,
+        "context": "A-STRONGER",
+        "b_not_a": {
+         "lines": [
+          "[cents=67105024]",
+          "open(2, 3)",
+          "f1.write(67105024)",
+          "os.fsync(1)",
+          "f1.close()",
+          "os.replace(2, 1) -> \"fail\"",
+          "open(2, 2)",
+          "os.remove(1)",
+          "f0.write(67105025)"
+         ]
+        }
+       }
+      },
+      "seconds": 12
+     }
+    }
+   }
+  },
+  "variant2": {
+   "k": 2,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-SYNC-1",
+     "phrase": "call `os.fsync` on the temporary file",
+     "reading": 2,
+     "text": "os.fsync after flushing Python's buffer, so that the digits are on disk"
+    },
+    {
+     "req": "R-CLEAN-1",
+     "phrase": "Leave no temporary file behind",
+     "reading": 2,
+     "text": "no temporary file is ever left, even by a crash"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-SYNC-1",
+     "phrase": "call `os.fsync` on the temporary file",
+     "reading": 2
+    },
+    {
+     "req": "R-CLEAN-1",
+     "phrase": "Leave no temporary file behind",
+     "reading": 2
+    }
+   ],
+   "pairs": {
+    "agent_a|variant2": {
+     "seconds": 22,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-SIG-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "EQUIVALENT"
+      },
+      "R-ERR-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=100000000]",
+         "os.replace(3, 0) -> \"ok\"",
+         "open(2, 3)",
+         "os.fsync(7)"
+        ]
+       }
+      },
+      "R-STORE-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=83882240]",
+         "os.replace(3, 0) -> \"ok\"",
+         "open(2, 4)",
+         "os.fsync(5)",
+         "f5.close()",
+         "f5.write(83882241)",
+         "os.replace(2, 1) -> \"ok\"",
+         "os.replace(1, 3) -> \"ok\"",
+         "returns False"
+        ]
+       }
+      },
+      "R-TMP-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "lines": [
+         "[cents=83882241]",
+         "os.replace(3, 1) -> \"ok\"",
+         "os.replace(3, 2) -> \"fail\""
+        ]
+       },
+       "b_not_a": {
+        "lines": [
+         "[cents=67105025]",
+         "os.replace(3, 0) -> \"ok\"",
+         "open(1, 4)"
+        ]
+       }
+      },
+      "R-SYNC-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=16773376]",
+         "f0.close()",
+         "os.replace(2, 2) -> \"ok\"",
+         "open(2, 3)",
+         "os.remove(2)"
+        ]
+       }
+      },
+      "R-RET-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=67105024]",
+         "os.replace(3, 0) -> \"ok\"",
+         "open(2, 4)",
+         "f7.write(67105025)",
+         "os.fsync(7)",
+         "f7.close()",
+         "os.replace(2, 1) -> \"ok\"",
+         "returns raised another exception or did not finish"
+        ]
+       }
+      },
+      "R-CLEAN-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "lines": [
+         "[cents=16773377]",
+         "os.replace(3, 2) -> \"ok\"",
+         "open(2, 4)",
+         "os.remove(2)"
+        ]
+       },
+       "b_not_a": {
+        "lines": [
+         "[cents=99999996]",
+         "(no call)",
+         "os.replace(3, 2) -> \"ok\"",
+         "returns raised ValueError"
+        ]
+       }
+      },
+      "R-KEEP-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=100000000]",
+         "os.replace(3, 2) -> \"fail\"",
+         "returns raised ValueError"
+        ]
+       }
+      }
+     },
+     "under": {
+      "assumptions": "A-WEAKER",
+      "engine": "47a823a",
+      "relations": {
+       "R-FR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-FR-2": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-FR-3": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-SIG-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-ERR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-STORE-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       },
+       "R-TMP-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "A-WEAKER",
+        "a_not_b": {
+         "lines": [
+          "[cents=83882240]",
+          "os.replace(3, 1) -> \"ok\""
+         ]
+        }
+       },
+       "R-SYNC-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "A-STRONGER",
+        "b_not_a": {
+         "lines": [
+          "[cents=83882240]",
+          "open(2, 5)",
+          "f6.write(83882240)",
+          "f6.flush()",
+          "os.fsync(6)",
+          "f6.close()",
+          "os.replace(2, 3) -> \"fail\""
+         ]
+        }
+       },
+       "R-RET-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       },
+       "R-CLEAN-1": {
+        "plain": "A-WEAKER",
+        "bounded": 12,
+        "context": "A-WEAKER",
+        "a_not_b": {
+         "lines": [
+          "[cents=83882240]",
+          "os.replace(3, 2) -> \"ok\"",
+          "open(2, 4)",
+          "os.remove(2)"
+         ]
+        }
+       },
+       "R-KEEP-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       }
+      },
+      "seconds": 18
+     }
+    },
+    "agent_b|variant2": {
+     "seconds": 25,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 12
+      },
+      "R-SIG-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "EQUIVALENT"
+      },
+      "R-ERR-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=100000000]",
+         "f0.write(100000000)",
+         "open(2, 3)"
+        ]
+       }
+      },
+      "R-STORE-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=83882240]",
+         "open(2, 5)",
+         "open(2, 3)",
+         "f1.write(83882240)",
+         "os.fsync(1)",
+         "f1.close()",
+         "os.replace(2, 1) -> \"ok\"",
+         "os.remove(1)",
+         "returns False"
+        ]
+       }
+      },
+      "R-TMP-1": {
+       "plain": "A-STRONGER",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=83882241]",
+         "os.replace(1, 3) -> \"ok\"",
+         "os.replace(1, 2) -> \"fail\""
+        ]
+       }
+      },
+      "R-SYNC-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=67105025]",
+         "os.remove(1)",
+         "open(2, 3)",
+         "f7.write(67105025)",
+         "os.replace(2, 1) -> \"fail\"",
+         "open(2, 4)"
+        ]
+       }
+      },
+      "R-RET-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=83882240]",
+         "open(2, 5)",
+         "open(2, 3)",
+         "os.fsync(3)",
+         "f3.write(83882240)",
+         "f3.close()",
+         "os.replace(2, 1) -> \"ok\"",
+         "returns raised another exception or did not finish"
+        ]
+       }
+      },
+      "R-CLEAN-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "lines": [
+         "[cents=16773376]",
+         "open(2, 2)"
+        ]
+       },
+       "b_not_a": {
+        "lines": [
+         "[cents=99999999]",
+         "f7.close()",
+         "open(2, 3)",
+         "returns raised ValueError"
+        ]
+       }
+      },
+      "R-KEEP-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 12,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[cents=99999984]",
+         "f7.close()",
+         "open(2, 4)",
+         "f4.write(99999984)",
+         "os.fsync(4)",
+         "f4.close()",
+         "os.replace(2, 1) -> \"fail\"",
+         "os.remove(2)",
+         "returns raised ValueError"
+        ]
+       }
+      }
+     },
+     "under": {
+      "assumptions": "A-WEAKER",
+      "engine": "47a823a",
+      "relations": {
+       "R-FR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-FR-2": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-FR-3": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-SIG-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-ERR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 12
+       },
+       "R-STORE-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       },
+       "R-TMP-1": {
+        "plain": "A-STRONGER",
+        "bounded": 12,
+        "context": "A-STRONGER",
+        "b_not_a": {
+         "lines": [
+          "[cents=83882240]",
+          "os.replace(1, 3) -> \"ok\""
+         ]
+        }
+       },
+       "R-SYNC-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       },
+       "R-RET-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       },
+       "R-CLEAN-1": {
+        "plain": "A-WEAKER",
+        "bounded": 12,
+        "context": "A-WEAKER",
+        "a_not_b": {
+         "lines": [
+          "[cents=16773376]",
+          "open(2, 2)"
+         ]
+        }
+       },
+       "R-KEEP-1": {
+        "plain": "INCOMPARABLE",
+        "bounded": 12,
+        "context": "EQUIVALENT"
+       }
+      },
+      "seconds": 19
+     }
+    }
+   }
+  }
+ },
+ "settings": {
+  "jobs": 2,
+  "bit_jobs": 1
+ }
+}

@@ -1,0 +1,142 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md),
+# so the model is combinational: defs computed from the arguments of the
+# current call. No ghost state is needed. The rigid d ranges over every value
+# a list element can take; `want` is the model of the set of even digits that
+# lie between a and b, and every output is checked against it.
+defs:
+  valid: "a >= 1 && b >= 1"                       # both arguments positive (R-ENV-1, reading 1)
+  lo: "min(a, b)"                                 # 'between a and b', whichever is larger (reading 1)
+  hi: "max(a, b)"
+  want: "d <= 9 && (d % 2) == 0 && lo <= d && d <= hi"   # d is an even digit (0, 2, 4, 6, 8) between a and b
+
+rigids:
+  - {name: d, range: [0, 255]}
+
+assumptions:
+  - id: RB-ENV-1
+    req: R-ENV-1
+    expr: "valid"
+    note: >-
+      'Positive integers' read literally as a >= 1 and b >= 1 (reading 1).
+      A call with a or b equal to 0 is outside the contract; the guarantees
+      below are also guarded by `valid`, so such a call leaves the outputs
+      free (see RB-ENV-1-D1/D2) independently of this assumption.
+
+dont_cares:
+  - id: RB-ENV-1-D1
+    req: R-ENV-1
+    signal: outcome
+    when: "!valid"
+    note: "A call with a non-positive argument is outside the contract: how it ends is unconstrained."
+  - id: RB-ENV-1-D2
+    req: R-ENV-1
+    signal: result
+    when: "!valid"
+    note: "A call with a non-positive argument is outside the contract: the returned list is unconstrained (apart from the frame rule F-EMPTY)."
+
+properties:
+  - id: RB-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args: {trigger: "valid", cond: "outcome == 0"}
+    note: >-
+      'Return the even digits' read as returning a list of integers (reading 1):
+      the call neither raises nor hangs nor returns another type, i.e. outcome
+      0. Outcome 0 also requires the list to fit the adapter encoding (at most
+      10 integers from 0 to 255); the correct answer has at most 5 elements,
+      each at most 8, so this adds nothing for a correct implementation.
+
+  - id: RB-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args: {trigger: "valid && (d in result)", cond: "want"}
+    note: >-
+      Soundness against the model: for every value d, if d is an element of
+      the returned list then d is an even digit (0..9 and even; 0 counts,
+      reading 1 of 'even digits') with min(a,b) <= d <= max(a,b) (ends
+      included, either argument order, reading 1 of 'between a and b').
+      Under the assumption a, b >= 1, whether 0 counts never matters because
+      0 is never between a and b.
+
+  - id: RB-OUT-3
+    req: R-OUT-3
+    pattern: implies
+    args: {trigger: "valid && want", cond: "d in result"}
+    note: >-
+      Completeness against the model: every even digit d (0 counts, reading 1)
+      with min(a,b) <= d <= max(a,b) (ends included, reading 1) is an element
+      of the returned list. If the call does not return a list (outcome != 0)
+      the frame makes result empty, so this fails whenever some even digit
+      lies between a and b.
+
+  - id: RB-OUT-4
+    req: R-OUT-4
+    pattern: implies
+    args: {trigger: "valid", cond: "all(i < len(result) - 1: result[i] < result[i + 1])"}
+    note: >-
+      'Ascending order' read as strictly increasing, as the requirement text
+      says ('each element is smaller than the next'), reading 1.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "a == 2 && b == 8", cond: "outcome == 0 && result == [2, 4, 6, 8]"}
+    note: "The example is read as binding (reading 1): the call (2, 8) returns exactly [2, 4, 6, 8]."
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "a == 8 && b == 2", cond: "outcome == 0 && result == [2, 4, 6, 8]"}
+    note: "The example is read as binding (reading 1): the call (8, 2) returns exactly [2, 4, 6, 8]."
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "a == 10 && b == 14", cond: "outcome == 0 && len(result) == 0"}
+    note: "The example is read as binding (reading 1): the call (10, 14) returns a list, and it is empty."
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "a == 2 && b == 8 && outcome == 0 && result == [2, 4, 6, 8]"
+    note: "The behaviour of the example must be possible."
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: "a == 8 && b == 2 && outcome == 0 && result == [2, 4, 6, 8]"
+    note: "The behaviour of the example must be possible."
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "a == 10 && b == 14 && outcome == 0 && len(result) == 0"
+    note: "The behaviour of the example must be possible."
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is an implementation of the stub. It
+      says nothing about the trace of calls.
+  - req: R-IF-2
+    reason: >-
+      Definition: the name generate_integers and the argument order (a, b)
+      are fixed by the adapter's function binding in design.yaml, not by a
+      property of the trace. The name is taken as only a name (reading 1);
+      what the function returns is fixed by the docstring (RB-OUT-1..4).
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter: frame.md says it holds by construction and
+      is part of every formalization set; design.yaml declares it as F-EMPTY.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IF-2, phrase: "generate_integers", reading: 1}
+  - {req: R-ENV-1, phrase: "positive integers", reading: 1}
+  - {req: R-OUT-1, phrase: "return the even digits", reading: 1}
+  - {req: R-OUT-2, phrase: "even digits", reading: 1}
+  - {req: R-OUT-2, phrase: "between a and b", reading: 1}
+  - {req: R-OUT-3, phrase: "even digits", reading: 1}
+  - {req: R-OUT-3, phrase: "between a and b", reading: 1}
+  - {req: R-OUT-4, phrase: "ascending order", reading: 1}
+  - {req: R-EX-1, phrase: "generate_integers(2, 8) => [2, 4, 6, 8]", reading: 1}
+  - {req: R-EX-2, phrase: "generate_integers(8, 2) => [2, 4, 6, 8]", reading: 1}
+  - {req: R-EX-3, phrase: "generate_integers(10, 14) => []", reading: 1}

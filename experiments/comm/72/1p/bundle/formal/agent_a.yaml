@@ -1,0 +1,114 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-WT-1: the weight of q is the sum of its elements
+  weight: "sum(i < len(q): q[i])"
+  # R-BAL-1 (reading 1): balanced means q reads the same forwards and backwards
+  balanced: "all(i < len(q): q[i] == q[len(q) - 1 - i])"
+  # R-FLY-1 (reading 1): q flies exactly when it is balanced and its weight is
+  # at most the maximum possible weight w (R-WT-2, R-WT-3 reading 1)
+  fly: "balanced && weight <= w"
+  # "returns True" / "returns False": the bool itself (outcome 0)
+  ret_true: "outcome == 0 && flies"
+  ret_false: "outcome == 0 && !flies"
+
+properties:
+  - id: RA-FLY-1
+    req: R-FLY-1
+    pattern: implies
+    args: {trigger: "fly", cond: "ret_true"}
+    note: >-
+      "Will fly" is not defined by the prompt; taken as reading 1: balanced
+      (palindrome, R-BAL-1) and weight sum(q) <= w (R-WT-3), with no other
+      condition. "Returns True" is taken as the bool True (outcome 0), not any
+      truthy value. The empty list is an object: it is a palindrome and weighs
+      0, so it flies for every w (w >= 0).
+  - id: RA-FLY-2
+    req: R-FLY-2
+    pattern: implies
+    args: {trigger: "!fly", cond: "ret_false"}
+    note: >-
+      "Otherwise" is the complement of the flying condition of RA-FLY-1.
+      "False" is taken as the bool False (outcome 0), not any falsy value.
+  - id: RA-WT-3
+    req: R-WT-3
+    pattern: implies
+    args: {trigger: "weight > w", cond: "ret_false"}
+    note: >-
+      The comment says "1+2 is less than the maximum possible weight" only to
+      describe example R-EX-1; since w is the *maximum possible* weight, a
+      weight equal to w is allowed (reading 1). Only a weight strictly above w
+      forces False, whether or not q is balanced.
+  - id: RA-BAL-1
+    req: R-BAL-1
+    pattern: implies
+    args: {trigger: "!balanced", cond: "ret_false"}
+    note: >-
+      "Unbalanced" is not defined by the prompt; taken as reading 1: q is not
+      a palindrome (q[i] != q[len(q)-1-i] for some i). The examples do not
+      distinguish this from first/last-element or half-sum readings.
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "q == [1, 2] && w == 5", cond: "ret_false"}
+    note: >-
+      A docstring example of a function without state fixes the result of
+      that call, so it is stated as a property as well as a scenario
+      (RA-EX-1-S).
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "q == [3, 2, 3] && w == 1", cond: "ret_false"}
+    note: Example call fixed as a property; see also scenario RA-EX-2-S.
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "q == [3, 2, 3] && w == 9", cond: "ret_true"}
+    note: Example call fixed as a property; see also scenario RA-EX-3-S.
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "q == [3] && w == 5", cond: "ret_true"}
+    note: Example call fixed as a property; see also scenario RA-EX-4-S.
+
+scenarios:
+  - {id: RA-EX-1-S, req: R-EX-1, cover: "q == [1, 2] && w == 5 && ret_false"}
+  - {id: RA-EX-2-S, req: R-EX-2, cover: "q == [3, 2, 3] && w == 1 && ret_false"}
+  - {id: RA-EX-3-S, req: R-EX-3, cover: "q == [3, 2, 3] && w == 9 && ret_true"}
+  - {id: RA-EX-4-S, req: R-EX-4, cover: "q == [3] && w == 5 && ret_true"}
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a body for the given stub. Not a
+      property of the call trace.
+  - req: R-IF-2
+    reason: >-
+      Definition of the function name and parameter order; fixed by the
+      function section of design.yaml (q drives signal q, w drives signal w),
+      not a property of the trace.
+  - req: R-WT-1
+    reason: >-
+      Definition of the weight; realized as def `weight` = sum of the
+      elements of q, used by the items below.
+    covered_by: [RA-WT-3, RA-FLY-1, RA-FLY-2]
+  - req: R-WT-2
+    reason: >-
+      Definition: w is the maximum possible weight; realized by comparing
+      `weight` with w in def `fly` and in RA-WT-3.
+    covered_by: [RA-WT-3, RA-FLY-1, RA-FLY-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md); it is part of every formalization
+      set by construction and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FLY-1, phrase: "will fly", reading: 1}
+  - {req: R-FLY-1, phrase: "returns True", reading: 1}
+  - {req: R-FLY-1, phrase: "the object q", reading: 1}
+  - {req: R-FLY-2, phrase: "False", reading: 1}
+  - {req: R-WT-3, phrase: "less than the maximum possible weight", reading: 1}
+  - {req: R-BAL-1, phrase: "unbalanced", reading: 1}

@@ -1,0 +1,299 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # number of letters (alphabetic characters) of s
+  nl: 'count(i < len(s): isalpha(s[i]))'
+  # some complete non-overlapping block of letters (letters 0-2, 3-5, ... of s, non-letters
+  # dropped, a trailing block shorter than 3 ignored) holds two letters that are equal when
+  # case is ignored. Letters at positions i < j are in the same block when their ranks (the
+  # number of letters before them) round down to the same multiple of 3; the block is
+  # complete when it ends at or before the last letter.
+  rep: >-
+    any(j < len(s): any(i < j: isalpha(s[i]) && isalpha(s[j]) && lower(s[i]) == lower(s[j])
+    && count(k < i: isalpha(s[k])) - (count(k < i: isalpha(s[k])) % 3)
+    == count(k < j: isalpha(s[k])) - (count(k < j: isalpha(s[k])) % 3)
+    && count(k < j: isalpha(s[k])) - (count(k < j: isalpha(s[k])) % 3) + 3 <= nl))
+  # the call returned a truthy / falsy value; the trace records the truth value of a bool
+  # only, so a returned value of another type (outcome 2) is accepted as either
+  truthy: 'happy || outcome == 2'
+  falsy: 'outcome == 2 || (outcome == 0 && !happy)'
+
+assumptions:
+  - id: RV-IN-1
+    req: R-IN-1
+    expr: 'all(i < len(s): isalpha(s[i]))'
+    note: >-
+      Reading 2 of 'a string', as instructed: only strings made of letters are ever passed
+      (the definition speaks of 'letters'), so the result for any other string is left open;
+      this assumption realizes that by excluding such calls. Letters are the ASCII letters of
+      the frame (isalpha: a-z, A-Z). The empty string contains no non-letter, so it remains a
+      legal argument. Calls whose argument is not a string are outside the trace by the frame.
+
+properties:
+  - id: RV-OUT-1
+    req: R-OUT-1
+    expr: 'outcome != 1'
+    note: >-
+      Reading 2 of 'check if the string is happy or not', as instructed: any truthy value
+      for a happy string and any falsy value for one that is not (for example 1 and 0, or
+      None) is acceptable. So a returned value of another type than bool (outcome 2) is
+      allowed, and only raising an exception or not finishing (outcome 1) is excluded. This
+      is weaker than the requirement text, which demands a bool. Which strings count as happy
+      is the subject of the R-HAP items. The trace records the truth value of a bool only, so
+      the truthy/falsy link cannot be checked for a non-bool return (defs truthy, falsy).
+
+  - id: RV-HAP-1A
+    req: R-HAP-1
+    pattern: implies
+    args: {trigger: 's == "abcd"', cond: 'falsy'}
+    note: >-
+      Reading 2 of the whole sentence, as instructed: the examples are authoritative, so
+      is_happy('abcd') returns False although 'abcd' meets both conditions under the other
+      readings taken (reading 2 of 'letters', 'its length', '3 consecutive letters' and
+      'distinct': it has 4 letters and its only complete non-overlapping block 'abc' is
+      pairwise distinct ignoring case; the trailing 'd' is ignored). 'Returns False' is read
+      as 'returns a falsy value' (reading 2 of R-OUT-1); a non-bool return is accepted
+      because the trace does not record its truth value. This contradicts R-EX-3 under the
+      reading imposed there (the definition is authoritative: is_happy('abcd') is True).
+
+  - id: RV-HAP-1B
+    req: R-HAP-1
+    pattern: implies
+    args: {trigger: 's == "adb"', cond: 'falsy'}
+    note: >-
+      Reading 2 of the whole sentence, as instructed: the examples are authoritative, so
+      is_happy('adb') returns False although 'adb' meets both conditions under the other
+      readings taken (reading 2 of 'letters', 'its length', '3 consecutive letters' and
+      'distinct': 3 letters forming one block that is pairwise distinct ignoring case).
+      'Returns False' is read as 'returns a falsy value' (reading 2 of R-OUT-1); a non-bool
+      return is accepted because the trace does not record its truth value. This contradicts
+      R-EX-5 under the reading imposed there (the definition is authoritative: is_happy('adb')
+      is True).
+
+  - id: RV-HAP-2A
+    req: R-HAP-2
+    pattern: implies
+    args: {trigger: 's == "a"', cond: 'truthy'}
+    note: >-
+      Reading 2 of 'its length is at least 3', as instructed: the examples are
+      authoritative, so is_happy('a') returns True although 'a' is shorter than 3 (reading 2
+      of 'its length': 1 letter). With reading 2 of 'is happy if' (a sufficient condition
+      only) the definition does not contradict this. 'Returns True' is read as 'returns a
+      truthy value' (reading 2 of R-OUT-1); a non-bool return is accepted because the trace
+      does not record its truth value. The requirement text (fewer than 3 characters gives
+      False) is not formalized: the readings taken negate it. This contradicts R-EX-1 under
+      the reading imposed there (the definition is authoritative: is_happy('a') is False).
+
+  - id: RV-HAP-2B
+    req: R-HAP-2
+    pattern: implies
+    args: {trigger: 's == "aa"', cond: 'truthy'}
+    note: >-
+      Reading 2 of 'its length is at least 3', as instructed: the examples are
+      authoritative, so is_happy('aa') returns True although 'aa' is shorter than 3
+      (reading 2 of 'its length': 2 letters). With reading 2 of 'is happy if' (a sufficient
+      condition only) the definition does not contradict this. 'Returns True' is read as
+      'returns a truthy value' (reading 2 of R-OUT-1); a non-bool return is accepted because
+      the trace does not record its truth value. This contradicts R-EX-2 under the reading
+      imposed there (the definition is authoritative: is_happy('aa') is False).
+
+  - id: RV-HAP-3A
+    req: R-HAP-3
+    pattern: implies
+    args: {trigger: 's == "aabb"', cond: 'truthy'}
+    note: >-
+      Reading 2 of 'every 3 consecutive letters are distinct', as instructed: the examples
+      are authoritative, so is_happy('aabb') returns True although its block 'aab' repeats
+      'a' (reading 2 of 'letters', '3 consecutive letters' and 'distinct': the only complete
+      non-overlapping block of letters is 'aab', the trailing 'b' is ignored). With reading 2
+      of 'is happy if' (a sufficient condition only) the definition does not contradict
+      this. 'Returns True' is read as 'returns a truthy value' (reading 2 of R-OUT-1); a
+      non-bool return is accepted because the trace does not record its truth value. The
+      requirement text (a repeated character gives False) is not formalized: the readings
+      taken negate it. This contradicts R-EX-4 under the reading imposed there (the
+      definition is authoritative: is_happy('aabb') is False).
+
+  - id: RV-HAP-3B
+    req: R-HAP-3
+    pattern: implies
+    args: {trigger: 's == "xyy"', cond: 'truthy'}
+    note: >-
+      Reading 2 of 'every 3 consecutive letters are distinct', as instructed: the examples
+      are authoritative, so is_happy('xyy') returns True although its block 'xyy' repeats
+      'y' (reading 2 of 'letters', '3 consecutive letters' and 'distinct'). With reading 2 of
+      'is happy if' (a sufficient condition only) the definition does not contradict this.
+      'Returns True' is read as 'returns a truthy value' (reading 2 of R-OUT-1); a non-bool
+      return is accepted because the trace does not record its truth value. This contradicts
+      R-EX-6 under the reading imposed there (the definition is authoritative:
+      is_happy('xyy') is False).
+
+dont_cares:
+  - id: RV-HAP-1C
+    req: R-HAP-1
+    signal: happy
+    when: 'nl >= 3 && !rep && s != "abcd" && s != "adb"'
+    note: >-
+      Reading 2 of the whole sentence, as instructed: meeting both conditions does not force
+      the result True, so whether is_happy returns True or False is left open for every
+      string that meets them, apart from the examples 'abcd' and 'adb' (RV-HAP-1A/B). The
+      conditions follow the readings taken: 'letters' reading 2 (only alphabetic characters
+      count, others are dropped before blocks are formed), 'its length' reading 2 (the
+      number of letters, def nl), '3 consecutive letters' reading 2 (the non-overlapping
+      blocks of letters 0-2, 3-5, ..., a trailing block shorter than 3 ignored) and
+      'distinct' reading 2 (pairwise different ignoring case); def rep is the negation of
+      'every block is distinct'. The outcome stays constrained by RV-OUT-1.
+
+  - id: RV-HAP-2C
+    req: R-HAP-2
+    signal: happy
+    when: 'nl < 3 && s != "a" && s != "aa"'
+    note: >-
+      Reading 2 of 'is happy if', as instructed: a sufficient condition only, so the
+      definition does not say whether a string with fewer than 3 letters is happy and
+      either answer is allowed (reading 2 of 'its length': the number of letters, def nl).
+      This includes the empty string. The examples 'a' and 'aa' are fixed by RV-HAP-2A/B
+      (reading 2 of 'its length is at least 3'). The outcome stays constrained by RV-OUT-1.
+
+  - id: RV-HAP-3C
+    req: R-HAP-3
+    signal: happy
+    when: 'rep && s != "aabb" && s != "xyy"'
+    note: >-
+      Reading 2 of 'is happy if', as instructed: a sufficient condition only, so the
+      definition does not say whether a string with a repeated character in some block is
+      happy and either answer is allowed; reading 2 of 'every 3 consecutive letters are
+      distinct' (a repeat does not force False) agrees. The blocks follow the readings
+      taken: 'letters' reading 2 (only alphabetic characters, others dropped), '3
+      consecutive letters' reading 2 (non-overlapping blocks of letters, a trailing short
+      block ignored) and 'distinct' reading 2 (a repeat is two letters equal when case is
+      ignored), all in def rep. The examples 'aabb' and 'xyy' are fixed by RV-HAP-3A/B. The
+      outcome stays constrained by RV-OUT-1.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'truthy'
+    note: >-
+      Reading 2 of 'is_happy(a)', as instructed: a is a variable whose value is not given,
+      so the example fixes no particular call; what it still states is that some call
+      returns True (truthy, reading 2 of R-OUT-1; a non-bool return is accepted because its
+      truth value is not recorded). Reading 2 of 'is_happy(a) => True', as instructed: the
+      definition is authoritative and would make is_happy('a') False; but under the first
+      reading the example names no string, so it contradicts the definition on no
+      particular call and that verdict on 'a' is not stated here. The imposed readings
+      disagree: R-HAP-2 takes the examples as authoritative (RV-HAP-2A: is_happy('a') is
+      True).
+
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'truthy'
+    note: >-
+      Reading 2 of 'is_happy(aa)', as instructed: aa is a variable whose value is not given,
+      so the example fixes no particular call; what it still states is that some call
+      returns True (truthy, reading 2 of R-OUT-1; a non-bool return is accepted because its
+      truth value is not recorded). Reading 2 of 'is_happy(aa) => True', as instructed: the
+      definition is authoritative and would make is_happy('aa') False; but under the first
+      reading the example names no string, so it contradicts the definition on no
+      particular call and that verdict on 'aa' is not stated here. The imposed readings
+      disagree: R-HAP-2 takes the examples as authoritative (RV-HAP-2B: is_happy('aa') is
+      True).
+
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'falsy'
+    note: >-
+      Reading 2 of 'is_happy(abcd)', as instructed: abcd is a variable whose value is not
+      given, so the example fixes no particular call; what it still states is that some
+      call returns False (falsy, reading 2 of R-OUT-1; a non-bool return is accepted because
+      its truth value is not recorded). Reading 2 of 'is_happy(abcd) => False', as
+      instructed: the definition is authoritative and would make is_happy('abcd') True; but
+      under the first reading the example names no string, so it contradicts the definition
+      on no particular call and that verdict on 'abcd' is not stated here. The imposed
+      readings disagree: R-HAP-1 takes the examples as authoritative (RV-HAP-1A:
+      is_happy('abcd') is False).
+
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'truthy'
+    note: >-
+      Reading 2 of 'is_happy(aabb)', as instructed: aabb is a variable whose value is not
+      given, so the example fixes no particular call; what it still states is that some
+      call returns True (truthy, reading 2 of R-OUT-1; a non-bool return is accepted because
+      its truth value is not recorded). Reading 2 of 'is_happy(aabb) => True', as
+      instructed: the definition is authoritative and would make is_happy('aabb') False; but
+      under the first reading the example names no string, so it contradicts the definition
+      on no particular call and that verdict on 'aabb' is not stated here. The imposed
+      readings disagree: R-HAP-3 takes the examples as authoritative (RV-HAP-3A:
+      is_happy('aabb') is True).
+
+  - id: RV-EX-5
+    req: R-EX-5
+    cover: 'falsy'
+    note: >-
+      Reading 2 of 'is_happy(adb)', as instructed: adb is a variable whose value is not
+      given, so the example fixes no particular call; what it still states is that some
+      call returns False (falsy, reading 2 of R-OUT-1; a non-bool return is accepted because
+      its truth value is not recorded). Reading 2 of 'is_happy(adb) => False', as
+      instructed: the definition is authoritative and would make is_happy('adb') True; but
+      under the first reading the example names no string, so it contradicts the definition
+      on no particular call and that verdict on 'adb' is not stated here. The imposed
+      readings disagree: R-HAP-1 takes the examples as authoritative (RV-HAP-1B:
+      is_happy('adb') is False).
+
+  - id: RV-EX-6
+    req: R-EX-6
+    cover: 'truthy'
+    note: >-
+      Reading 2 of 'is_happy(xyy)', as instructed: xyy is a variable whose value is not
+      given, so the example fixes no particular call; what it still states is that some
+      call returns True (truthy, reading 2 of R-OUT-1; a non-bool return is accepted because
+      its truth value is not recorded). Reading 2 of 'is_happy(xyy) => True', as instructed:
+      the definition is authoritative and would make is_happy('xyy') False; but under the
+      first reading the example names no string, so it contradicts the definition on no
+      particular call and that verdict on 'xyy' is not stated here. The imposed readings
+      disagree: R-HAP-3 takes the examples as authoritative (RV-HAP-3B: is_happy('xyy') is
+      True).
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the function's name and its single parameter s are a property of the
+      source code, not of a trace of calls. The adapter (design.yaml, function section)
+      calls is_happy(s) with one argument, so a missing or misnamed function shows up as
+      calls that do not return (outcome 1), which RV-OUT-1 rejects.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, part of every formalization set by construction and not to
+      be restated (frame.md).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: 'a string', reading: 2}
+  - {req: R-OUT-1, phrase: 'check if the string is happy or not', reading: 2}
+  - {req: R-HAP-1, phrase: 'letters', reading: 2}
+  - {req: R-HAP-1, phrase: 'its length', reading: 2}
+  - {req: R-HAP-1, phrase: '3 consecutive letters', reading: 2}
+  - {req: R-HAP-1, phrase: 'distinct', reading: 2}
+  - {req: R-HAP-1, phrase: 'A string is happy if its length is at least 3 and every 3 consecutive letters are distinct', reading: 2}
+  - {req: R-HAP-2, phrase: 'is happy if', reading: 2}
+  - {req: R-HAP-2, phrase: 'its length', reading: 2}
+  - {req: R-HAP-2, phrase: 'its length is at least 3', reading: 2}
+  - {req: R-HAP-3, phrase: 'is happy if', reading: 2}
+  - {req: R-HAP-3, phrase: 'letters', reading: 2}
+  - {req: R-HAP-3, phrase: '3 consecutive letters', reading: 2}
+  - {req: R-HAP-3, phrase: 'distinct', reading: 2}
+  - {req: R-HAP-3, phrase: 'every 3 consecutive letters are distinct', reading: 2}
+  - {req: R-EX-1, phrase: 'is_happy(a)', reading: 2}
+  - {req: R-EX-1, phrase: 'is_happy(a) => True', reading: 2}
+  - {req: R-EX-2, phrase: 'is_happy(aa)', reading: 2}
+  - {req: R-EX-2, phrase: 'is_happy(aa) => True', reading: 2}
+  - {req: R-EX-3, phrase: 'is_happy(abcd)', reading: 2}
+  - {req: R-EX-3, phrase: 'is_happy(abcd) => False', reading: 2}
+  - {req: R-EX-4, phrase: 'is_happy(aabb)', reading: 2}
+  - {req: R-EX-4, phrase: 'is_happy(aabb) => True', reading: 2}
+  - {req: R-EX-5, phrase: 'is_happy(adb)', reading: 2}
+  - {req: R-EX-5, phrase: 'is_happy(adb) => False', reading: 2}
+  - {req: R-EX-6, phrase: 'is_happy(xyy)', reading: 2}
+  - {req: R-EX-6, phrase: 'is_happy(xyy) => True', reading: 2}

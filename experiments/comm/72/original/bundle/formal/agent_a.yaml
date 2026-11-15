@@ -1,0 +1,146 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-DEF-2: q reads the same forwards and backwards; the empty list is
+  # palindromic (the quantifier over an empty range is true).
+  bal: 'all(i < len(q): q[i] == q[len(q) - 1 - i])'
+  # R-DEF-3: the sum of the elements of q (0 for the empty list).
+  wsum: 'sum(i < len(q): q[i])'
+  light: 'wsum <= w'
+
+properties:
+  - id: RA-OUT-1
+    req: R-OUT-1
+    expr: 'outcome == 0'
+    note: >-
+      Every call returns a Python bool: no exception, no non-termination
+      (outcome 1) and no value of another kind such as 1, 0 or a list
+      (outcome 2). Literal reading: "returns True ... and False otherwise"
+      names the bool values True and False.
+
+  - id: RA-FLY-1
+    req: R-FLY-1
+    pattern: implies
+    args:
+      trigger: 'bal && light'
+      cond: 'outcome == 0 && flies'
+    note: >-
+      Balanced (palindromic, including the empty list) and sum(q) <= w implies
+      the call returns True. The rule text says "less than or equal"; the
+      example comments say "is less than", which only describe their own
+      calls (8 < 9, 3 < 5), so the rule's <= is taken.
+
+  - id: RA-FLY-2
+    req: R-FLY-2
+    pattern: implies
+    args:
+      trigger: '!bal'
+      cond: 'outcome == 0 && !flies'
+    note: >-
+      "False otherwise": the definition "q will fly if ..." is read as
+      if-and-only-if, so an unbalanced q returns False for every w. The empty
+      list is balanced and is never covered here.
+
+  - id: RA-FLY-3
+    req: R-FLY-3
+    pattern: implies
+    args:
+      trigger: '!light'
+      cond: 'outcome == 0 && !flies'
+    note: >-
+      "False otherwise", with "will fly if" read as if-and-only-if: a q whose
+      sum exceeds w returns False, balanced or not. Only sum(q) > w is
+      required to return False; sum(q) == w is decided by RA-FLY-1 (True for
+      a balanced q).
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'q == [1, 2] && w == 5'
+      cond: 'outcome == 0 && !flies'
+    note: The example states the result of this call, so it is also a guarantee for that input.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'q == [3, 2, 3] && w == 1'
+      cond: 'outcome == 0 && !flies'
+    note: The example states the result of this call, so it is also a guarantee for that input.
+
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'q == [3, 2, 3] && w == 9'
+      cond: 'outcome == 0 && flies'
+    note: >-
+      The example states the result of this call, so it is also a guarantee
+      for that input. The comment "is less than the maximum possible weight"
+      is read as describing this call only (8 < 9), not as the rule.
+
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: 'q == [3] && w == 5'
+      cond: 'outcome == 0 && flies'
+    note: >-
+      The example states the result of this call, so it is also a guarantee
+      for that input. The comment "is less than the maximum possible weight"
+      is read as describing this call only (3 < 5), not as the rule.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: 'q == [1, 2] && w == 5 && outcome == 0 && !flies'
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: 'q == [3, 2, 3] && w == 1 && outcome == 0 && !flies'
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: 'q == [3, 2, 3] && w == 9 && outcome == 0 && flies'
+  - id: RA-EX-4-S
+    req: R-EX-4
+    cover: 'q == [3] && w == 5 && outcome == 0 && flies'
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      The function name and parameter list are an interface fact fixed by the
+      adapter (design.yaml function section binds will_it_fly(q, w) to the
+      signals q and w); it is not a property of the trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition of "will fly" (balanced and sum <= w), read as
+      if-and-only-if; realized by the defs bal and light and used by the
+      guarantees that give the return value in each case.
+    covered_by: [RA-FLY-1, RA-FLY-2, RA-FLY-3]
+  - req: R-DEF-2
+    reason: Definition of "balanced"; realized by the def bal (empty list balanced).
+    covered_by: [RA-FLY-1, RA-FLY-2]
+  - req: R-DEF-3
+    reason: Definition of the weight condition; realized by the defs wsum and light (sum(q) <= w).
+    covered_by: [RA-FLY-1, RA-FLY-3]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (F-ZERO, outcome != 0 -> !flies); frame items
+      are part of every formalization set and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-OUT-1, phrase: "returns True if the object q will fly, and False otherwise", reading: 1}
+  - {req: R-FLY-1, phrase: "less than or equal the maximum possible weight w", reading: 1}
+  - {req: R-FLY-1, phrase: "palindromic list", reading: 1}
+  - {req: R-FLY-2, phrase: "The object q will fly if", reading: 1}
+  - {req: R-FLY-2, phrase: "palindromic list", reading: 1}
+  - {req: R-FLY-3, phrase: "The object q will fly if", reading: 1}
+  - {req: R-FLY-3, phrase: "less than or equal the maximum possible weight w", reading: 1}
+  - {req: R-DEF-1, phrase: "The object q will fly if", reading: 1}
+  - {req: R-DEF-2, phrase: "palindromic list", reading: 1}
+  - {req: R-DEF-3, phrase: "less than or equal the maximum possible weight w", reading: 1}
+  - {req: R-EX-3, phrase: "is less than the maximum possible weight", reading: 1}
+  - {req: R-EX-4, phrase: "is less than the maximum possible weight", reading: 1}

@@ -1,0 +1,44 @@
+[
+ {
+  "req": "R-VAL-1",
+  "phrase": "The date is valid if all of the following rules are satisfied",
+  "taken": 1,
+  "variant": 2,
+  "text": "The four rules are necessary but not sufficient: the date must also be a real calendar date (for example February 29 only in a leap year, and no year 0000), so '02-29-2001' is invalid."
+ },
+ {
+  "req": "R-DAY-3",
+  "phrase": "higher than 29 for the month 2",
+  "taken": 1,
+  "variant": 2,
+  "text": "February allows day 29 only in a leap year (days 1 to 28 otherwise), so '02-29-2001' is invalid and '02-29-2000' is valid."
+ },
+ {
+  "req": "R-FMT-2",
+  "phrase": "mm",
+  "taken": 1,
+  "variant": 2,
+  "text": "The month field may be any text that parses as an integer (one digit, three digits, leading '+' or spaces), so '3-11-2000' is valid."
+ },
+ {
+  "req": "R-FMT-3",
+  "phrase": "dd",
+  "taken": 1,
+  "variant": 2,
+  "text": "The day field may be any text that parses as an integer, so '03-5-2000' is valid."
+ },
+ {
+  "req": "R-FMT-4",
+  "phrase": "yyyy",
+  "taken": 1,
+  "variant": 2,
+  "text": "The year field may be any text that parses as an integer, so '03-11-20' is valid."
+ },
+ {
+  "req": "R-FMT-5",
+  "phrase": "The date should be in the format: mm-dd-yyyy",
+  "taken": 1,
+  "variant": 2,
+  "text": "Leading and trailing whitespace is ignored, so ' 03-11-2000 ' is valid."
+ }
+]

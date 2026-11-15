@@ -1,0 +1,707 @@
+{
+ "fifo/agent_a": {
+  "forcing": [],
+  "forcing_reqs": [],
+  "consistency": [],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [],
+  "seconds": 0.4
+ },
+ "fifo/agent_b": {
+  "forcing": [
+   [
+    "FB-SIM-1e",
+    "FB-TM-1"
+   ],
+   [
+    "FB-RD-3",
+    "FB-SIM-1e"
+   ],
+   [
+    "FB-SIM-1e",
+    "FB-ST-4"
+   ],
+   [
+    "FB-SIM-1e",
+    "FB-USE-2"
+   ]
+  ],
+  "forcing_reqs": [
+   [
+    "R-SIM-1",
+    "R-TM-1"
+   ],
+   [
+    "R-RD-3",
+    "R-SIM-1"
+   ],
+   [
+    "R-SIM-1",
+    "R-ST-4"
+   ],
+   [
+    "R-SIM-1",
+    "R-USE-2"
+   ]
+  ],
+  "consistency": [
+   [
+    "FB-SIM-1e",
+    "FB-ST-4"
+   ],
+   [
+    "FB-ST-3",
+    "FB-ST-4",
+    "FB-TM-2"
+   ]
+  ],
+  "consistency_source": "published",
+  "only_forcing": [
+   [
+    "FB-RD-3",
+    "FB-SIM-1e"
+   ],
+   [
+    "FB-SIM-1e",
+    "FB-TM-1"
+   ],
+   [
+    "FB-SIM-1e",
+    "FB-USE-2"
+   ]
+  ],
+  "only_consistency": [
+   [
+    "FB-ST-3",
+    "FB-ST-4",
+    "FB-TM-2"
+   ]
+  ],
+  "undecided": [
+   {
+    "banned": [
+     "FB-SIM-1e"
+    ],
+    "forced": false,
+    "depth": 2,
+    "iterations": 61,
+    "undecided": true
+   },
+   {
+    "banned": [
+     "FB-SIM-1e",
+     "FB-TM-1"
+    ],
+    "forced": false,
+    "depth": 2,
+    "iterations": 61,
+    "undecided": true
+   },
+   {
+    "banned": [
+     "FB-RD-3",
+     "FB-SIM-1e",
+     "FB-TM-1"
+    ],
+    "forced": false,
+    "depth": 2,
+    "iterations": 61,
+    "undecided": true
+   }
+  ],
+  "seconds": 113.3
+ },
+ "fifo/gold": {
+  "forcing": [],
+  "forcing_reqs": [],
+  "consistency": [],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [
+   {
+    "banned": [],
+    "forced": false,
+    "depth": 2,
+    "iterations": 61,
+    "undecided": true
+   }
+  ],
+  "seconds": 20.6
+ },
+ "fifo/literal": {
+  "forcing": [
+   [
+    "L-SIM-1",
+    "L-TM-1"
+   ],
+   [
+    "L-SIM-1",
+    "L-ST-4"
+   ],
+   [
+    "L-RD-3",
+    "L-SIM-1"
+   ],
+   [
+    "L-SIM-1",
+    "L-WR-1"
+   ]
+  ],
+  "forcing_reqs": [
+   [
+    "R-SIM-1",
+    "R-TM-1"
+   ],
+   [
+    "R-SIM-1",
+    "R-ST-4"
+   ],
+   [
+    "R-RD-3",
+    "R-SIM-1"
+   ],
+   [
+    "R-SIM-1",
+    "R-WR-1"
+   ]
+  ],
+  "consistency": [
+   [
+    "L-SIM-1",
+    "L-ST-4"
+   ],
+   [
+    "L-ST-3",
+    "L-ST-4",
+    "L-TM-2"
+   ],
+   [
+    "L-SIM-1",
+    "L-TM-1"
+   ]
+  ],
+  "consistency_source": "published",
+  "only_forcing": [
+   [
+    "L-RD-3",
+    "L-SIM-1"
+   ],
+   [
+    "L-SIM-1",
+    "L-WR-1"
+   ]
+  ],
+  "only_consistency": [
+   [
+    "L-ST-3",
+    "L-ST-4",
+    "L-TM-2"
+   ]
+  ],
+  "undecided": [
+   {
+    "banned": [
+     "L-SIM-1"
+    ],
+    "forced": false,
+    "depth": 2,
+    "iterations": 61,
+    "undecided": true
+   },
+   {
+    "banned": [
+     "L-SIM-1",
+     "L-TM-1"
+    ],
+    "forced": false,
+    "depth": 2,
+    "iterations": 61,
+    "undecided": true
+   }
+  ],
+  "seconds": 45.4
+ },
+ "arbiter/agent_a": {
+  "forcing": [
+   [
+    "AA-PRI-1",
+    "AA-PRI-3",
+    "AA-RST-1b"
+   ],
+   [
+    "AA-G-1",
+    "AA-OV-1"
+   ],
+   [
+    "AA-G-2",
+    "AA-OV-1"
+   ],
+   [
+    "AA-G-1",
+    "AA-OV-1",
+    "AA-PRI-3"
+   ]
+  ],
+  "forcing_reqs": [
+   [
+    "R-PRI-1",
+    "R-PRI-3",
+    "R-RST-1"
+   ],
+   [
+    "R-G-1",
+    "R-OV-1"
+   ],
+   [
+    "R-G-2",
+    "R-OV-1"
+   ],
+   [
+    "R-G-1",
+    "R-OV-1",
+    "R-PRI-3"
+   ]
+  ],
+  "consistency": [
+   [
+    "AA-G-2",
+    "AA-OV-1"
+   ],
+   [
+    "AA-G-1",
+    "AA-OV-1",
+    "AA-PRI-3"
+   ],
+   [
+    "AA-G-2",
+    "AA-OV-1",
+    "AA-WC-1"
+   ]
+  ],
+  "consistency_source": "published",
+  "only_forcing": [
+   [
+    "AA-G-1",
+    "AA-OV-1"
+   ],
+   [
+    "AA-PRI-1",
+    "AA-PRI-3",
+    "AA-RST-1b"
+   ]
+  ],
+  "only_consistency": [
+   [
+    "AA-G-2",
+    "AA-OV-1",
+    "AA-WC-1"
+   ]
+  ],
+  "undecided": [],
+  "seconds": 0.7
+ },
+ "arbiter/agent_b": {
+  "forcing": [
+   [
+    "AB-G-3",
+    "AB-OV-1"
+   ],
+   [
+    "AB-G-2",
+    "AB-OV-1"
+   ],
+   [
+    "AB-G-3",
+    "AB-PRI-3"
+   ],
+   [
+    "AB-G-1",
+    "AB-OV-1"
+   ]
+  ],
+  "forcing_reqs": [
+   [
+    "R-G-3",
+    "R-OV-1"
+   ],
+   [
+    "R-G-2",
+    "R-OV-1"
+   ],
+   [
+    "R-G-3",
+    "R-PRI-3"
+   ],
+   [
+    "R-G-1",
+    "R-OV-1"
+   ]
+  ],
+  "consistency": [
+   [
+    "AB-G-3",
+    "AB-OV-1"
+   ],
+   [
+    "AB-G-3",
+    "AB-PRI-3"
+   ]
+  ],
+  "consistency_source": "published",
+  "only_forcing": [
+   [
+    "AB-G-1",
+    "AB-OV-1"
+   ],
+   [
+    "AB-G-2",
+    "AB-OV-1"
+   ]
+  ],
+  "only_consistency": [],
+  "undecided": [],
+  "seconds": 0.5
+ },
+ "arbiter/gold": {
+  "forcing": [],
+  "forcing_reqs": [],
+  "consistency": [],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [
+   {
+    "banned": [],
+    "forced": false,
+    "depth": 4,
+    "iterations": 61,
+    "undecided": true
+   }
+  ],
+  "seconds": 7.4
+ },
+ "prompt_email/agent_a": {
+  "forcing": [],
+  "forcing_reqs": [],
+  "consistency": [],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [],
+  "seconds": 0.8
+ },
+ "prompt_email/agent_b": {
+  "forcing": [],
+  "forcing_reqs": [],
+  "consistency": [],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [],
+  "seconds": 0.9
+ },
+ "prompt_email/gold": {
+  "forcing": [
+   [
+    "F-LEN",
+    "F-SIG",
+    "G-END",
+    "G-FEAT-BEN",
+    "G-FEAT-N",
+    "G-FEAT-OWN",
+    "G-GREET",
+    "G-LEN",
+    "G-SUBJ"
+   ],
+   [
+    "F-LEN",
+    "F-NUL",
+    "F-SIG",
+    "G-FEAT-BEN",
+    "G-FEAT-N",
+    "G-FEAT-OWN",
+    "G-GREET",
+    "G-LEN",
+    "G-SUBJ"
+   ]
+  ],
+  "forcing_reqs": [
+   [
+    "R-END-1",
+    "R-FEAT-1",
+    "R-FEAT-2",
+    "R-FEAT-3",
+    "R-FR-3",
+    "R-FR-4",
+    "R-GREET-1",
+    "R-LEN-1",
+    "R-SUBJ-1"
+   ],
+   [
+    "R-FEAT-1",
+    "R-FEAT-2",
+    "R-FEAT-3",
+    "R-FR-2",
+    "R-FR-3",
+    "R-FR-4",
+    "R-GREET-1",
+    "R-LEN-1",
+    "R-SUBJ-1"
+   ]
+  ],
+  "consistency": [
+   [
+    "F-LEN",
+    "F-SIG",
+    "G-END",
+    "G-FEAT-BEN",
+    "G-FEAT-N",
+    "G-FEAT-OWN",
+    "G-GREET",
+    "G-LEN",
+    "G-SUBJ"
+   ],
+   [
+    "F-LEN",
+    "F-NUL",
+    "F-SIG",
+    "G-FEAT-BEN",
+    "G-FEAT-N",
+    "G-FEAT-OWN",
+    "G-GREET",
+    "G-LEN",
+    "G-SUBJ"
+   ]
+  ],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [],
+  "seconds": 11.1
+ },
+ "bridge/agent_a": {
+  "forcing": [],
+  "forcing_reqs": [],
+  "consistency": [],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [
+   {
+    "banned": [],
+    "forced": false,
+    "depth": 2,
+    "iterations": 61,
+    "undecided": true
+   }
+  ],
+  "seconds": 7.8
+ },
+ "bridge/agent_b": {
+  "forcing": [],
+  "forcing_reqs": [],
+  "consistency": [],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [
+   {
+    "banned": [],
+    "forced": false,
+    "depth": 2,
+    "iterations": 61,
+    "undecided": true
+   }
+  ],
+  "seconds": 8.5
+ },
+ "bridge/gold": {
+  "forcing": [],
+  "forcing_reqs": [],
+  "consistency": [],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [
+   {
+    "banned": [],
+    "forced": false,
+    "depth": 3,
+    "iterations": 61,
+    "undecided": true
+   }
+  ],
+  "seconds": 16.7
+ },
+ "hub/agent_a": {
+  "forcing": [],
+  "forcing_reqs": [],
+  "consistency": [],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [
+   {
+    "banned": [],
+    "forced": false,
+    "depth": 12,
+    "iterations": 61,
+    "undecided": true
+   }
+  ],
+  "seconds": 9.6
+ },
+ "hub/agent_b": {
+  "forcing": [],
+  "forcing_reqs": [],
+  "consistency": [],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [
+   {
+    "banned": [],
+    "forced": false,
+    "depth": 13,
+    "iterations": 61,
+    "undecided": true
+   }
+  ],
+  "seconds": 76.8
+ },
+ "hub/gold": {
+  "forcing": [],
+  "forcing_reqs": [],
+  "consistency": [],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [
+   {
+    "banned": [],
+    "forced": false,
+    "depth": 10,
+    "iterations": 61,
+    "undecided": true
+   }
+  ],
+  "seconds": 15.2
+ },
+ "agent_desk/agent_a": {
+  "forcing": [
+   [
+    "F-DONE0",
+    "F-ONE",
+    "PA-END-1",
+    "PA-HUM-1"
+   ],
+   [
+    "F-DONE0",
+    "F-ONE",
+    "PA-BIG-2",
+    "PA-END-1"
+   ]
+  ],
+  "forcing_reqs": [
+   [
+    "R-END-1",
+    "R-FR-1",
+    "R-FR-3",
+    "R-HUM-1"
+   ],
+   [
+    "R-BIG-1",
+    "R-END-1",
+    "R-FR-1",
+    "R-FR-3"
+   ]
+  ],
+  "consistency": [
+   [
+    "F-DONE0",
+    "F-ONE",
+    "PA-BIG-2",
+    "PA-END-1"
+   ],
+   [
+    "F-DONE0",
+    "F-ONE",
+    "PA-END-1",
+    "PA-HUM-1"
+   ]
+  ],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [],
+  "seconds": 0.9
+ },
+ "agent_desk/agent_b": {
+  "forcing": [
+   [
+    "PB-END-1",
+    "PB-HUM-1"
+   ],
+   [
+    "PB-BIG-2",
+    "PB-END-1"
+   ]
+  ],
+  "forcing_reqs": [
+   [
+    "R-END-1",
+    "R-HUM-1"
+   ],
+   [
+    "R-BIG-1",
+    "R-END-1"
+   ]
+  ],
+  "consistency": [
+   [
+    "PB-BIG-2",
+    "PB-END-1"
+   ],
+   [
+    "PB-END-1",
+    "PB-HUM-1"
+   ]
+  ],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [],
+  "seconds": 0.9
+ },
+ "agent_desk/gold": {
+  "forcing": [
+   [
+    "F-DONE0",
+    "G-END",
+    "G-HUM"
+   ]
+  ],
+  "forcing_reqs": [
+   [
+    "R-END-1",
+    "R-FR-3",
+    "R-HUM-1"
+   ]
+  ],
+  "consistency": [
+   [
+    "F-DONE0",
+    "G-END",
+    "G-HUM"
+   ]
+  ],
+  "consistency_source": "published",
+  "only_forcing": [],
+  "only_consistency": [],
+  "undecided": [],
+  "seconds": 0.6
+ }
+}

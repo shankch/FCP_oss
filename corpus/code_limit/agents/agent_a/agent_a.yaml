@@ -1,0 +1,228 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# Each cycle is one call allow(user, now) on the object created by the last
+# reset (frame.md). Rule 1 and the result type are stated as direct relations
+# between the arguments and outcome of a call and of the previous call.
+#
+# Rules 2 to 5 are per customer and measured in the seconds carried by `now`,
+# not in calls. They are stated for an arbitrary customer c (a rigid), and the
+# times of c's earlier attempts that the rules look at are kept in ghost state.
+# Ghosts are needed here: with past-time operators alone the window needs a
+# second, time-valued rigid (1,001 x 65,536 cases), and FCP checks code only
+# up to 4,096 rigid cases.
+#
+# The ghosts are a record of c's history on the object, driven by the calls
+# and their results; they do not decide anything. While `now` does not go
+# back, LA-MAX-1, LA-FAIR-1 and LA-PEN-1 are exactly rules 2, 4 and 5.
+# `now` can go back only after a call that rule 1 rejects (LA-ERR-2); after
+# that, the items still state only what the rules require (every time they
+# compare is a real attempt of c), but they may not see every attempt that
+# the rules would count (see the notes).
+rigids:
+  - {name: c, range: [0, 1000]}       # a customer id (valid ids are 0 to 1,000)
+
+ghosts:
+  # Times of c's three most recent allowed attempts (calls by c that
+  # returned True), most recent first; -61 = none, which is never within
+  # 60 seconds of a time >= 0.
+  - {name: t_ok1, range: [-61, 65535], init: -61, next: "c_allowed ? now : t_ok1"}
+  - {name: t_ok2, range: [-61, 65535], init: -61, next: "c_allowed ? t_ok1 : t_ok2"}
+  - {name: t_ok3, range: [-61, 65535], init: -61, next: "c_allowed ? t_ok2 : t_ok3"}
+  # The latest time among c's allowed attempts before those three; -61 =
+  # none. While `now` does not go back it is at most t_ok3.
+  - {name: t_ok_older, range: [-61, 65535], init: -61, next: "c_allowed ? max(t_ok_older, t_ok3) : t_ok_older"}
+  # Time of c's most recent denied attempt (a call by c that returned
+  # False); -11 = none, which is never within 10 seconds before a time >= 0.
+  - {name: t_denied, range: [-11, 65535], init: -11, next: "c_denied ? now : t_denied"}
+
+defs:
+  # This call is an allowed attempt of customer c (returned True).
+  c_allowed: "outcome == 0 && allowed && user == c"
+  # This call is a denied attempt of customer c (returned False).
+  c_denied: "outcome == 0 && !allowed && user == c"
+  # How many of c's three most recent allowed attempts lie in the last 60
+  # seconds, the closed window [now - 60, now].
+  recent_ok: "(t_ok1 >= now - 60 && t_ok1 <= now) + (t_ok2 >= now - 60 && t_ok2 <= now) + (t_ok3 >= now - 60 && t_ok3 <= now)"
+  # c had fewer than 3 allowed attempts in [now - 60, now] before this call:
+  # every older allowed attempt is more than 60 seconds back, and fewer than
+  # 3 of the last three are in the window.
+  under_limit: "t_ok_older < now - 60 && recent_ok < 3"
+  # Spread in seconds of this call's time and the times of c's three most
+  # recent allowed attempts (more than 60 when there are fewer than three).
+  span4: "max(max(now, t_ok1), max(t_ok2, t_ok3)) - min(min(now, t_ok1), min(t_ok2, t_ok3))"
+  # This call's time is within the 10 seconds after c's last denied
+  # attempt, the closed window [t_denied, t_denied + 10].
+  in_penalty: "t_denied <= now && now <= t_denied + 10"
+
+properties:
+  # ---- Rule 1: errors -------------------------------------------------------
+  - id: LA-ERR-1
+    req: R-ERR-1
+    expr: "user > 1000 -> outcome == 1"
+    note: >-
+      A customer id outside 0 to 1,000 (R-IN-1) raises ValueError. The user
+      signal carries 0 to 1,023; negative ids are not part of the trace.
+
+  - id: LA-ERR-2
+    req: R-ERR-1
+    expr: "now < prev(now) -> outcome == 1"
+    note: >-
+      Ambiguous "the previous call": the most literal reading is taken
+      (reading 1), the call immediately before this one on the same object,
+      whichever customer made it and whether or not it raised; prev(now) is
+      its time. "Earlier" is strict, so an equal time is not an error. The
+      first call of an object has no previous call and is not evaluated.
+      Consequence, not repaired: after a call that raised because its time
+      went back, the next call is compared with that smaller time, so a valid
+      call can be earlier than attempts already allowed, and rules 2 and 4
+      then contradict each other: allow(0,100), allow(0,101), allow(0,102)
+      allowed, allow(1,50) raises, then allow(0,60) is valid, rule 4 says
+      allow it (no allowed attempt in [0,60]) and rule 2 forbids it (60, 100,
+      101, 102 are four allowed attempts within [42,102]). LA-FAIR-1 and
+      LA-MAX-1 keep this conflict. Reading 2 (the previous call that did not
+      raise) would keep time from going back for valid calls.
+
+  # ---- Result type: a valid call returns True or False ----------------------
+  - id: LA-RET-1
+    req: R-RET-1
+    pattern: after_reset
+    args: {cond: "!rst_active && user <= 1000 -> outcome == 0"}
+    note: >-
+      The first call on a new object (the cycle right after a reset) has no
+      previous call, so rule 1 rejects it only for an id above 1,000;
+      otherwise it returns True or False and does not raise. `!rst_active`
+      keeps the check off a reset cycle that follows another reset cycle,
+      since after_reset is evaluated in every cycle. LA-RET-2 covers every
+      later call.
+
+  - id: LA-RET-2
+    req: R-RET-1
+    expr: "user <= 1000 && now >= prev(now) -> outcome == 0"
+    note: >-
+      A call that rule 1 does not reject (id at most 1,000, time not earlier
+      than in the previous call, as read in LA-ERR-2) returns True or False
+      (outcome 0): it neither raises nor returns another value. "It returns
+      True if the attempt may go ahead" fixes the meaning of the result
+      (allowed = the attempt may go ahead); when that is so is rules 2 to 5
+      (LA-MAX-1, LA-FAIR-1, LA-PEN-1). Evaluated from the second call of an
+      object; LA-RET-1 covers the first.
+
+  # ---- Rule 2: the limit ----------------------------------------------------
+  - id: LA-MAX-1
+    req: R-MAX-1
+    pattern: implies
+    args:
+      trigger: "c_allowed"
+      cond: "span4 > 60"
+    note: >-
+      For every customer c: when a call of c is allowed, its time and the
+      times of c's three most recent allowed attempts span more than 60
+      seconds, so no four allowed attempts of one customer lie within 60
+      seconds. Ambiguous "in any 60 seconds": the most literal reading is
+      taken (reading 1), attempts at s and s + 60 are within 60 seconds of
+      each other (a closed window of 61 whole seconds), so a spread of
+      exactly 60 is a violation. Only allowed attempts are counted (rule 3,
+      R-COUNT-1). While time does not go back this is exactly rule 2: at the
+      latest of any four allowed attempts within 60 seconds, the three most
+      recent earlier ones are no older than the first of the four. After
+      time went back (LA-ERR-2) the spread is still over real allowed
+      attempts, so the item forbids only what rule 2 forbids, but four
+      attempts that include one older than the last three are not seen.
+
+  # ---- Rule 4: allow when under the limit -----------------------------------
+  - id: LA-FAIR-1
+    req: R-FAIR-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && user == c && under_limit"
+      cond: "allowed"
+    note: >-
+      A call of customer c that returns a result, made when c had fewer than
+      3 allowed attempts in the last 60 seconds, returns True. "In the last
+      60 seconds" has the same boundary question as R-MAX-1 and is read the
+      same way: an attempt exactly 60 seconds earlier, or earlier in the same
+      second, is in the last 60 seconds (window [now - 60, now]); an attempt
+      at a later time (time went back, LA-ERR-2) is not. With one convention
+      rules 2 and 4 are complementary. Rule 4 is read as fixing the value a
+      returning call gives (outcome 0); whether a call returns or raises is
+      rule 1 (LA-ERR-*, LA-RET-*), otherwise rule 4 would also oblige a call
+      that rule 1 rejects to be allowed. Contradiction, not repaired: rule 4
+      makes no exception for rule 5. E.g. one customer allowed at 0, 1 and
+      2, denied at 52 (rule 2), then an attempt at 61: [1,61] holds 2
+      allowed attempts, so rule 4 says allow, while rule 5 (LA-PEN-1) says
+      deny, 61 being within 10 seconds after the denial at 52. While time
+      does not go back, under_limit is exactly "fewer than 3"; after it went
+      back, the item obliges an allow only when every allowed attempt of c
+      older than the last three is more than 60 seconds back, so the count
+      is known.
+
+  # ---- Rule 5: the penalty --------------------------------------------------
+  - id: LA-PEN-1
+    req: R-PEN-1
+    pattern: implies
+    args:
+      trigger: "user == c && in_penalty"
+      cond: "!allowed"
+    note: >-
+      For every customer c: a call of c at a time within [d, d + 10], where d
+      is the time of c's last denied attempt (a call by c that returned
+      False), is not allowed. Ambiguities, most literal readings taken: "for
+      the next 10 seconds" includes an attempt exactly 10 seconds after the
+      denial (reading 1), and a later attempt in the same second; "After a
+      denied attempt" means every denied attempt, including one denied by
+      this rule (reading 1), so attempts at most 10 seconds apart keep a
+      customer denied indefinitely. A call that raised is not a denied
+      attempt; a penalised call that rule 1 rejects satisfies the item, as it
+      is not allowed either. A time earlier than the denial is not after it
+      and is not constrained. While time does not go back, the last denial is
+      the one that matters; after it went back (LA-ERR-2), an earlier denial
+      whose 10 seconds contain the call is not seen. Contradicts rule 4, not
+      repaired (see LA-FAIR-1).
+
+scenarios:
+  - id: LA-EX-1
+    req: R-EX-1
+    cover: >-
+      prev(user, 3) == user && prev(user, 2) == user && prev(user) == user &&
+      prev(now, 3) == 0 && prev(now, 2) == 1 && prev(now) == 2 && now == 3 &&
+      prev(outcome == 0 && allowed, 3) && prev(outcome == 0 && allowed, 2) &&
+      prev(outcome == 0 && allowed) && outcome == 0 && !allowed
+    note: >-
+      The example: four consecutive calls by one customer at 0, 1, 2 and 3
+      seconds; the first three return True and the fourth returns False. The
+      cover looks back three calls, so it is evaluated from the fourth call
+      of an object; it does not exclude calls before these four.
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the interface. The class RateLimiter, the method allow
+      and its int arguments user and now are fixed by the adapter (frame.md),
+      which maps them to the signals. The result type bool is realized by
+      LA-RET-1 and LA-RET-2 (a valid call returns True or False) together
+      with LA-ERR-1 and LA-ERR-2 (every other call raises ValueError), so no
+      call returns a value of another type.
+    covered_by: [LA-RET-1, LA-RET-2, LA-ERR-1, LA-ERR-2]
+  - req: R-IN-1
+    reason: >-
+      Definition, not an environment obligation: rule 1 makes an id outside
+      0 to 1,000 an error case, so the range is used by LA-ERR-1, LA-RET-1
+      and LA-RET-2 and is the range of the customer rigid c. "now in whole
+      seconds" is the integer signal now; the windows of LA-MAX-1, LA-FAIR-1
+      and LA-PEN-1 are in those units.
+    covered_by: [LA-ERR-1, LA-RET-1, LA-RET-2]
+  - req: R-COUNT-1
+    reason: >-
+      Says what the counts of rules 2 and 4 range over. Realized by LA-MAX-1
+      and LA-FAIR-1, whose ghost record holds only calls that returned True
+      (outcome 0 and allowed): denied calls and calls that raised never
+      count, and LA-FAIR-1 requires an attempt to be allowed however many
+      denied attempts precede it.
+    covered_by: [LA-MAX-1, LA-FAIR-1]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md), realized by the frame item
+      F-ZERO of design.yaml, which is part of every formalization set.
+    covered_by: [F-ZERO]

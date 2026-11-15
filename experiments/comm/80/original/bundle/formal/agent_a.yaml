@@ -1,0 +1,155 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # every overlapping window s[i], s[i+1], s[i+2] (i = 0 .. len(s)-3) holds three
+  # pairwise distinct characters, compared by code; vacuously true below length 3
+  windows_distinct: "all(i < len(s) - 2: s[i] != s[i + 1] && s[i] != s[i + 2] && s[i + 1] != s[i + 2])"
+  # the definition of a happy string (R-HAP-1)
+  happy_str: "len(s) >= 3 && windows_distinct"
+  # the call returned the bool False / True
+  ret_false: "outcome == 0 && !happy"
+  ret_true: "outcome == 0 && happy"
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Reading 1 of "check": every call returns the Python bool True or False
+      (outcome 0); it never raises, never fails to finish and never returns a
+      value of another type (outcome 2), for every string s.
+
+  - id: RA-HAP-2
+    req: R-HAP-2
+    pattern: implies
+    args: {trigger: "len(s) < 3", cond: "ret_false"}
+    note: >-
+      "happy if" read as "if and only if" (reading 1): the sentence is a
+      definition, and a definition stated with "if" is exhaustive; "happy or
+      not" and the examples 'a' and 'aa' support it. A string shorter than 3
+      (including the empty string) is not happy, so the call returns False
+      (outcome 0, happy false), not an exception.
+
+  - id: RA-HAP-3
+    req: R-HAP-3
+    pattern: implies
+    args: {trigger: "len(s) >= 3 && !windows_distinct", cond: "ret_false"}
+    note: >-
+      "happy if" read as "if and only if" (reading 1). Windows are the
+      overlapping runs s[i], s[i+1], s[i+2] for i from 0 to len(s)-3
+      (reading 1 of "every 3 consecutive letters"); "letters" is read as the
+      characters of s, whatever they are (reading 1), since the length
+      condition in the same sentence counts characters; "distinct" is
+      pairwise distinct (reading 1), compared by character code, so case
+      matters (reading 1). A string with a window holding two equal
+      characters returns False.
+
+  - id: RA-HAP-4
+    req: R-HAP-4
+    pattern: implies
+    args: {trigger: "happy_str", cond: "ret_true"}
+    note: >-
+      Same readings as RA-HAP-3: overlapping windows of any three
+      consecutive characters, pairwise distinct by character code. A string
+      of length at least 3 whose every window is pairwise distinct returns
+      True.
+
+  # The examples state what the call returns, so each is a property on its
+  # input; a matching scenario (below) asks that the behaviour be possible.
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 's == "a"', cond: "ret_false"}
+    note: >-
+      The docstring writes is_happy(a) without quotes; read as the
+      one-character string 'a', as requirements.yaml does.
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 's == "aa"', cond: "ret_false"}
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 's == "abcd"', cond: "ret_true"}
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 's == "aabb"', cond: "ret_false"}
+    note: >-
+      Reading 1: the example agrees with the rule under pairwise-distinct
+      windows (the window 'aab' repeats 'a'). It is stated as given, whatever
+      the rule says.
+  - id: RA-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 's == "adb"', cond: "ret_true"}
+  - id: RA-EX-6
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 's == "xyy"', cond: "ret_false"}
+    note: >-
+      Reading 1: the example agrees with the rule under pairwise-distinct
+      windows ('y' repeats in 'xyy'). It is stated as given, whatever the
+      rule says.
+
+scenarios:
+  - {id: RA-EX-1-COV, req: R-EX-1, cover: 's == "a" && ret_false'}
+  - {id: RA-EX-2-COV, req: R-EX-2, cover: 's == "aa" && ret_false'}
+  - {id: RA-EX-3-COV, req: R-EX-3, cover: 's == "abcd" && ret_true'}
+  - {id: RA-EX-4-COV, req: R-EX-4, cover: 's == "aabb" && ret_false'}
+  - {id: RA-EX-5-COV, req: R-EX-5, cover: 's == "adb" && ret_true'}
+  - {id: RA-EX-6-COV, req: R-EX-6, cover: 's == "xyy" && ret_false'}
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: it says the deliverable is a function body, which is
+      not a property of the calls in the trace.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name is_happy and the single parameter s are fixed
+      by the interface encoding (design.yaml function section, frame.md), not
+      by any trace property.
+  - req: R-IN-1
+    reason: >-
+      Reading 1 of "a string": s may be any string, including the empty
+      string, digits, spaces, punctuation and upper-case letters. Every value
+      of the input signal s is such a string by construction of the interface
+      (at most 32 characters, codes 0 to 255), so the environment has no
+      further obligation and no assumption is needed.
+  - req: R-HAP-1
+    reason: >-
+      Definition of a happy string, captured by the def happy_str (length at
+      least 3 and every overlapping window of three characters pairwise
+      distinct by code). With "if" read as "if and only if", it is realized
+      by the three guarantees that tie the returned value to it.
+    covered_by: [RA-HAP-2, RA-HAP-3, RA-HAP-4]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; it holds by construction of the
+      interface encoding and is added to every formalization set as F-ZERO.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "a string", reading: 1}
+  - {req: R-RET-1, phrase: "check", reading: 1}
+  - {req: R-HAP-1, phrase: "happy if", reading: 1}
+  - {req: R-HAP-1, phrase: "every 3 consecutive letters", reading: 1}
+  - {req: R-HAP-1, phrase: "letters", reading: 1}
+  - {req: R-HAP-1, phrase: "distinct", reading: 1}
+  - {req: R-HAP-1, phrase: "letters are distinct", reading: 1}
+  - {req: R-HAP-2, phrase: "happy if", reading: 1}
+  - {req: R-HAP-3, phrase: "happy if", reading: 1}
+  - {req: R-HAP-3, phrase: "every 3 consecutive letters", reading: 1}
+  - {req: R-HAP-3, phrase: "letters", reading: 1}
+  - {req: R-HAP-3, phrase: "distinct", reading: 1}
+  - {req: R-HAP-3, phrase: "letters are distinct", reading: 1}
+  - {req: R-HAP-4, phrase: "every 3 consecutive letters", reading: 1}
+  - {req: R-HAP-4, phrase: "letters", reading: 1}
+  - {req: R-HAP-4, phrase: "distinct", reading: 1}
+  - {req: R-HAP-4, phrase: "letters are distinct", reading: 1}
+  - {req: R-EX-4, phrase: "is_happy(aabb) => False", reading: 1}
+  - {req: R-EX-6, phrase: "is_happy(xyy) => False", reading: 1}

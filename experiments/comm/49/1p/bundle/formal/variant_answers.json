@@ -1,0 +1,58 @@
+[
+ {
+  "req": "R-SIG-1",
+  "phrase": "p: int",
+  "taken": 1,
+  "variant": 2,
+  "text": "the request never says what p is for; the docstring does not mention p, so p need not affect the result"
+ },
+ {
+  "req": "R-SIG-2",
+  "phrase": "n: int",
+  "taken": 1,
+  "variant": 2,
+  "text": "n is a non-negative int"
+ },
+ {
+  "req": "R-SIG-2",
+  "phrase": "p: int",
+  "taken": 1,
+  "variant": 2,
+  "text": "p is a positive int (a modulus), so a call with p = 0 breaks the caller's obligation and its outcome is free"
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "2^n",
+  "taken": 1,
+  "variant": 2,
+  "text": "2 XOR n, as the ^ operator means in Python"
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "modulo.",
+  "taken": 1,
+  "variant": 2,
+  "text": "the modulus is not stated, so the request does not constrain the returned value (contradicts the signature declaring p with no other role; see R-SIG-1)"
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "2^n modulo",
+  "taken": 1,
+  "variant": 2,
+  "text": "any integer congruent to 2^n modulo p"
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "Return",
+  "taken": 1,
+  "variant": 2,
+  "text": "any number equal in value is acceptable, such as a float (which the trace records as outcome 2)"
+ },
+ {
+  "req": "R-RES-2",
+  "phrase": "modulo",
+  "taken": 3,
+  "variant": 1,
+  "text": "the call ends with an exception, as Python's 2**n % 0 raises ZeroDivisionError (outcome 1)"
+ }
+]

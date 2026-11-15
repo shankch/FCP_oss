@@ -1,0 +1,225 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+# One cycle is one call vowels_count(s) (frame.md). No ghost state: the
+# function keeps no memory, so every requirement is a relation between the
+# argument s and the outputs of the same call.
+#
+# A vowel letter is one of a, e, i, o, u (R-VOW-1), in either case (R-VOW-1
+# reading 2) and, as instructed, in its accented Latin-1 forms: the Latin-1
+# letters whose canonical decomposition is that vowel plus a combining mark
+# (grave, acute, circumflex, tilde, diaeresis, ring). AE ligature (C6/E6) and
+# O with stroke (D8/F8) have no such decomposition and are not included.
+# y (either case) is a vowel letter only where it ends a word of s (R-VOW-3,
+# instructed reading 2); a word is a maximal run of characters that are not
+# ASCII whitespace, and the y must be the last character of that run.
+defs:
+  has_a: 'any(i < len(s): lower(s[i]) == "a" || (s[i] >= "\xC0" && s[i] <= "\xC5") || (s[i] >= "\xE0" && s[i] <= "\xE5"))'
+  has_e: 'any(i < len(s): lower(s[i]) == "e" || (s[i] >= "\xC8" && s[i] <= "\xCB") || (s[i] >= "\xE8" && s[i] <= "\xEB"))'
+  has_i: 'any(i < len(s): lower(s[i]) == "i" || (s[i] >= "\xCC" && s[i] <= "\xCF") || (s[i] >= "\xEC" && s[i] <= "\xEF"))'
+  has_o: 'any(i < len(s): lower(s[i]) == "o" || (s[i] >= "\xD2" && s[i] <= "\xD6") || (s[i] >= "\xF2" && s[i] <= "\xF6"))'
+  has_u: 'any(i < len(s): lower(s[i]) == "u" || (s[i] >= "\xD9" && s[i] <= "\xDC") || (s[i] >= "\xF9" && s[i] <= "\xFC"))'
+  has_y: 'any(i < len(s): lower(s[i]) == "y")'
+  has_final_y: 'any(i < len(s): lower(s[i]) == "y" && (i + 1 == len(s) || isspace(s[i + 1])))'
+  nv5: 'has_a + has_e + has_i + has_o + has_u'
+  nv: 'nv5 + has_final_y'
+
+properties:
+  - id: RV-IN-1a
+    req: R-IN-1
+    expr: 'outcome == 0'
+    note: >-
+      Instructed reading (R-IN-1, "a string representing a word", reading 2),
+      taken although the other reading may seem more natural: the phrase only
+      describes typical use, so vowels_count must accept every string of the
+      trace (any length up to 32, any Latin-1 codes, empty, digits,
+      punctuation) and return an integer. Instructed reading (R-IN-1, "a
+      word", reading 2): the string may hold several words, which is also
+      accepted. Hence no assumption on s and no don't-care.
+
+  - id: RV-IN-1b
+    req: R-IN-1
+    pattern: implies
+    args: {trigger: 'len(s) == 0', cond: 'outcome == 0 && count == 0'}
+    note: >-
+      Instructed reading (R-IN-1, "a string representing a word", reading 2),
+      taken although the other reading may seem more natural: the empty
+      string is a legal argument and gives 0.
+
+  - id: RV-CNT-1
+    req: R-CNT-1
+    expr: 'outcome == 0 && count == nv'
+    note: >-
+      Instructed reading (R-CNT-1, "the number of vowels", reading 2), taken
+      although counting occurrences may seem more natural: the result is the
+      number of distinct vowel letters that appear ("aa" gives 1). A letter is
+      identified regardless of case and accent: A, a and the accented forms
+      such as "\xE0" are all the letter a, so the result is at most 6 (a, e,
+      i, o, u, y). Instructed reading (R-VOW-1, "Vowels in this case are",
+      reading 2): accented Latin-1 forms of a, e, i, o, u are vowels (defs
+      has_a .. has_u). Instructed reading (R-VOW-3, "at the end of the given
+      word", reading 2): y counts when it is the last character of any
+      whitespace-separated word of s (def has_final_y). Instructed readings
+      (R-IN-1, both phrases, reading 2): this holds for every string,
+      including the empty string and strings of several words. Every other
+      character adds nothing (exact equality).
+
+  - id: RV-VOW-1
+    req: R-VOW-1
+    pattern: implies
+    args: {trigger: 'outcome == 0', cond: 'count >= nv5'}
+    note: >-
+      Each of the vowel letters a, e, i, o, u that occurs anywhere in s, in
+      either case, contributes to the result. Case: the definition lists
+      lowercase letters only; read literally that would give 0 for "ACEDY"
+      and contradict R-EX-2, so the letters are matched regardless of case
+      (reading 2), as the example requires. Instructed reading (R-VOW-1,
+      "Vowels in this case are", reading 2), taken although an exhaustive
+      ASCII list may seem more natural: accented Latin-1 forms (C0-C5, C8-CB,
+      CC-CF, D2-D6, D9-DC and lowercase E0-E5, E8-EB, EC-EF, F2-F6, F9-FC)
+      are vowels too; AE (C6/E6) and O with stroke (D8/F8) are not accented
+      forms. Instructed reading (R-CNT-1, reading 2): a letter contributes
+      once, however often and in whatever case or accent it occurs.
+
+  - id: RV-VOW-2
+    req: R-VOW-2
+    pattern: implies
+    args: {trigger: 'outcome == 0 && has_final_y', cond: 'count >= nv5 + 1'}
+    note: >-
+      A y at the end of a word is a vowel and adds one, on top of the letters
+      a, e, i, o, u. Case: 'y' is matched regardless of case (reading 2) as
+      the example "ACEDY" == 3 requires; the literal lowercase reading would
+      contradict R-EX-2. Instructed reading (R-VOW-3, "at the end of the
+      given word", reading 2), taken although "end of the whole string" may
+      seem more natural: a y that is the last character of any
+      whitespace-separated word of s qualifies. Instructed reading (R-CNT-1,
+      reading 2): y is one distinct letter, so several final y's still add
+      one in total. Accented y forms (DD, FD, FF) are not covered, since the
+      instructed accent reading concerns the letters a, e, i, o, u of
+      R-VOW-1.
+
+  - id: RV-VOW-3
+    req: R-VOW-3
+    pattern: implies
+    args: {trigger: 'outcome == 0 && has_y && !has_final_y', cond: 'count == nv5'}
+    note: >-
+      When s contains y's but none of them ends a word, the y's add nothing:
+      the result is exactly the number of distinct letters among a, e, i, o,
+      u (the rest of the count is R-CNT-1's rule that only vowels count).
+      Instructed reading (R-VOW-3, "at the end of the given word", reading
+      2), taken although "end of the whole string" may seem more natural:
+      only a y that is the last character of some whitespace-separated word
+      of s counts, so "y " and "my ox" contain a final y. A y followed by a
+      non-whitespace character (for example "day!") is not at the end of its
+      word under this reading. Case: 'y' is matched regardless of case
+      (reading 2), so a non-final Y does not count and a final Y does.
+      Instructed reading (R-CNT-1, reading 2): counting distinct letters.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 's == "abcde"', cond: 'outcome == 0 && count == 2'}
+    note: >-
+      The doctest is an obligation on the deterministic function, so it is
+      stated as a property as well as a scenario. The value 2 (a, e) is the
+      same under the instructed distinct-letter reading of R-CNT-1.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 's == "ACEDY"', cond: 'outcome == 0 && count == 3'}
+    note: >-
+      The example is taken as authoritative (reading 1): uppercase A and E
+      count and the final uppercase Y counts, giving 3. The vowel
+      definitions list only lowercase letters, which read alone would give
+      0; the case-insensitive readings of R-VOW-1/2/3 resolve this
+      contradiction in favour of the example. The value 3 (A, E, Y) is the
+      same under the instructed distinct-letter reading of R-CNT-1.
+
+scenarios:
+  - id: RV-EX-1s
+    req: R-EX-1
+    cover: 's == "abcde" && outcome == 0 && count == 2'
+    note: Docstring example 1.
+
+  - id: RV-EX-2s
+    req: R-EX-2
+    cover: 's == "ACEDY" && outcome == 0 && count == 3'
+    note: Docstring example 2, taken as authoritative (reading 1).
+
+  - id: RV-IN-1s
+    req: R-IN-1
+    cover: 'any(i < len(s): isspace(s[i])) && outcome == 0'
+    note: >-
+      Instructed reading (R-IN-1, "a word", reading 2), taken although "a
+      single word" may seem more natural: a string of several words is a
+      legal argument and the call returns an integer.
+
+  - id: RV-CNT-1s
+    req: R-CNT-1
+    cover: 's == "aa" && outcome == 0 && count == 1'
+    note: >-
+      Instructed reading (R-CNT-1, "the number of vowels", reading 2), taken
+      although counting occurrences may seem more natural: "aa" gives 1, the
+      example the reading itself gives.
+
+  - id: RV-VOW-1s
+    req: R-VOW-1
+    cover: 's == "caf\xE9" && outcome == 0 && count == 2'
+    note: >-
+      Instructed reading (R-VOW-1, "Vowels in this case are", reading 2),
+      taken although an exhaustive ASCII list may seem more natural: in
+      "caf\xE9" the accented e counts, giving a and e.
+
+  - id: RV-VOW-3s
+    req: R-VOW-3
+    cover: 's == "say no" && outcome == 0 && count == 3'
+    note: >-
+      Instructed reading (R-VOW-3, "at the end of the given word", reading
+      2), taken although "end of the whole string" may seem more natural: the
+      y ending the word "say" counts, giving a, o and y.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Whether the response is a complete implementation rather than a stub is
+      a property of the code artifact, not of a call. Its observable part,
+      that every call returns the specified number, is realized by RV-IN-1a
+      and RV-CNT-1: a stub (pass, raise NotImplementedError, return a
+      constant) breaks them.
+    covered_by: [RV-IN-1a, RV-CNT-1]
+
+  - req: R-TASK-2
+    reason: >-
+      The name vowels_count and the single argument s are fixed by the
+      adapter (design.yaml function section) and cannot be stated in FCP-PL.
+      A function with another name or signature cannot be called, so every
+      call ends with outcome 1 and breaks RV-IN-1a.
+    covered_by: [RV-IN-1a]
+
+  - req: R-TASK-3
+    reason: >-
+      Instructed reading (R-TASK-3, "Add more test cases.", reading 2), taken
+      although an instruction to the implementer may seem more natural: the
+      line is a leftover maintainer note in the FIX constant, not addressed
+      to the implementer. It places no obligation on the response; only the
+      function body has to be written. Nothing to formalize.
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md); it is part of every formalization
+      set by construction and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-TASK-3, phrase: 'Add more test cases.', reading: 2}
+  - {req: R-IN-1, phrase: 'a string representing a word', reading: 2}
+  - {req: R-IN-1, phrase: 'a word', reading: 2}
+  - {req: R-CNT-1, phrase: 'the number of vowels', reading: 2}
+  - {req: R-VOW-1, phrase: '''a'', ''e'', ''i'', ''o'', ''u''', reading: 2}
+  - {req: R-VOW-1, phrase: 'Vowels in this case are', reading: 2}
+  - {req: R-VOW-2, phrase: '''y''', reading: 2}
+  - {req: R-VOW-3, phrase: 'at the end of the given word', reading: 2}
+  - {req: R-VOW-3, phrase: '''y''', reading: 2}
+  - {req: R-EX-2, phrase: 'vowels_count("ACEDY")', reading: 1}

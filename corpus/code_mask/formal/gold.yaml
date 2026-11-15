@@ -1,0 +1,46 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+defs:
+  nd: 'count(i < len(number): isdigit(number[i]))'                                   # R-IN-1: how many digits
+  chars_ok: 'all(i < len(number): isdigit(number[i]) || number[i] == " " || number[i] == "-")'
+  # Luhn: counting from the right, every second digit is doubled, minus 9 when the double exceeds 9
+  luhn: 'sum(i < len(number): isdigit(number[i]) ? (count(j < len(number): j > i && isdigit(number[j])) % 2 == 1 ? 2 * (number[i] - "0") - (number[i] > "4" ? 9 : 0) : number[i] - "0") : 0) % 10 == 0'
+  valid: 'chars_ok && nd >= 12 && nd <= 19 && luhn'
+  shown: 'count(i < len(masked): isdigit(masked[i]))'                                 # digits the result shows
+properties:
+- id: G-RET
+  req: R-RET-1
+  pattern: implies
+  args: {trigger: valid, cond: 'outcome == 0'}
+  note: 'decision: spaces and hyphens may appear anywhere, since rule 1 rejects only other characters (line 9 describes what customers do)'
+- id: G-ERR
+  req: R-ERR-1
+  pattern: implies
+  args: {trigger: '!valid', cond: 'outcome == 1'}
+  note: 'decision: digits are the characters 0 to 9 (isdigit, frame)'
+- id: G-MASK
+  req: R-MASK-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'all(i < len(number): isdigit(number[i]) && count(j < len(number): j > i && isdigit(number[j])) >= 4 -> masked[i] == "*")'}
+  note: 'a digit with at least four digits after it is replaced by *'
+- id: G-LAST4
+  req: R-LAST4-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'all(i < len(number): isdigit(number[i]) && count(j < len(number): j > i && isdigit(number[j])) < 4 -> masked[i] == number[i])'}
+  note: 'a digit with fewer than four digits after it stays'
+- id: G-LEN
+  req: R-SEP-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'len(masked) == len(number)'}
+- id: G-SEP
+  req: R-SEP-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'all(i < len(number): (number[i] == " " || number[i] == "-") -> masked[i] == number[i])'}
+- id: G-QUARTER
+  req: R-QUARTER-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: '4 * shown <= nd'}
+  note: 'literal: kept together with rule 2, although the two cannot both hold for 12 to 15 digits'
+scenarios:
+- {id: S-EX, req: R-EX-1, cover: 'number == "4111 1111 1111 1111" && outcome == 0 && masked == "**** **** **** 1111"'}

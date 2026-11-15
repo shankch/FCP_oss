@@ -1,0 +1,41 @@
+# Planted bugs: one textual patch of impl/ref.py each (the target text must
+# occur exactly once).  `violates` is the gold requirement each one breaks.
+design: code_limit
+bugs:
+- id: C1
+  desc: an attempt exactly 60 seconds earlier still counts
+  violates: [R-FAIR-1]
+  patch: {from: 'if now - t < 60]', to: 'if now - t <= 60]'}
+- id: C2
+  desc: denied attempts count toward the limit
+  violates: [R-COUNT-1, R-FAIR-1]
+  patch: {from: "            self.blocked_until[user] = now + 10\n            return False", to: "            self.blocked_until[user] = now + 10\n            recent.append(now)\n            return False"}
+- id: C3
+  desc: there is no penalty after a denied attempt
+  violates: [R-PEN-1]
+  patch: {from: 'if now < self.blocked_until.get(user, 0) or len(recent) >= 3:', to: 'if len(recent) >= 3:'}
+- id: C4
+  desc: one limit for all customers together
+  violates: [R-FAIR-1]
+  patch: {from: "recent = [t for t in self.allowed.get(user, []) if now - t < 60]\n        self.allowed[user] = recent", to: "recent = [t for t in self.allowed.get(0, []) if now - t < 60]\n        self.allowed[0] = recent"}
+- id: C5
+  desc: time going backwards is accepted
+  violates: [R-ERR-1]
+  patch: {from: 'if self.last is not None and now < self.last:', to: 'if False:'}
+- id: C6
+  desc: customer 1,000 is rejected
+  violates: [R-RET-1]
+  patch: {from: 'if not 0 <= user <= 1000:', to: 'if not 0 <= user < 1000:'}
+- id: C7
+  desc: a denial during the penalty does not start it again
+  violates: [R-PEN-1]
+  patch: {from: "        if now < self.blocked_until.get(user, 0) or len(recent) >= 3:\n            self.blocked_until[user] = now + 10\n            return False", to: "        if now < self.blocked_until.get(user, 0):\n            return False\n        if len(recent) >= 3:\n            self.blocked_until[user] = now + 10\n            return False"}
+- id: C8
+  desc: the answer is returned as 1 or 0
+  violates: [R-RET-1]
+  patch: {from: "        recent.append(now)\n        return True", to: "        recent.append(now)\n        return 1"}
+- id: C9
+  desc: the window is kept in a deque; the same behaviour, written differently
+  violates: []
+  note: a refactoring, not a bug, which FCP must not flag
+  patch: {from: "        recent = [t for t in self.allowed.get(user, []) if now - t < 60]\n        self.allowed[user] = recent", to: "        from collections import deque\n        recent = self.allowed.setdefault(user, deque())\n        while recent and now - recent[0] >= 60:\n            recent.popleft()"}

@@ -1,0 +1,114 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# R-DEF-1 (prime, prime factor, largest prime factor) for 16-bit values (0 .. 65535).
+# FCP-PL has no division and `%` needs a constant divisor, so divisibility is
+# written with quantified constants. Since 65535 < 256 * 256, a composite value
+# has a divisor of at most 255, and of two cofactors of a value one is at most 255.
+defs:
+  # n is a prime number: n >= 2 and no k in 2 .. 255 other than n itself divides n
+  n_prime: "n >= 2 && all(i < 254: n == i + 2 || n % (i + 2) != 0)"
+  # the caller's side of the contract (R-ENV-1, R-ENV-2): n > 1 and n is not a prime
+  n_valid: "n > 1 && !n_prime"
+  # factor is a prime number
+  factor_prime: "factor >= 2 && all(i < 254: factor == i + 2 || factor % (i + 2) != 0)"
+  # factor divides n: n == factor * c for some c in 1 .. 255, or factor is in 2 .. 255 and n is a multiple of it
+  factor_divides_n: "any(i < 255: factor * (i + 1) == n) || any(i < 254: factor == i + 2 && n % (i + 2) == 0)"
+  # no prime p with factor < p <= 255 divides n (a divisor p of n above factor has a divisor j in 2 .. 15 with j * j <= p, so it is not prime)
+  no_larger_small_pf: "all(i < 254: (i + 2 > factor && n % (i + 2) == 0) -> any(j < 14: (j + 2) * (j + 2) <= i + 2 && (i + 2) % (j + 2) == 0))"
+  # no prime p >= 256 with p > factor divides n. Such a p is n / q with q = i + 1 in 1 .. 255: q divides n,
+  # n >= 256 * q, and n / q has no divisor d >= 2 with d * d <= 65535 / q (65535 is the largest n);
+  # d divides n / q exactly when d * q divides n. Then p <= factor is n <= factor * q.
+  no_larger_big_pf: "all(i < 255: (n % (i + 1) == 0 && n >= 256 * (i + 1) && all(j < 254: (j + 2) * (j + 2) * (i + 1) > 65535 || n % ((j + 2) * (i + 1)) != 0)) -> n <= factor * (i + 1))"
+  # factor is the largest prime factor of n: a prime that divides n, and no prime factor of n is larger
+  factor_is_lpf: "factor_prime && factor_divides_n && no_larger_small_pf && no_larger_big_pf"
+
+assumptions:
+  - id: RA-ENV-1
+    req: R-ENV-1
+    expr: "n > 1"
+    note: >-
+      "Assume n > 1" is read as a precondition on the caller only (reading 1):
+      nothing is required of the function when n <= 1 (0 or 1 here), so any
+      returned value, any exception or not finishing is acceptable. The
+      guarantees of R-FN-1 are also guarded by n > 1, as the requirement text says.
+  - id: RA-ENV-2
+    req: R-ENV-2
+    expr: "!n_prime"
+    note: >-
+      "is not a prime" is governed by the same "Assume" and is read as a
+      precondition on the caller only (reading 1): nothing is required of the
+      function for a prime n, although its largest prime factor (n itself) is
+      well defined. The guarantees of R-FN-1 are also guarded by !n_prime.
+
+properties:
+  - id: RA-FN-1-OK
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: "n_valid", cond: "outcome == 0"}
+    note: >-
+      For every n with n > 1 and n not prime, the call returns normally: no
+      exception, it finishes, and the value is an integer that fits factor
+      (outcome 0). "Return" is read as returning a Python int (reading 1): the
+      largest prime factor is an integer and the doctests show the int repr
+      (29, 2). A float such as 29.0 or another type is outcome 2 and violates this.
+  - id: RA-FN-1-VAL
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: "n_valid", cond: "factor_is_lpf"}
+    note: >-
+      For every n with n > 1 and n not prime, the returned integer is the
+      largest prime factor of n as defined in R-DEF-1 (defs factor_prime,
+      factor_divides_n, no_larger_small_pf, no_larger_big_pf).
+  - id: RA-EX-1-VAL
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 13195", cond: "outcome == 0 && factor == 29"}
+    note: >-
+      The doctest is a check that the call largest_prime_factor(13195) shows
+      29, so beyond being possible (RA-EX-1) it is what that call returns.
+      13195 = 5 * 7 * 13 * 29 meets both assumptions, so this agrees with R-FN-1.
+  - id: RA-EX-2-VAL
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 2048", cond: "outcome == 0 && factor == 2"}
+    note: >-
+      The doctest is a check that the call largest_prime_factor(2048) shows 2,
+      so beyond being possible (RA-EX-2) it is what that call returns.
+      2048 = 2^11 meets both assumptions, so this agrees with R-FN-1.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "n == 13195 && outcome == 0 && factor == 29"
+    note: The call largest_prime_factor(13195) returns the integer 29.
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: "n == 2048 && outcome == 0 && factor == 2"
+    note: The call largest_prime_factor(2048) returns the integer 2.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function name largest_prime_factor and its single
+      int parameter n are fixed by the adapter (design.yaml `function`
+      section, frame.md), which calls the function by that name. A trace of
+      calls cannot observe the name or the signature.
+  - req: R-DEF-1
+    reason: >-
+      A definition, not a behaviour. It is realized by the defs n_prime,
+      factor_prime, factor_divides_n, no_larger_small_pf, no_larger_big_pf and
+      factor_is_lpf, which the items below use.
+    covered_by: [RA-FN-1-VAL, RA-ENV-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md F-ZERO). design.yaml lists it as
+      frame item F-ZERO, which is added to every formalization set; frame.md
+      says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: "Return", reading: 1}
+  - {req: R-ENV-1, phrase: "Assume n > 1", reading: 1}
+  - {req: R-ENV-2, phrase: "is not a prime", reading: 1}

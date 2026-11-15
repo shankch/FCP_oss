@@ -1,0 +1,149 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-TASK-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The response must supply a complete Python implementation of the function shown, not a partial one or a stub.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-TASK-2
+  doc: SPEC
+  quote: 'def vowels_count(s):'
+  text: The implementation is a Python function named vowels_count that takes one argument, s.
+  kind: definition
+  lines:
+  - 8
+- id: R-TASK-3
+  doc: SPEC
+  quote: Add more test cases.
+  text: More test cases for vowels_count should be added beyond the two examples in the docstring.
+  kind: non_functional
+  ambiguity:
+  - phrase: Add more test cases.
+    readings:
+    - 'An instruction to the implementer: the response must also add test cases (for example more doctests or a test function).'
+    - A leftover maintainer note in the FIX constant, not addressed to the implementer; it places no obligation on the response, and only the function body has to be written.
+  lines:
+  - 5
+- id: R-IN-1
+  doc: SPEC
+  quote: takes a string representing a word as input
+  text: The argument s of vowels_count is a string that represents a word.
+  kind: assumption
+  ambiguity:
+  - phrase: a string representing a word
+    readings:
+    - Callers only pass a single word (a non-empty string of letters). For other strings (empty, containing spaces, digits, punctuation or non-ASCII characters) the result is a don't-care.
+    - This only describes the typical use. vowels_count must accept any string and still return the number of vowels in it, including 0 for the empty string.
+  - phrase: a word
+    readings:
+    - 'Exactly one word: the string contains no spaces or other separators.'
+    - The string may contain several words (for example a phrase), and the function still applies to the whole string.
+  lines:
+  - 9
+  - 10
+- id: R-CNT-1
+  doc: SPEC
+  quote: returns the number of vowels in the string
+  text: vowels_count(s) returns an integer equal to the number of characters of s that are vowels as defined by R-VOW-1, R-VOW-2 and R-VOW-3. Every other character adds nothing to the count.
+  kind: guarantee
+  depends:
+  - R-VOW-1
+  - R-VOW-2
+  - R-VOW-3
+  ambiguity:
+  - phrase: the number of vowels
+    readings:
+    - The number of vowel occurrences, counted with repetition (for example "aa" gives 2).
+    - The number of distinct vowel letters that appear (for example "aa" gives 1).
+  lines:
+  - 10
+- id: R-VOW-1
+  doc: SPEC
+  quote: Vowels in this case are 'a', 'e', 'i', 'o', 'u'.
+  text: The letters a, e, i, o and u are vowels wherever they occur in the string.
+  kind: definition
+  ambiguity:
+  - phrase: '''a'', ''e'', ''i'', ''o'', ''u'''
+    readings:
+    - Only the lowercase letters a, e, i, o, u are vowels. Uppercase A, E, I, O, U are not counted. This contradicts the example vowels_count("ACEDY") == 3 (R-EX-2), which would give 0 under this reading.
+    - The letters are matched without regard to case, so A, E, I, O, U are vowels too. This agrees with the example vowels_count("ACEDY") == 3 (R-EX-2).
+  - phrase: Vowels in this case are
+    readings:
+    - "The list is exhaustive: only the ASCII letters a, e, i, o, u (and y per R-VOW-2) are vowels. Accented Latin-1 letters such as '\xE9' or '\xE0' are not."
+    - "Accented Latin-1 forms of these letters (for example '\xE9', '\xE0', '\xFC') are vowels too."
+  lines:
+  - 11
+- id: R-VOW-2
+  doc: SPEC
+  quote: Here, 'y' is also a vowel
+  text: The letter y is a vowel when it is at the end of the given word (see R-VOW-3), so a final y adds one to the count.
+  kind: definition
+  depends:
+  - R-VOW-3
+  ambiguity:
+  - phrase: '''y'''
+    readings:
+    - Only a lowercase y can count as a vowel, so a final uppercase Y is not counted. This contradicts the example vowels_count("ACEDY") == 3 (R-EX-2), which needs the final Y to be counted.
+    - y is matched without regard to case, so a final Y counts as a vowel too. This agrees with the example vowels_count("ACEDY") == 3 (R-EX-2).
+  lines:
+  - 11
+  - 12
+- id: R-VOW-3
+  doc: SPEC
+  quote: but only when it is at the end of the given word
+  text: A y that is not at the end of the given word is not a vowel and adds nothing to the count.
+  kind: definition
+  ambiguity:
+  - phrase: at the end of the given word
+    readings:
+    - y is a vowel only when it is the last character of the whole string s.
+    - If s contains several words, a y that is the last letter of any word in s is a vowel.
+    - y is a vowel when it is the last letter of the word, even if non-letter characters follow it (for example trailing spaces or punctuation, as in "day!").
+  - phrase: '''y'''
+    readings:
+    - Only a lowercase y is covered by this rule, so a non-final uppercase Y does not count, and neither does a final one.
+    - y is matched without regard to case, so a non-final Y is not counted and a final Y is counted.
+  lines:
+  - 12
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> vowels_count("abcde") 2'
+  text: vowels_count("abcde") returns 2 (the vowels a and e).
+  kind: scenario
+  depends:
+  - R-CNT-1
+  - R-VOW-1
+  lines:
+  - 15
+  - 16
+- id: R-EX-2
+  doc: SPEC
+  quote: '>>> vowels_count("ACEDY") 3'
+  text: vowels_count("ACEDY") returns 3 (A and E, plus the final Y).
+  kind: scenario
+  depends:
+  - R-CNT-1
+  - R-VOW-1
+  - R-VOW-2
+  ambiguity:
+  - phrase: vowels_count("ACEDY")
+    readings:
+    - 'The example is authoritative: uppercase A, E, I, O, U count as vowels and a final uppercase Y counts too, so the answer is 3.'
+    - The example contradicts the vowel definitions (R-VOW-1, R-VOW-2), which list only lowercase 'a', 'e', 'i', 'o', 'u' and 'y'. Read literally, those give 0 for "ACEDY".
+  lines:
+  - 17
+  - 18
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `count` is 0 unless `outcome` is 0.'
+  text: In every call, the output count is 0 unless outcome is 0 (the call returned an integer from 0 to 63).
+  kind: guarantee
+  lines:
+  - 49

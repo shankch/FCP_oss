@@ -1,0 +1,177 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete implementation of the Python function cycpattern_check(a, b) whose signature and docstring are given in the request.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def cycpattern_check(a , b):'
+  text: The "first word" of the docstring is the first parameter a of cycpattern_check(a, b), and the "second word" is the second parameter b.
+  kind: definition
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: You are given 2 words.
+  text: Every call of cycpattern_check receives two words as its arguments a and b; both arguments are strings.
+  kind: assumption
+  depends:
+  - R-IF-2
+  ambiguity:
+  - phrase: words
+    readings:
+    - any strings, whatever characters they contain (letters, digits, spaces, punctuation or any other code); the rule applies to every pair of strings
+    - strings made of letters only; a call with any other character in an argument is outside the contract and its result is unconstrained
+  - phrase: 2 words
+    readings:
+    - either word may be the empty string, and the rule applies to it as to any other string (an empty second word is a substring of every first word, so the result is True)
+    - both words are non-empty; a call with an empty argument is outside the contract and its result is unconstrained
+  lines:
+  - 5
+- id: R-DEF-1
+  doc: SPEC
+  quote: any of its rotations
+  text: A rotation of the second word b is a string obtained by moving the first k characters of b to its end, for some k with 0 <= k < len(b) (b[k:] + b[:k]); b itself is the rotation with k = 0.
+  kind: definition
+  depends:
+  - R-IF-2
+  ambiguity:
+  - phrase: rotations
+    readings:
+    - 'cyclic shifts of b only: b[k:] + b[:k] for 0 <= k < len(b)'
+    - any rearrangement (permutation, anagram) of the characters of b; note the example efef/eeff => False rules this out, since efef is a permutation of eeff and a substring of efef
+  lines:
+  - 5
+- id: R-DEF-2
+  doc: SPEC
+  quote: is a substring in the first word
+  text: A string s is a substring of the first word a when s occurs in a as a run of adjacent characters, i.e. s == a[i:i+len(s)] for some start position i with 0 <= i <= len(a) - len(s).
+  kind: definition
+  depends:
+  - R-IF-2
+  ambiguity:
+  - phrase: a substring
+    readings:
+    - a contiguous run of characters of a, which may be the whole of a
+    - a contiguous run of characters of a that is strictly shorter than a (a proper substring), so a second word equal to the first word does not count
+    - a subsequence of a (characters in order, not necessarily adjacent); note the example abcd/abd => False rules this out, since abd is a subsequence of abcd
+  - phrase: substring in the first word
+    readings:
+    - 'characters are compared exactly (case-sensitive): ''A'' and ''a'' differ'
+    - 'letters are compared ignoring case: ''A'' and ''a'' match'
+  lines:
+  - 5
+- id: R-RES-1
+  doc: SPEC
+  quote: You need to return True if the second word or any of its rotations is a substring in the first word
+  text: If the second word b, or some rotation of b, is a substring of the first word a, then cycpattern_check(a, b) returns True.
+  kind: guarantee
+  depends:
+  - R-IF-2
+  - R-IN-1
+  - R-DEF-1
+  - R-DEF-2
+  lines:
+  - 5
+- id: R-RES-2
+  doc: SPEC
+  quote: return True if
+  text: If neither the second word b nor any rotation of b is a substring of the first word a, then cycpattern_check(a, b) returns False.
+  kind: guarantee
+  depends:
+  - R-IF-2
+  - R-IN-1
+  - R-DEF-1
+  - R-DEF-2
+  ambiguity:
+  - phrase: return True if
+    readings:
+    - 'if and only if: the function returns False whenever no rotation of b (b included) is a substring of a, as the examples returning False suggest'
+    - 'a sufficient condition only: the text states when True is returned and says nothing about the other calls, whose result is unconstrained'
+  lines:
+  - 5
+- id: R-RES-3
+  doc: SPEC
+  quote: You need to return True
+  text: 'Every call of cycpattern_check whose two arguments are words returns a boolean value (True or False): it does not raise an exception, fail to finish, or return a value of another type such as a
+    number or None.'
+  kind: guarantee
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: return True
+    readings:
+    - the bool values True and False exactly; returning another type (such as 1, 0 or None) breaks the requirement
+    - any value Python treats as true or false; returning 1 or 0 (or None for false) is acceptable
+  lines:
+  - 5
+- id: R-EX-1
+  doc: SPEC
+  quote: cycpattern_check("abcd","abd") => False
+  text: cycpattern_check("abcd", "abd") returns False (no rotation of "abd" -- "abd", "bda", "dab" -- is a substring of "abcd").
+  kind: scenario
+  depends:
+  - R-RES-2
+  lines:
+  - 6
+- id: R-EX-2
+  doc: SPEC
+  quote: cycpattern_check("hello","ell") => True
+  text: cycpattern_check("hello", "ell") returns True ("ell" itself is a substring of "hello").
+  kind: scenario
+  depends:
+  - R-RES-1
+  lines:
+  - 7
+- id: R-EX-3
+  doc: SPEC
+  quote: cycpattern_check("whassup","psus") => False
+  text: cycpattern_check("whassup", "psus") returns False (no rotation of "psus" -- "psus", "susp", "usps", "spsu" -- is a substring of "whassup").
+  kind: scenario
+  depends:
+  - R-RES-2
+  lines:
+  - 8
+- id: R-EX-4
+  doc: SPEC
+  quote: cycpattern_check("abab","baa") => True
+  text: cycpattern_check("abab", "baa") returns True (the rotation "aba" of "baa" is a substring of "abab", although "baa" itself is not).
+  kind: scenario
+  depends:
+  - R-RES-1
+  lines:
+  - 9
+- id: R-EX-5
+  doc: SPEC
+  quote: cycpattern_check("efef","eeff") => False
+  text: cycpattern_check("efef", "eeff") returns False (no rotation of "eeff" -- "eeff", "effe", "ffee", "feef" -- is a substring of "efef").
+  kind: scenario
+  depends:
+  - R-RES-2
+  lines:
+  - 10
+- id: R-EX-6
+  doc: SPEC
+  quote: cycpattern_check("himenss","simen") => True
+  text: cycpattern_check("himenss", "simen") returns True (the rotation "imens" of "simen" is a substring of "himenss", although "simen" itself is not).
+  kind: scenario
+  depends:
+  - R-RES-1
+  lines:
+  - 11
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: The result output is false in every call whose outcome is not 0 (the call raised an exception, did not finish, or returned something other than a bool).
+  kind: guarantee
+  lines:
+  - 51

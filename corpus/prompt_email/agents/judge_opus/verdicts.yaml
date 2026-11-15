@@ -1,0 +1,38 @@
+# LLM-as-judge baseline (checklist judge, model claude-opus-5-5), verbatim reply.
+haiku:
+  R-SUBJ-1: PASS  # opens with a "Subject:" line
+  R-GREET-1: PASS  # "Hi [First Name]," is a first-name merge field
+  R-FEAT-1: PASS  # battery, noise cancelling, ear cushions; quick charge left out
+  R-FEAT-2: PASS  # one feature each in sentences 1, 3, 5
+  R-FEAT-3: PASS  # sentences 2, 4, 6 each give a customer benefit
+  R-PRICE-1: PASS  # $249 appears exactly once
+  R-OFFER-1: PASS  # 20% off and "until 30 November" in the same sentence
+  R-RIVAL-1: PASS  # no competitors named or implied
+  R-LEN-1: PASS  # 6 body sentences (greeting not counted)
+  R-END-1: PASS  # ends on "order yours today", then "The Aurora Team"
+  R-TONE-1: PASS  # warm, assured wording throughout
+opus:
+  R-SUBJ-1: PASS  # opens with a "Subject:" line
+  R-GREET-1: PASS  # "Hi [First Name]," is a first-name merge field
+  R-FEAT-1: PASS  # battery, noise cancelling, ear cushions; quick charge left out
+  R-FEAT-2: PASS  # one feature each in sentences 1, 3, 5
+  R-FEAT-3: PASS  # sentences 2, 4, 6 each give a customer benefit
+  R-PRICE-1: PASS  # $249 appears exactly once
+  R-OFFER-1: PASS  # 20% off and "until 30 November" in the same sentence
+  R-RIVAL-1: PASS  # no competitors named or implied
+  R-LEN-1: PASS  # 6 body sentences (greeting not counted)
+  R-END-1: PASS  # ends on "order your pair today", then "The Aurora Team"
+  R-TONE-1: PASS  # warm and confident ("you're going to love it")
+sonnet:
+  R-SUBJ-1: PASS  # opens with a "Subject:" line
+  R-GREET-1: PASS  # "Hi [First Name]," is a first-name merge field
+  R-FEAT-1: PASS  # noise cancelling, battery, ear cushions; "wireless" in the subject is the product type, not a feature
+  R-FEAT-2: PASS  # one feature each in sentences 1, 3, 5
+  R-FEAT-3: PASS  # sentences 2, 4, 6 each give a customer benefit
+  R-PRICE-1: PASS  # $249 appears exactly once
+  R-OFFER-1: PASS  # 20% off and "until 30 November" in the same sentence
+  R-RIVAL-1: PASS  # no competitors named or implied
+  R-LEN-1: PASS  # 6 body sentences (greeting not counted)
+  R-END-1: PASS  # ends on "order your Aurora X2 today", then "The Aurora Team"
+  R-TONE-1: PASS  # warm and confident ("thrilled", "remarkable")
+satisfiable: yes  # three feature-plus-benefit pairs take 6 sentences, the most "under 7" allows, so a separate call-to-action sentence would break the limit; putting the call to action, the $249 price and the dated offer into the last benefit sentence meets every rule, as all three emails show

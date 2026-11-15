@@ -1,0 +1,174 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # occurrences of a, e, i, o, u in either case (R-VOW-1 / R-VOW-2 read case-insensitively)
+  n_aeiou: 'count(i < len(s): lower(s[i]) in "aeiou")'
+  # the last letter of s, ignoring trailing non-letters, is y or Y (R-VOW-3 / R-VOW-4)
+  y_final: 'any(i < len(s): lower(s[i]) == "y" && all(k < len(s): k > i -> !isalpha(s[k])))'
+  # occurrences of y or Y that a later letter follows, i.e. that are not the last letter
+  n_y_inner: 'count(i < len(s): lower(s[i]) == "y" && any(k < len(s): k > i && isalpha(s[k])))'
+  # vowel occurrences per the full text of the request: a/e/i/o/u in either case, plus a final y/Y
+  n_vowels: 'n_aeiou + (y_final ? 1 : 0)'
+  # an ordinary word string: non-empty, ASCII letters and spaces only, at least one letter
+  word_like: 'len(s) > 0 && all(i < len(s): isalpha(s[i]) || s[i] == " ") && any(i < len(s): isalpha(s[i]))'
+
+properties:
+- id: RV-IN-1
+  req: R-IN-1
+  expr: 'outcome != 1'
+  note: >-
+    Prescribed readings for this variant: 'a string representing a word' = reading 2 (s may
+    be any string, including the empty string and strings with non-letter characters, and
+    candidate must handle all of them); 'a word' = reading 2 (s may contain several words
+    separated by spaces). So no assumption restricts s, and 'must handle all of them' is
+    formalized as: every call finishes and returns a value without raising (outcome != 1).
+    What it returns is RV-OUT-1. This is in tension with the prescribed reading 2 of R-IN-2,
+    under which unusual strings are left unconstrained; taken literally, R-IN-1 still
+    requires them to be handled.
+
+- id: RV-IN-2
+  req: R-IN-2
+  pattern: implies
+  args: {trigger: word_like, cond: 'outcome != 1'}
+  note: >-
+    Prescribed reading 2 of 'takes a string representing a word as input': the phrase only
+    describes the parameter type, and behaviour on unusual strings (for example the empty
+    string) is unconstrained by it. So the guarantee 'finishes and returns a value without
+    raising' (outcome != 1) covers only ordinary word strings: word_like = non-empty, ASCII
+    letters and spaces only, with at least one letter. Spaces are allowed because R-IN-1 is
+    read as allowing several words. The request does not say which strings besides the empty
+    one are 'unusual', so the narrowest guarantee is taken. No dont_care is added, because
+    R-IN-2 is only silent on other strings. R-IN-1 (prescribed reading 2) still requires them
+    to be handled, so the two prescribed readings pull in opposite directions (see RV-IN-1).
+
+- id: RV-OUT-1
+  req: R-OUT-1
+  pattern: implies
+  args: {trigger: 'outcome != 1', cond: 'outcome == 0 && result == n_vowels'}
+  note: >-
+    Prescribed reading 1 of 'Write a function candidate': candidate returns the number of
+    vowel occurrences in s, with vowels as defined by the request. The request itself never
+    names a return value; this reading supplies one. Vowels are a, e, i, o, u in either case
+    (prescribed reading 2 of R-VOW-1 and R-VOW-2), plus y or Y when it is the last letter of
+    s, ignoring trailing non-letters (prescribed readings of R-VOW-3 and R-VOW-4). Because
+    R-VOW-1 is read as a closed list, the request's definition of vowels contradicts itself
+    for strings whose last letter is y. This item follows the full text of both sentences and
+    so conflicts with RV-VOW-1b on those strings; the conflict is left in place, not repaired.
+    Any returned value is that integer, which is at most 32 and so fits (outcome 0).
+
+- id: RV-VOW-1a
+  req: R-VOW-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'result >= n_aeiou'}
+  note: >-
+    Prescribed reading 2 of "'a', 'e', 'i', 'o', 'u'": the letters are case-insensitive, so
+    'A', 'E', 'I', 'O', 'U' are vowels too. Each occurrence is a vowel wherever it is, and
+    RV-OUT-1 counts occurrences, so the returned count is at least the number of these letters
+    in either case.
+
+- id: RV-VOW-1b
+  req: R-VOW-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'result <= n_aeiou'}
+  note: >-
+    Prescribed reading 2 of "Vowels in this case are 'a', 'e', 'i', 'o', 'u'.": the list is
+    closed, so no other character is ever a vowel, 'y' included, and the count is at most the
+    number of a/e/i/o/u in either case. As the reading itself states, this contradicts the
+    next sentence. On every s whose last letter is y or Y it conflicts with RV-VOW-3 and
+    RV-OUT-1, and since RV-IN-1 requires every call to return, no answer then meets all of
+    them. Kept literal, not repaired.
+
+- id: RV-VOW-2
+  req: R-VOW-2
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'result <= n_vowels'}
+  note: >-
+    Prescribed reading 2 of "'a', 'e', 'i', 'o', 'u'": upper-case 'A', 'E', 'I', 'O', 'U' are
+    vowels as well, so they are not excluded. Following the requirement text, the only
+    characters that may be vowels are a/e/i/o/u in either case and a final y or Y (under the
+    prescribed readings of R-VOW-3 and R-VOW-4). Consonants, digits, spaces, punctuation and
+    every other character add nothing, so the count is at most n_aeiou plus 1 for a final y.
+
+- id: RV-VOW-3
+  req: R-VOW-3
+  pattern: implies
+  args: {trigger: 'outcome == 0 && y_final', cond: 'result >= n_aeiou + 1'}
+  note: >-
+    Prescribed readings: "'y'" = reading 2 ('y' is case-insensitive, so a final 'Y' is a vowel
+    too); "'y' is also a vowel" = reading 2 (it contradicts the previous sentence, which lists
+    exactly a, e, i, o, u). This item formalizes literally what the sentence asserts: a y or Y
+    that is the last letter of s (R-VOW-4 reading: trailing non-letters ignored) counts as a
+    vowel in addition to the listed vowels. It conflicts with RV-VOW-1b whenever the last
+    letter is y; the conflict is not repaired.
+
+- id: RV-VOW-4
+  req: R-VOW-4
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'result <= len(s) - n_y_inner'}
+  note: >-
+    Prescribed readings: 'at the end of the given word' = reading 2 (the last letter of the
+    word, ignoring trailing non-letters such as spaces or punctuation), taken as the last
+    ASCII letter of the whole string s. Reading 3, the end of every word in s, is not taken,
+    even though R-IN-1 is read as allowing several words. "'y'" = reading 2 (the rule applies
+    to 'y' and 'Y' alike). A y or Y that any letter follows later in s is not a vowel, so the
+    count is at most the number of the other characters.
+
+scenarios:
+- id: RV-IN-1-S1
+  req: R-IN-1
+  cover: 'len(s) == 0 && outcome != 1'
+  note: >-
+    Prescribed reading 2 of 'a string representing a word': the empty string is a legitimate
+    argument and candidate must handle it (it returns).
+
+- id: RV-IN-1-S2
+  req: R-IN-1
+  cover: 'outcome != 1 && any(i < len(s): i > 0 && s[i] == " " && isalpha(s[i - 1]) && isalpha(s[i + 1]))'
+  note: >-
+    Prescribed reading 2 of 'a word': s may contain several words separated by spaces, and
+    candidate must handle such a string (it returns).
+
+- id: RV-IN-1-S3
+  req: R-IN-1
+  cover: 'outcome != 1 && any(i < len(s): !isalpha(s[i]) && s[i] != " ")'
+  note: >-
+    Prescribed reading 2 of 'a string representing a word': strings with non-letter
+    characters (digits, punctuation, other codes) are legitimate arguments and candidate must
+    handle them (it returns).
+
+unformalized:
+- req: R-TASK-1
+  reason: >-
+    Describes the task (supply the body of the function), not a property of any call. Every
+    property of this set constrains the completed function, but this sentence adds nothing
+    observable in the trace.
+- req: R-TASK-2
+  reason: >-
+    The function name and its single argument s are fixed by the adapter binding in
+    design.yaml (function.name candidate, one argument s on signal s). Every cycle of the
+    trace is a call candidate(s), so no trace property can express or violate this.
+- req: R-TASK-3
+  reason: >-
+    Prescribed reading 1 of 'Add more test cases.': an instruction to the assistant to add
+    test cases (docstring examples or a separate test suite). This concerns the deliverable
+    alongside the code, not the values candidate returns, and is not observable in the trace
+    of calls.
+- req: R-FR-1
+  reason: Frame rule of the adapter, included in every formalization set by construction.
+  covered_by: [F-ZERO]
+
+decisions:
+- {req: R-TASK-3, phrase: 'Add more test cases.', reading: 1}
+- {req: R-IN-1, phrase: 'a string representing a word', reading: 2}
+- {req: R-IN-1, phrase: 'a word', reading: 2}
+- {req: R-IN-2, phrase: 'takes a string representing a word as input', reading: 2}
+- {req: R-OUT-1, phrase: 'Write a function candidate', reading: 1}
+- {req: R-VOW-1, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 2}
+- {req: R-VOW-1, phrase: "Vowels in this case are 'a', 'e', 'i', 'o', 'u'.", reading: 2}
+- {req: R-VOW-2, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 2}
+- {req: R-VOW-3, phrase: "'y'", reading: 2}
+- {req: R-VOW-3, phrase: "'y' is also a vowel", reading: 2}
+- {req: R-VOW-4, phrase: 'at the end of the given word', reading: 2}
+- {req: R-VOW-4, phrase: "'y'", reading: 2}

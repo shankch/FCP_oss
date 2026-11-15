@@ -1,0 +1,29 @@
+fcp: '0.1'
+design: code_generate_integers
+summary: A Python function on integers that returns a list, treated as a chip without memory. Each cycle is one call of generate_integers(a, b); the arguments are inputs, the returned list (a sequence of at most 10 numbers) and the way the call ended are outputs. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt: generate_integers'}
+- {id: FRAME, path: frame.md, title: 'FCP function adapter, version 0.2'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: a, dir: in, width: 8, desc: 'a argument, 0 to 255'}
+  - {name: b, dir: in, width: 8, desc: 'b argument, 0 to 255'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a list that fits, 1 any exception or no answer, 2 returned anything else'}
+  - {name: result, dir: out, width: 8, length: 10, desc: 'the returned list (outcome 0), at most 10 numbers from 0 to 255'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-EMPTY, req: R-FR-1, expr: 'outcome != 0 -> len(result) == 0'}
+function:
+  name: generate_integers
+  args:
+  - {name: a, signal: a, type: int}
+  - {name: b, signal: b, type: int}
+  returns: {signal: result, type: list}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    a: {dense: [0, 20], random: 60, values: [2, 8, 10, 14]}
+    b: {dense: [0, 20], random: 60, values: [2, 8, 10, 14]}

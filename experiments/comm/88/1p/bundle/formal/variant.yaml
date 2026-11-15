@@ -1,0 +1,167 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # smallest and largest element of the argument (first occurrence of each value only)
+  lo: 'sum(i < len(array): all(j < len(array): array[i] <= array[j]) && all(j < i: array[j] != array[i]) ? array[i] : 0)'
+  hi: 'sum(i < len(array): all(j < len(array): array[j] <= array[i]) && all(j < i: array[j] != array[i]) ? array[i] : 0)'
+  # R-KEY-1: first plus last element of the array after sorting (minimum plus maximum);
+  # a one-element array counts its single element once
+  key: 'len(array) == 1 ? array[0] : lo + hi'
+  key_odd: 'len(array) > 0 && key % 2 == 1'
+  key_even: 'len(array) > 0 && key % 2 == 0'
+
+assumptions:
+  - id: RV-IN-1
+    req: R-IN-1
+    expr: 'len(array) > 0'
+    note: >-
+      Reading given for "an array of non-negative integers": only non-empty lists are valid
+      arguments; the empty list has no first or last element, so it is outside the assumption
+      and the behaviour on it is unconstrained. Non-negativity and integrality need no
+      assumption: list elements are unsigned numbers by construction of the adapter.
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'len(array) > 0', cond: 'outcome == 0'}
+    note: >-
+      Every non-empty argument gets a returned list (no exception, no other value). Reading
+      given for "return a copy of the given array": the empty list is not covered, because the
+      sum of its first and last index values is undefined; it may raise or return anything
+      (see RV-RET-1-D1, RV-RET-1-D2, and the assumption RV-IN-1 under the reading given for
+      R-IN-1).
+
+  - id: RV-RET-2
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: 'outcome == 0 && len(array) > 0'
+      cond: 'len(result) == len(array) && all(i < len(array): count(j < len(array): array[j] == array[i]) == count(j < len(result): result[j] == array[i]))'
+    note: >-
+      The returned list is a permutation of the argument (same length, every value as often).
+      Only the contents are constrained: under the reading given for R-RET-5 ("a copy"),
+      returning the argument object itself is acceptable, and object identity is not
+      observable anyway. The empty argument is excluded (readings given for R-IN-1 and
+      R-RET-1). CONFLICT: this contradicts RV-ORD-1 (reading given for "ascending order":
+      strictly increasing, duplicates removed) for every argument with a repeated value whose
+      key is odd; the text is formalized as given, not repaired.
+
+  - id: RV-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0 && key_odd'
+      cond: 'all(i < len(array): array[i] in result) && all(i < len(result): result[i] in array) && all(i < len(result) - 1: result[i] < result[i + 1])'
+    note: >-
+      If the sum is odd, the returned list holds the argument's values in strictly increasing
+      order. Reading given for "ascending order": strictly increasing, so duplicate values are
+      removed (each distinct value exactly once); this contradicts returning a copy of the
+      given array (RV-RET-2) whenever a value repeats. The sum (def key) follows the readings
+      given for R-KEY-1: "the sum( first index value, last index value)" is the first plus
+      the last element of the array after sorting, i.e. its minimum plus its maximum, and
+      "last index value" counts the single element of a one-element array once. The reading
+      given for "first index value, last index value" (the index numbers themselves,
+      0 + (len(array) - 1), parity by length only) cannot hold at the same time, since the
+      other two readings sum element values; I let the reading of the whole quoted phrase
+      govern, refined by the one-element reading. Under the index-number reading the trigger
+      would instead be "len(array) is even". For one element the order is trivially met.
+      "you will sort the given array" is read literally (the argument itself is sorted), which
+      is not observable here.
+
+  - id: RV-ORD-2
+    req: R-ORD-2
+    pattern: implies
+    args:
+      trigger: 'outcome == 0 && key_even'
+      cond: 'all(i < len(result) - 1: result[i] >= result[i + 1])'
+    note: >-
+      If the sum is even, the returned list is in non-increasing order. Reading given for
+      "or sort it": descending (non-increasing) order, the usual counterpart of the ascending
+      case. This overrides, for this case, the clause of the reading given for R-RET-3 ("after
+      sorting") that leaves the order unconstrained where the text is cut off: the reading of
+      the phrase "or sort it" itself governs its case. The elements are those of the argument
+      by RV-RET-2. The sum (def key) follows the readings given for R-KEY-1 as described in
+      RV-ORD-1 (minimum plus maximum after sorting; one element counted once; the index-number
+      reading of "first index value, last index value" is in conflict and not used, it would
+      make the trigger "len(array) is odd").
+
+dont_cares:
+  - id: RV-RET-1-D1
+    req: R-RET-1
+    signal: outcome
+    when: 'len(array) == 0'
+    note: >-
+      Reading given for "return a copy of the given array": the empty list is not covered; the
+      function may raise (for example an IndexError) or return anything on it. Also outside
+      the assumption RV-IN-1 (reading given for R-IN-1).
+  - id: RV-RET-1-D2
+    req: R-RET-1
+    signal: result
+    when: 'len(array) == 0'
+    note: >-
+      Reading given for "return a copy of the given array": whatever is returned for the empty
+      list is unconstrained. Also outside the assumption RV-IN-1 (reading given for R-IN-1).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: supplying a complete body for the stub is a property of the response,
+      not of a call. An incomplete body (one that raises or returns None) shows as outcome
+      != 0 and is rejected by RV-RET-1.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name sort_array and its single parameter are fixed by the function
+      section of design.yaml, which is how every call is made; a missing function or a wrong
+      arity shows as outcome != 0 and is rejected by RV-RET-1. The parameter name itself is not
+      observable in a positional call.
+  - req: R-RET-3
+    reason: >-
+      Reading given for "after sorting": only the cases the condition names constrain the
+      order, so "after sorting" adds no blanket sortedness of its own; the order is constrained
+      only by RV-ORD-1 (sum odd) and RV-ORD-2 (sum even). Its clause that the order is
+      unconstrained where the text is cut off (after "or sort it") contradicts the reading
+      given for R-ORD-2 (descending when the sum is even); RV-ORD-2 follows the latter. A
+      dont_care is not used because only the order, not the contents, would be free.
+    covered_by: [RV-ORD-1, RV-ORD-2]
+  - req: R-RET-4
+    reason: >-
+      Not observable: the adapter records the argument at the call and the returned list, not
+      the state of the argument object after the call. Moreover the literal text ("you will
+      sort the given array"; reading 2 of "a copy of the given array after sorting") says the
+      given array is sorted, which contradicts this requirement's claim that the argument is
+      left unchanged.
+  - req: R-RET-5
+    reason: >-
+      Reading given for "a copy": only the contents of the returned list matter; returning
+      the argument object itself is acceptable. Object identity is not observable in the trace
+      either. The contents are constrained by RV-RET-2.
+    covered_by: [RV-RET-2]
+  - req: R-KEY-1
+    reason: >-
+      Definition, realized by the defs lo, hi and key used in the triggers of RV-ORD-1 and
+      RV-ORD-2. Readings given: "the sum( first index value, last index value)" is the first
+      plus the last element of the array after sorting, i.e. minimum plus maximum; "last
+      index value": a one-element array counts its single element once (sum = that element).
+      The reading given for "first index value, last index value" (index numbers,
+      0 + (len(array) - 1)) contradicts the other two, which sum element values; the reading
+      of the whole quoted phrase was let govern and the conflict is recorded in both notes.
+    covered_by: [RV-ORD-1, RV-ORD-2]
+  - req: R-FR-1
+    reason: Frame rule of the list adapter, part of every formalization set by construction (frame.md).
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IN-1, phrase: 'an array of non-negative integers', reading: 2}
+  - {req: R-RET-1, phrase: 'return a copy of the given array', reading: 2}
+  - {req: R-RET-3, phrase: 'after sorting', reading: 2}
+  - {req: R-RET-4, phrase: 'a copy of the given array after sorting', reading: 2}
+  - {req: R-RET-5, phrase: 'a copy', reading: 2}
+  - {req: R-KEY-1, phrase: 'first index value, last index value', reading: 2}
+  - {req: R-KEY-1, phrase: 'the sum( first index value, last index value)', reading: 2}
+  - {req: R-KEY-1, phrase: 'last index value', reading: 2}
+  - {req: R-ORD-1, phrase: 'ascending order', reading: 2}
+  - {req: R-ORD-1, phrase: 'you will sort the given array', reading: 2}
+  - {req: R-ORD-2, phrase: 'or sort it', reading: 1}

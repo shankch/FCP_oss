@@ -1,0 +1,3 @@
+26 items (2 assumptions, 18 properties, 1 scenario, 5 dont_cares); explicit ghost model (protocol phase, in-flight counter, latched command and completion values). Unformalized: R-CMD-1 (definition, macro acc, covered_by).
+Spec problems: R-CMD-2 vs R-RSP-6 kept literal and deliberately inconsistent (expects consistency to report BB-P-CMD-2, BB-P-RSP-1a, BB-S-RSP-6); R-CMD-2 'only while' leaves cmd_ready free while idle; rsp_rdata unspecified for writes (expects determinacy to flag it); R-APB-9 off-by-one (used the weaker reading); unstated rsp_valid after acceptance, reset during a transfer; pwdata = cmd_wdata even for reads (literal).
+Tool issue reported: fcp explain crashed with a traceback on a type error (fixed).

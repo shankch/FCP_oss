@@ -1,0 +1,82 @@
+fcp: '0.1'
+design: code_card
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'class GiftCard:'
+  text: The class and its three methods, their arguments and result types.
+  kind: definition
+  lines:
+  - 5
+- id: R-NEW-1
+  doc: SPEC
+  quote: A new card has a balance of 0.
+  text: A new card has a balance of 0.
+  kind: guarantee
+  lines:
+  - 10
+- id: R-RANGE-1
+  doc: SPEC
+  quote: Raise ValueError if `amount` is less than 1 or more than 50,000.
+  text: A load or spend with an amount below 1 or above 50,000 raises ValueError.
+  kind: guarantee
+  lines:
+  - 14
+- id: R-LOAD-1
+  doc: SPEC
+  quote: '`load` adds `amount` to the balance.'
+  text: A load with a valid amount that does not take the balance over $500.00 returns, and adds the amount to the balance.
+  kind: guarantee
+  lines:
+  - 15
+- id: R-CAP-1
+  doc: SPEC
+  quote: 'The balance is never more than $500.00: raise ValueError for a load that would take it over.'
+  text: The balance never exceeds 50,000 cents, and a load that would take it over raises ValueError.
+  kind: guarantee
+  ambiguity:
+  - phrase: a load that would take it over
+    readings:
+    - the balance plus the amount loaded is over $500.00
+    - the balance plus the amount and its bonus is over $500.00
+  lines:
+  - 16
+- id: R-BONUS-1
+  doc: SPEC
+  quote: Every load of $100.00 or more earns a $5.00 bonus on the card. `load` returns the bonus it earned, in cents (0 if none).
+  text: A load of 10,000 cents or more adds a 500-cent bonus to the balance and returns 500; any other load returns 0.
+  kind: guarantee
+  lines:
+  - 17
+- id: R-SPEND-1
+  doc: SPEC
+  quote: '`spend` takes `amount` off the balance and returns True if the balance covers it; otherwise it returns False and the balance stays as it was.'
+  text: A spend with a valid amount returns True and takes the amount off the balance if the balance is at least the amount, and otherwise returns False and leaves the balance.
+  kind: guarantee
+  lines:
+  - 18
+- id: R-BAL-1
+  doc: SPEC
+  quote: '`balance` returns the balance.'
+  text: balance returns the balance.
+  kind: guarantee
+  lines:
+  - 19
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: after `load(2000)` and `spend(500)`, `balance()` returns 1500.'
+  text: On a new card, load(2000), spend(500), then balance() returns 1500.
+  kind: scenario
+  lines:
+  - 21
+- id: R-FR-1
+  doc: FRAME
+  quote: 'each result is 0 unless its method was called and returned: `earned` unless `op` is 1, `ok` unless `op` is 2, `bal` unless `op` is 3, and all three unless `outcome` is 0.'
+  text: Each result signal is 0 unless its method was called and returned.
+  kind: definition
+  lines:
+  - 43

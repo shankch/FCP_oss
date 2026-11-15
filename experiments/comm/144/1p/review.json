@@ -1,0 +1,430 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 2702,
+    "checked": 2702,
+    "seconds": 14.44
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "simplify(\"2/3\", \"1/11211\")",
+      "args": [
+       "2/3",
+       "1/11211"
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "False",
+       "True"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 282
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 449,
+    "checked": 449,
+    "seconds": 18.75
+   },
+   "open": {
+    "open": {},
+    "checked": 312
+   }
+  }
+ },
+ "readings": {
+  "R-OUT-1": {
+   "plain": "A-STRONGER",
+   "context": "A-STRONGER",
+   "witness": [
+    "simplify(\"51/17659\", \"29/4\") -> returned something else"
+   ]
+  },
+  "R-OUT-2": {
+   "plain": "A-WEAKER",
+   "context": "A-WEAKER",
+   "witness": [
+    "simplify(\"001111111111/111\", \"001111111/111114\") -> True",
+    "simplify(\"0011111111111/0\", \"\\u00010111111111111/0\") -> raised another exception or did not finish"
+   ]
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `x_frac`",
+    "where": {
+     "x_frac": "count(i < len(x): x[i] == \"/\") == 1 && all(i < len(x): isdigit(x[i]) || x[i] == \"/\") && x[0] != \"/\" && x[len(x) - 1] != \"/\""
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-2",
+    "req": "R-IN-2",
+    "says": "every call meets `n_frac`",
+    "where": {
+     "n_frac": "count(i < len(n): n[i] == \"/\") == 1 && all(i < len(n): isdigit(n[i]) || n[i] == \"/\") && n[0] != \"/\" && n[len(n) - 1] != \"/\""
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-3",
+    "req": "R-IN-3",
+    "says": "every call meets `x_frac -> !x_den_zero`",
+    "where": {
+     "x_frac": "count(i < len(x): x[i] == \"/\") == 1 && all(i < len(x): isdigit(x[i]) || x[i] == \"/\") && x[0] != \"/\" && x[len(x) - 1] != \"/\"",
+     "x_den_zero": "all(i < len(x): (any(j < i: x[j] == \"/\") -> x[i] == \"0\"))"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-4",
+    "req": "R-IN-4",
+    "says": "every call meets `n_frac -> !n_den_zero`",
+    "where": {
+     "n_frac": "count(i < len(n): n[i] == \"/\") == 1 && all(i < len(n): isdigit(n[i]) || n[i] == \"/\") && n[0] != \"/\" && n[len(n) - 1] != \"/\"",
+     "n_den_zero": "all(i < len(n): (any(j < i: n[j] == \"/\") -> n[i] == \"0\"))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN1-A",
+    "req": "R-IN-1",
+    "says": "every call meets `x_form`",
+    "where": {
+     "x_form": "count(i < len(x): x[i] == \"/\") == 1 && all(i < len(x): isdigit(x[i]) || x[i] == \"/\") && x[0] != \"/\" && x[len(x) - 1] != \"/\""
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN2-A",
+    "req": "R-IN-2",
+    "says": "every call meets `n_form`",
+    "where": {
+     "n_form": "count(i < len(n): n[i] == \"/\") == 1 && all(i < len(n): isdigit(n[i]) || n[i] == \"/\") && n[0] != \"/\" && n[len(n) - 1] != \"/\""
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN3-A",
+    "req": "R-IN-3",
+    "says": "every call meets `!x_den_zero`",
+    "where": {
+     "x_den_zero": "any(p < len(x): x[p] == \"/\" && count(j < p: x[j] == \"/\") == 0 && p + 1 < len(x) && all(k < len(x): k <= p || x[k] == \"0\"))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN4-A",
+    "req": "R-IN-4",
+    "says": "every call meets `!n_den_zero`",
+    "where": {
+     "n_den_zero": "any(p < len(n): n[p] == \"/\" && count(j < p: n[j] == \"/\") == 0 && p + 1 < len(n) && all(k < len(n): k <= p || n[k] == \"0\"))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN1-D-OUT",
+    "req": "R-IN-1",
+    "says": "`outcome` is free when `!x_form`",
+    "where": {
+     "x_form": "count(i < len(x): x[i] == \"/\") == 1 && all(i < len(x): isdigit(x[i]) || x[i] == \"/\") && x[0] != \"/\" && x[len(x) - 1] != \"/\""
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN1-D-RES",
+    "req": "R-IN-1",
+    "says": "`result` is free when `!x_form`",
+    "where": {
+     "x_form": "count(i < len(x): x[i] == \"/\") == 1 && all(i < len(x): isdigit(x[i]) || x[i] == \"/\") && x[0] != \"/\" && x[len(x) - 1] != \"/\""
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN2-D-OUT",
+    "req": "R-IN-2",
+    "says": "`outcome` is free when `!n_form`",
+    "where": {
+     "n_form": "count(i < len(n): n[i] == \"/\") == 1 && all(i < len(n): isdigit(n[i]) || n[i] == \"/\") && n[0] != \"/\" && n[len(n) - 1] != \"/\""
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN2-D-RES",
+    "req": "R-IN-2",
+    "says": "`result` is free when `!n_form`",
+    "where": {
+     "n_form": "count(i < len(n): n[i] == \"/\") == 1 && all(i < len(n): isdigit(n[i]) || n[i] == \"/\") && n[0] != \"/\" && n[len(n) - 1] != \"/\""
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN3-D-OUT",
+    "req": "R-IN-3",
+    "says": "`outcome` is free when `x_den_zero`",
+    "where": {
+     "x_den_zero": "any(p < len(x): x[p] == \"/\" && count(j < p: x[j] == \"/\") == 0 && p + 1 < len(x) && all(k < len(x): k <= p || x[k] == \"0\"))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN3-D-RES",
+    "req": "R-IN-3",
+    "says": "`result` is free when `x_den_zero`",
+    "where": {
+     "x_den_zero": "any(p < len(x): x[p] == \"/\" && count(j < p: x[j] == \"/\") == 0 && p + 1 < len(x) && all(k < len(x): k <= p || x[k] == \"0\"))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN4-D-OUT",
+    "req": "R-IN-4",
+    "says": "`outcome` is free when `n_den_zero`",
+    "where": {
+     "n_den_zero": "any(p < len(n): n[p] == \"/\" && count(j < p: n[j] == \"/\") == 0 && p + 1 < len(n) && all(k < len(n): k <= p || n[k] == \"0\"))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN4-D-RES",
+    "req": "R-IN-4",
+    "says": "`result` is free when `n_den_zero`",
+    "where": {
+     "n_den_zero": "any(p < len(n): n[p] == \"/\" && count(j < p: n[j] == \"/\") == 0 && p + 1 < len(n) && all(k < len(n): k <= p || n[k] == \"0\"))"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-OUT-1",
+   "phrase": "will simplify the expression",
+   "taken": 1,
+   "variant": 2,
+   "text": "the function may signal some valid inputs (for example an expression that cannot be simplified further) by raising an exception; only the inputs it can simplify must return"
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "the expression",
+   "taken": 4,
+   "variant": 1,
+   "text": "the product x * n"
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "simplify (form of a simplified fraction)",
+   "taken": 1,
+   "variant": 2,
+   "text": "a whole-number result keeps the denominator 1 (for example '2/1')"
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "valid fractions",
+   "taken": 2,
+   "variant": 1,
+   "text": "a string '<numerator>/<denominator>' in which both parts are non-empty strings of decimal digits denoting positive whole numbers"
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "valid fractions, and do not have zero as denominator",
+   "taken": 2,
+   "variant": 1,
+   "text": "'valid' already excludes a zero denominator and the second clause only repeats it"
+  },
+  {
+   "req": "R-IN-2",
+   "phrase": "valid fractions",
+   "taken": 2,
+   "variant": 1,
+   "text": "a string '<numerator>/<denominator>' in which both parts are non-empty strings of decimal digits denoting positive whole numbers"
+  },
+  {
+   "req": "R-IN-2",
+   "phrase": "valid fractions, and do not have zero as denominator",
+   "taken": 2,
+   "variant": 1,
+   "text": "'valid' already excludes a zero denominator and the second clause only repeats it"
+  },
+  {
+   "req": "R-IN-3",
+   "phrase": "zero as denominator",
+   "taken": 1,
+   "variant": 2,
+   "text": "the denominator is not the single character '0'"
+  },
+  {
+   "req": "R-IN-4",
+   "phrase": "zero as denominator",
+   "taken": 1,
+   "variant": 2,
+   "text": "the denominator is not the single character '0'"
+  }
+ ],
+ "depends": {
+  "R-OUT-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a"
+   ],
+   "witness": [
+    "simplify(\"11211111/1011011\", \"11/2111100112213\") -> returned something else",
+    "simplify(\"/212/\\u0001//1./20\", \"2//./\\u0001\\u0001/////\\u00021/2\") -> True"
+   ]
+  },
+  "R-OUT-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "simplify(\"111/140212144453\", \"1/11211111121111\") -> False",
+    "simplify(\"./2/\\u00011.121////61\", \"2/////22./21.\\u00012\") -> False"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "simplify(\"2/3\", \"1/11211\")"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "False",
+      "True"
+     ],
+     "ending": false,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "result",
+   "reqs": [],
+   "question": "the request allows False or True: which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-OUT-1",
+    "R-OUT-2"
+   ],
+   "calls": [
+    "simplify(\"11211111/1011011\", \"11/2111100112213\") -> returned something else",
+    "simplify(\"/212/\\u0001//1./20\", \"2//./\\u0001\\u0001/////\\u00021/2\") -> True"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "relation": "A-STRONGER",
+   "calls": [
+    "simplify(\"51/17659\", \"29/4\") -> returned something else"
+   ],
+   "question": "the two readings of this requirement disagree on these calls: which is meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "relation": "A-WEAKER",
+   "calls": [
+    "simplify(\"001111111111/111\", \"001111111/111114\") -> True",
+    "simplify(\"0011111111111/0\", \"\\u00010111111111111/0\") -> raised another exception or did not finish"
+   ],
+   "question": "the two readings of this requirement disagree on these calls: which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"will simplify the expression\" can mean: the function must return normally on every valid input (it delivers the simplified expression as its returned value) / the function may signal some valid inputs (for example an expression that cannot be simplified further) by raising an exception; only the inputs it can simplify must return. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"simplify the expression\" can mean: the returned value is a boolean (True or False), which is how the adapter records the result; any other returned value is outcome 2 / the returned value is the simplified expression itself (a fraction string such as \"1/2\", a number, or a Fraction object), which the adapter records as outcome 2 rather than as a returned boolean; this conflicts with the adapter's boolean result. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"the expression\" can mean: the product x * n / the quotient x / n / each of x and n on its own (the two fractions are simplified separately) / some other expression in x and n; the request names no operator and the docstring gives no antecedent for 'the expression'. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"simplify\" can mean: return True if the expression evaluates to a whole number and False otherwise (a boolean, matching the adapter's boolean result) / return the expression reduced to lowest terms as a fraction string '<numerator>/<denominator>' (for example '2/4' * '1/1' gives '1/2') / return the reduced value as a number or Fraction object (a whole number when the denominator becomes 1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"simplify the expression\" can mean: the returned value is a boolean, as the adapter records it (frame.md: the returned value is recorded as a boolean, anything else is outcome 2) / the returned value is the simplified expression (string, number or Fraction), which contradicts the adapter's boolean result: every such answer would be recorded as outcome 2. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"simplify (form of a simplified fraction)\" can mean: a whole-number result is written without a denominator (for example '2') / a whole-number result keeps the denominator 1 (for example '2/1'). Which is meant?"
+  }
+ ],
+ "limits": []
+}

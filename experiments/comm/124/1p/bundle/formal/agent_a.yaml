@@ -1,0 +1,89 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-VAL-1/R-VAL-2: a date string is valid exactly when it satisfies every rule
+  # of the numbered list in the docstring. The list has one item, "1.", with no
+  # text, so the conjunction has no conjuncts and is true for every string.
+  date_valid: "true"
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Total reading: for every string argument (any content, including the empty
+      string, per the reading taken for R-IN-1) the call returns True or False,
+      never raises, never fails to finish and never returns another type.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "date_valid", cond: "outcome == 0 && valid"}
+    note: >-
+      "Returns True" is read as the call returning the value True (outcome 0 and
+      valid). Because the rule list is empty, date_valid holds for every string,
+      so this requires True for every call. The spec states no rule that would
+      make any string invalid; this is formalized literally, not repaired.
+
+  - id: RA-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: "!date_valid", cond: "outcome == 0 && !valid"}
+    note: >-
+      "Returns False" is read as the call returning the value False (outcome 0
+      and !valid). Under the literal reading of the empty rule list no string is
+      invalid, so the trigger never holds and this property is vacuous: the
+      False branch is unreachable. The words "validates" and "otherwise False"
+      presuppose that some string is invalid, but the text defines none; that is
+      a presupposition failure in the prompt, not a logical contradiction, and
+      it is left as stated rather than filled with conventional date rules.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: asks for a complete implementation of the stub. It is not
+      a property of the call trace; it is met by any implementation that the
+      adapter can run.
+  - req: R-API-2
+    reason: >-
+      Non-functional: the name valid_date and the single parameter date are
+      fixed by the function adapter (design.yaml `function` section), which maps
+      that one argument to the input signal date. Not a property of the trace.
+  - req: R-IN-1
+    reason: >-
+      Reading taken: any string may be passed. The only obligation is that the
+      argument is a string, and that holds by construction of the interface:
+      date is a string signal and calls with non-string arguments are not part
+      of the trace (frame.md, Inputs). No content restriction is placed on the
+      environment, so there is no assumption to state.
+  - req: R-VAL-1
+    reason: >-
+      Definition, not a behaviour on its own. Realized by the def date_valid
+      (the conjunction of the listed rules, which is empty and therefore true),
+      used as the condition of RA-RET-2 and RA-RET-3. Read as "if and only if";
+      with the empty list every string is valid under either reading.
+    covered_by: [RA-RET-2, RA-RET-3]
+  - req: R-VAL-2
+    reason: >-
+      Definition: the only rule item "1." has no text, so it contributes no
+      conjunct to date_valid. Realized through date_valid in RA-RET-2 and
+      RA-RET-3.
+    covered_by: [RA-RET-2, RA-RET-3]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; frame item F-ZERO
+      (outcome != 0 -> !valid) is part of every formalization set by
+      construction and need not be restated (frame.md, Frame rules).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "a given date string", reading: 1}
+  - {req: R-RET-1, phrase: "returns True if the date is valid otherwise False", reading: 1}
+  - {req: R-RET-3, phrase: "otherwise False", reading: 1}
+  - {req: R-VAL-1, phrase: "is valid if", reading: 1}
+  - {req: R-VAL-1, phrase: "all of the following rules", reading: 1}
+  - {req: R-VAL-1, phrase: "The date is valid if all of the following rules are satisfied", reading: 2}
+  - {req: R-VAL-2, phrase: "1.", reading: 1}

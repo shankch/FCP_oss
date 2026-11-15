@@ -1,0 +1,164 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def check_if_last_char_is_a_letter(txt):'
+  text: The deliverable is a Python function named check_if_last_char_is_a_letter that takes a single argument txt.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: of a given string
+  text: The argument txt is a string.
+  kind: assumption
+  lines:
+  - 7
+- id: R-DEF-1
+  doc: SPEC
+  quote: 'Note: "word" is a group of characters separated by space.'
+  text: A word is a group of characters delimited by spaces (or by the start or end of the string).
+  kind: definition
+  ambiguity:
+  - phrase: a group of characters
+    readings:
+    - 'A group has one or more characters: a single non-space character between spaces (or at an end of the string) is a one-character word.'
+    - 'A group has two or more characters: a single character standing alone between spaces is not a word.'
+  - phrase: separated by space
+    readings:
+    - Only the space character (code 32) separates words; a tab, newline or other whitespace character is part of a word.
+    - Any whitespace character (space, tab, newline, ...) separates words.
+  - phrase: '"word" is a group'
+    readings:
+    - A word is a maximal run of non-space characters of any kind, so in "ab 1e" the final e is part of the word "1e".
+    - A word is a run of letters, so a letter preceded by a digit or punctuation mark (as in "ab 1e") is not part of a word.
+  lines:
+  - 9
+- id: R-RES-1
+  doc: SPEC
+  quote: returns True if the last character of a given string is an alphabetical character and is not a part of a word
+  text: If the last character of txt is an alphabetical character and is not part of a word, the function returns True.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: the last character
+    readings:
+    - The final character of txt (txt[-1]), even when it is a space.
+    - 'The last non-space character of txt: trailing spaces are ignored, as example R-EX-3 ("apple pi e " gives True) suggests.'
+  - phrase: an alphabetical character
+    readings:
+    - 'An ASCII letter: a to z or A to Z.'
+    - "Any character for which Python's str.isalpha() is true, including Latin-1 letters above code 127 such as \xE9."
+  - phrase: is not a part of a word
+    readings:
+    - 'The last character stands alone: it is the first character of txt or is preceded by a space, so the last group of txt is exactly that one character.'
+    - By the note (R-DEF-1) a one-character group is itself a word, so an alphabetical last character is always part of a word and the function never returns True.
+  - phrase: returns True
+    readings:
+    - 'The rule is authoritative: "apple pi e" (last character e standing alone) returns True, contradicting example R-EX-2 which says False.'
+    - 'Example R-EX-2 is authoritative: "apple pi e" returns False, contradicting this rule.'
+    - 'The examples R-EX-1 to R-EX-4 state the intended behaviour, which is the negation of the rule: True unless the last character is an alphabetical character that is not part of a word.'
+  lines:
+  - 6
+  - 8
+- id: R-RES-2
+  doc: SPEC
+  quote: and False otherwise
+  text: If txt has no last character, or its last character is not an alphabetical character, or its last character is part of a word, the function returns False.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-RES-1
+  ambiguity:
+  - phrase: False otherwise
+    readings:
+    - 'The rule is authoritative: every other string returns False, including "apple pie" (last character inside the word "pie"), "apple pi e " (last character a space) and "" (no last character), contradicting
+      examples R-EX-1, R-EX-3 and R-EX-4, which say True.'
+    - 'The examples are authoritative exceptions: "apple pie", "apple pi e " and "" return True, contradicting this rule.'
+    - 'The examples state the intended behaviour, which is the negation of the rule: False exactly when the last character is an alphabetical character that is not part of a word, and True otherwise.'
+  lines:
+  - 8
+- id: R-RES-3
+  doc: SPEC
+  quote: Create a function that returns True if the last character of a given string is an alphabetical character and is not a part of a word, and False otherwise.
+  text: For every string txt, including the empty string, the function returns a boolean (True or False); it does not raise an exception, fail to finish, or return a value of another type.
+  kind: guarantee
+  lines:
+  - 6
+  - 8
+- id: R-EX-1
+  doc: SPEC
+  quote: "check_if_last_char_is_a_letter(\"apple pie\") \u279E True"
+  text: check_if_last_char_is_a_letter("apple pie") returns True.
+  kind: scenario
+  depends:
+  - R-RES-1
+  - R-RES-2
+  ambiguity:
+  - phrase: "\"apple pie\") \u279E True"
+    readings:
+    - 'The example is authoritative: "apple pie" returns True, although its last character e is part of the word "pie", so R-RES-2 gives False.'
+    - 'R-RES-2 is authoritative: "apple pie" returns False and the example is wrong.'
+  lines:
+  - 12
+- id: R-EX-2
+  doc: SPEC
+  quote: "check_if_last_char_is_a_letter(\"apple pi e\") \u279E False"
+  text: check_if_last_char_is_a_letter("apple pi e") returns False.
+  kind: scenario
+  depends:
+  - R-RES-1
+  - R-RES-2
+  ambiguity:
+  - phrase: "\"apple pi e\") \u279E False"
+    readings:
+    - 'The example is authoritative: "apple pi e" returns False, although its last character e is a letter standing alone, so R-RES-1 gives True.'
+    - 'R-RES-1 is authoritative: "apple pi e" returns True and the example is wrong.'
+    - A one-character group is itself a word (R-DEF-1), so the final e is part of the word "e" and False agrees with R-RES-2.
+  lines:
+  - 13
+- id: R-EX-3
+  doc: SPEC
+  quote: "check_if_last_char_is_a_letter(\"apple pi e \") \u279E True"
+  text: check_if_last_char_is_a_letter("apple pi e ") (with a trailing space) returns True.
+  kind: scenario
+  depends:
+  - R-RES-1
+  - R-RES-2
+  ambiguity:
+  - phrase: "\"apple pi e \") \u279E True"
+    readings:
+    - 'The example is authoritative: "apple pi e " returns True, although its last character is a space, not an alphabetical character, so R-RES-2 gives False.'
+    - 'R-RES-2 is authoritative: "apple pi e " returns False and the example is wrong.'
+    - '"The last character" means the last non-space character: the final e stands alone and True agrees with R-RES-1; but then "apple pi e" has the same last letter in the same position and should also
+      return True, contradicting R-EX-2.'
+  lines:
+  - 14
+- id: R-EX-4
+  doc: SPEC
+  quote: "check_if_last_char_is_a_letter(\"\") \u279E True"
+  text: check_if_last_char_is_a_letter("") (the empty string) returns True.
+  kind: scenario
+  depends:
+  - R-RES-1
+  - R-RES-2
+  ambiguity:
+  - phrase: "(\"\") \u279E True"
+    readings:
+    - 'The example is authoritative: the empty string returns True, although it has no last character, so R-RES-2 gives False.'
+    - 'R-RES-2 is authoritative: the empty string returns False and the example is wrong.'
+  lines:
+  - 15
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call whose outcome is not 0 (the call did not return True or False), the result output is false.
+  kind: guarantee
+  lines:
+  - 51

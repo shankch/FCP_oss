@@ -1,0 +1,160 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md),
+# so the model is per call: the defs below compute, from the argument of the
+# same call, whether it is a legal argument (valid) and whether every opening
+# bracket has its corresponding closing bracket (matched). Every output is
+# checked against them. Ghosts are not used: a ghost would carry information
+# from one call to the next, which the frame rules out.
+defs:
+  # R-IN-1: the argument consists of "(" and ")" only (the empty string included).
+  valid: 'all(i < len(brackets): brackets[i] == "(" || brackets[i] == ")")'
+  # R-RET-1, nested matching, only opening brackets constrained: the "(" at k
+  # has its corresponding ")" iff some later m closes the segment k..m with as
+  # many ")" as "(" (the first such m is its partner in left-to-right
+  # matching). A ")" with no opening bracket before it is not constrained.
+  matched: 'all(k < len(brackets): brackets[k] == "(" -> any(m < len(brackets): m > k && count(j < len(brackets): j >= k && j <= m && brackets[j] == "(") == count(j < len(brackets): j >= k && j <= m && brackets[j] == ")")))'
+  returns_true: 'outcome == 0 && result'
+  returns_false: 'outcome == 0 && !result'
+
+assumptions:
+  - id: RB-IN-1-A
+    req: R-IN-1
+    expr: valid
+    note: >-
+      Most literal reading of 'brackets is a string of "(" and ")"': a
+      precondition on the caller (reading 1); the empty string satisfies it
+      (reading 1 of "a string of"). Every property below also carries the
+      guard `valid` itself, so each call is judged on its own argument
+      whatever calls precede it in the trace.
+
+dont_cares:
+  - id: RB-IN-1-D-RES
+    req: R-IN-1
+    signal: result
+    when: '!valid'
+    note: >-
+      Reading 1 of '"(" and ")"': for an argument with any other character the
+      returned value is unconstrained.
+  - id: RB-IN-1-D-OUT
+    req: R-IN-1
+    signal: outcome
+    when: '!valid'
+    note: >-
+      Reading 1 of '"(" and ")"': for an argument with any other character it
+      is unconstrained how the call ends (return, exception, other value).
+
+properties:
+  - id: RB-FN-2
+    req: R-FN-2
+    pattern: implies
+    args: {trigger: valid, cond: 'outcome == 0'}
+    note: >-
+      Reading 1 of "Complete this function": for every legal argument
+      (including ones on which the docstring states no rule) the call
+      finishes, raises nothing and returns True or False (outcome 0); a
+      merely truthy value (outcome 2) does not count.
+
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'valid && matched', cond: returns_true}
+    note: >-
+      Literal reading of the docstring sentence, taken at face value (reading 1
+      of the whole sentence): "return True if" is a sufficient condition only
+      (reading 1), so nothing is required when some "(" is unmatched;
+      "corresponding" is nested left-to-right matching (reading 1); only
+      opening brackets are constrained, so ")" or "())" must give True
+      (reading 1). The empty string has no opening bracket and must give True.
+      CONTRADICTION in the spec: the docstring examples "()" -> False and
+      "(()())" -> False (RB-EX-2, RB-EX-3) violate this sentence under every
+      reading. Both are kept as written, so no answer to those two calls
+      satisfies the set; the conflict is the specification's and is not repaired.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'brackets == "("', cond: returns_true}
+    note: >-
+      The doctest fixes the value of this call, so it is stated as a property as
+      well as a scenario (RB-EX-1-S). Reading 1 (the example holds). Consistent
+      with RB-RET-1 only because "return True if" is read as sufficient-only.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'brackets == "()"', cond: returns_false}
+    note: >-
+      Reading 1 (the example holds, as written). CONTRADICTS RB-RET-1: "()" is
+      correctly matched, so RB-RET-1 requires True. Kept literally so that the
+      conflict in the specification stays visible; not repaired.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'brackets == "(()())"', cond: returns_false}
+    note: >-
+      Reading 1 (the example holds, as written). CONTRADICTS RB-RET-1: every
+      "(" in "(()())" has its corresponding ")", so RB-RET-1 requires True.
+      Kept literally so that the conflict in the specification stays visible;
+      not repaired.
+
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'brackets == ")(()"', cond: returns_true}
+    note: >-
+      Reading 1 (the example holds). Consistent with RB-RET-1: the "(" at
+      index 1 has no corresponding ")" under nested matching, so RB-RET-1
+      (sufficient-only) leaves this call free and the example fixes it to True.
+
+scenarios:
+  - id: RB-IN-1-S-EMPTY
+    req: R-IN-1
+    cover: 'len(brackets) == 0'
+    note: >-
+      Reading 1 of "a string of": the empty string is a legal argument (the
+      assumption admits it).
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: 'brackets == "(" && returns_true'
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: 'brackets == "()" && returns_false'
+    note: Unreachable under RB-RET-1 (see RB-EX-2); kept as written.
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: 'brackets == "(()())" && returns_false'
+    note: Unreachable under RB-RET-1 (see RB-EX-3); kept as written.
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: 'brackets == ")(()" && returns_true'
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Definition of the function's name and its single str argument. It is
+      realized by the interface and function sections of design.yaml (one
+      input sequence signal `brackets`); there is no behaviour to state over
+      the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter; design.yaml's frame item F-ZERO states it
+      ('outcome != 0 -> !result') and is added to every formalization set, so
+      it is not restated here.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-2, phrase: Complete this function, reading: 1}
+  - {req: R-IN-1, phrase: '"(" and ")"', reading: 1}
+  - {req: R-IN-1, phrase: a string of, reading: 1}
+  - {req: R-RET-1, phrase: return True if, reading: 1}
+  - {req: R-RET-1, phrase: a corresponding closing bracket, reading: 1}
+  - {req: R-RET-1, phrase: every opening bracket, reading: 1}
+  - {req: R-RET-1, phrase: return True if every opening bracket has a corresponding closing bracket, reading: 1}
+  - {req: R-EX-1, phrase: correct_bracketing("("), reading: 1}
+  - {req: R-EX-2, phrase: correct_bracketing("()"), reading: 1}
+  - {req: R-EX-3, phrase: correct_bracketing("(()())"), reading: 1}
+  - {req: R-EX-4, phrase: correct_bracketing(")(()"), reading: 1}

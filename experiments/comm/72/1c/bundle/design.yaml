@@ -1,0 +1,29 @@
+fcp: '0.1'
+design: review
+summary: A Python function on a list of integers treated as a chip without memory. Each cycle is one call of will_it_fly(q, w); the list q is an input sequence of at most 8 integers, w an input number, and the returned boolean and the way the call ended are outputs. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt: will_it_fly'}
+- {id: FRAME, path: frame.md, title: 'FCP list adapter, version 0.1'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: q, dir: in, width: 8, length: 8, desc: 'the q argument: a list of at most 8 integers, 0 to 255'}
+  - {name: w, dir: in, width: 11, desc: 'the w argument: an integer, 0 to 2,047'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a bool, 1 raised an exception or no answer, 2 returned anything else'}
+  - {name: flies, dir: out, width: 1, desc: 'the returned value (outcome 0)'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> !flies'}
+function:
+  name: will_it_fly
+  args:
+  - {name: q, signal: q, type: list}
+  - {name: w, signal: w, type: int}
+  returns: {signal: flies, type: bool}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    q: {elements: [0, 1, 2, 3, 5, 9, 255], random: 3000, values: [[1, 2], [3, 2, 3], [3]]}
+    w: {dense: [0, 64], random: 400, values: [1, 5, 9]}

@@ -1,0 +1,51 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+defs:
+  valid: 'len(price) > 0 && all(i < len(qty): qty[i] != 0)'
+  full: 'sum(i < len(price): price[i] * qty[i])'
+  offsale: 'sum(i < len(price): sale[i] == 1 ? 0 : price[i] * qty[i])'
+properties:
+- id: G-RET
+  req: R-RET-1
+  pattern: implies
+  args: {trigger: valid, cond: 'outcome == 0'}
+- id: G-ERR
+  req: R-ERR-1
+  pattern: implies
+  args: {trigger: '!valid', cond: 'outcome == 1'}
+- id: G-LEN
+  req: R-LINES-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'len(lines) == len(price)'}
+- id: G-LINE
+  req: R-LINES-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'all(i < len(price): member && sale[i] == 0 || lines[i] == price[i] * qty[i])'}
+  note: a line that rule 3 gives no discount is its price times its quantity
+- id: G-MEM
+  req: R-MEM-1
+  pattern: implies
+  args: {trigger: 'outcome == 0 && member', cond: 'all(i < len(price): sale[i] == 1 || 10 * (price[i] * qty[i] - lines[i]) == price[i] * qty[i] - price[i] * qty[i] % 10)'}
+  note: 'decision: the line''s discount is 10% rounded down, so the line keeps the fraction'
+- id: G-DISC
+  req: R-DISC-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: '10 * discount == (member ? offsale - offsale % 10 : 0)'}
+  note: 'decision: 10% of the sum, rounded down'
+- id: G-SUM
+  req: R-SUM-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'total == sum(i < len(lines): lines[i])'}
+- id: G-TOT
+  req: R-TOT-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'total == full - discount'}
+scenarios:
+- id: G-EX
+  req: R-EX-1
+  cover: 'member && len(price) == 1 && price[0] == 1999 && qty[0] == 2 && sale[0] == 0 && outcome == 0 && len(lines) == 1 && lines[0] == 3599 && discount == 399 && total == 3599'
+unformalized:
+- {req: R-SIG-1, reason: 'the interface itself', covered_by: [G-RET]}
+- {req: R-IN-1, reason: 'a definition of the item fields, the interface signals price, qty and sale', covered_by: [G-RET, G-ERR]}
+- {req: R-FR-1, reason: 'the frame rule F-ZERO, part of every set', covered_by: [F-ZERO]}

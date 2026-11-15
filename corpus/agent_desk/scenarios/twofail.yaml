@@ -1,0 +1,13 @@
+id: twofail
+title: Verification fails twice
+probes: [R-ID-2]
+account: {name: Jordan Blake, email: jordan.blake@example.com, zip: '98103'}
+orders:
+  '6258': {item: cotton bath towels (set of 4), total: 48, eligible: true, why: delivered 5 days ago, note: ''}
+opening: "Hi, I need a refund for order 6258, the towels shed everywhere. My email is jordan.blake@example.com and my zip is 98013."
+replies:
+- {when: anything else, say: "No."}
+- {when: 'email|zip|verif|match|account|again|confirm', say: "Oh, maybe it's 98031? I moved recently.", once: true}
+- {when: 'email|zip|verif|match|account|again|confirm', say: "Let me check my mail... it's 98103. Sorry about that!"}
+default: Can you try again? I really need this refund.
+confirm: [yes]

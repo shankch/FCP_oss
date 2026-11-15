@@ -1,0 +1,26 @@
+fcp: '0.1'
+design: review
+summary: A Python function on a list of integers treated as a chip without memory. Each cycle is one call of pluck(arr); the argument is an input list of at most 16 numbers, the returned list and the way the call ended are outputs. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt: pluck a node from a tree branch'}
+- {id: FRAME, path: frame.md, title: 'FCP list adapter, version 0.1'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: arr, dir: in, width: 8, length: 16, desc: 'the arr argument: a list of at most 16 numbers, 0 to 255'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a list that fits, 1 exception or no answer, 2 returned anything else'}
+  - {name: plucked, dir: out, width: 8, length: 3, desc: 'the returned list (outcome 0), at most 3 numbers, 0 to 255'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-EMPTY, req: R-FR-1, expr: 'outcome != 0 -> len(plucked) == 0'}
+function:
+  name: pluck
+  args:
+  - {name: arr, signal: arr, type: list}
+  returns: {signal: plucked, type: list}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    arr: {elements: [0, 1, 2, 3, 4, 5], random: 3000, values: [[4, 2, 3], [1, 2, 3], [], [5, 0, 3, 0, 4, 2]]}

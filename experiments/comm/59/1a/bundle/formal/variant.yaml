@@ -1,0 +1,179 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # n has a divisor d with 2 <= d <= 255 and d < n. Every composite n <= 65535
+  # has a divisor <= sqrt(65535) < 256, so for the 16-bit n this is exactly
+  # "n is composite".
+  n_composite: "any(d < 254: d + 2 < n && n % (d + 2) == 0)"
+  # the domain of the value guarantees: n > 1 and n is not a prime
+  in_dom: "n > 1 && n_composite"
+  n_prime: "n > 1 && !n_composite"
+  # factor divides n: either the cofactor is at most 255 (factor * k == n),
+  # or factor itself is at most 255 (then n % factor is a constant modulus)
+  f_divides_n: "any(k < 256: factor * k == n) || any(k < 255: factor == k + 1 && n % (k + 1) == 0)"
+  # factor is a prime (trial division up to 255 suffices for 16-bit values)
+  f_prime: "factor > 1 && !any(d < 254: d + 2 < factor && factor % (d + 2) == 0)"
+  # factor is the smallest prime factor of n: a divisor > 1 with no smaller
+  # divisor > 1 (exact for n >= 2: if no d <= 255 divides n, n is prime)
+  f_smallest: "factor > 1 && f_divides_n && !any(d < 254: d + 2 < factor && n % (d + 2) == 0)"
+  # the rigid p is a prime factor of n
+  p_prime_factor: "!any(d < 254: d + 2 < p && p % (d + 2) == 0) && (any(k < 256: p * k == n) || any(k < 255: p == k + 1 && n % (k + 1) == 0))"
+  # p is not a prime factor of n larger than factor; for every p, together
+  # with f_prime && f_divides_n: factor is the largest prime factor of n
+  no_larger_pf: "!(p_prime_factor && p > factor)"
+
+rigids:
+  - {name: p, range: [2, 65535]}
+
+properties:
+  - id: RV-ENV-1-END
+    req: R-ENV-1
+    pattern: implies
+    args: {trigger: "n <= 1", cond: "outcome <= 2"}
+    note: >-
+      Variant reading of "Assume n > 1", as instructed: for n <= 1 the function
+      should still end in a defined way (for example raise an exception); only
+      the returned value is left free. This differs from the more natural
+      reading (n <= 1 left completely unconstrained). So n > 1 is NOT an
+      environment assumption here. Calls with n = 0 or 1 are legal, and the
+      value guarantees are limited to n > 1 by their triggers. What the trace
+      can observe of "ends in a defined way" is that the outcome is one of the
+      adapter's defined codes (0 returned an integer, 1 raised, 2 returned
+      something else). The adapter puts an exception and "did not finish"
+      under the same outcome 1, so the trace cannot see the part that excludes
+      non-termination. The text does not fix whether to return or raise
+      ("for example"), so no particular code is required.
+  - id: RV-ENV-2-PRIME
+    req: R-ENV-2
+    pattern: implies
+    args: {trigger: "n_prime", cond: "outcome == 0 && factor == n"}
+    note: >-
+      Variant reading of "is not a prime", as instructed: the assumption only
+      promises typical inputs. A prime n still has a well-defined smallest and
+      largest prime factor (n itself), so for a prime n the function must still
+      return n. This differs from the more natural reading (prime n
+      unconstrained). So there is NO environment assumption excluding primes.
+      Calls with a prime n are legal and must return n with outcome 0.
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "in_dom", cond: "outcome == 0"}
+    note: >-
+      For n > 1 that is not prime, the call returns an integer that fits
+      (outcome 0). The variant readings of "Assume n > 1" and "is not a prime"
+      (instructed) make neither an environment assumption, so the scope n > 1,
+      not prime is a trigger, not an assumption. n <= 1 is handled by
+      RV-ENV-1-END and a prime n by RV-ENV-2-PRIME.
+  - id: RV-FAC-1
+    req: R-FAC-1
+    pattern: implies
+    args: {trigger: "in_dom && outcome == 0", cond: "f_divides_n"}
+    note: >-
+      The returned integer divides n exactly. The text speaks of "the integer
+      returned", so the trigger requires outcome 0. R-RET-1 separately requires
+      that outcome. Scope n > 1, not prime is a trigger because of the
+      instructed variant readings of R-ENV-1 and R-ENV-2: neither is assumed.
+  - id: RV-FAC-2
+    req: R-FAC-2
+    pattern: implies
+    args: {trigger: "in_dom && outcome == 0", cond: "f_prime"}
+    note: >-
+      The returned integer is a prime (greater than 1, no divisor other than 1
+      and itself). Trigger on outcome 0 and scope as in RV-FAC-1, again because
+      of the instructed variant readings of R-ENV-1 and R-ENV-2.
+  - id: RV-FAC-3
+    req: R-FAC-3
+    expr: "hist(in_dom && outcome == 0 -> f_smallest) || hist(in_dom && outcome == 0 -> f_prime && f_divides_n && no_larger_pf)"
+    note: >-
+      Variant reading of "the smallest or largest prime factor", as instructed:
+      the implementation picks one convention and keeps it. Either every call
+      returns the smallest prime factor, or every call returns the largest.
+      This differs from the more natural per-call reading. It is stated over
+      the run: at every call, either all calls so far (in scope, with a
+      returned integer) returned the smallest prime factor, or all of them
+      returned the largest. The rigid p ranges over every candidate prime, so
+      the second disjunct says no prime factor of n is larger than the
+      returned one. A factor strictly between the smallest and the largest is
+      never allowed. When both are equal (n a prime power), a call fits either
+      convention. Interaction with the example (decision for "smallest or
+      largest (contradiction with the example ...)": reading 2). RV-EX-1-OUT
+      requires candidate(13195) == 29, the largest prime factor (the smallest
+      is 5). That excludes the "smallest" convention, although this text
+      allows it. Under the instructed contradiction reading of R-EX-1, this is
+      a contradiction in the specification. It is recorded here and not
+      repaired: this property itself still allows both conventions.
+
+  - id: RV-EX-1-OUT
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 13195", cond: "outcome == 0 && factor == 29"}
+    note: >-
+      The doctest read literally as a required output (decision for
+      ">>> candidate(13195) 29": reading 2). Variant reading of "candidate(13195)
+      returns 29 (contradiction with 'the smallest or largest prime factor')",
+      as instructed: this is a contradiction. 13195 = 5 * 7 * 13 * 29, so under
+      the reading that the smallest prime factor is required (or allowed and
+      chosen) the answer for 13195 is 5, not 29. With the convention reading
+      of R-FAC-3 (RV-FAC-3), requiring 29 here excludes the smallest
+      convention for every n. The contradiction is kept as the text states it
+      and is not repaired.
+  - id: RV-EX-2-OUT
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 2048", cond: "outcome == 0 && factor == 2"}
+    note: >-
+      The doctest read literally as a required output, the same reading as for
+      R-EX-1. 2048 = 2^11, so 2 is both the smallest and the largest prime
+      factor, which fits either convention of RV-FAC-3.
+
+scenarios:
+  - id: RV-EX-1-COV
+    req: R-EX-1
+    cover: "n == 13195 && outcome == 0 && factor == 29"
+    note: >-
+      The example behaviour must be possible. Under the instructed
+      contradiction reading of R-EX-1, the answer 29 is reachable only under
+      the "largest" convention of RV-FAC-3. Under the smallest convention the
+      answer would be 5.
+  - id: RV-EX-2-COV
+    req: R-EX-2
+    cover: "n == 2048 && outcome == 0 && factor == 2"
+
+dont_cares:
+  - id: RV-ENV-1-DC
+    req: R-ENV-1
+    signal: factor
+    when: "n <= 1"
+    note: >-
+      Variant reading of "Assume n > 1", as instructed: for n <= 1 only the
+      returned value is left free. The outcome is not declared free. It must be
+      a defined ending (RV-ENV-1-END).
+
+unformalized:
+  - req: R-GEN-1
+    reason: >-
+      Non-functional: the deliverable is a completed body of candidate with its
+      name and signature. This is not a property of the trace of calls. The
+      function adapter (design.yaml, function: candidate) realizes it by
+      calling candidate(n).
+  - req: R-ARG-1
+    reason: >-
+      Definition of the interface: the one integer argument n is the input
+      signal n (design.yaml function args). It places no obligation on the
+      trace beyond the interface.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter. It is added to every formalization set as
+      F-ZERO (outcome != 0 -> factor == 0) and need not be restated
+      (frame.md).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-1, phrase: "Assume n > 1", reading: 2}
+  - {req: R-ENV-2, phrase: "is not a prime", reading: 2}
+  - {req: R-FAC-3, phrase: "the smallest or largest prime factor", reading: 2}
+  - {req: R-FAC-3, phrase: "smallest or largest (contradiction with the example candidate(13195) -> 29)", reading: 2}
+  - {req: R-EX-1, phrase: ">>> candidate(13195) 29", reading: 2}
+  - {req: R-EX-1, phrase: "candidate(13195) returns 29 (contradiction with 'the smallest or largest prime factor')", reading: 2}

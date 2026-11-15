@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\ndef correct_bracketing(brackets: str) -> bool:\n    \"\"\" brackets is a string of \"(\" and \")\".\n    return True if every opening bracket has a corresponding closing bracket.\n\n    >>> correct_bracketing(\"(\")\n    False\n    >>> correct_bracketing(\"()\")\n    True\n    >>> correct_bracketing(\"(()())\")\n    True\n    >>> correct_bracketing(\")(()\")\n    False\n    \"\"\"\n    depth = 0\n    for ch in brackets:\n        if ch == \"(\":\n            depth += 1\n        elif ch == \")\":\n            depth -= 1\n            if depth < 0:\n                return False\n    return depth == 0\n```",
+  "seconds": 3.1,
+  "cost_usd": 0.011793900000000001,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "The description only says every opening bracket needs a matching closing bracket. It doesn't say what to do with extra closing brackets. The examples don't settle this either: `\")(()\"` is False under both readings, because its second `(` never gets closed.\n\n1. **Unmatched closing brackets:** Should a closing bracket with no opening bracket before it make the result False? For example, should `\")\"`, `\"())\"` and `\"((()())))\"` return False? Or are only unclosed opening brackets a problem?\n2. **Order:** Must each `)` close a `(` that appears earlier in the string? In other words, should the running count of `(` minus `)` never go below zero, with a total of zero at the end?\n3. **Empty string:** Should `\"\"` return True?",
+  "seconds": 10.5,
+  "cost_usd": 0.024602600000000002,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "```python\ndef correct_bracketing(brackets: str):\n    \"\"\" brackets is a string of \"(\" and \")\".\n    return True if every opening bracket has a corresponding closing bracket.\n\n    >>> correct_bracketing(\"(\")\n    False\n    >>> correct_bracketing(\"()\")\n    True\n    >>> correct_bracketing(\"(()())\")\n    True\n    >>> correct_bracketing(\")(()\")\n    False\n    \"\"\"\n    depth = 0\n    for b in brackets:\n        if b == \"(\":\n            depth += 1\n        elif b == \")\":\n            depth -= 1\n            if depth < 0:\n                # A closing bracket appeared with no matching opener\n                return False\n    # All openers must be closed by the end\n    return depth == 0\n```\n\nThe function keeps a running count of unclosed opening brackets:\n- `(` adds one and `)` subtracts one.\n- If the count ever drops below zero, a `)` came before its matching `(`, so it returns `False`. This catches cases like `\")(()\"`.\n- At the end, the count must be exactly zero. Otherwise some `(` was never closed, as in `\"(\"`.\n\nThis runs in O(n) time and uses O(1) extra space.",
+  "seconds": 5.0,
+  "cost_usd": 0.014687599999999999,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

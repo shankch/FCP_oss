@@ -1,0 +1,208 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# Reading of the trace (frame.md): a reset starts a run of save_balance(cents);
+# each later cycle with phase 0 is one call on a stand-in, then phase 1 is the
+# return, which stays.  A ghost's value at a cycle is the state *before* that
+# cycle's call, so at the return cycle it is the state after every call.
+
+defs:
+  # the argument is in the allowed range (cents is unsigned: it cannot be negative)
+  valid: "cents <= 100000000"
+  # open of balance.txt.tmp in a mode that creates it and can write it (w, a, x)
+  open_tmp_w: "!phase && op == 1 && o_path == 2 && (o_mode == 2 || o_mode == 3 || o_mode == 4)"
+  # calls on the file object of the latest such open
+  wr_tmp: "!phase && op == 2 && th != 0 && of == th"
+  fs_tmp: "!phase && op == 5 && th != 0 && s_handle == th"
+  cl_tmp: "!phase && op == 4 && th != 0 && of == th"
+  # os.fsync on it, then its close, both since its latest open (cycle t included)
+  synced_closed: "since(!open_tmp_w, cl_tmp && since(!open_tmp_w, fs_tmp))"
+  # os.replace(balance.txt.tmp, balance.txt)
+  mv: "!phase && op == 6 && r_src == 2 && r_dst == 1"
+  # an os.replace call that the script made fail (raise OSError)
+  rep_fail: "!phase && op == 6 && answer"
+  # a call that puts the digits of cents into balance.txt: a successful move of
+  # balance.txt.tmp, holding exactly those digits, over balance.txt
+  good_mv: "mv && !answer && tf == 2"
+  # a call that takes the digits out of balance.txt again: a successful move of
+  # anything else over it, a move of balance.txt away, or its removal
+  bal_lost: >-
+    !phase && ((op == 6 && !answer && r_dst == 1 && r_src != 1 && !(r_src == 2 && (tf == 2 || tf == 0)))
+    || (op == 6 && !answer && r_src == 1 && r_dst != 1)
+    || (op == 7 && d_path == 1))
+  # balance.txt holds the decimal digits of cents (after the call of cycle t)
+  stored: "since(!bal_lost, good_mv)"
+
+ghosts:
+  # the file object that balance.txt.tmp was last opened as for writing (0 none)
+  - name: th
+    range: [0, 7]
+    init: 0
+    next: "open_tmp_w ? of : th"
+  # balance.txt.tmp: 0 absent, 1 present and empty, 2 present holding exactly
+  # the decimal digits of cents, 3 present holding anything else.  A write on
+  # the file object after its close (which raises ValueError) is still counted.
+  - name: tf
+    range: [0, 3]
+    init: 0
+    next: >-
+      open_tmp_w && o_mode != 3 ? 1 :
+      open_tmp_w ? (tf == 0 ? 1 : tf) :
+      wr_tmp && tf != 0 ? (tf == 1 && w_value == cents ? 2 : 3) :
+      !phase && op == 6 && !answer && r_src == 2 && r_dst != 2 ? 0 :
+      !phase && op == 6 && !answer && r_dst == 2 && r_src != 2 ? 3 :
+      !phase && op == 7 && d_path == 2 ? 0 :
+      tf
+
+properties:
+  - id: SA-SIG-1
+    req: R-SIG-1
+    expr: "phase -> outcome != 3"
+    note: >-
+      The signature's result type: when the function has returned normally the
+      value is a bool (outcome 3 is "returned anything else"). The name and the
+      int argument are realized by the function binding in design.yaml, not by a
+      property.
+
+  - id: SA-ERR-1
+    req: R-ERR-1
+    expr: "!valid -> phase"
+    note: >-
+      "touch no file": with cents above 100,000,000 the run makes no call on any
+      file stand-in, so its first cycle is already the return. "Negative" cannot
+      occur: cents is an unsigned 27-bit signal, so only the upper bound is
+      checkable in this encoding. Queries such as os.path.exists are not cycles
+      and are not seen.
+
+  - id: SA-ERR-2
+    req: R-ERR-1
+    expr: "!valid && phase -> outcome == 1"
+    note: "With cents above 100,000,000 the function raises ValueError."
+
+  - id: SA-STORE-1
+    req: R-STORE-1
+    expr: "phase && valid && !once(rep_fail) -> stored"
+    note: >-
+      Read as: at the return of a call with an allowed balance, balance.txt holds
+      exactly the decimal digits of cents. The text is unconditional, but rules 5
+      ("False otherwise") and 7 ("if os.replace fails ... return False") state
+      what happens when the balance does not get there, and the script can make
+      every os.replace fail, so an unconditional reading is unrealizable. The only
+      excuse the text names, a failed os.replace, is taken as the exception; this
+      is flagged, not silently assumed. "Exactly the digits" is judged per write:
+      the temporary file must receive one write that spells cents after it was
+      opened empty; digits split over several writes, or a write that spells no
+      number after the digits (such as "\n"), count as other content. "0" and ""
+      both read as 0 in w_value, so for cents 0 an empty write counts as the
+      digits. Paths other than exactly "balance.txt" (e.g. "./balance.txt") are
+      coded 0 and do not count as the current-directory file.
+
+  - id: SA-TMP-1
+    req: R-TMP-1
+    expr: "!phase && op == 1 -> o_path != 1"
+    note: "Never open balance.txt itself, in any mode (reading included)."
+
+  - id: SA-TMP-2
+    req: R-TMP-1
+    expr: "phase && valid -> once(mv)"
+    note: >-
+      A run with an allowed balance moves balance.txt.tmp over balance.txt with
+      os.replace at some call. Out-of-range runs are excluded because rule 1
+      forbids touching any file there.
+
+  - id: SA-TMP-3
+    req: R-TMP-1
+    expr: "mv -> tf == 2"
+    note: >-
+      "write the digits to balance.txt.tmp, then move that file": whenever
+      os.replace(balance.txt.tmp, balance.txt) is called, the temporary file
+      exists and holds exactly the decimal digits of cents (see SA-STORE-1 for
+      how content is judged).
+
+  - id: SA-SYNC-1
+    req: R-SYNC-1
+    expr: "!phase && op == 6 && r_src == 2 -> synced_closed"
+    note: >-
+      Before any os.replace that moves balance.txt.tmp, since the temporary file
+      was last opened for writing the function called os.fsync on that file
+      object and afterwards closed it. Ambiguity decision: reading 1 (os.fsync on
+      the file, no flush required); the example also has no flush, which supports
+      this reading. Order fsync-then-close is taken from the order of the words
+      and of the example (after close there is no descriptor to sync). The text
+      does not order the fsync after the write, so an fsync before the write is
+      accepted here, although it would not make the digits durable.
+
+  - id: SA-RET-1
+    req: R-RET-1
+    expr: "phase && valid -> outcome == 0 && result == stored"
+    note: >-
+      With an allowed balance the function returns a bool, True exactly when
+      balance.txt holds the digits of cents at the return. "Once" is read as
+      "when", not "as soon as" (no obligation to return right after the move).
+      Literally "False otherwise" would also cover out-of-range cents, where rule 1
+      demands ValueError instead of a return; the requirement is scoped to the
+      calls rule 1 lets proceed, and the overlap is flagged. Pre-existing content
+      of balance.txt is not modelled: a balance.txt that already held the same
+      digits before the call does not count as stored.
+
+  - id: SA-CLEAN-1
+    req: R-CLEAN-1
+    expr: "phase -> tf == 0"
+    note: >-
+      When the function returns (normally or by an exception), balance.txt.tmp
+      does not exist. Ambiguity decision: reading 1; reading 2 (no temporary file
+      even after a crash) cannot be met by the procedure of rule 3 and crashes are
+      not part of the trace. CONTRADICTION: taken literally this holds on every
+      return, while R-KEEP-1 (SA-KEEP-1) demands that balance.txt.tmp be kept
+      when os.replace fails. The text gives no exception here, so none is added;
+      the two items cannot both hold on a run whose os.replace fails.
+
+  - id: SA-KEEP-1
+    req: R-KEEP-1
+    expr: "phase && once(rep_fail) -> tf == 2"
+    note: >-
+      After an os.replace call fails (the script makes it raise OSError), the run
+      ends with balance.txt.tmp still present and holding exactly the digits of
+      cents, so that the balance can be recovered from it. Conflicts with
+      SA-CLEAN-1 (rule 6) on every such run; see its note.
+
+  - id: SA-KEEP-2
+    req: R-KEEP-1
+    expr: "phase && once(rep_fail) -> outcome == 0 && !result"
+    note: >-
+      After an os.replace call fails, the function returns False (not an
+      exception). Consequently a retry that succeeds after a failure would make
+      SA-RET-1 demand True; the text leaves that case contradictory, and only an
+      implementation that does not retry successfully meets both.
+
+scenarios:
+  - id: SA-EX-1
+    req: R-EX-1
+    cover: >-
+      phase && cents == 1250 && outcome == 0 && result
+      && prev(!phase && op == 6 && r_src == 2 && r_dst == 1 && !answer)
+      && prev(!phase && op == 4 && of == 1, 2)
+      && prev(!phase && op == 5 && s_handle == 1, 3)
+      && prev(!phase && op == 2 && of == 1 && w_value == 1250, 4)
+      && prev(!phase && op == 1 && of == 1 && o_path == 2 && o_mode == 2 && hist(!phase && op == 1), 5)
+    note: >-
+      The example run is possible: save_balance(1250) first opens
+      balance.txt.tmp for writing (the first call of the run, file object 1),
+      writes "1250", calls os.fsync on it, closes it, calls
+      os.replace(balance.txt.tmp, balance.txt) which succeeds, and returns True.
+
+unformalized:
+  - req: R-FR-1
+    reason: "Frame definition of the trace encoding; it is the frame item F-END, added to every set."
+    covered_by: [F-END]
+  - req: R-FR-2
+    reason: "Frame definition of the trace encoding; it is the frame item F-ZERO, added to every set."
+    covered_by: [F-ZERO]
+  - req: R-FR-3
+    reason: "Frame definition of the trace encoding; it is the frame item F-LIMIT, added to every set."
+    covered_by: [F-LIMIT]
+
+decisions:
+  - {req: R-SYNC-1, phrase: "call `os.fsync` on the temporary file", reading: 1}
+  - {req: R-CLEAN-1, phrase: "Leave no temporary file behind", reading: 1}

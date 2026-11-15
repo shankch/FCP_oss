@@ -1,0 +1,139 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md,
+# "Calls are independent"), so the model is combinational: one call is one
+# road scenario, built from the argument alone. A ghost register would carry
+# information from an arbitrary earlier call and is deliberately not used.
+defs:
+  ltr_cars: "n"                       # R-CARS-1: n cars drive left to right
+  rtl_cars: "n"                       # R-CARS-2: a different set of n cars drive right to left
+  # R-ROAD-1, R-CARS-3, R-CARS-4, R-COL-1, R-COL-2: on one straight line, every
+  # left-to-right car starts left of every right-to-left car at a finite
+  # distance, all move at one constant speed and pass through one another
+  # unaffected, so each (left-to-right, right-to-left) pair meets exactly once
+  # and every meeting is one collision. Same-direction cars never meet.
+  meetings: "ltr_cars * rtl_cars"
+  expected_collisions: "meetings"     # R-OUT-1: the number of such collisions
+
+properties:
+  - id: RB-OUT-RET
+    req: R-OUT-1
+    expr: "outcome == 0"
+    note: >-
+      "This function outputs the number": reading 1 of "outputs", the number is
+      the function's return value (not printed). The largest expected value,
+      1023 * 1023 = 1,046,529, fits the 21-bit collisions signal, so every call
+      in the trace must return an integer that fits (outcome 0); an exception,
+      a non-finishing call, or a non-integer / None return (as would happen if
+      the number were only printed) violates this.
+  - id: RB-OUT-VAL
+    req: R-OUT-1
+    expr: "collisions == expected_collisions"
+    note: >-
+      The returned value equals the model's collision count n * n (reading 1 of
+      "the number of such collisions"). That count rests on the readings taken
+      for the definitions: the sets approach each other from a finite distance
+      (R-CARS-3 readings 1 and 1), every left-to-right/right-to-left meeting is
+      a collision even though the cars are unaffected (R-COL-1 reading 1,
+      R-COL-2 reading 1), and each such pair meets at most once (R-COL-1
+      "collide" reading 1). The constant-speed and simultaneity readings
+      (R-CARS-4, R-CARS-2) do not change the count. The text never states the
+      relative order of the two sets explicitly; reading "start out being very
+      far from each other" as the two sets closing in on each other relies on
+      "start out" implying that the distance shrinks, and on the prompt asking
+      for a count of collisions at all.
+
+scenarios:
+  - id: RB-S-NONE
+    req: R-OUT-1
+    cover: "n == 0 && outcome == 0 && collisions == 0"
+    note: With no cars in either set there are no collisions; the call returns 0.
+  - id: RB-S-PAIRS
+    req: R-OUT-1
+    cover: "n == 2 && outcome == 0 && collisions == 4"
+    note: >-
+      Two cars in each set give four collisions (every pair meets once),
+      separating the per-pair count n * n from a per-car count n.
+  - id: RB-S-MAX
+    req: R-OUT-1
+    cover: "n == 1023 && outcome == 0 && collisions == 1046529"
+    note: The largest argument in the trace returns 1,046,529, which fits the output.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: asks for a complete implementation of the function. It has
+      no observable behaviour beyond what R-OUT-1 checks; an incomplete body
+      shows up as a failure of the R-OUT-1 properties.
+    covered_by: [RB-OUT-RET, RB-OUT-VAL]
+  - req: R-SIG-1
+    reason: >-
+      Interface definition (name car_race_collision, one integer argument n).
+      It is realized by the design.yaml function section, which drives the n
+      input from the single argument; a missing function or a different
+      signature makes calls raise (outcome 1), which RB-OUT-RET rejects.
+    covered_by: [RB-OUT-RET]
+  - req: R-ROAD-1
+    reason: >-
+      Definition of the setting (one straight, infinitely long road). It has no
+      signal of its own; it enters the model as the premise that cars travel on
+      one line, so opposite-direction cars must pass each other, in def
+      meetings, checked by RB-OUT-VAL.
+    covered_by: [RB-OUT-VAL]
+  - req: R-CARS-1
+    reason: >-
+      Definition: n is the number of left-to-right cars (def ltr_cars). Its
+      non-negativity is guaranteed by the interface encoding (n is an unsigned
+      10-bit input; negative arguments are not part of the trace, frame.md), so
+      no assumption is needed.
+    covered_by: [RB-OUT-VAL]
+  - req: R-CARS-2
+    reason: >-
+      Definition: a second, disjoint set of n right-to-left cars (def rtl_cars),
+      on the road during the same period (reading 1 of "simultaneously"). Used
+      by RB-OUT-VAL.
+    covered_by: [RB-OUT-VAL]
+  - req: R-CARS-3
+    reason: >-
+      Definition of the initial configuration: every left-to-right car starts
+      left of every right-to-left car (reading 1), at a finite distance
+      (reading 1), so every opposite-direction pair meets in finite time. It
+      enters the model through def meetings, checked by RB-OUT-VAL.
+    covered_by: [RB-OUT-VAL]
+  - req: R-CARS-4
+    reason: >-
+      Definition: all cars share one constant speed (reading 1), so cars in the
+      same direction never meet and only opposite-direction pairs count. It
+      enters the model through def meetings, checked by RB-OUT-VAL.
+    covered_by: [RB-OUT-VAL]
+  - req: R-COL-1
+    reason: >-
+      Definition of a collision: a meeting of a left-to-right car with a
+      right-to-left car (reading 1), each pair counted at most once (reading 1).
+      It enters the model through def meetings, checked by RB-OUT-VAL.
+    covered_by: [RB-OUT-VAL]
+  - req: R-COL-2
+    reason: >-
+      Definition: collisions do not change any trajectory, so every pair still
+      meets and is still counted (reading 1). It enters the model through def
+      meetings (one meeting per pair, nobody removed), checked by RB-OUT-VAL.
+    covered_by: [RB-OUT-VAL]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md: part of every formalization set and
+      need not be restated). It is realized by frame item F-ZERO of design.yaml,
+      which is added to this set automatically.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-CARS-2, phrase: "simultaneously", reading: 1}
+  - {req: R-CARS-3, phrase: "start out being very far from each other", reading: 1}
+  - {req: R-CARS-3, phrase: "very far", reading: 1}
+  - {req: R-CARS-4, phrase: "the same speed", reading: 1}
+  - {req: R-COL-1, phrase: "Two cars are said to collide when a car that's moving left to right hits a car that's moving right to left", reading: 1}
+  - {req: R-COL-1, phrase: "collide", reading: 1}
+  - {req: R-COL-2, phrase: "as if they did not collide", reading: 1}
+  - {req: R-OUT-1, phrase: "outputs", reading: 1}
+  - {req: R-OUT-1, phrase: "the number of such collisions", reading: 1}

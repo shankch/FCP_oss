@@ -1,0 +1,452 @@
+{
+ "what": "the requests of the HumanEvalComm pilot that got no review, checked again from their stored bundles (experiments/comm_again.py); the counts of the pilot are in comm.json and do not include these",
+ "limits": {
+  "gb": 8.0,
+  "minutes": 45.0,
+  "step_minutes": 15.0,
+  "jobs": 4,
+  "scope_budget": 120,
+  "conflict_budget": 300,
+  "compare_budget": 300
+ },
+ "counts": {
+  "requests": 8,
+  "full": 0,
+  "partial": 8,
+  "unchecked": 0,
+  "stopped": 0
+ },
+ "requests": [
+  {
+   "task": "HumanEval/49",
+   "variant": "1a",
+   "key": "e5b8de0b7247",
+   "pilot": "TimeoutExpired: Command '['<fcp>/.tools/oss-cad-suite/bin/yosys', '-q', '-p', 'read -formal mon_agent_a.v harness.v; prep -top fcp_harness; flatten; memory_map; async2sync; chformal -remove; formalff -setundef -clk2ff -ff2anyinit; setundef -undriven -anyseq; opt_clean; dffunmap; write_smt2 -wires model.smt2']' timed out after 300 seconds",
+   "result": "partial",
+   "check": "partial: the conflicts of agent_a: the translation of the monitors for the solver (yosys) did not end in 300 s; the open choices of agent_a: the translation of the monitors for the solver (yosys) did not end in 300 s; the scenarios of agent_b: passed the memory limit of 6.8 GB, also with one task at a time",
+   "seconds": 1683,
+   "engine": "33a0f99",
+   "steps": 11,
+   "peak_gb": 7.2,
+   "failed": [
+    {
+     "step": "the conflicts of agent_a",
+     "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+     "rests": "all"
+    },
+    {
+     "step": "the open choices of agent_a",
+     "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+     "rests": "all"
+    },
+    {
+     "step": "the scenarios of agent_b",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "scenarios"
+    }
+   ],
+   "settled": 0,
+   "questions": {
+    "ambiguity": 6,
+    "depends": 1,
+    "open": 1,
+    "undecided": 6
+   },
+   "levels": {
+    "hard": 1,
+    "depends": 1,
+    "ambiguity": 6,
+    "undecided": 6
+   },
+   "limits": 6,
+   "not_shown": 0
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "1c",
+   "key": "94d131ac0ff6",
+   "pilot": "TimeoutExpired: Command '['<fcp>/.tools/oss-cad-suite/bin/yosys', '-q', '-p', 'read -formal mon_agent_a.v harness.v; prep -top fcp_harness; flatten; memory_map; async2sync; chformal -remove; formalff -setundef -clk2ff -ff2anyinit; setundef -undriven -anyseq; opt_clean; dffunmap; write_smt2 -wires model.smt2']' timed out after 300 seconds",
+   "result": "partial",
+   "check": "partial: the conflicts of agent_a: the translation of the monitors for the solver (yosys) did not end in 300 s; the open choices of agent_a: the translation of the monitors for the solver (yosys) did not end in 300 s; the conflicts of agent_b: the translation of the monitors for the solver (yosys) did not end in 300 s; the open choices of agent_b: the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "seconds": 2227,
+   "engine": "33a0f99",
+   "steps": 10,
+   "peak_gb": 2.49,
+   "failed": [
+    {
+     "step": "the conflicts of agent_a",
+     "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+     "rests": "all"
+    },
+    {
+     "step": "the open choices of agent_a",
+     "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+     "rests": "all"
+    },
+    {
+     "step": "the conflicts of agent_b",
+     "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+     "rests": "all"
+    },
+    {
+     "step": "the open choices of agent_b",
+     "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+     "rests": "all"
+    }
+   ],
+   "settled": 0,
+   "questions": {
+    "ambiguity": 8,
+    "undecided": 2
+   },
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 8,
+    "undecided": 2
+   },
+   "limits": 8,
+   "not_shown": 0
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "1p",
+   "key": "8d44bc1ce828",
+   "pilot": "TimeoutExpired: Command '['<fcp>/.tools/oss-cad-suite/bin/yosys', '-q', '-p', 'read -formal mon_agent_a.v harness.v; prep -top fcp_harness; flatten; memory_map; async2sync; chformal -remove; formalff -setundef -clk2ff -ff2anyinit; setundef -undriven -anyseq; opt_clean; dffunmap; write_smt2 -wires model.smt2']' timed out after 300 seconds",
+   "result": "partial",
+   "check": "partial: the conflicts of agent_a: the translation of the monitors for the solver (yosys) did not end in 300 s; the open choices of agent_a: the translation of the monitors for the solver (yosys) did not end in 300 s; the conflicts of agent_b: the translation of the monitors for the solver (yosys) did not end in 300 s; the open choices of agent_b: the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "seconds": 1684,
+   "engine": "33a0f99",
+   "steps": 10,
+   "peak_gb": 2.58,
+   "failed": [
+    {
+     "step": "the conflicts of agent_a",
+     "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+     "rests": "all"
+    },
+    {
+     "step": "the open choices of agent_a",
+     "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+     "rests": "all"
+    },
+    {
+     "step": "the conflicts of agent_b",
+     "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+     "rests": "all"
+    },
+    {
+     "step": "the open choices of agent_b",
+     "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+     "rests": "all"
+    }
+   ],
+   "settled": 0,
+   "questions": {
+    "ambiguity": 5,
+    "undecided": 2
+   },
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 5,
+    "undecided": 2
+   },
+   "limits": 7,
+   "not_shown": 0
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "original",
+   "key": "043c73784796",
+   "pilot": "stopped: more than 8 GB of memory",
+   "result": "partial",
+   "check": "partial: the scenarios of agent_a: passed the memory limit of 6.8 GB, also with one task at a time; the open choices of agent_a: did not end in 900 s; the scenarios of agent_b: passed the memory limit of 6.8 GB, also with one task at a time; the comparison of agent_a and agent_b, in context: was stopped: the check reached its time limit of 2340 s; the comparison of agent_a and variant: not run: the check reached its time limit of 2340 s; the comparison of agent_b and variant: not run: the check reached its time limit of 2340 s",
+   "seconds": 2350,
+   "engine": "33a0f99",
+   "steps": 10,
+   "peak_gb": 7.45,
+   "failed": [
+    {
+     "step": "the scenarios of agent_a",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "scenarios"
+    },
+    {
+     "step": "the open choices of agent_a",
+     "why": "did not end in 900 s",
+     "rests": "all"
+    },
+    {
+     "step": "the scenarios of agent_b",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "scenarios"
+    },
+    {
+     "step": "the comparison of agent_a and agent_b, in context",
+     "why": "was stopped: the check reached its time limit of 2340 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_a and variant",
+     "why": "not run: the check reached its time limit of 2340 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_b and variant",
+     "why": "not run: the check reached its time limit of 2340 s",
+     "rests": "all"
+    }
+   ],
+   "settled": 0,
+   "questions": {
+    "ambiguity": 1
+   },
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 1,
+    "undecided": 0
+   },
+   "limits": 2,
+   "not_shown": 0
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "1a",
+   "key": "75a8091bdb6e",
+   "pilot": "stopped: more than 8 GB of memory",
+   "result": "partial",
+   "check": "partial: the scenarios of agent_a: passed the memory limit of 6.8 GB, also with one task at a time; the conflicts of agent_a: passed the memory limit of 6.8 GB, also with one task at a time; the open choices of agent_a: passed the memory limit of 6.8 GB, also with one task at a time; the scenarios of agent_b: passed the memory limit of 6.8 GB, also with one task at a time; the open choices of agent_b: did not end in 900 s; the comparison of agent_a and agent_b: passed the memory limit of 6.8 GB, also with one task at a time; the comparison of agent_a and agent_b, in context: passed the memory ",
+   "seconds": 1812,
+   "engine": "33a0f99",
+   "steps": 10,
+   "peak_gb": 7.35,
+   "failed": [
+    {
+     "step": "the scenarios of agent_a",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "scenarios"
+    },
+    {
+     "step": "the conflicts of agent_a",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "all"
+    },
+    {
+     "step": "the open choices of agent_a",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "all"
+    },
+    {
+     "step": "the scenarios of agent_b",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "scenarios"
+    },
+    {
+     "step": "the open choices of agent_b",
+     "why": "did not end in 900 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_a and agent_b",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "none"
+    },
+    {
+     "step": "the comparison of agent_a and agent_b, in context",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_a and variant",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "all"
+    }
+   ],
+   "settled": 0,
+   "questions": {
+    "ambiguity": 4,
+    "undecided": 1
+   },
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 4,
+    "undecided": 1
+   },
+   "limits": 3,
+   "not_shown": 0
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "1c",
+   "key": "f6e09092fcae",
+   "pilot": "stopped: more than 8 GB of memory",
+   "result": "partial",
+   "check": "partial: the scenarios of agent_a: passed the memory limit of 6.8 GB, also with one task at a time; the open choices of agent_a: did not end in 900 s; the comparison of agent_a and agent_b, in context: was stopped: the check reached its time limit of 2340 s; the comparison of agent_a and variant: not run: the check reached its time limit of 2340 s; the comparison of agent_b and variant: not run: the check reached its time limit of 2340 s",
+   "seconds": 2342,
+   "engine": "33a0f99",
+   "steps": 10,
+   "peak_gb": 7.14,
+   "failed": [
+    {
+     "step": "the scenarios of agent_a",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "scenarios"
+    },
+    {
+     "step": "the open choices of agent_a",
+     "why": "did not end in 900 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_a and agent_b, in context",
+     "why": "was stopped: the check reached its time limit of 2340 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_a and variant",
+     "why": "not run: the check reached its time limit of 2340 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_b and variant",
+     "why": "not run: the check reached its time limit of 2340 s",
+     "rests": "all"
+    }
+   ],
+   "settled": 0,
+   "questions": {
+    "ambiguity": 2,
+    "scenario": 1
+   },
+   "levels": {
+    "hard": 1,
+    "depends": 0,
+    "ambiguity": 2,
+    "undecided": 0
+   },
+   "limits": 2,
+   "not_shown": 0
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "1p",
+   "key": "21203a2a57cc",
+   "pilot": "stopped: more than 8 GB of memory",
+   "result": "partial",
+   "check": "partial: the scenarios of agent_a: passed the memory limit of 6.8 GB, also with one task at a time; the scenarios of agent_b: passed the memory limit of 6.8 GB, also with one task at a time; the open choices of agent_b: did not end in 900 s; the comparison of agent_a and agent_b: was stopped: the check reached its time limit of 2340 s; the comparison of agent_a and agent_b, in context: not run: the check reached its time limit of 2340 s; the comparison of agent_a and variant: not run: the check reached its time limit of 2340 s; the comparison of agent_b and variant: not run: the check reached ",
+   "seconds": 2342,
+   "engine": "33a0f99",
+   "steps": 10,
+   "peak_gb": 7.04,
+   "failed": [
+    {
+     "step": "the scenarios of agent_a",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "scenarios"
+    },
+    {
+     "step": "the scenarios of agent_b",
+     "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+     "rests": "scenarios"
+    },
+    {
+     "step": "the open choices of agent_b",
+     "why": "did not end in 900 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_a and agent_b",
+     "why": "was stopped: the check reached its time limit of 2340 s",
+     "rests": "none"
+    },
+    {
+     "step": "the comparison of agent_a and agent_b, in context",
+     "why": "not run: the check reached its time limit of 2340 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_a and variant",
+     "why": "not run: the check reached its time limit of 2340 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_b and variant",
+     "why": "not run: the check reached its time limit of 2340 s",
+     "rests": "all"
+    }
+   ],
+   "settled": 0,
+   "questions": {
+    "ambiguity": 2,
+    "open": 1
+   },
+   "levels": {
+    "hard": 1,
+    "depends": 0,
+    "ambiguity": 2,
+    "undecided": 0
+   },
+   "limits": 1,
+   "not_shown": 0
+  },
+  {
+   "task": "HumanEval/144",
+   "variant": "1a",
+   "key": "53b296a53252",
+   "pilot": "stopped: more than 8 GB of memory",
+   "result": "partial",
+   "check": "partial: the conflicts of agent_b: did not end in 900 s; the open choices of agent_b: was stopped: the check reached its time limit of 2340 s; the comparison of agent_a and agent_b: not run: the check reached its time limit of 2340 s; the comparison of agent_a and agent_b, in context: not run: the check reached its time limit of 2340 s; the comparison of agent_a and variant: not run: the check reached its time limit of 2340 s; the comparison of agent_b and variant: not run: the check reached its time limit of 2340 s",
+   "seconds": 2341,
+   "engine": "33a0f99",
+   "steps": 10,
+   "peak_gb": 6.85,
+   "failed": [
+    {
+     "step": "the conflicts of agent_b",
+     "why": "did not end in 900 s",
+     "rests": "all"
+    },
+    {
+     "step": "the open choices of agent_b",
+     "why": "was stopped: the check reached its time limit of 2340 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_a and agent_b",
+     "why": "not run: the check reached its time limit of 2340 s",
+     "rests": "none"
+    },
+    {
+     "step": "the comparison of agent_a and agent_b, in context",
+     "why": "not run: the check reached its time limit of 2340 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_a and variant",
+     "why": "not run: the check reached its time limit of 2340 s",
+     "rests": "all"
+    },
+    {
+     "step": "the comparison of agent_b and variant",
+     "why": "not run: the check reached its time limit of 2340 s",
+     "rests": "all"
+    }
+   ],
+   "settled": 0,
+   "questions": {
+    "ambiguity": 7
+   },
+   "levels": {
+    "hard": 0,
+    "depends": 0,
+    "ambiguity": 7,
+    "undecided": 0
+   },
+   "limits": 4,
+   "not_shown": 0
+  }
+ ]
+}

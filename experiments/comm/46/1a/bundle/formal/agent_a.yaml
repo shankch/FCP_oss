@@ -1,0 +1,152 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # The values the function returned in the four previous calls; under the
+  # trigger `chain` these are fib4(n-1), fib4(n-2), fib4(n-3), fib4(n-4).
+  m1: "prev(result)"
+  m2: "prev(result, 2)"
+  m3: "prev(result, 3)"
+  m4: "prev(result, 4)"
+  # The four previous calls were n-1, n-2, n-3, n-4 (most recent first).
+  chain: "n >= 4 && prev(n) == n - 1 && prev(n, 2) == n - 2 && prev(n, 3) == n - 3 && prev(n, 4) == n - 4"
+  # ... and each of them returned an integer that result can carry.
+  seen: "prev(outcome) == 0 && prev(outcome, 2) == 0 && prev(outcome, 3) == 0 && prev(outcome, 4) == 0"
+  # result is fib4(n-1) +/- fib4(n-2) +/- fib4(n-3) +/- fib4(n-4) for some choice of the three signs.
+  signed: >-
+    result == m1 + m2 + m3 + m4 || result == m1 + m2 + m3 - m4 ||
+    result == m1 + m2 - m3 + m4 || result == m1 + m2 - m3 - m4 ||
+    result == m1 - m2 + m3 + m4 || result == m1 - m2 + m3 - m4 ||
+    result == m1 - m2 - m3 + m4 || result == m1 - m2 - m3 - m4
+  # Some choice of signs gives a negative value (not carried by result).
+  can_neg: "m1 - m2 - m3 - m4 < 0"
+  # Some choice of signs gives a value above 2^118 - 1 (not carried by result).
+  can_big: "m1 + m2 + m3 + m4 >= (1 << 118)"
+
+properties:
+  - id: RA-BASE-1
+    req: R-BASE-1
+    pattern: implies
+    args: {trigger: "n == 0", cond: "outcome == 0 && result == 0"}
+  - id: RA-BASE-2
+    req: R-BASE-2
+    pattern: implies
+    args: {trigger: "n == 1", cond: "outcome == 0 && result == 0"}
+  - id: RA-BASE-3
+    req: R-BASE-3
+    pattern: implies
+    args: {trigger: "n == 2", cond: "outcome == 0 && result == 2"}
+  - id: RA-BASE-4
+    req: R-BASE-4
+    pattern: implies
+    args: {trigger: "n == 3", cond: "outcome == 0 && result == 0"}
+
+  - id: RA-REC-1
+    req: R-REC-1
+    pattern: implies
+    args: {trigger: "chain && seen && outcome == 0", cond: "signed"}
+    note: >-
+      Value part of the recurrence. '+/-' is read literally (reading 4): each
+      sign may be + or - independently for every n, so any of the eight sign
+      combinations is acceptable. Calls are independent, so fib4(n-k) is only
+      visible as the result of an earlier call; the relation binds when the
+      four previous calls were n-1, n-2, n-3, n-4 in that order and each of
+      them returned a carried integer (an ascending sweep of n). A chain
+      through a negative element (outcome 2, result 0 by F-ZERO) cannot be
+      checked. The definition (base values + recurrence) is taken to govern
+      over the docstring examples, which no choice of signs reproduces:
+      fib4(4) is 2 or -2 and fib4(5) is -4, 0 or 4, never 2.
+  - id: RA-REC-2
+    req: R-REC-1
+    pattern: implies
+    args: {trigger: "chain && seen", cond: "outcome == 0 || (outcome == 2 && (can_neg || can_big))"}
+    note: >-
+      Outcome part of the recurrence (reading 4 of '+/-'): the call returns an
+      integer, and outcome 2 (a value result cannot carry) is acceptable only
+      if some choice of signs gives a negative value or one above 2^118 - 1.
+      With all '+' fib4(127) is about 2^117.5, and every sign choice is bounded
+      in magnitude by the all-'+' sequence, so the can_big case never arises
+      from correct earlier results.
+
+  - id: RA-FUN-1
+    req: R-FUN-1
+    expr: "outcome == 0 || outcome == 2"
+    note: >-
+      'n-th element' read as the element with index n counting fib4(0) as
+      element 0 (reading 1); which value that is, is stated by RA-BASE-* and
+      RA-REC-*. This item states that every call (every n in the trace is a
+      valid argument) returns rather than raising or not finishing. Outcome 2
+      cannot be excluded: under the literal reading of '+/-' an element may be
+      negative, which the frame records as outcome 2 (indistinguishable from a
+      non-integer return).
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: the deliverable is the completed Python function. That
+      it exists and is called as fib4(n) is how the trace is produced (frame);
+      nothing further is observable in a call.
+  - req: R-IF-1
+    reason: >-
+      Met by the interface encoding: every call takes the one argument n,
+      carried by the 7-bit unsigned input n. 'n: int' read literally (reading
+      1): any int may be passed and the prompt does not say what happens for a
+      negative n; such calls are not part of the trace (frame), so there is no
+      environment obligation left to assume and no reachable call to leave
+      free.
+  - req: R-DEF-1
+    reason: Definition of the sequence; realized by the base values and the recurrence.
+    covered_by: [RA-BASE-1, RA-BASE-2, RA-BASE-3, RA-BASE-4, RA-REC-1, RA-REC-2]
+  - req: R-NF-1
+    reason: >-
+      Non-functional: running time and memory are not observable in the call
+      trace. 'efficiently' read as setting no particular bound beyond
+      excluding exponential-time computation (reading 4). Its only observable
+      consequence, that every call finishes (a call that does not finish has
+      outcome 1), is part of RA-FUN-1.
+    covered_by: [RA-FUN-1]
+  - req: R-NF-2
+    reason: >-
+      Non-functional: the structure of the code (whether any function of the
+      implementation is recursive) is not observable in the call trace.
+      'recursion' read literally as any recursion, including helpers and
+      memoized recursion (reading 2).
+  - req: R-EX-1
+    reason: >-
+      Contradicts the definition: from the base values the recurrence gives
+      fib4(5) = -4, 0 or 4 under every choice of signs, never 2. The
+      definition is taken to govern (decision on R-REC-1), so the example is
+      read as wrong (reading 2) and fib4(5) must return what the base values
+      and the recurrence give, not 2; that is what the covering items state.
+    covered_by: [RA-BASE-1, RA-BASE-2, RA-BASE-3, RA-BASE-4, RA-REC-1, RA-REC-2]
+  - req: R-EX-2
+    reason: >-
+      Contradicts the definition: the recurrence gives fib4(6) = 8 with all
+      '+', 0 with alternating signs, and no choice of signs gives the examples
+      fib4(5) = 2, fib4(6) = 4, fib4(7) = 6 together. The definition is taken
+      to govern, so the example is read as wrong (reading 2); fib4(6) must
+      return what the base values and the recurrence give.
+    covered_by: [RA-BASE-1, RA-BASE-2, RA-BASE-3, RA-BASE-4, RA-REC-1, RA-REC-2]
+  - req: R-EX-3
+    reason: >-
+      Contradicts the definition: the recurrence gives fib4(7) = 14 with all
+      '+'; the only fixed signs that give 6 (+, -, -, +) give fib4(5) = -4 and
+      fib4(6) = 0. The definition is taken to govern, so the example is read as
+      wrong (reading 2); fib4(7) must return what the base values and the
+      recurrence give.
+    covered_by: [RA-BASE-1, RA-BASE-2, RA-BASE-3, RA-BASE-4, RA-REC-1, RA-REC-2]
+  - req: R-FR-1
+    reason: Frame rule of the function adapter; F-ZERO is part of every formalization set and is not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-1, phrase: "n: int", reading: 1}
+  - {req: R-REC-1, phrase: "+/-", reading: 4}
+  - {req: R-REC-1, phrase: "fib4(n) -> fib4(n-1) +/- fib4(n-2) +/- fib4(n-3) +/- fib4(n-4)", reading: 1}
+  - {req: R-FUN-1, phrase: "n-th element", reading: 1}
+  - {req: R-NF-1, phrase: "efficiently", reading: 4}
+  - {req: R-NF-2, phrase: "recursion", reading: 2}
+  - {req: R-EX-1, phrase: ">>> fib4(5)", reading: 2}
+  - {req: R-EX-2, phrase: ">>> fib4(6)", reading: 2}
+  - {req: R-EX-3, phrase: ">>> fib4(7)", reading: 2}

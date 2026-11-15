@@ -1,0 +1,168 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 224,
+    "checked": 224,
+    "seconds": 2.38
+   },
+   "open": {
+    "open": {},
+    "checked": 138
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 242,
+    "checked": 242,
+    "seconds": 2.77
+   },
+   "open": {
+    "open": {},
+    "checked": 141
+   }
+  }
+ },
+ "readings": {
+  "R-FLY-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FLY-1",
+   "phrase": "will fly if",
+   "taken": 1,
+   "variant": 2,
+   "text": "being balanced and meeting the weight condition is only sufficient for flying; the text does not say whether a q that fails a condition flies"
+  },
+  {
+   "req": "R-FLY-2",
+   "phrase": "palindromic list",
+   "taken": 1,
+   "variant": 2,
+   "text": "the empty list [] is not a palindromic list (there is no object to balance), so [] is not balanced"
+  },
+  {
+   "req": "R-FLY-3",
+   "phrase": "more than or less than or equal",
+   "taken": 3,
+   "variant": 1,
+   "text": "the sum is at most w (sum(q) <= w); 'more than or' is a slip, as 'maximum possible weight' suggests"
+  },
+  {
+   "req": "R-FLY-3",
+   "phrase": "the sum of its elements is more than",
+   "taken": 2,
+   "variant": 1,
+   "text": "contradiction with the example will_it_fly([3, 2, 3], 1) \u279e False: the example governs, so a balanced q whose sum is more than w does not fly (weight condition sum(q) <= w)"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "3+2+3 is more than the maximum possible weight",
+   "taken": 2,
+   "variant": 1,
+   "text": "contradiction with the rule 'the sum of its elements is more than or less than or equal the maximum possible weight w': the example governs, so a balanced q whose sum is more than w does not fly and the result is False"
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a"
+   ],
+   "witness": [
+    "will_it_fly([], 0) -> False"
+   ]
+  },
+  "R-RET-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "will_it_fly([1, 1, 1, 52, 52, 1, 1, 1], 0) -> True"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-3",
+  "R-EX-4"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1",
+    "R-RET-2"
+   ],
+   "calls": [
+    "will_it_fly([], 0) -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"3+2+3 is more than the maximum possible weight\" can mean: contradiction with the rule 'the sum of its elements is more than or less than or equal the maximum possible weight w': the example governs, so a balanced q whose sum is more than w does not fly and the result is False / contradiction with the rule 'the sum of its elements is more than or less than or equal the maximum possible weight w': the rule governs, so [3, 2, 3] with w = 1 flies and the example's expected False is wrong. Which is meant?"
+  }
+ ],
+ "limits": []
+}

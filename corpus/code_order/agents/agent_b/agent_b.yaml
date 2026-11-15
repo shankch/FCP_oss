@@ -1,0 +1,231 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model of one run of place_order.
+# Every ghost is registered: at a cycle it summarises the calls (and the
+# scripted answers) of the earlier cycles of the same run; a reset clears it.
+#   held   the stock is held: reserve answered "ok" and no release came after it
+#   paid   the customer is charged: charge answered "ok" and no refund came after it
+#   *_called / *_ok   which steps were called, and which answered "ok"
+#   failed a step (reserve, charge or book) was refused or raised its error
+#   stage  the furthest step called so far (0 none, 1 reserve, 2 charge, 3 book)
+#   n_ref, n_rel   refund and release calls so far (saturating at 2)
+#   nc     calls on the services so far (saturating at 8)
+
+defs:
+  valid: "qty >= 1 && qty <= 100 && amount >= 1 && amount <= 1000000"
+  bad: "qty < 1 || qty > 100 || amount < 1 || amount > 1000000"
+  call: "!phase"
+  is_res: "!phase && op == 1"
+  is_chg: "!phase && op == 2"
+  is_book: "!phase && op == 3"
+  is_ref: "!phase && op == 4"
+  is_rel: "!phase && op == 5"
+  step: "is_res || is_chg || is_book"
+  ans_ok: "answer == 0"
+  ans_fail: "answer == 1 || answer == 2"
+
+ghosts:
+  - {name: r_called, range: [0, 1], init: 0, next: "is_res ? 1 : r_called"}
+  - {name: c_called, range: [0, 1], init: 0, next: "is_chg ? 1 : c_called"}
+  - {name: b_called, range: [0, 1], init: 0, next: "is_book ? 1 : b_called"}
+  - {name: r_ok, range: [0, 1], init: 0, next: "is_res && ans_ok ? 1 : r_ok"}
+  - {name: c_ok, range: [0, 1], init: 0, next: "is_chg && ans_ok ? 1 : c_ok"}
+  - {name: b_ok, range: [0, 1], init: 0, next: "is_book && ans_ok ? 1 : b_ok"}
+  - {name: failed, range: [0, 1], init: 0, next: "step && ans_fail ? 1 : failed"}
+  - {name: held, range: [0, 1], init: 0, next: "is_res && ans_ok ? 1 : (is_rel ? 0 : held)"}
+  - {name: paid, range: [0, 1], init: 0, next: "is_chg && ans_ok ? 1 : (is_ref ? 0 : paid)"}
+  - {name: stage, range: [0, 3], init: 0, next: "step ? max(stage, op) : stage"}
+  - {name: n_ref, range: [0, 2], init: 0, next: "min(n_ref + (is_ref ? 1 : 0), 2)"}
+  - {name: n_rel, range: [0, 2], init: 0, next: "min(n_rel + (is_rel ? 1 : 0), 2)"}
+  - {name: nc, range: [0, 8], init: 0, next: "min(nc + (call ? 1 : 0), 8)"}
+
+assumptions:
+  - id: OB-A-ARGS
+    req: R-SIG-1
+    expr: "stable(order_id) && stable(sku) && stable(qty) && stable(amount)"
+    note: >-
+      The four arguments are those of one call of place_order, so they do not
+      change during a run (frame.md: "the same in every cycle of a run").
+      The name and argument order are fixed by the adapter (design.yaml
+      function section). The bool result type needs no item of its own:
+      OB-P-RET and OB-P-STOP-FALSE demand outcome 0 (a bool was returned) for
+      valid arguments, and OB-P-ERR demands ValueError otherwise, so outcome 3
+      (any other value) is excluded.
+  - id: OB-A-ANSWER
+    req: R-API-1
+    expr: "step -> answer == 0 || answer == 1 || answer == 2"
+    note: >-
+      reserve, charge and book answer "ok" (0) or "refused" (1), or raise their
+      service's error (2); no other answer exists. refund and release take no
+      answer ("return nothing and do not fail"), so answer is free there.
+      "A call that raises has done nothing" is built into the model: only
+      answer 0 makes the stock held (held, r_ok) or the customer charged
+      (paid, c_ok).
+
+properties:
+  # R-ERR-1 ------------------------------------------------------------------
+  - id: OB-P-ERR
+    req: R-ERR-1
+    expr: "bad -> phase && outcome == 1"
+    note: >-
+      With qty outside 1..100 or amount outside 1..1,000,000, the first cycle
+      of the run is already the return (no service is called) and the outcome
+      is ValueError. Read literally as "if", not "only if": raising
+      ValueError for valid arguments is ruled out by R-STEPS-1/R-RET-1/R-STOP-1,
+      not here.
+
+  # R-ARGS-1 -----------------------------------------------------------------
+  - id: OB-P-ARGS-RES
+    req: R-ARGS-1
+    expr: "is_res -> r_sku == sku && r_qty == qty"
+  - id: OB-P-ARGS-CHG
+    req: R-ARGS-1
+    expr: "is_chg -> c_order == order_id && c_amount == amount"
+  - id: OB-P-ARGS-BOOK
+    req: R-ARGS-1
+    expr: "is_book -> b_order == order_id"
+  - id: OB-P-ARGS-REF
+    req: R-ARGS-1
+    expr: "is_ref -> f_order == order_id && f_amount == amount"
+    note: "The refund arguments are also written in rule 7: payments.refund(order_id, amount)."
+  - id: OB-P-ARGS-REL
+    req: R-ARGS-1
+    expr: "is_rel -> l_sku == sku && l_qty == qty"
+    note: "The release arguments are also written in rule 7: inventory.release(sku, qty)."
+
+  # R-STEPS-1 ----------------------------------------------------------------
+  - id: OB-P-STEPS-ORDER
+    req: R-STEPS-1
+    expr: "step -> op >= stage && op <= stage + 1"
+    note: >-
+      "In this order": a step call is never a step earlier than one already
+      called (no reserve after charge or book, no charge after book) and never
+      skips a step (no charge before a reserve, no book before a charge).
+      Repeating a step is left to R-ONCE-1.
+  - id: OB-P-STEPS-GO
+    req: R-STEPS-1
+    expr: "valid && phase -> failed == 1 || b_ok == 1"
+    note: >-
+      "Take the three steps": the function does not return while every step so
+      far answered "ok" and the booking has not yet answered "ok". Restricted
+      to valid arguments, because rule 1 says to call no service otherwise;
+      without that restriction rules 1 and 2 contradict each other.
+
+  # R-ORDER-1 ----------------------------------------------------------------
+  - id: OB-P-ORDER-CHARGE
+    req: R-ORDER-1
+    expr: "is_chg -> held == 1"
+    note: >-
+      "Stock we hold" is read literally: reserve answered "ok" (a reserve that
+      is refused or raises has done nothing) and the stock has not been
+      released since.
+  - id: OB-P-ORDER-BOOK
+    req: R-ORDER-1
+    expr: "is_book -> paid == 1"
+    note: >-
+      "An order that is paid": charge answered "ok" and the charge has not been
+      refunded since.
+
+  # R-ONCE-1 -----------------------------------------------------------------
+  - id: OB-P-ONCE-RES
+    req: R-ONCE-1
+    expr: "is_res -> r_called == 0"
+  - id: OB-P-ONCE-CHG
+    req: R-ONCE-1
+    expr: "is_chg -> c_called == 0"
+  - id: OB-P-ONCE-BOOK
+    req: R-ONCE-1
+    expr: "is_book -> b_called == 0"
+
+  # R-RET-1 ------------------------------------------------------------------
+  - id: OB-P-RET
+    req: R-RET-1
+    expr: "r_ok == 1 && c_ok == 1 && b_ok == 1 -> phase && outcome == 0 && result && nc == 3"
+    note: >-
+      Once all three steps have answered "ok", the next cycle is the return,
+      with True. "Call nothing else in that case" is read literally: the run
+      made no call other than the three steps (exactly three calls in all),
+      not only no call after the booking. "Return True when" is read as "if";
+      returning False after a failure is R-STOP-1.
+
+  # R-STOP-1 -----------------------------------------------------------------
+  - id: OB-P-STOP-NOSTEP
+    req: R-STOP-1
+    expr: "failed == 1 -> !step"
+    note: >-
+      "Stop there: take no later step": after a step is refused or raises, no
+      step (reserve, charge or book) is called again, not even a retry of the
+      failed one.
+  - id: OB-P-STOP-FALSE
+    req: R-STOP-1
+    expr: "failed == 1 && phase -> outcome == 0 && !result"
+    note: >-
+      After a failed step the function returns False; it never raises (in
+      particular a service error never leaves it) and does not run past the
+      adapter's call limit. "Undo the earlier ones" is detailed by rule 7 and
+      formalized under R-UNDO-1.
+
+  # R-UNDO-1 -----------------------------------------------------------------
+  - id: OB-P-UNDO-REFUND
+    req: R-UNDO-1
+    expr: "failed == 1 && phase -> n_ref == c_ok"
+    note: >-
+      At the return of a run in which a step failed, the function has called
+      payments.refund exactly once if the charge answered "ok" (the customer
+      was charged) and never otherwise (decision: "only then"; a refund with
+      nothing to undo is not an undo). Its arguments are checked by
+      OB-P-ARGS-REF. CONFLICT: if reserve and charge answered "ok" and book
+      fails, rules 2, 3, 6 and 7 demand reserve, charge, book, refund and
+      release, five calls, while rule 8 (R-LIMIT-1) allows at most four.
+  - id: OB-P-UNDO-RELEASE
+    req: R-UNDO-1
+    expr: "failed == 1 && phase -> n_rel == r_ok"
+    note: >-
+      At the return of a run in which a step failed, the function has called
+      inventory.release exactly once if the reservation answered "ok" and
+      never otherwise (decision: "only then"). The refund and the release may
+      come in either order (decision: the text joins them with "and", not
+      "then", unlike rule 2's "in this order"). Same conflict with R-LIMIT-1
+      as OB-P-UNDO-REFUND.
+
+  # R-LIMIT-1 ----------------------------------------------------------------
+  - id: OB-P-LIMIT
+    req: R-LIMIT-1
+    expr: "call -> nc <= 3"
+    note: >-
+      A call is at most the fourth call of the run, counting calls of every
+      kind (refund and release included). CONFLICT, not repaired: when reserve
+      and charge answer "ok" and book is refused or raises, rules 6 and 7
+      require a refund and a release after three step calls, five calls in
+      all, so no behaviour meets every rule on that script.
+
+scenarios:
+  - id: OB-S-EX
+    req: R-EX-1
+    cover: >-
+      phase && outcome == 0 && !result && nc == 3
+      && order_id == 7 && sku == 3 && qty == 2 && amount == 500
+      && prev(is_rel && l_sku == 3 && l_qty == 2)
+      && prev(is_chg && answer == 1 && c_order == 7 && c_amount == 500, 2)
+      && prev(is_res && answer == 0 && r_sku == 3 && r_qty == 2, 3)
+    note: >-
+      place_order(7, 3, 2, 500) with reserve answering "ok" and charge
+      "refused": the run is exactly reserve(3, 2), charge(7, 500),
+      release(3, 2), then a return of False.
+
+unformalized:
+  - req: R-FR-1
+    reason: "Frame rule of the adapter (F-END in design.yaml), part of every formalization set by construction."
+    covered_by: [F-END]
+  - req: R-FR-2
+    reason: "Frame rule of the adapter (F-ZERO in design.yaml), part of every formalization set by construction."
+    covered_by: [F-ZERO]
+  - req: R-FR-3
+    reason: "Frame rule of the adapter (F-LIMIT in design.yaml), part of every formalization set by construction."
+    covered_by: [F-LIMIT]
+
+decisions:
+  - {req: R-UNDO-1, phrase: "refund the charge ... and release the stock", reading: 1}
+  - {req: R-UNDO-1, phrase: "if the customer was charged ... if it was reserved", reading: 1}

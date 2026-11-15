@@ -1,0 +1,166 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. sort_array keeps no state between calls (frame.md), so
+# the model is combinational: every expected quantity is computed from the
+# argument `array` of the current call, and each output (`outcome`, the length,
+# contents and order of `result`) is checked against it below.
+defs:
+  # R-DEF-1: value at the first index plus value at the last index. A
+  # one-element array counts its only element twice (array[0] + array[0]).
+  psum: "array[0] + array[len(array) - 1]"
+  # R-DEF-1: an empty array has no first or last value, so neither order rule
+  # applies to it.
+  has_ends: "len(array) > 0"
+  sum_odd: "has_ends && psum % 2 == 1"
+  sum_even: "has_ends && psum % 2 == 0"
+  # Expected contents: same length, and every value of the argument occurs in
+  # the result exactly as often as in the argument.
+  same_multiset: "len(result) == len(array) && all(i < len(array): count(j < len(array): array[j] == array[i]) == count(j < len(result): result[j] == array[i]))"
+  # Expected order (non-strict: duplicates are kept).
+  ascending: "all(i < len(result) - 1: result[i] <= result[i + 1])"
+  descending: "all(i < len(result) - 1: result[i] >= result[i + 1])"
+
+assumptions:
+  - id: RB-IN-1
+    req: R-IN-1
+    expr: "all(i < len(array): array[i] >= 0)"
+    note: >-
+      The argument holds only non-negative integers. The list encoding already
+      makes every element an unsigned number from 0 to 255 (frame.md: calls with
+      negative elements are not part of the trace), so this assumption excludes
+      no trace; it is kept to record the environment obligation.
+
+properties:
+  - id: RB-RES-1
+    req: R-RES-1
+    expr: "outcome == 0"
+    note: >-
+      Every allowed call returns a list that fits the result signal: no
+      exception, no hang, no value of another kind. A correct result has the
+      argument's length and elements, so it always fits.
+
+  - id: RB-RES-2
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: "outcome == 0", cond: "same_multiset"}
+    note: >-
+      Whenever a list is returned, it holds exactly the argument's elements with
+      their multiplicities. Guarded by outcome == 0 because the requirement
+      speaks of the returned list; RB-RES-1 separately requires that a list is
+      returned. "a copy" is read literally as a new list object (reading 1), but
+      object identity is not a signal of the trace, so only the contents are
+      constrained. "a copy of the given array after sorting" is read as sorting a
+      copy and leaving the argument alone (reading 1); the phrase in isolation
+      could mean sorting the argument and then copying it, which contradicts
+      "don't change the given array". The argument after the call is not
+      observable, so both readings give this same formula.
+
+  - id: RB-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args: {trigger: "sum_odd", cond: "ascending"}
+    note: >-
+      Rule taken literally: an odd first+last sum gives a non-decreasing result
+      (reading 1 of "ascending order"; strictly increasing is impossible with
+      duplicates while keeping every element). The rule is taken as written
+      (reading 1), not swapped. This contradicts the example R-EX-3
+      ([2, 4, 3, 0, 1, 5]: 2 + 5 = 7 is odd, yet the example's result is
+      descending), so RB-ORD-1 and the scenario RB-EX-3 cannot both hold. The
+      contradiction is in the specification and is left unrepaired here.
+      "you will sort the given array" is read as sorting a copy (reading 1),
+      consistent with the note "don't change the given array"; the argument after
+      the call is not observable, so the reading does not change this formula.
+      Only an empty array is excluded (no first/last value); a one-element array
+      gives an even sum under R-DEF-1 and is ordered both ways anyway.
+
+  - id: RB-ORD-2
+    req: R-ORD-2
+    pattern: implies
+    args: {trigger: "sum_even", cond: "descending"}
+    note: >-
+      Rule taken literally: an even first+last sum gives a non-increasing result
+      (reading 1 of "descending order"). The rule is taken as written (reading
+      1), not swapped. This contradicts the example R-EX-4
+      ([2, 4, 3, 0, 1, 5, 6]: 2 + 6 = 8 is even, yet the example's result is
+      ascending), so RB-ORD-2 and the scenario RB-EX-4 cannot both hold. The
+      contradiction is in the specification and is left unrepaired here. "sort
+      it" is read as sorting a copy (reading 1); not observable in the trace. An
+      empty array has no first/last value and is not covered by this rule
+      (R-DEF-1, reading 1); its result is [] by RB-RES-2 anyway.
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: "array == [] && outcome == 0 && result == []"
+    note: "sort_array([]) returns []."
+
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: "array == [5] && outcome == 0 && result == [5]"
+    note: >-
+      sort_array([5]) returns [5]. Consistent with the rules: 5 + 5 = 10 is even
+      (descending), and a one-element list is in both orders.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    cover: "array == [2, 4, 3, 0, 1, 5] && outcome == 0 && result == [5, 4, 3, 2, 1, 0]"
+    note: >-
+      The example taken literally as written (reading 1). It conflicts with the
+      rule R-ORD-1 (RB-ORD-1): 2 + 5 = 7 is odd, so the rule demands ascending
+      order, but the example result is descending. Under RB-ORD-1 this scenario
+      is unreachable; the specification is self-contradictory here and the
+      conflict is kept visible instead of repaired.
+
+  - id: RB-EX-4
+    req: R-EX-4
+    cover: "array == [2, 4, 3, 0, 1, 5, 6] && outcome == 0 && result == [0, 1, 2, 3, 4, 5, 6]"
+    note: >-
+      The example taken literally as written (reading 1). It conflicts with the
+      rule R-ORD-2 (RB-ORD-2): 2 + 6 = 8 is even, so the rule demands descending
+      order, but the example result is ascending. Under RB-ORD-2 this scenario
+      is unreachable; the specification is self-contradictory here and the
+      conflict is kept visible instead of repaired.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function name and its single parameter are an
+      interface fact, realized by the `function` section of design.yaml (name
+      sort_array, one argument `array`), not a property of the trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized by the defs psum, has_ends, sum_odd and sum_even:
+      the values at the first and last index (reading 1), a one-element array
+      counted twice (reading 1), and no sum, hence no order rule, for an empty
+      array (reading 1). Used by the order properties.
+    covered_by: [RB-ORD-1, RB-ORD-2]
+  - req: R-MUT-1
+    reason: >-
+      Not observable: the trace has no signal for the contents of the argument
+      list after the call (frame.md, Inputs), so "don't change the given array"
+      cannot be stated in FCP-PL over this interface. Reading 1 is taken: the
+      note wins and the sort is done on a copy.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the list adapter; F-EMPTY ("outcome != 0 -> len(result) ==
+      0") is part of every formalization set by construction and need not be
+      restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-RES-2, phrase: "a copy", reading: 1}
+  - {req: R-RES-2, phrase: "a copy of the given array after sorting", reading: 1}
+  - {req: R-DEF-1, phrase: "first index value", reading: 1}
+  - {req: R-DEF-1, phrase: "sum( first index value, last index value)", reading: 1}
+  - {req: R-DEF-1, phrase: "last index value", reading: 1}
+  - {req: R-ORD-1, phrase: "ascending order", reading: 1}
+  - {req: R-ORD-1, phrase: "you will sort the given array", reading: 1}
+  - {req: R-ORD-1, phrase: "in ascending order if the sum( first index value, last index value) is odd", reading: 1}
+  - {req: R-ORD-2, phrase: "descending order", reading: 1}
+  - {req: R-ORD-2, phrase: "sort it", reading: 1}
+  - {req: R-ORD-2, phrase: "in descending order if the sum( first index value, last index value) is even", reading: 1}
+  - {req: R-MUT-1, phrase: "don't change the given array", reading: 1}
+  - {req: R-EX-3, phrase: "[5, 4, 3, 2, 1, 0]", reading: 1}
+  - {req: R-EX-4, phrase: "[0, 1, 2, 3, 4, 5, 6]", reading: 1}

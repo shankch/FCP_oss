@@ -1,0 +1,64 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+ghosts:
+  # what the run has done so far (updated at every call, read at the next cycle)
+  - {name: ended, range: [0, 1], init: 0, next: 'phase ? 1 : ended'}
+  # the file object of the latest open of balance.txt.tmp for writing
+  - {name: tmp_h, range: [0, 7], init: 0, next: '!phase && op == 1 && o_path == 2 && o_mode >= 2 ? of : tmp_h'}
+  # balance.txt.tmp exists
+  - {name: tmp_on, range: [0, 1], init: 0, next: '!phase && op == 1 && o_path == 2 && o_mode >= 2 ? 1 : (!phase && ((op == 6 && r_src == 2 && answer == 0) || (op == 7 && d_path == 2)) ? 0 : tmp_on)'}
+  # what was written to it spells the balance
+  - {name: holds, range: [0, 1], init: 0, next: '!phase && ((op == 1 && o_path == 2 && o_mode >= 2) || (op == 7 && d_path == 2)) ? 0 : (!phase && op == 2 && of == tmp_h && tmp_h != 0 ? (w_value == cents ? 1 : (w_value != 0 ? 0 : holds)) : holds)'}
+  # flushed, synced and closed since its last write
+  - {name: flushed, range: [0, 1], init: 0, next: '!phase && ((op == 2 && of == tmp_h) || (op == 1 && o_path == 2)) ? 0 : (!phase && op == 3 && of == tmp_h && tmp_h != 0 ? 1 : flushed)'}
+  - {name: synced, range: [0, 1], init: 0, next: '!phase && ((op == 2 && of == tmp_h) || (op == 1 && o_path == 2)) ? 0 : (!phase && op == 5 && s_handle == tmp_h && tmp_h != 0 && flushed == 1 ? 1 : synced)'}
+  - {name: closed, range: [0, 1], init: 0, next: '!phase && op == 4 && of == tmp_h && tmp_h != 0 ? 1 : (!phase && op == 1 && o_path == 2 ? 0 : closed)'}
+  - {name: rfail, range: [0, 1], init: 0, next: '!phase && op == 6 && answer == 1 ? 1 : rfail'}
+  - {name: n_rep, range: [0, 7], init: 0, next: '!phase && op == 6 ? min(n_rep + 1, 7) : n_rep'}
+  - {name: stored, range: [0, 1], init: 0, next: '!phase && op == 6 && r_src == 2 && r_dst == 1 && answer == 0 && tmp_on == 1 && holds == 1 ? 1 : stored'}
+defs:
+  valid: 'cents <= 100000000'
+  call: '!phase'
+  returning: 'phase && ended == 0'           # the cycle at which the function returns
+properties:
+- {id: G-ERR, req: R-ERR-1, pattern: implies, args: {trigger: '!valid', cond: 'phase && outcome == 1'}}
+- {id: G-OPEN, req: R-TMP-1, pattern: implies, args: {trigger: 'call && op == 1', cond: 'o_path != 1'}}
+- {id: G-WRITE, req: R-TMP-1, pattern: implies, args: {trigger: 'call && op == 2', cond: 'of == tmp_h && tmp_h != 0'}}
+- {id: G-REPL, req: R-TMP-1, pattern: implies, args: {trigger: 'call && op == 6', cond: 'r_src == 2 && r_dst == 1'}}
+- id: G-MOVE
+  req: R-TMP-1
+  pattern: implies
+  args: {trigger: 'returning && valid && holds == 1', cond: 'n_rep >= 1'}
+  note: 'once the digits are written, the function moves the file before it returns'
+- id: G-DIGITS
+  req: R-STORE-1
+  pattern: implies
+  args: {trigger: 'call && op == 6', cond: 'tmp_on == 1 && holds == 1'}
+  note: 'what os.replace moves is the temporary file, there and holding the digits'
+- id: G-STORE
+  req: R-STORE-1
+  pattern: implies
+  args: {trigger: 'returning && valid && rfail == 0', cond: 'stored == 1'}
+  note: 'unless os.replace fails, the balance ends up in balance.txt'
+- id: G-SYNC
+  req: R-SYNC-1
+  pattern: implies
+  args: {trigger: 'call && op == 6', cond: 'synced == 1 && closed == 1'}
+  note: 'decision: os.fsync after flushing the file object since its last write; fsync alone may sync nothing'
+- {id: G-RET, req: R-RET-1, pattern: implies, args: {trigger: 'returning && valid', cond: 'outcome == 0 && result == (stored == 1)'}}
+- id: G-CLEAN
+  req: R-CLEAN-1
+  pattern: implies
+  args: {trigger: 'returning && valid', cond: 'tmp_on == 0'}
+  note: 'decision: no temporary file exists when the function returns'
+- id: G-KEEP
+  req: R-KEEP-1
+  pattern: implies
+  args: {trigger: 'call && ((op == 7 && d_path == 2) || (op == 1 && o_path == 2))', cond: 'rfail == 0'}
+  note: 'after os.replace fails, the temporary file is neither removed nor opened again'
+- {id: G-KEEP-RET, req: R-KEEP-1, pattern: implies, args: {trigger: 'returning && valid && rfail == 1', cond: 'outcome == 0 && !result'}}
+scenarios:
+- {id: S-EX, req: R-EX-1, cover: 'returning && result && cents == 1250 && stored == 1'}
+unformalized:
+- {req: R-SIG-1, reason: 'the interface itself', covered_by: [G-RET]}

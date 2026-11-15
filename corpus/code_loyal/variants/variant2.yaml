@@ -1,0 +1,226 @@
+fcp: "0.1"
+set: variant2
+origin: {kind: agent, role: formalizer, id: variant2}
+
+defs:
+  # the whole dollars of amount, in cents (100 x dollars): amount is in cents
+  dc: "amount - amount % 100"
+  valid_earn: "op == 1 && amount >= 1 && amount <= 100000"
+  valid_redeem: "op == 2 && points >= 1 && points <= 100000"
+  redeem_ok: "valid_redeem && pts >= points"
+  # R-TIER-1 on the points the account has before the call
+  tier_now: "pts < 500 ? 0 : (pts < 2000 ? 1 : 2)"
+  # R-POINTS-1, reading 2: the tier once the purchase (the points earn returns) is added
+  after: "pts + earned"
+  tier_after: "after < 500 ? 0 : (after < 2000 ? 1 : 2)"
+  # R-RATE-1
+  rate_after: "tier_after == 0 ? 1 : (tier_after == 1 ? 2 : 3)"
+  # Reading 2 is circular: earning k points per dollar is self-consistent iff the
+  # account, once k x dollars are added, is in the tier whose rate is k.
+  k1: "100 * pts + dc < 50000"
+  k2: "100 * pts + 2 * dc >= 50000 && 100 * pts + 2 * dc < 200000"
+  k3: "100 * pts + 3 * dc >= 200000"
+  # some self-consistent earning exceeds 1,000 points
+  may_exceed: "k1 && dc > 100000 || k2 && 2 * dc > 100000 || k3 && 3 * dc > 100000"
+  # every self-consistent earning exceeds 1,000 points
+  must_exceed: "!(k1 && dc <= 100000 || k2 && 2 * dc <= 100000 || k3 && 3 * dc <= 100000)"
+
+ghosts:
+  # the points of the account before the current call; a new account has 0 (R-NEW-1).
+  # earn adds what it returns (R-EARN-1: it "adds the points ... and returns them");
+  # redeem takes points off when the account has that many (R-REDEEM-1); a call that
+  # raises leaves the account unchanged. Saturates at the largest value bal can carry.
+  - {name: pts, range: [0, 131071], init: 0, next: "op == 1 ? min(pts + earned, 131071) : (redeem_ok ? pts - points : pts)"}
+  # the number of calls made so far on the current account (saturating), used only by
+  # the example scenario to pin "a new account"
+  - {name: calls, range: [0, 4], init: 0, next: "min(calls + 1, 4)"}
+
+rigids:
+  - {name: k, range: [1, 3]}
+
+properties:
+  - id: V2-NEW-1
+    req: R-NEW-1
+    pattern: after_reset
+    args: {cond: "!rst_active -> (op == 4 && outcome == 0 -> bal == 0)"}
+    note: >-
+      The first call on a new account, if it is a balance() that returns, returns 0.
+      The ghost pts also starts at 0, so every later check starts from 0 points.
+
+  - id: V2-TIER-1
+    req: R-TIER-1
+    pattern: implies
+    args: {trigger: "op == 3 && outcome == 0 && pts < 500", cond: "t == 0"}
+    note: >-
+      Fewer than 500 points is basic (0), seen through tier(). The tier is taken
+      literally as a function of the current points; this conflicts with R-KEEP-1
+      once a redeem takes the points below 500 or 2,000 (see V2-KEEP-1).
+  - id: V2-TIER-2
+    req: R-TIER-1
+    pattern: implies
+    args: {trigger: "op == 3 && outcome == 0 && pts >= 500 && pts <= 1999", cond: "t == 1"}
+    note: >-
+      500 to 1,999 points is silver (1), seen through tier(). Literal reading: a
+      function of the current points (conflicts with R-KEEP-1 after a redeem).
+  - id: V2-TIER-3
+    req: R-TIER-1
+    pattern: implies
+    args: {trigger: "op == 3 && outcome == 0 && pts >= 2000", cond: "t == 2"}
+    note: >-
+      2,000 points or more is gold (2), seen through tier(). Literal reading: a
+      function of the current points (conflicts with R-KEEP-1 after a redeem).
+
+  - id: V2-POINTS-1
+    req: R-POINTS-1
+    pattern: implies
+    args:
+      trigger: "valid_earn && outcome == 0"
+      cond: "100 * earned == rate_after * dc || earned == 0 && may_exceed"
+    note: >-
+      Ambiguity "the account's tier" read as given (reading 2): the tier of the
+      account once the purchase is added, i.e. of pts + earned. So earned must equal
+      rate(tier(pts + earned)) x whole dollars (in cents: 100 x earned == rate x dc).
+      This is circular and not always unique: on 0 points a $300 purchase may earn
+      300 (still basic) or 600 (then silver); both are allowed. Ambiguity "No purchase
+      earns more than" read as given (reading 2, refused): the only exception is a
+      refused purchase, which earns 0, allowed only when some self-consistent earning
+      exceeds 1,000 points (may_exceed). The rate per tier is R-RATE-1.
+  - id: V2-CAP-1
+    req: R-CAP-1
+    pattern: implies
+    args: {trigger: "op == 1 && outcome == 0", cond: "earned <= 1000"}
+    note: >-
+      No purchase earns more than 1,000 points: earn never returns more than 1,000.
+      Under reading 2 of "No purchase earns more than" (refused) a purchase that
+      would earn more earns nothing (V2-CAP-2) rather than 1,000. The earnings it
+      bounds follow reading 2 of "the account's tier" (tier once the purchase is added).
+  - id: V2-CAP-2
+    req: R-CAP-1
+    pattern: implies
+    args: {trigger: "valid_earn && must_exceed", cond: "earned == 0"}
+    note: >-
+      Ambiguity "No purchase earns more than" read as given (reading 2): a purchase
+      that would earn more than 1,000 points is refused. Refused is taken as: it earns
+      no points, so nothing is added to the account (the model adds what earn
+      returns). "Would earn" uses reading 2 of "the account's tier" (tier once the
+      purchase is added), which can admit several earnings; refusal is required when
+      every self-consistent earning exceeds 1,000 (must_exceed) and allowed when some
+      does (V2-POINTS-1). How a refusal is reported is not stated; see V2-EARN-1.
+      E.g. earn(60000) on a new account is refused: 1,200 points at silver is the only
+      self-consistent earning.
+
+  - id: V2-RANGE-1
+    req: R-RANGE-1
+    pattern: implies
+    args: {trigger: "op == 1 && (amount < 1 || amount > 100000)", cond: "outcome == 1"}
+    note: >-
+      earn with amount below 1 or above 100,000 raises ValueError. The text does not
+      say what such a call does to the account; the model leaves it unchanged.
+  - id: V2-RANGE-2
+    req: R-RANGE-1
+    pattern: implies
+    args: {trigger: "op == 2 && (points < 1 || points > 100000)", cond: "outcome == 1"}
+    note: >-
+      redeem with points below 1 or above 100,000 raises ValueError. The text does not
+      say what such a call does to the account; the model leaves it unchanged.
+
+  - id: V2-EARN-1
+    req: R-EARN-1
+    pattern: implies
+    args: {trigger: "valid_earn", cond: "outcome == 0"}
+    note: >-
+      earn with a valid amount returns (the value it returns is fixed by V2-POINTS-1,
+      V2-CAP-1 and V2-CAP-2). "Adds them to the account" is realized by the ghost pts,
+      which adds what earn returns, and is observed by balance() and tier()
+      (V2-GET-1, V2-GET-2). Under reading 2 of "No purchase earns more than" a refused
+      purchase still returns, with 0: the text says earn returns the points the
+      purchase earns and lists no ValueError for it. The earned value follows reading
+      2 of "the account's tier".
+
+  - id: V2-REDEEM-1
+    req: R-REDEEM-1
+    pattern: implies
+    args: {trigger: "valid_redeem && pts >= points", cond: "outcome == 0 && ok"}
+    note: >-
+      redeem with valid points on an account that has that many returns True; the
+      ghost pts takes the points off, observed by balance() and tier().
+  - id: V2-REDEEM-2
+    req: R-REDEEM-1
+    pattern: implies
+    args: {trigger: "valid_redeem && pts < points", cond: "outcome == 0 && !ok"}
+    note: >-
+      Otherwise redeem returns False; the ghost pts is unchanged ("the account stays
+      as it was"), observed by balance() and tier().
+
+  - id: V2-GET-1
+    req: R-GET-1
+    pattern: implies
+    args: {trigger: "op == 3", cond: "outcome == 0 && t == tier_now"}
+    note: >-
+      tier() returns the account's tier, taken literally as the tier of its current
+      points by R-TIER-1. Contradicts R-KEEP-1: after a redeem that takes the points
+      below a threshold this requires a lower tier than tier() returned before
+      (e.g. earn(50000) earns 1,000, tier() is 1, redeem(600) leaves 400, tier() must
+      be 0 here and at least 1 by V2-KEEP-1).
+  - id: V2-GET-2
+    req: R-GET-1
+    pattern: implies
+    args: {trigger: "op == 4", cond: "outcome == 0 && bal == pts"}
+    note: >-
+      balance() returns the account's points. The ghost saturates at 131,071, the
+      largest value bal can carry; beyond that a balance is not representable on the
+      trace (adapter limit, far outside the checked call sequences).
+
+  - id: V2-KEEP-1
+    req: R-KEEP-1
+    pattern: implies
+    args:
+      trigger: "op == 3 && outcome == 0 && once(op == 3 && outcome == 0 && t >= k)"
+      cond: "t >= k"
+    note: >-
+      For every level k, once tier() has returned at least k on this account, every
+      later tier() returns at least k: the value tier returns never goes down. Taken
+      literally (only the values tier returns). The text gives no rule for how tier
+      then relates to the points, so this contradicts R-TIER-1/R-GET-1 (tier from the
+      current points) whenever a redeem takes the points below 500 or 2,000.
+
+scenarios:
+  - id: V2-EX-1
+    req: R-EX-1
+    cover: "calls == 3 && op == 3 && outcome == 0 && t == 1 && prev(op == 4 && outcome == 0 && bal == 550) && prev(op == 2 && points == 50, 2) && prev(op == 1 && amount == 60000, 3)"
+    note: >-
+      On a new account (calls counts the calls since the reset that created it):
+      earn(60000), redeem(50), then balance() returns 550 and tier() returns 1.
+      Under the readings given for "the account's tier" (reading 2: tier once the
+      purchase is added) and "No purchase earns more than" (reading 2: refused),
+      earn(60000) on 0 points would earn 1,200 (silver rate on 1,200 points) and is
+      refused, so the balance stays 0, redeem(50) returns False and balance() returns
+      0: this scenario is unreachable together with V2-POINTS-1, V2-CAP-1, V2-CAP-2 and
+      V2-GET-2. The example fits only reading 1 of "the account's tier" (600 points
+      at the basic rate, under the cap); with reading 2 it fails under either reading
+      of the cap (refused: balance 0; capped at 1,000: balance 950).
+
+unformalized:
+  - req: R-PKG-1
+    reason: >-
+      Package and module layout (loyalty/tiers.py, points.py, account.py) is not
+      observable on the trace of calls of Account.
+  - req: R-SIG-1
+    reason: >-
+      Definition of the class, its methods and result types; realized by the
+      interface and function sections of design.yaml. Every call of the four methods
+      is required to end with ValueError or a returned value of the declared type.
+    covered_by: [V2-EARN-1, V2-RANGE-1, V2-RANGE-2, V2-REDEEM-1, V2-REDEEM-2, V2-GET-1, V2-GET-2]
+  - req: R-RATE-1
+    reason: >-
+      Definition of the rate per tier (1, 2, 3 points per dollar); realized by the
+      defs rate_after and k1..k3 used by the earning properties.
+    covered_by: [V2-POINTS-1, V2-CAP-2]
+  - req: R-FR-1
+    reason: >-
+      Encoding rule of the adapter, stated as frame item F-ZERO in design.yaml, which
+      is part of every formalization set.
+
+decisions:
+  - {req: R-POINTS-1, phrase: "the account's tier", reading: 2}
+  - {req: R-CAP-1, phrase: "No purchase earns more than", reading: 2}

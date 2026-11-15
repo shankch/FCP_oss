@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\ndef modp(n: int, p: int):\n    \"\"\"Return 2^n modulo p (be aware of numerics).\n    >>> modp(3, 5)\n    3\n    >>> modp(1101, 101)\n    2\n    >>> modp(0, 101)\n    1\n    >>> modp(3, 11)\n    8\n    >>> modp(100, 101)\n    1\n    \"\"\"\n    if p == 1:\n        return 0\n    result = 1\n    base = 2 % p\n    while n > 0:\n        if n & 1:\n            result = (result * base) % p\n        base = (base * base) % p\n        n >>= 1\n    return result\n```",
+  "seconds": 3.5,
+  "cost_usd": 0.0124622,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "NO_QUESTIONS",
+  "seconds": 3.2,
+  "cost_usd": 0.0116859,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "```python\ndef modp(n: int, p: int):\n    \"\"\"Return 2^n modulo p (be aware of numerics).\n    >>> modp(3, 5)\n    3\n    >>> modp(1101, 101)\n    2\n    >>> modp(0, 101)\n    1\n    >>> modp(3, 11)\n    8\n    >>> modp(100, 101)\n    1\n    \"\"\"\n    result = 1 % p      # handles p == 1 correctly (anything mod 1 is 0)\n    base = 2 % p\n    while n > 0:\n        if n & 1:\n            result = (result * base) % p\n        base = (base * base) % p\n        n >>= 1\n    return result\n```\n\n**How it works:** This uses binary exponentiation (square-and-multiply). It reduces modulo `p` after every multiplication, so intermediate values never exceed `p\u00b2`. That keeps the numbers small even for huge `n`, and it takes O(log n) steps instead of computing the enormous value `2**n` first.\n\n**Simpler alternative:** Python's built-in three-argument `pow` does exactly this internally:\n\n```python\ndef modp(n: int, p: int):\n    return pow(2, n, p)\n```\n\nBoth versions pass all the doctests, including the edge case `modp(0, 101) == 1`.",
+  "seconds": 5.4,
+  "cost_usd": 0.0165774,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

@@ -1,0 +1,208 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # s holds only letters: ASCII letters and the Latin-1 letters (codes 170, 181,
+  # 186, 192-214, 216-246, 248-255, i.e. what Python's str.isalpha() accepts).
+  letters: 'all(i < len(s): isalpha(s[i]) || s[i] == 170 || s[i] == 181 || s[i] == 186 || (s[i] >= 192 && s[i] <= 214) || (s[i] >= 216 && s[i] <= 246) || s[i] >= 248)'
+  # Number of distinct vowels of R-VOW-1 in s (lowercase only, accented forms
+  # included): positions holding such a vowel that does not occur earlier.
+  # Vowels: a e i o u, à-å (224-229), è-ï (232-239), ò-ö (242-246), ù-ü (249-252).
+  nv: 'count(i < len(s): (s[i] == "a" || s[i] == "e" || s[i] == "i" || s[i] == "o" || s[i] == "u" || (s[i] >= 224 && s[i] <= 229) || (s[i] >= 232 && s[i] <= 239) || (s[i] >= 242 && s[i] <= 246) || (s[i] >= 249 && s[i] <= 252)) && !any(j < i: s[j] == s[i]))'
+  # Some lowercase 'y' lies in the trailing run of 'y's of its word (words are
+  # separated by whitespace). The run is non-empty exactly when the word ends
+  # in 'y', so this is: some word of s ends in a lowercase 'y'.
+  yend: 'any(i < len(s): s[i] == "y" && (i + 1 == len(s) || isspace(s[i + 1])))'
+  # Number of distinct vowels, 'y' counted once if it counts at all.
+  nvow: 'nv + yend'
+
+assumptions:
+  - id: RV-IN-1-A
+    req: R-IN-1
+    expr: letters
+    note: >-
+      Reading imposed by the request for R-IN-1 "a string representing a word":
+      an assumption on the caller that s holds only letters, the empty string
+      being allowed (it gives 0, see RV-IN-1-P). Results for other strings are
+      unconstrained. "Letters" is taken literally over the Latin-1 alphabet of
+      frame.md (ASCII letters plus the Latin-1 letters, as Python's
+      str.isalpha()), because the imposed R-VOW-1 reading counts accented
+      vowels; with ASCII-only letters that reading would have no effect.
+      Reading imposed for R-IN-1 "a word": s may hold several words, each with
+      its own end. Problem: the words would be separated by spaces, which are
+      not letters, so under this very assumption s is always a single word and
+      the several-words reading never applies to an allowed call.
+
+properties:
+  - id: RV-IN-1-P
+    req: R-IN-1
+    pattern: implies
+    args: {trigger: 'len(s) == 0', cond: 'outcome == 0 && result == 0'}
+    note: >-
+      Reading imposed by the request for R-IN-1 "a string representing a word":
+      the empty string is an allowed argument and gives 0. Stated as a
+      guarantee on the output, separately from the input assumption RV-IN-1-A.
+
+  - id: RV-RET-1
+    req: R-RET-1
+    expr: 'outcome == 0'
+    note: >-
+      Every call returns an integer from 0 to 63 (a count of at most 32
+      characters fits) and raises no exception. Checked only on calls allowed by
+      RV-IN-1-A (letters only, empty string allowed), per the reading imposed
+      for R-IN-1 "a string representing a word".
+
+  - id: RV-RET-2
+    req: R-RET-2
+    expr: 'outcome == 0 && (result == len(s) || result == nvow)'
+    note: >-
+      "the number of characters or vowels": most literal reading taken (reading
+      3), the plain disjunction of the text: each call may return either len(s)
+      or the vowel count (the choice is per call; the text does not require an
+      implementation to stick to one). Reading 1 needs "characters or vowels"
+      to mean "vowel characters", reading 2 makes every vowel requirement
+      pointless. Reading imposed by the request for "the number of ...
+      vowels": distinct vowels count ("aa" gives 1); distinct means distinct
+      characters, so 'a' and an accented 'a' are two vowels, and 'y' counts
+      once however many 'y's count. Imposed R-VOW-1 readings: only lowercase
+      a, e, i, o, u are vowels, and their accented forms (lowercase, Latin-1)
+      count too. Imposed R-Y-1 / R-Y-2 readings: only lowercase 'y' can count
+      (an uppercase 'Y' never does), and every 'y' of the trailing run of 'y's
+      of a word counts; with distinct counting this run reading gives the same
+      total as counting only the last 'y' (yend). Imposed R-IN-1 "a word"
+      reading: each word of s (separated by whitespace) has its own end, which
+      cannot occur under RV-IN-1-A. Checked only on letter strings
+      (RV-IN-1-A). Problem: under these readings "ACEDY" gives 5 or 0, but
+      R-EX-2 requires 3 (conflict with RV-EX-2-P).
+
+  - id: RV-Y-1
+    req: R-Y-1
+    pattern: implies
+    args: {trigger: 'yend', cond: 'result == len(s) || result == nv + 1'}
+    note: >-
+      Whenever a 'y' counts, it adds exactly one vowel to the vowel count
+      (len(s) remains allowed by the reading of R-RET-2 taken in RV-RET-2).
+      Reading imposed by the request for R-Y-1 "'y'": lowercase only, a final
+      'Y' does not count; this contradicts R-EX-2 ("ACEDY" must give 3), see
+      RV-EX-2-P. Reading imposed for "at the end of the given word": every 'y'
+      of the trailing run of 'y's counts ("ayy": both); since R-RET-2 is read
+      as counting distinct vowels (imposed), the 'y's of the run add one vowel
+      together, so the trigger is "some word ends in a lowercase 'y'". Imposed
+      R-IN-1 "a word" reading: every whitespace-separated word has its own end
+      (not reachable under RV-IN-1-A). The vowels counted in nv follow the
+      imposed R-VOW-1 readings (lowercase only, accented forms included).
+
+  - id: RV-Y-2
+    req: R-Y-2
+    pattern: implies
+    args: {trigger: '"Y" in s || ("y" in s && !yend)', cond: 'result == len(s) || result == nvow'}
+    note: >-
+      A 'y' that does not count is not added to the vowel count. The trigger
+      is where this exclusion matters with distinct counting: s holds an
+      uppercase 'Y', or holds a lowercase 'y' while no word ends in 'y' (if some
+      'y' counts, excluding the others does not change the distinct total).
+      Reading imposed by the request for R-Y-2 "'y'": the rule is about
+      lowercase 'y' only and an uppercase 'Y' is never a vowel anywhere; this
+      contradicts R-EX-2, see RV-EX-2-P. Reading imposed for "at the end of the
+      given word": every 'y' in the trailing run of 'y's counts, so in "ayy"
+      neither is excluded. Imposed readings used through nvow: distinct vowels
+      (R-RET-2), lowercase and accented vowels (R-VOW-1), whitespace-separated
+      words each with their own end (R-IN-1, not reachable under RV-IN-1-A).
+      len(s) remains allowed by the reading of R-RET-2 taken in RV-RET-2.
+
+  - id: RV-EX-1-P
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 's == "abcde"', cond: 'outcome == 0 && result == 2'}
+    note: >-
+      The doctest is binding: candidate("abcde") returns 2. Reading imposed by
+      the request for "2": it contradicts R-RET-2 read as "the number of
+      characters" ("abcde" has 5). This set reads R-RET-2 as allowing either
+      count (RV-RET-2), so the example rules out the character count for this
+      call and agrees with the vowel count: distinct lowercase vowels 'a' and
+      'e' (imposed R-RET-2 and R-VOW-1 readings), no 'y'.
+
+  - id: RV-EX-2-P
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 's == "ACEDY"', cond: 'outcome == 0 && result == 3'}
+    note: >-
+      The doctest is binding: candidate("ACEDY") returns 3. Reading imposed by
+      the request for "3": it contradicts R-RET-2 read as "the number of
+      characters" ("ACEDY" has 5). Problem, not repaired: under the imposed
+      readings of R-VOW-1 ('A', 'E' are not vowels) and R-Y-1 / R-Y-2 (a final
+      'Y' does not count) the vowel count of "ACEDY" is 0, so RV-RET-2, RV-Y-2
+      and this item cannot all hold on this call ("ACEDY" is allowed by
+      RV-IN-1-A).
+
+scenarios:
+  - id: RV-IN-1-S
+    req: R-IN-1
+    cover: 'len(s) == 0 && outcome == 0 && result == 0'
+    note: >-
+      Reading imposed by the request for R-IN-1 "a string representing a word":
+      the empty string is allowed (RV-IN-1-A must not exclude it) and gives 0.
+
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 's == "abcde" && outcome == 0 && result == 2'
+    note: >-
+      The call of the example is possible with its documented result. Reading
+      imposed for "2": contradicts R-RET-2 read as "the number of characters";
+      consistent with the vowel count of RV-RET-2 (distinct lowercase vowels
+      'a', 'e').
+
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 's == "ACEDY" && outcome == 0 && result == 3'
+    note: >-
+      The call of the example is possible with its documented result. Reading
+      imposed for "3": contradicts R-RET-2 read as "the number of characters".
+      Problem: also unreachable under RV-RET-2 / RV-Y-2 with the imposed
+      lowercase-only readings of R-VOW-1, R-Y-1 and R-Y-2 (vowel count 0).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Asks for the deliverable (a completed body of the stub); this is not a
+      property of the calls. The behaviour of the completed function is
+      formalized by the other items.
+  - req: R-IF-2
+    reason: >-
+      Interface definition (one argument s, a string). It is fixed by
+      design.yaml (function candidate with the single str argument s on signal
+      s) and is not a property of the trace.
+  - req: R-VOW-1
+    reason: >-
+      Definition of the vowels, realized by the def nv used in RV-RET-2, RV-Y-1
+      and RV-Y-2. Readings imposed by the request: lowercase only ('A', 'E',
+      'I', 'O', 'U' are not vowels, which contradicts R-EX-2, see RV-EX-2-P)
+      and the usual vowels of the language (the Latin-1 accented forms à-å,
+      è-ë, ì-ï, ò-ö, ù-ü count; uppercase accented forms do not, by the
+      lowercase-only reading; æ, ø and ÿ are not accented forms of a, e, i, o, u).
+    covered_by: [RV-RET-2, RV-Y-1, RV-Y-2]
+  - req: R-FIX-1
+    reason: >-
+      Reading imposed by the request: a leftover note stored in the FIX
+      constant that places no obligation on the response; only the FIX string
+      itself should be kept. Keeping a module constant is not observable in
+      calls of candidate, so there is nothing to formalize.
+  - req: R-FR-1
+    reason: Frame rule of the adapter; it is the frame item F-ZERO of design.yaml, added to every set.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: 'a string representing a word', reading: 2}
+  - {req: R-IN-1, phrase: 'a word', reading: 2}
+  - {req: R-RET-2, phrase: 'the number of characters or vowels', reading: 3}
+  - {req: R-RET-2, phrase: 'the number of ... vowels', reading: 2}
+  - {req: R-VOW-1, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 1}
+  - {req: R-VOW-1, phrase: 'Vowels in this case are', reading: 2}
+  - {req: R-Y-1, phrase: "'y'", reading: 1}
+  - {req: R-Y-1, phrase: 'at the end of the given word', reading: 2}
+  - {req: R-Y-2, phrase: "'y'", reading: 1}
+  - {req: R-Y-2, phrase: 'at the end of the given word', reading: 2}
+  - {req: R-EX-1, phrase: '2', reading: 2}
+  - {req: R-EX-2, phrase: '3', reading: 2}
+  - {req: R-FIX-1, phrase: 'Add more test cases.', reading: 2}

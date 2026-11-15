@@ -1,0 +1,51 @@
+# Planted bugs: one textual patch of one module of impl/ref/loyalty each (the
+# target text must occur exactly once in that module).  `violates` is the gold
+# requirement each one breaks.
+design: code_loyal
+bugs:
+- id: C1
+  desc: silver starts at 501 points
+  violates: [R-TIER-1]
+  file: tiers.py
+  patch: {from: 'if points >= 500:', to: 'if points > 500:'}
+- id: C2
+  desc: gold earns 2 points for each dollar
+  violates: [R-POINTS-1]
+  file: tiers.py
+  patch: {from: 'GOLD: 3}', to: 'GOLD: 2}'}
+- id: C3
+  desc: the amount is rounded to the nearest dollar
+  violates: [R-POINTS-1]
+  file: points.py
+  patch: {from: 'dollars = amount // 100', to: 'dollars = (amount + 50) // 100'}
+- id: C4
+  desc: the limit of 1,000 is put on the dollars, before the rate
+  violates: [R-CAP-1]
+  file: points.py
+  patch: {from: 'return min(CAP, dollars * rate(tier))', to: 'return min(CAP, dollars) * rate(tier)'}
+- id: C5
+  desc: an amount of 100,000 is rejected
+  violates: [R-EARN-1]
+  file: account.py
+  patch: {from: 'if not 1 <= amount <= 100_000:', to: 'if not 1 <= amount < 100_000:'}
+- id: C6
+  desc: a redeem of exactly the points of the account is refused
+  violates: [R-REDEEM-1]
+  file: account.py
+  patch: {from: 'if points > self._points:', to: 'if points >= self._points:'}
+- id: C7
+  desc: a refused redeem empties the account
+  violates: [R-REDEEM-1]
+  file: account.py
+  patch: {from: "        if points > self._points:\n            return False\n", to: "        if points > self._points:\n            self._points = 0\n            return False\n"}
+- id: C8
+  desc: the purchase earns at the tier it brings the account to
+  violates: [R-POINTS-1]
+  file: account.py
+  patch: {from: 'got = earned(amount, tier_of(self._points))', to: 'got = earned(amount, tier_of(self._points + earned(amount, tier_of(self._points))))'}
+- id: C9
+  desc: the rate is computed from the tier instead of looked up; the same behaviour, written differently
+  violates: []
+  note: a refactoring, not a bug, which FCP must not flag
+  file: tiers.py
+  patch: {from: '    return RATES[tier]', to: '    return tier + 1'}

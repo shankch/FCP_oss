@@ -1,0 +1,157 @@
+fcp: "0.1"
+set: variant2
+origin: {kind: agent, role: formalizer, id: variant2}
+
+defs:
+  charge: "!phase && op == 1"                  # a call of api.charge
+  sleep: "!phase && op == 2"                   # a call of api.sleep
+  ok: "charge && answer == 0"
+  declined: "charge && answer == 1"
+  error: "charge && answer == 2"
+  valid: "amount >= 1 && amount <= 1000000"    # an amount rule 1 accepts (inclusive)
+
+ghosts:
+  # number of api.charge calls made before the current cycle of the run
+  - {name: charges, range: [0, 8], init: 0, next: "charge ? min(charges + 1, 8) : charges"}
+  # seconds slept (api.sleep) since the last api.charge call, before the current cycle
+  - {name: slept, range: [0, 2040], init: 0, next: "charge ? 0 : (sleep ? min(slept + s_seconds, 2040) : slept)"}
+
+assumptions:
+  - id: V2-ARGS
+    req: R-SIG-1
+    expr: "stable(order_id) && stable(amount)"
+    note: >-
+      The arguments of the one call of charge_order are fixed for the run (frame.md, Inputs:
+      "the same in every cycle of a run"); attached to R-SIG-1, which defines the arguments.
+      Without it the free inputs could change after the return and force spurious violations of
+      V2-ERR / V2-RET-* against F-END. The "-> bool" part of R-SIG-1 is realized by V2-RET-TRUE
+      and V2-RET-FALSE (outcome 0 for a valid amount) and V2-ERR (ValueError otherwise).
+  - id: V2-ANSWER
+    req: R-API-1
+    expr: "answer <= 2"
+    note: >-
+      api.charge answers only "ok", "declined" or "error" (codes 0, 1, 2). Stated in every cycle,
+      not only at a charge: answer means nothing elsewhere (frame.md), and this keeps the
+      assumption free of design outputs. The sleep half of
+      R-API-1 ("waits that many seconds") is definitional: s_seconds is the time waited, which the
+      ghost `slept` adds up for V2-WAIT-2 and V2-WAIT-3.
+
+properties:
+  - id: V2-CALL
+    req: R-CALL-1
+    pattern: implies
+    args: {trigger: "charge", cond: "c_order == order_id && c_amount == amount"}
+    note: >-
+      Every api.charge call is api.charge(order_id, amount) with the function's own arguments.
+
+  - id: V2-ERR
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "phase && !valid", cond: "outcome == 1"}
+    note: >-
+      "between 1 and 1,000,000" read inclusively: 1 and 1,000,000 are accepted. amount is an
+      unsigned 21-bit signal, so the only value below 1 is 0. The text does not say the function
+      must raise before making any call, so calls made before the ValueError are not constrained.
+
+  - id: V2-RET-TRUE
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "phase && valid && once(ok)", cond: "outcome == 0 && result"}
+    note: >-
+      "once a charge returns" read as instructed, reading 2: "if some charge has returned ok".
+      The item fixes only the value returned, not when the return happens; a further call after
+      the "ok" is not excluded by R-RET-1 (R-ONCE-1 excludes further charges, nothing excludes
+      further sleeps). Restricted to amounts R-ERR-1 accepts: for other amounts R-ERR-1 requires
+      ValueError, and rule 1 is read as taking precedence (see V2-RET-FALSE).
+
+  - id: V2-RET-FALSE
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "phase && valid && !once(ok)", cond: "outcome == 0 && !result"}
+    note: >-
+      "False otherwise" under reading 2 of "once a charge returns" (as instructed): if no charge
+      of the run returned "ok", the function returns False (outcome 0, not an exception, not a
+      cut-off run). Taken literally, "otherwise" also covers amounts outside 1..1,000,000, where
+      R-ERR-1 requires ValueError: the two rules contradict each other there. This item reads
+      rule 1 as taking precedence and applies only to valid amounts. It contradicts R-KEEP-1
+      (see V2-KEEP).
+
+  - id: V2-RETRY-AGAIN
+    req: R-RETRY-1
+    pattern: hold_until
+    args: {trigger: "error && charges < 2", hold: "!phase", release: "charge"}
+    note: >-
+      "If a charge returns error, try again, up to 3 attempts in total": after an "error" on the
+      first or second charge (charges counts the earlier ones), the function makes another charge
+      before it returns. Nothing is required after an "error" on the third charge. The text gives
+      no deadline for the new attempt other than the end of the run.
+
+  - id: V2-RETRY-MAX
+    req: R-RETRY-1
+    pattern: implies
+    args: {trigger: "charges >= 3", cond: "!charge"}
+    note: >-
+      "up to 3 attempts in total": an attempt is a call of api.charge; a run makes at most 3,
+      whatever the answers.
+
+  - id: V2-DECL
+    req: R-DECL-1
+    pattern: implies
+    args: {trigger: "prev(once(declined))", cond: "!charge"}
+    note: >-
+      No charge after a charge that returned "declined". Sleeps after it are not constrained by
+      the text.
+
+  - id: V2-WAIT-2
+    req: R-WAIT-1
+    pattern: implies
+    args: {trigger: "charge && charges == 1", cond: "slept == 2"}
+    note: >-
+      "wait 2 seconds before the second attempt" read as the waiting time between the first and
+      the second charge: the seconds passed to api.sleep since the first charge add up to exactly
+      2. So sleep(2) or sleep(1), sleep(1) comply, and no sleep, sleep(4) or sleep(2), sleep(2) do
+      not. A total cannot be written with past-time operators alone, hence the ghost `slept`.
+      Sleeps before the first charge or after the last are not constrained.
+
+  - id: V2-WAIT-3
+    req: R-WAIT-1
+    pattern: implies
+    args: {trigger: "charge && charges == 2", cond: "slept == 4"}
+    note: >-
+      "4 seconds before the third": the seconds slept between the second and the third charge add
+      up to exactly 4 (same reading as V2-WAIT-2).
+
+  - id: V2-ONCE
+    req: R-ONCE-1
+    pattern: implies
+    args: {trigger: "prev(once(ok))", cond: "!charge"}
+    note: >-
+      "Never charge an order again" read as no further api.charge call in the run. A run is for
+      one order, and V2-CALL (R-CALL-1) makes every charge be for it.
+
+  - id: V2-KEEP
+    req: R-KEEP-1
+    pattern: implies
+    args: {trigger: "phase && valid", cond: "once(ok)"}
+    note: >-
+      Literal reading of "Keep trying until the charge goes through": the run does not end
+      (return, exception, or the adapter's cut-off after 8 calls) before some charge has returned
+      "ok". Restricted to valid amounts like R-RET-1, since R-ERR-1 governs the others. The
+      specification contradicts itself here and this item does not repair it: if the service
+      answers "declined", or "error" three times, R-DECL-1 / R-RETRY-1 forbid another charge and
+      R-RET-1 requires a return of False, all of which this item forbids. Together with F-LIMIT
+      (at most 8 calls), no run can meet it if the service never answers "ok".
+
+scenarios:
+  - id: V2-EX
+    req: R-EX-1
+    cover: "phase && outcome == 0 && result && charges == 2 && hist(!phase && charges == 0 -> charge) && prev(ok) && prev(sleep && s_seconds == 2, 2) && prev(error, 3)"
+    note: >-
+      The example run: the calls are exactly charge (answer "error"), sleep(2), charge (answer
+      "ok"), then the function returns True. charges == 2 says there are no other charges, and the
+      hist term says the first call is a charge, so there is no call before the first charge. The
+      example agrees with reading 2 of R-RET-1. That reading does not require the absence of
+      further calls after the "ok", but it allows it.
+
+decisions:
+  - {req: R-RET-1, phrase: "once a charge returns", reading: 2}

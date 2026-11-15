@@ -1,0 +1,126 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # the call returned the bool True / the bool False
+  ret_true: "outcome == 0 && result"
+  ret_false: "outcome == 0 && !result"
+  # "the last character of a given string is ,": literal reading, the final
+  # character of txt (a trailing space counts) is a comma; the empty string has
+  # no last character, so it never qualifies
+  last_is: 'len(txt) > 0 && txt[len(txt) - 1] == ","'
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Every call, including candidate(""), finishes and returns a bool: no
+      exception, no non-termination, no value of another kind. "returns True
+      ... and False otherwise" is read as returning exactly the bools True or
+      False (reading 1), so a truthy/falsy value of another type (outcome 2)
+      is a violation.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "last_is", cond: "ret_true"}
+    note: >-
+      The request reads "is ," with the property missing. Taken literally
+      (reading 1), the last character must be a comma ',' (code 44). "The last
+      character" is the final character of txt, whatever it is, so a trailing
+      space is the last character (reading 1). This literal reading
+      contradicts the example R-EX-2: "apple pi e" does not end in a comma, so
+      RA-RET-3 requires False where RA-EX-2 requires True. The evident intent
+      (a letter standing alone at the end, consistent with every example) is
+      not stated by the text and is not substituted here.
+
+  - id: RA-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: "!last_is", cond: "ret_false"}
+    note: >-
+      "False otherwise" covers every call where the property of RA-RET-2 does
+      not hold, including the empty string, which has no last character
+      (reading 1 of "otherwise"). With the literal comma property of RA-RET-2
+      this sentence contradicts R-EX-2 (reading 2 of "False otherwise"):
+      candidate("apple pi e") must return False here but True by the example.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: 'txt == "apple pie" && ret_false'
+    note: >-
+      Docstring example, taken at face value. Consistent with the literal
+      comma reading of RA-RET-2/RA-RET-3 ("apple pie" does not end in ',').
+
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: 'txt == "apple pi e" && ret_true'
+    note: >-
+      Docstring example, taken at face value. Under the literal comma reading
+      of R-RET-2 this behaviour is excluded by RA-RET-3 ("apple pi e" ends in
+      'e', not ','), so the scenario is unreachable: the specification
+      contradicts itself (reading 2 of the flagged phrase). Kept as written,
+      not repaired.
+
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: 'txt == "apple pi e " && ret_false'
+    note: >-
+      Docstring example. Consistent with taking the last character to be the
+      final character of txt, here a space (reading 1).
+
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: 'txt == "" && ret_false'
+    note: Docstring example; the empty string returns False.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; it is already part of every
+      formalization set as frame item F-ZERO (outcome != 0 -> !result) and
+      need not be restated.
+    covered_by: [F-ZERO]
+  - req: R-NF-1
+    reason: >-
+      Non-functional: the deliverable is a Python implementation of the stub.
+      This is a statement about the artefact, not about the trace of calls.
+  - req: R-IF-1
+    reason: >-
+      Interface definition (function name candidate, single parameter txt).
+      It is realized by the function section and interface of design.yaml
+      (one input sequence signal txt), not by a property of the trace.
+  - req: R-IN-1
+    reason: >-
+      The interface encoding already makes every value of txt a string of 0
+      to 32 Latin-1 characters, the empty string included (frame.md,
+      Strings/Inputs), so no further obligation on the environment remains
+      to be assumed. No assumption is added, so the empty string stays a
+      legal argument (exercised by RA-EX-4).
+  - req: R-DEF-1
+    reason: >-
+      Definition of "word". The request never uses the term elsewhere, and
+      under the literal reading of R-RET-2 taken here ("is ," = is a comma)
+      no requirement refers to words, so the note constrains no output
+      (reading 2 of '"word"'). For the record, the other flagged phrases are
+      read literally: a group is one or more characters, "space" is the
+      character ' ' (code 32) only, and a word is a maximal run of non-space
+      characters.
+
+decisions:
+  - {req: R-RET-1, phrase: "returns True", reading: 1}
+  - {req: R-RET-2, phrase: "is ,", reading: 1}
+  - {req: R-RET-2, phrase: "the last character", reading: 1}
+  - {req: R-RET-3, phrase: "otherwise", reading: 1}
+  - {req: R-RET-3, phrase: "False otherwise", reading: 2}
+  - {req: R-DEF-1, phrase: '"word"', reading: 2}
+  - {req: R-DEF-1, phrase: "group of characters", reading: 1}
+  - {req: R-DEF-1, phrase: "space", reading: 1}
+  - {req: R-DEF-1, phrase: "separated by space", reading: 1}
+  - {req: R-EX-1, phrase: "candidate(\"apple pie\") ➞ False", reading: 1}
+  - {req: R-EX-2, phrase: "candidate(\"apple pi e\") ➞ True", reading: 2}
+  - {req: R-EX-3, phrase: "candidate(\"apple pi e \") ➞ False", reading: 1}

@@ -1,0 +1,184 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# Trace frame (frame.md): cycle 0 is reset, unit i of the response is cycle i+1,
+# eos rises in the cycle after the last unit. The frame items F-EOS, F-NUL,
+# F-SIG and F-LEN are added to this set automatically.
+
+defs:
+  # A body sentence for R-LEN-1 (reading 2): a unit of the response that is
+  # neither the subject line, nor the greeting, nor part of the closing.
+  body: "!eos && !subject && !greet && !signoff"
+
+ghosts:
+  # Counting over the whole response needs state. Past-time operators could
+  # only express it by nesting once/prev to the depth of the count, which is
+  # unreadable at depth 3 and 7, and the nested prev would also read the
+  # reset cycle. Both counters are registers cleared by reset: at cycle t
+  # they count the units in cycles 1..t-1, so at an eos cycle they hold the
+  # total for the response. Each saturates one above the largest value its
+  # property accepts (3 feature units, 6 body sentences).
+  - {name: nfeat, range: [0, 4], init: 0, next: "min(nfeat + feature, 4)"}
+  - {name: nbody, range: [0, 7], init: 0, next: "min(nbody + body, 7)"}
+
+properties:
+  # ---- R-SUBJ-1: "Start with a subject line."
+  - id: PA-SUBJ-1
+    req: R-SUBJ-1
+    pattern: after_reset
+    args: {cond: subject}
+    note: >-
+      The first unit of the response (the cycle right after the reset cycle)
+      is the subject line. Nothing is said about further subject lines, so
+      none are constrained.
+
+  # ---- R-GREET-1: "Then greet the reader by their first name."
+  - id: PA-GREET-1a
+    req: R-GREET-1
+    pattern: next
+    args: {trigger: subject, cond: greet}
+    note: >-
+      "Then" read literally as the immediately following unit: the unit right
+      after the subject line greets the reader by first name (or a first-name
+      placeholder). A greeting inside the subject line does not count. The
+      trigger is any unit labelled subject; an email has one subject line, so
+      this is the line required by R-SUBJ-1.
+  - id: PA-GREET-1b
+    req: R-GREET-1
+    pattern: implies
+    args: {trigger: eos, cond: "once(greet)"}
+    note: >-
+      The greeting itself is required unconditionally: by the end of the
+      response some unit has greeted the reader by first name. Without it,
+      PA-GREET-1a alone would hold vacuously for a response that has no
+      subject line.
+
+  # ---- R-FEAT-1: "Describe exactly three features of the X2."
+  - id: PA-FEAT-1
+    req: R-FEAT-1
+    pattern: implies
+    args: {trigger: eos, cond: "nfeat == 3"}
+    note: >-
+      When the response has ended, exactly three units have described a
+      product feature. The frame labels units, not distinct features: two
+      features described in one sentence count once, and a feature described
+      in two units (for example in the subject line and again in the body)
+      counts twice. The unit count equals the number of features only when
+      every feature is described in exactly one sentence of its own (R-FEAT-2).
+
+  # ---- R-FEAT-2: "Give each feature its own sentence,"
+  - id: PA-FEAT-2
+    req: R-FEAT-2
+    pattern: implies
+    args: {trigger: feature, cond: "!benefit"}
+    note: >-
+      Ambiguity "its own sentence": reading 1 chosen. Read literally, the
+      sentence belongs to the feature, and the same instruction puts the
+      benefit in the sentence that follows it, so a unit that describes a
+      feature does not also state a benefit. The part both readings share,
+      that no sentence describes two features, cannot be observed with a
+      one-bit feature label and is not checked. The instruction says nothing
+      about other content in a feature sentence (price, offer, call to
+      action), so that content is left unconstrained.
+
+  # ---- R-FEAT-3: "and follow it with a sentence about the benefit to the customer."
+  - id: PA-FEAT-3
+    req: R-FEAT-3
+    pattern: next
+    args: {trigger: feature, cond: benefit}
+    note: >-
+      "follow it with" read as the immediately next unit: every unit that
+      describes a feature is directly followed by a unit stating a benefit
+      to the customer. A feature in the last unit fails, because the next
+      cycle is eos. The benefit label does not say whose benefit it states,
+      so "the benefit" (of that feature) is checked only as "a benefit".
+
+  # ---- R-PRICE-1: "Mention the price, $249, once."
+  - id: PA-PRICE-1a
+    req: R-PRICE-1
+    pattern: implies
+    args: {trigger: eos, cond: "once(price)"}
+    note: >-
+      Ambiguity "once": the literal reading, exactly once, is chosen. It is
+      split into "at least once" (this item: by the end of the response some
+      unit has stated the regular price $249) and "at most once"
+      (PA-PRICE-1b).
+  - id: PA-PRICE-1b
+    req: R-PRICE-1
+    pattern: implies
+    args: {trigger: price, cond: "!prev(once(price))"}
+    note: >-
+      At most once: no unit that states the price follows an earlier unit
+      that stated it. This counts units, so a single sentence that repeats
+      $249 counts as one mention.
+
+  # ---- R-OFFER-1: "If you mention the launch offer, say when it ends in the same sentence."
+  - id: PA-OFFER-1
+    req: R-OFFER-1
+    pattern: implies
+    args: {trigger: offer, cond: ends}
+    note: >-
+      Conditional, as written. Mentioning the offer is optional. Any unit
+      that mentions the launch offer also says when the offer ends. The check
+      only requires that an end is stated; whether the stated end is 30
+      November (R-FACT-1) cannot be observed. A unit that states the end
+      without mentioning the offer is unconstrained.
+
+  # ---- R-RIVAL-1: "Do not mention competitors."
+  - id: PA-RIVAL-1
+    req: R-RIVAL-1
+    expr: "!rival"
+    note: No unit mentions a competing product, brand or company.
+
+  # ---- R-LEN-1: "Keep the body under 7 sentences."
+  - id: PA-LEN-1
+    req: R-LEN-1
+    pattern: implies
+    args: {trigger: eos, cond: "nbody < 7"}
+    note: >-
+      When the response has ended, it has had at most 6 body sentences
+      ("under 7"). Ambiguity "the body": reading 2 chosen. In a letter the
+      body lies between the salutation and the closing, and a greeting line
+      such as "Hi {first_name}," is not a sentence. A body sentence (def
+      body) is any unit that is neither the subject line, nor a greeting,
+      nor part of the closing. The call to action counts. A greet unit is
+      excluded even when it also carries other content. Under reading 1,
+      greet units would also count.
+
+  # ---- R-END-1: "End with a call to action, followed by the sign-off "The Aurora Team"."
+  - id: PA-END-1a
+    req: R-END-1
+    pattern: implies
+    args: {trigger: eos, cond: "since(eos, signoff)"}
+    note: >-
+      The response ends with the sign-off: its last unit belongs to the
+      closing. The empty response fails. The frame's signoff label marks any
+      closing unit (the name, or a closing word such as "Warmly," before it),
+      so it cannot show whether the name is exactly "The Aurora Team". That
+      part is not checked.
+  - id: PA-END-1b
+    req: R-END-1
+    pattern: implies
+    args: {trigger: eos, cond: "since(eos || signoff, cta)"}
+    note: >-
+      The call to action comes immediately before the sign-off: the last
+      unit that is not part of the closing asks the reader to act, and only
+      closing units follow it. Together with PA-END-1a, the response ends
+      with a call to action followed by the sign-off. This relies on the
+      frame rules F-SIG and F-NUL, under which closing units and eos cycles
+      carry no cta.
+
+unformalized:
+  - req: R-FACT-1
+    reason: >-
+      Definition: it supplies the product facts, the price and the offer
+      terms, which the frame's labels refer to (feature, price = $249,
+      offer = the 20% discount, ends). It places no obligation of its own.
+      The frame has no label for accuracy, so neither a wrong value (for
+      example a 30-hour battery, or an end date other than 30 November) nor
+      a feature outside the list can be detected.
+  - req: R-TONE-1
+    reason: >-
+      Non-functional. A warm, confident tone is not observable in the trace:
+      the frame defines no tone label.

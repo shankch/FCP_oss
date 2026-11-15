@@ -1,0 +1,116 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-TASK-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is an implementation of the body of the given function remove_duplicates, keeping the given signature.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def remove_duplicates(numbers: List[int])'
+  text: The function is named remove_duplicates and takes exactly one argument, numbers, a list of integers.
+  kind: definition
+  ambiguity:
+  - phrase: remove_duplicates
+    readings:
+    - 'The name only labels the function; its behaviour is given by the docstring: every element whose value occurs more than once is removed, including all of its copies (so [1, 2, 3, 2, 4] gives [1, 3,
+      4]).'
+    - 'The name states the behaviour: duplicates are removed so that each value is kept once, as its first occurrence (so [1, 2, 3, 2, 4] gives [1, 2, 3, 4]); this contradicts the docstring sentence of
+      R-RM-1 and the example of R-EX-1.'
+  lines:
+  - 7
+- id: R-SIG-2
+  doc: SPEC
+  quote: -> List[int]
+  text: Every call of remove_duplicates returns a list of integers (outcome 0); it does not raise an exception, fail to finish, or return a value of another type.
+  kind: guarantee
+  ambiguity:
+  - phrase: -> List[int]
+    readings:
+    - 'The return annotation is an obligation: for every list of integers the function returns a list of integers and never raises.'
+    - The return annotation only describes the type of the value when the function returns; raising an exception on some inputs is not excluded.
+  lines:
+  - 7
+- id: R-IN-1
+  doc: SPEC
+  quote: From a list of integers
+  text: The argument numbers is a list of integers.
+  kind: assumption
+  lines:
+  - 8
+- id: R-RM-1
+  doc: SPEC
+  quote: remove all elements that occur more than once
+  text: No value that occurs more than once in numbers occurs in the returned list.
+  kind: guarantee
+  ambiguity:
+  - phrase: remove all elements that occur more than once
+    readings:
+    - Every occurrence of each value that occurs more than once in numbers is removed, so no such value is in the result (consistent with the example of R-EX-1).
+    - Only the repeated (extra) occurrences are removed, so each value that occurs more than once is kept exactly once (the reading suggested by the function name remove_duplicates in R-SIG-1, which contradicts
+      the example of R-EX-1).
+  - phrase: From a list of integers, remove
+    readings:
+    - A new list without those elements is returned; the argument numbers is left unchanged.
+    - The elements are deleted from the given list in place, and that list is returned.
+  lines:
+  - 8
+- id: R-RM-2
+  doc: SPEC
+  quote: From a list of integers, remove all elements that occur more than once.
+  text: Every value that occurs exactly once in numbers occurs in the returned list (only elements that occur more than once are removed).
+  kind: guarantee
+  lines:
+  - 8
+- id: R-RM-3
+  doc: SPEC
+  quote: From a list of integers, remove
+  text: 'The returned list is obtained from numbers only by removing elements: no value occurs in the returned list more often than it occurs in numbers (in particular, no value absent from numbers occurs
+    in it).'
+  kind: guarantee
+  lines:
+  - 8
+- id: R-ORD-1
+  doc: SPEC
+  quote: Keep order of elements left the same as in the input.
+  text: The elements of the returned list appear in the same relative order as they appear in numbers.
+  kind: guarantee
+  ambiguity:
+  - phrase: Keep order of elements left the same as in the input
+    readings:
+    - 'The remaining elements keep their relative order: the returned list is a subsequence of numbers.'
+    - The remaining elements keep their original positions (indices) in the list.
+  - phrase: elements left
+    readings:
+    - Under the docstring reading of R-RM-1, the elements left are those whose value occurs exactly once, ordered by their single position.
+    - Under the deduplicating reading of R-RM-1 and R-SIG-1, a kept value is ordered by the position of its first occurrence in numbers.
+    - Under the deduplicating reading of R-RM-1 and R-SIG-1, a kept value is ordered by the position of its last occurrence in numbers.
+  lines:
+  - 9
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> remove_duplicates([1, 2, 3, 2, 4]) [1, 3, 4]'
+  text: remove_duplicates([1, 2, 3, 2, 4]) returns [1, 3, 4].
+  kind: scenario
+  ambiguity:
+  - phrase: '[1, 3, 4]'
+    readings:
+    - 'The example is authoritative: the value 2, which occurs twice, is removed entirely, as the docstring sentence of R-RM-1 literally says.'
+    - The example contradicts the function name remove_duplicates of R-SIG-1, under which the call would return [1, 2, 3, 4].
+  lines:
+  - 10
+  - 11
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `result` is the empty list unless `outcome` is 0.'
+  text: Whenever outcome is not 0, result is the empty list.
+  kind: guarantee
+  lines:
+  - 47

@@ -1,0 +1,240 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. valid_date keeps no state between calls (frame.md), so
+# the reference model is combinational: the defs below compute, from the
+# argument alone, every rule of the prompt and the validity they define.
+# Every output is checked against it: outcome (RB-RET-3) and valid
+# (RB-RET-1, RB-RET-2).
+defs:
+  # call results
+  returns_true: "outcome == 0 && valid"
+  returns_false: "outcome == 0 && !valid"
+  # rule 1: the date string is not empty
+  nonempty: "len(date) != 0"
+  # rule 4: format mm-dd-yyyy, read as exactly 10 characters: two digits, '-',
+  # two digits, '-', four digits, nothing before or after (no stripping)
+  field_digits: "isdigit(date[0]) && isdigit(date[1]) && isdigit(date[3]) && isdigit(date[4]) && isdigit(date[6]) && isdigit(date[7]) && isdigit(date[8]) && isdigit(date[9])"
+  dash_seps: 'date[2] == "-" && date[5] == "-"'
+  fmt_ok: "len(date) == 10 && field_digits && dash_seps"
+  # fields of a string of the form mm-dd-yyyy (R-FMT-3): first is the month,
+  # second the day; only meaningful when fmt_ok holds
+  month: '(date[0] - "0") * 10 + (date[1] - "0")'
+  day: '(date[3] - "0") * 10 + (date[4] - "0")'
+  m31: "month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12"
+  m30: "month == 4 || month == 6 || month == 9 || month == 11"
+  m29: "month == 2"
+  # rule 2: day in range for its month ("not less than 1 or higher than N"
+  # read as neither below 1 nor above N); February allows 29 in every year
+  days_ok: "(m31 -> (day >= 1 && day <= 31)) && (m30 -> (day >= 1 && day <= 30)) && (m29 -> (day >= 1 && day <= 29))"
+  # rule 3: month in 1..12
+  month_ok: "month >= 1 && month <= 12"
+  # "The date is valid if all of the following rules are satisfied", read as
+  # the definition (if and only if)
+  is_valid: "nonempty && fmt_ok && days_ok && month_ok"
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: is_valid, cond: returns_true}
+    note: >-
+      A date meeting all four rules returns True. Rules taken at their word
+      (reading 1). This contradicts the examples '03-11-2000' => False and
+      '06-04-2020' => False (RB-EX-1, RB-EX-4), which both meet every rule.
+      Those examples are kept literally as scenarios, so the conflict stays
+      visible.
+
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "!is_valid", cond: returns_false}
+    note: >-
+      Any string that breaks a rule returns False (reading 1, rules
+      authoritative). This contradicts the examples '15-01-2012',
+      '04-0-2040' and '06/04/2020' => True (RB-EX-2, RB-EX-3, RB-EX-5),
+      each of which breaks a rule. Those examples are kept literally as
+      scenarios.
+
+  - id: RB-RET-3
+    req: R-RET-3
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Every call returns a bool: no exception, no hang, no value of another
+      type. "returns True if the date is valid otherwise False" is read as
+      covering every string, malformed ones included (reading 1).
+
+  - id: RB-EMP-1
+    req: R-EMP-1
+    pattern: implies
+    args: {trigger: "len(date) == 0", cond: returns_false}
+    note: "Rule 1: the empty string returns False."
+
+  - id: RB-DAY-1
+    req: R-DAY-1
+    pattern: implies
+    args: {trigger: "fmt_ok && m31 && (day < 1 || day > 31)", cond: returns_false}
+    note: >-
+      Rule 2, months 1,3,5,7,8,10,12. "not less than 1 or higher than 31" is
+      read as neither below 1 nor above 31 (reading 1). The other parse,
+      "(not less than 1) or higher than 31", would make "higher than 31"
+      meaningless. Month and day are the numeric mm and dd fields, which
+      R-FMT-3 defines only for a string of the form mm-dd-yyyy, so the rule
+      is guarded by fmt_ok. A malformed string is rejected by RB-FMT-2.
+
+  - id: RB-DAY-2
+    req: R-DAY-2
+    pattern: implies
+    args: {trigger: "fmt_ok && m30 && (day < 1 || day > 30)", cond: returns_false}
+    note: >-
+      Rule 2, months 4,6,9,11; neither below 1 nor above 30 (reading 1).
+      Rule authoritative over example '04-0-2040' => True (reading 1 of
+      "not less than 1"). Day 0 in month 4 is not allowed. '04-0-2040'
+      itself has a one-digit day field, so it is not of the form mm-dd-yyyy
+      and RB-FMT-2 / RB-RET-2 reject it rather than this item. The
+      contradiction with the example is kept in RB-EX-3.
+
+  - id: RB-DAY-3
+    req: R-DAY-3
+    pattern: implies
+    args: {trigger: "fmt_ok && m29 && (day < 1 || day > 29)", cond: returns_false}
+    note: >-
+      Rule 2, month 2; neither below 1 nor above 29 (reading 1). Day 29 is
+      allowed in every year as the rule states (reading 1 of "higher than 29
+      for the month 2"). The prompt says nothing about leap years.
+
+  - id: RB-MON-1
+    req: R-MON-1
+    pattern: implies
+    args: {trigger: "fmt_ok && (month < 1 || month > 12)", cond: returns_false}
+    note: >-
+      Rule 3: neither below 1 nor above 12 (reading 1). The rule beats
+      example '15-01-2012' => True (reading 1 of "higher than 12"), so month
+      15 returns False. The conflict is kept in RB-EX-2. Guarded by fmt_ok
+      because the month is the mm field of a string of the form mm-dd-yyyy
+      (R-FMT-3).
+
+  - id: RB-FMT-1
+    req: R-FMT-1
+    pattern: implies
+    args: {trigger: "len(date) == 10 && field_digits && !dash_seps", cond: returns_false}
+    note: >-
+      Rule 4, separators: when the mm, dd and yyyy digit fields are in place
+      but a separator is not '-' (for example '/'), the call returns False.
+      Rule beats example '06/04/2020' => True (reading 1). The conflict is
+      kept in RB-EX-5.
+
+  - id: RB-FMT-2
+    req: R-FMT-2
+    pattern: implies
+    args: {trigger: "!fmt_ok", cond: returns_false}
+    note: >-
+      Rule 4, whole format: exactly two digits, '-', two digits, '-', four
+      digits, 10 characters, nothing else. Field widths are exact, so
+      '04-0-2040' is malformed (reading 1 of "mm-dd-yyyy"; this contradicts
+      RB-EX-3). The whole string must match and whitespace is not stripped
+      (reading 1 of "in the format"). Any four digits are a year, '0000'
+      included (reading 1 of "yyyy").
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: 'date == "03-11-2000" && returns_false'
+    note: >-
+      The example as written: valid_date('03-11-2000') returns False
+      (reading 1). '03-11-2000' meets all four rules (month 3, day 11, format
+      mm-dd-yyyy), so RB-RET-1 forces True and this scenario cannot be
+      reached under the rule properties. The spec contradicts itself here;
+      this set shows the contradiction and does not repair it.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: 'date == "15-01-2012" && returns_true'
+    note: >-
+      The example as written: valid_date('15-01-2012') returns True (reading
+      1, month 15 accepted; the scenario only fixes the call's result).
+      Under the rules, month 15 breaks rule 3 (RB-MON-1, RB-RET-2), so this
+      scenario cannot be reached. The contradiction is kept, not repaired.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    cover: 'date == "04-0-2040" && returns_true'
+    note: >-
+      The example as written: valid_date('04-0-2040') returns True (reading
+      1). Under the rules it has day 0 and a one-digit day field (RB-FMT-2,
+      RB-RET-2), so this scenario cannot be reached. The contradiction is
+      kept, not repaired.
+
+  - id: RB-EX-4
+    req: R-EX-4
+    cover: 'date == "06-04-2020" && returns_false'
+    note: >-
+      The example as written: valid_date('06-04-2020') returns False
+      (reading 1). '06-04-2020' meets all four rules, so RB-RET-1 forces
+      True and this scenario cannot be reached. The contradiction is kept,
+      not repaired.
+
+  - id: RB-EX-5
+    req: R-EX-5
+    cover: 'date == "06/04/2020" && returns_true'
+    note: >-
+      The example as written: valid_date('06/04/2020') returns True (reading
+      1). Under the rules, '/' separators break rule 4 (RB-FMT-1, RB-RET-2),
+      so this scenario cannot be reached. The contradiction is kept, not
+      repaired.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function's name and its single argument are fixed
+      by the adapter (design.yaml function section). A trace of calls has no
+      signal for them, so FCP-PL cannot express this.
+  - req: R-IN-1
+    reason: >-
+      Holds by construction of the interface: the only argument is the
+      string signal date, and calls with a non-string argument are not part
+      of the trace (frame.md, Inputs). No constraint on the inputs is left
+      to assume.
+  - req: R-VAL-1
+    reason: >-
+      Definition. It is realized as the def is_valid (the conjunction of the
+      four rules, read as if and only if, rules authoritative). RB-RET-1 and
+      RB-RET-2 check the result against it in both directions.
+    covered_by: [RB-RET-1, RB-RET-2]
+  - req: R-FMT-3
+    reason: >-
+      Definition of the fields: realized as the defs month (mm, the first
+      field) and day (dd, the second field), used by the day and month rules.
+    covered_by: [RB-DAY-1, RB-DAY-2, RB-DAY-3, RB-MON-1]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter. design.yaml's frame item F-ZERO states it
+      and adds it to every formalization set; frame.md says it need not be
+      restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-RET-1, phrase: "returns True if the date is valid", reading: 1}
+  - {req: R-RET-2, phrase: "otherwise False", reading: 1}
+  - {req: R-RET-3, phrase: "otherwise False", reading: 1}
+  - {req: R-VAL-1, phrase: "The date is valid if", reading: 1}
+  - {req: R-VAL-1, phrase: "all of the following rules are satisfied", reading: 1}
+  - {req: R-DAY-1, phrase: "is not less than 1 or higher than 31", reading: 1}
+  - {req: R-DAY-2, phrase: "is not less than 1 or higher than 30", reading: 1}
+  - {req: R-DAY-2, phrase: "not less than 1", reading: 1}
+  - {req: R-DAY-3, phrase: "is not less than 1 or higher than 29", reading: 1}
+  - {req: R-DAY-3, phrase: "higher than 29 for the month 2", reading: 1}
+  - {req: R-MON-1, phrase: "should not be less than 1 or higher than 12", reading: 1}
+  - {req: R-MON-1, phrase: "higher than 12", reading: 1}
+  - {req: R-FMT-1, phrase: "mm-dd-yyyy", reading: 1}
+  - {req: R-FMT-2, phrase: "mm-dd-yyyy", reading: 1}
+  - {req: R-FMT-2, phrase: "in the format", reading: 1}
+  - {req: R-FMT-2, phrase: "yyyy", reading: 1}
+  - {req: R-FMT-3, phrase: "mm-dd-yyyy", reading: 1}
+  - {req: R-EX-1, phrase: "valid_date('03-11-2000') => False", reading: 1}
+  - {req: R-EX-2, phrase: "valid_date('15-01-2012') => True", reading: 1}
+  - {req: R-EX-3, phrase: "valid_date('04-0-2040') => True", reading: 1}
+  - {req: R-EX-4, phrase: "valid_date('06-04-2020') => False", reading: 1}
+  - {req: R-EX-5, phrase: "valid_date('06/04/2020') => True", reading: 1}

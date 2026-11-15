@@ -1,0 +1,32 @@
+fcp: '0.1'
+design: code_eat
+summary: A Python function on integers treated as a chip without memory. Each cycle is one call of eat(number, need, remaining); the arguments are inputs, the returned list (a sequence of at most 4 numbers) and the way the call ended are outputs. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt: eat, the hungry rabbit'}
+- {id: FRAME, path: frame.md, title: 'FCP function adapter, version 0.7'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: number, dir: in, width: 11, desc: 'number argument, 0 to 2,047'}
+  - {name: need, dir: in, width: 11, desc: 'need argument, 0 to 2,047'}
+  - {name: remaining, dir: in, width: 11, desc: 'remaining argument, 0 to 2,047'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a list that fits, 1 any exception or no answer, 2 returned anything else'}
+  - {name: result, dir: out, width: 13, length: 4, desc: 'the returned list (outcome 0), at most 4 numbers from 0 to 8,191'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-EMPTY, req: R-FR-1, expr: 'outcome != 0 -> len(result) == 0'}
+function:
+  name: eat
+  args:
+  - {name: number, signal: number, type: int}
+  - {name: need, signal: need, type: int}
+  - {name: remaining, signal: remaining, type: int}
+  returns: {signal: result, type: list}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    number: {dense: [0, 30], random: 300}
+    need: {dense: [0, 30], random: 300}
+    remaining: {dense: [0, 30], random: 300}

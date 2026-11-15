@@ -1,0 +1,128 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a working implementation of the given Python function stub is_palindrome; the given signature is kept and the body is supplied.
+  kind: non_functional
+  ambiguity:
+  - phrase: Complete this function
+    readings:
+    - Only the body is to be written; the given signature and docstring (with its doctests) are kept unchanged.
+    - The whole function may be rewritten as long as its name and behaviour match; keeping the docstring is not required.
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def is_palindrome(text: str):'
+  text: The function is named is_palindrome and takes exactly one parameter, named text.
+  kind: definition
+  lines:
+  - 4
+- id: R-IF-3
+  doc: SPEC
+  quote: 'text: str'
+  text: The caller passes a str as the argument text; behaviour for arguments of any other type is not specified.
+  kind: assumption
+  lines:
+  - 4
+- id: R-DEF-1
+  doc: SPEC
+  quote: Checks if given string is a palindrome
+  text: A palindrome is a string that reads the same forwards and backwards, i.e. it is equal to its own reversal.
+  kind: definition
+  ambiguity:
+  - phrase: palindrome
+    readings:
+    - 'Strict: the string equals its reversal character by character; case, spaces, punctuation and every other character count (e.g. ''Aba'' and ''a ba'' are not palindromes).'
+    - 'Case-insensitive: the string equals its reversal after letters are mapped to one case; all other characters count (e.g. ''Aba'' is a palindrome, ''a ba'' is not).'
+    - 'Phrase palindrome: only letters and digits are compared, ignoring case, spaces and punctuation (e.g. ''Aba'', ''a ba'' and ''A man, a plan, a canal: Panama'' are palindromes, and a string without
+      letters or digits such as ''!?'' is a palindrome).'
+  lines:
+  - 6
+- id: R-PAL-1
+  doc: SPEC
+  quote: Checks if given string is a palindrome
+  text: If the argument text is a palindrome, is_palindrome(text) returns True.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: palindrome
+    readings:
+    - 'Strict: text equals its reversal character by character (case, spaces and punctuation count).'
+    - 'Case-insensitive: text equals its reversal after letters are mapped to one case; all other characters count.'
+    - 'Phrase palindrome: the letters and digits of text, compared ignoring case, read the same in both directions; spaces, punctuation and other characters are ignored.'
+  lines:
+  - 6
+- id: R-PAL-2
+  doc: SPEC
+  quote: Checks if given string is a palindrome
+  text: If the argument text is not a palindrome, is_palindrome(text) returns False.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: palindrome
+    readings:
+    - 'Strict: text equals its reversal character by character (case, spaces and punctuation count).'
+    - 'Case-insensitive: text equals its reversal after letters are mapped to one case; all other characters count.'
+    - 'Phrase palindrome: the letters and digits of text, compared ignoring case, read the same in both directions; spaces, punctuation and other characters are ignored.'
+  lines:
+  - 6
+- id: R-RET-1
+  doc: SPEC
+  quote: Checks if given string is a palindrome
+  text: For every string argument, is_palindrome returns normally (it does not raise and does not hang) and the returned value is the bool True or False.
+  kind: guarantee
+  ambiguity:
+  - phrase: Checks
+    readings:
+    - The function returns the answer as a bool, exactly True or False (as the doctest outputs show).
+    - The function returns any value whose truthiness gives the answer (e.g. 1/0 or a non-empty/empty object would be acceptable).
+  lines:
+  - 6
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> is_palindrome('''') True'
+  text: Called with the empty string, is_palindrome returns True.
+  kind: scenario
+  lines:
+  - 7
+  - 8
+- id: R-EX-2
+  doc: SPEC
+  quote: '>>> is_palindrome(''aba'') True'
+  text: Called with the string 'aba', is_palindrome returns True.
+  kind: scenario
+  lines:
+  - 9
+  - 10
+- id: R-EX-3
+  doc: SPEC
+  quote: '>>> is_palindrome(''aaaaa'') True'
+  text: Called with the string 'aaaaa', is_palindrome returns True.
+  kind: scenario
+  lines:
+  - 11
+  - 12
+- id: R-EX-4
+  doc: SPEC
+  quote: '>>> is_palindrome(''zbcd'') False'
+  text: Called with the string 'zbcd', is_palindrome returns False.
+  kind: scenario
+  lines:
+  - 13
+  - 14
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, the output result is 0 (false) whenever outcome is not 0.
+  kind: guarantee
+  lines:
+  - 46

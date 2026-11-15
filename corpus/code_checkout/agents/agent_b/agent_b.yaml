@@ -1,0 +1,261 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model.
+# The function keeps no state between calls (frame.md), so the reference model
+# is combinational and needs no ghost state: from the arguments of the current
+# call alone, the defs below give whether the arguments are in range (expected
+# outcome 0, else 1) and the exact discounted price (in 1/100 cent, so that it
+# is an exact integer); the expected shipping fee is the two cases of PB-SHIP-1
+# and PB-SHIP-2. Every output (outcome, price, ship) is checked against this
+# model. The only relation between calls is R-MONO-1, which compares the
+# current call with the previous one through prev().
+defs:
+  # R-IN-1 / R-IN-2: valid ranges, both bounds inclusive. Negative arguments
+  # are not part of the trace, so only the upper bounds can be violated.
+  sub_ok: "subtotal <= 1000000"
+  coup_ok: "coupon <= 50"
+  in_range: "sub_ok && coup_ok"
+  # R-MEM-1 / R-IN-3: the member discount, in percent.
+  mem_pct: "member ? 10 : 0"
+  # R-STACK-1, reading 'the percentages add up'; coupon 0 adds nothing (R-IN-2).
+  sum_pct: "mem_pct + coupon"
+  # R-STACK-1: the total discount is never more than 30%.
+  disc_pct: "min(sum_pct, 30)"
+  # Exact discounted price times 100 (the price in 1/100 cent).
+  exact_x100: "subtotal * (100 - disc_pct)"
+  price_x100: "100 * price"
+  # R-ROUND-1: price is a nearest whole cent to the exact discounted price.
+  nearest_cent: "price_x100 <= exact_x100 + 50 && exact_x100 <= price_x100 + 50"
+  # R-SHIP-1 (reading 'the subtotal before discounts is under $50'): the model
+  # shipping fee is 499 when subtotal < 5000 and 0 otherwise; the two cases are
+  # PB-SHIP-1 and PB-SHIP-2.
+  # R-MONO-1: the amount charged.
+  charged: "price + ship"
+
+properties:
+  # ---------------------------------------------------------------- outcome
+  - id: PB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "in_range", cond: "outcome == 0"}
+    note: >-
+      With subtotal in 0..1,000,000 and coupon in 0..50 the call returns a pair
+      of integers (outcome 0). Outcome 0 also requires the pair to fit the
+      21-bit price and 10-bit ship outputs; every value the specification
+      allows (price at most 1,000,000, shipping 0 or 499) fits, so this adds
+      nothing beyond 'returns a pair of whole numbers of cents'. The values of
+      the pair are checked by the PB-MEM, PB-COUP, PB-STACK, PB-ROUND and
+      PB-SHIP items.
+
+  - id: PB-ERR-1
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "!sub_ok", cond: "outcome == 1"}
+    note: >-
+      A subtotal above 1,000,000 raises ValueError, whatever the coupon and
+      membership. 'from 0 to 1,000,000' is read as inclusive.
+
+  - id: PB-ERR-2
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "!coup_ok", cond: "outcome == 1"}
+    note: >-
+      A coupon above 50 raises ValueError, whatever the subtotal and
+      membership. 'from 0 to 50' is read as inclusive. member is a bool and has
+      no range to violate.
+
+  # ---------------------------------------------------------------- price
+  # The four items PB-MEM-1, PB-COUP-1, PB-STACK-1 and PB-STACK-2 partition the
+  # in-range inputs by which discount rule governs them. Each checks the price
+  # only up to the rounding to a whole cent (strictly less than one cent from
+  # the exact discounted price, i.e. the floor or the ceiling). Which neighbour
+  # is chosen is the job of R-ROUND-1 (PB-ROUND-1), so a rounding error is
+  # reported there and a discount error here.
+  - id: PB-MEM-1
+    req: R-MEM-1
+    pattern: implies
+    args:
+      trigger: "in_range && member && coupon == 0"
+      cond: "100 * price < 90 * subtotal + 100 && 90 * subtotal < 100 * price + 100"
+    note: >-
+      A member without a coupon (R-IN-2: coupon 0 means no coupon) gets 10%
+      off: the price is 90% of the subtotal, rounded down or up to a whole
+      cent. The 10% is off the cart total (subtotal). Members with a coupon are
+      covered by PB-STACK-1 and PB-STACK-2.
+
+  - id: PB-COUP-1
+    req: R-COUP-1
+    pattern: implies
+    args:
+      trigger: "in_range && !member && coupon <= 30"
+      cond: "100 * price < subtotal * (100 - coupon) + 100 && subtotal * (100 - coupon) < 100 * price + 100"
+    note: >-
+      A non-member's coupon takes coupon percent off the subtotal: the price
+      is (100 - coupon)% of the subtotal, rounded down or up to a whole cent.
+      Coupon 0 means no coupon (R-IN-2), so a non-member without a coupon pays
+      exactly the subtotal. Only coupons up to 30 are constrained here: for a
+      larger coupon 'coupon percent off' would exceed the cap of R-STACK-1
+      ('the total discount is never more than 30%'), whose 'but ... never'
+      overrides it; that case is PB-STACK-2. Spec smell: coupons 31..50 are
+      accepted (R-IN-2) but all act as 30.
+
+  - id: PB-STACK-1
+    req: R-STACK-1
+    pattern: implies
+    args:
+      trigger: "in_range && member && coupon >= 1 && coupon <= 20"
+      cond: "100 * price < subtotal * (90 - coupon) + 100 && subtotal * (90 - coupon) < 100 * price + 100"
+    note: >-
+      Ambiguity 'Discounts stack': reading chosen is 'the percentages add up'.
+      Both discounts are stated as a percentage off the cart, and 'the total
+      discount' is their sum; the other reading ('one after the other') needs a
+      base (the already discounted price) that the text never names. So a
+      member with a coupon of 1..20 (sum at most 30, cap not reached) pays
+      (90 - coupon)% of the subtotal, rounded down or up to a whole cent. Under
+      the other reading the price would be 90% x (100 - coupon)% of the
+      subtotal, e.g. 72% instead of 70% for coupon 20.
+
+  - id: PB-STACK-2
+    req: R-STACK-1
+    pattern: implies
+    args:
+      trigger: "in_range && sum_pct > 30"
+      cond: "100 * price < 70 * subtotal + 100 && 70 * subtotal < 100 * price + 100"
+    note: >-
+      The cap: when the summed discount exceeds 30% (a member with coupon
+      21..50, or a non-member with coupon 31..50) the total discount is 30%
+      and the price is 70% of the subtotal, rounded down or up to a whole
+      cent. 'never more than 30%' is read as unconditional, so it also caps a
+      single coupon above 30, not only a stacked discount. It is read as a cap
+      on the discount percentage before rule 5 rounds the discounted price. Read
+      instead as a cap on the rounded discount amount, it would contradict
+      R-ROUND-1: a 3-cent cart at 30% off is 2.1 cents, the nearest cent is 2,
+      and a 1-cent discount on 3 cents is 33%.
+
+  - id: PB-STACK-3
+    req: R-STACK-1
+    pattern: implies
+    args:
+      trigger: "in_range"
+      cond: "100 * price + 100 > 70 * subtotal"
+    note: >-
+      Direct rendering of 'the total discount is never more than 30%': the
+      price is never a whole cent or more below 70% of the subtotal. Implied
+      by the four partition items, but independent of the reading of
+      'Discounts stack' (it holds under 'one after the other' as well).
+
+  - id: PB-ROUND-1
+    req: R-ROUND-1
+    pattern: implies
+    args:
+      trigger: "in_range"
+      cond: "nearest_cent"
+    note: >-
+      The price is a nearest whole cent to the exact discounted price of the
+      model, subtotal x (100 - min(10 x member + coupon, 30)) / 100:
+      |100 x price - exact_x100| <= 50. Ambiguity 'the nearest cent': at
+      exactly half a cent both neighbours are equally near and the text gives
+      no tie rule, so the most literal reading accepts either neighbour
+      (round-half-up and round-half-to-even are both stronger, extra rules).
+      Consequence: at a tie the price is not determined, e.g. a member with a
+      5-cent cart and no coupon (4.5 cents) may get 4 or 5.
+
+  # ---------------------------------------------------------------- shipping
+  - id: PB-SHIP-1
+    req: R-SHIP-1
+    pattern: implies
+    args: {trigger: "in_range && subtotal < 5000", cond: "ship == 499"}
+    note: >-
+      Ambiguity 'Orders under $50': reading chosen is 'the subtotal before
+      discounts'. The order is the cart and the only amount the text gives
+      for it is the cart total (subtotal); the discounted price is called 'the
+      discounted price of the cart', not the order. Under the other reading
+      the threshold would apply to price. Literal consequence: an empty cart
+      (subtotal 0) is an order under $50 and pays 499.
+
+  - id: PB-SHIP-2
+    req: R-SHIP-1
+    pattern: implies
+    args: {trigger: "in_range && subtotal >= 5000", cond: "ship == 0"}
+    note: >-
+      Orders of $50 or more (subtotal at least 5,000 cents, reading as in
+      PB-SHIP-1) ship free: ship is 0.
+
+  # ---------------------------------------------------------------- monotonicity
+  - id: PB-MONO-1
+    req: R-MONO-1
+    pattern: implies
+    args:
+      trigger: "prev(in_range) && in_range && prev(outcome) == 0 && outcome == 0 && coupon == prev(coupon) && member == prev(member) && subtotal > prev(subtotal)"
+      cond: "charged >= prev(charged)"
+    note: >-
+      Adding items to the cart: the checker may choose any previous call, so
+      the property compares every pair of calls with the same coupon and
+      membership where the later one has the larger subtotal. Both calls must
+      be in range and have returned a pair, because 'the amount charged, which
+      is the price plus shipping' only exists then (raising is R-RET-1 and
+      R-ERR-1). 'Adding items' is read as a strictly larger subtotal.
+      CONTRADICTION, formalized literally and not repaired: with R-SHIP-1 and
+      the price rules the amount charged drops at the free-shipping threshold.
+      A 4,999-cent cart without discount is charged 4,999 + 499 = 5,498 and a
+      5,000-cent cart 5,000 + 0 = 5,000. For every coupon and membership the
+      step from 4,999 to 5,000 raises the price by exactly 1 cent and removes
+      499 cents of shipping, so the amount charged drops by 498 cents. A drop
+      of the same kind occurs where the price crosses 5,000 under the other
+      reading of 'Orders under $50'. No function meets R-SHIP-1,
+      R-MEM-1/R-COUP-1/R-STACK-1/R-ROUND-1, R-RET-1 and R-MONO-1 together.
+
+  # ---------------------------------------------------------------- example
+  - id: PB-EX-2
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "member && subtotal == 10000 && coupon == 0"
+      cond: "outcome == 0 && price == 9000 && ship == 0"
+    note: >-
+      The example read as a guarantee for that one input ('gets'): a member
+      with a 10,000-cent cart and no coupon gets (9000, 0). It agrees with the
+      model (exactly 90% of 10,000, and 10,000 is not under 5,000) and does not
+      settle any of the ambiguities (stacking, ties, shipping threshold).
+
+scenarios:
+  - id: PB-EX-1
+    req: R-EX-1
+    cover: "member && subtotal == 10000 && coupon == 0 && outcome == 0 && price == 9000 && ship == 0"
+    note: >-
+      The example as a behaviour that must be possible: a call by a member
+      with a $100.00 cart and no coupon that returns (9000, 0).
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the interface: the function name, its arguments and their
+      types are realized by the function adapter (design.yaml maps each
+      argument to an input signal). The result type, a pair of ints, is
+      required for in-range calls by PB-RET-1; out-of-range calls raise
+      (PB-ERR-1, PB-ERR-2).
+    covered_by: [PB-RET-1, PB-ERR-1, PB-ERR-2]
+  - req: R-IN-1
+    reason: >-
+      Definition of the valid subtotal range 0..1,000,000 (inclusive),
+      realized by the def sub_ok (the lower bound holds by the trace encoding)
+      and used by the items that depend on it.
+    covered_by: [PB-ERR-1, PB-RET-1]
+  - req: R-IN-2
+    reason: >-
+      Definition of the valid coupon range 0..50 (inclusive), realized by the
+      def coup_ok, and of 'coupon 0 means no coupon', realized by coupon 0
+      adding nothing to the discount (sum_pct), so a call without a coupon
+      gets only the member discount (PB-MEM-1) or none (PB-COUP-1 with coupon
+      0).
+    covered_by: [PB-ERR-2, PB-RET-1, PB-MEM-1, PB-COUP-1]
+  - req: R-IN-3
+    reason: >-
+      Definition of member (the customer is in the loyalty program), realized
+      by the def mem_pct: member selects the 10% member discount.
+    covered_by: [PB-MEM-1, PB-COUP-1, PB-STACK-1, PB-STACK-2]
+# R-FR-1 (frame.md: price and ship are 0 unless outcome is 0) is formalized by
+# the design.yaml frame item F-ZERO (req R-FR-1), which is part of every
+# formalization set by construction and is therefore not restated here.

@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\ndef candidate(brackets: str) -> bool:\n    \"\"\" brackets is a string of \"(\" and \")\".\n    return True if every closing or opening bracket has a corresponding closing or opening bracket.\n\n    >>> candidate(\"(\")\n    False\n    >>> candidate(\"()\")\n    True\n    >>> candidate(\"(()())\")\n    True\n    >>> candidate(\")(()\")\n    False\n    \"\"\"\n    depth = 0\n    for ch in brackets:\n        if ch == \"(\":\n            depth += 1\n        elif ch == \")\":\n            depth -= 1\n            if depth < 0:\n                return False\n    return depth == 0\n```",
+  "seconds": 4.0,
+  "cost_usd": 0.011403,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "NO_QUESTIONS",
+  "seconds": 3.4,
+  "cost_usd": 0.011471700000000001,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "```python\ndef candidate(brackets: str):\n    \"\"\" brackets is a string of \"(\" and \")\".\n    return True if every closing or opening bracket has a corresponding closing or opening bracket.\n\n    >>> candidate(\"(\")\n    False\n    >>> candidate(\"()\")\n    True\n    >>> candidate(\"(()())\")\n    True\n    >>> candidate(\")(()\")\n    False\n    \"\"\"\n    depth = 0\n    for b in brackets:\n        if b == \"(\":\n            depth += 1\n        elif b == \")\":\n            depth -= 1\n            if depth < 0:\n                # A closing bracket appeared with no matching opening bracket\n                return False\n    # All opening brackets must have been closed\n    return depth == 0\n```\n\nThe function keeps a running count of open brackets. The count must never drop below zero, which would mean a `)` has no matching `(`. It must also end at exactly zero, which means every `(` was closed.",
+  "seconds": 3.9,
+  "cost_usd": 0.012847699999999998,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

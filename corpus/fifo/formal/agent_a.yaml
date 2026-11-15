@@ -1,0 +1,359 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# Named expressions (macros), not state.
+defs:
+  wr: "push && !full"    # a push that is accepted: push sampled high while the FIFO is not full (Sec 4.2)
+  rd: "pop && !empty"    # a pop that takes effect: pop sampled high while the FIFO is not empty (Sec 4.3)
+
+# Specification model of the number of stored words. It is needed only for
+# R-ST-4 ("count reflects the number of words stored"), which is not stated
+# by any interface signal. It is driven by push/pop only (it gates on its own
+# value, not on the DUT flags) and is cleared by reset.
+ghosts:
+  - {name: occ, range: [0, DEPTH], init: 0, next: "occ + (push && occ < DEPTH) - (pop && occ > 0)"}
+
+assumptions:
+  - id: FA-A-USE-1a
+    req: R-USE-1
+    pattern: implies
+    args: {trigger: "full", cond: "!push"}
+    note: >-
+      Producer obligation, read literally: push is low in every cycle in which
+      full is asserted. Modelled as a global assumption because the text places
+      it on the environment and the requirement kind is assumption. Caveat: R-USE-2
+      says violations are tolerated, so under this assumption the tolerance
+      properties (FA-WR-2, FA-RD-3, and the full/empty cases of FA-SIM-1) can
+      never trigger and are vacuous.
+  - id: FA-A-USE-1b
+    req: R-USE-1
+    pattern: implies
+    args: {trigger: "empty", cond: "!pop"}
+    note: >-
+      Consumer obligation, read literally: pop is low in every cycle in which
+      empty is asserted. Same caveat as FA-A-USE-1a regarding R-USE-2.
+
+properties:
+  # ---------------------------------------------------------------- reset (4.1)
+  - id: FA-RST-1
+    req: R-RST-1
+    pattern: after_reset
+    args: {cond: "count == 0"}
+    note: >-
+      Observable form of "the FIFO discards all stored words": in the cycle
+      after a reset cycle the number of stored words, which count reflects
+      (R-ST-4), is zero. The data side (no word accepted before a reset is ever
+      read out after it) is the cancel-on-reset semantics of the inorder
+      monitors FA-ORD-1, FA-ORD-2, FA-RD-1 and FA-TM-3. The text names no
+      cycle for the discard other than "the cycle after reset" of R-RST-2.
+
+  - id: FA-RST-2
+    req: R-RST-2
+    pattern: after_reset
+    args: {cond: "empty && !full && !almost_full && count == 0"}
+    note: >-
+      Literal reading of "In the cycle after reset": in every cycle that
+      follows a reset cycle, empty=1, full=0, almost_full=0, count=0. The
+      almost_full=0 part is consistent with either reading of R-ST-3/R-TM-2
+      because AF_LEVEL >= 1.
+
+  # ---------------------------------------------------------------- writing (4.2)
+  - id: FA-WR-1
+    req: R-WR-1
+    pattern: next
+    args:
+      trigger: "wr"
+      cond: "count == prev(count) + 1 - prev(rd)"
+    note: >-
+      Count part of R-WR-1 (the part "push_data is stored at the tail" is
+      stated by the inorder monitors FA-ORD-1/FA-RD-1, in_fire = push && !full).
+      "count increases by one" is read as the contribution of the push: a pop
+      that takes effect in the same cycle contributes its own -1 (R-RD-2), so
+      the net change is 0, as in R-SIM-1. Read as the total change of count it
+      would contradict R-RD-2 and R-SIM-1 whenever push and pop both take effect.
+
+  - id: FA-WR-2
+    req: R-WR-2
+    pattern: next
+    args:
+      trigger: "push && full"
+      cond: "count == prev(count) - prev(rd)"
+    note: >-
+      Count part of R-WR-2: "unchanged by it" means unchanged by the push, so
+      only a simultaneous pop can move count (an ignored push is not an in_fire
+      of the inorder monitors, which states the "stored words unchanged" part).
+      Under assumption FA-A-USE-1a the trigger can never occur, so this
+      property is vacuous in this set (R-USE-1 versus R-USE-2).
+
+  # ---------------------------------------------------------------- reading (4.3)
+  - id: FA-RD-1
+    req: R-RD-1
+    pattern: inorder
+    args:
+      in_fire: "wr"
+      in_data: "push_data"
+      out_fire: "rd"
+      out_data: "pop_data"
+      capacity: "DEPTH"
+      latency: 0
+      peek: "!empty"
+    note: >-
+      "The word at the head is always presented on pop_data while the FIFO is
+      not empty": peek condition is the empty flag being low, and the data is
+      shown in the same cycle (latency 0), independent of pop. The head is the
+      oldest accepted word not yet read out. Accepted = push while not full,
+      read out = pop while not empty (Sections 4.2 and 4.3). The inorder
+      pattern also carries order/integrity (R-ORD-1, R-ORD-2).
+
+  - id: FA-RD-2
+    req: R-RD-2
+    pattern: next
+    args:
+      trigger: "rd"
+      cond: "count == prev(count) - 1 + prev(wr)"
+    note: >-
+      Count part of R-RD-2 (the part "the head word is removed" is the
+      out_fire side of the inorder monitors FA-ORD-1/FA-RD-1). "count decreases
+      by one" is read as the contribution of the pop: a push that is accepted in
+      the same cycle contributes its own +1 (R-WR-1), so the net change is 0 as
+      in R-SIM-1. Read as the total change of count it would contradict R-WR-1
+      and R-SIM-1 whenever push and pop both take effect.
+
+  - id: FA-RD-3
+    req: R-RD-3
+    pattern: next
+    args:
+      trigger: "pop && empty"
+      cond: "count == prev(count) + prev(wr)"
+    note: >-
+      Count part of R-RD-3: an ignored pop contributes nothing to count, so only
+      a simultaneous accepted push can move it. An ignored pop is not an
+      out_fire of the inorder monitors, which states that no word is removed.
+      Under assumption FA-A-USE-1b the trigger can never occur, so this
+      property is vacuous in this set (R-USE-1 versus R-USE-2).
+
+  # ---------------------------------------------------------------- simultaneous push and pop (4.4)
+  - id: FA-SIM-1
+    req: R-SIM-1
+    pattern: next
+    args:
+      trigger: "push && pop"
+      cond: "count == prev(count)"
+    note: >-
+      AMBIGUITY, most literal reading taken: the text qualifies the antecedent
+      only by "push and pop are asserted in the same cycle", so count is
+      unchanged in every state. This contradicts R-WR-2 / R-RD-2 when full
+      (push ignored, pop removes a word: count-1) and R-WR-1 / R-RD-3 when
+      empty (pop ignored, push appends: count+1). The alternative reading
+      ("only when neither full nor empty") is not adopted because the text
+      states no such restriction, so adding it would repair the text. "Both
+      operations take effect" is not
+      expressible beyond count without contradicting R-WR-2/R-RD-3; for the
+      data it is realized by the in_fire/out_fire definitions of the inorder
+      monitors, which hold for every combination of push and pop.
+
+  # ---------------------------------------------------------------- ordering and integrity (4.5)
+  - id: FA-ORD-1
+    req: R-ORD-1
+    pattern: inorder
+    args:
+      in_fire: "wr"
+      in_data: "push_data"
+      out_fire: "rd"
+      out_data: "pop_data"
+      capacity: "DEPTH"
+      latency: 0
+    note: >-
+      "Written" is read as an accepted push (push while not full), "read" as a
+      pop that takes effect (pop while not empty); a push while full is not a
+      write (R-WR-2) and a pop while empty is not a read (R-RD-3). Data is
+      compared in the cycle of the pop (latency 0), the reading of R-TM-3 in
+      which pop_data is not registered. The pattern also states exactly-once
+      and unmodified delivery (R-ORD-2).
+
+  - id: FA-ORD-2
+    req: R-ORD-2
+    pattern: inorder
+    args:
+      in_fire: "wr"
+      in_data: "push_data"
+      out_fire: "rd"
+      out_data: "pop_data"
+      capacity: "DEPTH"
+      latency: 0
+    note: >-
+      Same monitor as FA-ORD-1: the inorder pattern states "delivered exactly
+      once, unmodified, in order" as one obligation. It is kept as a separate
+      item only so that R-ORD-2 (no word lost, duplicated or corrupted) has its
+      own formal item.
+
+  # ---------------------------------------------------------------- status flags (5)
+  - id: FA-ST-1
+    req: R-ST-1
+    expr: "full == (count == DEPTH)"
+    note: Explicit "if and only if" in the text, formalized as an equivalence in every operational cycle.
+
+  - id: FA-ST-2
+    req: R-ST-2
+    expr: "empty == (count == 0)"
+    note: Explicit "if and only if" in the text, formalized as an equivalence in every operational cycle.
+
+  - id: FA-ST-3
+    req: R-ST-3
+    pattern: implies
+    args: {trigger: "count >= AF_LEVEL", cond: "almost_full"}
+    note: >-
+      AMBIGUITY ("asserted when"), most literal reading taken: a sufficient
+      condition only, count >= AF_LEVEL implies almost_full. The text says "if
+      and only if" for full and empty in the two preceding sentences but only
+      "when" here, and stating "almost_full is deasserted below the threshold"
+      would invent behaviour the text does not state. Consequence:
+      almost_full is left unconstrained when count < AF_LEVEL (except in the
+      cycle after reset, R-RST-2). Under the "if and only if" reading this item
+      would contradict R-TM-2 at count == AF_LEVEL (>= here, > in Section 6).
+
+  - id: FA-ST-4
+    req: R-ST-4
+    expr: "count == occ"
+    note: >-
+      Needs the ghost occ (number of stored words under Sections 4.2 and 4.3:
+      +1 for a push while not full, -1 for a pop while not empty, cleared by
+      reset). The ghost gates on its own value, so it is a function of push and
+      pop alone and does not trust the DUT flags. With the ghost, push and pop
+      in the same state follow the per-operation rules of R-WR-1/2 and
+      R-RD-2/3, which is also what makes R-SIM-1 (literal) conflict at full
+      and empty.
+
+  # ---------------------------------------------------------------- timing summary (6)
+  - id: FA-TM-1a
+    req: R-TM-1
+    expr: "changed(count) <-> prev(wr != rd)"
+    note: >-
+      Literal reading of "registered; they change in the cycle after the
+      operation that changes them", for count: count differs from its value in
+      the previous cycle exactly when the previous cycle had a push or pop that
+      took effect with non-zero net effect. So count never reacts in the cycle
+      of the operation and always reflects it in the next cycle.
+
+  - id: FA-TM-1b
+    req: R-TM-1
+    expr: "(changed(full) || changed(empty)) -> prev(wr != rd)"
+    note: >-
+      Same reading for the flags: full and empty change only in the cycle after
+      an operation with non-zero net effect (never in the cycle of the
+      operation). The value they take is fixed by R-ST-1/R-ST-2 and FA-TM-1a.
+
+  - id: FA-TM-2
+    req: R-TM-2
+    pattern: implies
+    args: {trigger: "count > AF_LEVEL", cond: "almost_full"}
+    note: >-
+      SPEC CONFLICT with R-ST-3 (Section 5 says >= AF_LEVEL, Section 6 says
+      > AF_LEVEL). Same literal "asserted when" reading as FA-ST-3: sufficient
+      condition only. Then this item is implied by FA-ST-3 and the two do not
+      contradict; under an "if and only if" reading they contradict at
+      count == AF_LEVEL (almost_full 1 by Section 5, 0 by Section 6). Not
+      resolved here.
+
+  - id: FA-TM-3
+    req: R-TM-3
+    pattern: inorder
+    args:
+      in_fire: "wr"
+      in_data: "push_data"
+      out_fire: "rd"
+      out_data: "pop_data"
+      capacity: "DEPTH"
+      latency: 0
+      peek: "pop"
+    note: >-
+      AMBIGUITY (timing of "when pop is asserted"), most literal reading taken:
+      in the cycle in which pop is asserted, pop_data is the oldest stored word
+      (same cycle, latency 0, peek condition = pop). The other reading (data in
+      the cycle after the pop, a registered read) is not adopted; it would
+      contradict R-RD-1, which shows the head while not empty. When no word is
+      stored there is no oldest word, so the obligation is vacuous (R-RD-4).
+
+# Behaviours that must be possible. They witness that the guarantees above are
+# exercised and that the formalization does not rule out the described behaviour.
+scenarios:
+  - id: FA-S-WR-2
+    req: R-WR-2
+    cover: "push && full"
+    note: >-
+      The situation governed by R-WR-2 (a push while full) can occur. It is
+      unreachable under assumption FA-A-USE-1a, which is the R-USE-1 versus
+      R-USE-2 tension, and is expected to be reported as such.
+
+  - id: FA-S-RD-3
+    req: R-RD-3
+    cover: "pop && empty"
+    note: >-
+      The situation governed by R-RD-3 (a pop while empty) can occur. It is
+      unreachable under assumption FA-A-USE-1b (R-USE-1 versus R-USE-2).
+
+  - id: FA-S-SIM-1
+    req: R-SIM-1
+    cover: "prev(push && pop && !full && !empty) && stable(count)"
+    note: >-
+      Push and pop in the same cycle in a state that is neither full nor empty
+      is possible and leaves count unchanged. Only this case is asserted as a
+      scenario; the full and empty cases are where FA-SIM-1 conflicts with
+      R-WR-2 and R-RD-3.
+
+  - id: FA-S-ORD-2
+    req: R-ORD-2
+    cover: "rd"
+    note: An accepted word can be read out (a pop takes effect), so the exactly-once obligation is exercised.
+
+  - id: FA-S-ST-1
+    req: R-ST-1
+    cover: "full"
+    note: The FIFO can become full, that is, hold DEPTH words.
+
+  - id: FA-S-ST-2
+    req: R-ST-2
+    cover: "rose(empty)"
+    note: The FIFO can become empty again after having held words.
+
+  - id: FA-S-ST-3
+    req: R-ST-3
+    cover: "count == AF_LEVEL && almost_full"
+    note: >-
+      almost_full can be asserted exactly at count == AF_LEVEL, as Section 5
+      says. Would be unreachable if R-TM-2 were read as "if and only if".
+
+  - id: FA-S-TM-2
+    req: R-TM-2
+    cover: "count > AF_LEVEL && almost_full"
+    note: almost_full can be asserted above AF_LEVEL, as Section 6 says.
+
+dont_cares:
+  - id: FA-DC-RD-4
+    req: R-RD-4
+    signal: pop_data
+    when: "empty"
+    note: >-
+      "While the FIFO is empty" is taken as the empty flag being asserted
+      (equivalent to zero stored words by R-ST-2 and R-ST-4). The first-word
+      fall-through obligations (FA-RD-1, FA-TM-3) apply only when a word is
+      stored, so they do not constrain pop_data here.
+
+unformalized:
+  - req: R-PAR-1
+    reason: >-
+      Legality range of the static parameter DEPTH (any integer >= 2, power of
+      two not required); it constrains instantiation, not behaviour, so it has
+      no cycle-level form. The verification value DEPTH=5 (design.yaml) is
+      legal and is a non-power-of-two. Every item of this set is written in
+      terms of DEPTH and assumes nothing about powers of two.
+  - req: R-USE-2
+    reason: >-
+      By reference: "tolerates such requests, as described in Sections 4.2 and
+      4.3". The tolerated behaviour (a push while full and a pop while empty
+      are ignored) is exactly R-WR-2 and R-RD-3, with the stored-words part in
+      the inorder monitors. No separate cycle-level content. Note that in this
+      set the tolerance cannot actually be exercised, because R-USE-1 is
+      assumed globally (FA-A-USE-1a/b); see the notes on FA-WR-2 and FA-RD-3.
+    covered_by: [FA-WR-2, FA-RD-3, FA-ORD-1, FA-S-WR-2, FA-S-RD-3]

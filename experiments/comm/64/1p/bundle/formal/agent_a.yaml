@@ -1,0 +1,117 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # "a string representing a word" (R-IN-1, reading 1 of both flagged phrases):
+  # a non-empty string of letters only. FCP-PL isalpha holds for the ASCII
+  # letters only, so Latin-1 letters such as 'é' are outside the contract.
+  word: 'len(s) >= 1 && all(i < len(s): isalpha(s[i]))'
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: 'word'
+    note: >-
+      Literal reading: the argument is a word, i.e. a non-empty string made of
+      letters only (no spaces, digits or punctuation); other strings are
+      outside the contract (reading 1 of "a string representing a word").
+      A single word contains no space (reading 1 of "a word"), which the
+      letters-only condition already implies. "Letter" is approximated by
+      ASCII isalpha, the only letter class FCP-PL offers.
+
+properties:
+  - id: RA-IN-2
+    req: R-IN-2
+    expr: 'outcome != 1'
+    note: >-
+      "takes a string representing a word as input" read as: candidate must
+      accept every such string, i.e. finish without raising (reading 1).
+      "Returns a value" is any returned value, so outcome 2 (a value that is
+      not an integer from 0 to 63) is allowed; only outcome 1 (exception or
+      no answer) is excluded. The domain is the one fixed by RA-IN-1; under
+      that reading the empty string is not a word, so the "edge cases such
+      as the empty string" mentioned in reading 1 are not covered.
+
+dont_cares:
+  - id: RA-OUT-1a
+    req: R-OUT-1
+    signal: result
+    when: 'outcome == 0'
+    note: >-
+      The prompt never states what candidate returns: it defines vowels but
+      no sentence relates them to the returned value. Literal reading
+      (reading 4): the returned value is unspecified, so any returned integer
+      is acceptable. Counting vowels (reading 1) is what the vowel definitions
+      suggest, but the text does not say it and it is not assumed here.
+      When outcome != 0, result is 0 by the frame rule F-ZERO. Under reading 4
+      a returned value that is not an integer from 0 to 63 (outcome 2) is
+      acceptable too; no dont_care is declared on outcome because RA-IN-2
+      still excludes outcome 1, so outcome is not wholly unconstrained.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: describes the task given to the assistant (supply the
+      body of the function), not a property of the calls of candidate.
+  - req: R-TASK-2
+    reason: >-
+      Definition of the interface (function name candidate, one argument s).
+      It is fixed by the function section of design.yaml, which calls
+      candidate(s) with s on the input signal s; it is not a trace property.
+      A function that cannot be called this way raises, which RA-IN-2 rejects.
+  - req: R-TASK-3
+    reason: >-
+      Non-functional. Read literally, "Add more test cases." is the value of
+      the string constant FIX in the given code (reading 2), not an obligation
+      on the values candidate returns; under either reading it constrains no
+      call of candidate.
+  - req: R-VOW-1
+    reason: >-
+      Definition. Taken readings: only the lower-case characters 'a', 'e', 'i',
+      'o', 'u' are vowels, wherever they occur, and the list is extended by
+      the final-'y' rule of the next sentence. It would be the predicate
+      s[i] == "a" || s[i] == "e" || s[i] == "i" || s[i] == "o" || s[i] == "u".
+      No requirement relates vowels to an output: under the literal reading of
+      R-OUT-1 (reading 4) the returned value is unspecified, so the definition
+      has no observable consequence and no formal item can use it.
+  - req: R-VOW-2
+    reason: >-
+      Definition (exclusion half of R-VOW-1). Taken reading: the upper-case
+      letters 'A', 'E', 'I', 'O', 'U' are among the non-vowels, as are every
+      other character except a final lower-case 'y'. Not observable, because
+      no requirement says what candidate returns (R-OUT-1, reading 4).
+  - req: R-VOW-3
+    reason: >-
+      Definition. Taken readings: a lower-case 'y' is added to the vowels when
+      it is the last character of s, i.e. s[len(s) - 1] == "y"; 'Y' is not a
+      vowel. Not observable, because no requirement says what candidate
+      returns (R-OUT-1, reading 4).
+  - req: R-VOW-4
+    reason: >-
+      Definition. Taken readings: "the end of the given word" is the last
+      character of s; a lower-case 'y' at any index i < len(s) - 1 is not a
+      vowel, and 'Y' is never one. For a word as constrained by RA-IN-1
+      (letters only, no spaces) the three flagged readings of the phrase
+      coincide. Not observable, because no requirement says what candidate
+      returns (R-OUT-1, reading 4).
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; design.yaml lists it as F-ZERO
+      (outcome != 0 -> result == 0), which is added to every formalization
+      set and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-TASK-3, phrase: "Add more test cases.", reading: 2}
+  - {req: R-IN-1, phrase: "a string representing a word", reading: 1}
+  - {req: R-IN-1, phrase: "a word", reading: 1}
+  - {req: R-IN-2, phrase: "takes a string representing a word as input", reading: 1}
+  - {req: R-OUT-1, phrase: "Write a function candidate", reading: 4}
+  - {req: R-VOW-1, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 1}
+  - {req: R-VOW-1, phrase: "Vowels in this case are 'a', 'e', 'i', 'o', 'u'.", reading: 1}
+  - {req: R-VOW-2, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 1}
+  - {req: R-VOW-3, phrase: "'y'", reading: 1}
+  - {req: R-VOW-3, phrase: "'y' is also a vowel", reading: 1}
+  - {req: R-VOW-4, phrase: "at the end of the given word", reading: 1}
+  - {req: R-VOW-4, phrase: "'y'", reading: 1}

@@ -1,0 +1,392 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [
+     {
+      "core": [
+       "RA-ORD-1",
+       "RA-ORD-2",
+       "RA-RET-2"
+      ],
+      "muses": [
+       [
+        "RA-ORD-1",
+        "RA-ORD-2",
+        "RA-RET-2"
+       ]
+      ],
+      "calls": [
+       [
+        [
+         1,
+         0
+        ]
+       ]
+      ],
+      "stimulus": [
+       "sort_array([1, 0])"
+      ],
+      "reqs": [
+       "R-ORD-1",
+       "R-ORD-2",
+       "R-RET-2"
+      ]
+     }
+    ],
+    "candidates": 189,
+    "checked": 189,
+    "seconds": 9.68
+   },
+   "open": {
+    "open": {},
+    "checked": 105
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [
+     {
+      "core": [
+       "RB-ORD-1",
+       "RB-ORD-2",
+       "RB-RET-1",
+       "RB-RET-2"
+      ],
+      "muses": [
+       [
+        "RB-ORD-1",
+        "RB-ORD-2",
+        "RB-RET-1",
+        "RB-RET-2"
+       ]
+      ],
+      "calls": [
+       [
+        [
+         1,
+         0
+        ]
+       ]
+      ],
+      "stimulus": [
+       "sort_array([1, 0])"
+      ],
+      "reqs": [
+       "R-ORD-1",
+       "R-ORD-2",
+       "R-RET-1",
+       "R-RET-2"
+      ]
+     }
+    ],
+    "candidates": 183,
+    "checked": 183,
+    "seconds": 15.63
+   },
+   "open": {
+    "open": {},
+    "checked": 100
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-ORD-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-ORD-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "A-STRONGER",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `all(i < len(array): array[i] >= 0)`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `all(i < len(array): array[i] >= 0)`",
+    "where": {}
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-RET-2",
+   "phrase": "a copy of the given array after sorting",
+   "taken": 1,
+   "variant": 2,
+   "text": "sort the given array itself, then return a copy of the sorted array; the given array is changed by the call, which contradicts R-MUT-1 (don't change the given array)"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "first index value, last index value",
+   "taken": 1,
+   "variant": 2,
+   "text": "the indices themselves: 0 + (len(array) - 1), so the sum is len(array) - 1 and its parity depends only on the length (both examples are also consistent with this reading)"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "the sum( first index value, last index value)",
+   "taken": 1,
+   "variant": 2,
+   "text": "the first and last values of the sorted copy, i.e. min(array) + max(array), which is the same for either sort order (both examples are also consistent with this reading)"
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "is odd or even",
+   "taken": 2,
+   "variant": 1,
+   "text": "odd only: ascending exactly when the parity sum is odd; 'or even' is a slip (matches examples R-EX-3 and R-EX-4 and makes the rule complementary to the even case of R-ORD-2)"
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "in ascending order",
+   "taken": 1,
+   "variant": 2,
+   "text": "strictly increasing: duplicates removed, which contradicts R-RET-2 (the result is a copy with the same elements)"
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "you will sort the given array",
+   "taken": 1,
+   "variant": 2,
+   "text": "sort the given array itself, in place; this contradicts R-MUT-1 (don't change the given array)"
+  },
+  {
+   "req": "R-ORD-2",
+   "phrase": "is even or odd",
+   "taken": 2,
+   "variant": 1,
+   "text": "even only: descending exactly when the parity sum is even; 'or odd' is a slip (matches examples R-EX-3 and R-EX-4 and makes the rule complementary to the odd case of R-ORD-1)"
+  },
+  {
+   "req": "R-ORD-2",
+   "phrase": "in descending order",
+   "taken": 1,
+   "variant": 2,
+   "text": "strictly decreasing: duplicates removed, which contradicts R-RET-2 (the result is a copy with the same elements)"
+  },
+  {
+   "req": "R-ORD-2",
+   "phrase": "sort it",
+   "taken": 1,
+   "variant": 2,
+   "text": "'it' is the given array itself, sorted in place; this contradicts R-MUT-1 (don't change the given array)"
+  },
+  {
+   "req": "R-MUT-1",
+   "phrase": "don't change the given array",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicted by 'you will sort the given array' (R-ORD-1), 'sort it' (R-ORD-2) and 'a copy of the given array after sorting' (R-RET-2) read as sorting the argument itself, under which the argument is changed"
+  }
+ ],
+ "depends": {
+  "R-ORD-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "sort_array([2, 4, 0]) -> [4, 2, 0]"
+   ]
+  },
+  "R-ORD-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "sort_array([0, 0, 0, 0, 0, 0, 0]) -> [0, 0, 0, 0, 0, 0, 0]"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-2"
+ ],
+ "queue": [
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-ORD-1",
+    "R-ORD-2",
+    "R-RET-2"
+   ],
+   "calls": [
+    "sort_array([1, 0])"
+   ],
+   "variants": 1,
+   "question": "no implementation can meet these requirements on these calls: which one gives way?"
+  },
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-ORD-1",
+    "R-ORD-2",
+    "R-RET-1",
+    "R-RET-2"
+   ],
+   "calls": [
+    "sort_array([1, 0])"
+   ],
+   "variants": 1,
+   "question": "no implementation can meet these requirements on these calls: which one gives way?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-ORD-1",
+    "R-ORD-2"
+   ],
+   "calls": [
+    "sort_array([2, 4, 0]) -> [4, 2, 0]"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"a copy of the given array after sorting\" can mean: copy the given array, then sort the copy and return it; the given array is left unchanged (consistent with R-MUT-1) / sort the given array itself, then return a copy of the sorted array; the given array is changed by the call, which contradicts R-MUT-1 (don't change the given array). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"is odd or even\" can mean: odd only: ascending exactly when the parity sum is odd; 'or even' is a slip (matches examples R-EX-3 and R-EX-4 and makes the rule complementary to the even case of R-ORD-2) / literally odd or even, i.e. every non-empty array is sorted ascending; this contradicts R-ORD-2 (read literally, descending for every non-empty array) and example R-EX-4 (sum 2 + 6 = 8, result descending) / even only: ascending exactly when the parity sum is even (the second disjunct taken as the condition); contradicts examples R-EX-3 and R-EX-4. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"in ascending order\" can mean: non-decreasing: each element is less than or equal to the next, duplicates kept / strictly increasing: duplicates removed, which contradicts R-RET-2 (the result is a copy with the same elements). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"you will sort the given array\" can mean: sort a copy of the given array and return it, leaving the argument unchanged (consistent with R-RET-2 and R-MUT-1) / sort the given array itself, in place; this contradicts R-MUT-1 (don't change the given array). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-2"
+   ],
+   "calls": [],
+   "question": "\"is even or odd\" can mean: even only: descending exactly when the parity sum is even; 'or odd' is a slip (matches examples R-EX-3 and R-EX-4 and makes the rule complementary to the odd case of R-ORD-1) / literally even or odd, i.e. every non-empty array is sorted descending; this contradicts R-ORD-1 (read literally, ascending for every non-empty array) and example R-EX-3 (sum 2 + 5 = 7, result ascending) / odd only: descending exactly when the parity sum is odd (the second disjunct taken as the condition); contradicts examples R-EX-3 and R-EX-4. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-2"
+   ],
+   "calls": [],
+   "question": "\"in descending order\" can mean: non-increasing: each element is greater than or equal to the next, duplicates kept / strictly decreasing: duplicates removed, which contradicts R-RET-2 (the result is a copy with the same elements). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-2"
+   ],
+   "calls": [],
+   "question": "\"sort it\" can mean: 'it' is the copy that is returned: sort the copy, leaving the argument unchanged (consistent with R-RET-2 and R-MUT-1) / 'it' is the given array itself, sorted in place; this contradicts R-MUT-1 (don't change the given array). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MUT-1"
+   ],
+   "calls": [],
+   "question": "\"don't change the given array\" can mean: the argument list is left unmodified; the sorting described in the docstring is applied to a copy / contradicted by 'you will sort the given array' (R-ORD-1), 'sort it' (R-ORD-2) and 'a copy of the given array after sorting' (R-RET-2) read as sorting the argument itself, under which the argument is changed. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"[0, 1, 2, 3, 4, 5]\" can mean: the intended result: the sum 2 + 5 = 7 is odd, so the result is ascending, consistent with the odd-only reading of R-ORD-1 / contradicts R-ORD-2 read literally ('even or odd', i.e. descending for every non-empty array), under which the result would be [5, 4, 3, 2, 1, 0]. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"[6, 5, 4, 3, 2, 1, 0]\" can mean: the intended result: the sum 2 + 6 = 8 is even, so the result is descending, consistent with the even-only reading of R-ORD-2 / contradicts R-ORD-1 read literally ('odd or even', i.e. ascending for every non-empty array), under which the result would be [0, 1, 2, 3, 4, 5, 6]. Which is meant?"
+  }
+ ],
+ "limits": []
+}

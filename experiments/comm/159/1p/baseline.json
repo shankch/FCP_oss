@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "The docstring doesn't say what the function should return or how to handle edge cases, so I have some questions before writing it:\n\n1. **Return value:** What should the function return? For example:\n   - a list `[total_eaten, carrots_left]`,\n   - only the total eaten, or\n   - something else?\n\n2. **Not enough carrots:** If `remaining < need`, should the rabbit eat all the remaining carrots and still be hungry? Or should it raise an error or return a special value?\n\n3. **Meaning of `number`:** Is `number` the count of carrots already eaten, so the total eaten is `number` plus what's eaten now?\n\n4. **Input constraints:** Can the inputs be negative or non-integers, and should the function validate them? Are there upper bounds, such as 0 \u2264 each value \u2264 1000?\n\n5. **Examples:** Could you give a few expected input/output pairs, such as `eat(5, 6, 10)`?",
+  "seconds": 6.9,
+  "cost_usd": 0.0174508,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "1. **What should the function return?** A single value, or a list like `[total carrots eaten after meals, carrots left after meals]`?\n2. **What if there aren't enough carrots?** If `remaining` is less than `need`, should the rabbit eat all the remaining carrots, leaving 0, and still be hungry? Or should something else happen, like an error or eating nothing?\n3. **What does \"total eaten\" include?** Is it `number + need`, or `number` plus however many carrots were actually eaten (`min(need, remaining)`)?\n4. **What are the input constraints?** Are all inputs non-negative integers, and are there upper bounds (e.g., 0 to 1000)? Should invalid input like negatives be handled?",
+  "seconds": 4.9,
+  "cost_usd": 0.0138735,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "This is the classic \"hungry rabbit\" problem. The function should return `[total eaten after meals, carrots left]`. If there aren't enough remaining carrots, you eat all of them and are still hungry.\n\n```python\ndef eat(number, need, remaining):\n    \"\"\"\n    You're a hungry rabbit, and you already have eaten a certain number of carrots,\n    but now you need to eat more carrots to complete the day's meals.\n    You should return an array of [ total number of eaten carrots after your meals,\n                                    the number of carrots left after your meals ]\n    If there are not enough remaining carrots, you will eat all remaining carrots,\n    but will still be hungry.\n\n    Example:\n    * eat(5, 6, 10) -> [11, 4]\n    * eat(4, 8, 9) -> [12, 1]\n    * eat(1, 10, 10) -> [11, 0]\n    * eat(2, 11, 5) -> [7, 0]\n\n    Variables:\n    @number : integer\n        the number of carrots that you have eaten.\n    @need : integer\n        the number of carrots that you need to eat.\n    @remaining : integer\n        the number of remaining carrots that exist in stock\n\n    Constraints:\n    * 0 <= number <= 1000\n    * 0 <= need <= 1000\n    * 0 <= remaining <= 1000\n    \"\"\"\n    eaten = min(need, remaining)\n    return [number + eaten, remaining - eaten]\n```\n\n**How it works:** The rabbit eats either what it needs or whatever is left, whichever is smaller (`min(need, remaining)`). That amount is added to what it has already eaten and taken out of the stock.",
+  "seconds": 6.9,
+  "cost_usd": 0.018147,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

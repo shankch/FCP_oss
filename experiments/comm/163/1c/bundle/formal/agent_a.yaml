@@ -1,0 +1,161 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # "Given two positive integers a and b": strictly positive (R-IN-1, reading 1)
+  pos: "a >= 1 && b >= 1"
+  lo: "min(a, b)"
+  hi: "max(a, b)"
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: "a >= 1 && b >= 1"
+    note: >-
+      "positive" taken literally as strictly positive (a >= 1 and b >= 1); a call with
+      a = 0 or b = 0 is outside the request. Negative arguments and arguments above 63
+      are not part of the trace (frame.md). Because calls are independent, every
+      guarantee is additionally guarded by pos, so a call outside the request leaves
+      its own outputs unconstrained without relying on the cumulative assumption.
+
+properties:
+  - id: RA-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args: {trigger: "pos", cond: "outcome == 0"}
+    note: >-
+      "returns a list of integers" with no exception, non-termination or other type is
+      outcome 0. Outcome 0 also requires at most 32 elements, each 0..63, which is the
+      only list the trace can carry; outcome 2 lumps such over-long or out-of-range lists
+      with values of another type, so this is marginally stronger than the text.
+
+  - id: RA-RES-1
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: "pos", cond: "all(i < len(result): result[i] % 2 == 0)"}
+    note: Every element of the returned list is even (vacuous when outcome != 0, as result is then empty by F-EMPTY).
+
+  - id: RA-RES-2
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: "pos", cond: "all(i < len(result): result[i] <= 9)"}
+    note: >-
+      "digits" read literally as single decimal digits 0..9 (reading 1). This contradicts
+      the example generate_integers(10, 14) => [14] (R-EX-3, RA-EX-3): under this reading
+      no call can return 14. Recorded, not repaired.
+
+  - id: RA-RES-3
+    req: R-RES-3
+    pattern: implies
+    args: {trigger: "pos", cond: "all(i < len(result): lo <= result[i] && result[i] <= hi)"}
+    note: >-
+      "between a and b" read inclusively (reading 1): min(a, b) <= x <= max(a, b). The
+      interval runs from the smaller to the larger argument whatever their order, which is
+      the plain meaning of "between" and agrees with R-SYM-1 reading 1.
+
+  - id: RA-RES-4
+    req: R-RES-4
+    pattern: implies
+    args:
+      trigger: "pos"
+      cond: "all(d < 10: (d % 2 == 0 && lo <= d && d <= hi) -> (d in result))"
+    note: >-
+      The description governs (reading 1 of "the even digits between a and b"): every even
+      decimal digit (0, 2, 4, 6, 8; "even digits" reading 1) in the inclusive range
+      min(a, b)..max(a, b) ("between" reading 1) appears in the list. Nothing is required
+      when both arguments exceed 8. This directly contradicts the examples
+      generate_integers(2, 8) => [8] and generate_integers(8, 2) => [8] (R-EX-1, R-EX-2),
+      which omit 2, 4 and 6. Recorded, not repaired.
+
+  - id: RA-SYM-1
+    req: R-SYM-1
+    pattern: implies
+    args:
+      trigger: "pos && prev(a) == b && prev(b) == a"
+      cond: "outcome == prev(outcome) && result == prev(result)"
+    note: >-
+      Two-call property over consecutive calls: frame.md makes calls independent and lets
+      the previous call be any call, so a call with the arguments of the previous call
+      swapped must end the same way and return the same list. "between a and b" read in
+      either order (reading 1). With a == b this also says that repeating a call gives the
+      same answer, which is what the text says for that case. Equality of outcome is
+      included because "return the same list" requires both calls to return.
+
+  - id: RA-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args: {trigger: "pos", cond: "all(i < len(result) - 1: result[i] <= result[i + 1])"}
+    note: >-
+      "ascending order" read literally as a sort order, i.e. non-decreasing (reading 2):
+      each element is at most the next. This does not forbid repeated elements, and no
+      other requirement forbids them either, so e.g. [8, 8] is not excluded by the
+      atomic requirements (only by the examples where they apply).
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "a == 2 && b == 8", cond: "outcome == 0 && result == [8]"}
+    note: >-
+      The example read as stated (reading 1): generate_integers(2, 8) returns exactly [8].
+      Formalized as a guarantee on that call because the example states a return value.
+      Contradicts RA-RES-4 (the description requires 2, 4, 6 and 8 in the list).
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "a == 8 && b == 2", cond: "outcome == 0 && result == [8]"}
+    note: >-
+      The example read as stated (reading 1): generate_integers(8, 2) returns exactly [8].
+      Contradicts RA-RES-4 (the description requires 2, 4, 6 and 8 in the list).
+
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "a == 10 && b == 14", cond: "outcome == 0 && result == [14]"}
+    note: >-
+      The example read as stated (reading 1): generate_integers(10, 14) returns exactly
+      [14]. Contradicts RA-RES-2 ("digits" as 0..9 forbids 14). It omits 10 and 12, which
+      would only conflict with R-RES-4 under the "even integers" reading, not the one taken.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: "a == 2 && b == 8 && outcome == 0 && result == [8]"
+    note: The example behaviour must be possible. Unreachable together with RA-RES-4 (contradiction in the specification).
+
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: "a == 8 && b == 2 && outcome == 0 && result == [8]"
+    note: The example behaviour must be possible. Unreachable together with RA-RES-4 (contradiction in the specification).
+
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: "a == 10 && b == 14 && outcome == 0 && result == [14]"
+    note: The example behaviour must be possible. Unreachable together with RA-RES-2 (contradiction in the specification).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function name and its two parameters are fixed by the adapter
+      (design.yaml function section, which calls generate_integers(a, b) each cycle);
+      it is not a property of the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md): it holds by construction and is added to
+      every formalization set as F-EMPTY from design.yaml; frame.md says it need not be
+      restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IN-1, phrase: "positive", reading: 1}
+  - {req: R-RES-2, phrase: "digits", reading: 1}
+  - {req: R-RES-3, phrase: "between a and b", reading: 1}
+  - {req: R-RES-4, phrase: "even digits", reading: 1}
+  - {req: R-RES-4, phrase: "between a and b", reading: 1}
+  - {req: R-RES-4, phrase: "the even digits between a and b", reading: 1}
+  - {req: R-SYM-1, phrase: "between a and b", reading: 1}
+  - {req: R-ORD-1, phrase: "ascending order", reading: 2}
+  - {req: R-EX-1, phrase: "generate_integers(2, 8) => [8]", reading: 1}
+  - {req: R-EX-2, phrase: "generate_integers(8, 2) => [8]", reading: 1}
+  - {req: R-EX-3, phrase: "generate_integers(10, 14) => [14]", reading: 1}

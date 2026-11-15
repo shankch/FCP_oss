@@ -1,0 +1,324 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 89,
+    "checked": 89,
+    "seconds": 8.37
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "candidate(\"Z\")",
+      "args": [
+       "Z"
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 62
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 349,
+    "checked": 349,
+    "seconds": 32.23
+   },
+   "open": {
+    "open": {},
+    "checked": 202
+   }
+  }
+ },
+ "readings": {
+  "R-VOW-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-Y-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-Y-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "INCOMPARABLE",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `word`",
+    "where": {
+     "word": "len(s) >= 1 && all(k < len(s): isalpha(s[k]))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `word`",
+    "where": {
+     "word": "len(s) >= 1 && all(i < len(s): isalpha(s[i]))"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "a string representing a word",
+   "taken": 1,
+   "variant": 2,
+   "text": "Assumption on the caller: s holds only letters, but the empty string is allowed (and gives 0)."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "a word",
+   "taken": 1,
+   "variant": 2,
+   "text": "The string may hold several words (e.g. separated by spaces), and each of them has its own end."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "the number of ... vowels",
+   "taken": 1,
+   "variant": 2,
+   "text": "Distinct vowels count: \"aa\" gives 1. (Neither example repeats a vowel, so they do not decide.)"
+  },
+  {
+   "req": "R-VOW-1",
+   "phrase": "'a', 'e', 'i', 'o', 'u'",
+   "taken": 2,
+   "variant": 1,
+   "text": "Lowercase only: 'A', 'E', 'I', 'O', 'U' are not vowels. This contradicts R-EX-2, where \"ACEDY\" must give 3 and so 'A' and 'E' must count."
+  },
+  {
+   "req": "R-VOW-1",
+   "phrase": "Vowels in this case are",
+   "taken": 1,
+   "variant": 2,
+   "text": "The usual vowels of the language: accented forms of a, e, i, o, u also count."
+  },
+  {
+   "req": "R-Y-1",
+   "phrase": "'y'",
+   "taken": 2,
+   "variant": 1,
+   "text": "Lowercase only: a final 'Y' does not count. This contradicts R-EX-2, where \"ACEDY\" must give 3 and so its final 'Y' must count."
+  },
+  {
+   "req": "R-Y-1",
+   "phrase": "at the end of the given word",
+   "taken": 1,
+   "variant": 2,
+   "text": "Every 'y' in the trailing run of 'y's: in \"ayy\" both count."
+  },
+  {
+   "req": "R-Y-2",
+   "phrase": "'y'",
+   "taken": 2,
+   "variant": 1,
+   "text": "Applies to lowercase 'y' only (an uppercase 'Y' is never a vowel anywhere)."
+  },
+  {
+   "req": "R-Y-2",
+   "phrase": "at the end of the given word",
+   "taken": 1,
+   "variant": 2,
+   "text": "Every 'y' in the trailing run of 'y's counts, so in \"ayy\" neither 'y' is excluded."
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "2",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradicts R-RET-2 read as 'the number of characters': \"abcde\" has 5 characters."
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "3",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradicts R-RET-2 read as 'the number of characters': \"ACEDY\" has 5 characters."
+  },
+  {
+   "req": "R-FIX-1",
+   "phrase": "Add more test cases.",
+   "taken": 1,
+   "variant": 2,
+   "text": "A leftover note stored in the FIX constant that places no obligation on the response; only the FIX string itself should be kept."
+  }
+ ],
+ "depends": {
+  "R-RET-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(\"PBBBBBBBBBABBBBBBBBBBBBBBBBBVBBB\") -> 1"
+   ]
+  }
+ },
+ "certified": [
+  "R-RET-1"
+ ],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "candidate(\"Z\")"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "0",
+      "1"
+     ],
+     "ending": false,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "result",
+   "reqs": [],
+   "question": "the request allows 0 or 1: which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [
+    "candidate(\"PBBBBBBBBBABBBBBBBBBBBBBBBBBVBBB\") -> 1"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"the number of characters or vowels\" can mean: The number of vowels in s (the 'characters' are the characters that are vowels); this is what both examples show. / The number of characters in s, i.e. len(s). This contradicts R-EX-1 (\"abcde\" has 5 characters but must give 2) and R-EX-2 (\"ACEDY\" has 5 characters but must give 3), and makes the vowel definition of R-VOW-1 pointless. / Either count is acceptable: the implementation may return len(s) or the vowel count.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"the number of ... vowels\" can mean: Every occurrence counts: \"aa\" gives 2. / Distinct vowels count: \"aa\" gives 1. (Neither example repeats a vowel, so they do not decide.). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-Y-1"
+   ],
+   "calls": [],
+   "question": "\"'y'\" can mean: Lowercase only: a final 'Y' does not count. This contradicts R-EX-2, where \"ACEDY\" must give 3 and so its final 'Y' must count. / Case-insensitive: a final 'Y' counts too, as R-EX-2 implies.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-Y-1"
+   ],
+   "calls": [],
+   "question": "\"at the end of the given word\" can mean: Only the last character of s: in \"ayy\" only the final 'y' counts. / Every 'y' in the trailing run of 'y's: in \"ayy\" both count. / The last letter of each word in s, if s holds several words. / The last letter of s, ignoring trailing non-letters (e.g. \"day.\" counts its 'y').. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-Y-2"
+   ],
+   "calls": [],
+   "question": "\"'y'\" can mean: Applies to lowercase 'y' only (an uppercase 'Y' is never a vowel anywhere). / Applies to 'y' and 'Y' alike: neither counts unless it is at the end.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-Y-2"
+   ],
+   "calls": [],
+   "question": "\"at the end of the given word\" can mean: Only the last character of s: in \"ayy\" the first 'y' does not count. / Every 'y' in the trailing run of 'y's counts, so in \"ayy\" neither 'y' is excluded. / The last letter of each word in s, if s holds several words: a 'y' before a space can count.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"2\" can mean: Consistent with counting vowels (R-RET-2, first reading). / Contradicts R-RET-2 read as 'the number of characters': \"abcde\" has 5 characters.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"3\" can mean: Consistent with counting vowels case-insensitively, with a final 'Y' counted. / Contradicts R-RET-2 read as 'the number of characters': \"ACEDY\" has 5 characters. / Contradicts R-VOW-1 read as lowercase only: 'A' and 'E' would not count (the result would be at most 1). / Contradicts R-Y-1 read as lowercase 'y' only: the final 'Y' would not count (the result would be 2 or 0).. Which is meant?"
+  }
+ ],
+ "limits": []
+}

@@ -1,0 +1,91 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is 0 unless `outcome` is 0.'
+  text: Whenever a call does not return an integer that fits result (outcome is not 0), the result signal is 0.
+  kind: guarantee
+  lines:
+  - 37
+- id: R-TASK-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete Python implementation of the given function modp, keeping the given signature.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def modp(n: int, p: int):'
+  text: The function is named modp and takes exactly two positional parameters, n first and p second.
+  kind: definition
+  ambiguity:
+  - phrase: 'p: int'
+    readings:
+    - p is the modulus of the docstring's 'modulo' (the name modp suggests 'mod p')
+    - the request never says what p is for; the docstring does not mention p, so p need not affect the result
+  lines:
+  - 4
+- id: R-SIG-2
+  doc: SPEC
+  quote: 'n: int, p: int'
+  text: Callers pass integer values for both arguments n and p.
+  kind: assumption
+  ambiguity:
+  - phrase: 'n: int'
+    readings:
+    - n may be any int, negative included (2^n is then not an integer)
+    - n is a non-negative int
+  - phrase: 'p: int'
+    readings:
+    - p may be any int, so p = 0 is a legal call that modp must handle, although 2^n modulo 0 is undefined (tension with R-RES-2)
+    - p is a positive int (a modulus), so a call with p = 0 breaks the caller's obligation and its outcome is free
+  lines:
+  - 4
+- id: R-RES-1
+  doc: SPEC
+  quote: Return 2^n modulo.
+  text: For p of at least 1, modp(n, p) returns the integer 2 to the power n reduced modulo p, that is (2**n) % p, a value in 0 to p - 1.
+  kind: guarantee
+  depends:
+  - R-SIG-1
+  ambiguity:
+  - phrase: 2^n
+    readings:
+    - 2 raised to the power n (2**n)
+    - 2 XOR n, as the ^ operator means in Python
+  - phrase: modulo.
+    readings:
+    - 'modulo p: the sentence is cut off and p, the only other argument, is the modulus'
+    - the modulus is not stated, so the request does not constrain the returned value (contradicts the signature declaring p with no other role; see R-SIG-1)
+  - phrase: 2^n modulo
+    readings:
+    - the least non-negative remainder, in 0 to p - 1 (Python's 2**n % p)
+    - any integer congruent to 2^n modulo p
+  - phrase: Return
+    readings:
+    - the returned value is a Python int
+    - any number equal in value is acceptable, such as a float (which the trace records as outcome 2)
+  lines:
+  - 5
+- id: R-RES-2
+  doc: SPEC
+  quote: Return 2^n modulo
+  text: For p = 0, modp(n, p) behaves as 2^n modulo 0, which the request does not define.
+  kind: guarantee
+  depends:
+  - R-RES-1
+  - R-SIG-2
+  ambiguity:
+  - phrase: modulo
+    readings:
+    - the call ends with an exception, as Python's 2**n % 0 raises ZeroDivisionError (outcome 1)
+    - modulo 0 is the identity, so the call returns 2^n itself (outcome 2 once 2^n exceeds 1,023)
+    - the behaviour for p = 0 is unconstrained (don't care), since p is meant to be a positive modulus (see R-SIG-2)
+  lines:
+  - 5

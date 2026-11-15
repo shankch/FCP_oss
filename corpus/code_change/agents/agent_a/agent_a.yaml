@@ -1,0 +1,185 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # The total discount of a student, in percent: the student's 15 added to the
+  # other discounts of the code before the change (the coupon percent and 10
+  # for a member), capped at 30 as before.
+  student_discount: "min(coupon + (member ? 10 : 0) + 15, 30)"
+  # The student's price before rounding, in hundredths of a cent.
+  student_exact: "subtotal * (100 - student_discount)"
+
+properties:
+
+  # ---- R-STU-1: Students get 15% off. -------------------------------------
+  - id: CA-STU-1
+    req: R-STU-1
+    pattern: implies
+    args:
+      trigger: "student && coupon == 0 && !member && outcome == 0"
+      cond: "100 * price - 50 <= 85 * subtotal && 85 * subtotal < 100 * price + 50"
+    note: >-
+      The student discount on its own (no coupon, no membership): the price is
+      85% of the subtotal. How the result becomes whole cents is not said by
+      rule 1; the rounding used is that of the code before the change, to the
+      nearest cent with half a cent rounded up (impl/old.py: (subtotal * (100 -
+      discount) + 50) // 100), which rule 4 (R-KEEP-1) keeps. The combination
+      with other discounts is R-CAP-1 (CA-CAP-1). The trigger requires that the
+      call returned a pair; whether it returns is R-KEEP-1 (CA-KEEP-1).
+
+  # ---- R-CAP-1: adds to the other discounts, total never more than 30%. ---
+  - id: CA-CAP-1
+    req: R-CAP-1
+    pattern: implies
+    args:
+      trigger: "student && outcome == 0"
+      cond: "100 * price - 50 <= student_exact && student_exact < 100 * price + 50"
+    note: >-
+      Read literally: 'adds to the other discounts' adds percentages, so a
+      student's total discount is the coupon percent plus 10 for a member (the
+      other discounts of impl/old.py) plus 15; 'the total discount is still
+      never more than 30%' is the cap of the old code, min(sum, 30). The price
+      is the subtotal less that discount, rounded as before (nearest cent, half
+      a cent up), which rule 4 keeps (R-KEEP-1). Stacking the 15% on the
+      already discounted price is not chosen: the text says the discount adds.
+      The sentence follows 'Students get 15% off' and 'This' is the student
+      discount, so it is stated for students; a non-student's total discount
+      is the old one (R-SAME-1), which the old code already caps at 30%.
+
+  # ---- R-SHIP-1: Free shipping now starts at $75 instead of $50. ----------
+  - id: CA-SHIP-1
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && subtotal >= 7500"
+      cond: "ship == 0"
+    note: >-
+      Most literal reading of the listed ambiguity: the sentence names no group
+      of customers, so it applies to every customer, not to students only.
+      $75 is 7500 cents and 'starts at' includes 7500, as 'of $50 or more' did.
+      The amount compared is the subtotal (the cart total before discounts), as
+      in the code before the change (shipping = 499 if subtotal < 5000 else 0),
+      which rule 4 keeps; the text itself does not say whether the subtotal or
+      the discounted price is meant.
+  - id: CA-SHIP-2
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && subtotal < 7500"
+      cond: "ship != 0"
+    note: >-
+      'instead of $50': below $75 shipping is no longer free, for every
+      customer (literal reading, see CA-SHIP-1). CONTRADICTION, not repaired:
+      for a customer who is not a student, with a subtotal from 5000 to 7499
+      cents and a coupon from 0 to 50, the code before the change ships free
+      (old_ship 0), so rule 3 (R-SAME-1, CA-SAME-3) requires ship 0 while this
+      rule requires a fee. Only the students-only reading of rule 2 removes the
+      conflict, and the text does not say that. The amount of the fee is
+      R-KEEP-1 (CA-KEEP-2).
+
+  # ---- R-SAME-1: Nothing may change for customers who are not students. ---
+  - id: CA-SAME-1
+    req: R-SAME-1
+    pattern: implies
+    args:
+      trigger: "!student"
+      cond: "outcome == old_outcome"
+    note: >-
+      For a customer who is not a student, the call ends as the call of the
+      code before the change with the same subtotal, coupon and member: a pair
+      when it returned one, ValueError when it raised.
+  - id: CA-SAME-2
+    req: R-SAME-1
+    pattern: implies
+    args:
+      trigger: "!student"
+      cond: "price == old_price"
+    note: For a customer who is not a student, the price is the old price.
+  - id: CA-SAME-3
+    req: R-SAME-1
+    pattern: implies
+    args:
+      trigger: "!student"
+      cond: "ship == old_ship"
+    note: >-
+      For a customer who is not a student, the shipping fee is the old fee.
+      Contradicts the literal reading of R-SHIP-1 (CA-SHIP-2) for subtotals
+      from 5000 to 7499 cents, where the old code ships free; see CA-SHIP-2.
+
+  # ---- R-KEEP-1: Keep everything else as it is. ---------------------------
+  - id: CA-KEEP-1
+    req: R-KEEP-1
+    pattern: implies
+    args:
+      trigger: "student"
+      cond: "outcome == old_outcome"
+    note: >-
+      Ranges and errors are kept: a student's call ends as the call of the code
+      before the change with the same subtotal, coupon and member, which raises
+      ValueError when subtotal is outside 0..1,000,000 or coupon outside 0..50
+      and returns a pair otherwise. Stated against the old answer (old_outcome)
+      rather than by copying the ranges, since rule 4 says 'as it is'. The
+      kept rounding and the kept coupon and membership discounts are part of
+      the price in CA-STU-1 and CA-CAP-1. A non-student is covered by R-SAME-1.
+  - id: CA-KEEP-2
+    req: R-KEEP-1
+    pattern: implies
+    args:
+      trigger: "student && ship != 0"
+      cond: "ship == 499"
+    note: >-
+      The shipping fee is kept: when a student pays shipping, it is $4.99 (499
+      cents, impl/old.py), not reduced by any discount, as before. Where
+      shipping is free is R-SHIP-1.
+
+  # ---- R-EX-1: the worked example. ----------------------------------------
+  - id: CA-EX-2
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "student && subtotal == 10000 && coupon == 0 && !member"
+      cond: "outcome == 0 && price == 8500 && ship == 0"
+    note: >-
+      The example states the result ('gets'), so it is also a guarantee for
+      that call: $100.00 is 10000 cents and (8500, 0) is the returned pair.
+      It agrees with rule 1 (85% of 10000) and with rule 2 under either
+      reading (10000 >= 7500).
+
+scenarios:
+  - id: CA-EX-1
+    req: R-EX-1
+    cover: "student && subtotal == 10000 && coupon == 0 && !member && outcome == 0 && price == 8500 && ship == 0"
+    note: >-
+      The example must be possible: a student with a 10000-cent cart, no
+      coupon and no membership gets the pair (8500, 0).
+
+unformalized:
+  - req: R-SIG-1
+    covered_by: [CA-SAME-1, CA-KEEP-1]
+    reason: >-
+      Interface definition. The fourth argument is the student input signal
+      (design.yaml, function.args). Its default value False is not observable:
+      every call in the trace passes student explicitly (frame.md, Calls), so a
+      call that omits it cannot be told apart from one with student false. The
+      observable part, that every call with four arguments is accepted and
+      ends as the old call does (a pair of integers or ValueError, never
+      another exception or another kind of result), is realized by CA-SAME-1
+      and CA-KEEP-1.
+  - req: R-TEST-1
+    reason: >-
+      Concerns the test file test_checkout.py, which is not part of the call
+      trace; FCP checks the changed function itself by running it, so whether
+      its tests were updated cannot be expressed over the interface signals.
+  - req: R-FR-1
+    covered_by: [F-ZERO]
+    reason: >-
+      Frame rule of the change adapter; it holds by construction of the trace
+      and is added to every formalization set as F-ZERO (design.yaml frame),
+      so it is not restated (frame.md, Frame rules).
+  - req: R-FR-2
+    covered_by: [F-OLD]
+    reason: >-
+      Frame rule of the change adapter about the old answer (inputs); it holds
+      by construction of the trace and is added to every formalization set as
+      F-OLD (design.yaml frame), so it is not restated (frame.md, Frame rules).

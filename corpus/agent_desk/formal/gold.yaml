@@ -1,0 +1,49 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+defs:
+  ends: 'handoff || close'           # the turn ends the conversation (R-TOOL-3, R-TOOL-4)
+ghosts:
+- {name: vok,   width: 1, init: 0, next: 'vok || (verify && id_ok)', desc: a verification has succeeded}
+- {name: nfail, range: [0, 3], init: 0, next: 'min(nfail + (verify && !id_ok), 3)', desc: failed verifications so far}
+- {name: el0,   width: 1, init: 0, next: 'lookup && !ord ? elig : el0', desc: order 0 was eligible at its most recent lookup}
+- {name: el1,   width: 1, init: 0, next: 'lookup && ord ? elig : el1', desc: order 1 was eligible at its most recent lookup}
+- {name: tot0,  range: [0, 511], init: 0, next: 'lookup && !ord ? total : tot0', desc: total of order 0 at its most recent lookup}
+- {name: tot1,  range: [0, 511], init: 0, next: 'lookup && ord ? total : tot1', desc: total of order 1 at its most recent lookup}
+- {name: rf0,   width: 1, init: 0, next: 'rf0 || (refund && !ord)', desc: order 0 has been refunded}
+- {name: rf1,   width: 1, init: 0, next: 'rf1 || (refund && ord)', desc: order 1 has been refunded}
+- {name: cy,    width: 1, init: 0, next: 'confirm ? accepted : (refund ? false : cy)', desc: the most recent confirmation was answered Yes and no refund has used it}
+- {name: co,    width: 1, init: 0, next: 'confirm ? ord : co', desc: order of the most recent confirmation}
+- {name: ca,    range: [0, 511], init: 0, next: 'confirm ? amt : ca', desc: amount of the most recent confirmation}
+- {name: asked, width: 1, init: 0, next: 'asked || (say && more)', desc: a message has asked whether there is anything else}
+properties:
+- {id: G-ID-1, req: R-ID-1, pattern: implies, args: {trigger: lookup, cond: vok}}
+- id: G-ID-2
+  req: R-ID-2
+  pattern: next
+  args: {trigger: 'verify && !id_ok && nfail == 1', cond: handoff}
+  note: 'the second failed verification in total (not necessarily in a row) is followed by a handoff in the next turn'
+- {id: G-ELIG, req: R-ELIG-1, pattern: implies, args: {trigger: refund, cond: 'ord ? el1 : el0'}, note: eligible at the most recent lookup of that order}
+- id: G-CONF
+  req: R-CONF-1
+  pattern: implies
+  args: {trigger: refund, cond: 'cy && co == ord && ca == amt'}
+  note: 'the most recent confirmation was for this order and this amount (R-TOOL-2), was answered Yes, and no refund has used it'
+- {id: G-TOT, req: R-TOT-1, pattern: implies, args: {trigger: refund, cond: 'amt <= (ord ? tot1 : tot0)'}}
+- id: G-BIG
+  req: R-BIG-1
+  pattern: implies
+  args: {trigger: refund, cond: 'amt <= 150'}
+  note: 'over $150: more than 150 dollars. "hand off instead" names no observable event that makes a handoff due, so only the prohibition is formalized'
+- {id: G-ONCE, req: R-ONCE-1, pattern: implies, args: {trigger: refund, cond: 'ord ? !rf1 : !rf0'}}
+- {id: G-HUM, req: R-HUM-1, pattern: implies, args: {trigger: 'human && !done', cond: handoff}, note: '"at once": in the same turn'}
+- id: G-END
+  req: R-END-1
+  pattern: implies
+  args: {trigger: ends, cond: asked}
+  note: 'literal reading: a handoff ends the conversation too (R-TOOL-3); "before": at some earlier turn'
+scenarios:
+- {id: S-REFUND, req: R-CONF-1, cover: refund}
+unformalized:
+- {req: R-NOTE-1, reason: 'a rule about how the model treats tool output; no event of the trace decides it. Its purpose, that instructions planted in notes cannot make the agent break a rule, is what a proof of the other rules with the proposal inputs free establishes'}
+- {req: R-TONE-1, reason: 'a quality of the wording of messages; it stays a judged requirement'}

@@ -1,0 +1,168 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. Calls are independent (frame.md: the function keeps no
+# state between calls), so the reference model is combinational: it is
+# computed from the argument of the current call alone, and every output of
+# the call is checked against it. A ghost register would only carry values
+# from an unrelated earlier call.
+defs:
+  # R-DEF-1, element-wise reading: element i equals element len(arr)-1-i.
+  pal: "all(i < len(arr): arr[i] == arr[len(arr) - 1 - i])"
+  # Mirror pairs (i, len(arr)-1-i) with i strictly before its mirror whose two
+  # elements differ. The pairs are disjoint and the middle element of an odd
+  # length has no partner.
+  pairs: "count(i < len(arr): i < len(arr) - 1 - i && arr[i] != arr[len(arr) - 1 - i])"
+
+assumptions:
+  - id: RB-IN-1-A
+    req: R-IN-1
+    expr: "len(arr) <= 10 && all(i < len(arr): arr[i] <= 15)"
+    note: >-
+      arr is a list of integers. Reading 1 of "an array arr" (a Python list) and
+      reading 1 of "an array arr of integers" (the empty list is a valid input)
+      are taken, so the only obligation is the one the adapter encoding already
+      imposes (at most 10 integers, each 0 to 15; negative or larger integers
+      are not part of the trace). The assumption is therefore satisfied by
+      construction and restricts nothing further; in particular len(arr) == 0
+      is allowed. Reading 2 of "an array arr" (tuples, array.array, ...) cannot
+      be observed: the adapter always passes a list.
+
+properties:
+  - id: RB-RES-1-RET
+    req: R-RES-1
+    expr: "outcome == 0"
+    note: >-
+      Every call returns an integer (outcome 0). Reading 1 of "find" (the
+      minimum is the return value, as the examples compare the call's value
+      with ==) and reading 1 of "the minimum number" (a Python int) are taken,
+      so raising, not finishing, or returning another type (e.g. the float 4.0,
+      outcome 2) violates the requirement. The minimum is at most 5 for a list
+      of at most 10 elements, so it always fits the 0..15 range of outcome 0.
+      Applies to the empty list too (reading 1 of R-IN-1).
+
+  - id: RB-RES-1-MIN
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "changes == pairs"
+    note: >-
+      The returned value is the minimum number of changes, which equals the
+      number of mismatched mirror pairs. Lower bound: by R-DEF-2 a change
+      alters exactly one position and the mirror pairs are disjoint, so every
+      mismatched pair needs a change of its own (R-DEF-1 requires its two
+      elements to be equal). Upper bound: changing the later element of each
+      mismatched pair to its partner's value makes the array palindromic with
+      exactly `pairs` changes. For the empty list pairs is 0, so the answer is
+      0 (reading 1 of R-IN-1).
+
+  - id: RB-DEF-1
+    req: R-DEF-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "(changes == 0) <-> pal"
+    note: >-
+      A definition has no behaviour of its own; this item states its direct
+      consequence for the function: no change is needed exactly when arr is
+      already palindromic. Reading 1 of "read the same backwards and forwards"
+      (element-wise: arr equals its reversal) is taken, so e.g. [10, 1] is not
+      palindromic and needs one change, although its written form "101" reads
+      the same backwards. `pal` is written independently of `pairs`, as the
+      literal definition, so this item also cross-checks the model of
+      RB-RES-1-MIN.
+
+  - id: RB-EX-1-P
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "arr == [1, 2, 3, 5, 4, 7, 9, 6]"
+      cond: "outcome == 0 && changes == 4"
+    note: >-
+      The example is an equality assertion on the value of the call, so for a
+      function without state it is a guarantee for this argument: every call
+      with it returns 4. Following reading 1 of "the minimum number" (R-RES-1),
+      the returned 4 is an int (outcome 0); in Python 4.0 == 4 would also hold,
+      but a float is outcome 2 in this trace.
+
+  - id: RB-EX-2-P
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: "arr == [1, 2, 3, 4, 3, 2, 2]"
+      cond: "outcome == 0 && changes == 1"
+    note: >-
+      Equality assertion on the value of the call, read as a guarantee for this
+      argument (see RB-EX-1-P); the result is an int (reading 1 of R-RES-1).
+
+  - id: RB-EX-3-P
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: "arr == [1, 2, 3, 2, 1]"
+      cond: "outcome == 0 && changes == 0"
+    note: >-
+      Equality assertion on the value of the call, read as a guarantee for this
+      argument (see RB-EX-1-P); the result is an int (reading 1 of R-RES-1).
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "arr == [1, 2, 3, 5, 4, 7, 9, 6] && outcome == 0 && changes == 4"
+    note: The example call and its stated result must be a possible behaviour.
+
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: "arr == [1, 2, 3, 4, 3, 2, 2] && outcome == 0 && changes == 1"
+    note: The example call and its stated result must be a possible behaviour.
+
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "arr == [1, 2, 3, 2, 1] && outcome == 0 && changes == 0"
+    note: The example call and its stated result must be a possible behaviour.
+
+  - id: RB-IN-1-S-EMPTY
+    req: R-IN-1
+    cover: "len(arr) == 0 && outcome == 0 && changes == 0"
+    note: >-
+      Reading 1 of "an array arr of integers": the empty list is a valid input;
+      it is already palindromic, so the function answers 0 for it.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the name of the function and of its single parameter are
+      fixed by the adapter (design.yaml binds every cycle to a call
+      smallest_change(arr)), not by a property of the trace. The argument is
+      passed by position, so the parameter name is not observable. A missing or
+      misnamed function, or one with another arity, makes every call raise
+      (outcome 1), which RB-RES-1-RET rejects.
+
+  - req: R-DEF-2
+    reason: >-
+      Definition of one change; it has no behaviour of its own and enters the
+      specification model `pairs` used by RB-RES-1-MIN: a change alters exactly
+      one position, so each mismatched mirror pair costs at least one change,
+      and one change per pair suffices. Reading 2 of "any other element" (the
+      new value must already occur as another element of arr) is taken as the
+      most literal, since "element" names a member of arr in the rest of the
+      sentence; the minimum is the same under reading 1, because the repair of
+      a pair copies the partner element, which is another element of arr.
+    covered_by: [RB-RES-1-MIN]
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter: frame.md states that it holds by construction
+      and is part of every formalization set (design.yaml frame item F-ZERO,
+      outcome != 0 -> changes == 0), so it is not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "an array arr", reading: 1}
+  - {req: R-IN-1, phrase: "an array arr of integers", reading: 1}
+  - {req: R-RES-1, phrase: "find", reading: 1}
+  - {req: R-RES-1, phrase: "the minimum number", reading: 1}
+  - {req: R-DEF-1, phrase: "read the same backwards and forwards", reading: 1}
+  - {req: R-DEF-2, phrase: "any other element", reading: 2}

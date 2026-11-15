@@ -1,0 +1,27 @@
+fcp: '0.1'
+design: review
+summary: A Python function on strings treated as a chip without memory. Each cycle is one call of is_happy(s); the argument is an input string of at most 16 characters, the returned boolean and the way the call ended are outputs. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt: is_happy'}
+- {id: FRAME, path: frame.md, title: 'FCP function adapter, version 0.2'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: s, dir: in, width: 8, length: 16, desc: 'the s argument: a string of at most 16 characters, codes 0 to 255'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a bool, 1 any exception or no answer, 2 returned anything else'}
+  - {name: happy, dir: out, width: 1, desc: 'the returned value (outcome 0)'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> !happy'}
+- {id: F-CODE, req: R-FR-2, expr: 'outcome != 3'}
+function:
+  name: is_happy
+  args:
+  - {name: s, signal: s, type: str}
+  returns: {signal: happy, type: bool}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    s: {alphabet: 'abcdxy', random: 3000, values: ['a', 'aa', 'abcd', 'aabb', 'adb', 'xyy']}

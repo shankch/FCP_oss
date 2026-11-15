@@ -1,0 +1,408 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# ---------------------------------------------------------------------------
+# Specification model.
+#   occ  = number of words the FIFO stores, driven by the inputs only
+#          (cleared by reset). Every output is checked against it.
+#   wr   = an accepted push  (push sampled high, FIFO not full)       [4.2]
+#   rd   = an accepted pop   (pop sampled high, FIFO not empty)       [4.3]
+# A push while full and a pop while empty are ignored (4.2, 4.3) even when the
+# other operation is asserted in the same cycle; accepted operations compose
+# additively (4.4 for the case where both are accepted). The model is built
+# from the states 4.2/4.3 name explicitly. The one place where the text
+# contradicts this (4.4 read literally: push AND pop while full or empty) is
+# NOT absorbed into the model: it is kept as separate literal properties,
+# FB-SIM-1f and FB-SIM-1e, so that the conflict stays visible.
+# The usage rule R-USE-1 is deliberately not assumed (see unformalized), so
+# every item is checked for all input sequences.
+# ---------------------------------------------------------------------------
+defs:
+  at_full: "occ == DEPTH"
+  at_empty: "occ == 0"
+  wr: "push && !at_full"
+  rd: "pop && !at_empty"
+
+ghosts:
+  - {name: occ, range: [0, DEPTH], init: 0, next: "occ + wr - rd"}
+
+properties:
+  # ------------------------------ 4.1 Reset ------------------------------
+  - id: FB-RST-1
+    req: R-RST-1
+    pattern: after_reset
+    args: {cond: "count == 0"}
+    note: >-
+      Observable meaning of "discards all stored words": in every cycle that
+      follows a reset cycle no word is stored, i.e. count (which reflects the
+      stored words, R-ST-4) is zero. Reset takes priority over a push or pop
+      sampled in the same cycle (the text lets reset discard all stored words
+      and says nothing else about that cycle). That no pre-reset word is ever
+      delivered afterwards is checked by FB-RST-1b.
+
+  - id: FB-RST-1b
+    req: R-RST-1
+    pattern: inorder
+    args: {in_fire: "wr", in_data: "push_data", out_fire: "rd", out_data: "pop_data", capacity: "DEPTH", latency: 0, peek: "true"}
+    note: >-
+      Discarded words must never reappear: the in-order monitor and the
+      occupancy model are cleared by reset, so a stale word presented after a
+      reset would not match the oldest word accepted since the reset.
+
+  - id: FB-RST-2
+    req: R-RST-2
+    pattern: after_reset
+    args: {cond: "empty && !full && !almost_full && count == 0"}
+    note: >-
+      Applies in every cycle that follows a reset cycle (the after_reset
+      semantics), also when reset is still asserted in that cycle. The text
+      says nothing about the outputs during the reset cycle itself.
+      almost_full deasserted at count 0 holds under either threshold reading
+      of R-ST-3 / R-TM-2 because AF_LEVEL >= 1.
+
+  # ------------------------------ 4.2 Writing ----------------------------
+  - id: FB-WR-1
+    req: R-WR-1
+    pattern: next
+    args:
+      trigger: "wr"
+      cond: "count == prev(count) + 1 - prev(rd)"
+    note: >-
+      Count part of R-WR-1. "Not full" is judged on the specification model
+      (occ), not on the full output. "count increases by one" is the effect
+      of the push itself; an accepted pop in the same cycle contributes its
+      own decrement (R-RD-2), hence the - prev(rd) term, so that the item does
+      not contradict R-SIM-1 when both operations are accepted (read literally
+      as the total change of count, R-WR-1 (+1), R-RD-2 (-1) and R-SIM-1 (0)
+      would contradict each other whenever push and pop are both accepted).
+      The change shows in the next cycle (R-TM-1). That push_data is stored
+      at the tail is checked by FB-WR-1b.
+
+  - id: FB-WR-1b
+    req: R-WR-1
+    pattern: inorder
+    args: {in_fire: "wr", in_data: "push_data", out_fire: "rd", out_data: "pop_data", capacity: "DEPTH", latency: 0}
+    note: >-
+      Data part of R-WR-1: an accepted word is stored at the tail, i.e. it is
+      delivered after every word accepted before it and its value is the
+      pushed value. Read latency 0 (pop_data is sampled in the cycle of the
+      accepted pop), consistent with the first-word fall-through reading of
+      R-RD-1 / R-TM-3.
+
+  - id: FB-WR-2
+    req: R-WR-2
+    pattern: next
+    args:
+      trigger: "push && at_full"
+      cond: "count == prev(count) - prev(rd)"
+    note: >-
+      "Ignored ... count unchanged by it": the push contributes nothing, even
+      if a pop is asserted in the same cycle (most literal reading: the text
+      has no exception for that case). With a simultaneous accepted pop the
+      count therefore drops by one, which CONFLICTS with R-SIM-1 read
+      literally (FB-SIM-1f): both cannot hold when push and pop are asserted
+      while the FIFO is full. This conflict is in the text and is not
+      repaired here. The stored words being unchanged is checked by FB-WR-2b.
+
+  - id: FB-WR-2b
+    req: R-WR-2
+    pattern: inorder
+    args: {in_fire: "wr", in_data: "push_data", out_fire: "rd", out_data: "pop_data", capacity: "DEPTH", latency: 0, peek: "true"}
+    note: >-
+      Stored-words part of R-WR-2: an ignored push (no in_fire while full)
+      must not overwrite or add a word. The oldest stored word stays visible
+      and every stored word is delivered unmodified. Catches the classic
+      overwrite-when-full defect.
+
+  # ------------------------------ 4.3 Reading ----------------------------
+  - id: FB-RD-1
+    req: R-RD-1
+    pattern: inorder
+    args: {in_fire: "wr", in_data: "push_data", out_fire: "rd", out_data: "pop_data", capacity: "DEPTH", latency: 0, peek: "true"}
+    note: >-
+      First-word fall-through: in every cycle in which at least one word is
+      stored (judged on the model, not on the empty output) pop_data shows the
+      oldest stored word, whether or not pop is asserted. The value of
+      pop_data while the FIFO is empty is left free (FB-RD-4).
+
+  - id: FB-RD-2
+    req: R-RD-2
+    pattern: next
+    args:
+      trigger: "rd"
+      cond: "count == prev(count) - 1 + prev(wr)"
+    note: >-
+      Count part of R-RD-2. "count decreases by one" is the effect of the pop
+      itself; an accepted push in the same cycle contributes its own increment
+      (R-WR-1). Under the model a pop is accepted only when the FIFO is not
+      empty. That the head word is removed is checked by FB-RD-2b.
+
+  - id: FB-RD-2b
+    req: R-RD-2
+    pattern: inorder
+    args: {in_fire: "wr", in_data: "push_data", out_fire: "rd", out_data: "pop_data", capacity: "DEPTH", latency: 0, peek: "true"}
+    note: >-
+      Head-removal part of R-RD-2: after an accepted pop the removed word is
+      gone and the next-oldest word is the head (visible via pop_data); no
+      word is delivered twice.
+
+  - id: FB-RD-3
+    req: R-RD-3
+    pattern: next
+    args:
+      trigger: "pop && at_empty"
+      cond: "count == prev(count) + prev(wr)"
+    note: >-
+      "Ignored": the pop contributes nothing (no underflow of count, no word
+      removed), even if a push is asserted in the same cycle (most literal
+      reading: no exception in the text). With a simultaneous push the count
+      therefore rises by one, which CONFLICTS with R-SIM-1 read literally
+      (FB-SIM-1e): both cannot hold when push and pop are asserted while the
+      FIFO is empty. This conflict is in the text and is not repaired here.
+
+  # ------------------------ 4.4 Simultaneous push/pop --------------------
+  - id: FB-SIM-1
+    req: R-SIM-1
+    pattern: next
+    args:
+      trigger: "push && pop && !at_full && !at_empty"
+      cond: "count == prev(count)"
+    note: >-
+      Uncontested part of R-SIM-1: push and pop in the same cycle with the
+      FIFO neither full nor empty, count unchanged. Both operations taking
+      effect (data stored at the tail and head removed) is checked by the
+      in-order items FB-WR-1b / FB-RD-2b, which are not conditioned on
+      simultaneity. Both readings of the ambiguity in R-SIM-1 agree here.
+
+  - id: FB-SIM-1f
+    req: R-SIM-1
+    pattern: next
+    args:
+      trigger: "push && pop && at_full"
+      cond: "count == prev(count)"
+    note: >-
+      Contested part of R-SIM-1 while FULL, kept as the most literal reading:
+      the sentence has no state condition, so count is unchanged whenever push
+      and pop are asserted together. This CONTRADICTS R-WR-2 (FB-WR-2, FB-USE-2):
+      a push while full is ignored, so the simultaneous pop lowers count by
+      one. The ambiguity "both operations take effect" is not resolved here.
+      The data side of "both take effect" in this state (a word accepted into
+      a full FIFO while the head leaves) is not formalized: it would
+      contradict the ignored-push model used by every in-order item, and the
+      count-level conflict is already visible.
+
+  - id: FB-SIM-1e
+    req: R-SIM-1
+    pattern: next
+    args:
+      trigger: "push && pop && at_empty"
+      cond: "count == prev(count)"
+    note: >-
+      Contested part of R-SIM-1 while EMPTY, kept as the most literal reading
+      (no state condition in the sentence). This CONTRADICTS R-RD-3 (FB-RD-3,
+      FB-USE-2): a pop while empty is ignored, so the simultaneous push raises
+      count by one. The ambiguity "both operations take effect" is not resolved
+      here. The data side of "both take effect" is not formalized: the text
+      gives it no coherent meaning (a pop on an empty FIFO, whose pop_data is
+      undefined by R-RD-4, would have to remove the word being pushed).
+
+  # ------------------------ 4.5 Ordering and integrity -------------------
+  - id: FB-ORD-1
+    req: R-ORD-1
+    pattern: inorder
+    args: {in_fire: "wr", in_data: "push_data", out_fire: "rd", out_data: "pop_data", capacity: "DEPTH", latency: 0}
+    note: >-
+      Accepted words are delivered oldest first. "Read" is taken as the
+      accepted pop with pop_data sampled in the same cycle (latency 0), as the
+      first-word fall-through reading of R-RD-1 / R-TM-3 requires. Accepted
+      means accepted under the model (push while not full), so ignored
+      pushes create no obligation.
+
+  - id: FB-ORD-2
+    req: R-ORD-2
+    pattern: inorder
+    args: {in_fire: "wr", in_data: "push_data", out_fire: "rd", out_data: "pop_data", capacity: "DEPTH", latency: 0}
+    note: >-
+      Every accepted word is delivered exactly once (no loss, no duplicate)
+      and unmodified. The safety content of "read out exactly once" is
+      checked; the liveness part (the consumer eventually pops) cannot be
+      required of the FIFO and is not formalized. Same monitor as FB-ORD-1
+      by construction of the inorder pattern.
+
+  # ------------------------------ 5 Status flags -------------------------
+  - id: FB-ST-1
+    req: R-ST-1
+    expr: "full == (count == DEPTH)"
+    note: Literal relation between the two outputs; count itself is checked against the model by FB-ST-4.
+
+  - id: FB-ST-2
+    req: R-ST-2
+    expr: "empty == (count == 0)"
+    note: Literal relation between the two outputs; count itself is checked against the model by FB-ST-4.
+
+  - id: FB-ST-3
+    req: R-ST-3
+    expr: "almost_full == (count >= AF_LEVEL)"
+    note: >-
+      CONTRADICTS R-TM-2 (FB-TM-2, "count greater than AF_LEVEL") at
+      count == AF_LEVEL: Section 5 says asserted, Section 6 says not. Both are
+      formalized literally and the contradiction is not repaired. Ambiguity
+      "is asserted when": taken as if-and-only-if (a status flag defined by a
+      threshold on count, as the requirement text states it; Section 5 spells
+      out "if and only if" for full and empty but not here). Under the weaker
+      "if" reading the two requirements would not contradict each other, but
+      almost_full would be unconstrained below the threshold.
+
+  - id: FB-ST-4
+    req: R-ST-4
+    expr: "count == occ"
+    note: >-
+      count equals the number of stored words, which is the model occupancy
+      (accepted pushes minus accepted pops since the last reset). Note that
+      the words "stored" are defined by the operation rules of Section 4, so
+      R-ST-4 has content only relative to that model. The model follows 4.2 /
+      4.3 at the corners (an ignored operation stays ignored when the other
+      one is asserted); if R-SIM-1 were resolved in favour of its literal
+      reading, the model (and with it this item, FB-TM-1 and every in-order
+      item) would have to change at push+pop while full or empty.
+
+  # ------------------------------ 6 Timing -------------------------------
+  - id: FB-TM-1
+    req: R-TM-1
+    expr: "count == occ && full == (occ == DEPTH) && empty == (occ == 0)"
+    note: >-
+      Registered outputs: the model occupancy at cycle t depends only on the
+      inputs of cycles before t, so equality with it in every cycle means that
+      full, empty and count reflect earlier operations only (an operation
+      changes them in the following cycle, never in its own cycle). The row
+      says nothing about almost_full or pop_data timing.
+
+  - id: FB-TM-2
+    req: R-TM-2
+    expr: "almost_full == (count > AF_LEVEL)"
+    note: >-
+      CONTRADICTS R-ST-3 (FB-ST-3, "greater than or equal to") at
+      count == AF_LEVEL; kept literally, not repaired. With AF_LEVEL ==
+      DEPTH (legal per Section 2) this reading makes almost_full constantly
+      deasserted, which suggests a slip in Section 6, but that is for a human
+      to decide. Same "asserted when" ambiguity as R-ST-3, taken as
+      if-and-only-if.
+
+  - id: FB-TM-3
+    req: R-TM-3
+    pattern: inorder
+    args: {in_fire: "wr", in_data: "push_data", out_fire: "rd", out_data: "pop_data", capacity: "DEPTH", latency: 0, peek: "pop"}
+    note: >-
+      Ambiguity "when pop is asserted": taken as the same cycle as pop
+      (latency 0), the only reading consistent with R-RD-1 (the head is
+      always on pop_data); the registered-read reading (the popped word shown
+      in the cycle after pop) would contradict first-word fall-through (the
+      new head is shown in that cycle) whenever the two oldest words differ.
+      The quote has no "FIFO not empty" condition; with an empty FIFO there is
+      no oldest stored word and R-RD-4 leaves pop_data undefined, so the item
+      applies whenever a word is stored. Implied by FB-RD-1 (weaker peek).
+
+  # --------------------------- 7 Usage notes -----------------------------
+  - id: FB-USE-2
+    req: R-USE-2
+    pattern: next
+    args:
+      trigger: "(push && at_full) || (pop && at_empty)"
+      cond: "count == prev(count) + prev(wr) - prev(rd)"
+    note: >-
+      A request that violates the usage rule is tolerated as described in
+      4.2 and 4.3: the offending operation has no effect and the other
+      operation, if accepted, takes its normal effect. Checked for all input
+      sequences because R-USE-1 is deliberately not assumed (see unformalized).
+      The stored words staying intact is covered by FB-WR-2b and FB-ORD-*.
+      Overlaps FB-WR-2 / FB-RD-3 by design (the requirement refers to them),
+      and inherits their conflict with FB-SIM-1f / FB-SIM-1e.
+
+scenarios:
+  - id: FB-S-ST-1
+    req: R-ST-1
+    cover: "full"
+    note: The FIFO can become full.
+
+  - id: FB-S-ST-2
+    req: R-ST-2
+    cover: "empty && once(!empty)"
+    note: The FIFO can become empty again after having held a word.
+
+  - id: FB-S-ST-3
+    req: R-ST-3
+    cover: "count == AF_LEVEL"
+    note: >-
+      The boundary count == AF_LEVEL can be reached. It is exactly the state
+      in which FB-ST-3 and FB-TM-2 demand opposite values of almost_full, so
+      together with those two properties this situation is unsatisfiable and
+      the consistency check on this scenario is expected to flag the
+      contradiction. The probe is intentional.
+
+  - id: FB-S-ST-3b
+    req: R-ST-3
+    cover: "almost_full && !full"
+    note: almost_full can be asserted while the FIFO is not full (AF_LEVEL < DEPTH at the verified instance).
+
+  - id: FB-S-TM-2
+    req: R-TM-2
+    cover: "count > AF_LEVEL && almost_full"
+    note: Above the boundary both readings of the threshold agree that almost_full is asserted.
+
+  - id: FB-S-WR-2
+    req: R-WR-2
+    cover: "push && at_full"
+    note: A push while full can be presented to the FIFO.
+
+  - id: FB-S-RD-3
+    req: R-RD-3
+    cover: "pop && at_empty"
+    note: A pop while empty can be presented to the FIFO.
+
+  - id: FB-S-SIM-1
+    req: R-SIM-1
+    cover: "push && pop && !at_full && !at_empty"
+    note: Simultaneous push and pop with the FIFO neither full nor empty is possible.
+
+  - id: FB-S-ORD-1
+    req: R-ORD-1
+    cover: "count >= 2"
+    note: At least two words can be stored at once, so that ordering is observable.
+
+  - id: FB-S-USE-2
+    req: R-USE-2
+    cover: "(push && at_full) || (pop && at_empty)"
+    note: Requests that violate the usage rule can be presented (the environment is not constrained by R-USE-1).
+
+dont_cares:
+  - id: FB-RD-4
+    req: R-RD-4
+    signal: pop_data
+    when: "occ == 0"
+    note: pop_data is free in every cycle in which no word is stored (judged on the model).
+
+unformalized:
+  - req: R-PAR-1
+    reason: >-
+      Definition of the legal parameter domain (DEPTH >= 2, not necessarily a
+      power of two); it states no signal behaviour of an instance. The
+      verified instance (design.yaml) uses DEPTH = 5, which satisfies it and
+      is not a power of two. All items are parametric in DEPTH and none relies
+      on a power-of-two depth. The boundary DEPTH = 2 is not exercised by
+      this instance.
+  - req: R-USE-1
+    reason: >-
+      Environment usage rule (no push while full, no pop while empty). It is
+      deliberately NOT asserted as an assumption: R-USE-2 requires the FIFO
+      to tolerate exactly these requests, and assumptions are global, so
+      assuming the rule would make FB-WR-2, FB-RD-3, FB-USE-2, FB-SIM-1f,
+      FB-SIM-1e and the scenarios FB-S-WR-2 / FB-S-RD-3 / FB-S-USE-2
+      unreachable or vacuous, would put R-USE-1 in conflict with the scenario
+      of R-USE-2, and would hide the R-SIM-1 conflict (which only arises in
+      the states the rule excludes). Checking all items for every input
+      sequence is strictly stronger than checking them under the rule, and
+      the rule is not a precondition of any item. If a human wants the rule as
+      an obligation anyway, it is an assumption on the inputs given the model
+      state (not on the full/empty outputs, which the DUT drives):
+      !(push && occ == DEPTH) && !(pop && occ == 0).

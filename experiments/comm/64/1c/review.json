@@ -1,0 +1,274 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 167,
+    "checked": 167,
+    "seconds": 7.6
+   },
+   "open": {
+    "open": {},
+    "checked": 104
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 294,
+    "checked": 294,
+    "seconds": 21.06
+   },
+   "open": {
+    "open": {},
+    "checked": 166
+   }
+  }
+ },
+ "readings": {
+  "R-Y-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-OUT-1": {
+   "plain": "A-WEAKER",
+   "context": "A-WEAKER",
+   "witness": [
+    "vowels_count(\"\") -> returned something else"
+   ]
+  },
+  "R-OUT-2": {
+   "plain": "INCOMPARABLE",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-VOW-1": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-VOW-2": {
+   "plain": "INCOMPARABLE",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-Y-1": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1-LETTERS",
+    "req": "R-IN-1",
+    "says": "every call meets `letters`",
+    "where": {
+     "letters": "all(k < len(s): isalpha(s[k]) || (s[k] >= 192 && s[k] != 215 && s[k] != 247) || s[k] == 170 || s[k] == 181 || s[k] == 186)"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1-NONEMPTY",
+    "req": "R-IN-1",
+    "says": "every call meets `len(s) >= 1`",
+    "where": {}
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FIX-1",
+   "phrase": "Add more test cases.",
+   "taken": 1,
+   "variant": 2,
+   "text": "A leftover note in the code template that places no obligation on the implementation; only the FIX constant itself is kept or ignored."
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "the number of vowels",
+   "taken": 1,
+   "variant": 2,
+   "text": "The number of distinct vowels present, so \"aa\" gives 1."
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "returns the number of vowels in the string",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradiction with R-EX-1 and R-EX-2: the examples are authoritative and the result is something else that gives 5 for both 5-character strings (for example the length of the string), so the definition does not govern."
+  },
+  {
+   "req": "R-VOW-1",
+   "phrase": "Vowels in this case are",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradiction with R-EX-1: the example's 5 is right, so the definition does not determine the result as stated."
+  },
+  {
+   "req": "R-VOW-2",
+   "phrase": "Vowels in this case are",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradiction with R-EX-1 and R-EX-2: both examples return 5 for 5-character strings, which counts the consonants b, c, d and C, D as well, so the list is not exhaustive or the examples are wrong."
+  },
+  {
+   "req": "R-VOW-2",
+   "phrase": "'a', 'e', 'i', 'o', 'u'",
+   "taken": 1,
+   "variant": 2,
+   "text": "Accented forms of these letters (Latin-1 codes such as '\u00e0', '\u00e9', '\u00f6') are also vowels."
+  },
+  {
+   "req": "R-Y-1",
+   "phrase": "at the end of the given word",
+   "taken": 1,
+   "variant": 2,
+   "text": "Every 'y' in the run of 'y's that ends s (for example both in \"syy\")."
+  },
+  {
+   "req": "R-Y-1",
+   "phrase": "the given word",
+   "taken": 1,
+   "variant": 2,
+   "text": "The end of each word inside s, or the last letter of the word ignoring trailing non-letters (so the 'y' in \"happy.\" or \"say hi\" counts)."
+  },
+  {
+   "req": "R-Y-2",
+   "phrase": "only when it is at the end",
+   "taken": 1,
+   "variant": 2,
+   "text": "A 'y' at the end of any word inside s, or in the trailing run of 'y's, is still counted; only other 'y's are excluded."
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": ">>> vowels_count(\"abcde\") 5",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example is authoritative: the call must return 5 (the length of the string), and the vowel definition does not govern this case."
+  }
+ ],
+ "depends": {
+  "R-OUT-1": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a"
+   ],
+   "witness": [
+    "vowels_count(\"\") -> raised another exception or did not finish"
+   ]
+  },
+  "R-OUT-2": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "vowels_count(\"\\u00f2y\") -> 1"
+   ]
+  },
+  "R-VOW-2": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_b"
+   ],
+   "witness": null
+  },
+  "R-Y-2": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_b"
+   ],
+   "witness": [
+    "vowels_count(\"a\\u00deafaOff\\u00dc\\u00de\\u00ddz`uAaAa[\\\\O\\u00dfYuvuA`yAAY\") -> 16"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-OUT-1",
+    "R-OUT-2",
+    "R-VOW-2",
+    "R-Y-2"
+   ],
+   "calls": [
+    "vowels_count(\"\") -> raised another exception or did not finish"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "relation": "A-WEAKER",
+   "calls": [
+    "vowels_count(\"\") -> returned something else"
+   ],
+   "question": "the two readings of this requirement disagree on these calls: which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"the number of vowels\" can mean: The number of occurrences of vowels: every position holding a vowel counts, so \"aa\" gives 2. / The number of distinct vowels present, so \"aa\" gives 1.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"returns the number of vowels in the string\" can mean: Contradiction with R-EX-1 and R-EX-2: by the vowel definition \"abcde\" has 2 vowels (a, e) and \"ACEDY\" has at most 3 (A, E, final Y); the examples, which give 5 for both, are wrong and the definition governs. / Contradiction with R-EX-1 and R-EX-2: the examples are authoritative and the result is something else that gives 5 for both 5-character strings (for example the length of the string), so the definition does not govern.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\">>> vowels_count(\"abcde\") 5\" can mean: Contradiction with R-OUT-2, R-VOW-1 and R-VOW-2: under the vowel definition \"abcde\" contains 2 vowels (a, e), so the expected 5 is an error and the correct result is 2. / The example is authoritative: the call must return 5 (the length of the string), and the vowel definition does not govern this case.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\">>> vowels_count(\"ACEDY\") 5\" can mean: Contradiction with R-OUT-2, R-VOW-1, R-VOW-2 and R-Y-1: case-insensitively with a final 'Y' counted, \"ACEDY\" contains 3 vowels (A, E, Y), so the expected 5 is an error and the correct result is 3. / Contradiction with R-VOW-1 and R-Y-1 read as lowercase only: \"ACEDY\" then contains no vowels and the correct result is 0. / The example is authoritative: the call must return 5 (the length of the string), and the vowel definition does not govern this case.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the comparison of agent_a and agent_b",
+  "the comparison of agent_b and variant"
+ ]
+}

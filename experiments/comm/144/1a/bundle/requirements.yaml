@@ -1,0 +1,181 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FN-1
+  doc: SPEC
+  quote: 'def simplify(a, b):'
+  text: The code defines a Python function named simplify that takes two arguments, a and b.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-FN-2
+  doc: SPEC
+  quote: 'def simplify(a, b):'
+  text: The fraction the docstring calls x is the first argument a of simplify, and the fraction it calls n is the second argument b.
+  kind: definition
+  ambiguity:
+  - phrase: a, b
+    readings:
+    - x is the first argument a and n is the second argument b (by position).
+    - The docstring never ties x and n to a and b; the mapping is unspecified (the result is the same either way, because * and + are commutative).
+  lines:
+  - 4
+- id: R-FN-3
+  doc: SPEC
+  quote: Your task is to implement a function that will simplify the expression x * n, or x + n.
+  text: The function works on the expression x * n, or x + n, formed from its two fraction arguments x and n.
+  kind: definition
+  ambiguity:
+  - phrase: simplify the expression
+    readings:
+    - 'A loose description of the task: the function only reports whether the expression is a whole number, returning a bool as the next sentence says.'
+    - The function must produce the simplified expression (e.g. a reduced fraction); this contradicts R-RES-1 and R-RES-2, which say it returns True or False.
+  - phrase: x * n, or x + n
+    readings:
+    - The expression is the product x * n only.
+    - The expression is the sum x + n only.
+    - Both the product x * n and the sum x + n are considered.
+    - One of the two operations is meant, chosen by something the prompt does not specify (there is no operator argument).
+  lines:
+  - 5
+  - 6
+- id: R-IN-1
+  doc: SPEC
+  quote: Both x and n, are string representation of a fraction, and have the following format, <numerator>/<denominator>
+  text: Each argument is a string made of a numerator, a single '/' character and a denominator, in that order.
+  kind: assumption
+  ambiguity:
+  - phrase: <numerator>/<denominator>
+    readings:
+    - Exactly the decimal digits of the numerator, one '/', and the decimal digits of the denominator, with no leading zeros, signs or spaces.
+    - Numerator and denominator may be written with leading zeros (e.g. '05/1'); only their values matter.
+  lines:
+  - 7
+  - 8
+- id: R-IN-2
+  doc: SPEC
+  quote: where both numerator and denominator are positive whole numbers
+  text: The numerator and the denominator of each argument are positive whole numbers (integers of at least 1).
+  kind: assumption
+  ambiguity:
+  - phrase: positive whole numbers
+    readings:
+    - 'Integers of at least 1: neither the numerator nor the denominator is ever zero.'
+    - 'Whole numbers in the sense of non-negative integers: the separate statement that the denominator is not zero (R-IN-4) would be needed only if zero could occur, which suggests a numerator of 0 may
+      be passed.'
+  lines:
+  - 8
+- id: R-IN-3
+  doc: SPEC
+  quote: You can assume that x, and n are valid fractions
+  text: Each argument passed to simplify is a valid fraction; behaviour on arguments that are not valid fractions is not specified.
+  kind: assumption
+  ambiguity:
+  - phrase: valid fractions
+    readings:
+    - A string in the stated <numerator>/<denominator> format whose numerator and denominator are positive whole numbers.
+    - Any string that denotes a fraction, possibly in other forms (e.g. '3', or with spaces).
+  lines:
+  - 10
+- id: R-IN-4
+  doc: SPEC
+  quote: and do not have zero as denominator
+  text: The denominator of each argument is not zero.
+  kind: assumption
+  ambiguity:
+  - phrase: do not have zero as denominator
+    readings:
+    - 'A redundant restatement: R-IN-2 already makes the denominator positive.'
+    - Zero is excluded only for the denominator, implying 'whole numbers' in R-IN-2 includes zero and a numerator of 0 may occur (in tension with 'positive' in R-IN-2).
+  lines:
+  - 10
+- id: R-RES-1
+  doc: SPEC
+  quote: The function returns True if x * n or x + n evaluates to a whole number
+  text: For valid fraction arguments x (a) and n (b), if x * n or x + n evaluates to a whole number, simplify returns the bool True.
+  kind: guarantee
+  depends:
+  - R-FN-2
+  - R-FN-3
+  ambiguity:
+  - phrase: x * n or x + n evaluates to a whole number
+    readings:
+    - True when at least one of the product x * n and the sum x + n is a whole number.
+    - True when the product x * n is a whole number; the sum is not considered (matches all three examples).
+    - True when the sum x + n is a whole number; contradicts R-EX-1, since 1/5 + 5/1 = 26/5 is not whole yet the expected answer is True.
+    - True only when both x * n and x + n are whole numbers; contradicts R-EX-1 for the same reason.
+  - phrase: evaluates
+    readings:
+    - 'Exact rational arithmetic: the value is a whole number exactly.'
+    - Floating-point evaluation (e.g. float division) whose result has an integral value, which can differ from exact arithmetic through rounding.
+  - phrase: whole number
+    readings:
+    - Any integer value.
+    - A non-negative integer (0 counts as whole).
+    - A positive integer (0 does not count); differs from the other readings only if a numerator of 0 can occur.
+  - phrase: returns True
+    readings:
+    - The function returns a bool.
+    - R-FN-3 says the function simplifies the expression, suggesting it returns the simplified expression; this contradicts returning True or False.
+  lines:
+  - 6
+- id: R-RES-2
+  doc: SPEC
+  quote: and False otherwise
+  text: For valid fraction arguments x (a) and n (b), if it is not the case that x * n or x + n evaluates to a whole number, simplify returns the bool False.
+  kind: guarantee
+  depends:
+  - R-FN-2
+  - R-FN-3
+  - R-RES-1
+  ambiguity:
+  - phrase: otherwise
+    readings:
+    - False when neither the product x * n nor the sum x + n is a whole number.
+    - False when the product x * n is not a whole number, whatever the sum.
+    - False when the sum x + n is not a whole number; contradicts R-EX-1 (1/5 + 5/1 = 26/5, expected True).
+    - False when at least one of x * n and x + n is not a whole number; contradicts R-EX-1.
+  - phrase: 'False'
+    readings:
+    - The function returns a bool.
+    - R-FN-3 says the function simplifies the expression, suggesting it returns the simplified expression; this contradicts returning True or False.
+  lines:
+  - 6
+  - 7
+- id: R-EX-1
+  doc: SPEC
+  quote: simplify("1/5", "5/1") = True
+  text: Calling simplify with a = "1/5" and b = "5/1" returns True (the product is 1; the sum is 26/5).
+  kind: scenario
+  ambiguity:
+  - phrase: simplify("1/5", "5/1") = True
+    readings:
+    - Consistent with R-RES-1 if the product decides (1/5 * 5/1 = 1) or if either expression being whole suffices.
+    - 'Contradicts R-RES-1 if the sum must be whole (alone or together with the product): 1/5 + 5/1 = 26/5 is not a whole number.'
+  lines:
+  - 12
+- id: R-EX-2
+  doc: SPEC
+  quote: simplify("1/6", "2/1") = False
+  text: Calling simplify with a = "1/6" and b = "2/1" returns False (the product is 1/3; the sum is 13/6).
+  kind: scenario
+  lines:
+  - 13
+- id: R-EX-3
+  doc: SPEC
+  quote: simplify("7/10", "10/2") = False
+  text: Calling simplify with a = "7/10" and b = "10/2" returns False (the product is 7/2; the sum is 57/10); the argument "10/2" is not in lowest terms.
+  kind: scenario
+  lines:
+  - 14
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: The result signal is false in every call whose outcome is not 0 (the call did not return a bool).
+  kind: guarantee
+  lines:
+  - 48

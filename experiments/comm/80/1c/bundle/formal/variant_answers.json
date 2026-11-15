@@ -1,0 +1,191 @@
+[
+ {
+  "req": "R-IN-1",
+  "phrase": "a string",
+  "taken": 1,
+  "variant": 2,
+  "text": "only strings made of letters are ever passed (the definition speaks of 'letters'), so the result for other strings is left open"
+ },
+ {
+  "req": "R-OUT-1",
+  "phrase": "check if the string is happy or not",
+  "taken": 1,
+  "variant": 2,
+  "text": "return any truthy value when the string is happy and any falsy value when it is not (for example 1 and 0, or None)"
+ },
+ {
+  "req": "R-HAP-1",
+  "phrase": "letters",
+  "taken": 1,
+  "variant": 2,
+  "text": "only alphabetic characters count: other characters are dropped before the groups of 3 consecutive letters are formed"
+ },
+ {
+  "req": "R-HAP-1",
+  "phrase": "its length",
+  "taken": 1,
+  "variant": 2,
+  "text": "the number of letters (alphabetic characters) in s"
+ },
+ {
+  "req": "R-HAP-1",
+  "phrase": "3 consecutive letters",
+  "taken": 1,
+  "variant": 2,
+  "text": "the non-overlapping blocks s[0..2], s[3..5], ... (a trailing block shorter than 3 is ignored)"
+ },
+ {
+  "req": "R-HAP-1",
+  "phrase": "distinct",
+  "taken": 1,
+  "variant": 2,
+  "text": "the three characters are pairwise different when letter case is ignored"
+ },
+ {
+  "req": "R-HAP-1",
+  "phrase": "A string is happy if its length is at least 3 and every 3 consecutive letters are distinct",
+  "taken": 1,
+  "variant": 2,
+  "text": "the examples are authoritative: is_happy('abcd') and is_happy('adb') return False, so meeting both conditions does not force the result True"
+ },
+ {
+  "req": "R-HAP-2",
+  "phrase": "is happy if",
+  "taken": 1,
+  "variant": 2,
+  "text": "if only (a sufficient condition): the definition does not say whether a string with fewer than 3 characters is happy, so either answer is allowed"
+ },
+ {
+  "req": "R-HAP-2",
+  "phrase": "its length",
+  "taken": 1,
+  "variant": 2,
+  "text": "the number of letters (alphabetic characters) in s"
+ },
+ {
+  "req": "R-HAP-2",
+  "phrase": "its length is at least 3",
+  "taken": 1,
+  "variant": 2,
+  "text": "the examples are authoritative: is_happy('a') and is_happy('aa') return True, so a string shorter than 3 can be happy"
+ },
+ {
+  "req": "R-HAP-3",
+  "phrase": "is happy if",
+  "taken": 1,
+  "variant": 2,
+  "text": "if only (a sufficient condition): the definition does not say whether such a string is happy, so either answer is allowed"
+ },
+ {
+  "req": "R-HAP-3",
+  "phrase": "letters",
+  "taken": 1,
+  "variant": 2,
+  "text": "only alphabetic characters count: other characters are dropped before the groups of 3 consecutive letters are formed"
+ },
+ {
+  "req": "R-HAP-3",
+  "phrase": "3 consecutive letters",
+  "taken": 1,
+  "variant": 2,
+  "text": "the non-overlapping blocks s[0..2], s[3..5], ... (a trailing block shorter than 3 is ignored)"
+ },
+ {
+  "req": "R-HAP-3",
+  "phrase": "distinct",
+  "taken": 1,
+  "variant": 2,
+  "text": "the three characters are pairwise different when letter case is ignored"
+ },
+ {
+  "req": "R-HAP-3",
+  "phrase": "every 3 consecutive letters are distinct",
+  "taken": 1,
+  "variant": 2,
+  "text": "the examples are authoritative: is_happy('aabb') and is_happy('xyy') return True, so a repeated character among 3 consecutive letters does not force the result False"
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "is_happy(a)",
+  "taken": 1,
+  "variant": 2,
+  "text": "a is a variable whose value is not given, so the example fixes no particular call"
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "is_happy(a) => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "the definition is authoritative: 'a' is shorter than 3 characters, so it is not happy and is_happy('a') returns False (R-HAP-2); the example contradicts the definition"
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "is_happy(aa)",
+  "taken": 1,
+  "variant": 2,
+  "text": "aa is a variable whose value is not given, so the example fixes no particular call"
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "is_happy(aa) => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "the definition is authoritative: 'aa' is shorter than 3 characters, so it is not happy and is_happy('aa') returns False (R-HAP-2); the example contradicts the definition"
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "is_happy(abcd)",
+  "taken": 1,
+  "variant": 2,
+  "text": "abcd is a variable whose value is not given, so the example fixes no particular call"
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "is_happy(abcd) => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "the definition is authoritative: 'abcd' has 4 characters and its windows 'abc' and 'bcd' are each pairwise distinct, so it is happy and is_happy('abcd') returns True (R-HAP-1); the example contradicts the definition"
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "is_happy(aabb)",
+  "taken": 1,
+  "variant": 2,
+  "text": "aabb is a variable whose value is not given, so the example fixes no particular call"
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "is_happy(aabb) => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "the definition is authoritative: the window 'aab' repeats 'a', so 'aabb' is not happy and is_happy('aabb') returns False (R-HAP-3); the example contradicts the definition"
+ },
+ {
+  "req": "R-EX-5",
+  "phrase": "is_happy(adb)",
+  "taken": 1,
+  "variant": 2,
+  "text": "adb is a variable whose value is not given, so the example fixes no particular call"
+ },
+ {
+  "req": "R-EX-5",
+  "phrase": "is_happy(adb) => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "the definition is authoritative: 'adb' has 3 characters that are pairwise distinct, so it is happy and is_happy('adb') returns True (R-HAP-1); the example contradicts the definition"
+ },
+ {
+  "req": "R-EX-6",
+  "phrase": "is_happy(xyy)",
+  "taken": 1,
+  "variant": 2,
+  "text": "xyy is a variable whose value is not given, so the example fixes no particular call"
+ },
+ {
+  "req": "R-EX-6",
+  "phrase": "is_happy(xyy) => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "the definition is authoritative: 'xyy' repeats 'y', so it is not happy and is_happy('xyy') returns False (R-HAP-3); the example contradicts the definition"
+ }
+]

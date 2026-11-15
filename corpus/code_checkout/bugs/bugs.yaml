@@ -1,0 +1,37 @@
+# Planted bugs: one textual patch of impl/ref.py each (the target text must
+# occur exactly once).  `violates` is the gold requirement each one breaks.
+design: code_checkout
+bugs:
+- id: C1
+  desc: a $50.00 cart still pays shipping
+  violates: [R-SHIP-1]
+  patch: {from: 'shipping = 499 if subtotal < 5000 else 0', to: 'shipping = 499 if subtotal <= 5000 else 0'}
+- id: C2
+  desc: the discounted price is truncated instead of rounded
+  violates: [R-ROUND-1]
+  patch: {from: 'price = (subtotal * (100 - discount) + 50) // 100', to: 'price = subtotal * (100 - discount) // 100'}
+- id: C3
+  desc: the 30% cap is applied to the coupon only, before the member discount is added
+  violates: [R-STACK-1]
+  patch: {from: 'discount = min(coupon + (10 if member else 0), 30)', to: 'discount = min(coupon, 30) + (10 if member else 0)'}
+- id: C4
+  desc: the member discount is dropped when there is a coupon
+  violates: [R-STACK-1]
+  patch: {from: 'discount = min(coupon + (10 if member else 0), 30)', to: 'discount = min(coupon if coupon else (10 if member else 0), 30)'}
+- id: C5
+  desc: coupons up to 100% are accepted
+  violates: [R-ERR-1]
+  patch: {from: 'if not 0 <= coupon <= 50:', to: 'if not 0 <= coupon <= 100:'}
+- id: C6
+  desc: float arithmetic with round(), which rounds half a cent to even
+  violates: []
+  note: not a bug under the gold reading, where either neighbour of half a cent is nearest; a bug under a round-half-up reading
+  patch: {from: 'price = (subtotal * (100 - discount) + 50) // 100', to: 'price = round(subtotal * (1 - discount / 100))'}
+- id: C7
+  desc: a 1,000,000-cent cart is rejected
+  violates: [R-RET-1]
+  patch: {from: 'if not 0 <= subtotal <= 1_000_000:', to: 'if not 0 <= subtotal < 1_000_000:'}
+- id: C8
+  desc: the price is returned as a float
+  violates: [R-RET-1]
+  patch: {from: 'price = (subtotal * (100 - discount) + 50) // 100', to: 'price = round(subtotal * (100 - discount) / 100, 0)'}

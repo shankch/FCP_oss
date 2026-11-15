@@ -1,0 +1,41 @@
+# Planted bugs: one textual patch of impl/ref.py each (the target text must
+# occur exactly once).  `violates` is the gold requirement each one breaks.
+design: code_pay
+bugs:
+- id: C1
+  desc: a declined card is tried again, like an error
+  violates: [R-DECL-1]
+  patch: {from: "        if answer == 'declined':\n            return False\n", to: ''}
+- id: C2
+  desc: four attempts instead of three
+  violates: [R-RETRY-1]
+  patch: {from: 'for attempt in range(3):', to: 'for attempt in range(4):'}
+- id: C3
+  desc: the waits are halved (1 and 2 seconds)
+  violates: [R-WAIT-1]
+  patch: {from: 'api.sleep(2 ** attempt)', to: 'api.sleep(2 ** (attempt - 1))'}
+- id: C4
+  desc: a declined card returns True
+  violates: [R-RET-1]
+  patch: {from: "        if answer == 'declined':\n            return False", to: "        if answer == 'declined':\n            return True"}
+- id: C5
+  desc: the amount is passed in dollars
+  violates: [R-CALL-1]
+  patch: {from: 'answer = api.charge(order_id, amount)', to: 'answer = api.charge(order_id, amount // 100)'}
+- id: C6
+  desc: an amount of 0 is charged
+  violates: [R-ERR-1]
+  patch: {from: 'if not 1 <= amount <= 1_000_000:', to: 'if not 0 <= amount <= 1_000_000:'}
+- id: C7
+  desc: the order is charged again after an ok, and the last answer decides
+  violates: [R-ONCE-1, R-RET-1]
+  patch: {from: "        if answer == 'ok':\n            return True\n", to: "        if answer == 'ok' and attempt == 2:\n            return True\n"}
+- id: C8
+  desc: None is returned after three errors
+  violates: [R-RET-1]
+  patch: {from: "            return False\n    return False", to: "            return False\n    return None"}
+- id: C9
+  desc: the loop is written with while; the same behaviour, written differently
+  violates: []
+  note: a refactoring, not a bug, which FCP must not flag
+  patch: {from: "    for attempt in range(3):\n        if attempt:\n            api.sleep(2 ** attempt)\n", to: "    attempt = -1\n    while attempt < 2:\n        attempt += 1\n        if attempt > 0:\n            api.sleep(2 ** attempt)\n"}

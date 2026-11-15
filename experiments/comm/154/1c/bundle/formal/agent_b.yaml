@@ -1,0 +1,174 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md),
+# so the model is combinational: the defs below compute, from the inputs of
+# the current call, whether the call is inside the contract (words) and the
+# answer the rule demands (hit). Both outputs are checked against it.
+defs:
+  # R-IN-1, reading 2: a word is a non-empty string of letters (FCP-PL isalpha: ASCII A-Z, a-z)
+  word_a: 'len(a) >= 1 && all(i < len(a): isalpha(a[i]))'
+  word_b: 'len(b) >= 1 && all(j < len(b): isalpha(b[j]))'
+  words: 'word_a && word_b'
+  # R-DEF-3: the second word b itself is a contiguous, case-sensitive substring of a
+  b_in_a: 'any(i < len(a) - len(b) + 1: all(j < len(b): a[i + j] == b[j]))'
+  # R-DEF-2 + R-DEF-3: some rotation b[k:] + b[:k], 0 <= k < len(b), is a substring of a
+  rot_in_a: 'any(k < len(b): any(i < len(a) - len(b) + 1: all(j < len(b): a[i + j] == (k + j < len(b) ? b[k + j] : b[k + j - len(b)]))))'
+  # R-RES-1 / R-RES-2: "the second word or any of its rotations is a substring in the first word"
+  hit: 'b_in_a || rot_in_a'
+
+assumptions:
+  - id: RB-IN-1
+    req: R-IN-1
+    expr: 'words'
+    note: >-
+      "You are given 2 words" read literally (reading 2): both arguments are
+      non-empty strings of letters. Calls with an empty argument or a
+      non-letter character are outside the contract. Letters are FCP-PL
+      isalpha (ASCII A-Z, a-z). Python's str.isalpha also accepts some
+      Latin-1 letters (e.g. code 0xE9), and this set treats those as outside
+      the contract. The two properties also carry `words` in their
+      triggers, so each call outside the contract is unconstrained without
+      relying on the cumulative assumption semantics. Under this assumption
+      that changes nothing.
+
+properties:
+  - id: RB-RES-1
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: 'words && hit'
+      cond: 'outcome == 0 && result'
+    note: >-
+      The rule as written. Rotations are cyclic shifts (R-DEF-2 reading 1).
+      Substring means contiguous and case-sensitive (R-DEF-3 readings 1, 1).
+      "Return True" means returning the boolean True (outcome 0, result 1),
+      not any truthy value. An empty b would count as a substring (hit holds
+      via b_in_a), but RB-IN-1 excludes empty b, so that case is moot.
+      CONTRADICTION: the examples R-EX-2 (hello/ell), R-EX-4 (abab/baa) and
+      R-EX-6 (himenss/simen) each meet this trigger ("ell" = "hello"[1:4];
+      the rotation "aba" = "abab"[0:3]; the rotation "imens" = "himenss"[1:6])
+      but state False. The rule is formalized literally, not repaired, so
+      the scenarios RB-EX-2, RB-EX-4 and RB-EX-6 are unreachable under this
+      property.
+  - id: RB-RES-2
+    req: R-RES-2
+    pattern: implies
+    args:
+      trigger: 'words && !hit'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      "Return True if" is taken as "if and only if" (reading 1), the usual
+      meaning in the docstring of a boolean-valued function. The docstring's
+      own examples show False as a specified answer. The strictly logical
+      one-way reading would leave these calls unconstrained. This includes
+      every call with len(b) > len(a), where the offset range is empty.
+      CONTRADICTION: the examples R-EX-1 (abcd/abd), R-EX-3 (whassup/psus)
+      and R-EX-5 (efef/eeff) each meet this trigger (no cyclic shift of b
+      occurs in a) but state True. The rule is formalized literally, so the
+      scenarios RB-EX-1, RB-EX-3 and RB-EX-5 are unreachable under this
+      property.
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: 'a == "abcd" && b == "abd" && outcome == 0 && result'
+    note: >-
+      The example as written (reading 1). It contradicts RB-RES-2: the
+      rotations of "abd" are "abd", "bda" and "dab", and the 3-character
+      substrings of "abcd" are "abc" and "bcd". Unreachable together with
+      RB-RES-2. The conflict is in the specification.
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: 'a == "hello" && b == "ell" && outcome == 0 && !result'
+    note: >-
+      The example as written (reading 1). It contradicts RB-RES-1 because
+      "ell" = "hello"[1:4]. Unreachable together with RB-RES-1. The conflict
+      is in the specification.
+  - id: RB-EX-3
+    req: R-EX-3
+    cover: 'a == "whassup" && b == "psus" && outcome == 0 && result'
+    note: >-
+      The example as written (reading 1). It contradicts RB-RES-2: none of
+      "psus", "susp", "usps" and "spsu" occurs in "whassup", whose
+      4-character substrings are "whas", "hass", "assu" and "ssup".
+      Unreachable together with RB-RES-2.
+  - id: RB-EX-4
+    req: R-EX-4
+    cover: 'a == "abab" && b == "baa" && outcome == 0 && !result'
+    note: >-
+      The example as written (reading 1). It contradicts RB-RES-1 because
+      the rotation "aba" of "baa" (k = 2) is "abab"[0:3]. Unreachable
+      together with RB-RES-1.
+  - id: RB-EX-5
+    req: R-EX-5
+    cover: 'a == "efef" && b == "eeff" && outcome == 0 && result'
+    note: >-
+      The example as written (reading 1). It contradicts RB-RES-2: none of
+      "eeff", "effe", "ffee" and "feef" equals "efef", the only 4-character
+      substring. Unreachable together with RB-RES-2.
+  - id: RB-EX-6
+    req: R-EX-6
+    cover: 'a == "himenss" && b == "simen" && outcome == 0 && !result'
+    note: >-
+      The example as written (reading 1). It contradicts RB-RES-1 because
+      the rotation "imens" of "simen" (k = 1) is "himenss"[1:6]. Unreachable
+      together with RB-RES-1. All six examples match the negation of the
+      stated rule, so the examples look polarity-inverted. This set does not
+      repair that.
+
+unformalized:
+  - req: R-NF-1
+    reason: >-
+      A non-functional statement about the deliverable: a Python function
+      cycpattern_check(a, b). It is realized by the adapter's `function`
+      section, not by a property of the trace. A missing or non-callable
+      function shows as outcome 1, and RB-RES-1/RB-RES-2 reject that for
+      every call inside the contract.
+  - req: R-DEF-1
+    reason: >-
+      Definition: a is the first word (the string searched) and b is the
+      second word (the string rotated). It is realized by the roles of a and
+      b in the defs b_in_a and rot_in_a.
+    covered_by: [RB-RES-1, RB-RES-2, RB-IN-1]
+  - req: R-DEF-2
+    reason: >-
+      Definition of a rotation: cyclic shifts b[k:] + b[:k] for
+      0 <= k < len(b) (reading 1, not permutations). It is realized by the
+      def rot_in_a, where character j of the rotation is b[k + j] if
+      k + j < len(b) and b[k + j - len(b)] otherwise.
+    covered_by: [RB-RES-1, RB-RES-2]
+  - req: R-DEF-3
+    reason: >-
+      Definition of a substring: a contiguous run a[i:i+len(s)] == s for
+      0 <= i <= len(a) - len(s), with exact (case-sensitive) characters
+      (readings 1 and 1, not a subsequence). It is realized by the defs
+      b_in_a and rot_in_a.
+    covered_by: [RB-RES-1, RB-RES-2]
+  - req: R-FR-1
+    reason: >-
+      An adapter frame rule (frame.md). It is added to every formalization
+      set as F-ZERO (outcome != 0 -> !result) and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-DEF-2, phrase: 'rotations', reading: 1}
+  - {req: R-DEF-3, phrase: 'substring', reading: 1}
+  - {req: R-DEF-3, phrase: 'is a substring in the first word', reading: 1}
+  - {req: R-IN-1, phrase: 'words', reading: 2}
+  - {req: R-RES-1, phrase: 'return True', reading: 1}
+  - {req: R-RES-1, phrase: 'the second word or any of its rotations', reading: 1}
+  - {req: R-RES-1, phrase: 'cycpattern_check("hello","ell") => False', reading: 1}
+  - {req: R-RES-1, phrase: 'cycpattern_check("abab","baa") => False', reading: 1}
+  - {req: R-RES-1, phrase: 'cycpattern_check("himenss","simen") => False', reading: 1}
+  - {req: R-RES-2, phrase: 'return True if', reading: 1}
+  - {req: R-RES-2, phrase: 'cycpattern_check("abcd","abd") => True', reading: 1}
+  - {req: R-RES-2, phrase: 'cycpattern_check("whassup","psus") => True', reading: 1}
+  - {req: R-RES-2, phrase: 'cycpattern_check("efef","eeff") => True', reading: 1}
+  - {req: R-EX-1, phrase: 'cycpattern_check("abcd","abd") => True', reading: 1}
+  - {req: R-EX-2, phrase: 'cycpattern_check("hello","ell") => False', reading: 1}
+  - {req: R-EX-3, phrase: 'cycpattern_check("whassup","psus") => True', reading: 1}
+  - {req: R-EX-4, phrase: 'cycpattern_check("abab","baa") => False', reading: 1}
+  - {req: R-EX-5, phrase: 'cycpattern_check("efef","eeff") => True', reading: 1}
+  - {req: R-EX-6, phrase: 'cycpattern_check("himenss","simen") => False', reading: 1}

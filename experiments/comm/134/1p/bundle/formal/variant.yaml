@@ -1,0 +1,188 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # The last non-space character of txt (trailing spaces ' ' ignored) is an
+  # ASCII letter standing alone: no character precedes it, or a space does.
+  lone: 'any(i < len(txt): isalpha(txt[i]) && (i == 0 || txt[i - 1] == " ") && all(j < len(txt): j > i -> txt[j] == " "))'
+  # The last non-space character of txt is a letter inside a word: a run of
+  # two or more letters (the character after it, if any, is a space).
+  in_word: 'any(i < len(txt): isalpha(txt[i]) && i > 0 && isalpha(txt[i - 1]) && all(j < len(txt): j > i -> txt[j] == " "))'
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    expr: 'outcome == 0 || outcome == 2'
+    note: >-
+      Variant reading of "returns True" (R-RET-1, reading 2): any truthy or
+      falsy value is acceptable, not only the bools True and False. The call
+      must therefore finish without an exception, but it may return a bool
+      (outcome 0) or any other value (outcome 2). Only outcome 1 (an exception
+      or no answer) is excluded. The literal reading would require outcome 0.
+
+  - id: RV-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: 'lone', cond: 'result || outcome == 2'}
+    note: >-
+      Variant readings. "is ," (reading 2): the property is an ASCII letter
+      standing alone, meaning no character precedes it or a space does. "the
+      last character" (reading 2): the last non-space character, ignoring
+      trailing spaces ' '. The reading's "txt has length 1" was written for
+      the final character. With trailing spaces ignored, it is taken as "no
+      character precedes the letter", so "e " also qualifies. "returns True"
+      (R-RET-1, reading 2): any truthy value is acceptable. The interface does
+      not record the truth value of a non-bool return, so outcome 2 is
+      accepted as well as result 1. Under these readings "apple pi e " must be
+      truthy because its last non-space character is a lone 'e'. This
+      contradicts R-EX-3 (see RV-EX-3, RV-EX-3-S).
+
+  - id: RV-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: 'len(txt) > 0 && !lone', cond: '!result'}
+    note: >-
+      Variant readings. "otherwise" (reading 2): this only covers non-empty
+      strings whose last character lacks the property of RV-RET-2. The empty
+      string is not covered here and is left to R-EX-4 (RV-EX-4). An all-space
+      string is non-empty and has no letter standing alone, so it is taken as
+      covered (False), following the words "non-empty strings" of the reading.
+      Under the last-non-space reading of R-RET-2, though, such a string has no
+      last character either, which is why this case is flagged. "False
+      otherwise" (reading 1): this is consistent with R-EX-2 because the
+      property is a letter standing alone at the end of txt. "returns True"
+      (R-RET-1, reading 2): any falsy value is acceptable. result 0 holds for a
+      bool False and, by F-ZERO, for any non-bool return (outcome 2), whose
+      falsiness is not observable. Outcome 1 is excluded by RV-RET-1.
+
+  - id: RV-DEF-1
+    req: R-DEF-1
+    pattern: implies
+    args: {trigger: 'in_word', cond: '!result'}
+    note: >-
+      Variant readings. '"word"' (reading 1): the definition serves the missing
+      property of R-RET-2, so a final letter that is part of a word does not
+      qualify. "group of characters" (reading 2): a word has two or more
+      characters, so a single letter is not a word. "separated by space"
+      (reading 2): a word is a run of letters, so any non-letter separates
+      words. "space" (reading 2): any whitespace character. Under the
+      run-of-letters reading this has no separate effect, because whitespace
+      is a non-letter anyway. "the last character" (R-RET-2, reading 2): the
+      last non-space character. A letter there is part of a word exactly when
+      the character before it is also a letter. "returns True" (R-RET-1,
+      reading 2): False means any falsy value (see RV-RET-3). Only the
+      direction the definition supports is stated: a letter inside a word
+      gives False. The converse ("every letter outside a word gives True") is
+      not stated. Under these word readings it would make e.g. "apple,e" or
+      "\te" True, whereas the R-RET-2 reading needs a space before the letter
+      and RV-RET-3 then requires False. The two definitions of "standing
+      alone" differ on letters preceded by punctuation, digits or other
+      whitespace.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'txt == "apple pie"', cond: '!result'}
+    note: >-
+      Example taken literally: False. Variant reading (reading 2): the example
+      contradicts R-RET-2 when the property is only "the last character is an
+      alphabetical character". That condition does not hold in this set,
+      because R-RET-2 is read as a letter standing alone. Here the final 'e'
+      follows 'i', so RV-RET-3 also requires False and there is no conflict.
+      "returns True" (R-RET-1, reading 2): False means any falsy value.
+      result 0 is required, and outcome 2 is accepted (see RV-RET-3).
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e"', cond: 'result || outcome == 2'}
+    note: >-
+      Example taken literally: True. Variant reading (reading 1): this is
+      consistent with R-RET-2 when the property is a letter standing alone at
+      the end of txt, as in this set. "returns True" (R-RET-1, reading 2): any
+      truthy value is acceptable, so a non-bool return (outcome 2) is accepted
+      as well as result 1.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e "', cond: '!result'}
+    note: >-
+      Example taken literally: False. Variant reading (reading 2): the example
+      contradicts R-RET-2 when the last character means the last non-space
+      character, as in this set. The lone 'e' makes RV-RET-2 require a truthy
+      value. Not repaired. "returns True" (R-RET-1, reading 2): False means any
+      falsy value. Together with RV-RET-2, only a non-bool return (outcome 2)
+      satisfies both properties, because its truth value is not observable.
+      The contradiction is therefore exposed by scenario RV-EX-3-S rather
+      than by the properties alone.
+
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'len(txt) == 0', cond: '!result'}
+    note: >-
+      Example taken literally: False for the empty string. Under the
+      "otherwise" reading of R-RET-3 (reading 2), this example is the only
+      requirement that fixes the empty string. "returns True" (R-RET-1,
+      reading 2): False means any falsy value. result 0 is required, and
+      outcome 2 is accepted.
+
+scenarios:
+  - id: RV-IN-1
+    req: R-IN-1
+    cover: 'len(txt) == 0'
+    note: >-
+      The empty string is a valid argument, so a call with it must be possible.
+      That txt is a string (at most 32 Latin-1 characters) is fixed by the
+      interface encoding. The text places no other obligation on the caller,
+      so no assumption is needed.
+
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'txt == "apple pie" && outcome == 0 && !result'
+    note: Returning the bool False on "apple pie" must be possible. Under the truthy reading of R-RET-1 (reading 2), a bool False is one acceptable falsy value.
+
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'txt == "apple pi e" && result'
+    note: Returning the bool True on "apple pi e" must be possible (reading 1, consistent with RV-RET-2). Under the truthy reading of R-RET-1 (reading 2), a bool True is one acceptable truthy value.
+
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'txt == "apple pi e " && outcome == 0 && !result'
+    note: >-
+      Returning the bool False on "apple pi e " must be possible. Variant
+      reading (reading 2): the example contradicts R-RET-2 under the
+      last-non-space reading. RV-RET-2 requires a truthy value here, so this
+      scenario is expected to be unreachable together with RV-RET-2. That is
+      the intended evidence of the contradiction, not a repair.
+
+  - id: RV-EX-4-S
+    req: R-EX-4
+    cover: 'len(txt) == 0 && outcome == 0 && !result'
+    note: Returning the bool False on the empty string must be possible. Under the truthy reading of R-RET-1 (reading 2), a bool False is one acceptable falsy value.
+
+unformalized:
+  - req: R-FR-1
+    reason: Frame rule F-ZERO of the adapter. It is part of every formalization set by construction and need not be restated.
+    covered_by: [F-ZERO]
+  - req: R-NF-1
+    reason: Non-functional. It concerns the form of the deliverable (a Python implementation of the stub), not the behaviour of a call.
+  - req: R-IF-1
+    reason: The function name and its single parameter are fixed by the adapter's function section (name candidate, args [txt]). A name or a signature is not a property of the trace.
+
+decisions:
+  - {req: R-RET-1, phrase: returns True, reading: 2}
+  - {req: R-RET-2, phrase: 'is ,', reading: 2}
+  - {req: R-RET-2, phrase: the last character, reading: 2}
+  - {req: R-RET-3, phrase: otherwise, reading: 2}
+  - {req: R-RET-3, phrase: False otherwise, reading: 1}
+  - {req: R-DEF-1, phrase: '"word"', reading: 1}
+  - {req: R-DEF-1, phrase: group of characters, reading: 2}
+  - {req: R-DEF-1, phrase: space, reading: 2}
+  - {req: R-DEF-1, phrase: separated by space, reading: 2}
+  - {req: R-EX-1, phrase: "candidate(\"apple pie\") ➞ False", reading: 2}
+  - {req: R-EX-2, phrase: "candidate(\"apple pi e\") ➞ True", reading: 1}
+  - {req: R-EX-3, phrase: "candidate(\"apple pi e \") ➞ False", reading: 2}

@@ -1,0 +1,181 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. generate_integers keeps no state between calls (frame.md),
+# so the reference model is combinational: it is computed from the arguments of
+# the current call only, and every output (outcome, result) is checked against it.
+# No ghost state is needed; the one cross-call requirement (R-SYM-1) uses prev,
+# which the frame defines as an arbitrary earlier call chosen by the checker.
+defs:
+  lo: "min(a, b)"                  # lower end of the range between a and b (either order)
+  hi: "max(a, b)"                  # upper end of the range between a and b (either order)
+  in_req: "a >= 1 && b >= 1"       # both arguments are positive integers (inside the request)
+  returned: "outcome == 0"         # the call returned a list of integers that fits the signals
+
+assumptions:
+  - id: RB-IN-1
+    req: R-IN-1
+    expr: "a >= 1 && b >= 1"
+    note: >-
+      'positive' read as strictly positive (at least 1). The guarantees below are also
+      guarded by in_req, so they say nothing about a call outside the request even if the
+      checker makes one; their outputs are left free by RB-IN-1-DO and RB-IN-1-DR.
+
+dont_cares:
+  - id: RB-IN-1-DO
+    req: R-IN-1
+    signal: outcome
+    when: "!in_req"
+    note: "A call with a = 0 or b = 0 is outside the request ('two positive integers'); how it ends is unconstrained."
+  - id: RB-IN-1-DR
+    req: R-IN-1
+    signal: result
+    when: "!in_req"
+    note: "A call with a = 0 or b = 0 is outside the request ('two positive integers'); what it returns is unconstrained."
+
+properties:
+  - id: RB-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args: {trigger: "in_req", cond: "returned"}
+    note: >-
+      'return the even digits ...' read as: the call returns a list of integers (outcome 0) and neither
+      raises, fails to finish nor returns another type. Outcome 0 also means at most 32
+      numbers, each from 0 to 63 (adapter encoding); every list the text describes for
+      arguments up to 63 fits that.
+
+  - id: RB-RES-1
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: "in_req"
+      cond: "all(i < len(result): result[i] % 2 == 0)"
+    note: "'even': every element of the returned list is divisible by 2."
+
+  - id: RB-RES-2
+    req: R-RES-2
+    pattern: implies
+    args:
+      trigger: "in_req"
+      cond: "all(i < len(result): result[i] <= 9)"
+    note: >-
+      'digits' read literally as single decimal digits, 0 to 9 (reading 1). This
+      contradicts the example generate_integers(10, 14) => [14] (R-EX-3, RB-EX-3),
+      which returns 14; the contradiction is in the specification and is kept, not repaired.
+
+  - id: RB-RES-3
+    req: R-RES-3
+    pattern: implies
+    args:
+      trigger: "in_req"
+      cond: "all(i < len(result): lo <= result[i] && result[i] <= hi)"
+    note: >-
+      'between a and b' read as inclusive (reading 1): min(a, b) <= x <= max(a, b), so
+      the endpoints may be returned, as in every example. The range is taken in either
+      argument order (see R-SYM-1).
+
+  - id: RB-RES-4
+    req: R-RES-4
+    pattern: implies
+    args:
+      trigger: "in_req"
+      cond: "all(d < 10: d % 2 == 0 && lo <= d && d <= hi -> d in result)"
+    note: >-
+      Literal reading of the description: every even decimal digit (0, 2, 4, 6, 8) that lies
+      between a and b inclusive appears in the returned list ('even digits' reading 1,
+      'between' reading 1, 'the even digits between a and b' reading 1: the description
+      governs). Nothing is required when a and b are both above 8. This contradicts the
+      examples generate_integers(2, 8) => [8] and generate_integers(8, 2) => [8]
+      (R-EX-1, R-EX-2), which omit 2, 4 and 6; the contradiction is kept, not repaired.
+
+  - id: RB-SYM-1
+    req: R-SYM-1
+    pattern: implies
+    args:
+      trigger: "in_req && prev(a) == b && prev(b) == a"
+      cond: "outcome == prev(outcome) && result == prev(result)"
+    note: >-
+      'between a and b' read as either order (reading 1). Symmetry relates two calls; since
+      the checker chooses calls freely and prev is any earlier call, it is stated as: a call
+      whose arguments are those of the previous call swapped ends the same way and returns
+      the same list. outcome is compared as well, so that a returned empty list is not
+      confused with an exception (whose result is empty by F-EMPTY).
+
+  - id: RB-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args:
+      trigger: "in_req"
+      cond: "all(i < len(result) - 1: result[i] < result[i + 1])"
+    note: >-
+      'ascending order' read as strictly ascending (reading 1): each number is smaller than
+      the next, so no number is repeated. The list described is 'the even digits', distinct
+      values, so 'ascending' (rising) is taken as strict.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "a == 2 && b == 8", cond: "returned && result == [8]"}
+    note: >-
+      The example is read literally (reading 1): the call generate_integers(2, 8) returns
+      exactly [8]. For a function without memory an example states what every such call
+      returns, so it is a property as well as a scenario (RB-EX-1-S). It contradicts the
+      description (R-RES-4, RB-RES-4), which requires 2, 4 and 6 as well.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "a == 8 && b == 2", cond: "returned && result == [8]"}
+    note: >-
+      The example is read literally (reading 1): the call generate_integers(8, 2) returns
+      exactly [8]. It contradicts the description (R-RES-4, RB-RES-4), which requires
+      2, 4 and 6 as well.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "a == 10 && b == 14", cond: "returned && result == [14]"}
+    note: >-
+      The example is read literally (reading 1): the call generate_integers(10, 14) returns
+      exactly [14]. It contradicts 'digits' read as 0 to 9 (R-RES-2, RB-RES-2), since 14
+      is not a single digit.
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "a == 2 && b == 8 && returned && result == [8]"
+    note: "The documented behaviour of generate_integers(2, 8) must be possible."
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: "a == 8 && b == 2 && returned && result == [8]"
+    note: "The documented behaviour of generate_integers(8, 2) must be possible."
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "a == 10 && b == 14 && returned && result == [14]"
+    note: "The documented behaviour of generate_integers(10, 14) must be possible."
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function's name and its two parameters are fixed by the adapter
+      (design.yaml function section maps a and b to the inputs of each cycle); it is not a
+      property of the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, added to every formalization set by construction
+      (frame.md: 'need not be restated').
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IN-1, phrase: "positive", reading: 1}
+  - {req: R-RES-2, phrase: "digits", reading: 1}
+  - {req: R-RES-3, phrase: "between a and b", reading: 1}
+  - {req: R-RES-4, phrase: "even digits", reading: 1}
+  - {req: R-RES-4, phrase: "between a and b", reading: 1}
+  - {req: R-RES-4, phrase: "the even digits between a and b", reading: 1}
+  - {req: R-SYM-1, phrase: "between a and b", reading: 1}
+  - {req: R-ORD-1, phrase: "ascending order", reading: 1}
+  - {req: R-EX-1, phrase: "generate_integers(2, 8) => [8]", reading: 1}
+  - {req: R-EX-2, phrase: "generate_integers(8, 2) => [8]", reading: 1}
+  - {req: R-EX-3, phrase: "generate_integers(10, 14) => [14]", reading: 1}

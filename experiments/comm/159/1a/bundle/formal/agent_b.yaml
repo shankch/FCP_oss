@@ -1,0 +1,246 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. eat keeps no state between calls (frame.md), so the
+# model is combinational: defs computed from the arguments of the current
+# call, and every output is checked against them. No ghost carries state
+# from one call to the next, because the prompt gives the function none.
+defs:
+  # Docstring variables mapped onto the parameters in signature order
+  # (R-SIG-1, R-VAR-1..3, reading 1 of each).
+  number: "x"                       # carrots already eaten before the meal
+  need: "y"                         # carrots still to eat for the day
+  remaining: "z"                    # carrots in stock before the meal
+  # The documented input range (R-CON-1..3); outside it nothing is promised.
+  legal: "number <= 1000 && need <= 1000 && remaining <= 1000"
+  # Not enough carrots in stock (R-HUN-1, reading 1: strictly fewer).
+  short: "remaining < need"
+  # Carrots eaten in this meal: all that is needed, or all that is left.
+  eaten: "min(need, remaining)"
+  # Expected first element: total eaten after the meal.
+  exp_total: "number + eaten"
+  # Expected second element: carrots left in stock after the meal.
+  exp_left: "remaining - eaten"
+  # The call returned a well-formed list of at most 3 integers in 0..2047.
+  returned: "outcome == 0"
+
+assumptions:
+  - id: RB-A-CON-1
+    req: R-CON-1
+    expr: "number <= 1000"
+    note: >-
+      Reading 1 (precondition on the caller). The lower bound 0 <= number holds
+      by the encoding: negative arguments are not part of the trace (frame.md).
+      Every guarantee below is also guarded by `legal`, so a single
+      out-of-range call does not excuse later, independent calls.
+  - id: RB-A-CON-2
+    req: R-CON-2
+    expr: "need <= 1000"
+    note: >-
+      Reading 1 (precondition on the caller). The lower bound 0 <= need holds
+      by the encoding.
+  - id: RB-A-CON-3
+    req: R-CON-3
+    expr: "remaining <= 1000"
+    note: >-
+      Reading 1 (precondition on the caller). The lower bound 0 <= remaining
+      holds by the encoding.
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: "legal"
+      cond: "returned && len(result) == 2"
+    note: >-
+      "An array" read as a Python list (reading 1): a legal call must return a
+      list (outcome 0), and the examples show it has exactly two elements.
+      Non-negativity of the elements is implied by outcome 0 (the adapter
+      reports a negative number as outcome 2).
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: "legal"
+      cond: "returned && len(result) >= 1 && result[0] == exp_total"
+    note: >-
+      The phrase "total number of needed or eaten carrots before or after your
+      meals" offers alternatives joined by "or" and does not choose between
+      them. Taken: eaten (not needed), after (not before) the meal, total
+      including the carrots eaten before the meal, i.e.
+      number + min(need, remaining). This is the only combination that fits
+      all four examples; "needed" would contradict eat(2, 11, 5) -> [7, 0].
+  - id: RB-RET-3
+    req: R-RET-3
+    pattern: implies
+    args:
+      trigger: "legal"
+      cond: "returned && len(result) >= 2 && result[1] == exp_left"
+    note: >-
+      "The number of carrots needed or eaten left after your meals" read as
+      the carrots left in stock: remaining - min(need, remaining), which is
+      max(remaining - need, 0). The text does not say "in stock"; the reading
+      is taken because it fits all four examples, while "still needed" and
+      "eaten" contradict them.
+  - id: RB-MEAL-1
+    req: R-MEAL-1
+    pattern: implies
+    args:
+      trigger: "legal && remaining >= need"
+      cond: "returned && len(result) >= 2 && result[0] == number + need && result[1] == remaining - need"
+    note: >-
+      "No or more carrots" read as zero or more (reading 1): need may be 0 and,
+      when the stock suffices, the rabbit eats exactly need carrots, no more.
+      The prose is odd ("no or more"); it does not literally say "exactly",
+      but the examples eat(5, 6, 10) and eat(4, 8, 9) rule out eating more.
+  - id: RB-HUN-1
+    req: R-HUN-1
+    pattern: implies
+    args:
+      trigger: "legal && short"
+      cond: "returned && len(result) >= 1 && result[0] == number + remaining"
+    note: >-
+      "Not enough remaining carrots" read as remaining < need (reading 1). At
+      remaining == need both readings give the same list, and RB-MEAL-1 covers
+      that case.
+  - id: RB-HUN-2
+    req: R-HUN-2
+    pattern: implies
+    args:
+      trigger: "legal && short"
+      cond: "returned && len(result) >= 2 && result[1] == 0"
+    note: >-
+      Eating all remaining carrots leaves an empty stock, so the second element
+      (carrots left, RB-RET-3) is 0.
+  - id: RB-HUN-3
+    req: R-HUN-3
+    pattern: implies
+    args:
+      trigger: "legal && short"
+      cond: "returned && len(result) == 2 && number + need - result[0] == need - remaining && result[1] == 0"
+    note: >-
+      "Will still be hungry" read as narrative only (reading 1): the total
+      eaten falls short of number + need by exactly need - remaining (so the
+      rabbit is still hungry), and the list does not report the shortfall:
+      it keeps two elements and the second stays the stock left, 0.
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "x == 5 && y == 6 && z == 10"
+      cond: "returned && result == [11, 4]"
+    note: >-
+      The example states what this call returns, so it is checked as a
+      guarantee as well as covered by scenario RB-EX-1-S. Second element read
+      as the stock left (reading 1).
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: "x == 4 && y == 8 && z == 9"
+      cond: "returned && result == [12, 1]"
+    note: Guarantee form of the example; second element read as the stock left (reading 1).
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: "x == 1 && y == 10 && z == 10"
+      cond: "returned && result == [11, 0]"
+    note: Guarantee form of the example (remaining == need, the stock is exactly used up).
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: "x == 2 && y == 11 && z == 5"
+      cond: "returned && result == [7, 0]"
+    note: >-
+      Guarantee form of the example; read as [total actually eaten, stock
+      left] (reading 1), the shortfall of 6 is not reported.
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "x == 5 && y == 6 && z == 10 && returned && result == [11, 4]"
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: "x == 4 && y == 8 && z == 9 && returned && result == [12, 1]"
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "x == 1 && y == 10 && z == 10 && returned && result == [11, 0]"
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: "x == 2 && y == 11 && z == 5 && returned && result == [7, 0]"
+
+dont_cares:
+  - {id: RB-D-CON-1-OUT, req: R-CON-1, signal: outcome, when: "number > 1000",
+     note: "Reading 1: outside the documented range any behaviour is acceptable."}
+  - {id: RB-D-CON-1-RES, req: R-CON-1, signal: result, when: "number > 1000",
+     note: "Reading 1: outside the documented range any behaviour is acceptable."}
+  - {id: RB-D-CON-2-OUT, req: R-CON-2, signal: outcome, when: "need > 1000",
+     note: "Reading 1: outside the documented range any behaviour is acceptable."}
+  - {id: RB-D-CON-2-RES, req: R-CON-2, signal: result, when: "need > 1000",
+     note: "Reading 1: outside the documented range any behaviour is acceptable."}
+  - {id: RB-D-CON-3-OUT, req: R-CON-3, signal: outcome, when: "remaining > 1000",
+     note: "Reading 1: outside the documented range any behaviour is acceptable."}
+  - {id: RB-D-CON-3-RES, req: R-CON-3, signal: result, when: "remaining > 1000",
+     note: "Reading 1: outside the documented range any behaviour is acceptable."}
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition. The name eat and the positional order x, y, z are fixed by the
+      adapter (frame.md). The mapping x = number, y = need, z = remaining
+      (reading 1) is realized by the defs number, need and remaining, which
+      every guarantee uses. The signature and the docstring use different
+      names and the prompt never states the mapping; it is inferred from the
+      docstring order and eat(5, 6, 10) -> [11, 4].
+    covered_by: [RB-RET-1, RB-RET-2, RB-RET-3, RB-MEAL-1, RB-HUN-1, RB-HUN-2, RB-HUN-3]
+  - req: R-CTX-1
+    reason: >-
+      Definition (narrative context). Its content, that the carrots eaten
+      before the meal count toward the total, is realized by the first element
+      number + min(need, remaining).
+    covered_by: [RB-RET-2, RB-MEAL-1, RB-HUN-1]
+  - req: R-VAR-1
+    reason: >-
+      Definition. number is the first parameter x (reading 1), realized by the
+      def number; its use is checked through the guarantees.
+    covered_by: [RB-RET-2, RB-MEAL-1, RB-HUN-1]
+  - req: R-VAR-2
+    reason: >-
+      Definition. need is the second parameter y (reading 1), realized by the
+      def need; its use is checked through the guarantees.
+    covered_by: [RB-RET-2, RB-RET-3, RB-MEAL-1, RB-HUN-1, RB-HUN-2]
+  - req: R-VAR-3
+    reason: >-
+      Definition. remaining is the third parameter z (reading 1), realized by
+      the def remaining; its use is checked through the guarantees.
+    covered_by: [RB-RET-2, RB-RET-3, RB-MEAL-1, RB-HUN-1, RB-HUN-2]
+  - req: R-FR-1
+    reason: >-
+      Adapter frame rule, already in every formalization set as frame item
+      F-EMPTY of design.yaml (outcome != 0 -> len(result) == 0); frame.md says
+      it need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-SIG-1, phrase: "x, y, z", reading: 1}
+  - {req: R-MEAL-1, phrase: "no or more carrots", reading: 1}
+  - {req: R-RET-1, phrase: "an array", reading: 1}
+  - {req: R-RET-2, phrase: "needed or eaten", reading: 1}
+  - {req: R-RET-2, phrase: "before or after your meals", reading: 1}
+  - {req: R-RET-2, phrase: "total number", reading: 1}
+  - {req: R-RET-3, phrase: "needed or eaten left", reading: 1}
+  - {req: R-HUN-1, phrase: "not enough remaining carrots", reading: 1}
+  - {req: R-HUN-3, phrase: "will still be hungry", reading: 1}
+  - {req: R-EX-1, phrase: "[11, 4]", reading: 1}
+  - {req: R-EX-2, phrase: "[12, 1]", reading: 1}
+  - {req: R-EX-4, phrase: "[7, 0]", reading: 1}
+  - {req: R-VAR-1, phrase: "@number", reading: 1}
+  - {req: R-VAR-2, phrase: "@need", reading: 1}
+  - {req: R-VAR-3, phrase: "@remaining", reading: 1}
+  - {req: R-CON-1, phrase: "0 <= number <= 1000", reading: 1}
+  - {req: R-CON-2, phrase: "0 <= need <= 1000", reading: 1}
+  - {req: R-CON-3, phrase: "0 <= remaining <= 1000", reading: 1}

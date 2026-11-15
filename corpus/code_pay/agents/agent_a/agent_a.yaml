@@ -1,0 +1,225 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  charge: "!phase && op == 1"                     # this cycle is a call of api.charge
+  sleep: "!phase && op == 2"                      # this cycle is a call of api.sleep
+  charge_ok: "charge && answer == 0"              # ... answered "ok"
+  charge_declined: "charge && answer == 1"        # ... answered "declined"
+  charge_error: "charge && answer == 2"           # ... answered "error"
+  amount_valid: "amount >= 1 && amount <= 1000000" # rule 1, read inclusively
+  # The example run so far: first call a charge answered "error", then
+  # sleep(2), then a charge answered "ok", and nothing but the return since.
+  example_run: "since(phase, charge_ok && prev(sleep && s_seconds == 2 && prev(charge_error && n_charges == 0 && hist(!sleep))))"
+
+# Ghosts are used only for counting. A count built from prev/once is not
+# evaluated in the first cycles of a run (the monitors skip a formula that
+# looks back n cycles for n cycles after reset, through once and since), and
+# the first and second charges of a run fall exactly there.
+ghosts:
+  - {name: n_charges, range: [0, 8], init: 0, next: "n_charges + charge"}                          # charges made earlier in this run
+  - {name: slept, range: [0, 2040], init: 0, next: "charge ? 0 : slept + (sleep ? s_seconds : 0)"} # seconds slept since the last charge (or since the start of the run)
+
+assumptions:
+  - id: YA-ARG-1
+    req: R-SIG-1
+    expr: "stable(order_id) && stable(amount)"
+    note: >-
+      A run is one call charge_order(api, order_id, amount), so its arguments do
+      not change while it runs (frame.md: "the same in every cycle of a run").
+      That encoding fact is not among the frame rules, so it is stated here as an
+      environment assumption.
+
+  - id: YA-API-1
+    req: R-API-1
+    pattern: implies
+    args: {trigger: charge, cond: "answer <= 2"}
+    note: >-
+      The service answers a charge with "ok", "declined" or "error" (0, 1, 2); the
+      value 3 of the 2-bit answer is not an answer. The other half of R-API-1
+      (api.sleep(seconds) waits that many seconds) is a definition; it is why the
+      waiting time in R-WAIT-1 is measured as the sum of sleep arguments
+      (YA-WAIT-1, YA-WAIT-2). Waiting by other means is not observable.
+
+properties:
+  - id: YA-SIG-1
+    req: R-SIG-1
+    pattern: implies
+    args: {trigger: phase, cond: "outcome != 3"}
+    note: >-
+      "-> bool": when the function returns, it returns True or False (outcome 3 is
+      "returned anything else"). The signature does not rule out raising, so
+      outcomes 1 and 2 are left to the other rules. The name and parameters are
+      the binding in design.yaml (function section), not a trace property.
+
+  - id: YA-CALL-1
+    req: R-CALL-1
+    pattern: implies
+    args: {trigger: charge, cond: "c_order == order_id && c_amount == amount"}
+    note: Every api.charge call passes the order_id and the amount the function was called with.
+
+  - id: YA-ERR-1
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "phase && !amount_valid", cond: "outcome == 1"}
+    note: >-
+      "between 1 and 1,000,000" is read as inclusive: 1 and 1,000,000 are
+      accepted. Only "if" is stated; that a valid amount does not raise follows
+      from R-RET-1. Only the outcome is constrained: the text does not say that
+      the function must raise before, or without, calling the service. Negative
+      and non-integer amounts are not representable in the 21-bit amount signal.
+
+  - id: YA-RET-1
+    req: R-RET-1
+    pattern: next
+    args: {trigger: charge_ok, cond: "phase && outcome == 0 && result"}
+    note: >-
+      Ambiguous "once": taken literally as the conjunction "as soon as" (reading 1
+      in requirements.yaml). The cycle right after a charge answered "ok" is the
+      return, with True and no further call; reading 2 (True if some charge
+      answered "ok", further calls allowed) is weaker. Applied to every run: rule
+      2 states no exception. Together with R-ERR-1 this means a function must not
+      charge an amount that rule 1 rejects, since the service may answer "ok".
+
+  - id: YA-RET-2
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "phase && amount_valid && !once(charge_ok)", cond: "outcome == 0 && !result"}
+    note: >-
+      "False otherwise": at the return, if no charge answered "ok", the function
+      returns False. Read only for amounts that rule 1 accepts. Taken for every
+      amount, "False otherwise" would contradict R-ERR-1 (raise ValueError) on
+      every rejected amount, so rule 1 is read as the input check that takes
+      precedence. With R-KEEP-1 (YA-KEEP-1) this case never arises for an
+      accepted amount, so this clause is dead in the full set (see YA-RET-3).
+
+  - id: YA-RETRY-1
+    req: R-RETRY-1
+    pattern: implies
+    args: {trigger: "phase && since(!charge, charge_error)", cond: "n_charges >= 3"}
+    note: >-
+      "If a charge returns error, try again": the function does not return while
+      its most recent charge answered "error", unless that was its third attempt.
+      Sleeps may come in between (rule 5). The obligation covers every charge the
+      function makes, whatever the amount.
+
+  - id: YA-RETRY-2
+    req: R-RETRY-1
+    pattern: implies
+    args: {trigger: "n_charges >= 3", cond: "!charge"}
+    note: >-
+      "up to 3 attempts in total": once three charges have been made, whatever
+      their answers, there is no further charge in the run. Contradicted by
+      R-KEEP-1 (YA-KEEP-1) after three errors.
+
+  - id: YA-DECL-1
+    req: R-DECL-1
+    pattern: implies
+    args: {trigger: "once(prev(charge_declined))", cond: "!charge"}
+    note: >-
+      After a charge answered "declined", there is no further charge in the run.
+      A sleep is not a try. The scope is the run: a later call of charge_order for
+      the same order is a new run, which one trace cannot relate. Contradicted by
+      R-KEEP-1 (YA-KEEP-1). Not checked at the first cycle of a run, where no
+      earlier charge exists.
+
+  - id: YA-WAIT-1
+    req: R-WAIT-1
+    pattern: implies
+    args: {trigger: "charge && n_charges == 1", cond: "slept == 2"}
+    note: >-
+      "wait ... 2 seconds before the second attempt", read literally as the time
+      waited. At the second charge, the seconds passed to api.sleep since the
+      first charge add up to exactly 2 (R-API-1: sleep waits that many seconds).
+      One sleep(2) meets it, and so do two sleep(1) calls; sleep(3) then sleep(2)
+      does not. The example (R-EX-1) shows a single sleep(2) call. Sleeps before
+      the first attempt or after the last one are not constrained by this rule.
+
+  - id: YA-WAIT-2
+    req: R-WAIT-1
+    pattern: implies
+    args: {trigger: "charge && n_charges == 2", cond: "slept == 4"}
+    note: >-
+      Same reading for the third attempt: at the third charge, the seconds slept
+      since the second charge add up to exactly 4.
+
+  - id: YA-WAIT-3
+    req: R-WAIT-1
+    pattern: implies
+    args: {trigger: "charge && n_charges >= 3", cond: "slept > 0"}
+    note: >-
+      "Before each new attempt, wait" covers every new attempt, so a fourth or
+      later attempt must also follow some wait. R-RETRY-1 forbids such an attempt
+      and R-KEEP-1 demands one. The text gives no length for that wait, so only
+      a positive one is required.
+
+  - id: YA-ONCE-1
+    req: R-ONCE-1
+    pattern: implies
+    args: {trigger: "once(prev(charge_ok))", cond: "!charge"}
+    note: >-
+      After a charge answered "ok", there is no further charge in the run. Every
+      charge of a run is for the order argument (R-CALL-1), so "charge an order
+      again" is read as any further charge. A later call of charge_order for the
+      same order is a new run and is outside what one trace can show; the
+      function keeps no state between runs. Not checked at the first cycle of a
+      run, where no earlier charge exists.
+
+  - id: YA-KEEP-1
+    req: R-KEEP-1
+    pattern: implies
+    args: {trigger: "phase && amount_valid", cond: "once(charge_ok)"}
+    note: >-
+      Read literally: the function does not stop trying (return or raise) until a
+      charge has gone through, so when it returns some charge has answered "ok".
+      This CONTRADICTS R-DECL-1 (never try again after "declined") and R-RETRY-1
+      (at most 3 attempts): after a "declined", or after three errors, no
+      behaviour meets all three. It also leaves the "False otherwise" clause of
+      R-RET-1 nothing to apply to. Not repaired. Read for amounts that rule 1
+      accepts: a rejected amount has no charge to get through, and taken for every
+      amount this rule would also contradict R-ERR-1 together with YA-RET-1. In
+      this frame a run that keeps trying is cut after 8 calls and ends with
+      outcome 2 and no "ok", so this property also fails whenever the service
+      gives no "ok" within 8 calls.
+
+  - id: YA-EX-2
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "phase && once(charge_error && n_charges == 0) && once(charge_ok && n_charges == 1)"
+      cond: "outcome == 0 && result && example_run"
+    note: >-
+      The example also states what the function does: whenever its first charge
+      answers "error" and its second "ok", its calls are exactly api.charge,
+      api.sleep(2), api.charge, and it returns True. In that run this pins the
+      wait to a single sleep(2) call, which YA-WAIT-1 alone does not. The example
+      names no amount. Like YA-RET-1, this applies to every run.
+
+scenarios:
+  - id: YA-EX-1
+    req: R-EX-1
+    cover: "phase && outcome == 0 && result && example_run"
+    note: >-
+      The example run is possible. The first call is a charge answered "error",
+      then sleep(2), then a charge answered "ok", then the return with True.
+
+  - id: YA-RET-3
+    req: R-RET-1
+    cover: "phase && amount_valid && outcome == 0 && !result"
+    note: >-
+      Rule 2 names False as a result, so some run with an accepted amount must be
+      able to return False (for example after a "declined"). This is expected to
+      be unreachable with YA-KEEP-1 (rule 7), and so it exposes that rule 7
+      leaves "False otherwise" nothing to apply to.
+
+unformalized:
+  - req: R-FR-1
+    reason: Frame rule of the trace encoding. FCP adds frame item F-END (design.yaml) to every formalization set, and frame.md says it need not be restated.
+    covered_by: [F-END]
+  - req: R-FR-2
+    reason: Frame rule of the trace encoding. FCP adds frame item F-ZERO (design.yaml) to every formalization set, and frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+  - req: R-FR-3
+    reason: Frame rule of the trace encoding. FCP adds frame item F-LIMIT (design.yaml) to every formalization set, and frame.md says it need not be restated.
+    covered_by: [F-LIMIT]

@@ -1,0 +1,61 @@
+fcp: "0.1"
+set: gold
+origin: {kind: human, id: gold, role: formalizer, note: "Expert reference formalization of HUB-2 (end-to-end, black-box). Decision D-1: the 12-cycle bound of R-ARB-3 is unrealizable under R-ARB-2 and the environment latencies of Section 5 (worst case 17 cycles; found by FCP, tight bound computed by sweeping); formalized with the amended bound 17. Decision D-2: the first arbitration after reset is left open (R-ARB-2 applies after the first acceptance)."}
+defs:
+  acc0: "c0_valid && c0_ready"
+  acc1: "c1_valid && c1_ready"
+  acc:  "acc0 || acc1"
+  cpl:  "psel && penable && pready"
+  rhs0: "r0_valid && r0_ready"
+  rhs1: "r1_valid && r1_ready"
+  in_addr:  "acc1 ? c1_addr : c0_addr"
+  in_wdata: "acc1 ? c1_wdata : c0_wdata"
+  in_write: "acc1 ? c1_write : c0_write"
+ghosts:
+  - {name: last,    width: 1, init: 0, next: "acc ? acc1 : last", desc: port accepted most recently}
+  - {name: fresh,   width: 1, init: 1, next: "fresh && !acc", desc: no acceptance since reset}
+  - {name: r_write, width: 1, init: 0, next: "cpl ? pwrite : r_write", desc: kind of the transfer whose response is pending}
+assumptions:
+  - {id: G-A-1, req: R-ENV-1, pattern: hold_until, args: {trigger: "c0_valid && !c0_ready", hold: "c0_valid && stable(c0_write) && stable(c0_addr) && stable(c0_wdata)", release: c0_ready}}
+  - {id: G-A-2, req: R-ENV-1, pattern: hold_until, args: {trigger: "c1_valid && !c1_ready", hold: "c1_valid && stable(c1_write) && stable(c1_addr) && stable(c1_wdata)", release: c1_ready}}
+  - {id: G-A-3, req: R-ENV-2, pattern: bounded_wait, args: {cond: "psel && penable && !pready", max: 3}}
+  - {id: G-A-4, req: R-ENV-3, pattern: bounded_wait, args: {cond: "r0_valid && !r0_ready", max: 2}}
+  - {id: G-A-5, req: R-ENV-3, pattern: bounded_wait, args: {cond: "r1_valid && !r1_ready", max: 2}}
+properties:
+  - {id: G-OV-1,   req: R-OV-1,  expr: "!((c0_ready || c1_ready) && (psel || r0_valid || r1_valid))"}
+  - {id: G-ARB-1,  req: R-ARB-1, expr: "!(acc0 && acc1)"}
+  - {id: G-ARB-2,  req: R-ARB-2, pattern: implies, args: {trigger: "!fresh && c0_valid && c1_valid && acc", cond: "last ? acc0 : acc1"}}
+  - {id: G-ARB-3a, req: R-ARB-3, pattern: bounded_wait, args: {cond: "c0_valid && !c0_ready", max: 17}, decision: D-1}
+  - {id: G-ARB-3b, req: R-ARB-3, pattern: bounded_wait, args: {cond: "c1_valid && !c1_ready", max: 17}, decision: D-1}
+  - {id: G-XFR-1a, req: R-XFR-1, pattern: inorder, args: {in_fire: acc, in_data: in_addr,  out_fire: cpl, out_data: paddr,  capacity: 1}}
+  - {id: G-XFR-1b, req: R-XFR-1, pattern: inorder, args: {in_fire: acc, in_data: in_wdata, out_fire: cpl, out_data: pwdata, capacity: 1}}
+  - {id: G-XFR-1c, req: R-XFR-1, pattern: inorder, args: {in_fire: acc, in_data: in_write, out_fire: cpl, out_data: pwrite, capacity: 1}}
+  - {id: G-XFR-2a, req: R-XFR-2, pattern: next, args: {trigger: acc, cond: "psel && !penable"}}
+  - {id: G-XFR-2b, req: R-XFR-2, pattern: next, args: {trigger: "psel && !penable", cond: "psel && penable"}}
+  - {id: G-XFR-2c, req: R-XFR-2, pattern: next, args: {trigger: "psel && penable && !pready", cond: "psel && penable"}}
+  - {id: G-XFR-2d, req: R-XFR-2, pattern: next, args: {trigger: "psel && !cpl", cond: "psel && stable(pwrite) && stable(paddr) && stable(pwdata)"}}
+  - {id: G-XFR-2e, req: R-XFR-2, expr: "penable -> psel"}
+  - {id: G-XFR-2f, req: R-XFR-2, pattern: next, args: {trigger: cpl, cond: "!psel && !penable"}}
+  - {id: G-RSP-1a, req: R-RSP-1, expr: "!(r0_valid && r1_valid)"}
+  - {id: G-RSP-1b, req: R-RSP-1, pattern: inorder, args: {in_fire: "cpl && !last", in_data: pslverr, out_fire: rhs0, out_data: r0_err, capacity: 1, peek: r0_valid}}
+  - {id: G-RSP-1c, req: R-RSP-1, pattern: inorder, args: {in_fire: "cpl && last", in_data: pslverr, out_fire: rhs1, out_data: r1_err, capacity: 1, peek: r1_valid}}
+  - {id: G-RSP-2a, req: R-RSP-2, pattern: inorder, args: {in_fire: "cpl && !last && !pwrite", in_data: prdata, out_fire: "rhs0 && !r_write", out_data: r0_rdata, capacity: 1, peek: "r0_valid && !r_write"}}
+  - {id: G-RSP-2b, req: R-RSP-2, pattern: inorder, args: {in_fire: "cpl && last && !pwrite", in_data: prdata, out_fire: "rhs1 && !r_write", out_data: r1_rdata, capacity: 1, peek: "r1_valid && !r_write"}}
+  - {id: G-RSP-1d, req: R-RSP-1, pattern: next, args: {trigger: "cpl && !last", cond: r0_valid}, note: "BRG-1 timing: the response is presented in the cycle after the transfer completes"}
+  - {id: G-RSP-1e, req: R-RSP-1, pattern: next, args: {trigger: "cpl && last", cond: r1_valid}}
+  - {id: G-RSP-1f, req: R-RSP-1, expr: "rose(r0_valid) -> prev(cpl && !last)", note: "no response without a completed transfer of that port (found missing by FCP determinacy)"}
+  - {id: G-RSP-1g, req: R-RSP-1, expr: "rose(r1_valid) -> prev(cpl && last)"}
+  - {id: G-RSP-3a, req: R-RSP-3, pattern: next, args: {trigger: "r0_valid && !r0_ready", cond: "r0_valid && stable(r0_rdata) && stable(r0_err)"}}
+  - {id: G-RSP-3b, req: R-RSP-3, pattern: next, args: {trigger: "r1_valid && !r1_ready", cond: "r1_valid && stable(r1_rdata) && stable(r1_err)"}}
+  - {id: G-RST-1,  req: R-RST-1, pattern: after_reset, args: {cond: "!psel && !r0_valid && !r1_valid"}}
+scenarios:
+  - {id: S-BOTH, req: R-ARB-2, cover: "c0_valid && c1_valid && acc && !fresh"}
+  - {id: S-R1,   req: R-RSP-1, cover: "rhs1 && r1_err"}
+dont_cares:
+  - {id: G-D-1, req: R-XFR-2, signal: pwrite, when: "!psel"}
+  - {id: G-D-2, req: R-XFR-2, signal: paddr,  when: "!psel"}
+  - {id: G-D-3, req: R-XFR-2, signal: pwdata, when: "!psel"}
+  - {id: G-D-4, req: R-RSP-3, signal: r0_rdata, when: "!r0_valid"}
+  - {id: G-D-5, req: R-RSP-3, signal: r0_err,   when: "!r0_valid"}
+  - {id: G-D-6, req: R-RSP-3, signal: r1_rdata, when: "!r1_valid"}
+  - {id: G-D-7, req: R-RSP-3, signal: r1_err,   when: "!r1_valid"}

@@ -1,0 +1,135 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-DEF-1 / R-RES-1: the last character of txt (txt[-1]); there is none when txt is empty.
+  last_alpha: 'len(txt) >= 1 && isalpha(txt[len(txt) - 1])'
+  # The last character is not part of a word: it is the whole string, or the character
+  # before it is a space, so its space-delimited group has exactly one character.
+  last_alone: 'len(txt) == 1 || (len(txt) >= 2 && txt[len(txt) - 2] == " ")'
+  lone_letter: 'last_alpha && last_alone'
+
+properties:
+  - id: RA-RES-1
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: lone_letter, cond: 'outcome == 0 && result'}
+    note: >-
+      Literal reading of the rule. "The last character" is txt[-1], even when it is a
+      space. "Alphabetical character" is an ASCII letter (a-z, A-Z; FCP-PL isalpha), not
+      Python's str.isalpha on Latin-1 codes above 127. "Is not a part of a word" uses
+      R-DEF-1 read as: a word is a run of two or more non-space characters (of any kind)
+      delimited by the space character (code 32) or an end of the string, so the last
+      character is not part of a word exactly when it is the first character of txt or
+      follows a space. Reading "group of characters" as one or more characters would make
+      this rule vacuous (every non-space character is in a group), which is why the plural
+      reading was taken. The rule is authoritative over example R-EX-2: "apple pi e" must
+      return True here, which contradicts RA-EX-2 (False). Not repaired.
+  - id: RA-RES-2
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: '!lone_letter', cond: 'outcome == 0 && !result'}
+    note: >-
+      "False otherwise": every string that does not meet the condition of R-RES-1 (empty
+      string, last character not an ASCII letter, or last character preceded by a
+      non-space character) returns False. Literal reading, rule authoritative. This
+      contradicts examples R-EX-1 ("apple pie"), R-EX-3 ("apple pi e ") and R-EX-4 (""),
+      which all say True (RA-EX-1, RA-EX-3, RA-EX-4). Not repaired.
+  - id: RA-RES-3
+    req: R-RES-3
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      Every call (every string of at most 16 Latin-1 characters, including the empty
+      string) returns a bool: no exception, no non-termination, no value of another type.
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'txt == "apple pie"', cond: 'outcome == 0 && result'}
+    note: >-
+      The example is taken as authoritative and literal: the call on "apple pie" returns
+      True. As the function is deterministic, an example fixes the result for that input,
+      so it is a property (scenario RA-EX-1-S also requires the behaviour to be possible).
+      Contradicts RA-RES-2: the last character e follows i, so it is part of the word
+      "pie" and the rule gives False.
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e"', cond: 'outcome == 0 && !result'}
+    note: >-
+      The example is taken as authoritative and literal: the call on "apple pi e" returns
+      False. Contradicts RA-RES-1: the last character e is a letter that follows a space,
+      so under the reading of R-DEF-1 taken here it is not part of a word and the rule
+      gives True.
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e "', cond: 'outcome == 0 && result'}
+    note: >-
+      The example is taken as authoritative and literal: the call on "apple pi e " (with a
+      trailing space) returns True. Contradicts RA-RES-2: the last character is a space,
+      not an alphabetical character, so the rule gives False.
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'txt == ""', cond: 'outcome == 0 && result'}
+    note: >-
+      The example is taken as authoritative and literal: the call on the empty string
+      returns True. Contradicts RA-RES-2: the empty string has no last character, so the
+      rule gives False.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: 'txt == "apple pie" && outcome == 0 && result'
+    note: 'The example behaviour must be possible: "apple pie" returns True. Unreachable together with RA-RES-2.'
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: 'txt == "apple pi e" && outcome == 0 && !result'
+    note: 'The example behaviour must be possible: "apple pi e" returns False. Unreachable together with RA-RES-1.'
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: 'txt == "apple pi e " && outcome == 0 && result'
+    note: 'The example behaviour must be possible: "apple pi e " returns True. Unreachable together with RA-RES-2.'
+  - id: RA-EX-4-S
+    req: R-EX-4
+    cover: 'txt == "" && outcome == 0 && result'
+    note: 'The example behaviour must be possible: the empty string returns True. Unreachable together with RA-RES-2.'
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function name and its single argument txt are fixed by the
+      function section of design.yaml (the adapter calls check_if_last_char_is_a_letter(txt));
+      there is no trace behaviour to state.
+  - req: R-IN-1
+    reason: >-
+      Guaranteed by the interface encoding: txt is a sequence signal of 8-bit characters,
+      and frame.md excludes calls whose argument is not a string (or is longer than 16
+      characters or has codes above 255) from the trace, so no FCP-PL assumption is needed.
+  - req: R-DEF-1
+    reason: >-
+      Definition, not a behaviour: realized by the defs last_alone and lone_letter
+      (a word is a run of two or more non-space characters delimited by the space
+      character or an end of the string), which RA-RES-1 and RA-RES-2 use.
+    covered_by: [RA-RES-1, RA-RES-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (outcome != 0 -> !result) states it and is added to
+      every formalization set; frame.md says frame rules need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-DEF-1, phrase: 'a group of characters', reading: 2}
+  - {req: R-DEF-1, phrase: 'separated by space', reading: 1}
+  - {req: R-DEF-1, phrase: '"word" is a group', reading: 1}
+  - {req: R-RES-1, phrase: 'the last character', reading: 1}
+  - {req: R-RES-1, phrase: 'an alphabetical character', reading: 1}
+  - {req: R-RES-1, phrase: 'is not a part of a word', reading: 1}
+  - {req: R-RES-1, phrase: 'returns True', reading: 1}
+  - {req: R-RES-2, phrase: 'False otherwise', reading: 1}
+  - {req: R-EX-1, phrase: '"apple pie") ➞ True', reading: 1}
+  - {req: R-EX-2, phrase: '"apple pi e") ➞ False', reading: 1}
+  - {req: R-EX-3, phrase: '"apple pi e ") ➞ True', reading: 1}
+  - {req: R-EX-4, phrase: '("") ➞ True', reading: 1}

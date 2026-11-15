@@ -1,0 +1,101 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # number of mirror pairs (i, n-1-i) with i < n-1-i whose elements differ
+  mismatches: 'count(i < len(arr): 2 * i + 1 < len(arr) && arr[i] != arr[len(arr) - 1 - i])'
+  # arr reads the same backwards and forwards, element by element
+  palindromic: 'all(i < len(arr): arr[i] == arr[len(arr) - 1 - i])'
+
+scenarios:
+  - id: RA-IN-1-EMPTY
+    req: R-IN-1
+    cover: 'len(arr) == 0'
+    note: >-
+      "an array arr of integers" is read literally as any list of integers, the
+      empty list included (reading 1), so no assumption restricts arr and a call
+      on [] must be admissible. "integers" is read as any integers (reading 1);
+      the frame (frame.md, Inputs) already leaves negative integers, elements
+      above 255 and lists longer than 8 out of the trace, so that reading has no
+      observable effect here and no assumption is needed for it.
+
+properties:
+  - id: RA-CNT-1
+    req: R-CNT-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'changes == mismatches'
+    note: >-
+      The result is the minimum number of elements to change: one per mismatched
+      mirror pair (reading 1 of "the number of elements that need to be
+      changed"; "need" is read as the minimum). The count is of elements
+      (positions), reading 1 of "number of elements"; for a minimal set of
+      changes it equals the number of change operations. The value is only
+      constrained when the call returned an integer (outcome 0); that the call
+      does return is R-CNT-2 (RA-CNT-2). FCP-PL has no division operator, so
+      i < n-1-i is written 2*i + 1 < n.
+
+  - id: RA-CNT-2
+    req: R-CNT-2
+    pattern: invariant
+    args:
+      cond: 'outcome == 0'
+    note: >-
+      "find" is read as returning the number as the function's result
+      (reading 1); the spec never says "return". Every call in the trace has a
+      valid arr (R-IN-1, reading 1), so every call must end by returning an
+      integer. The text asks for a non-negative integer; outcome 0 also excludes
+      a non-negative integer above 15 (outcome 2), which is no loss because the
+      count for at most 8 elements is at most 4 (RA-CNT-1).
+
+  - id: RA-DEF-1
+    req: R-DEF-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: '(changes == 0) <-> palindromic'
+    note: >-
+      Observable content of the definition: an array needs no change exactly
+      when it is already palindromic. "read the same backwards and forwards" is
+      read element-wise (reading 1): the reversed list equals the list, so the
+      empty list and every one-element list are palindromic. Under the textual
+      reading (reading 2) [12, 1] would be palindromic and need 0 changes; this
+      item rejects that.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function name candidate and its single argument arr
+      are fixed by the adapter (design.yaml, function section), which calls
+      candidate(arr) in every cycle; a function with another name or arity
+      cannot be called at all, so there is no trace property to state.
+  - req: R-DEF-2
+    covered_by: [RA-CNT-1]
+    reason: >-
+      Definition of the unit of change. Its observable content is that one
+      change modifies exactly one element, so a mismatched mirror pair needs at
+      least one change and one change (setting an element to its mirror's
+      value) suffices; the minimum is one per mismatched pair, which RA-CNT-1
+      states. "any other element" is read as any other integer value
+      (reading 1); setting an element to its mirror's value is allowed under
+      either reading, so the count is the same. "In one change" is read as
+      explanatory, the answer counting elements as R-CNT-1 says (reading 2);
+      for a minimal set of changes elements and changes coincide.
+  - req: R-FR-1
+    covered_by: [F-ZERO]
+    reason: >-
+      Frame rule of the adapter: F-ZERO in design.yaml (outcome != 0 ->
+      changes == 0) carries req R-FR-1 and is added to every formalization set;
+      frame.md says it need not be restated.
+
+decisions:
+  - {req: R-IN-1, phrase: "an array arr of integers", reading: 1}
+  - {req: R-IN-1, phrase: "integers", reading: 1}
+  - {req: R-CNT-1, phrase: "the number of elements that need to be changed", reading: 1}
+  - {req: R-CNT-1, phrase: "number of elements", reading: 1}
+  - {req: R-CNT-2, phrase: "find", reading: 1}
+  - {req: R-DEF-1, phrase: "read the same backwards and forwards", reading: 1}
+  - {req: R-DEF-2, phrase: "any other element", reading: 1}
+  - {req: R-DEF-2, phrase: "In one change", reading: 2}

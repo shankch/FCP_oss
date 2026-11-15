@@ -1,0 +1,26 @@
+fcp: '0.1'
+design: code_valid_date
+summary: A Python function on strings treated as a chip without memory. Each cycle is one call of valid_date(date); the argument is an input string of at most 32 characters, the returned boolean and the way the call ended are outputs. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt: valid_date date string validation'}
+- {id: FRAME, path: frame.md, title: 'FCP function adapter, version 0.2'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: date, dir: in, width: 8, length: 32, desc: 'the date argument: a string of at most 32 characters, codes 0 to 255'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a bool, 1 exception or no answer, 2 returned anything else'}
+  - {name: valid, dir: out, width: 1, desc: 'the returned value (outcome 0)'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> !valid'}
+function:
+  name: valid_date
+  args:
+  - {name: date, signal: date, type: str}
+  returns: {signal: valid, type: bool}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    date: {alphabet: '0123456789-/', random: 3000}

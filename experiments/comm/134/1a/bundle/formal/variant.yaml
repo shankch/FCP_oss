@@ -1,0 +1,194 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-RET-1/R-RET-2, "the character with given position", reading 2 (as instructed): the first character, txt[0].
+  pos: '0'
+  ch: 'txt[pos]'
+  has_ch: 'len(txt) > pos'
+  # R-RET-1/R-RET-2, "an alphabetical character", reading 2 (as instructed): Python str.isalpha() over Latin-1:
+  # A-Z, a-z, 170, 181, 186, 192-214, 216-246, 248-255.
+  alpha_ch: 'isalpha(ch) || ch == 170 || ch == 181 || ch == 186 || (ch >= 192 && ch <= 255 && ch != 215 && ch != 247)'
+  # R-DEF-1, "separated by space", reading 2 (as instructed): any whitespace separates words, as str.split() does:
+  # Python str.isspace() over Latin-1 is 9-13, 28-31, 32, 133, 160. `before` is the character before position pos
+  # (for pos 0 the index is outside txt, so FCP-PL gives 0, not Python's last character; not_in_word guards it).
+  before: 'txt[pos - 1]'
+  ws_before: 'isspace(before) || (before >= 28 && before <= 31) || before == 32 || before == 133 || before == 160'
+  # R-RET-1/R-RET-2, "is not a part of a word", reading 2 (as instructed): the character is preceded by a space
+  # (a separator); a character at the very start of txt has nothing before it and does not qualify.
+  not_in_word: 'pos >= 1 && ws_before'
+  # The condition of "returns True".
+  hit: 'has_ch && alpha_ch && not_in_word'
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: 'hit'
+      cond: 'outcome == 0 && result'
+    note: >-
+      As instructed, "the character with given position" is read as reading 2: the first character txt[0]
+      (this contradicts the example candidate("apple pi e") -> True, since 'a' starts 'apple').
+      As instructed, "an alphabetical character" is read as reading 2: Python str.isalpha(), which in Latin-1
+      also holds for 170, 181, 186, 192-214, 216-246 and 248-255, not only A-Z and a-z.
+      As instructed, "is not a part of a word" is read as reading 2: the character is preceded by a space;
+      with R-DEF-1 "separated by space" read as reading 2 (as instructed), any whitespace character counts
+      as the space. A character at the very start of txt has nothing before it, so it never qualifies.
+      Taken together, the trigger can never hold: the first character is never preceded by anything, so
+      under these readings candidate never returns True and this property is vacuous. That is what the
+      text says under these readings; it is not repaired.
+
+  - id: RV-RET-2a
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: '!has_ch'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      The character at the given position does not exist (txt is empty) -> the bool False. As instructed,
+      "the character with given position" is read as reading 2: the first character txt[0], which exists
+      exactly when txt is not empty.
+
+  - id: RV-RET-2b
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: 'has_ch && !alpha_ch'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      The character at the given position is not alphabetical -> the bool False. As instructed,
+      "the character with given position" is read as reading 2 (the first character txt[0]) and
+      "an alphabetical character" as reading 2 (Python str.isalpha() over Latin-1, so e.g. 233 'é', 223 'ß',
+      170 'ª' and 181 'µ' are alphabetical and do not fall under this item).
+
+  - id: RV-RET-2c
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: 'has_ch && !not_in_word'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      The character at the given position is part of a word -> the bool False. As instructed,
+      "the character with given position" is read as reading 2 (the first character txt[0]) and
+      "is not a part of a word" as reading 2 (the character is preceded by a space, with any whitespace
+      counting as the space per R-DEF-1 "separated by space" reading 2, as instructed). The first character
+      has nothing before it, so it is always part of a word and every non-empty txt falls under this item:
+      under these readings candidate always returns False. This also agrees with the R-DEF-1 readings
+      taken (as instructed, words are runs of alphabetical characters, possibly of one character, so every
+      alphabetical character is part of a word).
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'txt == "apple pie"'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      The example as written. It agrees with the reading taken (as instructed) for "the character with given
+      position" (reading 2, txt[0] = 'a', which is not preceded by a space and is therefore part of a word).
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'txt == "apple pi e"'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      As instructed, the example is read as reading 2: the definition of 'word' (a group of characters
+      separated by space) is authoritative, the final 'e' is a one-character word and so part of a word, and
+      the expected value is False. The stated value True contradicts the definition and is not honoured here;
+      this is a contradiction in the specification, not a repair. The instructed readings of
+      "the character with given position" (reading 2, txt[0] = 'a', part of the word 'apple') and of
+      '"word" is a group of characters' (R-DEF-1 reading 1, a single letter is a word) give the same False.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'txt == "apple pi e "'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      The example as written (with a trailing space). It agrees with the reading taken (as instructed) for
+      "the character with given position" (reading 2, txt[0] = 'a', part of a word).
+
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: 'len(txt) == 0'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      The example as written: the empty string has no character at the given position (as instructed,
+      reading 2 of "the character with given position": txt[0]).
+
+scenarios:
+  - id: RV-EX-1s
+    req: R-EX-1
+    cover: 'txt == "apple pie" && outcome == 0 && !result'
+    note: The call candidate("apple pie") returning False must be possible.
+
+  - id: RV-EX-2s
+    req: R-EX-2
+    cover: 'txt == "apple pi e" && outcome == 0 && !result'
+    note: >-
+      As instructed, reading 2 of the example: the definition is authoritative and candidate("apple pi e")
+      returns False, contradicting the stated True.
+
+  - id: RV-EX-3s
+    req: R-EX-3
+    cover: 'txt == "apple pi e " && outcome == 0 && !result'
+    note: The call candidate("apple pi e ") returning False must be possible.
+
+  - id: RV-EX-4s
+    req: R-EX-4
+    cover: 'len(txt) == 0 && outcome == 0 && !result'
+    note: The call candidate("") returning False must be possible.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a complete implementation. Its observable content, that every call
+      returns a bool, is realized by the R-RET items, whose triggers together cover every txt and each of
+      which requires outcome 0.
+    covered_by: [RV-RET-1, RV-RET-2a, RV-RET-2b, RV-RET-2c]
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name and the single parameter txt are fixed by the adapter (design.yaml function
+      section, input signal txt); FCP-PL cannot state a signature. As instructed, 'def candidate(txt):' is read
+      as reading 2: the docstring's 'given position' should be supplied by the caller, but the signature has no
+      parameter for it, so signature and docstring contradict each other and the position is unspecified. The
+      functional items fix the position only through the reading taken (as instructed) for R-RET-1/R-RET-2
+      "the character with given position" (reading 2, txt[0]); that choice is not implied by the signature.
+  - req: R-IF-3
+    reason: >-
+      Assumption that txt is a string: it holds by construction, since the adapter only drives the txt
+      argument with a string of at most 32 Latin-1 characters (frame.md, Inputs), so there is nothing left to
+      constrain.
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized by the defs ws_before and not_in_word used in the R-RET items. As instructed:
+      "separated by space" is reading 2 (any whitespace separates words, as str.split() does: codes 9-13, 28-31,
+      32, 133, 160); "a group of characters" is reading 2 (a word is a run of alphabetical characters only);
+      '"word" is a group of characters' is reading 1 (a single character is a word, which contradicts
+      candidate("apple pi e") -> True). Under these readings every alphabetical character is part of a word,
+      and under the instructed reading of "is not a part of a word" (preceded by a space) the first character
+      is never free, so the definition only enters the items through what counts as a space.
+    covered_by: [RV-RET-1, RV-RET-2c]
+  - req: R-FR-1
+    reason: Frame rule of the adapter (design.yaml frame item F-ZERO), part of every formalization set by construction.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-2, phrase: 'def candidate(txt):', reading: 2}
+  - {req: R-DEF-1, phrase: separated by space, reading: 2}
+  - {req: R-DEF-1, phrase: a group of characters, reading: 2}
+  - {req: R-DEF-1, phrase: '"word" is a group of characters', reading: 1}
+  - {req: R-RET-1, phrase: the character with given position, reading: 2}
+  - {req: R-RET-1, phrase: an alphabetical character, reading: 2}
+  - {req: R-RET-1, phrase: is not a part of a word, reading: 2}
+  - {req: R-RET-2, phrase: the character with given position, reading: 2}
+  - {req: R-RET-2, phrase: an alphabetical character, reading: 2}
+  - {req: R-RET-2, phrase: is not a part of a word, reading: 2}
+  - {req: R-EX-2, phrase: 'candidate("apple pi e") ➞ True', reading: 2}

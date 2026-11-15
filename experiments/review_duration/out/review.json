@@ -1,0 +1,557 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 653,
+    "checked": 653,
+    "seconds": 169.36
+   },
+   "open": {
+    "open": {},
+    "checked": 526
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 597,
+    "checked": 597,
+    "seconds": 167.33
+   },
+   "open": {
+    "open": {},
+    "checked": 611
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-FMT-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-FMT-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-FMT-3": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-CONV-1": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-ERR-1": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-ERR-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FMT-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FMT-5": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FMT-6": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-IF-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-MAX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-NUM-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": {
+  "calls": 26098,
+  "outcomes": {
+   "raised ValueError": 25885,
+   "returned": 213
+  },
+  "verify": {
+   "agent_a": {
+    "F-ZERO": {
+     "req": "R-FR-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 26098
+    },
+    "RA-CONV-1": {
+     "req": "R-CONV-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 77,
+     "status": "FAIL",
+     "triggered": 290,
+     "calls_shown": [
+      {
+       "call": "parse_duration(\"002h\")",
+       "got": "raised ValueError"
+      }
+     ],
+     "cycles": [
+      6133
+     ],
+     "replay": "confirmed"
+    },
+    "RA-ERR-1": {
+     "req": "R-ERR-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 25739
+    },
+    "RA-ERR-2": {
+     "req": "R-ERR-2",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 1
+    },
+    "RA-FMT-4": {
+     "req": "R-FMT-4",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 446
+    },
+    "RA-FMT-5": {
+     "req": "R-FMT-5",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 425
+    },
+    "RA-NUM-1": {
+     "req": "R-NUM-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 2070
+    },
+    "RA-FMT-6": {
+     "req": "R-FMT-6",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 11690
+    },
+    "RA-MAX-1a": {
+     "req": "R-MAX-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 69
+    },
+    "RA-MAX-1b": {
+     "req": "R-MAX-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 213
+    },
+    "RA-IF-2": {
+     "req": "R-IF-2",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 26098
+    },
+    "RA-EX-1": {
+     "req": "R-EX-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 1
+    },
+    "RA-EX-2": {
+     "req": "R-EX-2",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 1
+    },
+    "RA-EX-1s": {
+     "req": "R-EX-1",
+     "role": "scenario",
+     "calls": 26098,
+     "count": 0,
+     "status": "COVERED"
+    },
+    "RA-EX-2s": {
+     "req": "R-EX-2",
+     "role": "scenario",
+     "calls": 26098,
+     "count": 0,
+     "status": "COVERED"
+    },
+    "RA-MAX-1s": {
+     "req": "R-MAX-1",
+     "role": "scenario",
+     "calls": 26098,
+     "count": 0,
+     "status": "COVERED"
+    },
+    "RA-NUM-1s": {
+     "req": "R-NUM-1",
+     "role": "scenario",
+     "calls": 26098,
+     "count": 0,
+     "status": "COVERED"
+    },
+    "RA-FMT-5s": {
+     "req": "R-FMT-5",
+     "role": "scenario",
+     "calls": 26098,
+     "count": 0,
+     "status": "COVERED"
+    }
+   },
+   "agent_b": {
+    "F-ZERO": {
+     "req": "R-FR-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 26098
+    },
+    "RB-IF-2": {
+     "req": "R-IF-2",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 26098
+    },
+    "RB-CONV-1": {
+     "req": "R-CONV-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 77,
+     "status": "FAIL",
+     "triggered": 290,
+     "calls_shown": [
+      {
+       "call": "parse_duration(\"002h\")",
+       "got": "raised ValueError"
+      }
+     ],
+     "cycles": [
+      6133
+     ],
+     "replay": "confirmed"
+    },
+    "RB-ERR-1": {
+     "req": "R-ERR-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 25808
+    },
+    "RB-ERR-2": {
+     "req": "R-ERR-2",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 1
+    },
+    "RB-FMT-1": {
+     "req": "R-FMT-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 18346
+    },
+    "RB-FMT-2a": {
+     "req": "R-FMT-2",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 22578
+    },
+    "RB-FMT-2b": {
+     "req": "R-FMT-2",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 2684
+    },
+    "RB-FMT-3": {
+     "req": "R-FMT-3",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 12797
+    },
+    "RB-FMT-4": {
+     "req": "R-FMT-4",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 446
+    },
+    "RB-FMT-5": {
+     "req": "R-FMT-5",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 425
+    },
+    "RB-NUM-1": {
+     "req": "R-NUM-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 2070
+    },
+    "RB-FMT-6": {
+     "req": "R-FMT-6",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 11690
+    },
+    "RB-MAX-1a": {
+     "req": "R-MAX-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 69
+    },
+    "RB-MAX-1b": {
+     "req": "R-MAX-1",
+     "role": "property",
+     "calls": 26098,
+     "count": 0,
+     "status": "PASS",
+     "triggered": 213
+    },
+    "RB-MAX-1c": {
+     "req": "R-MAX-1",
+     "role": "scenario",
+     "calls": 26098,
+     "count": 0,
+     "status": "COVERED"
+    },
+    "RB-FMT-1s": {
+     "req": "R-FMT-1",
+     "role": "scenario",
+     "calls": 26098,
+     "count": 0,
+     "status": "COVERED"
+    },
+    "RB-NUM-2": {
+     "req": "R-NUM-1",
+     "role": "scenario",
+     "calls": 26098,
+     "count": 0,
+     "status": "COVERED"
+    },
+    "RB-EX-1": {
+     "req": "R-EX-1",
+     "role": "scenario",
+     "calls": 26098,
+     "count": 0,
+     "status": "COVERED"
+    },
+    "RB-EX-2": {
+     "req": "R-EX-2",
+     "role": "scenario",
+     "calls": 26098,
+     "count": 0,
+     "status": "COVERED"
+    }
+   }
+  }
+ },
+ "certified": [
+  "R-IF-2",
+  "R-FMT-4",
+  "R-ERR-2",
+  "R-EX-1",
+  "R-EX-2"
+ ],
+ "queue": [
+  {
+   "kind": "code",
+   "reqs": [
+    "R-CONV-1"
+   ],
+   "reading": "agent_a",
+   "calls": [
+    "parse_duration(\"002h\") -> raised ValueError"
+   ],
+   "question": "the code breaks this requirement here (replayed): a bug, or a reading to change?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CONV-1"
+   ],
+   "calls": [],
+   "question": "\"a duration\" can mean: any text that meets rules 1 to 4 of the request is a duration and is converted, including one longer than one day: \"25h\" returns 90000 (this contradicts R-MAX-1) / a text is a duration only if it meets rules 1 to 4 and is also at most one day (86400 seconds) long; a longer text such as \"25h\" is not converted (it raises ValueError or is out of scope, see R-MAX-1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-5"
+   ],
+   "calls": [],
+   "question": "\"in the order h, m, s\" can mean: the units present keep the relative order h before m before s, and a unit may be skipped: \"1h5s\" is valid (3605 seconds) / the units present form a contiguous run of h, m, s with none skipped in between: \"1h5s\" raises ValueError. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-NUM-1"
+   ],
+   "calls": [],
+   "question": "\"between 1 and 99\" can mean: inclusive: 1 and 99 are allowed (\"1s\" and \"99s\" are valid) / exclusive: only 2 to 98 are allowed (\"1s\" and \"99s\" raise ValueError). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-NUM-1"
+   ],
+   "calls": [],
+   "question": "\"Every number\" can mean: the same range 1 to 99 applies to every unit: \"90m\" and \"1h90m\" are valid / minutes and seconds stay below 60 as on a clock, at least after a larger unit: \"1h90m\" or \"1m75s\" raises ValueError. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-NUM-1"
+   ],
+   "calls": [],
+   "question": "\"Every number is between 1 and 99. / A duration is never longer than one day.\" can mean: contradiction with R-MAX-1: this rule admits up to 99 hours (\"99h\" is 356400 seconds, \"99h99m99s\" is 362439), while R-MAX-1 says no duration is longer than one day (86400 seconds); if every number from 1 to 99 is valid for every unit, \"25h\" must be converted to 90000 / no contradiction if R-MAX-1 is an extra restriction: numbers 1 to 99 are necessary but not sufficient, and \"25h\" or \"24h1s\" raises ValueError because it is longer than one day. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-6"
+   ],
+   "calls": [],
+   "question": "\"Spaces\" can mean: only the space character (code 32) is meant; other whitespace such as tab or newline is rejected only because it is not part of the duration syntax / every whitespace character (space, tab, newline, carriage return, ...) is meant / spaces are forbidden inside the duration, but surrounding whitespace may be trimmed first, so \"45s \" returns 45. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ERR-1"
+   ],
+   "calls": [],
+   "question": "\"anything else\" can mean: anything that does not meet rules 1 to 4, which precede this rule; a text meeting them but longer than one day (rule 6, which follows) is not covered by this rule / anything that does not meet rules 1 to 4 or rule 6; a text longer than one day, such as \"25h\", also raises ValueError. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MAX-1"
+   ],
+   "calls": [],
+   "question": "\"A duration is never longer than one day.\" can mean: a validity rule: a text totalling more than 86400 seconds is not a duration, so parse_duration raises ValueError for it / an assumption about callers: the scheduling app never passes a text longer than one day, so the behaviour on such texts is left free (a dont_care) / a bound on the result only: parse_duration never returns more than 86400, for example by clamping \"25h\" to 86400 rather than raising. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MAX-1"
+   ],
+   "calls": [],
+   "question": "\"A duration is never longer than one day. / Every number is between 1 and 99.\" can mean: contradiction with R-NUM-1 and R-CONV-1: rules 1 to 4 admit up to 99 hours (\"99h\" is 356400 seconds, \"99h99m99s\" is 362439), and R-CONV-1 converts every such duration, yet this rule says no duration is longer than one day; \"25h\" cannot both return 90000 and be rejected / no contradiction if this rule is an extra restriction on top of rules 1 to 4: \"25h\" meets every number range but is still rejected for being longer than one day. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-2"
+   ],
+   "calls": [],
+   "question": "\"a whole number\" can mean: leading zeros are allowed and the number is the value of its digits: \"01h\" is 1 hour and \"007s\" is 7 seconds / leading zeros are not allowed: \"01h\" is not a part, so it raises ValueError / a number has at most two digits, leading zero allowed: \"01h\" is a part, \"001h\" is not. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-2"
+   ],
+   "calls": [],
+   "question": "\"a whole number\" can mean: only the decimal digits 0 to 9, with no sign: \"+1h\" raises ValueError / an optional sign may precede the digits, as Python int() accepts: \"+1h\" is 1 hour. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-3"
+   ],
+   "calls": [],
+   "question": "\"`h` for hours, `m` for minutes, `s` for seconds\" can mean: only the lowercase letters h, m and s are units: \"1H30M\" raises ValueError / units are case-insensitive: \"1H30M\" is the same duration as \"1h30m\". Which is meant?"
+  }
+ ],
+ "limits": [
+  "request points of agent_a",
+  "request points of agent_b",
+  "request points of agent_b, agent_a",
+  "request points of agent_a, agent_b"
+ ],
+ "given": {
+  "contract": [],
+  "free": []
+ }
+}

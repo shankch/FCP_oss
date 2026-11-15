@@ -1,0 +1,234 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. simplify(x, n) keeps no state between calls (frame.md),
+# so the reference model is combinational: the defs below parse each argument
+# string into its numerator and denominator, decide whether the argument is a
+# valid fraction, and form the exact product a*c / (b*d). Every output
+# (outcome, result) is checked against this model. No ghost is needed: a ghost
+# would only carry information from earlier calls, which the specification
+# says nothing about.
+#
+# FCP-PL has no variable divisor (`%` takes a constant), so "the product is a
+# whole number" is stated with the universally quantified rigid q:
+#   whole      <=> exists q >= 0 . a*c == q * (b*d)
+#   not whole  <=> exists q >= 0 . q * (b*d) < a*c < (q + 1) * (b*d)
+# A property "trigger(q) -> cond" for every q is then exactly
+# "(exists q . trigger(q)) -> cond". The largest quotient that 8-character
+# arguments allow is 999999 * 999999 = 999998000001 ("999999/1" twice).
+
+defs:
+  # position of the '/' (meaningful when there is exactly one)
+  x_sl: 'sum(j < len(x): x[j] == "/" ? j : 0)'
+  n_sl: 'sum(j < len(n): n[j] == "/" ? j : 0)'
+  # <numerator>/<denominator>: exactly one '/', not the first and not the last character
+  x_shape: 'count(j < len(x): x[j] == "/") == 1 && x_sl >= 1 && x_sl <= len(x) - 2'
+  n_shape: 'count(j < len(n): n[j] == "/") == 1 && n_sl >= 1 && n_sl <= len(n) - 2'
+  # every character other than the '/' is a decimal digit
+  x_digits: 'all(j < len(x): j == x_sl || isdigit(x[j]))'
+  n_digits: 'all(j < len(n): j == n_sl || isdigit(n[j]))'
+  # decimal values of the numerator (before the '/') and the denominator (after it)
+  x_num: 'sum(i < len(x): i < x_sl && isdigit(x[i]) ? (x[i] - "0") * (x_sl - i == 1 ? 1 : x_sl - i == 2 ? 10 : x_sl - i == 3 ? 100 : x_sl - i == 4 ? 1000 : x_sl - i == 5 ? 10000 : x_sl - i == 6 ? 100000 : 1000000) : 0)'
+  x_den: 'sum(i < len(x): i > x_sl && isdigit(x[i]) ? (x[i] - "0") * (len(x) - i == 1 ? 1 : len(x) - i == 2 ? 10 : len(x) - i == 3 ? 100 : len(x) - i == 4 ? 1000 : len(x) - i == 5 ? 10000 : len(x) - i == 6 ? 100000 : 1000000) : 0)'
+  n_num: 'sum(i < len(n): i < n_sl && isdigit(n[i]) ? (n[i] - "0") * (n_sl - i == 1 ? 1 : n_sl - i == 2 ? 10 : n_sl - i == 3 ? 100 : n_sl - i == 4 ? 1000 : n_sl - i == 5 ? 10000 : n_sl - i == 6 ? 100000 : 1000000) : 0)'
+  n_den: 'sum(i < len(n): i > n_sl && isdigit(n[i]) ? (n[i] - "0") * (len(n) - i == 1 ? 1 : len(n) - i == 2 ? 10 : len(n) - i == 3 ? 100 : len(n) - i == 4 ? 1000 : len(n) - i == 5 ? 10000 : len(n) - i == 6 ? 100000 : 1000000) : 0)'
+  # a valid fraction: digits '/' digits, both values positive (leading zeros allowed)
+  x_valid: 'x_shape && x_digits && x_num >= 1 && x_den >= 1'
+  n_valid: 'n_shape && n_digits && n_num >= 1 && n_den >= 1'
+  valid: 'x_valid && n_valid'
+  # the exact product x * n = p_num / p_den
+  p_num: 'x_num * n_num'
+  p_den: 'x_den * n_den'
+  # x * n equals the whole number q
+  prod_is_q: 'p_num == q * p_den'
+  # x * n lies strictly between the whole numbers q and q + 1
+  prod_between_q: 'q * p_den < p_num && p_num < (q + 1) * p_den'
+
+rigids:
+  - {name: q, range: [0, 999998000001]}
+
+assumptions:
+  - id: RB-IN-2-X
+    req: R-IN-2
+    expr: 'x_shape && x_digits'
+    note: >-
+      Reading 1 of "<numerator>/<denominator>": x is exactly a numerator, one
+      '/', and a denominator, with no other characters (no spaces, no signs).
+      The numerator and denominator are taken to be non-empty runs of decimal
+      digits (the form R-IN-3 gives them).
+  - id: RB-IN-2-N
+    req: R-IN-2
+    expr: 'n_shape && n_digits'
+    note: Same as RB-IN-2-X, for n.
+  - id: RB-IN-3-X
+    req: R-IN-3
+    expr: 'x_shape -> x_digits && x_num >= 1 && x_den >= 1'
+    note: >-
+      Where x has a numerator and a denominator, both are written in decimal
+      digits and both have value at least 1 (reading 1 of "positive"). Reading
+      1 of "whole numbers": the value counts, not the spelling, so leading
+      zeros such as "05/3" are allowed.
+  - id: RB-IN-3-N
+    req: R-IN-3
+    expr: 'n_shape -> n_digits && n_num >= 1 && n_den >= 1'
+    note: Same as RB-IN-3-X, for n.
+  - id: RB-IN-4
+    req: R-IN-4
+    expr: 'x_valid && n_valid'
+    note: >-
+      Reading 1 of "valid fractions": exactly the strings of the form
+      <numerator>/<denominator> with both numbers positive whole numbers in
+      decimal digits (R-IN-2, R-IN-3); no sign, space or zero numerator.
+  - id: RB-IN-5-X
+    req: R-IN-5
+    expr: 'x_shape -> x_den != 0'
+    note: >-
+      The denominator of x is not zero. Reading 1: this restates part of
+      R-IN-3 and does not license a zero numerator (numerators stay positive
+      by RB-IN-3-X).
+  - id: RB-IN-5-N
+    req: R-IN-5
+    expr: 'n_shape -> n_den != 0'
+    note: Same as RB-IN-5-X, for n.
+
+properties:
+  - id: RB-RES-1
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: 'valid && prod_is_q'
+      cond: 'outcome == 0 && result'
+    note: >-
+      For a valid call whose exact product x * n equals the whole number q
+      (q ranges over all non-negative integers, so this says "for any whole
+      number"), the call returns the bool True. Readings taken: the sentence as
+      stated, not swapped as the examples suggest (reading 1); "evaluates to"
+      is exact rational arithmetic, not floating point (reading 1); "whole
+      number" is a non-negative integer (reading 2). With positive numerators
+      and denominators the product is positive, so the three readings of
+      "whole number" agree on valid calls. This contradicts the example
+      R-EX-1 (RB-EX-1): 1/5 * 5/1 = 1 is whole, so this property requires
+      True where the example says False.
+  - id: RB-RES-2
+    req: R-RES-2
+    pattern: implies
+    args:
+      trigger: 'valid && prod_between_q'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      For a valid call whose exact product lies strictly between two
+      consecutive whole numbers (that is, is not a whole number), the call
+      returns the bool False. Readings taken: as stated (reading 1 of "False
+      otherwise"); "otherwise" ranges only over valid calls, because the
+      docstring lets the function assume valid fractions (reading 1); exact
+      arithmetic (reading 1). This contradicts the examples R-EX-2 and R-EX-3
+      (RB-EX-2, RB-EX-3): 1/6 * 2/1 = 1/3 and 7/10 * 10/2 = 7/2 are not whole,
+      so this property requires False where the examples say True.
+  - id: RB-RES-3
+    req: R-RES-3
+    pattern: implies
+    args:
+      trigger: 'valid'
+      cond: 'outcome == 0'
+    note: >-
+      On every valid call the function returns a bool: it does not raise, does
+      not hang and does not return another type (outcome 0). Readings taken:
+      it returns only True or False, not the simplified product (reading 1 of
+      "The function returns"); "True" is the bool object, so returning 1 or 0
+      (outcome 2) breaks this property (reading 1 of "True").
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: 'x == "1/5" && n == "5/1" && outcome == 0 && !result'
+    note: >-
+      Literal reading (reading 2): the example is right and the call returns
+      False. The function is deterministic and stateless, so "this call can
+      return False" is the same as "this call returns False". The example
+      contradicts RB-RES-1 (1/5 * 5/1 = 1 is whole, so the stated rule demands
+      True); this scenario is unreachable together with RB-RES-1 and is kept
+      to expose the contradiction, not repaired.
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: 'x == "1/6" && n == "2/1" && outcome == 0 && result'
+    note: >-
+      Literal reading (reading 2): the call returns True. It contradicts
+      RB-RES-2 (1/6 * 2/1 = 1/3 is not whole, so the stated rule demands
+      False); unreachable together with RB-RES-2, kept to expose the
+      contradiction.
+  - id: RB-EX-3
+    req: R-EX-3
+    cover: 'x == "7/10" && n == "10/2" && outcome == 0 && result'
+    note: >-
+      Literal reading (reading 2): the call returns True. It contradicts
+      RB-RES-2 (7/10 * 10/2 = 7/2 is not whole, so the stated rule demands
+      False); unreachable together with RB-RES-2, kept to expose the
+      contradiction.
+
+dont_cares:
+  - id: RB-IN-6-OUT
+    req: R-IN-6
+    signal: outcome
+    when: '!valid'
+    note: >-
+      Reading 1 of "You can assume": a call where x or n is not a valid
+      fraction (including a zero denominator) imposes no obligation; it may
+      return anything, raise or hang. Under the assumptions RB-IN-* such calls
+      do not occur, so this records the same fact from the output side.
+  - id: RB-IN-6-RES
+    req: R-IN-6
+    signal: result
+    when: '!valid'
+    note: Same as RB-IN-6-OUT, for the returned value.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Interface requirement (a Python function named simplify taking x then
+      n). It is fixed by the function section of design.yaml, which drives the
+      x and n signals from the two arguments; it is not a property of the
+      trace.
+  - req: R-OP-1
+    reason: >-
+      Reading 1 of "simplify the expression x * n": the sentence states the
+      purpose; what the function must return is given by the next sentence
+      (R-RES-1, R-RES-2, R-RES-3). Reading 2 (return the reduced product)
+      would contradict the bool result and is not taken.
+    covered_by: [RB-RES-1, RB-RES-2, RB-RES-3]
+  - req: R-IN-1
+    reason: >-
+      That x and n are strings is fixed by the interface (sequence signals);
+      what "a fraction" means as a string is the format of R-IN-2 and R-IN-3,
+      formalized there and in R-IN-4.
+    covered_by: [RB-IN-2-X, RB-IN-2-N, RB-IN-3-X, RB-IN-3-N, RB-IN-4]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (outcome != 0 -> !result), added to
+      every formalization set by construction; frame.md says it need not be
+      restated.
+  - req: R-FR-2
+    reason: >-
+      Frame rule F-CODE of design.yaml (outcome <= 2, so never 3), added to
+      every formalization set by construction; frame.md says it need not be
+      restated.
+
+decisions:
+  - {req: R-OP-1, phrase: 'simplify the expression x * n', reading: 1}
+  - {req: R-RES-1, phrase: 'returns True if x * n evaluates to a whole number', reading: 1}
+  - {req: R-RES-1, phrase: 'evaluates to', reading: 1}
+  - {req: R-RES-1, phrase: 'whole number', reading: 2}
+  - {req: R-RES-2, phrase: 'False otherwise', reading: 1}
+  - {req: R-RES-2, phrase: 'otherwise', reading: 1}
+  - {req: R-RES-2, phrase: 'evaluates to a whole number', reading: 1}
+  - {req: R-RES-3, phrase: 'The function returns', reading: 1}
+  - {req: R-RES-3, phrase: 'True', reading: 1}
+  - {req: R-IN-2, phrase: '<numerator>/<denominator>', reading: 1}
+  - {req: R-IN-3, phrase: 'positive', reading: 1}
+  - {req: R-IN-3, phrase: 'whole numbers', reading: 1}
+  - {req: R-IN-4, phrase: 'valid fractions', reading: 1}
+  - {req: R-IN-5, phrase: 'do not have zero as denominator', reading: 1}
+  - {req: R-IN-6, phrase: 'You can assume', reading: 1}
+  - {req: R-EX-1, phrase: 'simplify("1/5", "5/1") = False', reading: 2}
+  - {req: R-EX-2, phrase: 'simplify("1/6", "2/1") = True', reading: 2}
+  - {req: R-EX-3, phrase: 'simplify("7/10", "10/2") = True', reading: 2}

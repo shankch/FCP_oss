@@ -1,0 +1,190 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. simplify(x, n) keeps no state between calls (frame.md),
+# so the model is a combinational parse of the two argument strings: where the
+# '/' is, whether the parts are digit strings, and whether a part is zero. No
+# ghost register is needed; every output is checked against these defs.
+defs:
+  # x has the textual form <digits>/<digits>: exactly one '/', every other
+  # character a decimal digit, and both parts non-empty.
+  x_form: 'count(i < len(x): x[i] == "/") == 1 && all(i < len(x): isdigit(x[i]) || x[i] == "/") && x[0] != "/" && x[len(x) - 1] != "/"'
+  n_form: 'count(i < len(n): n[i] == "/") == 1 && all(i < len(n): isdigit(n[i]) || n[i] == "/") && n[0] != "/" && n[len(n) - 1] != "/"'
+  # The text after the first '/' is non-empty and made only of '0' characters:
+  # the denominator's numeric value is 0 ('1/0', '1/00', ...).
+  x_den_zero: 'any(p < len(x): x[p] == "/" && count(j < p: x[j] == "/") == 0 && p + 1 < len(x) && all(k < len(x): k <= p || x[k] == "0"))'
+  n_den_zero: 'any(p < len(n): n[p] == "/" && count(j < p: n[j] == "/") == 0 && p + 1 < len(n) && all(k < len(n): k <= p || n[k] == "0"))'
+  # The text before the first '/' is non-empty and made only of '0' characters:
+  # the numerator's numeric value is 0 ('0/5', '00/5', ...).
+  x_num_zero: 'any(p < len(x): x[p] == "/" && count(j < p: x[j] == "/") == 0 && p > 0 && all(k < p: x[k] == "0"))'
+  n_num_zero: 'any(p < len(n): n[p] == "/" && count(j < p: n[j] == "/") == 0 && p > 0 && all(k < p: n[k] == "0"))'
+  # A valid fraction with a non-zero denominator (R-IN-1..R-IN-4 together).
+  x_ok: 'x_form && !x_den_zero'
+  n_ok: 'n_form && !n_den_zero'
+  valid_call: 'x_ok && n_ok'
+  # The call finished and returned a value (a bool: 0, anything else: 2).
+  returned: 'outcome == 0 || outcome == 2'
+
+assumptions:
+  - id: RB-IN1-A
+    req: R-IN-1
+    expr: 'x_form'
+    note: >-
+      "valid fractions" taken as reading 2: a string <numerator>/<denominator>
+      whose two parts are non-empty strings of decimal digits, the numerator
+      possibly zero. The text names no further restriction, so leading zeros
+      ('01/2') are not excluded; signs, spaces and a whole number without '/'
+      (reading 3) are excluded. "valid" is taken as the textual form only
+      (reading 2 of the second phrase): a zero denominator is excluded by
+      R-IN-3 (RB-IN3-A), not here.
+  - id: RB-IN2-A
+    req: R-IN-2
+    expr: 'n_form'
+    note: >-
+      Same reading as RB-IN1-A, for n: '<digits>/<digits>', numerator possibly
+      zero, leading zeros not excluded, no sign, spaces or bare whole number.
+      A zero denominator is excluded by RB-IN4-A.
+  - id: RB-IN3-A
+    req: R-IN-3
+    expr: '!x_den_zero'
+    note: >-
+      "zero as denominator" taken as reading 1: the denominator's numeric
+      value is not 0, so '1/0' and '1/00' are both excluded. The denominator
+      is the text after the first '/'; together with RB-IN1-A this is exactly
+      "the denominator digits are not all '0'".
+  - id: RB-IN4-A
+    req: R-IN-4
+    expr: '!n_den_zero'
+    note: >-
+      Same reading as RB-IN3-A, for n: the denominator's numeric value is not
+      0 ('1/0' and '1/00' excluded).
+
+properties:
+  - id: RB-OUT1-P
+    req: R-OUT-1
+    pattern: implies
+    args: {trigger: 'valid_call', cond: 'returned'}
+    note: >-
+      "will simplify the expression" taken as reading 1: every call on valid
+      fractions with non-zero denominators finishes and returns a value (no
+      exception, no hang: outcome is not 1). The returned value is taken as the
+      simplified expression itself (reading 2 of "simplify the expression"), not
+      necessarily a bool, so both returned-value outcomes 0 and 2 satisfy this
+      requirement; the type is constrained by RB-OUT2-P. The property is stated
+      per call (trigger valid_call) rather than relying only on the assumptions,
+      since calls are independent.
+  - id: RB-OUT2-P
+    req: R-OUT-2
+    pattern: implies
+    args: {trigger: 'valid_call', cond: 'outcome == 2'}
+    note: >-
+      Most literal reading: a function that "will simplify the expression"
+      returns the simplified expression (reading 2 of "simplify the
+      expression"), here a fraction string reduced to lowest terms (reading 2 of
+      "simplify"), a whole number written without a denominator (reading 1 of
+      the form phrase). Such a value is not a bool, so the adapter records it as
+      outcome 2; on a valid call outcome must be 2, and by the frame rule F-ZERO
+      result is then 0. This CONFLICTS with the adapter, which records the
+      returned value as a boolean: under this reading the result signal never
+      carries the answer, and an implementation that returns True/False
+      (outcome 0) violates this property. Only the type is observable: which
+      expression is meant is not stated ("the expression" has no antecedent,
+      reading 4) and the simplified value itself is not recorded by the
+      adapter, so its content cannot be checked (outcome 2 also covers e.g.
+      None).
+
+scenarios:
+  - id: RB-IN1-S-NUM0
+    req: R-IN-1
+    cover: 'valid_call && x_num_zero'
+    note: Under reading 2 of "valid fractions" a zero numerator ('0/3') is a valid x, so such a call must be admitted by the assumptions.
+  - id: RB-IN1-S-LEAD0
+    req: R-IN-1
+    cover: 'valid_call && x[0] == "0" && isdigit(x[1])'
+    note: The text does not exclude leading zeros, so an x such as '01/2' is a valid fraction under this reading and must be admitted by the assumptions.
+  - id: RB-IN2-S-NUM0
+    req: R-IN-2
+    cover: 'valid_call && n_num_zero'
+    note: Under reading 2 of "valid fractions" a zero numerator ('0/3') is a valid n, so such a call must be admitted by the assumptions.
+  - id: RB-OUT2-S
+    req: R-OUT-2
+    cover: 'valid_call && outcome == 2'
+    note: A valid call that returns a non-boolean value (the simplified expression) must be possible.
+
+dont_cares:
+  - id: RB-IN1-D-OUT
+    req: R-IN-1
+    signal: outcome
+    when: '!x_form'
+    note: Calls in which x is not a valid fraction "need not be handled in any particular way".
+  - id: RB-IN1-D-RES
+    req: R-IN-1
+    signal: result
+    when: '!x_form'
+    note: Calls in which x is not a valid fraction "need not be handled in any particular way" (result stays 0 unless outcome is 0, by F-ZERO).
+  - id: RB-IN2-D-OUT
+    req: R-IN-2
+    signal: outcome
+    when: '!n_form'
+    note: Calls in which n is not a valid fraction "need not be handled in any particular way".
+  - id: RB-IN2-D-RES
+    req: R-IN-2
+    signal: result
+    when: '!n_form'
+    note: Calls in which n is not a valid fraction "need not be handled in any particular way" (result stays 0 unless outcome is 0, by F-ZERO).
+  - id: RB-IN3-D-OUT
+    req: R-IN-3
+    signal: outcome
+    when: 'x_den_zero'
+    note: The caller never passes an x with a zero denominator, so the outcome of such a call is unconstrained.
+  - id: RB-IN3-D-RES
+    req: R-IN-3
+    signal: result
+    when: 'x_den_zero'
+    note: The caller never passes an x with a zero denominator, so the result of such a call is unconstrained (except by F-ZERO).
+  - id: RB-IN4-D-OUT
+    req: R-IN-4
+    signal: outcome
+    when: 'n_den_zero'
+    note: The caller never passes an n with a zero denominator, so the outcome of such a call is unconstrained.
+  - id: RB-IN4-D-RES
+    req: R-IN-4
+    signal: result
+    when: 'n_den_zero'
+    note: The caller never passes an n with a zero denominator, so the result of such a call is unconstrained (except by F-ZERO).
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional statement of the deliverable ("Complete this function").
+      Its observable part, that the function works on valid inputs, is the
+      content of R-OUT-1 and R-OUT-2.
+    covered_by: [RB-OUT1-P, RB-OUT2-P]
+  - req: R-FN-2
+    reason: >-
+      Definition of the name and parameters, fixed by the function section of
+      design.yaml (the adapter calls simplify(x, n) positionally). It is not a
+      trace property; a missing, misnamed or wrongly typed function makes every
+      call end with outcome 1, which RB-OUT1-P rejects on valid inputs.
+    covered_by: [RB-OUT1-P]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md), stated in design.yaml as F-ZERO
+      ('outcome != 0 -> !result'), which is added to every formalization set and
+      need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-OUT-1, phrase: "will simplify the expression", reading: 1}
+  - {req: R-OUT-1, phrase: "simplify the expression", reading: 2}
+  - {req: R-OUT-2, phrase: "the expression", reading: 4}
+  - {req: R-OUT-2, phrase: "simplify", reading: 2}
+  - {req: R-OUT-2, phrase: "simplify the expression", reading: 2}
+  - {req: R-OUT-2, phrase: "simplify (form of a simplified fraction)", reading: 1}
+  - {req: R-IN-1, phrase: "valid fractions", reading: 2}
+  - {req: R-IN-1, phrase: "valid fractions, and do not have zero as denominator", reading: 2}
+  - {req: R-IN-2, phrase: "valid fractions", reading: 2}
+  - {req: R-IN-2, phrase: "valid fractions, and do not have zero as denominator", reading: 2}
+  - {req: R-IN-3, phrase: "zero as denominator", reading: 1}
+  - {req: R-IN-4, phrase: "zero as denominator", reading: 1}

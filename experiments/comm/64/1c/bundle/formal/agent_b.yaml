@@ -1,0 +1,189 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. vowels_count keeps no state between calls (frame.md,
+# "Calls"), so the reference model is a combinational function of the
+# argument s, evaluated afresh in every call; no ghost register is needed.
+# Every output is checked against it.
+#
+# Readings taken (see `decisions`):
+#  - every string of at most 32 characters is a valid argument, including the
+#    empty string and strings that are not letters-only words (R-IN-1);
+#  - vowels are counted per occurrence (R-OUT-2);
+#  - letters are compared without regard to ASCII case, so A E I O U and a
+#    final Y count; accented Latin-1 letters do not (R-VOW-1, R-VOW-2, R-Y-1);
+#  - only the single last character of the whole string s can be a counted
+#    'y' (R-Y-1, R-Y-2);
+#  - the vowel definition governs; the two docstring examples, which both say
+#    5, contradict it and are taken to be wrong (R-OUT-2, R-EX-1, R-EX-2).
+defs:
+  # number of positions of s holding a, e, i, o or u in either ASCII case
+  n_aeiou: 'count(i < len(s): lower(s[i]) == "a" || lower(s[i]) == "e" || lower(s[i]) == "i" || lower(s[i]) == "o" || lower(s[i]) == "u")'
+  # the last character of s (the end of the given word) is y or Y
+  y_end: 'len(s) >= 1 && lower(s[len(s) - 1]) == "y"'
+  # number of positions before the last character of s holding y or Y
+  n_y_early: 'count(i < len(s): i < len(s) - 1 && lower(s[i]) == "y")'
+  # the number of vowels in s according to the definition
+  expected: 'n_aeiou + y_end'
+
+properties:
+  - id: RB-OUT-1
+    req: R-OUT-1
+    expr: 'outcome == 0'
+    note: >-
+      Every call returns normally with an integer: outcome 0 means the call
+      returned an integer from 0 to 63. The model count is at most 32 (s has at
+      most 32 characters), so a correct result always fits, and outcome 1 (an
+      exception or no answer) and outcome 2 (another type, a negative number,
+      a number above 63) both violate the requirement. Unconditional because
+      R-IN-1 is read as descriptive: every string is a valid input.
+
+  - id: RB-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'vowels == expected'
+    note: >-
+      The returned integer is the number of positions of s holding a vowel:
+      a, e, i, o, u in either case anywhere, plus a y or Y that is the last
+      character of s; each occurrence counts once (reading 1 of "the number of
+      vowels"). The definition governs over the docstring examples (reading 1
+      of "returns the number of vowels in the string"): it gives 2 for "abcde"
+      and 3 for "ACEDY", where the examples print 5. Whether a call returns at
+      all is RB-OUT-1.
+
+  - id: RB-VOW-1
+    req: R-VOW-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'vowels >= n_aeiou'
+    note: >-
+      Each occurrence of a, e, i, o or u counts, wherever it is in s, so the
+      result is at least the number of such positions. Uppercase A, E, I, O, U
+      are included (reading 2 of "'a', 'e', 'i', 'o', 'u'"): the most literal
+      character reading (lowercase only) is contradicted by the text's own
+      example R-EX-2, an all-uppercase argument with a non-zero result. That
+      nothing else counts is RB-VOW-2; the exact count is RB-OUT-2.
+
+  - id: RB-VOW-2
+    req: R-VOW-2
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'vowels <= n_aeiou + y_end'
+    note: >-
+      The list is exhaustive (reading 1 of "Vowels in this case are"): apart
+      from a, e, i, o, u (either case) and a final y or Y, no character
+      contributes, so the result is at most their number. Consonants, digits,
+      punctuation, spaces, a non-final y, and accented Latin-1 letters such as
+      0xE0 or 0xE9 (reading 1 of "'a', 'e', 'i', 'o', 'u'"; lower() maps ASCII
+      letters only) contribute nothing.
+
+  - id: RB-Y-1
+    req: R-Y-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0 && y_end'
+      cond: 'vowels >= n_aeiou + 1'
+    note: >-
+      When the last character of s is y or Y, it counts as a vowel in addition
+      to the a, e, i, o, u positions (which it is not one of). Readings: a
+      final uppercase Y counts (reading 2 of "'y'", consistent with the case
+      reading of RB-VOW-1); only the single last character (reading 1 of "at
+      the end of the given word"); the end is the end of the whole string s,
+      even when s holds several words or ends in a non-letter (reading 1 of
+      "the given word"). That it counts only once follows with RB-VOW-2.
+
+  - id: RB-Y-2
+    req: R-Y-2
+    pattern: implies
+    args:
+      trigger: 'outcome == 0 && n_y_early > 0'
+      cond: 'vowels + n_y_early <= len(s)'
+    note: >-
+      A y or Y before the last character of s contributes nothing (reading 1 of
+      "only when it is at the end"). Since each position counts at most once
+      (R-OUT-2), the result is at most the number of positions that are not
+      such a y. This isolates R-Y-2 only; RB-VOW-2 excludes non-final y's
+      exactly, and RB-OUT-2 gives the exact count.
+
+scenarios:
+  - id: RB-IN-1a
+    req: R-IN-1
+    cover: 'len(s) == 0 && outcome == 0 && vowels == 0'
+    note: >-
+      The empty string is a valid argument and is handled, with result 0
+      (reading 1 of "a word"). R-IN-1 is read as descriptive (reading 1 of "a
+      string representing a word"), so it places no assumption on s.
+
+  - id: RB-IN-1b
+    req: R-IN-1
+    cover: 'any(i < len(s): !isalpha(s[i])) && outcome == 0'
+    note: >-
+      A string that is not a letters-only word (holding a digit, space,
+      punctuation or another non-letter code) is still a valid argument and
+      the call returns normally (reading 1 of "a string representing a word":
+      descriptive only; the same counting rule applies to every string).
+
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: 's == "abcde" && outcome == 0 && vowels == 2'
+    note: >-
+      CONTRADICTION in the specification: the example says
+      vowels_count("abcde") returns 5, but under the vowel definition "abcde"
+      has 2 vowels (a, e). Reading 1 taken: the definition governs and the
+      example's 5 is an error, so the example call is formalized as returning
+      normally with 2. The literal value 5 is not formalized.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: 's == "ACEDY" && outcome == 0 && vowels == 3'
+    note: >-
+      CONTRADICTION in the specification: the example says
+      vowels_count("ACEDY") returns 5, but under the vowel definition, read
+      case-insensitively with a final Y counted, "ACEDY" has 3 vowels (A, E,
+      final Y). Reading 1 taken: the definition governs and the example's 5 is
+      an error, so the example call is formalized as returning normally with
+      3. The literal value 5 is not formalized.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: the name and single parameter of the deliverable are
+      fixed by the function adapter (design.yaml, function section), which
+      calls vowels_count(s) in every cycle. It is not a property of the trace;
+      a missing or misnamed function makes every call end in outcome 1, which
+      RB-OUT-1 rejects.
+    covered_by: [RB-OUT-1]
+  - req: R-FIX-1
+    reason: >-
+      Read as an instruction to the implementer to add test cases (reading 1),
+      which concerns the delivered source text, not the values vowels_count
+      returns; test cases are not observable in the trace of calls, so there
+      is nothing to formalize on it.
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the function adapter (design.yaml frame), which is
+      added to every formalization set by construction; frame.md says it need
+      not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FIX-1, phrase: "Add more test cases.", reading: 1}
+  - {req: R-IN-1, phrase: "a string representing a word", reading: 1}
+  - {req: R-IN-1, phrase: "a word", reading: 1}
+  - {req: R-OUT-2, phrase: "the number of vowels", reading: 1}
+  - {req: R-OUT-2, phrase: "returns the number of vowels in the string", reading: 1}
+  - {req: R-VOW-1, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 2}
+  - {req: R-VOW-1, phrase: "Vowels in this case are", reading: 1}
+  - {req: R-VOW-2, phrase: "Vowels in this case are", reading: 1}
+  - {req: R-VOW-2, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 1}
+  - {req: R-Y-1, phrase: "'y'", reading: 2}
+  - {req: R-Y-1, phrase: "at the end of the given word", reading: 1}
+  - {req: R-Y-1, phrase: "the given word", reading: 1}
+  - {req: R-Y-2, phrase: "only when it is at the end", reading: 1}
+  - {req: R-EX-1, phrase: '>>> vowels_count("abcde") 5', reading: 1}
+  - {req: R-EX-2, phrase: '>>> vowels_count("ACEDY") 5', reading: 1}

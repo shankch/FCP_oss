@@ -1,0 +1,212 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def simplify(x, n):'
+  text: The implementation provides a Python function named simplify that takes two arguments, x and n, in that order.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-OP-1
+  doc: SPEC
+  quote: Your task is to implement a function that will simplify the expression x * n.
+  text: simplify(x, n) simplifies the expression x * n, the product of the fractions x and n.
+  kind: guarantee
+  ambiguity:
+  - phrase: simplify the expression x * n
+    readings:
+    - 'Describes the purpose only: the function decides whether the product is a whole number and returns just True or False (R-RES-3).'
+    - The function must produce the simplified product (for example the reduced fraction), which contradicts the statement that it returns True or False (R-RES-3).
+  lines:
+  - 5
+  - 6
+- id: R-RES-1
+  doc: SPEC
+  quote: The function returns True if x * n evaluates to a whole number and False otherwise.
+  text: When x and n are valid fractions and the product of the two fractions is a whole number, simplify(x, n) returns True.
+  kind: guarantee
+  ambiguity:
+  - phrase: returns True if x * n evaluates to a whole number
+    readings:
+    - 'As stated: the call returns True when the product is a whole number; the example simplify("1/5", "5/1") = False (product 1, a whole number) is wrong.'
+    - 'As all three examples show: the call returns True only when the product is not a whole number, so simplify("1/5", "5/1") (product 1) returns False; the sentence has True and False swapped.'
+  - phrase: evaluates to
+    readings:
+    - 'Exact rational arithmetic: the product is a whole number when the product of the numerators is divisible by the product of the denominators.'
+    - 'Floating-point evaluation (for example a/b * c/d in floats, or eval of the string x*n): the float result is integer-valued, which differs from exact arithmetic on some calls, such as 1/49 * 49/1
+      giving 0.9999999999999999.'
+  - phrase: whole number
+    readings:
+    - Any integer.
+    - A non-negative integer (0, 1, 2, ...).
+    - A positive integer (1, 2, 3, ...).
+  lines:
+  - 6
+  - 7
+- id: R-RES-2
+  doc: SPEC
+  quote: The function returns True if x * n evaluates to a whole number and False otherwise.
+  text: When x and n are valid fractions and the product of the two fractions is not a whole number, simplify(x, n) returns False.
+  kind: guarantee
+  ambiguity:
+  - phrase: False otherwise
+    readings:
+    - 'As stated: the call returns False when the product is not a whole number; the examples simplify("1/6", "2/1") = True (product 1/3) and simplify("7/10", "10/2") = True (product 7/2) are wrong.'
+    - 'As all three examples show: the call returns True when the product is not a whole number; the sentence has True and False swapped.'
+  - phrase: otherwise
+    readings:
+    - 'Only among calls where x and n are valid fractions: a product that is not a whole number gives False; other calls are unconstrained (R-IN-6).'
+    - Every call that does not have a whole-number product, including calls where x or n is not a valid fraction, returns False instead of raising, which contradicts leaving invalid inputs unconstrained
+      (R-IN-6).
+  - phrase: evaluates to a whole number
+    readings:
+    - 'Exact rational arithmetic: the product is not a whole number when the product of the numerators is not divisible by the product of the denominators.'
+    - 'Floating-point evaluation (for example a/b * c/d in floats, or eval of the string x*n): the float result is not integer-valued, which differs from exact arithmetic on some calls, such as 1/49 * 49/1
+      giving 0.9999999999999999.'
+  lines:
+  - 6
+  - 7
+- id: R-RES-3
+  doc: SPEC
+  quote: The function returns True if x * n evaluates to a whole number and False otherwise.
+  text: 'When x and n are valid fractions, simplify(x, n) returns a bool (True or False): it does not raise an exception, does not fail to finish and does not return a value of another type.'
+  kind: guarantee
+  ambiguity:
+  - phrase: The function returns
+    readings:
+    - The function returns only the bool True or False.
+    - The function returns the simplified expression x * n (R-OP-1), not a bool.
+  - phrase: 'True'
+    readings:
+    - The bool object True (and False for the other case).
+    - Any truthy value, such as 1 (and any falsy value, such as 0, for the other case).
+  lines:
+  - 6
+  - 7
+- id: R-IN-1
+  doc: SPEC
+  quote: Both x and n, are string representation of a fraction
+  text: Each of the arguments x and n is a string that represents a fraction.
+  kind: assumption
+  lines:
+  - 7
+- id: R-IN-2
+  doc: SPEC
+  quote: and have the following format, <numerator>/<denominator>
+  text: 'Each of x and n has the form <numerator>/<denominator>: a numerator, then one ''/'' character, then a denominator.'
+  kind: assumption
+  ambiguity:
+  - phrase: <numerator>/<denominator>
+    readings:
+    - Exactly the numerator, one '/' and the denominator, with no other characters (no spaces or signs).
+    - Surrounding or inner whitespace, or a sign before a number, may also occur.
+  lines:
+  - 7
+  - 8
+- id: R-IN-3
+  doc: SPEC
+  quote: where both numerator and denominator are positive whole numbers.
+  text: In each of x and n, the numerator and the denominator are positive whole numbers written in decimal digits.
+  kind: assumption
+  ambiguity:
+  - phrase: positive
+    readings:
+    - 'At least 1: neither the numerator nor the denominator is zero.'
+    - 'At least 0: only the denominator is excluded from being zero (as R-IN-5 states separately), so a zero numerator such as "0/3" may occur.'
+  - phrase: whole numbers
+    readings:
+    - Any non-empty string of decimal digits with a positive value, leading zeros allowed (such as "05").
+    - 'A canonical decimal numeral: digits only, without leading zeros.'
+  lines:
+  - 8
+- id: R-IN-4
+  doc: SPEC
+  quote: You can assume that x, and n are valid fractions
+  text: The caller passes only valid fractions as x and n.
+  kind: assumption
+  ambiguity:
+  - phrase: valid fractions
+    readings:
+    - Exactly strings of the form <numerator>/<denominator> where both are positive whole numbers (R-IN-2, R-IN-3).
+    - Any string that denotes a fraction, possibly with a sign, spaces or a zero numerator, as long as the denominator is not zero.
+  lines:
+  - 10
+- id: R-IN-5
+  doc: SPEC
+  quote: and do not have zero as denominator.
+  text: Neither x nor n has a denominator whose value is zero.
+  kind: assumption
+  ambiguity:
+  - phrase: do not have zero as denominator
+    readings:
+    - 'A restatement of part of R-IN-3: numerators are also positive, so neither number in either fraction is zero.'
+    - 'Only the denominator is restricted: a zero numerator such as "0/3" may occur, which conflicts with both numbers being positive (R-IN-3).'
+  lines:
+  - 10
+- id: R-IN-6
+  doc: SPEC
+  quote: You can assume that x, and n are valid fractions, and do not have zero as denominator.
+  text: For a call in which x or n is not a valid fraction or has a zero denominator, the outcome and the result of simplify(x, n) are unconstrained.
+  kind: dont_care
+  ambiguity:
+  - phrase: You can assume
+    readings:
+    - 'Calls with an invalid fraction or a zero denominator impose no obligation: any outcome and result is acceptable.'
+    - Such calls still fall under "False otherwise" (R-RES-2) and must return False rather than raise.
+  lines:
+  - 10
+- id: R-EX-1
+  doc: SPEC
+  quote: simplify("1/5", "5/1") = False
+  text: The call simplify("1/5", "5/1") returns False.
+  kind: scenario
+  ambiguity:
+  - phrase: simplify("1/5", "5/1") = False
+    readings:
+    - 'The example is wrong: 1/5 * 5/1 = 1 is a whole number, so by the stated rule (R-RES-1) the call returns True.'
+    - 'The example is right: the call returns False, which contradicts the stated rule (R-RES-1) and matches a rule with True and False swapped.'
+  lines:
+  - 12
+- id: R-EX-2
+  doc: SPEC
+  quote: simplify("1/6", "2/1") = True
+  text: The call simplify("1/6", "2/1") returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: simplify("1/6", "2/1") = True
+    readings:
+    - 'The example is wrong: 1/6 * 2/1 = 1/3 is not a whole number, so by the stated rule (R-RES-2) the call returns False.'
+    - 'The example is right: the call returns True, which contradicts the stated rule (R-RES-2) and matches a rule with True and False swapped.'
+  lines:
+  - 13
+- id: R-EX-3
+  doc: SPEC
+  quote: simplify("7/10", "10/2") = True
+  text: The call simplify("7/10", "10/2") returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: simplify("7/10", "10/2") = True
+    readings:
+    - 'The example is wrong: 7/10 * 10/2 = 7/2 is not a whole number, so by the stated rule (R-RES-2) the call returns False.'
+    - 'The example is right: the call returns True, which contradicts the stated rule (R-RES-2) and matches a rule with True and False swapped.'
+  lines:
+  - 14
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, result is false (0) unless outcome is 0.
+  kind: guarantee
+  lines:
+  - 52
+- id: R-FR-2
+  doc: FRAME
+  quote: 'F-CODE: `outcome` is never 3.'
+  text: In every call, outcome is never 3.
+  kind: guarantee
+  lines:
+  - 53

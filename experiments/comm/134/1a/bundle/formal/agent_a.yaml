@@ -1,0 +1,111 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # "the character with given position": the last character of txt (txt[-1]).
+  # The index is -1 for the empty string, where txt[...] reads 0.
+  last_ch: "txt[len(txt) - 1]"
+  # "an alphabetical character": an ASCII letter A-Z / a-z (isalpha is ASCII-only).
+  last_alpha: "len(txt) >= 1 && isalpha(last_ch)"
+  # "is not a part of a word": the last character forms a one-character
+  # space-delimited group, i.e. it is the only character or is preceded by a
+  # space (only code 32 separates words; nothing follows the last character).
+  last_alone: "len(txt) == 1 || txt[len(txt) - 2] == \" \""
+  lone_letter: "last_alpha && last_alone"
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: "lone_letter"
+      cond: "outcome == 0 && result"
+    note: >-
+      The signature has no position argument, so "the character with given
+      position" is read as the last character of txt (the only reading
+      consistent with all four examples). "Alphabetical" is read as an ASCII
+      letter (A-Z, a-z); Latin-1 letters such as 233 are not alphabetical under
+      this reading, although Python's str.isalpha() accepts them. A "word" is a
+      maximal run of non-space characters (only the space character, code 32,
+      separates words) of at least two characters ("a group of characters",
+      plural), so "not a part of a word" means the last character is alone in
+      its space-delimited group: txt has length 1 or the character before it is
+      a space. Literally, a lone letter is still "a group" and hence a word,
+      which would make this requirement never apply and contradict
+      candidate("apple pi e") -> True; that reading is not taken.
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: "!lone_letter"
+      cond: "outcome == 0 && !result"
+    note: >-
+      "False otherwise" is the exact complement of RA-RET-1's condition: txt is
+      empty, or its last character is not an ASCII letter, or that character is
+      part of a word (the character before it exists and is not a space; tabs
+      and other whitespace do not separate words). Same readings as RA-RET-1.
+      Returning False means a bool was returned (outcome 0) with value False.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "txt == \"apple pie\" && outcome == 0 && !result"
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: "txt == \"apple pi e\" && outcome == 0 && result"
+    note: >-
+      The example is taken as authoritative: the final lone 'e' is not part of
+      a word. It contradicts the reading in which a one-character group is a
+      word (R-DEF-1); this set takes the reading that a word has at least two
+      characters, which agrees with the example.
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: "txt == \"apple pi e \" && outcome == 0 && !result"
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: "txt == \"\" && outcome == 0 && !result"
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is an implementation of the stub. Its
+      only observable content, that every call returns a bool, is realized by
+      the return-value properties.
+    covered_by: [RA-RET-1, RA-RET-2]
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name and the single parameter txt are fixed by the
+      interface (design.yaml function section), which has no position input.
+      The signature is taken as authoritative, so the docstring's "given
+      position" is a position fixed by the function (the last character).
+  - req: R-IF-3
+    reason: >-
+      Holds by construction of the interface encoding: txt is a string-valued
+      sequence signal, so every call in the trace passes a string; no
+      environment constraint remains to be stated.
+  - req: R-DEF-1
+    reason: >-
+      A definition with no behaviour of its own; it is used through the defs
+      last_alone / lone_letter in the return-value properties (only the space
+      character separates words; a word is a run of any non-space characters
+      of at least two characters).
+    covered_by: [RA-RET-1, RA-RET-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the function adapter, part of every formalization
+      set by construction of the interface encoding; not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-2, phrase: "def candidate(txt):", reading: 1}
+  - {req: R-DEF-1, phrase: "separated by space", reading: 1}
+  - {req: R-DEF-1, phrase: "a group of characters", reading: 1}
+  - {req: R-DEF-1, phrase: "\"word\" is a group of characters", reading: 2}
+  - {req: R-RET-1, phrase: "the character with given position", reading: 1}
+  - {req: R-RET-1, phrase: "an alphabetical character", reading: 1}
+  - {req: R-RET-1, phrase: "is not a part of a word", reading: 1}
+  - {req: R-RET-2, phrase: "the character with given position", reading: 1}
+  - {req: R-RET-2, phrase: "an alphabetical character", reading: 1}
+  - {req: R-RET-2, phrase: "is not a part of a word", reading: 1}
+  - {req: R-EX-2, phrase: "candidate(\"apple pi e\") ➞ True", reading: 1}

@@ -1,0 +1,297 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def eat(x, y, z):'
+  text: The function to implement is named eat and takes three positional integer parameters x, y and z, in this order.
+  kind: definition
+  ambiguity:
+  - phrase: x, y, z
+    readings:
+    - 'x is number (carrots already eaten), y is need (carrots to eat), z is remaining (carrots in stock): the docstring lists its variables in the signature''s order, and this is the only order that fits
+      eat(5, 6, 10) -> [11, 4]'
+    - 'the parameters map to number, need and remaining in some other order: the signature and the docstring use different names and nothing states the mapping (seeming contradiction between the signature
+      and the Variables section)'
+  lines:
+  - 4
+- id: R-CTX-1
+  doc: SPEC
+  quote: You're a hungry rabbit, and you already have eaten a certain number of carrots,
+  text: The function models a hungry rabbit that has already eaten some number of carrots (number) before the current meal; those carrots count toward the rabbit's total eaten.
+  kind: definition
+  depends:
+  - R-VAR-1
+  lines:
+  - 6
+- id: R-MEAL-1
+  doc: SPEC
+  quote: but now you need to eat no or more carrots to complete the day's meals.
+  text: To complete the day's meals the rabbit must eat need more carrots (need >= 0) from the stock; when the stock holds enough carrots (remaining >= need) it eats exactly need carrots in the meal, so
+    its total eaten becomes number + need and remaining - need carrots stay in stock.
+  kind: guarantee
+  depends:
+  - R-VAR-1
+  - R-VAR-2
+  - R-VAR-3
+  ambiguity:
+  - phrase: no or more carrots
+    readings:
+    - '''zero or more'': need is a non-negative count that may be 0, and the rabbit eats exactly need carrots when the stock allows (fits eat(5, 6, 10) -> [11, 4] and eat(4, 8, 9) -> [12, 1])'
+    - '''need or more'': need is only a minimum and the rabbit may eat more than need carrots when the stock allows'
+  lines:
+  - 7
+- id: R-RET-1
+  doc: SPEC
+  quote: you should return an array of
+  text: 'eat returns a list of exactly two non-negative integers: first the total carrots eaten (R-RET-2), then the carrots left (R-RET-3).'
+  kind: guarantee
+  ambiguity:
+  - phrase: an array
+    readings:
+    - a Python list
+    - any array-like sequence of two integers (list, tuple, array.array, ...)
+  lines:
+  - 8
+- id: R-RET-2
+  doc: SPEC
+  quote: total number of needed or eaten carrots before or after your meals,
+  text: 'The first element of the returned list is the total number of carrots the rabbit has eaten after the meal: number plus the carrots eaten in the meal, i.e. number + min(need, remaining).'
+  kind: guarantee
+  depends:
+  - R-RET-1
+  - R-VAR-1
+  - R-VAR-2
+  - R-VAR-3
+  ambiguity:
+  - phrase: needed or eaten
+    readings:
+    - 'eaten: number + min(need, remaining), the carrots actually eaten (fits all four examples)'
+    - 'needed: number + need, regardless of the stock (fits eat(5, 6, 10), eat(4, 8, 9) and eat(1, 10, 10), but contradicts eat(2, 11, 5) -> [7, 0], which would give 13)'
+  - phrase: before or after your meals
+    readings:
+    - 'after the meal: the count includes the carrots eaten in this meal (fits all four examples)'
+    - 'before the meal: the first element is number alone (contradicts every example, e.g. eat(5, 6, 10) would give 5, not 11)'
+  - phrase: total number
+    readings:
+    - the total includes the carrots eaten before the meal (number) plus those eaten in it (fits all four examples)
+    - only the carrots eaten in this meal, min(need, remaining) (contradicts every example, e.g. eat(5, 6, 10) would give 6, not 11)
+  lines:
+  - 8
+- id: R-RET-3
+  doc: SPEC
+  quote: the number of carrots needed or eaten left after your meals
+  text: 'The second element of the returned list is the number of carrots left in stock after the meal: remaining minus the carrots eaten in the meal, i.e. max(remaining - need, 0).'
+  kind: guarantee
+  depends:
+  - R-RET-1
+  - R-VAR-2
+  - R-VAR-3
+  ambiguity:
+  - phrase: needed or eaten left
+    readings:
+    - 'carrots left in stock after the meal: max(remaining - need, 0) (fits all four examples)'
+    - 'carrots still needed after the meal: max(need - remaining, 0) (contradicts eat(5, 6, 10) -> [11, 4], eat(4, 8, 9) -> [12, 1] and eat(2, 11, 5) -> [7, 0], which would give 0, 0 and 6)'
+    - 'carrots eaten in the meal: min(need, remaining) (contradicts every example, e.g. eat(5, 6, 10) would give 6, not 4)'
+  lines:
+  - 9
+- id: R-HUN-1
+  doc: SPEC
+  quote: if there are not enough remaining carrots, you will eat all remaining carrots
+  text: When the stock holds fewer carrots than the rabbit needs (remaining < need), the rabbit eats all remaining carrots and no more, so its total eaten (first element) becomes number + remaining.
+  kind: guarantee
+  depends:
+  - R-RET-2
+  - R-VAR-1
+  - R-VAR-2
+  - R-VAR-3
+  ambiguity:
+  - phrase: not enough remaining carrots
+    readings:
+    - remaining < need
+    - remaining <= need (at remaining == need both readings give the same returned list)
+  lines:
+  - 10
+- id: R-HUN-2
+  doc: SPEC
+  quote: you will eat all remaining carrots
+  text: 'When the stock holds fewer carrots than the rabbit needs (remaining < need), no carrots are left in stock after the meal: the carrots left (second element under R-RET-3) are 0.'
+  kind: guarantee
+  depends:
+  - R-RET-3
+  - R-VAR-2
+  - R-VAR-3
+  lines:
+  - 10
+- id: R-HUN-3
+  doc: SPEC
+  quote: but will still be hungry.
+  text: 'When the stock holds fewer carrots than the rabbit needs (remaining < need), the rabbit is still hungry after the meal: it has eaten need - remaining carrots fewer than it needed.'
+  kind: guarantee
+  depends:
+  - R-HUN-1
+  - R-VAR-2
+  - R-VAR-3
+  ambiguity:
+  - phrase: will still be hungry
+    readings:
+    - 'narrative only: the returned list does not report the shortfall, and the second element stays the stock left, 0'
+    - the returned list reports the unmet need need - remaining, e.g. as the second element (contradicts eat(2, 11, 5) -> [7, 0], which would then be [7, 6])
+  lines:
+  - 10
+- id: R-EX-1
+  doc: SPEC
+  quote: eat(5, 6, 10) -> [11, 4]
+  text: 'Calling eat(5, 6, 10) returns [11, 4]: having eaten 5 and needing 6 with 10 in stock, the rabbit eats 6, for a total of 11, and 4 stay in stock.'
+  kind: scenario
+  depends:
+  - R-RET-2
+  - R-RET-3
+  - R-MEAL-1
+  ambiguity:
+  - phrase: '[11, 4]'
+    readings:
+    - the second element is the stock left (10 - 6 = 4), as in reading 1 of R-RET-3
+    - 'the second element is the carrots still needed (reading 2 of R-RET-3), which would give [11, 0]: the example contradicts that reading'
+  lines:
+  - 13
+- id: R-EX-2
+  doc: SPEC
+  quote: eat(4, 8, 9) -> [12, 1]
+  text: 'Calling eat(4, 8, 9) returns [12, 1]: having eaten 4 and needing 8 with 9 in stock, the rabbit eats 8, for a total of 12, and 1 stays in stock.'
+  kind: scenario
+  depends:
+  - R-RET-2
+  - R-RET-3
+  - R-MEAL-1
+  ambiguity:
+  - phrase: '[12, 1]'
+    readings:
+    - the second element is the stock left (9 - 8 = 1), as in reading 1 of R-RET-3
+    - 'the second element is the carrots still needed (reading 2 of R-RET-3), which would give [12, 0]: the example contradicts that reading'
+  lines:
+  - 14
+- id: R-EX-3
+  doc: SPEC
+  quote: eat(1, 10, 10) -> [11, 0]
+  text: 'Calling eat(1, 10, 10) returns [11, 0]: having eaten 1 and needing 10 with exactly 10 in stock, the rabbit eats 10, for a total of 11, and none stay in stock.'
+  kind: scenario
+  depends:
+  - R-RET-2
+  - R-RET-3
+  - R-MEAL-1
+  lines:
+  - 15
+- id: R-EX-4
+  doc: SPEC
+  quote: eat(2, 11, 5) -> [7, 0]
+  text: 'Calling eat(2, 11, 5) returns [7, 0]: having eaten 2 and needing 11 with only 5 in stock, the rabbit eats all 5, for a total of 7, and none stay in stock.'
+  kind: scenario
+  depends:
+  - R-RET-2
+  - R-RET-3
+  - R-HUN-1
+  - R-HUN-2
+  ambiguity:
+  - phrase: '[7, 0]'
+    readings:
+    - '[total actually eaten, stock left] = [2 + 5, 0], as in reading 1 of R-RET-2 ''needed or eaten'', of R-RET-3 and of R-HUN-3'
+    - 'the first element is the total needed (reading 2 of R-RET-2 ''needed or eaten''), which would give 13: the example contradicts that reading'
+    - 'the second element is the carrots still needed, the unmet hunger of R-HUN-3 (reading 2 of R-RET-3 and of R-HUN-3), which would give 6: the example contradicts that reading'
+  lines:
+  - 16
+- id: R-VAR-1
+  doc: SPEC
+  quote: '@number : integer the number of carrots that you have eaten.'
+  text: 'number is an integer argument: the number of carrots the rabbit has already eaten before the meal.'
+  kind: definition
+  ambiguity:
+  - phrase: '@number'
+    readings:
+    - number is x, the first parameter (docstring order; the only order that fits eat(5, 6, 10) -> [11, 4])
+    - number is y, the second parameter
+    - number is z, the third parameter
+  lines:
+  - 19
+  - 20
+- id: R-VAR-2
+  doc: SPEC
+  quote: '@need : integer the number of carrots that you need to eat.'
+  text: 'need is an integer argument: the number of carrots the rabbit still needs to eat to complete the day''s meals.'
+  kind: definition
+  ambiguity:
+  - phrase: '@need'
+    readings:
+    - need is y, the second parameter (docstring order; the only order that fits eat(5, 6, 10) -> [11, 4])
+    - need is x, the first parameter
+    - need is z, the third parameter
+  lines:
+  - 21
+  - 22
+- id: R-VAR-3
+  doc: SPEC
+  quote: '@remaining : integer the number of remaining carrots thet exist in stock'
+  text: 'remaining is an integer argument: the number of carrots available in stock before the meal.'
+  kind: definition
+  ambiguity:
+  - phrase: '@remaining'
+    readings:
+    - remaining is z, the third parameter (docstring order; the only order that fits eat(5, 6, 10) -> [11, 4])
+    - remaining is x, the first parameter
+    - remaining is y, the second parameter
+  lines:
+  - 23
+  - 24
+- id: R-CON-1
+  doc: SPEC
+  quote: 0 <= number <= 1000
+  text: The caller passes number (carrots already eaten) as an integer from 0 to 1000 inclusive.
+  kind: assumption
+  depends:
+  - R-VAR-1
+  ambiguity:
+  - phrase: 0 <= number <= 1000
+    readings:
+    - 'a precondition on the caller: for number outside 0..1000 (e.g. 1001 to 1023 in the trace) any behaviour is acceptable'
+    - 'a check the function must make: it must reject number outside 0..1000, e.g. by raising an exception'
+  lines:
+  - 27
+- id: R-CON-2
+  doc: SPEC
+  quote: 0 <= need <= 1000
+  text: The caller passes need (carrots to eat) as an integer from 0 to 1000 inclusive.
+  kind: assumption
+  depends:
+  - R-VAR-2
+  ambiguity:
+  - phrase: 0 <= need <= 1000
+    readings:
+    - 'a precondition on the caller: for need outside 0..1000 (e.g. 1001 to 1023 in the trace) any behaviour is acceptable'
+    - 'a check the function must make: it must reject need outside 0..1000, e.g. by raising an exception'
+  lines:
+  - 28
+- id: R-CON-3
+  doc: SPEC
+  quote: 0 <= remaining <= 1000
+  text: The caller passes remaining (carrots in stock) as an integer from 0 to 1000 inclusive.
+  kind: assumption
+  depends:
+  - R-VAR-3
+  ambiguity:
+  - phrase: 0 <= remaining <= 1000
+    readings:
+    - 'a precondition on the caller: for remaining outside 0..1000 (e.g. 1001 to 1023 in the trace) any behaviour is acceptable'
+    - 'a check the function must make: it must reject remaining outside 0..1000, e.g. by raising an exception'
+  lines:
+  - 29
+- id: R-FR-1
+  doc: FRAME
+  quote: '`result` is the empty list unless `outcome` is 0.'
+  text: Whenever a call does not return a well-formed list (outcome is not 0), the result signal is the empty list.
+  kind: guarantee
+  lines:
+  - 52

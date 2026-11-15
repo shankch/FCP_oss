@@ -1,0 +1,186 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  returned: "outcome == 0"      # the call returned a list of two integers that fit eaten and left
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: "number <= 1000"
+    note: >-
+      'Constrain' read as a precondition the caller meets (reading 1); behaviour
+      for number above 1000 is left unspecified. number >= 0 holds by the
+      encoding (unsigned 10-bit argument, negative arguments are not traced).
+  - id: RA-IN-2
+    req: R-IN-2
+    expr: "need <= 1000"
+    note: >-
+      'Constrain' read as a precondition the caller meets (reading 1); behaviour
+      for need above 1000 is left unspecified. need >= 0 holds by the encoding.
+  - id: RA-IN-3
+    req: R-IN-3
+    expr: "remaining <= 1000"
+    note: >-
+      'Constrain' read as a precondition the caller meets (reading 1); behaviour
+      for remaining above 1000 is left unspecified. remaining >= 0 holds by the
+      encoding.
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: "returned"}
+    note: >-
+      Every call returns two integers and nothing else (outcome 0). 'array' is
+      read as a Python list (reading 1), but the adapter's outcome 0 also covers
+      a tuple, so the trace cannot tell a list from a tuple and this item is as
+      strong as the encoding allows. The still-hungry condition is not reported
+      as an extra element (reading 1 of the second flagged phrase).
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "returned", cond: "eaten >= number"}
+    note: >-
+      The first element is number plus the carrots eaten in this call (reading 1),
+      so it is never less than number. How many carrots are eaten in the call is
+      fixed by R-EAT-1 / R-EAT-3 (RA-EAT-1, RA-EAT-3).
+  - id: RA-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: "returned", cond: "left == remaining - (eaten - number)"}
+    note: >-
+      The second element is the stock left: remaining minus the carrots eaten in
+      this call (reading 1). The carrots eaten in this call are the same quantity
+      that R-RET-2 adds to number, i.e. eaten - number, so the stock drops by
+      exactly what the rabbit ate in the call.
+  - id: RA-EAT-1
+    req: R-EAT-1
+    pattern: implies
+    args: {trigger: "returned && need <= remaining", cond: "eaten == number + need"}
+    note: >-
+      With enough carrots in stock the rabbit eats exactly need carrots, no more
+      (reading 1). 'Enough' is need <= remaining, the complement of R-EAT-3's
+      'not enough' (remaining < need).
+  - id: RA-EAT-2
+    req: R-EAT-2
+    pattern: implies
+    args: {trigger: "returned && need <= remaining", cond: "left == remaining - need"}
+    note: >-
+      With enough carrots in stock exactly need carrots are taken from it
+      (reading 1 of 'you need to eat more carrots').
+  - id: RA-EAT-3
+    req: R-EAT-3
+    pattern: implies
+    args: {trigger: "returned && remaining < need", cond: "eaten == number + remaining"}
+    note: >-
+      'Not enough remaining carrots' read as remaining < need (reading 1). At
+      remaining == need both readings give the same value, which RA-EAT-1 fixes.
+  - id: RA-EAT-4
+    req: R-EAT-4
+    pattern: implies
+    args: {trigger: "returned && remaining < need", cond: "left == 0"}
+    note: >-
+      'Not enough remaining carrots' read as remaining < need (reading 1); all of
+      the stock is eaten, so none is left.
+  - id: RA-EAT-5
+    req: R-EAT-5
+    pattern: implies
+    args: {trigger: "returned && remaining < need", cond: "eaten < number + need"}
+    note: >-
+      'But will still be hungry' is narrative (reading 1): it is not reported by
+      any extra element, only visible as a total below number + need. Implied by
+      RA-EAT-3.
+  - id: RA-EX-1-RET
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "number == 5 && need == 6 && remaining == 10", cond: "returned && eaten == 11 && left == 4"}
+    note: >-
+      The example 'eat(5, 6, 10) -> [11, 4]' states the result of a call, so it
+      is also stated as a guarantee besides the scenario RA-EX-1.
+  - id: RA-EX-2-RET
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "number == 4 && need == 8 && remaining == 9", cond: "returned && eaten == 12 && left == 1"}
+    note: >-
+      The example 'eat(4, 8, 9) -> [12, 1]' states the result of a call, so it is
+      also stated as a guarantee besides the scenario RA-EX-2.
+  - id: RA-EX-3-RET
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "number == 1 && need == 10 && remaining == 10", cond: "returned && eaten == 11 && left == 0"}
+    note: >-
+      The example 'eat(1, 10, 10) -> [11, 0]' states the result of a call, so it
+      is also stated as a guarantee besides the scenario RA-EX-3.
+  - id: RA-EX-4-RET
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "number == 2 && need == 11 && remaining == 5", cond: "returned && eaten == 7 && left == 0"}
+    note: >-
+      The example 'eat(2, 11, 5) -> [7, 0]' states the result of a call, so it is
+      also stated as a guarantee besides the scenario RA-EX-4.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "number == 5 && need == 6 && remaining == 10 && returned && eaten == 11 && left == 4"
+    note: Enough carrots in stock.
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: "number == 4 && need == 8 && remaining == 9 && returned && eaten == 12 && left == 1"
+    note: Enough carrots in stock.
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: "number == 1 && need == 10 && remaining == 10 && returned && eaten == 11 && left == 0"
+    note: Stock exactly equals need.
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: "number == 2 && need == 11 && remaining == 5 && returned && eaten == 7 && left == 0"
+    note: Not enough carrots in stock.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional: that a complete implementation is delivered is not a
+      property of a call trace; the functional content is in the other items.
+  - req: R-FN-2
+    reason: >-
+      Non-functional: the function name and argument order are fixed by the
+      adapter (design.yaml function section), which maps the arguments to the
+      number, need and remaining signals; no trace property can observe them.
+  - req: R-DEF-1
+    reason: >-
+      Definition of the number argument (carrots already eaten); it has no
+      observable content of its own and is used by the items below.
+    covered_by: [RA-RET-2, RA-EAT-1, RA-EAT-3]
+  - req: R-DEF-2
+    reason: >-
+      Definition of the need argument, read as the additional carrots to eat on
+      top of number (reading 1, as the examples show); used by the items below.
+    covered_by: [RA-EAT-1, RA-EAT-2, RA-EAT-5]
+  - req: R-DEF-3
+    reason: >-
+      Definition of the remaining argument (carrots in stock); it has no
+      observable content of its own and is used by the items below.
+    covered_by: [RA-RET-3, RA-EAT-2, RA-EAT-3, RA-EAT-4]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter; frame.md says it is part of every formalization
+      set and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-DEF-2, phrase: "the number of carrots that you need to eat", reading: 1}
+  - {req: R-RET-1, phrase: "array", reading: 1}
+  - {req: R-RET-1, phrase: "return an array of [ total number of eaten carrots after your meals, the number of carrots left after your meals ]", reading: 1}
+  - {req: R-RET-2, phrase: "total number of eaten carrots", reading: 1}
+  - {req: R-RET-3, phrase: "the number of carrots left", reading: 1}
+  - {req: R-EAT-1, phrase: "you need to eat more carrots", reading: 1}
+  - {req: R-EAT-2, phrase: "you need to eat more carrots", reading: 1}
+  - {req: R-EAT-3, phrase: "not enough remaining carrots", reading: 1}
+  - {req: R-EAT-4, phrase: "not enough remaining carrots", reading: 1}
+  - {req: R-EAT-5, phrase: "but will still be hungry", reading: 1}
+  - {req: R-IN-1, phrase: "Constrain", reading: 1}
+  - {req: R-IN-2, phrase: "Constrain", reading: 1}
+  - {req: R-IN-3, phrase: "Constrain", reading: 1}

@@ -1,0 +1,126 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate(arr) keeps no state between calls (frame.md,
+# "Calls"), so the reference model is a combinational function of the current
+# argument: defs computed from the input arr only. A ghost would lag the call
+# by one cycle, so none is used. Every output is checked against these defs.
+defs:
+  # R-DEF-1, reading 1: element-wise, arr reversed equals arr.
+  palin: "all(i < len(arr): arr[i] == arr[len(arr) - 1 - i])"
+  # Positions whose element differs from its mirror element (the middle one
+  # of an odd-length list is its own mirror and never counts).
+  mism_pos: "count(i < len(arr): arr[i] != arr[len(arr) - 1 - i])"
+  # R-CNT-1, reading 1: one change per mismatched mirror pair (i, n-1-i), i < n-1-i.
+  need: "count(i < len(arr): i < len(arr) - 1 - i && arr[i] != arr[len(arr) - 1 - i])"
+
+properties:
+  - id: RB-P-CNT
+    req: R-CNT-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "changes == need"
+    note: >-
+      Whenever the call returns an integer, it is the minimum number of
+      elements that must be changed: one per mirror pair (i, n-1-i), i < n-1-i,
+      whose elements differ. Readings taken: "the number of elements that need
+      to be changed" = the minimum, one per mismatched pair (reading 1, "need"
+      means necessary); "number of elements" = distinct positions modified
+      (reading 1, the literal noun). That the call returns normally at all is
+      R-CNT-2 (RB-P-RET); here only the value is constrained. For lists of at
+      most 8 elements need <= 4, so it always fits the 4-bit output.
+
+  - id: RB-P-RET
+    req: R-CNT-2
+    expr: "outcome == 0"
+    note: >-
+      Every call on a valid arr (every list the trace can carry) returns an
+      integer from 0 to 15: no exception, no non-termination, no value of
+      another type, no negative number. "find" is read as "return the number
+      as the function's result" (reading 1); the prompt asks to complete a
+      function and does not mention printing. A returned integer above 15 is
+      also excluded, which is harmless because the count is at most 4.
+
+  - id: RB-P-PAL
+    req: R-DEF-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "changes == 0 <-> palin"
+    note: >-
+      The definition of a palindromic array, stated directly (arr[i] ==
+      arr[n-1-i] for every i, so the empty and one-element lists are
+      palindromic), applied to the result: no element needs to be changed
+      exactly when arr is already palindromic. "read the same backwards and
+      forwards" is read element-wise (reading 1), not as the concatenated
+      decimal digits. This uses the definition in its own form, independent
+      of the closed form `need` of RB-P-CNT.
+
+  - id: RB-P-ONE
+    req: R-DEF-2
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "2 * changes == mism_pos"
+    note: >-
+      A change replaces the value of exactly one element. A mirror pair whose
+      elements differ contributes two positions that differ from their mirror,
+      and one change (giving one element the other's value) repairs both, so
+      the count is half the number of positions that differ from their mirror.
+      This excludes counting both elements of a pair. "any other element" is
+      read as any other value (reading 1); reading 2 (a value already present
+      in the array) gives the same count, since the mirror's value is present.
+      "In one change" is read as explanatory, the answer counting elements as
+      the docstring says (reading 2); for a minimal set of changes the two
+      units coincide, so the formula is the same under either reading.
+
+scenarios:
+  - id: RB-S-EMPTY
+    req: R-IN-1
+    cover: "len(arr) == 0 && outcome == 0"
+    note: >-
+      R-IN-1 places no constraint on the trace beyond the input encoding
+      (frame.md: arr is always a list of integers 0..255, at most 8 long), so
+      no assumption is written. The reading taken for "an array arr of
+      integers" is "any list of integers, including the empty list"
+      (reading 1): the empty list is a legal call that the function must
+      handle, which this scenario requires to be possible (it is unreachable
+      under an assumption len(arr) >= 1). For "integers" the literal reading
+      (any integer, negatives included, reading 1) is taken; negative
+      integers are outside the trace (frame.md, "Inputs"), so it cannot be
+      checked here.
+  - id: RB-S-MAX
+    req: R-CNT-1
+    cover: "len(arr) == 8 && outcome == 0 && changes == 4"
+    note: Every mirror pair of a full-length list mismatched; the largest possible answer.
+  - id: RB-S-ODD
+    req: R-CNT-1
+    cover: "len(arr) == 3 && arr[1] != arr[0] && outcome == 0 && changes == 0"
+    note: The middle element of an odd-length list has no partner and never needs a change.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      The name and the single parameter of the deliverable are fixed by the
+      function adapter (design.yaml `function`), not by a property of the
+      trace. A missing, misnamed or wrongly typed function makes every call
+      raise (outcome 1), which RB-P-RET rejects.
+    covered_by: [RB-P-RET]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, already part of every formalization set as
+      F-ZERO (`outcome != 0 -> changes == 0`); frame.md says it need not be
+      restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "an array arr of integers", reading: 1}
+  - {req: R-IN-1, phrase: "integers", reading: 1}
+  - {req: R-CNT-1, phrase: "the number of elements that need to be changed", reading: 1}
+  - {req: R-CNT-1, phrase: "number of elements", reading: 1}
+  - {req: R-CNT-2, phrase: "find", reading: 1}
+  - {req: R-DEF-1, phrase: "read the same backwards and forwards", reading: 1}
+  - {req: R-DEF-2, phrase: "any other element", reading: 1}
+  - {req: R-DEF-2, phrase: "In one change", reading: 2}

@@ -1,0 +1,86 @@
+[
+ {
+  "req": "R-RES-2",
+  "phrase": "a copy",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only the contents of the returned list matter; returning the argument object itself is acceptable when it already holds the right contents."
+ },
+ {
+  "req": "R-RES-2",
+  "phrase": "a copy of the given array after sorting",
+  "taken": 1,
+  "variant": 2,
+  "text": "Sort the given array itself and then return a copy of it; this contradicts \"don't change the given array\" (R-MUT-1)."
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "first index value",
+  "taken": 1,
+  "variant": 2,
+  "text": "The indices themselves: 0 + (len(array) - 1), so the parity depends only on the length of the array."
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "sum( first index value, last index value)",
+  "taken": 1,
+  "variant": 2,
+  "text": "For a one-element array the single element is counted once (array[0])."
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "last index value",
+  "taken": 1,
+  "variant": 2,
+  "text": "For an empty array the missing values count as 0, so the sum is 0 (even) and the descending rule applies."
+ },
+ {
+  "req": "R-ORD-1",
+  "phrase": "ascending order",
+  "taken": 1,
+  "variant": 2,
+  "text": "Strictly increasing: each element is less than the next one (impossible while keeping every element when the argument has duplicates)."
+ },
+ {
+  "req": "R-ORD-1",
+  "phrase": "you will sort the given array",
+  "taken": 1,
+  "variant": 2,
+  "text": "Sort the argument itself in place; this contradicts \"don't change the given array\" (R-MUT-1)."
+ },
+ {
+  "req": "R-ORD-1",
+  "phrase": "in ascending order if the sum( first index value, last index value) is odd",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example R-EX-3 is right: an odd sum gives descending order, and the rule has odd and even swapped."
+ },
+ {
+  "req": "R-ORD-2",
+  "phrase": "descending order",
+  "taken": 1,
+  "variant": 2,
+  "text": "Strictly decreasing: each element is greater than the next one (impossible while keeping every element when the argument has duplicates)."
+ },
+ {
+  "req": "R-ORD-2",
+  "phrase": "sort it",
+  "taken": 1,
+  "variant": 2,
+  "text": "Sort the argument itself in place; this contradicts \"don't change the given array\" (R-MUT-1)."
+ },
+ {
+  "req": "R-ORD-2",
+  "phrase": "in descending order if the sum( first index value, last index value) is even",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example R-EX-4 is right: an even sum gives ascending order, and the rule has odd and even swapped."
+ },
+ {
+  "req": "R-MUT-1",
+  "phrase": "don't change the given array",
+  "taken": 1,
+  "variant": 2,
+  "text": "The statements \"you will sort the given array\", \"sort it\" and \"return a copy of the given array after sorting\" win: the argument is sorted in place and then copied, contradicting this note."
+ }
+]

@@ -1,0 +1,154 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-TASK-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The assistant is to supply the body of the given Python function; the request is about implementing it, not about anything else.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-TASK-2
+  doc: SPEC
+  quote: 'def candidate(s):'
+  text: The function is named candidate and takes exactly one argument, s.
+  kind: definition
+  lines:
+  - 8
+- id: R-TASK-3
+  doc: SPEC
+  quote: Add more test cases.
+  text: The request contains a note asking for more test cases to be added; this is not an obligation on the values candidate returns.
+  kind: non_functional
+  ambiguity:
+  - phrase: Add more test cases.
+    readings:
+    - an instruction to the assistant to add test cases (examples in the docstring or a separate test suite)
+    - a leftover maintainer note stored in the FIX constant, addressed to nobody, which places no obligation on the assistant
+  lines:
+  - 5
+- id: R-IN-1
+  doc: SPEC
+  quote: takes a string representing a word as input.
+  text: The argument s of candidate is a string that represents a word.
+  kind: assumption
+  ambiguity:
+  - phrase: a string representing a word
+    readings:
+    - s is a non-empty sequence of letters only (no spaces, digits or punctuation); other strings are outside the contract
+    - s may be any string, including the empty string and strings with non-letter characters, and candidate must handle all of them
+  - phrase: a word
+    readings:
+    - 'a single word: s contains no spaces'
+    - s may contain several words separated by spaces
+  lines:
+  - 9
+  - 10
+- id: R-IN-2
+  doc: SPEC
+  quote: Write a function candidate which takes a string representing a word as input.
+  text: For every string s that represents a word, candidate(s) finishes and returns a value without raising an exception.
+  kind: guarantee
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: takes a string representing a word as input
+    readings:
+    - candidate must return normally for every such string, including edge cases such as the empty string
+    - the phrase only describes the parameter type; behaviour on unusual strings (for example the empty string) is unconstrained
+  lines:
+  - 9
+  - 10
+- id: R-OUT-1
+  doc: SPEC
+  quote: Write a function candidate
+  text: candidate(s) returns a result computed from the vowels of the word s; the request never states what that result is.
+  kind: guarantee
+  depends:
+  - R-IN-1
+  - R-VOW-1
+  - R-VOW-2
+  - R-VOW-3
+  - R-VOW-4
+  ambiguity:
+  - phrase: Write a function candidate
+    readings:
+    - candidate returns the number of vowel characters (occurrences) in s, with vowels as defined by the request
+    - candidate returns the number of distinct vowels in s
+    - candidate returns whether s contains a vowel (True/False or 1/0)
+    - the return value is not specified at all, so any returned value is acceptable
+  lines:
+  - 9
+- id: R-VOW-1
+  doc: SPEC
+  quote: Vowels in this case are 'a', 'e', 'i', 'o', 'u'.
+  text: Each of the characters 'a', 'e', 'i', 'o' and 'u' is a vowel wherever it occurs in the word.
+  kind: definition
+  ambiguity:
+  - phrase: '''a'', ''e'', ''i'', ''o'', ''u'''
+    readings:
+    - only the lower-case letters a, e, i, o, u are vowels; 'A', 'E', 'I', 'O', 'U' are not
+    - 'the letters are meant case-insensitively: ''A'', ''E'', ''I'', ''O'', ''U'' are vowels too'
+  - phrase: Vowels in this case are 'a', 'e', 'i', 'o', 'u'.
+    readings:
+    - the list is complete except for the final-'y' rule added by the next sentence
+    - the list is closed, so 'y' is never a vowel, which contradicts the next sentence ('y' is also a vowel at the end of the word)
+  lines:
+  - 11
+- id: R-VOW-2
+  doc: SPEC
+  quote: Vowels in this case are 'a', 'e', 'i', 'o', 'u'.
+  text: No character other than 'a', 'e', 'i', 'o', 'u' (and 'y' under the end-of-word rule) is a vowel; in particular consonants, digits, spaces and punctuation are not vowels.
+  kind: definition
+  ambiguity:
+  - phrase: '''a'', ''e'', ''i'', ''o'', ''u'''
+    readings:
+    - upper-case 'A', 'E', 'I', 'O', 'U' are among the characters that are not vowels
+    - upper-case 'A', 'E', 'I', 'O', 'U' are vowels as well, so they are not excluded
+  lines:
+  - 11
+- id: R-VOW-3
+  doc: SPEC
+  quote: Here, 'y' is also a vowel
+  text: The character 'y' is a vowel when it is the last character of the word.
+  kind: definition
+  ambiguity:
+  - phrase: '''y'''
+    readings:
+    - only lower-case 'y' is a vowel at the end; a final 'Y' is not
+    - '''y'' is meant case-insensitively: a final ''Y'' is a vowel too'
+  - phrase: '''y'' is also a vowel'
+    readings:
+    - '''y'' is added to the vowels listed in the previous sentence, under the end-of-word condition'
+    - contradiction with the previous sentence, which lists the vowels as exactly 'a', 'e', 'i', 'o', 'u' and so excludes 'y'
+  lines:
+  - 11
+  - 12
+- id: R-VOW-4
+  doc: SPEC
+  quote: but only when it is at the end of the given word.
+  text: A 'y' that is not the last character of the word is not a vowel.
+  kind: definition
+  ambiguity:
+  - phrase: at the end of the given word
+    readings:
+    - the 'y' is the last character of the string s (s[len(s) - 1])
+    - the 'y' is the last letter of the word, ignoring trailing non-letters such as spaces or punctuation
+    - the 'y' ends any word within s, if s holds several space-separated words
+  - phrase: '''y'''
+    readings:
+    - the rule concerns lower-case 'y' only; 'Y' is never a vowel
+    - the rule concerns 'y' and 'Y' alike
+  lines:
+  - 12
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is 0 unless `outcome` is 0.'
+  text: Whenever a call does not end by returning an integer from 0 to 63 (outcome is not 0), result is 0.
+  kind: guarantee
+  lines:
+  - 53

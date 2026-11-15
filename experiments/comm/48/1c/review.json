@@ -1,0 +1,308 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 166,
+    "checked": 166,
+    "seconds": 7.4
+   },
+   "open": {
+    "open": {},
+    "checked": 97
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 181,
+    "checked": 181,
+    "seconds": 10.46
+   },
+   "open": {
+    "open": {},
+    "checked": 108
+   }
+  }
+ },
+ "readings": {
+  "R-FN-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FN-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FN-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [
+    "RA-EX-1",
+    "RA-EX-2",
+    "RA-EX-3",
+    "RA-EX-4"
+   ],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [
+    "RB-EX-1",
+    "RB-EX-2",
+    "RB-EX-3",
+    "RB-EX-4"
+   ],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-DEF-1",
+   "phrase": "palindrome",
+   "taken": 1,
+   "variant": 2,
+   "text": "Case-insensitive: letters are compared ignoring case but every character counts, so 'Aa' is a palindrome and 'ab, a' is not."
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "given string",
+   "taken": 1,
+   "variant": 2,
+   "text": "The empty string is not considered a palindrome (as the example is_palindrome('') False suggests); non-empty strings are judged by reversal."
+  },
+  {
+   "req": "R-FN-1",
+   "phrase": "Checks if given string is a palindrome",
+   "taken": 1,
+   "variant": 2,
+   "text": "The examples govern: the answer is inverted, and is_palindrome returns False for every palindrome (True exactly when text is not a palindrome), consistent with R-EX-1, R-EX-2, R-EX-3 and R-EX-4."
+  },
+  {
+   "req": "R-FN-2",
+   "phrase": "Checks if given string is a palindrome",
+   "taken": 1,
+   "variant": 2,
+   "text": "The examples govern: the answer is inverted, and is_palindrome returns True for every string that is not a palindrome, as R-EX-4 (is_palindrome('zbcd') True) shows."
+  },
+  {
+   "req": "R-FN-3",
+   "phrase": "Checks",
+   "taken": 1,
+   "variant": 2,
+   "text": "The signature has no return annotation, so any value whose truth value gives the answer (such as 1/0, None, or a non-empty/empty value) is acceptable."
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example is correct because the empty string is not considered a palindrome (R-DEF-1, second reading of 'given string'); it is then consistent with R-FN-2."
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example is wrong: the description (R-FN-1) governs and is_palindrome('aba') returns True."
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example is wrong: the description (R-FN-1) governs and is_palindrome('aaaaa') returns True."
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "True",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example is wrong: the description (R-FN-2) governs and is_palindrome('zbcd') returns False."
+  }
+ ],
+ "depends": {
+  "R-FN-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_palindrome(\"\\u00c0\") -> True"
+   ]
+  },
+  "R-FN-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_palindrome(\"\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u00c0\\u00c1\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0002\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\") -> False"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-1 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-2 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-3 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-4 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-1 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-2 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-3 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-4 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-FN-1",
+    "R-FN-2"
+   ],
+   "calls": [
+    "is_palindrome(\"\\u00c0\") -> True"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"Checks if given string is a palindrome\" can mean: The description (and the function name) governs: is_palindrome returns True for every palindrome. This contradicts the examples R-EX-2 (is_palindrome('aba') False), R-EX-3 (is_palindrome('aaaaa') False) and, if the empty string is a palindrome, R-EX-1 (is_palindrome('') False), which are then wrong. / The examples govern: the answer is inverted, and is_palindrome returns False for every palindrome (True exactly when text is not a palindrome), consistent with R-EX-1, R-EX-2, R-EX-3 and R-EX-4.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-2"
+   ],
+   "calls": [],
+   "question": "\"Checks if given string is a palindrome\" can mean: The description (and the function name) governs: is_palindrome returns False for every string that is not a palindrome. This contradicts the example R-EX-4 (is_palindrome('zbcd') True, although 'zbcd' is not a palindrome), which is then wrong. / The examples govern: the answer is inverted, and is_palindrome returns True for every string that is not a palindrome, as R-EX-4 (is_palindrome('zbcd') True) shows.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-3"
+   ],
+   "calls": [],
+   "question": "\"Checks\" can mean: The function returns exactly the bool True or False (as the examples print True and False). / The signature has no return annotation, so any value whose truth value gives the answer (such as 1/0, None, or a non-empty/empty value) is acceptable.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"False\" can mean: The example is correct and the answer is inverted relative to the description: the empty string is a palindrome, so this contradicts R-FN-1, which requires True. / The example is correct because the empty string is not considered a palindrome (R-DEF-1, second reading of 'given string'); it is then consistent with R-FN-2. / The example is wrong: the empty string is a palindrome and the description (R-FN-1) governs, so is_palindrome('') returns True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"False\" can mean: The example is correct: is_palindrome('aba') returns False. This contradicts R-FN-1, because 'aba' reads the same backwards and the description requires True. / The example is wrong: the description (R-FN-1) governs and is_palindrome('aba') returns True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"False\" can mean: The example is correct: is_palindrome('aaaaa') returns False. This contradicts R-FN-1, because 'aaaaa' reads the same backwards and the description requires True. / The example is wrong: the description (R-FN-1) governs and is_palindrome('aaaaa') returns True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"True\" can mean: The example is correct: is_palindrome('zbcd') returns True. This contradicts R-FN-2, because 'zbcd' is not a palindrome (reversed it is 'dcbz') and the description requires False. / The example is wrong: the description (R-FN-2) governs and is_palindrome('zbcd') returns False.. Which is meant?"
+  }
+ ],
+ "limits": []
+}

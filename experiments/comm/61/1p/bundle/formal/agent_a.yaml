@@ -1,0 +1,131 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-IN-1 (reading 1 of "a string of "(" and ")""): every character is '(' or ')';
+  # the empty string qualifies vacuously.
+  valid: 'all(i < len(brackets): brackets[i] == "(" || brackets[i] == ")")'
+  # R-DEF-1 (reading 1, properly nested): scanning left to right, the number of ')'
+  # in every non-empty prefix never exceeds the number of '(' in it ...
+  prefix_ok: 'all(k < len(brackets): count(i < k + 1: brackets[i] == ")") <= count(i < k + 1: brackets[i] == "("))'
+  # ... and both numbers are equal at the end.
+  totals_equal: 'count(i < len(brackets): brackets[i] == "(") == count(i < len(brackets): brackets[i] == ")")'
+  balanced: 'prefix_ok && totals_equal'
+  # the argument of the docstring example R-EX-1: the one-character string "("
+  example_arg: 'len(brackets) == 1 && brackets[0] == "("'
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'valid', cond: 'outcome == 0'}
+    note: >-
+      For every argument allowed by R-IN-1 the call returns True or False (outcome 0):
+      it neither raises, nor fails to finish, nor returns a non-bool. Reading 1 of
+      "False" (a bool, so a truthy 0/1 or any other value is outcome 2 and violates
+      this) and reading 1 of "correct_bracketing" (adjective, a bool answer) are taken.
+      The text derives this from the single example only; it is generalised to every
+      allowed argument as requirements.yaml states.
+
+  - id: RA-RES-1
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'valid && balanced', cond: 'outcome == 0 && result'}
+    note: >-
+      An allowed argument that is correctly bracketed (R-DEF-1, properly nested; the
+      empty string is correctly bracketed) makes the call return True. The guard
+      `valid` is the literal "for an argument allowed by R-IN-1" of the requirement.
+      This meaning comes from the function name alone: the docstring never states
+      what is returned.
+
+  - id: RA-RES-2
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: 'valid && !balanced', cond: 'outcome == 0 && !result'}
+    note: >-
+      An allowed argument that is not correctly bracketed (R-DEF-1) makes the call
+      return False. Together with RA-RES-1 the answer is True exactly when the
+      argument is correctly bracketed (reading 1). Inferred from the name alone.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'example_arg', cond: 'outcome == 0 && !result'}
+    note: >-
+      The doctest is read literally as a guarantee: every call correct_bracketing("(")
+      returns False (a bool, outcome 0). requirements.yaml classifies R-EX-1 as a
+      scenario; the scenario RA-EX-1-S additionally asks that this call be possible.
+      Not guarded by `valid`: "(" is an allowed argument under reading 1 of R-IN-1, and
+      the example states its answer unconditionally. Under every listed reading of
+      R-DEF-1 "(" is not correctly bracketed, so the example agrees with RA-RES-2 and
+      does not disambiguate R-DEF-1.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: 'example_arg && outcome == 0 && !result'
+    note: >-
+      The behaviour of the docstring example is possible: a call with argument "("
+      that returns False.
+
+dont_cares:
+  - id: RA-IN-1-OUT
+    req: R-IN-1
+    signal: outcome
+    when: '!valid'
+    note: >-
+      R-IN-1 is a precondition on the caller (reading 1 of "brackets is a string of "("
+      and ")""): on an argument with any character other than '(' or ')' the behaviour
+      is not specified, so how the call ends is free. It is stated per call as a
+      don't-care, not as an FCP assumption: an assumption that fails once disables
+      every later check of the trace (section 6), whereas the frame makes calls
+      independent, so one out-of-contract call must not excuse the following calls.
+      The properties carry the matching guard `valid` themselves.
+
+  - id: RA-IN-1-RES
+    req: R-IN-1
+    signal: result
+    when: '!valid'
+    note: >-
+      Same precondition as RA-IN-1-OUT: on an argument outside R-IN-1 the returned
+      value is free (subject only to the frame rule F-ZERO).
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: a statement about the deliverable (complete the given function,
+      keeping its signature and docstring; reading 1). It concerns the source text of
+      the implementation, not the values on the interface, and cannot be stated in
+      FCP-PL.
+  - req: R-IF-1
+    reason: >-
+      Definition of the interface: the name correct_bracketing and the single str
+      parameter brackets are fixed by the `function` and `interface` sections of
+      design.yaml (input signal brackets, a string of at most 32 characters). There is
+      no behaviour to state; an implementation with another signature would fail its
+      calls, which RA-RET-1 rejects for allowed arguments.
+  - req: R-DEF-1
+    reason: >-
+      Definition, not a behaviour: realized by the defs `prefix_ok`, `totals_equal` and
+      `balanced` (properly nested, reading 1; the empty string is correctly bracketed,
+      reading 1), which the guarantees RA-RES-1 and RA-RES-2 use.
+    covered_by: [RA-RES-1, RA-RES-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (`outcome != 0 -> !result`), which is added to
+      every formalization set by construction and need not be restated (frame.md).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-TASK-1, phrase: 'Complete this function', reading: 1}
+  - {req: R-IN-1, phrase: 'a string of "(" and ")"', reading: 1}
+  - {req: R-IN-1, phrase: 'brackets is a string of "(" and ")"', reading: 1}
+  - {req: R-RET-1, phrase: 'False', reading: 1}
+  - {req: R-RET-1, phrase: 'correct_bracketing', reading: 1}
+  - {req: R-DEF-1, phrase: 'correct_bracketing', reading: 1}
+  - {req: R-DEF-1, phrase: 'correct_bracketing(brackets: str)', reading: 1}
+  - {req: R-RES-1, phrase: 'correct_bracketing', reading: 1}
+  - {req: R-RES-2, phrase: 'correct_bracketing', reading: 1}
+  - {req: R-EX-1, phrase: 'correct_bracketing("(")', reading: 1}
+  - {req: R-EX-1, phrase: 'False', reading: 1}

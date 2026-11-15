@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\ndef correct_bracketing(brackets: str) -> bool:\n    \"\"\" brackets is a string of \"(\" and \")\".\n    Return True if every opening bracket has a matching closing bracket\n    that comes after it, i.e. the string is properly balanced and nested.\n\n    >>> correct_bracketing(\"(\")\n    False\n    >>> correct_bracketing(\"()\")\n    True\n    >>> correct_bracketing(\"(()())\")\n    True\n    >>> correct_bracketing(\")(()\")\n    False\n    >>> correct_bracketing(\"\")\n    True\n    \"\"\"\n    depth = 0\n    for ch in brackets:\n        if ch == \"(\":\n            depth += 1\n        elif ch == \")\":\n            depth -= 1\n            if depth < 0:\n                return False\n        else:\n            raise ValueError(f\"Invalid character in brackets: {ch!r}\")\n    return depth == 0\n```",
+  "seconds": 5.8,
+  "cost_usd": 0.016575799999999998,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "The description only says the input is a string of \"(\" and \")\". It never says what the function should compute or return, and a single example isn't enough to infer the rule. Please clarify:\n\n1. **Return value:** What does the function check? Is it True when every \"(\" has a matching \")\" that comes after it, so the brackets are balanced and properly nested? For example, should `\"()\"` and `\"(()())\"` return True, and `\")(\"` and `\"(()\"` return False?\n2. **Order:** Does order matter, or only the counts? Should `\")(\"` (equal counts, wrong order) return False?\n3. **Empty string:** Should `\"\"` return True?\n4. **Other characters:** Can the input contain anything other than \"(\" and \")\", such as spaces or other bracket types? If so, should those be ignored, or should the function return False?",
+  "seconds": 4.6,
+  "cost_usd": 0.013673000000000001,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "```python\ndef correct_bracketing(brackets: str):\n    \"\"\" brackets is a string of \"(\" and \")\".\n    return True if every opening bracket has a corresponding closing bracket.\n\n    >>> correct_bracketing(\"(\")\n    False\n    >>> correct_bracketing(\"()\")\n    True\n    >>> correct_bracketing(\"(()())\")\n    True\n    >>> correct_bracketing(\")(()\")\n    False\n    \"\"\"\n    depth = 0\n    for b in brackets:\n        if b == \"(\":\n            depth += 1\n        elif b == \")\":\n            depth -= 1\n            if depth < 0:\n                return False\n        else:\n            raise ValueError(f\"unexpected character: {b!r}\")\n    return depth == 0\n```\n\nThe function walks the string while keeping a count of unclosed `(`:\n\n- **Early `False`:** If the count goes negative, a `)` appeared with no `(` to match, so the string is invalid. This catches cases like `\")(\"`, which have equal counts but are still wrong.\n- **Final check:** At the end, the count must be zero. Anything left over means some `(` was never closed, as in `\"(\"`.\n\nIt runs in O(n) time and uses O(1) extra space.\n\nOne choice I made beyond the original spec: the function raises `ValueError` on any character other than `(` or `)`. If you'd rather ignore other characters, delete the `else` branch.",
+  "seconds": 5.7,
+  "cost_usd": 0.0152115,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

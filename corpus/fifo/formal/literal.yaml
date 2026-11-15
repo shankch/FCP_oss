@@ -1,0 +1,151 @@
+fcp: '0.1'
+set: literal
+origin:
+  kind: human
+  id: literal
+  role: formalizer
+  note: Each sentence formalized literally; conflicts are NOT resolved (baseline for conflict detection).
+defs:
+  is_full: occ == DEPTH
+  is_empty: occ == 0
+  wr: push && !is_full
+  rd: pop && !is_empty
+ghosts:
+- name: occ
+  range:
+  - 0
+  - DEPTH
+  init: 0
+  next: occ + wr - rd
+  desc: number of stored words according to the specification model
+properties:
+- id: L-RST-1
+  req: R-RST-1
+  pattern: after_reset
+  args:
+    cond: empty && count == 0
+- id: L-RST-2
+  req: R-RST-2
+  pattern: after_reset
+  args:
+    cond: empty && !full && !almost_full && count == 0
+- id: L-WR-1
+  req: R-WR-1
+  pattern: next
+  args:
+    trigger: wr && !rd
+    cond: count == prev(count) + 1
+- id: L-WR-2
+  req: R-WR-2
+  pattern: next
+  args:
+    trigger: push && is_full
+    cond: count == prev(count) - prev(rd)
+- id: L-RD-1
+  req: R-RD-1
+  pattern: inorder
+  args:
+    in_fire: wr
+    in_data: push_data
+    out_fire: rd
+    out_data: pop_data
+    capacity: DEPTH
+    latency: 0
+    peek: '!is_empty'
+- id: L-RD-2
+  req: R-RD-2
+  pattern: next
+  args:
+    trigger: rd && !wr
+    cond: count == prev(count) - 1
+- id: L-RD-3
+  req: R-RD-3
+  pattern: next
+  args:
+    trigger: pop && is_empty
+    cond: count == prev(count) + prev(wr)
+- id: L-SIM-1
+  req: R-SIM-1
+  pattern: next
+  args:
+    trigger: push && pop
+    cond: count == prev(count)
+- id: L-ORD-1
+  req: R-ORD-1
+  pattern: inorder
+  args:
+    in_fire: wr
+    in_data: push_data
+    out_fire: rd
+    out_data: pop_data
+    capacity: DEPTH
+    latency: 0
+- id: L-ORD-2
+  req: R-ORD-2
+  pattern: inorder
+  args:
+    in_fire: wr
+    in_data: push_data
+    out_fire: rd
+    out_data: pop_data
+    capacity: DEPTH
+    latency: 0
+- id: L-ST-1
+  req: R-ST-1
+  expr: full == (count == DEPTH)
+- id: L-ST-2
+  req: R-ST-2
+  expr: empty == (count == 0)
+- id: L-ST-3
+  req: R-ST-3
+  expr: almost_full == (count >= AF_LEVEL)
+- id: L-ST-4
+  req: R-ST-4
+  expr: count == occ
+- id: L-TM-1
+  req: R-TM-1
+  expr: count == occ && full == is_full && empty == is_empty
+- id: L-TM-3
+  req: R-TM-3
+  pattern: inorder
+  args:
+    in_fire: wr
+    in_data: push_data
+    out_fire: rd
+    out_data: pop_data
+    capacity: DEPTH
+    latency: 0
+- id: L-TM-2
+  req: R-TM-2
+  expr: almost_full == (count > AF_LEVEL)
+scenarios:
+- id: S-FULL
+  req: R-ST-1
+  cover: full
+- id: S-AF
+  req: R-ST-3
+  cover: almost_full && !full
+- id: S-PP-FULL
+  req: R-SIM-1
+  cover: push && pop && full
+- id: S-PP-EMPTY
+  req: R-SIM-1
+  cover: push && pop && empty
+- id: S-PUSH-FULL
+  req: R-WR-2
+  cover: push && full && !pop
+dont_cares:
+- id: L-DC-1
+  req: R-RD-4
+  signal: pop_data
+  when: is_empty
+unformalized:
+- req: R-PAR-1
+  reason: Parameter-range requirement. Verified at DEPTH=5 (a non-power-of-two); other depths are not covered by this run.
+- req: R-USE-1
+  reason: Advisory usage rule. R-USE-2 requires the FIFO to tolerate violations, so it must not be used as an environment assumption (doing so would make L-WR-2 and L-RD-3 vacuous).
+- req: R-USE-2
+  reason: Realized by the properties of R-WR-2 and R-RD-3.
+  covered_by:
+  - L-WR-2
+  - L-RD-3

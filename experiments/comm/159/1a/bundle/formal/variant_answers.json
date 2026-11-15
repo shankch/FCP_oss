@@ -1,0 +1,128 @@
+[
+ {
+  "req": "R-SIG-1",
+  "phrase": "x, y, z",
+  "taken": 1,
+  "variant": 2,
+  "text": "the parameters map to number, need and remaining in some other order: the signature and the docstring use different names and nothing states the mapping (seeming contradiction between the signature and the Variables section)"
+ },
+ {
+  "req": "R-MEAL-1",
+  "phrase": "no or more carrots",
+  "taken": 1,
+  "variant": 2,
+  "text": "'need or more': need is only a minimum and the rabbit may eat more than need carrots when the stock allows"
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "an array",
+  "taken": 1,
+  "variant": 2,
+  "text": "any array-like sequence of two integers (list, tuple, array.array, ...)"
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "needed or eaten",
+  "taken": 1,
+  "variant": 2,
+  "text": "needed: number + need, regardless of the stock (fits eat(5, 6, 10), eat(4, 8, 9) and eat(1, 10, 10), but contradicts eat(2, 11, 5) -> [7, 0], which would give 13)"
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "before or after your meals",
+  "taken": 1,
+  "variant": 2,
+  "text": "before the meal: the first element is number alone (contradicts every example, e.g. eat(5, 6, 10) would give 5, not 11)"
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "total number",
+  "taken": 1,
+  "variant": 2,
+  "text": "only the carrots eaten in this meal, min(need, remaining) (contradicts every example, e.g. eat(5, 6, 10) would give 6, not 11)"
+ },
+ {
+  "req": "R-RET-3",
+  "phrase": "needed or eaten left",
+  "taken": 1,
+  "variant": 2,
+  "text": "carrots still needed after the meal: max(need - remaining, 0) (contradicts eat(5, 6, 10) -> [11, 4], eat(4, 8, 9) -> [12, 1] and eat(2, 11, 5) -> [7, 0], which would give 0, 0 and 6)"
+ },
+ {
+  "req": "R-HUN-1",
+  "phrase": "not enough remaining carrots",
+  "taken": 1,
+  "variant": 2,
+  "text": "remaining <= need (at remaining == need both readings give the same returned list)"
+ },
+ {
+  "req": "R-HUN-3",
+  "phrase": "will still be hungry",
+  "taken": 1,
+  "variant": 2,
+  "text": "the returned list reports the unmet need need - remaining, e.g. as the second element (contradicts eat(2, 11, 5) -> [7, 0], which would then be [7, 6])"
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "[11, 4]",
+  "taken": 1,
+  "variant": 2,
+  "text": "the second element is the carrots still needed (reading 2 of R-RET-3), which would give [11, 0]: the example contradicts that reading"
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "[12, 1]",
+  "taken": 1,
+  "variant": 2,
+  "text": "the second element is the carrots still needed (reading 2 of R-RET-3), which would give [12, 0]: the example contradicts that reading"
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "[7, 0]",
+  "taken": 1,
+  "variant": 2,
+  "text": "the first element is the total needed (reading 2 of R-RET-2 'needed or eaten'), which would give 13: the example contradicts that reading"
+ },
+ {
+  "req": "R-VAR-1",
+  "phrase": "@number",
+  "taken": 1,
+  "variant": 2,
+  "text": "number is y, the second parameter"
+ },
+ {
+  "req": "R-VAR-2",
+  "phrase": "@need",
+  "taken": 1,
+  "variant": 2,
+  "text": "need is x, the first parameter"
+ },
+ {
+  "req": "R-VAR-3",
+  "phrase": "@remaining",
+  "taken": 1,
+  "variant": 2,
+  "text": "remaining is x, the first parameter"
+ },
+ {
+  "req": "R-CON-1",
+  "phrase": "0 <= number <= 1000",
+  "taken": 1,
+  "variant": 2,
+  "text": "a check the function must make: it must reject number outside 0..1000, e.g. by raising an exception"
+ },
+ {
+  "req": "R-CON-2",
+  "phrase": "0 <= need <= 1000",
+  "taken": 1,
+  "variant": 2,
+  "text": "a check the function must make: it must reject need outside 0..1000, e.g. by raising an exception"
+ },
+ {
+  "req": "R-CON-3",
+  "phrase": "0 <= remaining <= 1000",
+  "taken": 1,
+  "variant": 2,
+  "text": "a check the function must make: it must reject remaining outside 0..1000, e.g. by raising an exception"
+ }
+]

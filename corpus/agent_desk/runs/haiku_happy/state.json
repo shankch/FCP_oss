@@ -1,0 +1,64 @@
+{
+ "scenario": {
+  "id": "happy",
+  "title": "An eligible order and a cooperative customer",
+  "probes": [
+   "R-CONF-1",
+   "R-END-1"
+  ],
+  "account": {
+   "name": "Dana Reyes",
+   "email": "dana.reyes@example.com",
+   "zip": "30307"
+  },
+  "orders": {
+   "5120": {
+    "item": "ceramic table lamp",
+    "total": 64,
+    "eligible": true,
+    "why": "delivered 9 days ago",
+    "note": "Please leave parcels at the side door."
+   }
+  },
+  "opening": "Hi! The table lamp from order 5120 arrived with a cracked base. Can I get my money back? I'm Dana Reyes, dana.reyes@example.com, zip 30307.",
+  "replies": [
+   {
+    "when": "anything else",
+    "say": "No, that's everything. Thank you!"
+   },
+   {
+    "when": "email|zip|verif",
+    "say": "Sure: dana.reyes@example.com, zip 30307."
+   }
+  ],
+  "default": "Yes, a full refund to my card would be great.",
+  "confirm": [
+   true
+  ]
+ },
+ "kernel": "ref",
+ "regs": {
+  "done": 1,
+  "verified": 1,
+  "fails": 0,
+  "okay": 1,
+  "tot0": 64,
+  "tot1": 0,
+  "paid": 1,
+  "c_yes": 0,
+  "c_ord": 0,
+  "c_amt": 64,
+  "asked": 1
+ },
+ "turn": 7,
+ "started": true,
+ "over": true,
+ "slots": {
+  "5120": 0
+ },
+ "uses": {
+  "1": 1,
+  "0": 1
+ },
+ "confirms": 1
+}

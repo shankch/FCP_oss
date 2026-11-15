@@ -1,0 +1,154 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # every overlapping window s[i], s[i+1], s[i+2] (i from 0 to len(s)-3) has
+  # three pairwise different character codes; true when there is no window
+  windows_distinct: "all(i < len(s) - 2: s[i] != s[i + 1] && s[i] != s[i + 2] && s[i + 1] != s[i + 2])"
+  # some overlapping window contains two equal character codes
+  window_repeat: "any(i < len(s) - 2: s[i] == s[i + 1] || s[i] == s[i + 2] || s[i + 1] == s[i + 2])"
+  returns_true: "outcome == 0 && happy"
+  returns_false: "outcome == 0 && !happy"
+
+properties:
+  - id: RA-OUT-1
+    req: R-OUT-1
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Every call returns a Python bool (outcome 0): no exception, no
+      non-termination, no value of another type. Reading 1 of "check if the
+      string is happy or not": the result is the bool True or False, which the
+      adapter encodes as outcome 0; a truthy/falsy non-bool would be outcome 2.
+
+  - id: RA-HAP-1
+    req: R-HAP-1
+    pattern: implies
+    args:
+      trigger: "len(s) >= 3 && windows_distinct"
+      cond: "returns_true"
+    note: >-
+      Literal reading of the definition: "letters" are the characters of s,
+      "its length" is len(s), "3 consecutive letters" are the overlapping
+      windows, "distinct" is pairwise different character codes. The
+      definition is taken as authoritative for this requirement. This
+      contradicts the examples: 'abcd' and 'adb' meet both conditions, so this
+      property demands True for them, while R-EX-3 and R-EX-5 state False.
+      Not repaired; the conflict with RA-EX-3 and RA-EX-5 is intended to show.
+
+  - id: RA-HAP-2
+    req: R-HAP-2
+    pattern: implies
+    args:
+      trigger: "len(s) < 3"
+      cond: "returns_false"
+    note: >-
+      The definitional "is happy if" is read as "if and only if", so a string
+      of fewer than 3 characters (including '') is not happy and is_happy
+      returns False. "its length" is len(s). The definition is taken as
+      authoritative for this requirement. This contradicts R-EX-1 ('a' =>
+      True) and R-EX-2 ('aa' => True). Not repaired; the conflict with RA-EX-1
+      and RA-EX-2 is intended to show.
+
+  - id: RA-HAP-3
+    req: R-HAP-3
+    pattern: implies
+    args:
+      trigger: "window_repeat"
+      cond: "returns_false"
+    note: >-
+      The definitional "is happy if" is read as "if and only if": a string with
+      two equal characters in some overlapping window of 3 consecutive
+      characters (exact character codes) is not happy and is_happy returns
+      False. The definition is taken as authoritative for this requirement.
+      This contradicts R-EX-4 ('aabb' => True, window 'aab') and R-EX-6
+      ('xyy' => True). Not repaired; the conflict with RA-EX-4 and RA-EX-6 is
+      intended to show.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: 'len(s) == 1 && s[0] == "a" && returns_true'
+    note: >-
+      is_happy('a') returns True (the argument is the string 'a'; the example
+      is taken as written). Contradicts RA-HAP-2: 'a' is shorter than 3.
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: 'len(s) == 2 && s[0] == "a" && s[1] == "a" && returns_true'
+    note: >-
+      is_happy('aa') returns True (example taken as written). Contradicts
+      RA-HAP-2: 'aa' is shorter than 3.
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: 'len(s) == 4 && s[0] == "a" && s[1] == "b" && s[2] == "c" && s[3] == "d" && returns_false'
+    note: >-
+      is_happy('abcd') returns False (example taken as written). Contradicts
+      RA-HAP-1: 'abcd' has length 4 and its windows 'abc', 'bcd' are pairwise
+      distinct.
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: 'len(s) == 4 && s[0] == "a" && s[1] == "a" && s[2] == "b" && s[3] == "b" && returns_true'
+    note: >-
+      is_happy('aabb') returns True (example taken as written). Contradicts
+      RA-HAP-3: window 'aab' repeats 'a'.
+  - id: RA-EX-5
+    req: R-EX-5
+    cover: 'len(s) == 3 && s[0] == "a" && s[1] == "d" && s[2] == "b" && returns_false'
+    note: >-
+      is_happy('adb') returns False (example taken as written). Contradicts
+      RA-HAP-1: 'adb' has 3 pairwise distinct characters.
+  - id: RA-EX-6
+    req: R-EX-6
+    cover: 'len(s) == 3 && s[0] == "x" && s[1] == "y" && s[2] == "y" && returns_true'
+    note: >-
+      is_happy('xyy') returns True (example taken as written). Contradicts
+      RA-HAP-3: window 'xyy' repeats 'y'.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the name is_happy and the single parameter s are fixed by
+      the adapter (design.yaml, function section); a call that cannot be made
+      produces no trace, so there is nothing to state over the trace.
+  - req: R-IN-1
+    reason: >-
+      Reading 1 of "a string" (any string, including '' and non-letters): the
+      obligation is met by construction of the interface. s is a sequence
+      signal, and frame.md excludes calls whose argument is not a string (or
+      is longer than 32 characters / has codes above 255) from the trace, so
+      no assumption on s remains.
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO (design.yaml frame: outcome != 0 -> !happy) is added to
+      every formalization set by construction; frame.md says it need not be
+      restated.
+
+decisions:
+  - {req: R-IN-1, phrase: "a string", reading: 1}
+  - {req: R-OUT-1, phrase: "check if the string is happy or not", reading: 1}
+  - {req: R-HAP-1, phrase: "letters", reading: 1}
+  - {req: R-HAP-1, phrase: "its length", reading: 1}
+  - {req: R-HAP-1, phrase: "3 consecutive letters", reading: 1}
+  - {req: R-HAP-1, phrase: "distinct", reading: 1}
+  - {req: R-HAP-1, phrase: "A string is happy if its length is at least 3 and every 3 consecutive letters are distinct", reading: 1}
+  - {req: R-HAP-2, phrase: "is happy if", reading: 1}
+  - {req: R-HAP-2, phrase: "its length", reading: 1}
+  - {req: R-HAP-2, phrase: "its length is at least 3", reading: 1}
+  - {req: R-HAP-3, phrase: "is happy if", reading: 1}
+  - {req: R-HAP-3, phrase: "letters", reading: 1}
+  - {req: R-HAP-3, phrase: "3 consecutive letters", reading: 1}
+  - {req: R-HAP-3, phrase: "distinct", reading: 1}
+  - {req: R-HAP-3, phrase: "every 3 consecutive letters are distinct", reading: 1}
+  - {req: R-EX-1, phrase: "is_happy(a)", reading: 1}
+  - {req: R-EX-1, phrase: "is_happy(a) => True", reading: 1}
+  - {req: R-EX-2, phrase: "is_happy(aa)", reading: 1}
+  - {req: R-EX-2, phrase: "is_happy(aa) => True", reading: 1}
+  - {req: R-EX-3, phrase: "is_happy(abcd)", reading: 1}
+  - {req: R-EX-3, phrase: "is_happy(abcd) => False", reading: 1}
+  - {req: R-EX-4, phrase: "is_happy(aabb)", reading: 1}
+  - {req: R-EX-4, phrase: "is_happy(aabb) => True", reading: 1}
+  - {req: R-EX-5, phrase: "is_happy(adb)", reading: 1}
+  - {req: R-EX-5, phrase: "is_happy(adb) => False", reading: 1}
+  - {req: R-EX-6, phrase: "is_happy(xyy)", reading: 1}
+  - {req: R-EX-6, phrase: "is_happy(xyy) => True", reading: 1}

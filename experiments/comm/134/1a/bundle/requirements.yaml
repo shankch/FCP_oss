@@ -1,0 +1,153 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete Python implementation of the function whose stub is given in the prompt.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def candidate(txt):'
+  text: The function is named candidate and takes exactly one parameter, txt; no other argument (in particular no position) is passed to it.
+  kind: non_functional
+  ambiguity:
+  - phrase: 'def candidate(txt):'
+    readings:
+    - 'The one-parameter signature is authoritative: the position of the checked character is fixed by the function itself (it is not an argument), so the ''given position'' of the docstring must be read
+      as a fixed position such as the last character.'
+    - 'The docstring''s ''given position'' is authoritative: the position should be supplied by the caller, but the signature has no parameter for it, so the signature and the docstring contradict each
+      other and the position is unspecified.'
+  lines:
+  - 4
+- id: R-IF-3
+  doc: SPEC
+  quote: of a given string
+  text: The argument txt passed to candidate is a string.
+  kind: assumption
+  lines:
+  - 7
+- id: R-DEF-1
+  doc: SPEC
+  quote: 'Note: "word" is a group of characters separated by space.'
+  text: A word is a group of characters delimited by spaces (or by the start or end of the string).
+  kind: definition
+  ambiguity:
+  - phrase: separated by space
+    readings:
+    - Only the space character (code 32) separates words; tabs, newlines and other whitespace are ordinary characters inside a word.
+    - Any whitespace character (space, tab, newline, carriage return, form feed, vertical tab, ...) separates words, as Python's str.split() with no argument does.
+  - phrase: a group of characters
+    readings:
+    - 'A word is any maximal run of non-space characters, whatever they are (letters, digits, punctuation): in ''pi 1e'' the ''e'' is part of the word ''1e''.'
+    - 'A word is a run of alphabetical characters only: digits and punctuation do not belong to words, so in ''pi 1e'' the ''e'' is not part of a longer word.'
+  - phrase: '"word" is a group of characters'
+    readings:
+    - "A group may consist of a single character, so a lone letter between spaces (the final 'e' of 'apple pi e') is itself a word; this contradicts the example candidate(\"apple pi e\") \u279E True, which\
+      \ requires that 'e' not be part of a word."
+    - "A word has at least two characters, so a lone letter between spaces (or at the start/end of the string) is not part of a word; this agrees with the example candidate(\"apple pi e\") \u279E True."
+  lines:
+  - 9
+- id: R-RET-1
+  doc: SPEC
+  quote: returns True if the character with given position of a given string is an alphabetical character and is not a part of a word
+  text: If the character of txt at the given position exists, is an alphabetical character, and is not part of a word (a group of characters separated by spaces), candidate returns the bool True.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: the character with given position
+    readings:
+    - The last character of txt (txt[-1]); this is consistent with all four examples.
+    - "The first character of txt (txt[0]); the example candidate(\"apple pi e\") \u279E True contradicts this reading, since 'a' starts the word 'apple'."
+    - "The last non-space character of txt; the example candidate(\"apple pi e \") \u279E False contradicts this reading, since the last non-space 'e' stands alone."
+    - 'A position supplied by the caller; the signature def candidate(txt): has no parameter for it, so this contradicts the signature and the position is unspecified.'
+  - phrase: an alphabetical character
+    readings:
+    - 'An ASCII letter only: A to Z or a to z.'
+    - "Any character for which Python's str.isalpha() is true, which in Latin-1 also includes letters such as '\xE9' (233), '\xDF' (223), '\xAA' (170) and '\xB5' (181)."
+  - phrase: is not a part of a word
+    readings:
+    - 'The character stands alone: every neighbouring character that exists (before and after it) is a space, i.e. it forms a one-character group; for the last character this means txt has length 1 or the
+      character before it is a space.'
+    - 'The character is preceded by a space: a character at the very start of txt (e.g. txt == ''e'') does not qualify, because there is no space before it.'
+    - "Literally, the character belongs to no space-separated group of characters; since every non-space character belongs to some group (by the definition of 'word'), the condition can never hold and the\
+      \ function always returns False, contradicting the example candidate(\"apple pi e\") \u279E True."
+  lines:
+  - 6
+  - 8
+- id: R-RET-2
+  doc: SPEC
+  quote: and False otherwise
+  text: If the character of txt at the given position does not exist (e.g. txt is empty), or is not an alphabetical character, or is part of a word (a group of characters separated by spaces), candidate
+    returns the bool False.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: the character with given position
+    readings:
+    - The last character of txt (txt[-1]); this is consistent with all four examples.
+    - "The first character of txt (txt[0]); the example candidate(\"apple pi e\") \u279E True contradicts this reading, since 'a' starts the word 'apple'."
+    - "The last non-space character of txt; the example candidate(\"apple pi e \") \u279E False contradicts this reading, since the last non-space 'e' stands alone."
+    - 'A position supplied by the caller; the signature def candidate(txt): has no parameter for it, so this contradicts the signature and the position is unspecified.'
+  - phrase: an alphabetical character
+    readings:
+    - 'An ASCII letter only: A to Z or a to z.'
+    - "Any character for which Python's str.isalpha() is true, which in Latin-1 also includes letters such as '\xE9' (233), '\xDF' (223), '\xAA' (170) and '\xB5' (181)."
+  - phrase: is not a part of a word
+    readings:
+    - 'The character stands alone: every neighbouring character that exists (before and after it) is a space, i.e. it forms a one-character group; for the last character this means txt has length 1 or the
+      character before it is a space.'
+    - 'The character is preceded by a space: a character at the very start of txt (e.g. txt == ''e'') does not qualify, because there is no space before it.'
+    - "Literally, the character belongs to no space-separated group of characters; since every non-space character belongs to some group (by the definition of 'word'), the condition can never hold and the\
+      \ function always returns False, contradicting the example candidate(\"apple pi e\") \u279E True."
+  lines:
+  - 8
+- id: R-EX-1
+  doc: SPEC
+  quote: "candidate(\"apple pie\") \u279E False"
+  text: candidate("apple pie") returns False.
+  kind: scenario
+  lines:
+  - 12
+- id: R-EX-2
+  doc: SPEC
+  quote: "candidate(\"apple pi e\") \u279E True"
+  text: candidate("apple pi e") returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: "candidate(\"apple pi e\") \u279E True"
+    readings:
+    - 'The example is authoritative: a lone letter separated by spaces (here the final ''e'') is not part of a word, so a one-character group does not count as a word.'
+    - 'The definition of ''word'' (a group of characters separated by space) is authoritative: the final ''e'' is a one-character word, so it is part of a word and the expected value would be False; the
+      example contradicts the definition.'
+  lines:
+  - 13
+- id: R-EX-3
+  doc: SPEC
+  quote: "candidate(\"apple pi e \") \u279E False"
+  text: candidate("apple pi e ") (with a trailing space) returns False.
+  kind: scenario
+  lines:
+  - 14
+- id: R-EX-4
+  doc: SPEC
+  quote: "candidate(\"\") \u279E False"
+  text: candidate("") (the empty string) returns False.
+  kind: scenario
+  lines:
+  - 15
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: Whenever a call does not return a bool (outcome is not 0), the result signal is false.
+  kind: guarantee
+  lines:
+  - 50

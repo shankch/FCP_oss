@@ -1,0 +1,262 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. valid_date keeps no state between calls (frame.md), so
+# the model is combinational: the defs below compute, from the argument alone,
+# what the prompt says the answer is, and every output is checked against it.
+# No ghost is needed (a ghost would only carry the previous call, which the
+# prompt says nothing about).
+#
+# Readings taken (see `decisions`): the four rules are the complete definition
+# (no leap-year or year-range check); "not less than 1 or higher than N" means
+# the value lies in 1..N; the format is exactly dd-mm-yyyy / mm-dd-yyyy with
+# two-digit day and month, four-digit year and nothing else (no stripping);
+# both field orders are accepted; every invalid string returns False.
+defs:
+  # rule 1
+  nonempty: 'len(date) > 0'
+  # rule 4: number of '-' separators (three fields = two separators)
+  nhyph: 'count(i < len(date): date[i] == "-")'
+  # rule 4: dd-mm-yyyy / mm-dd-yyyy, exactly 10 characters
+  shape: 'len(date) == 10 && date[2] == "-" && date[5] == "-" && isdigit(date[0]) && isdigit(date[1]) && isdigit(date[3]) && isdigit(date[4]) && isdigit(date[6]) && isdigit(date[7]) && isdigit(date[8]) && isdigit(date[9])'
+  # values of the first and second two-digit fields (meaningful when shape holds)
+  f1: '(date[0] - "0") * 10 + (date[1] - "0")'
+  f2: '(date[3] - "0") * 10 + (date[4] - "0")'
+  # order A, dd-mm-yyyy: day f1, month f2
+  monA: '1 <= f2 && f2 <= 12'
+  bad31A: '(f2 == 1 || f2 == 3 || f2 == 5 || f2 == 7 || f2 == 8 || f2 == 10 || f2 == 12) && (f1 < 1 || f1 > 31)'
+  bad30A: '(f2 == 4 || f2 == 6 || f2 == 9 || f2 == 11) && (f1 < 1 || f1 > 30)'
+  bad29A: 'f2 == 2 && (f1 < 1 || f1 > 29)'
+  okA: 'shape && monA && !bad31A && !bad30A && !bad29A'
+  # order B, mm-dd-yyyy: month f1, day f2
+  monB: '1 <= f1 && f1 <= 12'
+  bad31B: '(f1 == 1 || f1 == 3 || f1 == 5 || f1 == 7 || f1 == 8 || f1 == 10 || f1 == 12) && (f2 < 1 || f2 > 31)'
+  bad30B: '(f1 == 4 || f1 == 6 || f1 == 9 || f1 == 11) && (f2 < 1 || f2 > 30)'
+  bad29B: 'f1 == 2 && (f2 < 1 || f2 > 29)'
+  okB: 'shape && monB && !bad31B && !bad30B && !bad29B'
+  # the date is valid: all four rules hold, under one of the two field orders
+  ok: 'nonempty && shape && (okA || okB)'
+
+properties:
+  # --- the returned value against the model -------------------------------
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'ok', cond: 'outcome == 0 && valid'}
+    note: >-
+      A string that satisfies all four rules (model `ok`, the definition of
+      R-VAL-1) returns True. The model takes the rules as the complete
+      definition: 29 February is accepted in every year and any four digits,
+      including 0000, form a year.
+
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: '!ok', cond: 'outcome == 0 && !valid'}
+    note: >-
+      Reading 1 of "otherwise False": every string that is not valid,
+      malformed ones included (empty, wrong separator, non-digits, wrong
+      length, any character code), returns the boolean False; raising or
+      returning another value is a violation.
+
+  # --- rule 1 -------------------------------------------------------------
+  - id: RB-EMP-1
+    req: R-EMP-1
+    pattern: implies
+    args: {trigger: 'len(date) == 0', cond: 'outcome == 0 && !valid'}
+    note: The requirement explicitly says valid_date('') returns False, so the outcome is constrained too.
+
+  # --- rule 2 -------------------------------------------------------------
+  - id: RB-DAY-1
+    req: R-DAY-1
+    pattern: implies
+    args:
+      trigger: 'shape && ((bad31A && !okB) || (bad31B && !okA))'
+      cond: '!valid'
+    note: >-
+      "not less than 1 or higher than 31" read as "neither below 1 nor above
+      31" (the English negation scopes over the disjunction; the other parse
+      would make the upper bound say nothing). Because both field orders are
+      accepted (R-FMT-3, reading 1), a field order that breaks the rule rules
+      out only that order: the string is not valid when one order puts a
+      31-day month with a day outside 1..31 and the other order is not a valid
+      date. (A day of 0 or above 31 is never a month, so the second conjunct
+      always holds here; it is kept to show the structure.) The rule makes the
+      date invalid; that an invalid date returns False rather than raising is
+      RB-RET-2.
+
+  - id: RB-DAY-2
+    req: R-DAY-2
+    pattern: implies
+    args:
+      trigger: 'shape && ((bad30A && !okB) || (bad30B && !okA))'
+      cond: '!valid'
+    note: >-
+      Same structure as RB-DAY-1 for the 30-day months 4, 6, 9, 11 and the
+      range 1..30 (negation over the whole disjunction).
+
+  - id: RB-DAY-3
+    req: R-DAY-3
+    pattern: implies
+    args:
+      trigger: 'shape && ((bad29A && !okB) || (bad29B && !okA))'
+      cond: '!valid'
+    note: >-
+      Same structure as RB-DAY-1 for month 2 and the range 1..29. Literal
+      reading: day 29 of month 2 is accepted in every year; the prompt names
+      no leap-year rule, so the year plays no part.
+
+  # --- rule 3 -------------------------------------------------------------
+  - id: RB-MON-1
+    req: R-MON-1
+    pattern: implies
+    args:
+      trigger: 'shape && ((!monA && !okB) || (!monB && !okA))'
+      cond: '!valid'
+    note: >-
+      "should not be less than 1 or higher than 12" read as "the month lies in
+      1..12". With both field orders accepted (R-FMT-3, reading 1), a month
+      out of range under one order rules out that order only: the string is
+      not valid when one order gives a month outside 1..12 and the other
+      order is not a valid date (so '01-15-2012', month 15 as dd-mm-yyyy but
+      a valid mm-dd-yyyy date, is not excluded by this rule).
+
+  # --- rule 4 -------------------------------------------------------------
+  - id: RB-FMT-1
+    req: R-FMT-1
+    pattern: implies
+    args: {trigger: 'nhyph != 2', cond: '!valid'}
+    note: >-
+      Three fields separated by '-' means exactly two '-' characters; a
+      string with another separator (such as '/') or another number of
+      fields has a different count and is not valid. Where the separators
+      stand and what the fields contain is R-FMT-2.
+
+  - id: RB-FMT-2
+    req: R-FMT-2
+    pattern: implies
+    args: {trigger: '!shape', cond: '!valid'}
+    note: >-
+      Literal readings: dd and mm are exactly two digits (leading zero
+      required) and yyyy exactly four digits, so a valid string has exactly
+      10 characters with '-' at positions 2 and 5; no character outside the
+      format is allowed (leading or trailing spaces are not stripped); any
+      four digits, 0000 included, are a year.
+
+  - id: RB-FMT-3-DM
+    req: R-FMT-3
+    pattern: implies
+    args: {trigger: 'okA', cond: 'outcome == 0 && valid'}
+    note: >-
+      Reading 1 (most literal reading of "dd-mm-yyyy or mm-dd-yyyy"): a
+      string that meets the day and month rules read as dd-mm-yyyy returns
+      True. This CONTRADICTS the example valid_date('15-01-2012') => False
+      (RB-EX-2), which is 15 January 2012 in this order; the contradiction is
+      in the prompt and is left visible, not repaired.
+
+  - id: RB-FMT-3-MD
+    req: R-FMT-3
+    pattern: implies
+    args: {trigger: 'okB', cond: 'outcome == 0 && valid'}
+    note: Reading 1 - a string that meets the day and month rules read as mm-dd-yyyy returns True.
+
+  # --- examples: the answer the prompt gives for each call ----------------
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'date == "03-11-2000"', cond: 'outcome == 0 && valid'}
+    note: The example is a call with a stated answer; the function is deterministic, so it is stated as a property as well as a scenario (RB-EX-1-S).
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'date == "15-01-2012"', cond: 'outcome == 0 && !valid'}
+    note: >-
+      Reading 1: the example is taken as written (returns False). This
+      CONTRADICTS rule 4 as read in RB-FMT-3-DM (and RB-RET-1): as
+      dd-mm-yyyy the string is 15 January 2012, which meets every rule. The
+      prompt is self-contradictory on this call; no implementation can meet
+      both items.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'date == "04-0-2040"', cond: 'outcome == 0 && !valid'}
+    note: Consistent with the model (9 characters, one-digit second field, month or day 0).
+
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'date == "06-04-2020"', cond: 'outcome == 0 && valid'}
+    note: Consistent with the model (valid in both field orders).
+
+  - id: RB-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 'date == "06/04/2020"', cond: 'outcome == 0 && !valid'}
+    note: Consistent with the model (no '-' separator).
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: 'date == "03-11-2000" && outcome == 0 && valid'
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: 'date == "15-01-2012" && outcome == 0 && !valid'
+    note: Unreachable under RB-FMT-3-DM / RB-RET-1 (reading 1 of R-FMT-3); the prompt contradicts itself here.
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: 'date == "04-0-2040" && outcome == 0 && !valid'
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: 'date == "06-04-2020" && outcome == 0 && valid'
+  - id: RB-EX-5-S
+    req: R-EX-5
+    cover: 'date == "06/04/2020" && outcome == 0 && !valid'
+  - id: RB-FMT-3-S-DM
+    req: R-FMT-3
+    cover: 'okA && !okB && outcome == 0 && valid'
+    note: A date valid only as dd-mm-yyyy (day above 12) is accepted, e.g. '13-01-2012'.
+  - id: RB-FMT-3-S-MD
+    req: R-FMT-3
+    cover: 'okB && !okA && outcome == 0 && valid'
+    note: A date valid only as mm-dd-yyyy (day above 12) is accepted, e.g. '01-13-2012'.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the name valid_date and its single parameter date are
+      fixed by the adapter's function section (design.yaml); a call that
+      cannot be made is not a trace this set can talk about.
+  - req: R-IN-1
+    reason: >-
+      Holds by construction of the interface encoding: date is a sequence
+      signal of characters, and calls whose argument is not a string (or is
+      longer than 16 characters) are not part of the trace (frame.md,
+      Inputs). There is nothing left for an assumption to constrain.
+  - req: R-VAL-1
+    reason: >-
+      Definition. It is the model def `ok` (non-empty, the dd-mm-yyyy shape,
+      and month and day rules under one of the two field orders), which the
+      guarantees check every output against.
+    covered_by: [RB-RET-1, RB-RET-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the adapter; frame items are added to every
+      formalization set by construction and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-RET-2, phrase: "otherwise False", reading: 1}
+  - {req: R-VAL-1, phrase: "The date is valid if all of the following rules are satisfied", reading: 1}
+  - {req: R-DAY-1, phrase: "is not less than 1 or higher than 31 days", reading: 1}
+  - {req: R-DAY-2, phrase: "is not less than 1 or higher than 30 days", reading: 1}
+  - {req: R-DAY-3, phrase: "is not less than 1 or higher than 29", reading: 1}
+  - {req: R-DAY-3, phrase: "higher than 29 for the month 2", reading: 1}
+  - {req: R-MON-1, phrase: "should not be less than 1 or higher than 12", reading: 1}
+  - {req: R-FMT-2, phrase: "dd-mm-yyyy or mm-dd-yyyy", reading: 1}
+  - {req: R-FMT-2, phrase: "The date should be in the format", reading: 1}
+  - {req: R-FMT-2, phrase: "yyyy", reading: 1}
+  - {req: R-FMT-3, phrase: "dd-mm-yyyy or mm-dd-yyyy", reading: 1}
+  - {req: R-EX-2, phrase: "valid_date('15-01-2012') => False", reading: 1}

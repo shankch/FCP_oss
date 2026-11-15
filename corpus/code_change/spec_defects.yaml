@@ -1,0 +1,14 @@
+# Defects planted in spec.md (hidden from every agent).
+design: code_change
+defects:
+- id: D-1
+  kind: conflict
+  reqs: [R-SHIP-1, R-SAME-1]
+  note: >
+    Rule 2 moves the free-shipping threshold to $75, and rule 3 says nothing may change for
+    customers who are not students. For a non-student cart of $50.00 to $74.99 the old code
+    ships free and the new threshold charges $4.99: checkout(5000, 0, False, False) cannot
+    meet both rules. A change request that changes a rule for everyone and then protects one
+    group is a common way to write this conflict.
+- {id: D-2, kind: ambiguity, reqs: [R-SHIP-1], note: '"Free shipping now starts at $75": for every customer, or for students only?'}
+- {id: D-3, kind: ambiguity, reqs: [R-KEEP-1], note: '"Keep everything else as it is": is the old code the definition (including its own rounding and its own conflict at the $50 threshold)?'}

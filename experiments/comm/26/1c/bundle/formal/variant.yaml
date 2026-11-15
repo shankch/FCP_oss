@@ -1,0 +1,185 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+rigids:
+  # an arbitrary integer value, to state the per-value requirements
+  - {name: v, range: [0, 255]}
+
+defs:
+  # R-DEF-1, reading 2: v occurs more than once when it appears in a run of
+  # two or more adjacent equal elements of numbers
+  dup: 'any(k < len(numbers) - 1: numbers[k] == v && numbers[k + 1] == v)'
+  # how many times v occurs in the argument and in the returned list
+  n_in: 'count(i < len(numbers): numbers[i] == v)'
+  n_out: 'count(j < len(result): result[j] == v)'
+
+properties:
+  - id: RV-IF-3
+    req: R-IF-3
+    expr: 'outcome != 2'
+    note: >-
+      Reading 2 of "-> List[int]", as instructed: the annotation only describes
+      the type of the value when the function returns; raising an exception on
+      some inputs is not excluded. So outcome 1 is allowed (the trace cannot
+      tell an exception from a call that does not finish, so that is allowed
+      too). Only returning something other than a list of integers is excluded,
+      and that is outcome 2. Outcome 2 also covers a list of integers that does
+      not fit the result signal (longer than 8 elements, or an element that is
+      negative or above 255). The annotation alone allows such a list, but it
+      breaks R-RM-3 (elements taken from numbers, never longer than numbers).
+      The frame clears result on outcome 2, so only this item can exclude it.
+
+  - id: RV-RM-1
+    req: R-RM-1
+    pattern: implies
+    args: {trigger: 'outcome == 0 && dup', cond: 'n_out == 1'}
+    note: >-
+      Reading 2 of "occur more than once" (R-DEF-1), as instructed: a value
+      occurs more than once when it appears in a run of two or more adjacent
+      equal elements (as Unix uniq treats duplicates), the def dup. Reading 2
+      of "remove all elements that occur more than once", as instructed:
+      remove only the extra occurrences, so exactly one occurrence of each such
+      value remains. R-EX-1's reading (the example is authoritative, so only
+      the extra copies are removed) agrees with this. The reading speaks of
+      "each value" and "one occurrence of it", so the count is per value: a
+      value with an adjacent run is kept exactly once even if it also recurs
+      later, apart from the run. On [2, 2, 3, 2] this keeps one 2, while Unix
+      uniq gives [2, 3, 2]. Reading 2 of "-> List[int]" (R-IF-3), as
+      instructed, means raising is not excluded, so the docstring constrains
+      only a returned list: the property is conditioned on outcome == 0.
+      Example [1, 2, 3, 2, 4] has no adjacent run, so this item says nothing
+      about it.
+
+  - id: RV-RM-2
+    req: R-RM-2
+    pattern: implies
+    args: {trigger: 'outcome == 0 && v in numbers && !dup', cond: 'n_out == n_in'}
+    note: >-
+      Reading 2 of "occur more than once" (R-DEF-1), as instructed: a value
+      occurs more than once only when it appears in a run of two or more
+      adjacent equal elements. R-RM-2 says only elements that occur more than
+      once are removed, so no element of a value outside any adjacent run is
+      removed: its count in the result equals its count in numbers. This is the
+      most literal statement of the parenthetical under that reading. It
+      includes the requirement's text: a value at exactly one position appears
+      exactly once. CONTRADICTION: in [1, 2, 3, 2, 4] the two 2s are not
+      adjacent, so 2 does not occur more than once and both copies must stay.
+      The result would then be [1, 2, 3, 2, 4], while the example R-EX-1 (read
+      as authoritative, as instructed) returns [1, 2, 3, 4]. This set does not
+      repair that conflict (see RV-EX-1). Reading 2 of "-> List[int]"
+      (R-IF-3), as instructed, means raising is not excluded, so the property
+      is conditioned on outcome == 0. Without that condition a call that
+      raises would break it.
+
+  - id: RV-RM-3
+    req: R-RM-3
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'all(j < len(result): result[j] in numbers) && len(result) <= len(numbers)'
+    note: >-
+      Reading 1 of "From a list of integers, remove": a new list is returned.
+      The trace records the argument as passed and the returned list, so it
+      cannot show whether the argument was changed in place. Reading 2 gives
+      the same item. Reading 2 of "-> List[int]" (R-IF-3), as instructed, means
+      raising is allowed, so the property is conditioned on outcome == 0. By
+      F-EMPTY result is empty on other outcomes, so the condition changes
+      nothing here. A returned list that does not fit the result signal shows
+      as outcome 2, which RV-IF-3 excludes.
+
+  - id: RV-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: >-
+        len(result) == count(i < len(numbers): count(m < i: numbers[m] == numbers[i]) < count(j < len(result): result[j] == numbers[i]))
+        && all(i < len(numbers): count(m < i: numbers[m] == numbers[i]) < count(j < len(result): result[j] == numbers[i])
+        -> result[count(p < i: count(m < p: numbers[m] == numbers[p]) < count(j < len(result): result[j] == numbers[p]))] == numbers[i])
+    note: >-
+      Reading 1 of "Keep order of elements left the same as in the input": a
+      value kept once out of several occurrences takes the position of its
+      first occurrence. This agrees with R-EX-1, which keeps the first 2.
+      Position i of numbers counts as kept when the copies of numbers[i]
+      before it are fewer than the copies of that value in the result. The
+      formula says the result is exactly the kept positions of numbers, in
+      input order. So the result is a subsequence of numbers, and each value's
+      copies in the result are its earliest occurrences. With R-RM-1 and
+      R-RM-2, a value is kept either once (an adjacent run, reading 2 of
+      R-DEF-1 as instructed) or in every copy. Taking the earliest copies is
+      then exactly reading 1. It is stronger only for counts those two items
+      already forbid. Reading 2 of "-> List[int]" (R-IF-3), as instructed,
+      means raising is allowed, so the property is conditioned on
+      outcome == 0. By F-EMPTY it would hold anyway on other outcomes.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'numbers == [1, 2, 3, 2, 4]', cond: 'outcome == 0 && result == [1, 2, 3, 4]'}
+    note: >-
+      Reading 1 of "[1, 2, 3, 4]", as instructed: the example is
+      authoritative, with the first occurrence of the repeated 2 kept. The
+      doctest is a definite statement about this call, so it is a guarantee and
+      not only a possibility (see also RV-EX-1-S). Reading 2 of "-> List[int]"
+      (R-IF-3), as instructed, does not exclude raising in general, but the
+      doctest shows this call returning, so outcome 0 is required here.
+      CONTRADICTION: under reading 2 of "occur more than once" (R-DEF-1,
+      adjacent runs, as instructed), 2 does not occur more than once in this
+      argument because its two copies are not adjacent. So the docstring keeps
+      both copies (RV-RM-2) and the example's explanation (that 2 is a repeated
+      value) does not apply. This item and RV-RM-2 cannot both hold on this
+      call. The conflict is left as written.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'numbers == [1, 2, 3, 2, 4] && outcome == 0 && result == [1, 2, 3, 4]'
+    note: >-
+      The doctest call must be possible, returning [1, 2, 3, 4]. Reading 1 of
+      "[1, 2, 3, 4]", as instructed: the example is authoritative. Reading 2 of
+      "-> List[int]" (R-IF-3), as instructed: the call must still return
+      normally here, because the doctest shows the return. Under reading 2 of
+      "occur more than once" (R-DEF-1, as instructed) the scenario conflicts
+      with RV-RM-2, which keeps both non-adjacent 2s. It is expected to be
+      unreachable together with the other items.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-EMPTY of design.yaml realizes it. Frame items are part of
+      every formalization set and need not be restated.
+    covered_by: [F-EMPTY]
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a complete implementation of the stub
+      with its name and signature kept. This is not a property of any call's
+      behaviour. The adapter calls remove_duplicates(numbers) by name, so an
+      implementation that renames it cannot be run at all.
+  - req: R-IF-2
+    reason: >-
+      Interface definition: the name remove_duplicates and the single list
+      argument numbers are fixed by the function section and the numbers
+      signal of design.yaml. No call's behaviour expresses it.
+  - req: R-IN-1
+    reason: >-
+      The environment obligation that numbers is a list of integers holds by
+      construction of the interface. numbers is a sequence signal of at most 8
+      integers from 0 to 255, and calls outside that are not part of the trace
+      (frame.md). An assumption would constrain nothing.
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized by the def dup: v appears in a run of two or more
+      adjacent equal elements of numbers. That is reading 2 of "occur more
+      than once", as instructed: the value appears in a run of two or more
+      adjacent equal elements, as Unix uniq treats duplicates. The items that
+      use it are listed in covered_by.
+    covered_by: [RV-RM-1, RV-RM-2]
+
+decisions:
+  - {req: R-IF-3, phrase: '-> List[int]', reading: 2}
+  - {req: R-DEF-1, phrase: occur more than once, reading: 2}
+  - {req: R-RM-1, phrase: remove all elements that occur more than once, reading: 2}
+  - {req: R-RM-3, phrase: 'From a list of integers, remove', reading: 1}
+  - {req: R-ORD-1, phrase: Keep order of elements left the same as in the input, reading: 1}
+  - {req: R-EX-1, phrase: '[1, 2, 3, 4]', reading: 1}

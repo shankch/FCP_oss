@@ -1,0 +1,168 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  is_load: "op == 1"
+  is_spend: "op == 2"
+  is_balance: "op == 3"
+  # Rule 1: an amount is valid when it is 1 to 50,000 cents.
+  valid_amount: "amount >= 1 && amount <= 50000"
+  # Rule 4: a load of $100.00 (10,000 cents) or more earns a $5.00 (500 cents) bonus.
+  bonus: "(amount >= 10000 ? 500 : 0)"
+  # Rule 3 (reading: the load with its bonus): the load keeps the balance at most $500.00.
+  load_fits: "card + amount + bonus <= 50000"
+  load_accepted: "is_load && valid_amount && load_fits"
+  spend_valid: "is_spend && valid_amount"
+  spend_covered: "spend_valid && card >= amount"
+
+ghosts:
+  # The card's balance before the current call, in cents, as the prompt defines it.
+  # Starts at 0 on a new card (R-NEW-1); an accepted load adds the amount and its
+  # bonus (R-LOAD-1, R-BONUS-1); a valid spend the balance covers takes the amount
+  # off (R-SPEND-1); every other call (balance(), a call that raises ValueError,
+  # a spend the balance does not cover) leaves it as it was.
+  - name: card
+    range: [0, 50000]
+    init: 0
+    next: "load_accepted ? card + amount + bonus : (spend_covered ? card - amount : card)"
+
+assumptions:
+  - id: GA-ENV-OP
+    req: R-SIG-1
+    expr: "op != 0"
+    note: >-
+      Every call is one of the three methods of GiftCard: op is 1 (load), 2 (spend)
+      or 3 (balance); the adapter defines no call for op 0. The rest of R-SIG-1
+      (the result types) is encoded by the adapter's outcome signal: outcome 0
+      means the method returned a value of its declared type, and the properties
+      below demand outcome 0 wherever the prompt says a call returns.
+
+properties:
+  - id: GA-NEW-1
+    req: R-NEW-1
+    expr: "is_balance && hist(is_balance) -> outcome == 0 && bal == 0"
+    note: >-
+      A new card is one on which nothing but balance() has been called. Its
+      balance() returns 0. The ghost card also starts at 0 on every new card, so
+      GA-BAL-1 carries the same fact through later calls.
+
+  - id: GA-RANGE-1
+    req: R-RANGE-1
+    pattern: implies
+    args:
+      trigger: "(is_load || is_spend) && !valid_amount"
+      cond: "outcome == 1"
+    note: >-
+      Rule 1 names `amount`, which both load and spend take, so it applies to
+      both. For spend it overrides rule 5: rule 5 alone would have spend(0)
+      return True (a balance always covers 0) and spend(50001) return False,
+      but rule 1 says both raise ValueError. A call that raises leaves the
+      balance as it was (ghost card); the prompt does not say so explicitly,
+      raising is read as rejecting the call.
+
+  - id: GA-LOAD-1
+    req: R-LOAD-1
+    pattern: implies
+    args:
+      trigger: "load_accepted"
+      cond: "outcome == 0"
+    note: >-
+      A load with a valid amount that keeps the balance at most $500.00 returns
+      normally. The quote "load adds amount to the balance" is unconditional, but
+      rules 1 and 3 make some loads raise; a load that raises adds nothing. The
+      addition itself is the ghost card's update, checked by GA-LOAD-2 and GA-BAL-1.
+
+  - id: GA-LOAD-2
+    req: R-LOAD-1
+    pattern: next
+    args:
+      trigger: "load_accepted"
+      cond: "is_balance -> bal == prev(card) + prev(amount) + prev(bonus)"
+    note: >-
+      The addition observed directly: if the call right after an accepted load
+      is balance(), it returns the balance before the load plus the amount, plus
+      the bonus the load earned on the card (R-BONUS-1), since a load of $100.00
+      or more puts both on the card.
+
+  - id: GA-CAP-1
+    req: R-CAP-1
+    pattern: implies
+    args:
+      trigger: "is_load && valid_amount && !load_fits"
+      cond: "outcome == 1"
+    note: >-
+      Ambiguity "a load that would take it over": read as the load with its
+      bonus, balance + amount + bonus > 50,000. This is the literal reading of
+      "The balance is never more than $500.00": rule 4 puts the bonus on the
+      card, so the other reading (balance + amount > 50,000 only) would require
+      a load of $100.00 or more onto a balance within $5.00 of the cap to succeed
+      and take the balance over $500.00, contradicting the first sentence of
+      rule 3. Under this reading such a load raises ValueError and earns no bonus.
+
+  - id: GA-CAP-2
+    req: R-CAP-1
+    expr: "is_balance -> bal <= 50000"
+    note: >-
+      "The balance is never more than $500.00", observed at every balance() call
+      (bal is 0 when the call raised, by the frame rule F-ZERO).
+
+  - id: GA-BONUS-1
+    req: R-BONUS-1
+    pattern: implies
+    args:
+      trigger: "load_accepted"
+      cond: "earned == bonus"
+    note: >-
+      An accepted load returns 500 when its amount is at least 10,000 cents and 0
+      otherwise. The bonus is also put on the card: the ghost card adds it, which
+      GA-LOAD-2 and GA-BAL-1 check. A load that raises (rules 1 and 3) returns
+      nothing and earns no bonus.
+
+  - id: GA-SPEND-1
+    req: R-SPEND-1
+    pattern: implies
+    args:
+      trigger: "spend_valid"
+      cond: "outcome == 0 && ok == (card >= amount)"
+    note: >-
+      Formalized for valid amounts, as the requirement text says; for invalid
+      amounts rule 1 overrides (GA-RANGE-1). "The balance covers it" is read as
+      balance >= amount, so a spend of exactly the balance returns True.
+
+  - id: GA-SPEND-2
+    req: R-SPEND-1
+    pattern: next
+    args:
+      trigger: "spend_valid"
+      cond: "is_balance -> bal == (prev(card) >= prev(amount) ? prev(card) - prev(amount) : prev(card))"
+    note: >-
+      The effect observed directly: if the call right after a valid spend is
+      balance(), it returns the balance before the spend less the amount when the
+      balance covered it, and the balance before the spend otherwise. The full
+      effect is the ghost card's update, checked by GA-BAL-1 at every later call.
+
+  - id: GA-BAL-1
+    req: R-BAL-1
+    expr: "is_balance -> outcome == 0 && bal == card"
+    note: >-
+      balance() returns the card's balance, as the ghost card models it from all
+      earlier calls on the card.
+
+scenarios:
+  - id: GA-EX-1
+    req: R-EX-1
+    cover: "is_balance && outcome == 0 && bal == 1500 && prev(is_spend && amount == 500 && outcome == 0 && ok) && prev(is_load && amount == 2000 && outcome == 0 && earned == 0 && hist(is_load && amount == 2000), 2)"
+    note: >-
+      The example: load(2000), then spend(500), then balance() returning 1500.
+      "On a new card" (implicit in the quote, explicit in the requirement text)
+      is expressed as: every call on the card up to and including the load was
+      load(2000); with the load as the first call this is the new card, and any
+      earlier load(2000) would make the balance differ from 1500 in a conforming
+      run. The load returns 0 (2000 is under $100.00) and the spend returns True.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Adapter definition, not a requirement of the prompt; it is the frame rule
+      F-ZERO of design.yaml, which is added to every formalization set.

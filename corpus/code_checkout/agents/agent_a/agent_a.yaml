@@ -1,0 +1,223 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-IN-1 / R-IN-2: the valid ranges (negative arguments are not part of the trace)
+  sub_ok: "subtotal <= 1000000"
+  coupon_ok: "coupon <= 50"
+  in_range: "sub_ok && coupon_ok"
+  # outcome 0: the call returned a pair of integers that fit price and ship
+  returned: "outcome == 0"
+  # total discount in percent, as read for R-STACK-1: member 10 plus coupon, capped at 30
+  disc: "min(30, (member ? 10 : 0) + coupon)"
+  # the discounted price before rounding, times 100 (hundredths of a cent)
+  exact100: "subtotal * (100 - disc)"
+  # returned price minus the discounted price, in hundredths of a cent
+  err100: "100 * price - exact100"
+  # R-MONO-1: the amount charged, price plus shipping
+  charged: "price + ship"
+
+properties:
+  - id: PA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "in_range", cond: "returned"}
+    note: >-
+      For arguments in range the call returns a pair of integers (outcome 0).
+      "Both in cents" is read as whole cents, so a float or other non-integer
+      element (outcome 3) violates it. Outcome 0 also needs the pair to fit the
+      21-bit price and 10-bit ship signals; every pair the other rules allow
+      does (price <= subtotal <= 1,000,000, shipping <= 499). What the two
+      elements are is formalized by the R-MEM-1, R-COUP-1, R-STACK-1,
+      R-ROUND-1 and R-SHIP-1 items. Those items are stated for calls that
+      returned (there is no price otherwise), so an in-range call that
+      wrongly raises breaks R-RET-1 alone; with this item their conjunction
+      is the same as stating them for every in-range call.
+
+  - id: PA-ERR-1
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "subtotal > 1000000", cond: "outcome == 1"}
+    note: >-
+      Subtotal out of range raises ValueError, whatever the coupon. Only the
+      upper bound is checkable: negative arguments are not part of the trace
+      (frame.md). "If" is read in one direction; that in-range calls do not
+      raise comes from R-RET-1 (PA-RET-1).
+
+  - id: PA-ERR-2
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "coupon > 50", cond: "outcome == 1"}
+    note: >-
+      Coupon out of range raises ValueError, whatever the subtotal. Only the
+      upper bound is checkable (negative arguments are not part of the trace).
+
+  - id: PA-MEM-1
+    req: R-MEM-1
+    pattern: implies
+    args:
+      trigger: "in_range && returned && member && coupon == 0"
+      cond: "100 * price - 90 * subtotal > -100 && 100 * price - 90 * subtotal < 100"
+    note: >-
+      Membership as the only discount: the price is 90% of the subtotal, to
+      within less than one cent (the floor or the ceiling of 0.9 * subtotal).
+      Which of the two is fixed by the rounding rule (PA-ROUND-1), not here.
+      With a coupon as well the member discount stacks and may be capped
+      (PA-STACK-2).
+
+  - id: PA-COUP-1
+    req: R-COUP-1
+    pattern: implies
+    args:
+      trigger: "in_range && returned && !member && coupon <= 30"
+      cond: "100 * price - (100 - coupon) * subtotal > -100 && 100 * price - (100 - coupon) * subtotal < 100"
+    note: >-
+      A non-member's coupon takes coupon percent of the subtotal off, to within
+      less than one cent (rounding direction: PA-ROUND-1). Coupon 0 means no
+      coupon (R-IN-2) and gives price == subtotal. Rule 3 and the cap of rule 4
+      cannot both hold literally for coupons above 30; rule 4 says the total
+      discount is "never" more than 30%, so rule 3 is asserted only up to 30
+      and the cap governs above (PA-STACK-3). For a member the coupon stacks
+      with the member discount (PA-STACK-2).
+
+  - id: PA-STACK-1
+    req: R-STACK-1
+    pattern: implies
+    args:
+      trigger: "in_range && returned"
+      cond: "100 * price - 70 * subtotal > -100"
+    note: >-
+      The total discount is never more than 30%: the price is at least 70% of
+      the subtotal, to within less than one cent. Holds under both readings of
+      "stack". The cap is read as a cap on the discount percentage, applied
+      before rule 5 rounds the discounted price. Read as a cap on the discount
+      that remains after rounding (100 * price >= 70 * subtotal) it would
+      contradict nearest-cent rounding: subtotal 12 at 30% off is 8.4 cents,
+      which rounds to 8, a 33% discount.
+
+  - id: PA-STACK-2
+    req: R-STACK-1
+    pattern: implies
+    args:
+      trigger: "in_range && returned && member && coupon > 0"
+      cond: "100 * price - subtotal * (100 - min(30, 10 + coupon)) > -100 && 100 * price - subtotal * (100 - min(30, 10 + coupon)) < 100"
+    note: >-
+      A member with a coupon: the discounts stack. Ambiguous ("Discounts
+      stack"): read as the percentages adding up, 10 + coupon percent of the
+      subtotal, capped at 30. The other reading applies them one after the
+      other (price 0.9 * (1 - coupon/100) of the subtotal, at most 30% off) and
+      gives a different price for coupons 1 to 22: coupon 20 is 30% off when
+      added but 28% off one after the other. Price to within less than one
+      cent; rounding direction: PA-ROUND-1.
+
+  - id: PA-STACK-3
+    req: R-STACK-1
+    pattern: implies
+    args:
+      trigger: "in_range && returned && !member && coupon > 30"
+      cond: "100 * price - 70 * subtotal > -100 && 100 * price - 70 * subtotal < 100"
+    note: >-
+      A non-member's coupon above 30%. "The total discount is never more than
+      30%" is read literally as applying to every order, not only to stacked
+      discounts, and as limiting the discount to 30% (not dropping it). The
+      price is 70% of the subtotal, to within less than one cent. This
+      overrides the literal rule 3 for coupons 31 to 50 (see PA-COUP-1).
+
+  - id: PA-ROUND-1
+    req: R-ROUND-1
+    pattern: implies
+    args:
+      trigger: "in_range && returned"
+      cond: "err100 >= -50 && err100 <= 50"
+    note: >-
+      The price is within half a cent of the discounted price
+      subtotal * (100 - disc) / 100, with disc = min(30, (member ? 10 : 0) +
+      coupon) as read in PA-MEM-1, PA-COUP-1, PA-STACK-2 and PA-STACK-3.
+      Ambiguous ("the nearest cent"): at exactly half a cent both neighbours
+      are equally near and the text does not choose, so either is accepted
+      (the most literal reading). The price is then not determined, e.g. a
+      member with no coupon and subtotal 15: 13.5 cents may be 13 or 14.
+
+  - id: PA-SHIP-1
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: "in_range && returned && subtotal < 5000"
+      cond: "ship == 499"
+    note: >-
+      Ambiguous ("Orders under $50"): read as the cart total, subtotal, the
+      only amount the specification calls the cart's total; the other reading
+      uses the discounted price. Under either reading this rule contradicts
+      rule 7 (R-MONO-1) at $50: a non-member with no coupon is charged
+      4999 + 499 = 5498 cents for subtotal 4999 but 5000 + 0 = 5000 for
+      subtotal 5000. Formalized literally, not repaired.
+
+  - id: PA-SHIP-2
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: "in_range && returned && subtotal >= 5000"
+      cond: "ship == 0"
+    note: >-
+      Orders of $50 or more ship free. Same reading of the order amount
+      (subtotal) and same conflict with R-MONO-1 as PA-SHIP-1.
+
+  - id: PA-MONO-1
+    req: R-MONO-1
+    pattern: implies
+    args:
+      trigger: "prev(in_range && returned) && in_range && returned && stable(coupon) && stable(member) && subtotal > prev(subtotal)"
+      cond: "charged >= prev(charged)"
+    note: >-
+      Adding items is read as a larger subtotal with the same coupon and
+      membership. The checker orders calls freely, so the previous call ranges
+      over every other call. Only calls that returned are compared: a call
+      that raises charges nothing. Contradicts R-SHIP-1 at the $50 threshold
+      (see PA-SHIP-1): together with the price rules no function meets both.
+      Formalized literally, not repaired.
+
+  - id: PA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "member && subtotal == 10000 && coupon == 0"
+      cond: "outcome == 0 && price == 9000 && ship == 0"
+    note: >-
+      "Gets" is read as what such a call always returns, so the example is
+      also a property. It follows from PA-RET-1, PA-MEM-1 and PA-SHIP-2.
+
+scenarios:
+  - id: PA-EX-2
+    req: R-EX-1
+    cover: "member && subtotal == 10000 && coupon == 0 && outcome == 0 && price == 9000 && ship == 0"
+    note: The example is a possible behaviour of the specification.
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the interface. The name and the three arguments are the
+      call and its input signals, and the result type is encoded by outcome,
+      price and ship (frame.md, design.yaml function). That an in-range call
+      returns a pair of integers is PA-RET-1.
+    covered_by: [PA-RET-1]
+  - req: R-IN-1
+    reason: >-
+      Definition of the valid subtotal range, used through def sub_ok
+      (inclusive, 0 to 1,000,000; 0 is the lowest value in the trace). "The
+      cart total" is the order amount read in PA-SHIP-1/2 and the quantity
+      that adding items increases in PA-MONO-1.
+    covered_by: [PA-RET-1, PA-ERR-1, PA-SHIP-1, PA-SHIP-2, PA-MONO-1]
+  - req: R-IN-2
+    reason: >-
+      Definition of the valid coupon range, used through def coupon_ok
+      (inclusive, 0 to 50), and of coupon 0 as no coupon (PA-COUP-1 takes
+      nothing off at 0, PA-MEM-1 gives a member only the member discount at
+      0, PA-EX-1 reads "no coupon" as coupon 0).
+    covered_by: [PA-RET-1, PA-ERR-2, PA-COUP-1, PA-MEM-1, PA-EX-1]
+  - req: R-IN-3
+    reason: Definition of the member argument; its effect is the member discount.
+    covered_by: [PA-MEM-1, PA-STACK-2]
+  - req: R-FR-1
+    reason: Frame rule F-ZERO of the adapter (design.yaml frame), added to every set by construction.
+    covered_by: [F-ZERO]

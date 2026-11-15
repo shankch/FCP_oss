@@ -1,0 +1,137 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-API-1
+  doc: SPEC
+  quote: 'def check_if_last_char_is_a_letter(txt):'
+  text: The code defines a Python function named check_if_last_char_is_a_letter that takes a single argument txt.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: of a given string
+  text: The argument txt passed to check_if_last_char_is_a_letter is a string.
+  kind: assumption
+  lines:
+  - 7
+- id: R-RET-1
+  doc: SPEC
+  quote: Create a function that returns True if the last character of a given string is an alphabetical character and is not a part of a word, and False otherwise.
+  text: For every string txt, including the empty string, check_if_last_char_is_a_letter(txt) returns a boolean (True or False); it does not raise an exception, fail to finish, or return a value of another
+    type.
+  kind: guarantee
+  ambiguity:
+  - phrase: returns True
+    readings:
+    - the function must return the Python bool values True and False exactly
+    - any truthy value (e.g. 1) counts as True and any falsy value (e.g. 0 or None) counts as False
+  lines:
+  - 6
+  - 8
+- id: R-LAST-1
+  doc: SPEC
+  quote: returns True if the last character of a given string is an alphabetical character and is not a part of a word
+  text: If the last character of txt is an alphabetical character and that character is not part of a word, check_if_last_char_is_a_letter(txt) returns True.
+  kind: guarantee
+  depends:
+  - R-WORD-1
+  ambiguity:
+  - phrase: an alphabetical character
+    readings:
+    - only the 52 ASCII letters a-z and A-Z
+    - "any character Python str.isalpha() accepts, including Latin-1 letters such as \xE9, \xDF, \xAA, \xB5 and \xBA (codes 128-255)"
+  - phrase: is not a part of a word
+    readings:
+    - "the last space-separated group (the text after the last space, or the whole string if it has no space) is exactly that one character, so a one-character string such as \"e\" gives True (matches the\
+      \ example \"apple pi e\" \u279E True)"
+    - the character immediately before the last character is a space, so a one-character string such as "e" gives False
+    - "literally per the Note, the last character belongs to no group of characters separated by space; every non-space character belongs to such a group, so the result is never True (contradicts the example\
+      \ \"apple pi e\" \u279E True)"
+  - phrase: the last character
+    readings:
+    - the final character of the string, even if it is a space (so "apple pi e " gives False, as its example says)
+    - the last non-space character, ignoring trailing spaces (so "apple pi e " would give True, contradicting its example)
+  lines:
+  - 6
+  - 8
+- id: R-LAST-2
+  doc: SPEC
+  quote: and False otherwise
+  text: If txt is empty, or its last character is not an alphabetical character, or its last character is part of a word, check_if_last_char_is_a_letter(txt) returns False.
+  kind: guarantee
+  depends:
+  - R-LAST-1
+  - R-WORD-1
+  ambiguity:
+  - phrase: otherwise
+    readings:
+    - "covers every string that does not meet the True condition, including the empty string, which has no last character, so \"\" gives False (matches the example \"\" \u279E False)"
+    - covers only non-empty strings, since the condition presupposes a last character; the result for the empty string is left unspecified
+  lines:
+  - 8
+- id: R-WORD-1
+  doc: SPEC
+  quote: 'Note: "word" is a group of characters separated by space.'
+  text: A "word" is a group of consecutive characters delimited by spaces (or by the start or end of the string).
+  kind: definition
+  ambiguity:
+  - phrase: a group of characters
+    readings:
+    - "a group can be a single character, so the lone final \"e\" in \"apple pi e\" is itself a word and its last character is part of a word, giving False; this contradicts the example \"apple pi e\" \u279E\
+      \ True"
+    - a word has at least two characters, so a lone character between spaces is not a word and "apple pi e" gives True, as its example says
+  - phrase: separated by space
+    readings:
+    - only the space character (code 32) separates words, so "apple\te" (with a tab) is one word
+    - any whitespace character (space, tab, newline, ...) separates words, so the "e" in "apple\te" is a separate group
+  - phrase: group of characters
+    readings:
+    - any run of non-space characters is a word, including digits and punctuation, so "1e" and "x.e" are each one word ending in "e"
+    - only letters make up a word and any non-letter ends it, so in "1e" or "x.e" the final "e" stands alone
+  lines:
+  - 9
+- id: R-EX-1
+  doc: SPEC
+  quote: "check_if_last_char_is_a_letter(\"apple pie\") \u279E False"
+  text: check_if_last_char_is_a_letter("apple pie") returns False.
+  kind: scenario
+  lines:
+  - 12
+- id: R-EX-2
+  doc: SPEC
+  quote: "check_if_last_char_is_a_letter(\"apple pi e\") \u279E True"
+  text: check_if_last_char_is_a_letter("apple pi e") returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: "(\"apple pi e\") \u279E True"
+    readings:
+    - the example is correct and a lone letter between spaces is not part of a word, so a word needs at least two characters (overriding the Note)
+    - the Note is correct and the lone final "e" is a one-character word, so the example contradicts the definition of "word" and the result should be False
+  lines:
+  - 13
+- id: R-EX-3
+  doc: SPEC
+  quote: "check_if_last_char_is_a_letter(\"apple pi e \") \u279E False"
+  text: check_if_last_char_is_a_letter("apple pi e ") (with a trailing space) returns False.
+  kind: scenario
+  lines:
+  - 14
+- id: R-EX-4
+  doc: SPEC
+  quote: "check_if_last_char_is_a_letter(\"\") \u279E False"
+  text: check_if_last_char_is_a_letter("") (the empty string) returns False.
+  kind: scenario
+  lines:
+  - 15
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: The result output is false in every call whose outcome is not 0 (the call did not return a bool).
+  kind: guarantee
+  lines:
+  - 46

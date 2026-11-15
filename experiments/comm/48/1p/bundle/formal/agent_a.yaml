@@ -1,0 +1,72 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+properties:
+  - id: RA-CHK-1
+    req: R-CHK-1
+    expr: 'outcome == 0'
+    note: >-
+      "Checks if" is read literally as a check whose answer is a truth value:
+      every call finishes and returns True or False (outcome 0), never raises,
+      never hangs and never returns a value of another type (1/0, the string,
+      None). This holds for every string, whatever the unstated property is.
+
+dont_cares:
+  - id: RA-CHK-2
+    req: R-CHK-2
+    signal: result
+    when: 'outcome == 0'
+    note: >-
+      The docstring is cut off after "is a", so the property that should make
+      candidate return True is not stated anywhere in the prompt. Most literal
+      reading: no particular answer is required for any string, including the
+      empty string, so the returned truth value is left free. A palindrome
+      reading would come from knowledge outside the prompt and would repair
+      the specification; it is not taken. When outcome is not 0 the frame rule
+      F-ZERO already fixes result to 0.
+  - id: RA-CHK-3
+    req: R-CHK-3
+    signal: result
+    when: 'outcome == 0'
+    note: >-
+      Same cut-off docstring as R-CHK-2: the property whose absence should make
+      candidate return False is not stated, so no string is required to give
+      False and the returned truth value is left free (most literal reading).
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: the deliverable is the body of candidate under the given
+      signature and docstring. Not a property of the call trace. Taken
+      literally, "complete this function" does not mean finishing the
+      truncated docstring, so it does not choose the property left open in
+      R-CHK-2 and R-CHK-3.
+  - req: R-IF-1
+    reason: >-
+      Definition of the interface: the name candidate, the single parameter
+      text and the missing return annotation are encoded by the function
+      section and the signals of design.yaml (text in, outcome and result
+      out). There is nothing to check on the trace.
+  - req: R-IF-2
+    reason: >-
+      Read as a type hint only: callers always pass a str. The trace can only
+      carry a string in text (a sequence signal of at most 32 characters), so
+      this environment obligation holds by construction of the interface and
+      needs no assumption. Behaviour for arguments of other types is outside
+      the trace and so left unconstrained; the reading that the function must
+      reject non-str arguments cannot be observed in this trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, part of every formalization set by
+      construction and not restated here.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-TASK-1, phrase: "Complete this function", reading: 1}
+  - {req: R-IF-2, phrase: "text: str", reading: 1}
+  - {req: R-CHK-1, phrase: "Checks if", reading: 1}
+  - {req: R-CHK-2, phrase: "is a", reading: 3}
+  - {req: R-CHK-2, phrase: "given string", reading: 1}
+  - {req: R-CHK-3, phrase: "is a", reading: 3}
+  - {req: R-CHK-3, phrase: "given string", reading: 1}

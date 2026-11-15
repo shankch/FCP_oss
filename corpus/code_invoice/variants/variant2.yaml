@@ -1,0 +1,154 @@
+fcp: "0.1"
+set: variant2
+origin: {kind: agent, role: formalizer, id: variant2}
+
+defs:
+  # rule 1 does not apply: at least one item and no item with quantity 0
+  valid: "len(price) > 0 && all(i < len(qty): qty[i] != 0)"
+  # the call returned a dict of the declared form
+  returned: "outcome == 0"
+
+properties:
+  - id: V2-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: "valid"
+      cond: "outcome == 0"
+    note: >-
+      A valid call is one that rule 1 does not make raise (items non-empty, no
+      quantity 0). Outcome 0 means a dict with exactly the keys lines, discount
+      and total whose values fit their signals; with prices up to 4,095 and
+      quantities up to 15 every value the rules define fits.
+
+  - id: V2-ERR-1
+    req: R-ERR-1
+    pattern: implies
+    args:
+      trigger: "len(price) == 0 || any(i < len(qty): qty[i] == 0)"
+      cond: "outcome == 1"
+    note: Empty items, or any item with quantity 0, raises ValueError (outcome 1).
+
+  - id: V2-LINES-LEN
+    req: R-LINES-1
+    pattern: implies
+    args:
+      trigger: "returned"
+      cond: "len(lines) == len(price)"
+    note: One amount per item. The order is fixed by the index-wise relations of V2-LINES-PLAIN and V2-MEM-1.
+
+  - id: V2-LINES-PLAIN
+    req: R-LINES-1
+    pattern: implies
+    args:
+      trigger: "returned"
+      cond: "all(i < len(price): (!member || sale[i] == 1) -> lines[i] == price[i] * qty[i])"
+    note: >-
+      A line that rule 3 gives no discount (non-member, or item on sale) has
+      discount 0, so its amount is price times quantity. The discounted lines
+      (member, not on sale) are constrained by V2-MEM-1, which combines this
+      rule's "price times its quantity, minus that line's discount" with rule 3.
+      Under the reading of R-MEM-1 imposed for this set (the discounted line
+      amount is rounded down), the line discount of a discounted line is
+      price*qty - floor(0.9*price*qty), i.e. 10% rounded UP.
+
+  - id: V2-MEM-1
+    req: R-MEM-1
+    pattern: implies
+    args:
+      trigger: "returned && member"
+      cond: "all(i < len(price): sale[i] == 0 -> 10 * lines[i] == 9 * price[i] * qty[i] - (9 * price[i] * qty[i]) % 10)"
+    note: >-
+      Imposed reading (decision reading 2, taken as instructed even though
+      reading 1 seems more natural and is the one the example of rule 6 / R-EX-1
+      follows): "rounded down to the cent" applies to the discounted line amount,
+      so a member's line not on sale is floor(90% of price*qty), written without
+      division as 10*line == 9*p*q - (9*p*q) % 10. Together with R-LINES-1 this
+      makes the line's discount 10% rounded up. Consequence: for price 1999,
+      qty 2 the line is 3598, not the 3599 of the example, and sum(lines)
+      differs from the total of R-TOT-1 whenever a member's non-sale line has
+      price*qty not a multiple of 10 (see V2-SUM-1, V2-TOT-1, V2-EX-1).
+
+  - id: V2-DISC-MEM
+    req: R-DISC-1
+    pattern: implies
+    args:
+      trigger: "returned && member"
+      cond: "10 * discount == sum(i < len(price): (sale[i] == 0 ? price[i] * qty[i] - (price[i] * qty[i]) % 10 : 0))"
+    note: >-
+      Imposed reading (decision reading 2, taken as instructed even though
+      reading 1 - sum first, then round - seems more natural for "summed and
+      rounded down"): each non-sale item's 10% of price*qty is rounded down,
+      then the results are summed; discount = sum of floor(p*q/10), written as
+      10*discount == sum of (p*q - (p*q) % 10). This rounds the opposite way to
+      the line discounts implied by the imposed reading of R-MEM-1 (rounded
+      up), so with R-SUM-1 and R-TOT-1 the set is contradictory for members
+      with a non-sale line whose price*qty is not a multiple of 10.
+
+  - id: V2-DISC-NON
+    req: R-DISC-1
+    pattern: implies
+    args:
+      trigger: "returned && !member"
+      cond: "discount == 0"
+    note: >-
+      "0 for everyone else". The imposed reading of "summed and rounded down"
+      (reading 2) does not affect this case.
+
+  - id: V2-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args:
+      trigger: "returned"
+      cond: "total == sum(i < len(lines): lines[i])"
+    note: >-
+      Stated literally. With the imposed readings (R-MEM-1 reading 2: lines
+      rounded down, i.e. line discounts rounded up; R-DISC-1 reading 2: discount
+      is the sum of per-item discounts rounded down) this conflicts with
+      V2-TOT-1 whenever a member has a non-sale item with price*qty not a
+      multiple of 10. Not repaired.
+
+  - id: V2-TOT-1
+    req: R-TOT-1
+    pattern: implies
+    args:
+      trigger: "returned"
+      cond: "total == sum(i < len(price): price[i] * qty[i]) - discount"
+    note: >-
+      Stated literally. Rules 5 and 6 define total twice; under the imposed
+      readings of R-MEM-1 and R-DISC-1 (both reading 2) the two definitions
+      disagree for members with a non-sale item whose price*qty is not a
+      multiple of 10 (e.g. the example: sum(lines) = 3598, this rule gives
+      3599). Not repaired.
+
+scenarios:
+  - id: V2-EX-1
+    req: R-EX-1
+    cover: "member && len(price) == 1 && price[0] == 1999 && qty[0] == 2 && sale[0] == 0 && outcome == 0 && lines == [3599] && discount == 399 && total == 3599"
+    note: >-
+      The example as a reachable behaviour. It follows reading 1 of R-MEM-1
+      (line discount 399 rounded down, line 3599). Under the reading imposed
+      for this set (R-MEM-1 reading 2: line = floor(0.9*3998) = 3598) V2-MEM-1
+      forbids lines == [3599], so this scenario is expected to be unreachable:
+      the imposed reading contradicts the specification's own example. Kept
+      literal, not repaired. (R-DISC-1's reading does not matter for one item:
+      discount 399 under both.)
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the function signature; realized by the function section
+      and interface of design.yaml (items as the price/qty/sale group, member,
+      the returned dict as lines/discount/total, outcome).
+  - req: R-IN-1
+    reason: >-
+      Definition of the item record; realized by the interface encoding
+      (price in cents, qty, sale as one sequence group). Nothing to check.
+  - req: R-FR-1
+    reason: >-
+      Definition of the adapter encoding; it is frame rule F-ZERO of
+      design.yaml, added to every formalization set, and need not be restated.
+
+decisions:
+  - {req: R-MEM-1, phrase: "rounded down to the cent", reading: 2}
+  - {req: R-DISC-1, phrase: "summed and rounded down", reading: 2}

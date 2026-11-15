@@ -1,0 +1,115 @@
+fcp: '0.1'
+design: code_loyal
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-PKG-1
+  doc: SPEC
+  quote: 'Write a Python package `loyalty` for our loyalty programme, in three modules:'
+  text: The code is a package loyalty with the modules tiers, points and account.
+  kind: definition
+  lines:
+  - 3
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'class Account:'
+  text: The class and its four methods, their arguments and result types.
+  kind: definition
+  lines:
+  - 9
+- id: R-NEW-1
+  doc: SPEC
+  quote: A new account has 0 points.
+  text: A new account has 0 points.
+  kind: guarantee
+  lines:
+  - 15
+- id: R-TIER-1
+  doc: SPEC
+  quote: An account with fewer than 500 points is basic, one with 500 to 1,999 points is silver, and one with 2,000 points or more is gold.
+  text: The tier of an account is 0 below 500 points, 1 from 500 to 1,999 points and 2 from 2,000 points.
+  kind: guarantee
+  lines:
+  - 19
+- id: R-RATE-1
+  doc: SPEC
+  quote: Basic earns 1 point for each dollar, silver 2 and gold 3.
+  text: The rate of tier 0 is 1 point per dollar, of tier 1 it is 2, of tier 2 it is 3.
+  kind: definition
+  lines:
+  - 20
+- id: R-POINTS-1
+  doc: SPEC
+  quote: A purchase earns points for each whole dollar of `amount`, at the rate of the account's tier.
+  text: A purchase earns the rate of the account's tier times the whole dollars of the amount.
+  kind: guarantee
+  ambiguity:
+  - phrase: the account's tier
+    readings:
+    - the tier of the account before the purchase
+    - the tier of the account once the purchase is added
+  lines:
+  - 24
+- id: R-CAP-1
+  doc: SPEC
+  quote: No purchase earns more than 1,000 points.
+  text: A purchase earns at most 1,000 points.
+  kind: guarantee
+  ambiguity:
+  - phrase: No purchase earns more than
+    readings:
+    - a purchase that would earn more earns exactly 1,000
+    - a purchase that would earn more is refused
+  lines:
+  - 25
+- id: R-RANGE-1
+  doc: SPEC
+  quote: Raise ValueError if `amount` is less than 1 or more than 100,000, or if `points` is less than 1 or more than 100,000.
+  text: An earn with an amount below 1 or above 100,000, or a redeem with points below 1 or above 100,000, raises ValueError.
+  kind: guarantee
+  lines:
+  - 29
+- id: R-EARN-1
+  doc: SPEC
+  quote: '`earn` adds the points the purchase earns to the account and returns them.'
+  text: An earn with a valid amount returns the points the purchase earns and adds them to the account.
+  kind: guarantee
+  lines:
+  - 30
+- id: R-REDEEM-1
+  doc: SPEC
+  quote: '`redeem` takes `points` off the account and returns True if the account has that many; otherwise it returns False and the account stays as it was.'
+  text: A redeem with valid points returns True and takes the points off the account if the account has at least that many, and otherwise returns False and leaves the account.
+  kind: guarantee
+  lines:
+  - 31
+- id: R-GET-1
+  doc: SPEC
+  quote: '`tier` returns the account''s tier, and `balance` returns its points.'
+  text: tier returns the tier of the account and balance returns its points.
+  kind: guarantee
+  lines:
+  - 32
+- id: R-KEEP-1
+  doc: SPEC
+  quote: 'Members keep what they have reached: the tier that `tier` returns never goes down.'
+  text: On one account, tier never returns a lower tier than it returned before.
+  kind: guarantee
+  lines:
+  - 33
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: after `earn(60000)` and `redeem(50)`, `balance()` returns 550 and `tier()` returns 1.'
+  text: On a new account, earn(60000), redeem(50), then balance() returns 550 and tier() returns 1.
+  kind: scenario
+  lines:
+  - 35
+- id: R-FR-1
+  doc: FRAME
+  quote: 'each result is 0 unless its method was called and returned: `earned` unless `op` is 1, `ok` unless `op` is 2, `t` unless `op` is 3, `bal` unless `op` is 4, and all four unless `outcome` is 0.'
+  text: Each result signal is 0 unless its method was called and returned.
+  kind: definition
+  lines:
+  - 47

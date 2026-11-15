@@ -1,0 +1,168 @@
+fcp: "0.1"
+set: variant1
+origin: {kind: agent, role: formalizer, id: variant1}
+
+defs:
+  # total discount of a student in percent: coupon, 10 for a member and the
+  # student's 15 add up, capped at 30 (R-CAP-1; coupon and member discounts as in OLD)
+  disc_stu: "min(coupon + (member ? 10 : 0) + 15, 30)"
+  # a student's discounted price, unrounded, in hundredths of a cent
+  due_stu: "subtotal * (100 - disc_stu)"
+
+properties:
+  # R-STU-1: students get 15% off
+  - id: V1-STU-1
+    req: R-STU-1
+    pattern: implies
+    args:
+      trigger: "student && coupon == 0 && !member && outcome == 0"
+      cond: "100 * price >= 85 * subtotal - 50 && 100 * price <= 85 * subtotal + 50"
+    note: >-
+      A student with no other discount (no coupon, not a member) whose call returns pays 85% of
+      the subtotal, to the nearest cent. "15% off" is read as 15% of the subtotal. The text says
+      nothing about rounding; an exact 85% is impossible in whole cents, so this item allows
+      either cent at a tie and leaves the rounding rule to R-KEEP-1 (V1-KEEP-2). How the 15%
+      combines with the other discounts is R-CAP-1 (V1-CAP-1).
+
+  # R-CAP-1: the student discount adds to the others, total at most 30%
+  - id: V1-CAP-1
+    req: R-CAP-1
+    pattern: implies
+    args:
+      trigger: "student && outcome == 0"
+      cond: "100 * price >= due_stu - 50 && 100 * price <= due_stu + 50"
+    note: >-
+      For a student whose call returns, the total discount is coupon + 10 (member) + 15
+      (student) percentage points, and 30 when that sum is more than 30; the price is the
+      subtotal less that discount, to the nearest cent. "Adds to" is read as adding percentage
+      points (not applying the discounts one after the other). "The other discounts" are the
+      coupon percent and the 10% loyalty discount of the code before the change (OLD). "Still
+      never more than 30%" is read as the cap of the code before the change, which caps the
+      sum at 30% (min), so a sum above 30% gives exactly 30%. The item is limited to students:
+      non-students are covered by R-SAME-1. Ties are left open here; the rounding rule is R-KEEP-1.
+
+  # R-SHIP-1: free shipping starts at $75 (reading 1: for every customer)
+  - id: V1-SHIP-1
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && subtotal >= 7500"
+      cond: "ship == 0"
+    note: >-
+      Ambiguity "Free shipping now starts at $75" is read, as instructed, as reading 1: for
+      every customer, students and non-students alike (no condition on student). An order of
+      $75.00 (7,500 cents) or more whose call returns ships free. The $75 is compared with the
+      subtotal argument (before discounts), as the $50 threshold is in the code before the
+      change; the text does not say which amount, so this follows R-KEEP-1.
+  - id: V1-SHIP-2
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && subtotal < 7500"
+      cond: "ship == 499"
+    note: >-
+      Ambiguity "Free shipping now starts at $75" is read, as instructed, as reading 1: for
+      every customer (no condition on student). An order under $75.00 whose call returns pays
+      the shipping fee, which is the $4.99 (499 cents) of the code before the change (OLD; the
+      fee itself is kept by R-KEEP-1). The threshold is on the subtotal before discounts, as in
+      OLD. CONFLICT: under this reading the item contradicts R-SAME-1 (V1-SAME-1..3) for a
+      customer who is not a student with a subtotal from 5,000 to 7,499 cents: the code before
+      the change returns shipping 0 there, R-SAME-1 demands that answer, and this item demands
+      499. Formalized literally; the contradiction is in the specification and is not repaired.
+
+  # R-SAME-1: nothing changes for customers who are not students
+  - id: V1-SAME-1
+    req: R-SAME-1
+    pattern: implies
+    args:
+      trigger: "!student"
+      cond: "outcome == old_outcome"
+    note: >-
+      For a customer who is not a student, the call ends as the call of the code before the
+      change with the same subtotal, coupon and member (returned, ValueError, other).
+      Together with V1-SAME-3 this conflicts with R-SHIP-1 under the reading taken for
+      "Free shipping now starts at $75" (reading 1, for every customer): see V1-SHIP-2.
+  - id: V1-SAME-2
+    req: R-SAME-1
+    pattern: implies
+    args:
+      trigger: "!student"
+      cond: "price == old_price"
+    note: >-
+      For a customer who is not a student, the price is the price of the code before the change.
+  - id: V1-SAME-3
+    req: R-SAME-1
+    pattern: implies
+    args:
+      trigger: "!student"
+      cond: "ship == old_ship"
+    note: >-
+      For a customer who is not a student, the shipping fee is that of the code before the
+      change. CONFLICT: with the reading taken for "Free shipping now starts at $75" (reading 1,
+      for every customer), R-SHIP-1 (V1-SHIP-2) demands 499 for a non-student with a subtotal
+      from 5,000 to 7,499 cents, where the code before the change returns 0. Both are
+      formalized literally; the specification contradicts itself there.
+
+  # R-KEEP-1: everything else as before for students
+  - id: V1-KEEP-1
+    req: R-KEEP-1
+    pattern: implies
+    args:
+      trigger: "student"
+      cond: "outcome == old_outcome"
+    note: >-
+      Ranges and errors are kept: a student's call ends as the call of the code before the
+      change with the same subtotal, coupon and member does (so it raises ValueError exactly
+      when the subtotal or coupon is out of the old range, and returns otherwise). Rules 1 and 2
+      change only the price and the shipping fee, not the outcome. Non-students are R-SAME-1.
+  - id: V1-KEEP-2
+    req: R-KEEP-1
+    pattern: implies
+    args:
+      trigger: "student && outcome == 0"
+      cond: "100 * price + (due_stu + 50) % 100 == due_stu + 50"
+    note: >-
+      Rounding is kept: a student's price is the discounted subtotal (discount as in V1-CAP-1)
+      rounded to the nearest cent, half a cent up, as in the code before the change
+      (price = floor((due_stu + 50) / 100), written without division). The shipping fee kept
+      by this requirement (499 cents, OLD) is stated in V1-SHIP-2, under the reading taken for
+      "Free shipping now starts at $75" (reading 1, for every customer).
+
+  # R-EX-1: the worked example, as a guarantee
+  - id: V1-EX-2
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "student && subtotal == 10000 && coupon == 0 && !member"
+      cond: "outcome == 0 && price == 8500 && ship == 0"
+    note: >-
+      The example says what such a student "gets", so besides being possible (V1-EX-1) the
+      answer is required: a student with a $100.00 cart, no coupon and no membership gets
+      (8500, 0). Consistent with V1-STU-1, V1-CAP-1, V1-KEEP-2 and V1-SHIP-1.
+
+scenarios:
+  - id: V1-EX-1
+    req: R-EX-1
+    cover: "student && subtotal == 10000 && coupon == 0 && !member && outcome == 0 && price == 8500 && ship == 0"
+    note: >-
+      A student with a 10,000-cent cart, no coupon and no membership receives (8500, 0).
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Interface definition: the new student argument is the student input signal. That it
+      defaults to False is not observable, since every call of the trace passes student
+      explicitly (frame.md).
+  - req: R-TEST-1
+    reason: >-
+      Non-functional: concerns the test file test_checkout.py, not the behaviour of the
+      checkout function, which is all the trace records.
+  - req: R-FR-1
+    reason: Adapter definition, realized by the frame rule of design.yaml that is part of every set.
+    covered_by: [F-ZERO]
+  - req: R-FR-2
+    reason: Adapter definition, realized by the frame rule of design.yaml that is part of every set.
+    covered_by: [F-OLD]
+
+decisions:
+  - {req: R-SHIP-1, phrase: "Free shipping now starts at $75", reading: 1}

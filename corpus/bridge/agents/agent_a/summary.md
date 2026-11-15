@@ -1,0 +1,2 @@
+25 items (2 assumptions, 17 properties, 1 scenario, 5 dont_cares), no ghost state. Unformalized with covered_by: R-CMD-1 (definition, def cmd_acc), R-APB-2 (order realized by the inorder items).
+Spec problems noted: R-CMD-2 vs R-RSP-6 conflict (formalized the permission as scenario BA-S-RSP-6, left unrepaired); R-CMD-2 read literally as an implication (cmd_ready may stay low while idle); R-APB-9 window read as pready within [s, s+4]; rsp_rdata unspecified for writes; spurious rsp_valid/psel only excluded indirectly; R-RSP-6 is a permission.

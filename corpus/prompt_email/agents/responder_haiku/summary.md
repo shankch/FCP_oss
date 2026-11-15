@@ -1,0 +1,1 @@
+Response returned as the final message and saved verbatim to responses/haiku.md.

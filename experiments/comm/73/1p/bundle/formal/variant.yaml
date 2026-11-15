@@ -1,0 +1,94 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+assumptions:
+- id: RV-IN-1
+  req: R-IN-1
+  expr: 'len(arr) >= 1'
+  note: >-
+    Reading given for 'an array arr of integers': only non-empty lists are valid
+    inputs and behaviour on the empty list is unspecified, so the environment
+    supplies lists of length at least 1 (instead of also allowing []).
+    Reading given for 'integers': non-negative integers only. That needs no
+    separate constraint here, because the frame already allows only elements 0 to
+    255 (negative integers are not part of the trace).
+
+properties:
+- id: RV-CNT2-1
+  req: R-CNT-2
+  expr: 'outcome != 1'
+  note: >-
+    Reading given for 'find': compute and output (e.g. print) the number; the
+    return value is unspecified. What is left on this interface is that the call
+    completes normally on every valid arr: it does not raise an exception and
+    it finishes (outcome is not 1). It may return an integer (outcome 0) or any
+    other value such as None (outcome 2), because the return value is unspecified.
+    The printed number is not an interface signal, so it is not checked.
+
+dont_cares:
+- id: RV-CNT2-2
+  req: R-CNT-2
+  signal: changes
+  when: 'outcome == 0'
+  note: >-
+    Reading given for 'find': the number is output (e.g. printed) and the return
+    value is unspecified, so any returned integer is allowed. This also removes
+    the result guarantee of R-CNT-1 from the returned value (see the entry for
+    R-CNT-1 under unformalized). When outcome is not 0, changes stays fixed at 0 by
+    frame rule F-ZERO.
+
+unformalized:
+- req: R-IF-1
+  reason: >-
+    Non-functional: the function's name (candidate) and its one argument arr are
+    fixed by the function adapter (design.yaml, function section), so they are not
+    a property of the trace. A missing function, a wrong name or a wrong arity
+    makes every call raise, so it shows up as outcome 1 and RV-CNT2-1 rejects it.
+- req: R-CNT-1
+  reason: >-
+    Cannot be observed on this interface under the readings given. With the reading
+    given for 'find' (R-CNT-2: compute and output, e.g. print, the number; the
+    return value is unspecified), the count is printed rather than returned, and
+    the interface has no signal for printed output. The return value is left free
+    (RV-CNT2-2). The readings given for this requirement would define the
+    printed number as follows. 'The number of elements that need to be changed'
+    counts every position whose element differs from its mirror element, so both
+    elements of each mismatched pair count (twice the minimum). 'Number of elements'
+    counts change operations, as defined by 'In one change, you can change one
+    element to any other element'. These readings do not combine with the reading
+    given for R-DEF-1 (textual palindrome): there 'mirror element' has no meaning
+    (for example [12, 1] reads '121', which is palindromic, yet both positions
+    differ from their mirror element). Even if the count were returned, it could
+    not be stated without repairing the text.
+- req: R-DEF-1
+  reason: >-
+    Definition used only by R-CNT-1, which cannot be observed on this interface
+    under the reading given for 'find' (see R-CNT-1). Reading given for 'read the
+    same backwards and forwards': textual, so the concatenated decimal digits of
+    the elements form a palindromic string (for example [12, 1] reads '121'). Under
+    this reading, arrays such as [12] or [10, 10] are not palindromic. With the
+    reading given for R-DEF-2 (only values already in the array), they could never
+    be made palindromic, so the count would be undefined for them.
+- req: R-DEF-2
+  reason: >-
+    Definition used only by R-CNT-1, which cannot be observed on this interface
+    under the reading given for 'find' (see R-CNT-1). Reading given for 'any other
+    element': the new value is the value of another element already present in the
+    array. Reading given for 'In one change': the answer counts change operations,
+    each of which modifies one element.
+- req: R-FR-1
+  reason: >-
+    Frame rule of the function adapter. It holds by construction and is part of
+    every formalization set as F-ZERO (design.yaml frame), so it is not restated.
+  covered_by: [F-ZERO]
+
+decisions:
+- {req: R-IN-1, phrase: 'an array arr of integers', reading: 2}
+- {req: R-IN-1, phrase: 'integers', reading: 2}
+- {req: R-CNT-1, phrase: 'the number of elements that need to be changed', reading: 2}
+- {req: R-CNT-1, phrase: 'number of elements', reading: 2}
+- {req: R-CNT-2, phrase: 'find', reading: 2}
+- {req: R-DEF-1, phrase: 'read the same backwards and forwards', reading: 2}
+- {req: R-DEF-2, phrase: 'any other element', reading: 2}
+- {req: R-DEF-2, phrase: 'In one change', reading: 1}

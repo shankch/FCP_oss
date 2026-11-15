@@ -1,0 +1,148 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md,
+# "Calls"), so there is no ghost state: the model is a combinational function
+# of the argument `numbers` in the same call. For each position i of numbers,
+# the multiplicity of numbers[i] in numbers is
+#     count(j < len(numbers): numbers[j] == numbers[i])
+# Under the readings taken below (R-DEF-1 reading 1, R-RM-1 reading 1) the
+# model keeps exactly the elements whose value has multiplicity 1, in their
+# input order. Every output is checked against it: `outcome` (R-IF-3), the
+# multiplicity in `result` of each repeated value (R-RM-1), of each unique
+# value (R-RM-2) and of each value absent from numbers (R-RM-3), the length of
+# `result` (R-RM-3), and the order of `result` (R-ORD-1).
+defs:
+  ret: "outcome == 0"                 # the call returned a list that fits the encoding
+
+properties:
+  - id: RB-IF-3
+    req: R-IF-3
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Reading 1 of "-> List[int]": the annotation obliges the function to return
+      a list of integers for every list of integers passed in, so no call may
+      raise, fail to finish, or return another value. Outcome 0 also requires the
+      list to fit the encoding (at most 8 numbers, 0 to 255); any list allowed by
+      R-RM-3 fits, since its elements come from numbers and it is no longer than
+      numbers.
+
+  - id: RB-RM-1
+    req: R-RM-1
+    pattern: implies
+    args:
+      trigger: "ret"
+      cond: "all(i < len(numbers): count(j < len(numbers): numbers[j] == numbers[i]) > 1 -> !(numbers[i] in result))"
+    note: >-
+      Reading 1 of "remove all elements that occur more than once", the most
+      literal one: every element whose value occurs at two or more positions of
+      numbers (R-DEF-1 reading 1, positions need not be adjacent) is removed, so
+      such a value does not appear in the result at all. This CONTRADICTS the
+      example R-EX-1: for [1, 2, 3, 2, 4] it requires 2 to be absent, while the
+      example returns [1, 2, 3, 4]. The contradiction is kept, not repaired (see
+      RB-EX-1). Guarded by outcome 0 so that the obligation to return at all stays
+      with R-IF-3.
+
+  - id: RB-RM-2
+    req: R-RM-2
+    pattern: implies
+    args:
+      trigger: "ret"
+      cond: "all(i < len(numbers): count(j < len(numbers): numbers[j] == numbers[i]) == 1 -> count(k < len(result): result[k] == numbers[i]) == 1)"
+    note: >-
+      A value that occurs exactly once in numbers (R-DEF-1 reading 1) appears
+      exactly once in the result. Guarded by outcome 0: a call that does not
+      return a list has no result, and the obligation to return is R-IF-3's
+      (without the guard this item alone would forbid raising on any list with a
+      unique element, i.e. silently impose R-IF-3 reading 1).
+
+  - id: RB-RM-3-MEMBER
+    req: R-RM-3
+    pattern: implies
+    args:
+      trigger: "ret"
+      cond: "all(k < len(result): result[k] in numbers)"
+    note: >-
+      Every element of the result equals some element of numbers. Reading 1 of
+      "From a list of integers, remove" (a new list is built; the argument is left
+      unchanged) is recorded, but the trace does not observe the argument after
+      the call, so reading 2 (in place, returning that list) gives the same item.
+
+  - id: RB-RM-3-LEN
+    req: R-RM-3
+    pattern: implies
+    args:
+      trigger: "ret"
+      cond: "len(result) <= len(numbers)"
+    note: "The result is never longer than numbers."
+
+  - id: RB-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args:
+      trigger: "ret"
+      cond: "all(l < len(result): all(k < l: all(j < len(numbers): numbers[j] == result[l] -> any(i < j: numbers[i] == result[k]))))"
+    note: >-
+      For any two positions k < l of the result, every occurrence of result[l] in
+      numbers is preceded by an occurrence of result[k]; i.e. the first occurrence
+      of result[k] in numbers comes before the first occurrence of result[l]. So
+      the result is a subsequence of numbers in which each element stands at the
+      first occurrence of its value: reading 1 of "Keep order of elements left the
+      same as in the input" (the reading the example R-EX-1 supports). Under the
+      reading of R-RM-1 taken here (RB-RM-1) no repeated value is kept, so on
+      behaviours that meet RB-RM-1 readings 1, 2 and 3 coincide and the item only
+      orders the elements that occur exactly once. Values absent from numbers
+      are left to RB-RM-3-MEMBER.
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: "numbers == [1, 2, 3, 2, 4] && outcome == 0 && result == [1, 2, 3, 4]"
+    note: >-
+      The docstring example, formalized literally as a behaviour that must be
+      possible. Reading 2 of "[1, 2, 3, 4]" is taken: the example contradicts
+      R-RM-1 read literally (RB-RM-1 requires the call to return [1, 3, 4], since
+      2 occurs twice). This scenario is therefore UNREACHABLE together with
+      RB-RM-1 and RB-IF-3; it is kept so that the conflict between the prose and
+      the example is reported rather than silently repaired.
+
+unformalized:
+  - req: R-FR-1
+    reason: "Frame rule of the adapter; it is added to every formalization set by design.yaml and need not be restated (frame.md, Frame rules)."
+    covered_by: [F-EMPTY]
+  - req: R-IF-1
+    reason: >-
+      Non-functional instruction to the implementer ("Complete this function"):
+      it says what the deliverable is, not how any call behaves. The behaviour of
+      the completed function is formalized by the other requirements.
+  - req: R-IF-2
+    reason: >-
+      Definition of the interface (name remove_duplicates, one argument numbers,
+      a list of integers). It is realized by the adapter (design.yaml `function`
+      section: every cycle is one call of remove_duplicates(numbers)) and is not
+      a property of the trace.
+  - req: R-IN-1
+    reason: >-
+      Holds by construction of the interface encoding: the `numbers` signal can
+      only carry a list of integers, and calls with any other argument are not
+      part of the trace (frame.md, Inputs). An assumption would be a tautology.
+      Note that the adapter also restricts the lists to at most 8 integers from 0
+      to 255; the prompt allows any integers, including negative ones, which are
+      outside the scope of every item here.
+  - req: R-DEF-1
+    reason: >-
+      Definition. Reading 1 of "occur more than once" (two or more positions
+      anywhere in numbers, not necessarily adjacent) is used as the multiplicity
+      count(j < len(numbers): numbers[j] == numbers[i]) > 1 (and == 1 for values
+      that occur exactly once) inside the items that depend on it.
+    covered_by: [RB-RM-1, RB-RM-2]
+
+decisions:
+  - {req: R-IF-3, phrase: "-> List[int]", reading: 1}
+  - {req: R-DEF-1, phrase: "occur more than once", reading: 1}
+  - {req: R-RM-1, phrase: "remove all elements that occur more than once", reading: 1}
+  - {req: R-RM-3, phrase: "From a list of integers, remove", reading: 1}
+  - {req: R-ORD-1, phrase: "Keep order of elements left the same as in the input", reading: 1}
+  - {req: R-EX-1, phrase: "[1, 2, 3, 4]", reading: 2}

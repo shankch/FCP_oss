@@ -1,0 +1,116 @@
+{
+ "readings": {
+  "gold|agent_a": {
+   "R-CALL-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-DECL-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-ERR-1": {
+    "plain": "A-STRONGER",
+    "context": "A-STRONGER",
+    "b_not_a": {
+     "lines": [
+      "[order_id=1048575, amount=1000001]",
+      "api.sleep(8)",
+      "api.sleep(255)"
+     ]
+    }
+   },
+   "R-EX-1": {
+    "plain": "ONLY-B",
+    "context": "ONLY-B"
+   },
+   "R-KEEP-1": {
+    "plain": "INCOMPARABLE",
+    "context": "A-WEAKER",
+    "a_not_b": {
+     "lines": [
+      "[order_id=1048575, amount=1]",
+      "api.charge(1048575, 1) -> \"declined\"",
+      "returns False"
+     ]
+    }
+   },
+   "R-ONCE-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-RET-1": {
+    "plain": "A-WEAKER",
+    "context": "EQUIVALENT"
+   },
+   "R-RETRY-1": {
+    "plain": "A-WEAKER",
+    "context": "EQUIVALENT"
+   },
+   "R-SIG-1": {
+    "plain": "ONLY-B",
+    "context": "ONLY-B"
+   },
+   "R-WAIT-1": {
+    "plain": "A-WEAKER",
+    "context": "EQUIVALENT"
+   }
+  },
+  "gold|agent_b": {
+   "R-CALL-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-DECL-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-ERR-1": {
+    "plain": "A-STRONGER",
+    "context": "A-STRONGER",
+    "b_not_a": {
+     "lines": [
+      "[order_id=1048575, amount=0]",
+      "api.charge(1048575, 0) -> \"ok\""
+     ]
+    }
+   },
+   "R-EX-1": {
+    "plain": "ONLY-B",
+    "context": "ONLY-B"
+   },
+   "R-KEEP-1": {
+    "plain": "INCOMPARABLE",
+    "context": "A-WEAKER",
+    "a_not_b": {
+     "lines": [
+      "[order_id=1048575, amount=1]",
+      "api.charge(1048575, 1) -> \"declined\"",
+      "returns False"
+     ]
+    }
+   },
+   "R-ONCE-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-RET-1": {
+    "plain": "A-WEAKER",
+    "context": "EQUIVALENT"
+   },
+   "R-RETRY-1": {
+    "plain": "A-WEAKER",
+    "context": "EQUIVALENT"
+   },
+   "R-SIG-1": {
+    "plain": "ONLY-B",
+    "context": "ONLY-B"
+   },
+   "R-WAIT-1": {
+    "plain": "A-WEAKER",
+    "context": "EQUIVALENT"
+   }
+  }
+ },
+ "seconds": 4.2
+}

@@ -1,0 +1,148 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # the call finished and returned a value: a bool (outcome 0) or another type (outcome 2)
+  returned: 'outcome == 0 || outcome == 2'
+  # the returned value may equal True / False: a bool with that value, or a non-bool whose value the trace does not carry
+  eq_true: '(outcome == 0 && result) || outcome == 2'
+  eq_false: '(outcome == 0 && !result) || outcome == 2'
+  # n can be written as the sum of 4 numbers, under the readings of R-FN-2 (see RV-FN-2)
+  qualifies: 'n != 4 && n != 6'
+
+properties:
+  - id: RV-FN-1
+    req: R-FN-1
+    pattern: invariant
+    args: {cond: returned}
+    note: >-
+      Instructed reading, taken although the bool-only reading seems more natural: 'Evaluate whether'
+      is reading 2, the function returns any value that compares equal to True or False (e.g. 1 or 0),
+      not necessarily a bool. A bool return is outcome 0; an int 1 or 0 is outcome 2 ('returned anything
+      else'). The trace does not carry the value of a non-bool return, so every outcome-2 return is
+      accepted; this also admits values such as None or a string that equal neither True nor False,
+      which the trace cannot tell apart (weaker than the reading). Outcome 1 (any exception or no
+      answer) and the unused code 3 are excluded.
+
+  - id: RV-FN-2
+    req: R-FN-2
+    pattern: implies
+    args: {trigger: 'outcome == 0', cond: 'result == qualifies'}
+    note: >-
+      Instructed readings, all three taken although others seem more natural. '4 numbers' is reading 2,
+      non-negative integers with zero allowed, so every n >= 0 is a sum of four numbers (n+0+0+0).
+      'the sum of 4' is reading 2, four or more summands; it changes nothing here because every n
+      already qualifies with four. 'can be written as' is reading 2, the statement is abbreviated and
+      the examples take precedence. These readings conflict: with non-negative summands 4 = 4+0+0+0 and
+      6 = 6+0+0+0 qualify, against candidate(4) == False and candidate(6) == False, and the examples
+      cannot 'fix the kind of number' when that kind is already the non-negative integers. Precedence
+      is therefore applied only at the arguments the examples name: 4 and 6 are False, every other n
+      (8 included, agreeing with candidate(8) == True) is True. Without the precedence, reading 2 of
+      '4 numbers' alone would make the result True for every n, contradicting R-EX-1 and R-EX-2.
+      Following R-FN-1 reading 2, a call may return a non-bool (outcome 2) whose value the trace does
+      not carry, so this property constrains bool returns (outcome 0) only.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'n == 4', cond: eq_false}
+    note: >-
+      Instructed readings. 'candidate(4)' is reading 1: the example holds and the main statement is read
+      narrowly so that 4 does not qualify (in this set RV-FN-2 excludes 4 by the precedence of the
+      examples). '== False' is reading 2, taken although the bool reading seems more natural: the call
+      returns any value equal to False (e.g. 0). A bool False is outcome 0 with result 0; an int 0 is
+      outcome 2, whose value the trace does not carry, so every outcome-2 return is accepted (this also
+      admits non-bool values not equal to False, a limit of the trace). The example is stated as a
+      guarantee of the call; RV-EX-1-S states that it is possible.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'n == 6', cond: eq_false}
+    note: >-
+      Instructed readings. 'candidate(6)' is reading 1: the example holds and the main statement is read
+      narrowly so that 6 does not qualify (in this set RV-FN-2 excludes 6 by the precedence of the
+      examples). '== False' is reading 2, taken although the bool reading seems more natural: the call
+      returns any value equal to False (e.g. 0). A bool False is outcome 0 with result 0; an int 0 is
+      outcome 2, whose value the trace does not carry, so every outcome-2 return is accepted (this also
+      admits non-bool values not equal to False, a limit of the trace). The example is stated as a
+      guarantee of the call; RV-EX-2-S states that it is possible.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'n == 8', cond: eq_true}
+    note: >-
+      Instructed readings. 'candidate(8)' is reading 2, taken although reading 1 seems more natural: the
+      example contradicts the main statement if the four numbers must be distinct positive integers
+      (smallest such sum 10, so candidate(8) would be False). That contradiction is conditional on
+      distinct summands, which this set does not adopt (RV-FN-2 reads '4 numbers' as non-negative
+      integers, so 8 = 8+0+0+0 qualifies), and where it would arise the examples take precedence
+      (R-FN-2 'can be written as' reading 2). The example is therefore formalized as written (True), not
+      repaired toward False, and this reading has no effect on the formula. '== True' is reading 2: the
+      call returns any value equal to True (e.g. 1). A bool True is outcome 0 with result 1; an int 1 is
+      outcome 2, whose value the trace does not carry, so every outcome-2 return is accepted (a limit
+      of the trace). RV-EX-3-S states that the example is possible.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'n == 4 && outcome == 0 && !result'
+    note: >-
+      candidate(4) can return False. Readings as in RV-EX-1 ('candidate(4)' reading 1, '== False'
+      reading 2, both instructed). The bool False is one of the values reading 2 admits and the only
+      one whose value the trace shows, so the cover cannot be met by an opaque outcome-2 return.
+
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'n == 6 && outcome == 0 && !result'
+    note: >-
+      candidate(6) can return False. Readings as in RV-EX-2 ('candidate(6)' reading 1, '== False'
+      reading 2, both instructed). The bool False is one of the values reading 2 admits and the only
+      one whose value the trace shows, so the cover cannot be met by an opaque outcome-2 return.
+
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'n == 8 && outcome == 0 && result'
+    note: >-
+      candidate(8) can return True. Readings as in RV-EX-3 ('candidate(8)' reading 2, which leaves the
+      example as written in this set, and '== True' reading 2, both instructed). The bool True is one
+      of the values reading 2 admits and the only one whose value the trace shows, so the cover cannot
+      be met by an opaque outcome-2 return.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: that the deliverable is a complete implementation rather than a stub is not a
+      property of one call. Its observable content, that every call returns a value with the specified
+      truth value, is carried by the items listed.
+    covered_by: [RV-FN-1, RV-FN-2, RV-EX-1, RV-EX-2, RV-EX-3]
+  - req: R-IF-2
+    reason: >-
+      The name and the single parameter are fixed by the adapter (design.yaml, function section: each
+      cycle calls candidate(n) with n on signal n); they are not a property of the trace.
+  - req: R-IN-1
+    reason: >-
+      The argument range is fixed by the interface: n is a 16-bit unsigned signal, so it carries exactly
+      the integers 0 to 65,535, and frame.md leaves negative and non-integer arguments out of the trace.
+      An assumption would constrain nothing. Reading 1 (non-negative integer) is recorded because it is
+      the one the trace represents; readings 2 and 3 differ from it only on arguments outside the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the adapter (design.yaml frame), part of every formalization set by
+      construction; frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: 'the given number n', reading: 1}
+  - {req: R-FN-1, phrase: 'Evaluate whether', reading: 2}
+  - {req: R-FN-2, phrase: '4 numbers', reading: 2}
+  - {req: R-FN-2, phrase: 'the sum of 4', reading: 2}
+  - {req: R-FN-2, phrase: 'can be written as', reading: 2}
+  - {req: R-EX-1, phrase: 'candidate(4)', reading: 1}
+  - {req: R-EX-1, phrase: '== False', reading: 2}
+  - {req: R-EX-2, phrase: 'candidate(6)', reading: 1}
+  - {req: R-EX-2, phrase: '== False', reading: 2}
+  - {req: R-EX-3, phrase: 'candidate(8)', reading: 2}
+  - {req: R-EX-3, phrase: '== True', reading: 2}

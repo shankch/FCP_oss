@@ -1,0 +1,337 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 160,
+    "checked": 160,
+    "seconds": 7.17
+   },
+   "open": {
+    "open": {},
+    "checked": 90
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 165,
+    "checked": 165,
+    "seconds": 6.47
+   },
+   "open": {
+    "open": {},
+    "checked": 102
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-ORD-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-ORD-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RES-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RES-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `all(i < len(array): array[i] >= 0)`",
+    "where": {}
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [
+    "RB-EX-3",
+    "RB-EX-4"
+   ],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-RES-2",
+   "phrase": "a copy",
+   "taken": 1,
+   "variant": 2,
+   "text": "Only the contents of the returned list matter; returning the argument object itself is acceptable when it already holds the right contents."
+  },
+  {
+   "req": "R-RES-2",
+   "phrase": "a copy of the given array after sorting",
+   "taken": 1,
+   "variant": 2,
+   "text": "Sort the given array itself and then return a copy of it; this contradicts \"don't change the given array\" (R-MUT-1)."
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "first index value",
+   "taken": 1,
+   "variant": 2,
+   "text": "The indices themselves: 0 + (len(array) - 1), so the parity depends only on the length of the array."
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "sum( first index value, last index value)",
+   "taken": 1,
+   "variant": 2,
+   "text": "For a one-element array the single element is counted once (array[0])."
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "last index value",
+   "taken": 1,
+   "variant": 2,
+   "text": "For an empty array the missing values count as 0, so the sum is 0 (even) and the descending rule applies."
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "ascending order",
+   "taken": 1,
+   "variant": 2,
+   "text": "Strictly increasing: each element is less than the next one (impossible while keeping every element when the argument has duplicates)."
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "you will sort the given array",
+   "taken": 1,
+   "variant": 2,
+   "text": "Sort the argument itself in place; this contradicts \"don't change the given array\" (R-MUT-1)."
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "in ascending order if the sum( first index value, last index value) is odd",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example R-EX-3 is right: an odd sum gives descending order, and the rule has odd and even swapped."
+  },
+  {
+   "req": "R-ORD-2",
+   "phrase": "descending order",
+   "taken": 1,
+   "variant": 2,
+   "text": "Strictly decreasing: each element is greater than the next one (impossible while keeping every element when the argument has duplicates)."
+  },
+  {
+   "req": "R-ORD-2",
+   "phrase": "sort it",
+   "taken": 1,
+   "variant": 2,
+   "text": "Sort the argument itself in place; this contradicts \"don't change the given array\" (R-MUT-1)."
+  },
+  {
+   "req": "R-ORD-2",
+   "phrase": "in descending order if the sum( first index value, last index value) is even",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example R-EX-4 is right: an even sum gives ascending order, and the rule has odd and even swapped."
+  },
+  {
+   "req": "R-MUT-1",
+   "phrase": "don't change the given array",
+   "taken": 1,
+   "variant": 2,
+   "text": "The statements \"you will sort the given array\", \"sort it\" and \"return a copy of the given array after sorting\" win: the argument is sorted in place and then copied, contradicting this note."
+  }
+ ],
+ "depends": {
+  "R-ORD-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "sort_array([0, 4, 1, 3, 0, 1, 3]) -> [0, 0, 1, 1, 3, 3, 4]"
+   ]
+  },
+  "R-ORD-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "sort_array([3, 6, 2, 6, 0, 3, 2, 6]) -> [0, 2, 2, 3, 3, 6, 6, 6]"
+   ]
+  }
+ },
+ "certified": [
+  "R-RES-1",
+  "R-EX-1",
+  "R-EX-2"
+ ],
+ "queue": [
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-3 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-4 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-ORD-1",
+    "R-ORD-2"
+   ],
+   "calls": [
+    "sort_array([0, 4, 1, 3, 0, 1, 3]) -> [0, 0, 1, 1, 3, 3, 4]"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "calls": [],
+   "question": "\"a copy\" can mean: The returned list must be a new list object, distinct from the argument object. / Only the contents of the returned list matter; returning the argument object itself is acceptable when it already holds the right contents.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "calls": [],
+   "question": "\"a copy of the given array after sorting\" can mean: Return a sorted copy and leave the argument as it was passed (consistent with \"don't change the given array\", R-MUT-1). / Sort the given array itself and then return a copy of it; this contradicts \"don't change the given array\" (R-MUT-1).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"ascending order\" can mean: Non-decreasing: each element is at most the next one, duplicates kept. / Strictly increasing: each element is less than the next one (impossible while keeping every element when the argument has duplicates).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"you will sort the given array\" can mean: Sort a copy of the argument; the argument itself stays unchanged (consistent with \"don't change the given array\", R-MUT-1). / Sort the argument itself in place; this contradicts \"don't change the given array\" (R-MUT-1).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"in ascending order if the sum( first index value, last index value) is odd\" can mean: The rule is right: an odd sum gives ascending order, so the example sort_array([2, 4, 3, 0, 1, 5]) => [5, 4, 3, 2, 1, 0] (R-EX-3) is wrong, since 2 + 5 = 7 is odd (and 0 + 5 = 5 under the index reading); its result should be [0, 1, 2, 3, 4, 5]. / The example R-EX-3 is right: an odd sum gives descending order, and the rule has odd and even swapped.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-2"
+   ],
+   "calls": [],
+   "question": "\"descending order\" can mean: Non-increasing: each element is at least the next one, duplicates kept. / Strictly decreasing: each element is greater than the next one (impossible while keeping every element when the argument has duplicates).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-2"
+   ],
+   "calls": [],
+   "question": "\"sort it\" can mean: Sort a copy of the argument; the argument itself stays unchanged (consistent with \"don't change the given array\", R-MUT-1). / Sort the argument itself in place; this contradicts \"don't change the given array\" (R-MUT-1).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-2"
+   ],
+   "calls": [],
+   "question": "\"in descending order if the sum( first index value, last index value) is even\" can mean: The rule is right: an even sum gives descending order, so the example sort_array([2, 4, 3, 0, 1, 5, 6]) => [0, 1, 2, 3, 4, 5, 6] (R-EX-4) is wrong, since 2 + 6 = 8 is even (and 0 + 6 = 6 under the index reading); its result should be [6, 5, 4, 3, 2, 1, 0]. / The example R-EX-4 is right: an even sum gives ascending order, and the rule has odd and even swapped.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MUT-1"
+   ],
+   "calls": [],
+   "question": "\"don't change the given array\" can mean: This note wins: the argument is left unchanged, and \"you will sort the given array\" / \"sort it\" (R-ORD-1, R-ORD-2) and \"a copy of the given array after sorting\" (R-RES-2) mean sorting a copy. / The statements \"you will sort the given array\", \"sort it\" and \"return a copy of the given array after sorting\" win: the argument is sorted in place and then copied, contradicting this note.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"[5, 4, 3, 2, 1, 0]\" can mean: The example is right: the first and last elements sum to 2 + 5 = 7 (odd; 0 + 5 = 5 under the index reading), and the result is descending, so the rule \"ascending order if the sum ... is odd\" (R-ORD-1) has odd and even swapped. / The rule R-ORD-1 is right: an odd sum gives ascending order, so the expected result here should be [0, 1, 2, 3, 4, 5] and this example is wrong.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"[0, 1, 2, 3, 4, 5, 6]\" can mean: The example is right: the first and last elements sum to 2 + 6 = 8 (even; 0 + 6 = 6 under the index reading), and the result is ascending, so the rule \"descending order if the sum ... is even\" (R-ORD-2) has odd and even swapped. / The rule R-ORD-2 is right: an even sum gives descending order, so the expected result here should be [6, 5, 4, 3, 2, 1, 0] and this example is wrong.. Which is meant?"
+  }
+ ],
+ "limits": []
+}

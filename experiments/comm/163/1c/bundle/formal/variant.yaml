@@ -1,0 +1,218 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  lo: 'min(a, b)'                                  # the smaller argument
+  hi: 'max(a, b)'                                  # the larger argument
+  top_even: 'hi % 2 == 0 ? hi - 2 : hi - 1'        # the largest even integer below hi
+  has_even: 'top_even > lo'                        # some even integer lies strictly between lo and hi
+
+assumptions:
+  - id: RV-IN-1
+    req: R-IN-1
+    expr: 'a >= 0 && b >= 0'
+    note: >-
+      "positive" is read as non-negative (decision reading 2, as instructed): a >= 0 and b >= 0,
+      so a call with 0 is covered by the request and must be answered like any other. The
+      argument signals are 6-bit and cannot carry a negative or non-integer value, so this
+      assumption excludes no call of the trace; it is stated only to record the reading. The
+      more natural reading (strictly positive, a >= 1 and b >= 1) is not taken.
+
+properties:
+  - id: RV-OUT-1
+    req: R-OUT-1
+    expr: 'outcome == 0'
+    note: >-
+      Every call returns a list of integers (outcome 0): no exception, no hang, no value of
+      another type. Because R-IN-1 "positive" is read as non-negative (reading 2, as
+      instructed), "for two positive integer arguments" covers every call of the trace,
+      including a = 0 or b = 0, so the property is unconditional. Outcome 0 also requires the
+      list to fit the encoding (at most 32 numbers, each 0 to 63), which every list allowed by
+      the other items does.
+
+  - id: RV-RES-1
+    req: R-RES-1
+    expr: 'all(i < len(result): result[i] % 2 == 0)'
+    note: >-
+      Every number in the returned list is even. Applies to every call, including a = 0 or
+      b = 0, since R-IN-1 "positive" is read as non-negative (reading 2, as instructed).
+
+  - id: RV-RES-2
+    req: R-RES-2
+    expr: 'all(i < len(result): result[i] >= 0)'
+    note: >-
+      "digits" is read as integers (decision reading 2, as instructed): the word is used
+      loosely for numbers (the function is named generate_integers), so it places no limit on
+      the returned numbers, in agreement with generate_integers(10, 14) => [14] (R-EX-3).
+      What remains is only that every returned number is an integer, which the encoding of
+      result already guarantees; the property is therefore deliberately a tautology on the
+      trace and does not bound the numbers by 9. Note that the reading taken for R-EX-3
+      (instructed) treats digits as 0 to 9, which disagrees with this reading.
+
+  - id: RV-RES-3
+    req: R-RES-3
+    expr: 'all(i < len(result): lo < result[i] && result[i] < hi)'
+    note: >-
+      "between a and b" is read as exclusive (decision reading 2, as instructed):
+      min(a, b) < x < max(a, b), so a and b themselves are never returned. This contradicts
+      every example: generate_integers(2, 8) => [8], generate_integers(8, 2) => [8] and
+      generate_integers(10, 14) => [14] each return an endpoint, and it also contradicts the
+      readings taken for R-EX-1 and R-EX-2 ([2, 4, 6, 8] contains 2 and 8). Formalized as
+      written, not repaired. Applies to every call, including a = 0 or b = 0 (R-IN-1 read as
+      non-negative, as instructed); when a == b or |a - b| == 1 the list must be empty.
+
+  - id: RV-RES-4-TOP
+    req: R-RES-4
+    pattern: implies
+    args:
+      trigger: 'has_even'
+      cond: 'top_even in result'
+    note: >-
+      Readings taken, all as instructed: "even digits" = even integers (reading 2), so the
+      candidates are not limited to 0 to 9; "between a and b" = exclusive (reading 2), the
+      range strictly between min(a, b) and max(a, b); "the even digits between a and b" = the
+      examples govern (reading 2): only the largest even number between
+      a and b is returned, so the list need not contain the other even numbers between a and
+      b. The third reading overrides the "every even integer must appear" wording of the first;
+      the first is used only for what counts as a candidate. Combined: whenever some even
+      integer lies strictly between min(a, b) and max(a, b), the largest such integer
+      (top_even) is in the returned list. Under these readings generate_integers(2, 8) and
+      generate_integers(8, 2) must contain 6 and generate_integers(10, 14) must contain 12,
+      which contradicts every example ([8], [8], [14]) and the readings taken for R-EX-1,
+      R-EX-2 ([2, 4, 6, 8]) and R-EX-3 ([]). It also contradicts R-SYM-1 read as ordered:
+      generate_integers(8, 2) must contain 6 here but be empty there. Applies to every call,
+      including a = 0 or b = 0 (R-IN-1 read as non-negative, as instructed).
+
+  - id: RV-RES-4-ONLY
+    req: R-RES-4
+    expr: 'len(result) <= 1 && all(i < len(result): has_even && result[i] == top_even)'
+    note: >-
+      The "only" of the instructed reading of "the even digits between a and b" (the examples
+      govern: only the largest even number between a and b is returned), taken literally: the
+      list holds nothing but that one number, once, and is empty when no even integer lies
+      strictly between min(a, b) and max(a, b). Same readings as RV-RES-4-TOP: "even digits" =
+      even integers, "between a and b" = exclusive (both as instructed). With RV-RES-4-TOP the
+      list is exactly [top_even] or []. Applies to every call, including a = 0 or b = 0 (R-IN-1
+      read as non-negative, as instructed).
+
+  - id: RV-SYM-1
+    req: R-SYM-1
+    pattern: implies
+    args:
+      trigger: 'a > b'
+      cond: 'len(result) == 0'
+    note: >-
+      "between a and b" is read as ordered (decision reading 2, as instructed): the range runs
+      from a up to b, so nothing lies between a and b when a > b and the list is then empty.
+      Under this reading the symmetry the requirement text claims does not hold; what the
+      requirement still states is the empty list for a > b. This contradicts the example
+      generate_integers(8, 2) => [8] (R-EX-2), the reading taken for R-EX-2 ([2, 4, 6, 8]),
+      and RV-RES-4-TOP, which uses min(a, b) and max(a, b) and so requires 6 for (8, 2).
+      Formalized as written, not repaired. Applies to every call with a > b, including b = 0
+      (R-IN-1 read as non-negative, as instructed).
+
+  - id: RV-ORD-1
+    req: R-ORD-1
+    expr: 'all(i < len(result) - 1: result[i] < result[i + 1])'
+    note: >-
+      "ascending order" is read as strictly ascending (reading 1, the most literal: each number
+      is smaller than the next, so the even numbers are listed once each). Not one of the
+      instructed phrases. Applies to every call, including a = 0 or b = 0 (R-IN-1 read as
+      non-negative, as instructed).
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'a == 2 && b == 8'
+      cond: 'outcome == 0 && result == [2, 4, 6, 8]'
+    note: >-
+      "generate_integers(2, 8) => [8]" is read as: the description governs and the example is
+      wrong, the call returns [2, 4, 6, 8], every even digit from 2 to 8 inclusive (decision
+      reading 2, as instructed). Stated as a property because the example fixes the answer of
+      a deterministic call. This reading treats "between" as inclusive and requires every even
+      digit, so it contradicts RV-RES-3 (exclusive: 2 and 8 excluded) and RV-RES-4-TOP /
+      RV-RES-4-ONLY (only the largest even number strictly between 2 and 8, i.e. [6]), and the
+      example's own [8]. Formalized as instructed, not repaired.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'a == 8 && b == 2'
+      cond: 'outcome == 0 && result == [2, 4, 6, 8]'
+    note: >-
+      "generate_integers(8, 2) => [8]" is read as: the description governs and the example is
+      wrong, the call returns [2, 4, 6, 8], every even digit from 2 to 8 inclusive (decision
+      reading 2, as instructed). Stated as a property because the example fixes the answer of
+      a deterministic call. It contradicts RV-SYM-1 (ordered: empty when a > b), RV-RES-3
+      (exclusive: 2 and 8 excluded), RV-RES-4-TOP / RV-RES-4-ONLY ([6]) and the example's own
+      [8]. Formalized as instructed, not repaired.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'a == 10 && b == 14'
+      cond: 'outcome == 0 && len(result) == 0'
+    note: >-
+      "generate_integers(10, 14) => [14]" is read as: the description governs and the example
+      is wrong, no even digit (0 to 9) lies between 10 and 14, so the call returns the empty
+      list (decision reading 2, as instructed). Stated as a property because the example fixes
+      the answer of a deterministic call; outcome 0 is required since the call returns a list.
+      This reading treats "digit" as 0 to 9, which disagrees with the instructed reading of
+      R-RES-2 (digits = integers) and of R-RES-4 "even digits" (even integers): RV-RES-4-TOP
+      requires 12 for (10, 14). It also contradicts the example's own [14].
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'a == 2 && b == 8 && outcome == 0 && result == [2, 4, 6, 8]'
+    note: >-
+      The call generate_integers(2, 8) answering [2, 4, 6, 8] must be possible (decision
+      reading 2 of R-EX-1, as instructed: the description governs, every even digit from 2 to 8
+      inclusive). Unreachable together with RV-RES-3 and RV-RES-4-ONLY under the instructed
+      readings; see RV-EX-1.
+
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'a == 8 && b == 2 && outcome == 0 && result == [2, 4, 6, 8]'
+    note: >-
+      The call generate_integers(8, 2) answering [2, 4, 6, 8] must be possible (decision
+      reading 2 of R-EX-2, as instructed). Unreachable together with RV-SYM-1, RV-RES-3 and
+      RV-RES-4-ONLY under the instructed readings; see RV-EX-2.
+
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'a == 10 && b == 14 && outcome == 0 && len(result) == 0'
+    note: >-
+      The call generate_integers(10, 14) answering [] must be possible (decision reading 2 of
+      R-EX-3, as instructed: no even digit 0 to 9 lies between 10 and 14). Unreachable together
+      with RV-RES-4-TOP (12 must appear) under the instructed readings; see RV-EX-3.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the name of the function and its two parameters are fixed by the
+      function section of design.yaml (generate_integers(a, b), arguments on signals a and b);
+      the adapter calls the function by that name, so this is not a property of the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md): it holds by construction and is realized by the
+      design's frame item F-EMPTY (outcome != 0 -> len(result) == 0), which is part of every
+      formalization set and need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IN-1, phrase: 'positive', reading: 2}
+  - {req: R-RES-2, phrase: 'digits', reading: 2}
+  - {req: R-RES-3, phrase: 'between a and b', reading: 2}
+  - {req: R-RES-4, phrase: 'even digits', reading: 2}
+  - {req: R-RES-4, phrase: 'between a and b', reading: 2}
+  - {req: R-RES-4, phrase: 'the even digits between a and b', reading: 2}
+  - {req: R-SYM-1, phrase: 'between a and b', reading: 2}
+  - {req: R-ORD-1, phrase: 'ascending order', reading: 1}
+  - {req: R-EX-1, phrase: 'generate_integers(2, 8) => [8]', reading: 2}
+  - {req: R-EX-2, phrase: 'generate_integers(8, 2) => [8]', reading: 2}
+  - {req: R-EX-3, phrase: 'generate_integers(10, 14) => [14]', reading: 2}

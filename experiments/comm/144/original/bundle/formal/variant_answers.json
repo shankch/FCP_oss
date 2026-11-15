@@ -1,0 +1,107 @@
+[
+ {
+  "req": "R-FN-1",
+  "phrase": "simplify the expression x * n",
+  "taken": 1,
+  "variant": 2,
+  "text": "The function must produce the simplified product (for example a reduced fraction), which contradicts the requirement that it returns True or False (R-RET-1, R-RET-2)."
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "x * n",
+  "taken": 1,
+  "variant": 2,
+  "text": "The Python expression x * n applied to the two string arguments (which raises TypeError)."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "whole number",
+  "taken": 1,
+  "variant": 2,
+  "text": "A positive integer (1, 2, 3, ...), so a product of 0 is not a whole number."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "evaluates to",
+  "taken": 1,
+  "variant": 2,
+  "text": "The product computed in floating point is integral, which can differ from the exact answer for large numerators and denominators."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "returns True",
+  "taken": 1,
+  "variant": 2,
+  "text": "Returns any truthy value (for example the integer 1)."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "returns True if x * n evaluates to a whole number",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradicts R-FN-1 if \"simplify the expression x * n\" requires the function to produce the simplified product rather than a bool."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "otherwise",
+  "taken": 1,
+  "variant": 2,
+  "text": "In every other case, including inputs that are not valid fractions, the function returns False (and does not raise)."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "False",
+  "taken": 1,
+  "variant": 2,
+  "text": "Returns any falsy value (for example 0 or None)."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "False otherwise",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradicts R-FN-1 if \"simplify the expression x * n\" requires the function to produce the simplified product rather than a bool."
+ },
+ {
+  "req": "R-IN-2",
+  "phrase": "<numerator>/<denominator>",
+  "taken": 1,
+  "variant": 2,
+  "text": "Leading zeros (such as \"05/1\") are allowed in the numerator and denominator."
+ },
+ {
+  "req": "R-IN-2",
+  "phrase": "have the following format",
+  "taken": 1,
+  "variant": 2,
+  "text": "An obligation on the function to reject (raise or return False for) strings of any other form."
+ },
+ {
+  "req": "R-IN-3",
+  "phrase": "positive whole numbers",
+  "taken": 1,
+  "variant": 2,
+  "text": "An integer of at least 1 in any notation Python int() accepts (for example \"+3\" or \" 3\")."
+ },
+ {
+  "req": "R-IN-4",
+  "phrase": "positive whole numbers",
+  "taken": 1,
+  "variant": 2,
+  "text": "An integer of at least 1 in any notation Python int() accepts (for example \"+3\" or \" 3\")."
+ },
+ {
+  "req": "R-IN-5",
+  "phrase": "valid fractions",
+  "taken": 1,
+  "variant": 2,
+  "text": "Any well-formed fraction, which may include a zero numerator (not excluded by this sentence, unlike R-IN-3)."
+ },
+ {
+  "req": "R-IN-5",
+  "phrase": "You can assume",
+  "taken": 1,
+  "variant": 2,
+  "text": "The function must still behave sensibly on other arguments (for example return False rather than raise)."
+ }
+]

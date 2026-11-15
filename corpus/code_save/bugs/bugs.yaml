@@ -1,0 +1,40 @@
+# Planted variants of impl/ref.py: each patch replaces one exact substring.
+# `violates` is the gold requirement each one breaks.
+design: code_save
+bugs:
+- id: C1
+  desc: fsync without flushing Python's buffer first
+  violates: [R-SYNC-1]
+  patch: {from: "        f.flush()\n", to: ""}
+- id: C2
+  desc: writes balance.txt directly, then moves a file that does not exist
+  violates: [R-TMP-1]
+  patch: {from: "with open(TMP, 'w') as f:", to: "with open(TARGET, 'w') as f:"}
+- id: C3
+  desc: moves the file before closing it
+  violates: [R-SYNC-1]
+  patch: {from: "        os.fsync(f.fileno())\n    try:\n        os.replace(TMP, TARGET)\n    except OSError:\n        return False", to: "        os.fsync(f.fileno())\n        try:\n            os.replace(TMP, TARGET)\n        except OSError:\n            return False"}
+- id: C4
+  desc: rejects the largest valid balance
+  violates: [R-STORE-1, R-RET-1]
+  patch: {from: "cents > 100_000_000", to: "cents >= 100_000_000"}
+- id: C5
+  desc: removes the temporary file in finally, after it has been moved
+  violates: [R-RET-1, R-KEEP-1]
+  patch: {from: "        return False          # rule 7: balance.txt.tmp stays, so the balance can be recovered\n    return True", to: "        return False          # rule 7: balance.txt.tmp stays, so the balance can be recovered\n    finally:\n        os.remove(TMP)\n    return True"}
+- id: C6
+  desc: writes dollars instead of cents
+  violates: [R-STORE-1]
+  patch: {from: "f.write(str(cents))", to: "f.write(str(cents / 100))"}
+- id: C7
+  desc: returns True when os.replace fails
+  violates: [R-KEEP-1, R-RET-1]
+  patch: {from: "        return False          # rule 7", to: "        return True           # rule 7"}
+- id: C8
+  desc: checks the balance after writing the file
+  violates: [R-ERR-1]
+  patch: {from: "    if not isinstance(cents, int) or cents < 0 or cents > 100_000_000:\n        raise ValueError(f'balance out of range: {cents!r}')\n    with open(TMP, 'w') as f:\n        f.write(str(cents))\n        f.flush()\n        os.fsync(f.fileno())\n", to: "    with open(TMP, 'w') as f:\n        f.write(str(cents))\n        f.flush()\n        os.fsync(f.fileno())\n    if not isinstance(cents, int) or cents < 0 or cents > 100_000_000:\n        raise ValueError(f'balance out of range: {cents!r}')\n"}
+- id: C9
+  desc: 'refactoring: the digits written with %d'
+  violates: []
+  patch: {from: "f.write(str(cents))", to: "f.write('%d' % cents)"}

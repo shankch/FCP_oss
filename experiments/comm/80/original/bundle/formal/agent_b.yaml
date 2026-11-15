@@ -1,0 +1,169 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. is_happy keeps no state between calls (frame.md), so the
+# model is combinational: every def below is a function of the argument s of
+# the current call, and every output (outcome, happy) is checked against it.
+defs:
+  # "its length is at least 3"
+  long_enough: 'len(s) >= 3'
+  # "every 3 consecutive letters are distinct": every overlapping window
+  # s[i], s[i+1], s[i+2] (i from 0 to len(s)-3) has three pairwise distinct
+  # characters, compared by code. Vacuously true when len(s) < 3.
+  all_windows_distinct: 'all(i < len(s) - 2: s[i] != s[i + 1] && s[i + 1] != s[i + 2] && s[i] != s[i + 2])'
+  # "some 3 consecutive characters of s include two equal characters"
+  some_window_repeats: 'any(i < len(s) - 2: s[i] == s[i + 1] || s[i + 1] == s[i + 2] || s[i] == s[i + 2])'
+  # "A string is happy if its length is at least 3 and every 3 consecutive letters are distinct"
+  happy_model: 'long_enough && all_windows_distinct'
+  # what the call did, read from the outputs
+  returns_true: 'outcome == 0 && happy'
+  returns_false: 'outcome == 0 && !happy'
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      Every call returns the bool True or False: outcome 0 (frame.md: 0 it
+      returned True or False; 1 it raised or did not finish; 2 it returned
+      anything else). Reading 1 of "check": a Python bool, so returning a
+      truthy or falsy non-bool (outcome 2) violates it. The prose never says
+      "must not raise" in so many words; the requirement text derives it from
+      "check if the string is happy or not", and it is formalized as stated
+      there, for every string s (reading 1 of R-IN-1).
+
+  - id: RB-HAP-2
+    req: R-HAP-2
+    pattern: implies
+    args: {trigger: '!long_enough', cond: returns_false}
+    note: >-
+      A string shorter than 3 (including the empty string) is not happy, so the
+      call returns False. Reading 1 of "happy if" (definitional "if" means "if
+      and only if", supported by "happy or not" and the examples 'a', 'aa').
+      "returns False" is read literally: the call must return (outcome 0) with
+      the value False; raising does not count as returning False.
+
+  - id: RB-HAP-3
+    req: R-HAP-3
+    pattern: implies
+    args: {trigger: 'long_enough && some_window_repeats', cond: returns_false}
+    note: >-
+      A string of length at least 3 with an overlapping window of 3 consecutive
+      characters in which two characters are equal is not happy, so the call
+      returns False. Readings taken: "happy if" as "if and only if" (1);
+      overlapping windows (1); "letters" as every character of the string,
+      whatever it is (1), because the text never distinguishes letters from
+      other characters and readings 2 and 3 would add a skip or reject rule the
+      text does not state; "distinct" as pairwise distinct (1), so 'aba' gives
+      False; comparison by character code, case-sensitive (1).
+
+  - id: RB-HAP-4
+    req: R-HAP-4
+    pattern: implies
+    args: {trigger: happy_model, cond: returns_true}
+    note: >-
+      A string of length at least 3 whose every overlapping window of 3
+      consecutive characters is pairwise distinct (compared by code) is happy,
+      so the call returns True (outcome 0 and value True). Same readings of
+      "every 3 consecutive letters", "letters", "distinct" and "letters are
+      distinct" as RB-HAP-3, all reading 1. Non-letter characters (digits,
+      spaces, punctuation, codes above 127) take part in the windows like any
+      other character.
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: 's == "a" && returns_false'
+    note: >-
+      The docstring writes is_happy(a) without quotes; read as the call with
+      the one-character string 'a'. The function is deterministic and
+      memoryless, so reaching this cover is the same as is_happy('a')
+      returning False.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: 's == "aa" && returns_false'
+    note: "Example is_happy(aa) => False, read as the string 'aa'."
+
+  - id: RB-EX-3
+    req: R-EX-3
+    cover: 's == "abcd" && returns_true'
+    note: "Example is_happy(abcd) => True, read as the string 'abcd'."
+
+  - id: RB-EX-4
+    req: R-EX-4
+    cover: 's == "aabb" && returns_false'
+    note: >-
+      Example is_happy(aabb) => False, read as the string 'aabb'. Consistent
+      with the rule under the pairwise-distinct reading (window 'aab' repeats
+      'a'), reading 1 of the flagged phrase.
+
+  - id: RB-EX-5
+    req: R-EX-5
+    cover: 's == "adb" && returns_true'
+    note: "Example is_happy(adb) => True, read as the string 'adb'."
+
+  - id: RB-EX-6
+    req: R-EX-6
+    cover: 's == "xyy" && returns_false'
+    note: >-
+      Example is_happy(xyy) => False, read as the string 'xyy'. Consistent
+      with the rule under the pairwise-distinct reading (window 'xyy' repeats
+      'y'), reading 1 of the flagged phrase.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a function body. Not a property of
+      the call trace.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the function name and its single parameter s are fixed
+      by the adapter (design.yaml function section: is_happy with one argument
+      s). Not a property of the call trace.
+  - req: R-IN-1
+    reason: >-
+      Reading 1 of "a string": s may be any string, so there is no obligation
+      on the environment to state; every value of the sequence signal s is a
+      legal call. That s is a str of at most 32 characters with codes 0 to 255
+      is fixed by the interface encoding (design.yaml, frame.md), not by an
+      assumption. The guarantees RB-RET-1 and RB-HAP-2..4 therefore hold for
+      every string, not only lower-case ones.
+    covered_by: [RB-RET-1, RB-HAP-2, RB-HAP-3, RB-HAP-4]
+  - req: R-HAP-1
+    reason: >-
+      Definition of the term "happy", realized by the model defs long_enough,
+      all_windows_distinct and happy_model. Under reading 1 of "happy if"
+      ("if and only if") its consequences for the returned value are exactly
+      R-HAP-2 (too short: False), R-HAP-3 (a repeating window: False) and
+      R-HAP-4 (otherwise: True), which together say the returned value equals
+      happy_model.
+    covered_by: [RB-HAP-2, RB-HAP-3, RB-HAP-4]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md: part of every formalization set and
+      need not be restated); realized by frame item F-ZERO in design.yaml.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "a string", reading: 1}
+  - {req: R-RET-1, phrase: "check", reading: 1}
+  - {req: R-HAP-1, phrase: "happy if", reading: 1}
+  - {req: R-HAP-1, phrase: "every 3 consecutive letters", reading: 1}
+  - {req: R-HAP-1, phrase: "letters", reading: 1}
+  - {req: R-HAP-1, phrase: "distinct", reading: 1}
+  - {req: R-HAP-1, phrase: "letters are distinct", reading: 1}
+  - {req: R-HAP-2, phrase: "happy if", reading: 1}
+  - {req: R-HAP-3, phrase: "happy if", reading: 1}
+  - {req: R-HAP-3, phrase: "every 3 consecutive letters", reading: 1}
+  - {req: R-HAP-3, phrase: "letters", reading: 1}
+  - {req: R-HAP-3, phrase: "distinct", reading: 1}
+  - {req: R-HAP-3, phrase: "letters are distinct", reading: 1}
+  - {req: R-HAP-4, phrase: "every 3 consecutive letters", reading: 1}
+  - {req: R-HAP-4, phrase: "letters", reading: 1}
+  - {req: R-HAP-4, phrase: "distinct", reading: 1}
+  - {req: R-HAP-4, phrase: "letters are distinct", reading: 1}
+  - {req: R-EX-4, phrase: "is_happy(aabb) => False", reading: 1}
+  - {req: R-EX-6, phrase: "is_happy(xyy) => False", reading: 1}

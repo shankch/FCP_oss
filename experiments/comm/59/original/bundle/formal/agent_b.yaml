@@ -1,0 +1,135 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md),
+# so the model is combinational: defs computed from the input n alone, with
+# every output checked against them. No ghost state is needed.
+#
+# The model of "the largest prime factor of n" (R-DEF-1) for 2 <= n <= 65535
+# rests on two facts about 16-bit numbers:
+#   (a) a composite number <= 65535 has a prime factor <= 255, i.e. one of
+#       the 54 primes listed in `primes`;
+#   (b) since 257 * 257 > 65535, n has at most one prime factor (counted with
+#       multiplicity) above 255.
+# So either n has a prime factor P > 255, which is then the largest one and
+# n = cq * P with 1 <= cq <= 255, or every prime factor of n is in `primes`
+# and the largest one is `small_lpf`.
+defs:
+  # the 54 primes below 256
+  primes: "[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251]"
+  # n is a prime number: n > 1 and no prime below n divides it (by (a), primes up to 251 suffice)
+  n_prime: "n >= 2 && all(j < 54: primes[j] < n -> n % primes[j] != 0)"
+  # n meets the precondition of the request (R-ENV-1, R-ENV-2)
+  valid: "n > 1 && !n_prime"
+  # cofactor of the prime factor above 255: the q in 1..255 with q | n and n/q a
+  # prime above 255 (n/q >= 256 with no prime factor p, q*p*p <= 65535, i.e.
+  # none up to sqrt(65535/q) >= sqrt(n/q)); 0 when n has no prime factor above 255.
+  # Unique by (b).
+  cq: "sum(q < 255: n % (q + 1) == 0 && n >= 256 * (q + 1) && all(j < 54: (q + 1) * primes[j] * primes[j] <= 65535 -> n % ((q + 1) * primes[j]) != 0) ? q + 1 : 0)"
+  # n has a prime factor above 255 (it is n / cq)
+  big: "cq != 0"
+  # the largest prime factor of n among the primes below 256 (0 if none)
+  small_lpf: "sum(j < 54: n % primes[j] == 0 && all(k < 54: k > j -> n % primes[k] != 0) ? primes[j] : 0)"
+  # factor is the largest prime factor of n: n / cq if n has a prime factor
+  # above 255, else small_lpf (meaningful for n >= 2)
+  lpf_ok: "big ? factor * cq == n : factor == small_lpf"
+
+assumptions:
+  - id: RB-ENV-1
+    req: R-ENV-1
+    expr: "n > 1"
+    note: >-
+      "Assume n > 1" read literally as a precondition on the caller (reading 1):
+      calls with n <= 1 (here n = 0 or 1) are outside the contract and any
+      outcome is acceptable for them, including an exception or no answer.
+      Calls are independent and chosen freely by the checker (frame.md), so a
+      trace that leaves the assumption only excuses behaviours that a trace
+      without that call would not.
+
+  - id: RB-ENV-2
+    req: R-ENV-2
+    expr: "!n_prime"
+    note: >-
+      "and is not a prime" read literally as a precondition on the caller
+      (reading 1): for prime n nothing is required, although the largest prime
+      factor (n itself) would be well defined. n_prime is the primality test
+      of R-DEF-1 (n > 1 and no prime below n divides it).
+
+properties:
+  - id: RB-FN-1-RET
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: "valid", cond: "outcome == 0"}
+    note: >-
+      "Return" for an n that meets the precondition: the call finishes and
+      returns an integer that fits factor (outcome 0), not an exception, no
+      answer, or a value of another type (reading 1 of "Return": the value
+      returned is the integer itself; a float 29.0 would also fail the
+      doctests of the request, whose expected output is 29). The trigger
+      restates the precondition so the item stands on its own; under
+      RB-ENV-1 and RB-ENV-2 it is always true.
+
+  - id: RB-FN-1-VAL
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: "valid", cond: "lpf_ok"}
+    note: >-
+      The returned integer is the largest prime factor of n, checked against
+      the model in defs: if n has a prime factor above 255 (big), it is n/cq,
+      stated without division as factor * cq == n; otherwise it is small_lpf,
+      the largest of the primes below 256 that divides n. For a composite
+      n <= 65535 the answer is at most 32767, so it always fits factor.
+
+  - id: RB-EX-1-P
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 13195", cond: "outcome == 0 && factor == 29"}
+    note: >-
+      The doctest read as an assertion: every call largest_prime_factor(13195)
+      returns the integer 29. Implied by RB-FN-1-RET/RB-FN-1-VAL
+      (13195 = 5 * 7 * 13 * 29), and so also a check of the model.
+
+  - id: RB-EX-2-P
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 2048", cond: "outcome == 0 && factor == 2"}
+    note: >-
+      The doctest read as an assertion: every call largest_prime_factor(2048)
+      returns the integer 2. Implied by RB-FN-1-RET/RB-FN-1-VAL (2048 = 2^11),
+      and so also a check of the model.
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: "n == 13195 && outcome == 0 && factor == 29"
+    note: The call largest_prime_factor(13195) returning the integer 29 is a possible behaviour.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: "n == 2048 && outcome == 0 && factor == 2"
+    note: The call largest_prime_factor(2048) returning the integer 2 is a possible behaviour.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the name of the function and its single integer
+      parameter are the interface binding of the adapter (design.yaml,
+      `function`), not a property of the trace of calls.
+
+  - req: R-DEF-1
+    reason: >-
+      Definition, not an obligation. Realised by the defs primes, n_prime, cq,
+      big, small_lpf and lpf_ok, which the covering items use.
+    covered_by: [RB-FN-1-VAL, RB-ENV-2]
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, already part of every set as F-ZERO
+      (outcome != 0 -> factor == 0); frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: "Return", reading: 1}
+  - {req: R-ENV-1, phrase: "Assume n > 1", reading: 1}
+  - {req: R-ENV-2, phrase: "is not a prime", reading: 1}

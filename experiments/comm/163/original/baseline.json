@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\ndef generate_integers(a, b):\n    \"\"\"\n    Given two positive integers a and b, return the even digits between a\n    and b, in ascending order.\n\n    For example:\n    generate_integers(2, 8) => [2, 4, 6, 8]\n    generate_integers(8, 2) => [2, 4, 6, 8]\n    generate_integers(10, 14) => []\n    \"\"\"\n    lower = max(2, min(a, b))\n    upper = min(8, max(a, b))\n    return [i for i in range(lower, upper + 1) if i % 2 == 0]\n```",
+  "seconds": 5.1,
+  "cost_usd": 0.015555399999999999,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "NO_QUESTIONS",
+  "seconds": 10.0,
+  "cost_usd": 0.0241251,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "```python\ndef generate_integers(a, b):\n    \"\"\"\n    Given two positive integers a and b, return the even digits between a\n    and b, in ascending order.\n\n    For example:\n    generate_integers(2, 8) => [2, 4, 6, 8]\n    generate_integers(8, 2) => [2, 4, 6, 8]\n    generate_integers(10, 14) => []\n    \"\"\"\n    lower = max(2, min(a, b))\n    upper = min(8, max(a, b))\n    return [i for i in range(lower, upper + 1) if i % 2 == 0]\n```\n\n**How it works:**\n- The order of `a` and `b` doesn't matter, so `min` and `max` set the bounds.\n- Only single digits count, so the range is limited to 2 through 8. Zero is excluded because the inputs are positive integers.\n- If the clamped range is empty (e.g. `lower > upper` for `10, 14`), `range` returns nothing, giving `[]`.\n\n**Examples:**\n- `generate_integers(2, 8)` \u2192 `[2, 4, 6, 8]`\n- `generate_integers(8, 2)` \u2192 `[2, 4, 6, 8]`\n- `generate_integers(10, 14)` \u2192 `[]`\n- `generate_integers(1, 100)` \u2192 `[2, 4, 6, 8]`",
+  "seconds": 6.4,
+  "cost_usd": 0.0184281,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

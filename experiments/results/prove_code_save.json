@@ -1,0 +1,2294 @@
+{
+ "runs": 1441,
+ "implementations": {
+  "haiku": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CLEAN"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-CLEAN-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-CLEAN-1"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "sonnet": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CLEAN"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-CLEAN-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-CLEAN-1"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "opus": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CLEAN"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "os.remove('balance.txt.tmp') -> FileNotFoundError",
+       "f1 = open('balance.txt.tmp', 'x')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-CLEAN-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "os.remove('balance.txt.tmp') -> FileNotFoundError",
+       "f1 = open('balance.txt.tmp', 'x')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-CLEAN-1"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "os.remove('balance.txt.tmp') -> FileNotFoundError",
+       "f1 = open('balance.txt.tmp', 'x')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "ref": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CLEAN"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-CLEAN-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-CLEAN-1"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C1": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CLEAN"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-SYNC"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-CLEAN-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-CLEAN-1"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C2": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-DIGITS",
+       "G-STORE"
+      ],
+      "call": "save_balance(0) with answers []",
+      "conversation": [
+       "f1 = open('balance.txt', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError",
+       "returns False"
+      ]
+     },
+     "R-SYNC-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-SYNC"
+      ],
+      "call": "save_balance(0) with answers []",
+      "conversation": [
+       "f1 = open('balance.txt', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError",
+       "returns False"
+      ]
+     },
+     "R-TMP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-OPEN",
+       "G-WRITE"
+      ],
+      "call": "save_balance(0) with answers []",
+      "conversation": [
+       "f1 = open('balance.txt', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError",
+       "returns False"
+      ]
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-STORE-1"
+      ],
+      "call": "save_balance(0) with answers []",
+      "conversation": [
+       "f1 = open('balance.txt', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError",
+       "returns False"
+      ]
+     },
+     "R-SYNC-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-SYNC-1"
+      ],
+      "call": "save_balance(0) with answers []",
+      "conversation": [
+       "f1 = open('balance.txt', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError",
+       "returns False"
+      ]
+     },
+     "R-TMP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-TMP-1",
+       "SA-TMP-3"
+      ],
+      "call": "save_balance(0) with answers []",
+      "conversation": [
+       "f1 = open('balance.txt', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError",
+       "returns False"
+      ]
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.5,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-KEEP-2"
+      ],
+      "call": "save_balance(1) with answers []",
+      "conversation": [
+       "f1 = open('balance.txt', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError",
+       "returns False"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-RET-2"
+      ],
+      "call": "save_balance(1) with answers []",
+      "conversation": [
+       "f1 = open('balance.txt', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError",
+       "returns False"
+      ]
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-STORE-1"
+      ],
+      "call": "save_balance(1) with answers []",
+      "conversation": [
+       "f1 = open('balance.txt', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError",
+       "returns False"
+      ]
+     },
+     "R-SYNC-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-SYNC-1",
+       "SB-SYNC-2"
+      ],
+      "call": "save_balance(0) with answers []",
+      "conversation": [
+       "f1 = open('balance.txt', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError",
+       "returns False"
+      ]
+     },
+     "R-TMP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-TMP-1",
+       "SB-TMP-3"
+      ],
+      "call": "save_balance(1) with answers []",
+      "conversation": [
+       "f1 = open('balance.txt', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError",
+       "returns False"
+      ]
+     }
+    }
+   }
+  },
+  "C3": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CLEAN"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "f1.close()",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-SYNC"
+      ],
+      "call": "save_balance(0) with answers [\"ok\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"ok\"",
+       "f1.close()",
+       "returns True"
+      ]
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-CLEAN-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "f1.close()",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-SYNC-1"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "f1.close()",
+       "returns False"
+      ]
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.5,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-CLEAN-1"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "f1.close()",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-SYNC-2"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "f1.close()",
+       "returns False"
+      ]
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C4": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CLEAN"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RET"
+      ],
+      "call": "save_balance(100000000) with answers [\"fail\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     },
+     "R-STORE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-STORE"
+      ],
+      "call": "save_balance(100000000) with answers [\"fail\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.5,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-CLEAN-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-RET-1"
+      ],
+      "call": "save_balance(100000000) with answers [\"fail\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-STORE-1"
+      ],
+      "call": "save_balance(100000000) with answers [\"ok\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-TMP-2"
+      ],
+      "call": "save_balance(100000000) with answers [\"ok\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.5,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-CLEAN-1"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-RET-1"
+      ],
+      "call": "save_balance(100000000) with answers [\"ok\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-STORE-2"
+      ],
+      "call": "save_balance(100000000) with answers [\"fail\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-TMP-4"
+      ],
+      "call": "save_balance(100000000) with answers [\"fail\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     }
+    }
+   }
+  },
+  "C5": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "os.remove('balance.txt.tmp')",
+       "returns False"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RET"
+      ],
+      "call": "save_balance(1) with answers [\"ok\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"ok\"",
+       "os.remove('balance.txt.tmp') -> FileNotFoundError",
+       "returns FileNotFoundError: [Errno 2] No such file or directory: 'balance.txt.tmp'"
+      ]
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-KEEP-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "os.remove('balance.txt.tmp')",
+       "returns False"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-RET-1"
+      ],
+      "call": "save_balance(1) with answers [\"ok\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"ok\"",
+       "os.remove('balance.txt.tmp') -> FileNotFoundError",
+       "returns FileNotFoundError: [Errno 2] No such file or directory: 'balance.txt.tmp'"
+      ]
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.5,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-KEEP-2"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "os.remove('balance.txt.tmp')",
+       "returns False"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-RET-1"
+      ],
+      "call": "save_balance(1) with answers [\"ok\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"ok\"",
+       "os.remove('balance.txt.tmp') -> FileNotFoundError",
+       "returns FileNotFoundError: [Errno 2] No such file or directory: 'balance.txt.tmp'"
+      ]
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C6": {
+   "gold": {
+    "status": "untranslatable",
+    "seconds": 0.0,
+    "why": "operator Div"
+   },
+   "agent_a": {
+    "status": "untranslatable",
+    "seconds": 0.0,
+    "why": "operator Div"
+   },
+   "agent_b": {
+    "status": "untranslatable",
+    "seconds": 0.0,
+    "why": "operator Div"
+   }
+  },
+  "C7": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CLEAN"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns True"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP-RET"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns True"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RET"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns True"
+      ]
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.5,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-CLEAN-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns True"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-KEEP-2"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns True"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-RET-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns True"
+      ]
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.5,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-CLEAN-1"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns True"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-KEEP-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns True"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-RET-2"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns True"
+      ]
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C8": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CLEAN"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-ERR"
+      ],
+      "call": "save_balance(100001801) with answers [\"ok\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('100001801')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "returns raised ValueError"
+      ]
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-CLEAN-1"
+      ],
+      "call": "save_balance(100000001) with answers [\"ok\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('100000001')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "returns raised ValueError"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-ERR-1"
+      ],
+      "call": "save_balance(100004096) with answers [\"ok\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('100004096')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "returns raised ValueError"
+      ]
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.5,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-CLEAN-1"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-ERR-1"
+      ],
+      "call": "save_balance(130920266) with answers [\"ok\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('130920266')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "returns raised ValueError"
+      ]
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C9": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.3,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CLEAN"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SA-CLEAN-1"
+      ],
+      "call": "save_balance(1) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('1')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 0.4,
+    "requirements": {
+     "R-CLEAN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "SB-CLEAN-1"
+      ],
+      "call": "save_balance(0) with answers [\"fail\"]",
+      "conversation": [
+       "f1 = open('balance.txt.tmp', 'w')",
+       "f1.write('0')",
+       "f1.flush()",
+       "os.fsync(f1.fileno())",
+       "f1.close()",
+       "os.replace('balance.txt.tmp', 'balance.txt') -> \"fail\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STORE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SYNC-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-TMP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  }
+ },
+ "summary": {
+  "proved": 208,
+  "fails_both": 68,
+  "missed_by_scope": 0,
+  "scope_only": 0,
+  "unknown": 0,
+  "pairs": 36,
+  "untranslatable": [
+   "C6/gold: operator Div",
+   "C6/agent_a: operator Div",
+   "C6/agent_b: operator Div"
+  ],
+  "seconds": [
+   0.3,
+   0.5
+  ]
+ },
+ "seconds": 18
+}

@@ -1,0 +1,226 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md),
+# so the model is combinational: defs computed from the arguments of the
+# current call, and every output is checked against them. A ghost would lag
+# one call behind, so none is used.
+defs:
+  pre: "number <= 1000 && need <= 1000 && remaining <= 1000"   # the Constrain section holds
+  enough: "remaining >= need"                                   # stock covers the need
+  eaten: "enough ? need : remaining"                            # carrots eaten in these meals
+  exp_total: "number + eaten"                                   # total eaten after the meals
+  exp_left: "remaining - eaten"                                 # carrots left in stock after the meals
+
+assumptions:
+  - id: RB-ENV-1
+    req: R-ENV-1
+    expr: "number <= 1000"
+    note: >-
+      Reading 1: a precondition on callers. The lower bound 0 holds by
+      construction (signals are unsigned, frame.md).
+  - id: RB-ENV-2
+    req: R-ENV-2
+    expr: "need <= 1000"
+    note: >-
+      Reading 1: a precondition on callers. The lower bound 0 holds by
+      construction (signals are unsigned, frame.md).
+  - id: RB-ENV-3
+    req: R-ENV-3
+    expr: "remaining <= 1000"
+    note: >-
+      Reading 1: a precondition on callers. The lower bound 0 holds by
+      construction (signals are unsigned, frame.md).
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: "pre"
+      cond: "outcome == 0 && len(result) == 2"
+    note: >-
+      Every call within the constraints returns a list of exactly two
+      integers. Reading 1 of "an array": a Python list; the adapter records
+      only a list of integers in 0..2047 as outcome 0, so a tuple fails.
+      Guarded by pre so that each call is judged on its own arguments; under
+      RB-ENV-1..3 the guard is always true.
+
+  - id: RB-TOT-1
+    req: R-TOT-1
+    pattern: implies
+    args:
+      trigger: "pre && enough"
+      cond: "result[0] == exp_total"
+    note: >-
+      When remaining >= need the first element is number + need (exp_total
+      reduces to number + need here). Reading 1 for both flagged phrases:
+      total = carrots eaten before plus those eaten now, and need is
+      additional to number. All four examples agree on the first element.
+
+  - id: RB-TOT-2
+    req: R-TOT-2
+    pattern: implies
+    args:
+      trigger: "pre && !enough"
+      cond: "result[0] == exp_total"
+    note: >-
+      When remaining < need the rabbit eats all remaining carrots, so the
+      first element is number + remaining (exp_total reduces to it here).
+      Reading 1; eat(2, 11, 5) -> [7, 5] agrees.
+
+  - id: RB-LEFT-1
+    req: R-LEFT-1
+    pattern: implies
+    args:
+      trigger: "pre && enough"
+      cond: "result[1] == exp_left"
+    note: >-
+      When remaining >= need the second element is the stock after the
+      meals, remaining - need (exp_left reduces to it here). Reading 1, the
+      literal prose "the number of carrots left after your meals". This
+      CONTRADICTS the examples eat(5, 6, 10) -> [11, 10], eat(4, 8, 9) ->
+      [12, 9] and eat(1, 10, 10) -> [11, 10], which return remaining
+      unchanged (RB-EX-1..3 vs this item). The contradiction is kept, not
+      repaired.
+
+  - id: RB-LEFT-2
+    req: R-LEFT-2
+    pattern: implies
+    args:
+      trigger: "pre && !enough"
+      cond: "result[1] == exp_left"
+    note: >-
+      When remaining < need all remaining carrots are eaten, so none are
+      left: the second element is 0 (exp_left reduces to 0 here). Reading 1.
+      This CONTRADICTS the example eat(2, 11, 5) -> [7, 5], which returns
+      remaining (RB-EX-4 vs this item). The contradiction is kept, not
+      repaired.
+
+  - id: RB-HUN-1
+    req: R-HUN-1
+    pattern: implies
+    args:
+      trigger: "pre && !enough"
+      cond: "result[0] - number < need"
+    note: >-
+      "Still hungry": the carrots eaten in these meals (first element minus
+      number) fall short of need. Reading 1: narrative only, no extra
+      element or flag is required; this item only restates what the two
+      elements already say and is implied by RB-TOT-2.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "number == 5 && need == 6 && remaining == 10"
+      cond: "outcome == 0 && result == [11, 10]"
+    note: >-
+      Reading 1: the example is binding as written; a deterministic call
+      eat(5, 6, 10) returns [11, 10]. CONTRADICTS RB-LEFT-1, which requires
+      the second element to be 10 - 6 = 4.
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: "number == 4 && need == 8 && remaining == 9"
+      cond: "outcome == 0 && result == [12, 9]"
+    note: >-
+      Reading 1: binding as written. CONTRADICTS RB-LEFT-1, which requires
+      the second element to be 9 - 8 = 1.
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: "number == 1 && need == 10 && remaining == 10"
+      cond: "outcome == 0 && result == [11, 10]"
+    note: >-
+      Reading 1: binding as written. CONTRADICTS RB-LEFT-1, which requires
+      the second element to be 10 - 10 = 0.
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: "number == 2 && need == 11 && remaining == 5"
+      cond: "outcome == 0 && result == [7, 5]"
+    note: >-
+      Reading 1: binding as written. CONTRADICTS RB-LEFT-2, which requires
+      the second element to be 0 because all remaining carrots are eaten.
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "number == 5 && need == 6 && remaining == 10 && outcome == 0 && result == [11, 10]"
+    note: The example call and its answer must be possible. Unreachable together with RB-LEFT-1.
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: "number == 4 && need == 8 && remaining == 9 && outcome == 0 && result == [12, 9]"
+    note: The example call and its answer must be possible. Unreachable together with RB-LEFT-1.
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "number == 1 && need == 10 && remaining == 10 && outcome == 0 && result == [11, 10]"
+    note: The example call and its answer must be possible. Unreachable together with RB-LEFT-1.
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: "number == 2 && need == 11 && remaining == 5 && outcome == 0 && result == [7, 5]"
+    note: The example call and its answer must be possible. Unreachable together with RB-LEFT-2.
+
+dont_cares:
+  - {id: RB-ENV-1-DO, req: R-ENV-1, signal: outcome, when: "number > 1000",
+     note: "Reading 1: outside the constraint the behaviour is unspecified; the function need not reject."}
+  - {id: RB-ENV-1-DR, req: R-ENV-1, signal: result, when: "number > 1000",
+     note: "Reading 1: outside the constraint the returned value is unspecified."}
+  - {id: RB-ENV-2-DO, req: R-ENV-2, signal: outcome, when: "need > 1000",
+     note: "Reading 1: outside the constraint the behaviour is unspecified; the function need not reject."}
+  - {id: RB-ENV-2-DR, req: R-ENV-2, signal: result, when: "need > 1000",
+     note: "Reading 1: outside the constraint the returned value is unspecified."}
+  - {id: RB-ENV-3-DO, req: R-ENV-3, signal: outcome, when: "remaining > 1000",
+     note: "Reading 1: outside the constraint the behaviour is unspecified; the function need not reject."}
+  - {id: RB-ENV-3-DR, req: R-ENV-3, signal: result, when: "remaining > 1000",
+     note: "Reading 1: outside the constraint the returned value is unspecified."}
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the deliverable is Python code with the given
+      signature. The adapter (design.yaml function section) realizes the
+      signature; it is not a property of the trace.
+  - req: R-CTX-1
+    reason: >-
+      Definition (narrative context). Reading 1: with enough stock the rabbit
+      eats exactly need further carrots; this is the model def eaten and is
+      realized by the first and second elements.
+    covered_by: [RB-TOT-1, RB-LEFT-1]
+  - req: R-DEF-1
+    reason: Definition of the argument number (carrots eaten before the call); used in the model def exp_total.
+    covered_by: [RB-TOT-1, RB-TOT-2]
+  - req: R-DEF-2
+    reason: >-
+      Definition of the argument need. Reading 1: need is additional to
+      number (not the day's total); used in the model defs enough and eaten.
+    covered_by: [RB-TOT-1, RB-LEFT-1, RB-HUN-1]
+  - req: R-DEF-3
+    reason: Definition of the argument remaining (stock before the meals); used in the model defs enough, eaten and exp_left.
+    covered_by: [RB-TOT-2, RB-LEFT-1, RB-LEFT-2]
+  - req: R-FR-1
+    reason: Frame rule of the adapter; F-EMPTY in design.yaml is added to every formalization set and need not be restated (frame.md).
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-CTX-1, phrase: "you need to eat more carrots", reading: 1}
+  - {req: R-DEF-2, phrase: "the number of carrots that you need to eat", reading: 1}
+  - {req: R-RET-1, phrase: "an array", reading: 1}
+  - {req: R-TOT-1, phrase: "total number of eaten carrots", reading: 1}
+  - {req: R-TOT-1, phrase: "the number of carrots that you need to eat", reading: 1}
+  - {req: R-TOT-2, phrase: "total number of eaten carrots", reading: 1}
+  - {req: R-LEFT-1, phrase: "the number of carrots left after your meals", reading: 1}
+  - {req: R-LEFT-2, phrase: "you will eat all remaining carrots", reading: 1}
+  - {req: R-HUN-1, phrase: "will still be hungry", reading: 1}
+  - {req: R-EX-1, phrase: "eat(5, 6, 10) -> [11, 10]", reading: 1}
+  - {req: R-EX-2, phrase: "eat(4, 8, 9) -> [12, 9]", reading: 1}
+  - {req: R-EX-3, phrase: "eat(1, 10, 10) -> [11, 10]", reading: 1}
+  - {req: R-EX-4, phrase: "eat(2, 11, 5) -> [7, 5]", reading: 1}
+  - {req: R-ENV-1, phrase: "0 <= number <= 1000", reading: 1}
+  - {req: R-ENV-2, phrase: "0 <= need <= 1000", reading: 1}
+  - {req: R-ENV-3, phrase: "0 <= remaining <= 1000", reading: 1}

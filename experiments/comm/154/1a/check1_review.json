@@ -1,0 +1,338 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 644,
+    "checked": 644,
+    "seconds": 147.29
+   },
+   "open": {
+    "open": {},
+    "checked": 436
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 611,
+    "checked": 611,
+    "seconds": 148.08
+   },
+   "open": {
+    "open": {},
+    "checked": 414
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-5": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-6": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `word_a && word_b`",
+    "where": {
+     "word_a": "len(a) >= 1 && all(i < len(a): isalpha(a[i]))",
+     "word_b": "len(b) >= 1 && all(i < len(b): isalpha(b[i]))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `a_word && b_word`",
+    "where": {
+     "a_word": "len(a) >= 1 && all(i < len(a): isalpha(a[i]))",
+     "b_word": "len(b) >= 1 && all(i < len(b): isalpha(b[i]))"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "2 words",
+   "taken": 2,
+   "variant": 1,
+   "text": "any two strings, including the empty string and strings containing non-letter characters (digits, spaces, punctuation, codes 0-255); the function must answer for all of them"
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "words",
+   "taken": 1,
+   "variant": 2,
+   "text": "words are lower-case only (all examples are lower-case); calls with upper-case letters are a don't-care"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "related to the first word",
+   "taken": 1,
+   "variant": 2,
+   "text": "occurs as a subsequence (not necessarily contiguous) of the first word; this contradicts the example cycpattern_check(\"abcd\",\"abd\") => False, since abd is a subsequence of abcd"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "related",
+   "taken": 1,
+   "variant": 2,
+   "text": "characters are compared ignoring letter case"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "any of its rotations",
+   "taken": 1,
+   "variant": 2,
+   "text": "any rearrangement (permutation) of the characters of the second word; this contradicts the example efef/eeff => False, since efef is a rearrangement of eeff and equals the first word"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "the second word",
+   "taken": 2,
+   "variant": 1,
+   "text": "an empty second word has the single rotation \"\", which occurs in every first word, so the call returns True"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "return True",
+   "taken": 1,
+   "variant": 2,
+   "text": "return any truthy value"
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "if",
+   "taken": 1,
+   "variant": 2,
+   "text": "a sufficient condition only: the text states nothing for the case where no rotation is related, so the result there is unspecified apart from the examples"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "=> False",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-RET-1 when related means subsequence: abd itself is a subsequence of abcd, so the call would return True"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "=> True",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-RET-1 when related means equal to the first word (b is a rotation of a): no rotation of ell equals hello"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "=> False",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-RET-1 when related means the characters occur in the first word counting multiplicity: whassup contains p, s, s and u"
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "=> True",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-RET-1 when related means equal to the first word (b is a rotation of a): no rotation of baa equals abab"
+  },
+  {
+   "req": "R-EX-5",
+   "phrase": "=> False",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-RET-1 when rotations means any rearrangement, or related means the characters occur in the first word counting multiplicity: efef is a rearrangement of eeff"
+  },
+  {
+   "req": "R-EX-6",
+   "phrase": "=> True",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-RET-1 when related means equal to the first word (b is a rotation of a): no rotation of simen equals himenss"
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": null
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"related to the first word\" can mean: occurs as a contiguous substring of the first word (consistent with all six examples) / occurs as a subsequence (not necessarily contiguous) of the first word; this contradicts the example cycpattern_check(\"abcd\",\"abd\") => False, since abd is a subsequence of abcd / all of its characters occur in the first word, counting multiplicity (an anagram of part of it); this contradicts the examples whassup/psus => False (whassup contains p, s, s, u) and efef/eeff => False (eeff is an anagram of efef) / is equal to the first word (b is a rotation of a); this contradicts the examples hello/ell => True, abab/baa => True and himenss/simen => True, where the lengths differ / either one contains the other: the rotation occurs in the first word, or the first word occurs in the rotation (consistent with all six examples, but differs when the first word is shorter, e.g. a = \"ab\", b = \"bab\"). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"related\" can mean: characters are compared exactly (case-sensitive) / characters are compared ignoring letter case. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"any of its rotations\" can mean: the cyclic shifts of the second word (moving leading characters to the end), e.g. abd, bda, dab (consistent with all six examples) / any rearrangement (permutation) of the characters of the second word; this contradicts the example efef/eeff => False, since efef is a rearrangement of eeff and equals the first word. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"the second word\" can mean: an empty second word has the single rotation \"\", which occurs in every first word, so the call returns True / an empty second word is not a word, so the result for it is unspecified. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"return True\" can mean: return the bool value True / return any truthy value. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"if\" can mean: if and only if: when no rotation is related, the call returns False (as the examples abcd/abd, whassup/psus and efef/eeff show) / a sufficient condition only: the text states nothing for the case where no rotation is related, so the result there is unspecified apart from the examples. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"=> False\" can mean: consistent with R-RET-1 when related means contiguous substring: none of abd, bda, dab occurs in abcd / contradicts R-RET-1 when related means subsequence: abd itself is a subsequence of abcd, so the call would return True. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"=> True\" can mean: consistent with R-RET-1 when related means contiguous substring: ell occurs in hello / contradicts R-RET-1 when related means equal to the first word (b is a rotation of a): no rotation of ell equals hello. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"=> False\" can mean: consistent with R-RET-1 when related means contiguous substring: none of psus, susp, usps, spsu occurs in whassup / contradicts R-RET-1 when related means the characters occur in the first word counting multiplicity: whassup contains p, s, s and u. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"=> True\" can mean: consistent with R-RET-1 when related means contiguous substring: the rotation aba occurs in abab / contradicts R-RET-1 when related means equal to the first word (b is a rotation of a): no rotation of baa equals abab. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-5"
+   ],
+   "calls": [],
+   "question": "\"=> False\" can mean: consistent with R-RET-1 when related means contiguous substring and rotations are cyclic shifts: none of eeff, effe, ffee, feef occurs in efef / contradicts R-RET-1 when rotations means any rearrangement, or related means the characters occur in the first word counting multiplicity: efef is a rearrangement of eeff. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-6"
+   ],
+   "calls": [],
+   "question": "\"=> True\" can mean: consistent with R-RET-1 when related means contiguous substring: the rotation imens occurs in himenss / contradicts R-RET-1 when related means equal to the first word (b is a rotation of a): no rotation of simen equals himenss. Which is meant?"
+  }
+ ],
+ "limits": [
+  "request points of agent_a",
+  "request points of agent_b",
+  "request points of agent_a, variant",
+  "request points of agent_a, agent_b, variant",
+  "the comparison of agent_a and variant"
+ ]
+}

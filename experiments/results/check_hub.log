@@ -1,0 +1,52 @@
+[gold] 26 properties, 5 assumptions
+  gold:tautology: 0.02s
+  gold:consistency: 10.48s
+  gold:ref:verify: 0.01s
+  gold:ref:vacuity: 0.01s
+  gold:ref:receptive: 88.05s
+  gold:fixed:verify: 0.02s
+  gold:fixed:vacuity: 0.01s
+  gold:fixed:receptive: 91.86s
+  gold:ai:verify: 0.05s
+  gold:ai:vacuity: 0.01s
+  gold:ai:receptive: 101.36s
+  gold:mutation: 0.35s
+[agent_a] 20 properties, 5 assumptions
+  agent_a:tautology: 0.01s
+  agent_a:consistency: 2.61s
+  agent_a:ref:verify: 0.08s
+  agent_a:ref:vacuity: 0.02s
+  agent_a:ref:receptive: 91.87s
+  agent_a:fixed:verify: 0.08s
+  agent_a:fixed:vacuity: 0.02s
+  agent_a:fixed:receptive: 90.58s
+  agent_a:ai:verify: 0.08s
+  agent_a:ai:vacuity: 0.01s
+  agent_a:ai:receptive: 107.0s
+  agent_a:mutation: 2.16s
+[agent_b] 26 properties, 5 assumptions
+  agent_b:tautology: 0.01s
+  agent_b:consistency: 6.88s
+  agent_b:ref:verify: 0.08s
+  agent_b:ref:vacuity: 0.01s
+  agent_b:ref:receptive: 58.14s
+  agent_b:fixed:verify: 0.08s
+  agent_b:fixed:vacuity: 0.02s
+  agent_b:fixed:receptive: 58.21s
+  agent_b:ai:verify: 0.08s
+  agent_b:ai:vacuity: 0.01s
+  agent_b:ai:receptive: 64.86s
+  agent_b:mutation: 2.13s
+  compare:gold|agent_a: 0.03s
+  compare:gold|agent_b: 0.03s
+  compare:agent_a|agent_b: 0.03s
+[gold / ref] {'ASSUMED': 3, 'PROVED-DISPUTED': 10}  review queue: 11  -> corpus/hub/.fcp/report/report_gold_ref.html
+[gold / fixed] {'ASSUMED': 3, 'PROVED-DISPUTED': 10}  review queue: 11  -> corpus/hub/.fcp/report/report_gold_fixed.html
+[gold / ai] {'ASSUMED': 3, 'FAILED': 1, 'PROVED-DISPUTED': 9}  review queue: 12  -> corpus/hub/.fcp/report/report_gold_ai.html
+[agent_a / ref] {'ASSUMED': 3, 'FAILED': 1, 'PROVED-DISPUTED': 9}  review queue: 12  -> corpus/hub/.fcp/report/report_agent_a_ref.html
+[agent_a / fixed] {'ASSUMED': 3, 'FAILED': 1, 'PROVED-DISPUTED': 9}  review queue: 12  -> corpus/hub/.fcp/report/report_agent_a_fixed.html
+[agent_a / ai] {'ASSUMED': 3, 'FAILED': 1, 'PROVED-DISPUTED': 9}  review queue: 12  -> corpus/hub/.fcp/report/report_agent_a_ai.html
+[agent_b / ref] {'ASSUMED': 3, 'FAILED': 1, 'PROVED-DISPUTED': 9}  review queue: 12  -> corpus/hub/.fcp/report/report_agent_b_ref.html
+[agent_b / fixed] {'ASSUMED': 3, 'FAILED': 1, 'PROVED-DISPUTED': 9}  review queue: 12  -> corpus/hub/.fcp/report/report_agent_b_fixed.html
+[agent_b / ai] {'ASSUMED': 3, 'FAILED': 1, 'PROVED-DISPUTED': 9}  review queue: 12  -> corpus/hub/.fcp/report/report_agent_b_ai.html
+total 779.36s; engine tasks run 120, cached 6164

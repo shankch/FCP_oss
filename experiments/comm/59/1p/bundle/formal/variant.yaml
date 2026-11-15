@@ -1,0 +1,167 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-DEF-1: an integer greater than 1 with no divisor strictly between 1 and
+  # itself. Trial division by 2..255 is exact for every value 0..65535, since a
+  # composite number up to 65535 has a divisor of at most 255.
+  n_prime: 'n >= 2 && all(i < 254: i + 2 >= n || n % (i + 2) != 0)'
+  f_prime: 'factor >= 2 && all(i < 254: i + 2 >= factor || factor % (i + 2) != 0)'
+  # The words of the prompt: "Assume n > 1 and is not a prime".
+  pre: 'n > 1 && !n_prime'
+  # n is p^k for a prime p and an exponent k >= 2 (a prime power that is not a
+  # prime). Up to 65535 such a p is at most 255 (p * p <= 65535) and k is at
+  # most 15 (2^16 > 65535); a p up to 255 is prime when 2..15 do not divide it.
+  n_ppow: >-
+    any(p < 256: p >= 2 && all(i < 14: i + 2 >= p || p % (i + 2) != 0) && (
+    n == p * p ||
+    n == p * p * p ||
+    n == p * p * p * p ||
+    n == p * p * p * p * p ||
+    n == p * p * p * p * p * p ||
+    n == p * p * p * p * p * p * p ||
+    n == p * p * p * p * p * p * p * p ||
+    n == p * p * p * p * p * p * p * p * p ||
+    n == p * p * p * p * p * p * p * p * p * p ||
+    n == p * p * p * p * p * p * p * p * p * p * p ||
+    n == p * p * p * p * p * p * p * p * p * p * p * p ||
+    n == p * p * p * p * p * p * p * p * p * p * p * p * p ||
+    n == p * p * p * p * p * p * p * p * p * p * p * p * p * p ||
+    n == p * p * p * p * p * p * p * p * p * p * p * p * p * p * p))
+  # factor divides n exactly (n % factor == 0). FCP-PL allows only a constant
+  # divisor, so: factor is some d in 1..255 with n % d == 0, or factor * q == n
+  # for some q in 1..255. Exact for 1 <= n <= 65535, because a divisor of n of
+  # 256 or more has a cofactor of at most 255. factor 0 never qualifies when n > 0.
+  f_div: 'any(i < 255: factor == i + 1 && n % (i + 1) == 0 || factor * (i + 1) == n)'
+
+assumptions:
+  - id: RV-ENV-2
+    req: R-ENV-2
+    expr: 'pre -> n_ppow'
+    note: >-
+      Reading imposed by the request for "is not a prime" (reading 2, not the
+      most literal one): n is meant to have a single prime factor, as "the prime
+      factor" (R-RET-4) presupposes, i.e. n is a prime power such as 4, 8 or 9,
+      and a call whose n has several distinct prime factors (6, 12, 514 = 2 * 257)
+      is outside the contract. This contradicts reading 1, which the words "not a
+      prime" alone allow. Formalized as an environment assumption that every call
+      with n > 1 that is not prime has n = p^k (p prime, k >= 2). The words "not a
+      prime" themselves are NOT assumed here: under the reading imposed for
+      "Assume" in R-ENV-3 (reading 2), a call on a prime n (and on n <= 1) must
+      still return an integer, so such calls stay in the environment and "n > 1
+      and is not a prime" is instead the precondition `pre` of RV-RET-1..4.
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    expr: 'pre -> outcome != 1'
+    note: >-
+      Reading imposed by the request for "Return" (reading 2, not the most literal
+      one): any number numerically equal to the required prime factor (for example
+      the float 3.0) is acceptable, so "with an integer value" is not required. The
+      adapter records such a return as outcome 2 ("returned anything else") with
+      factor 0, so the item demands only a normal return (no exception, finishes:
+      outcome is not 1). Limitation of the encoding: the value of an outcome-2
+      return is invisible, so a non-numeric return (None, a string) also passes
+      this item. Precondition `pre` (n > 1, not prime) is the precondition, not an
+      environment assumption, because of the reading imposed for "Assume" in
+      R-ENV-3 (reading 2); calls with several distinct prime factors are excluded
+      by RV-ENV-2 (R-ENV-2 reading 2).
+  - id: RV-RET-2
+    req: R-RET-2
+    expr: 'pre && outcome == 0 -> f_div'
+    note: >-
+      The value is checked only when the call returned an integer 0..65535
+      (outcome 0): under the reading imposed for "Return" in R-RET-1 (reading 2) a
+      numerically equal non-int such as 3.0 is acceptable, and its value is not in
+      the trace (outcome 2, factor 0). `pre` is the precondition rather than an
+      assumption because of the reading imposed for "Assume" in R-ENV-3 (reading 2);
+      under RV-ENV-2 (R-ENV-2 reading 2) every constrained call has n = p^k, k >= 2.
+      Divisibility is written without a variable divisor (see def f_div).
+  - id: RV-RET-3
+    req: R-RET-3
+    expr: 'pre && outcome == 0 -> f_prime'
+    note: >-
+      Prime as defined by R-DEF-1 (def f_prime). Checked only on outcome 0 because
+      of the reading imposed for "Return" in R-RET-1 (reading 2: a numerically
+      equal non-int such as 3.0 is acceptable and is not visible in the trace).
+      `pre` is the precondition rather than an assumption because of the reading
+      imposed for "Assume" in R-ENV-3 (reading 2); under RV-ENV-2 (R-ENV-2
+      reading 2) every constrained call has n = p^k, k >= 2.
+  - id: RV-RET-4
+    req: R-RET-4
+    expr: 'pre && outcome == 0 -> f_prime && f_div'
+    note: >-
+      Reading imposed by the request for "the prime factor" (reading 1, not the
+      most literal one): any prime factor of n is acceptable, the definite article
+      being loose; neither the smallest nor the largest is singled out. Under
+      RV-ENV-2 (reading 2 imposed for "is not a prime" in R-ENV-2) every
+      constrained n is p^k with a single prime p, so "any prime factor" and "the
+      unique prime factor" coincide on every call this set constrains, and the item
+      coincides with RV-RET-2 and RV-RET-3 together. Checked only on outcome 0
+      because of the reading imposed for "Return" in R-RET-1 (reading 2). `pre` is
+      the precondition rather than an assumption because of the reading imposed for
+      "Assume" in R-ENV-3 (reading 2).
+  - id: RV-ENV-3-RET
+    req: R-ENV-3
+    expr: 'n <= 1 || n_prime -> outcome == 0'
+    note: >-
+      Reading imposed by the request for "Assume" (reading 2, not the most literal
+      one): on n <= 1 or prime n the call must still return an integer normally;
+      only the returned value is unconstrained (RV-ENV-3-VAL). This overrides the
+      requirement text, which also leaves how the call ends free. Because these
+      calls carry an obligation, R-ENV-1 and the words "not a prime" of R-ENV-2 are
+      not environment assumptions in this set. Outcome 0 is a returned integer
+      0..65535 (every n of the trace is in that range). The adapter puts a returned
+      integer outside 0..65535 (such as -1) in outcome 2 together with non-integers
+      (None, 3.0); the item takes outcome 0, so it also rejects a negative or
+      oversized integer, which the reading admits, rather than admit None, which it
+      forbids. Note the asymmetry with the reading imposed for "Return" in R-RET-1
+      (reading 2): a numerically equal non-int is acceptable for n inside the
+      contract, but the words "an integer" here admit none for n <= 1 or prime n.
+      Prime per R-DEF-1 (def n_prime).
+
+dont_cares:
+  - id: RV-ENV-3-VAL
+    req: R-ENV-3
+    signal: factor
+    when: 'n <= 1 || n_prime'
+    note: >-
+      Reading imposed by the request for "Assume" (reading 2): on n <= 1 or prime n
+      only the returned value is unconstrained; that the call returns an integer is
+      required by RV-ENV-3-RET. Prime per R-DEF-1 (def n_prime).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional interface requirement (a function named candidate taking one
+      integer n). It is fixed by the adapter's function declaration in design.yaml
+      (candidate(n: int) driving signal n) and is not a property of the call trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition, not a behaviour. Realized by defs n_prime and f_prime (and the
+      primality test of the base inside n_ppow): an integer of at least 2 with no
+      divisor from 2 to one less than itself, tested by trial division by 2..255,
+      which is exact for 0..65535.
+    covered_by: [RV-ENV-2, RV-RET-1, RV-RET-2, RV-RET-3, RV-RET-4, RV-ENV-3-RET, RV-ENV-3-VAL]
+  - req: R-ENV-1
+    reason: >-
+      Under the reading imposed by the request for "Assume" in R-ENV-3 (reading 2),
+      a call with n <= 1 must still return an integer, so such calls remain in the
+      environment and "Assume n > 1" cannot be an environment assumption (it would
+      make RV-ENV-3-RET vacuous for n <= 1). It is realized as the precondition
+      n > 1 (def pre) of RV-RET-1..4 and as the trigger n <= 1 of RV-ENV-3-RET and
+      RV-ENV-3-VAL.
+    covered_by: [RV-RET-1, RV-RET-2, RV-RET-3, RV-RET-4, RV-ENV-3-RET, RV-ENV-3-VAL]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the adapter (frame.md, design.yaml frame), added to every
+      formalization set by construction; not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-2, phrase: is not a prime, reading: 2}
+  - {req: R-ENV-3, phrase: Assume, reading: 2}
+  - {req: R-RET-1, phrase: Return, reading: 2}
+  - {req: R-RET-4, phrase: the prime factor, reading: 1}

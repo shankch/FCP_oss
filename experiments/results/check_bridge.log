@@ -1,0 +1,55 @@
+[gold] 20 properties, 2 assumptions
+  gold:tautology: 0.01s
+  gold:consistency: 2.54s
+  gold:determinacy: 36.92s
+  gold:ref:verify: 0.01s
+  gold:ref:vacuity: 0.01s
+  gold:ref:receptive: 64.27s
+  gold:ai:verify: 0.01s
+  gold:ai:vacuity: 0.01s
+  gold:ai:receptive: 65.09s
+  gold:B2:verify: 0.05s
+  gold:B2:vacuity: 0.01s
+  gold:B2:receptive: 66.89s
+  gold:mutation: 0.23s
+[agent_a] 17 properties, 2 assumptions
+  agent_a:tautology: 0.0s
+  agent_a:consistency: 2.72s
+  agent_a:determinacy: 8.32s
+  agent_a:ref:verify: 0.01s
+  agent_a:ref:vacuity: 0.01s
+  agent_a:ref:receptive: 48.06s
+  agent_a:ai:verify: 0.01s
+  agent_a:ai:vacuity: 0.01s
+  agent_a:ai:receptive: 49.24s
+  agent_a:B2:verify: 0.07s
+  agent_a:B2:vacuity: 0.01s
+  agent_a:B2:receptive: 47.59s
+  agent_a:mutation: 1.75s
+[agent_b] 18 properties, 2 assumptions
+  agent_b:tautology: 0.01s
+  agent_b:consistency: 2.87s
+  agent_b:determinacy: 2.42s
+  agent_b:ref:verify: 0.01s
+  agent_b:ref:vacuity: 0.0s
+  agent_b:ref:receptive: 44.38s
+  agent_b:ai:verify: 0.01s
+  agent_b:ai:vacuity: 0.01s
+  agent_b:ai:receptive: 46.0s
+  agent_b:B2:verify: 0.1s
+  agent_b:B2:vacuity: 0.01s
+  agent_b:B2:receptive: 49.03s
+  agent_b:mutation: 1.69s
+  compare:gold|agent_a: 0.02s
+  compare:gold|agent_b: 0.03s
+  compare:agent_a|agent_b: 0.02s
+[gold / ref] {'ASSUMED': 2, 'DONT-CARE': 2, 'PROVED-DISPUTED': 15, 'UNFORMALIZED': 2}  review queue: 20  -> corpus/bridge/.fcp/report/report_gold_ref.html
+[gold / ai] {'ASSUMED': 2, 'DONT-CARE': 2, 'PROVED-DISPUTED': 15, 'UNFORMALIZED': 2}  review queue: 20  -> corpus/bridge/.fcp/report/report_gold_ai.html
+[gold / B2] {'ASSUMED': 2, 'DONT-CARE': 2, 'FAILED': 1, 'PROVED-DISPUTED': 14, 'UNFORMALIZED': 2}  review queue: 21  -> corpus/bridge/.fcp/report/report_gold_B2.html
+[agent_a / ref] {'ASSUMED': 2, 'COVERED-INDIRECTLY': 1, 'COVERED-PROVED': 1, 'DONT-CARE': 2, 'MISSING': 1, 'PROVED-DISPUTED': 14}  review queue: 21  -> corpus/bridge/.fcp/report/report_agent_a_ref.html
+[agent_a / ai] {'ASSUMED': 2, 'COVERED-INDIRECTLY': 1, 'COVERED-PROVED': 1, 'DONT-CARE': 2, 'MISSING': 1, 'PROVED-DISPUTED': 14}  review queue: 21  -> corpus/bridge/.fcp/report/report_agent_a_ai.html
+[agent_a / B2] {'ASSUMED': 2, 'COVERED-FAILED': 2, 'DONT-CARE': 2, 'FAILED': 2, 'MISSING': 1, 'PROVED-DISPUTED': 12}  review queue: 23  -> corpus/bridge/.fcp/report/report_agent_a_B2.html
+[agent_b / ref] {'ASSUMED': 2, 'COVERED-INDIRECTLY': 1, 'DONT-CARE': 2, 'MISSING': 1, 'PROVED-DISPUTED': 15}  review queue: 20  -> corpus/bridge/.fcp/report/report_agent_b_ref.html
+[agent_b / ai] {'ASSUMED': 2, 'COVERED-INDIRECTLY': 1, 'DONT-CARE': 2, 'MISSING': 1, 'PROVED-DISPUTED': 15}  review queue: 20  -> corpus/bridge/.fcp/report/report_agent_b_ai.html
+[agent_b / B2] {'ASSUMED': 2, 'COVERED-FAILED': 1, 'DONT-CARE': 2, 'FAILED': 3, 'MISSING': 1, 'PROVED-DISPUTED': 12}  review queue: 23  -> corpus/bridge/.fcp/report/report_agent_b_B2.html
+total 540.83s; engine tasks run 147, cached 4538

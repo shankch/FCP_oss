@@ -1,0 +1,72 @@
+[
+ {
+  "req": "R-IN-1",
+  "phrase": "positive",
+  "taken": 1,
+  "variant": 2,
+  "text": "non-negative: a >= 0 and b >= 0, so a call with 0 is covered by the request and must be answered like any other"
+ },
+ {
+  "req": "R-RES-2",
+  "phrase": "digits",
+  "taken": 1,
+  "variant": 2,
+  "text": "integers: 'digits' is used loosely for numbers (the function is named generate_integers), so this places no limit on the returned numbers; this agrees with the example generate_integers(10, 14) => [14] (R-EX-3)"
+ },
+ {
+  "req": "R-RES-3",
+  "phrase": "between a and b",
+  "taken": 1,
+  "variant": 2,
+  "text": "exclusive: min(a, b) < x < max(a, b), so a and b themselves are never returned; this contradicts every example (generate_integers(2, 8) => [8], generate_integers(8, 2) => [8], generate_integers(10, 14) => [14])"
+ },
+ {
+  "req": "R-RES-4",
+  "phrase": "even digits",
+  "taken": 1,
+  "variant": 2,
+  "text": "even integers: every even integer that lies between a and b must appear"
+ },
+ {
+  "req": "R-RES-4",
+  "phrase": "between a and b",
+  "taken": 1,
+  "variant": 2,
+  "text": "exclusive: the range is strictly between min(a, b) and max(a, b), excluding both ends"
+ },
+ {
+  "req": "R-RES-4",
+  "phrase": "the even digits between a and b",
+  "taken": 1,
+  "variant": 2,
+  "text": "the examples govern: only the largest even number between a and b is returned (generate_integers(2, 8) => [8], generate_integers(10, 14) => [14]), so the list need not contain the other even digits between a and b"
+ },
+ {
+  "req": "R-SYM-1",
+  "phrase": "between a and b",
+  "taken": 1,
+  "variant": 2,
+  "text": "ordered: the range runs from a up to b, so nothing lies between a and b when a > b and the list is then empty; this contradicts the example generate_integers(8, 2) => [8] (R-EX-2)"
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "generate_integers(2, 8) => [8]",
+  "taken": 1,
+  "variant": 2,
+  "text": "the description governs and the example is wrong: the call returns [2, 4, 6, 8], every even digit from 2 to 8 inclusive"
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "generate_integers(8, 2) => [8]",
+  "taken": 1,
+  "variant": 2,
+  "text": "the description governs and the example is wrong: the call returns [2, 4, 6, 8], every even digit from 2 to 8 inclusive"
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "generate_integers(10, 14) => [14]",
+  "taken": 1,
+  "variant": 2,
+  "text": "the description governs and the example is wrong: no even digit (0 to 9) lies between 10 and 14, so the call returns []"
+ }
+]

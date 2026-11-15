@@ -1,0 +1,156 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  nonempty: "len(arr) > 0"
+
+properties:
+  - id: RV-CH-1
+    req: R-CH-1
+    pattern: implies
+    args:
+      trigger: "nonempty"
+      cond: "outcome == 0 && changes == len(arr)"
+    note: >-
+      Reading taken as instructed (not the more natural one): "the minimum number of
+      elements that need to be changed" is the value the examples give (8, 7 and 5),
+      which in all three cases is len(arr); the examples are authoritative over the
+      stated definition. The rule the examples share is generalised to every
+      non-empty list: the call returns an integer equal to the length of arr.
+      len(arr) <= 10 always fits the 4-bit result, so outcome must be 0. Note that
+      this contradicts the stated definition (R-DEF-1), which would give 4, 1 and 0
+      for the three examples; the specification is not repaired here. The guard
+      len(arr) > 0 follows the instructed reading of R-IN-1 ("an array arr of
+      integers" is a non-empty list, the empty list is don't care, see RV-IN-1a/b).
+      The instructed reading of R-DEF-2 ("any other element" is the value of some
+      other element already present in the array) does not change this item: the
+      result does not depend on which values a change may take.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "arr == [1, 2, 3, 5, 4, 7, 9, 6]"
+      cond: "outcome == 0 && changes == 8"
+    note: >-
+      Literal reading of the doctest: this call returns 8 (reading 2: the example is
+      authoritative). Consistent with the instructed reading of R-CH-1 (the examples
+      are authoritative, result len(arr) = 8); under the stated definition the
+      answer would be 4, since all four mirror pairs differ.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: "arr == [1, 2, 3, 4, 3, 2, 2]"
+      cond: "outcome == 0 && changes == 7"
+    note: >-
+      Literal reading of the doctest: this call returns 7 (reading 2: the example is
+      authoritative). Consistent with the instructed reading of R-CH-1 (the examples
+      are authoritative, result len(arr) = 7); under the stated definition the
+      answer would be 1, since only the mirror pair (1, 2) differs.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: "arr == [1, 2, 3, 2, 1]"
+      cond: "outcome == 0 && changes == 5"
+    note: >-
+      Literal reading of the doctest: this call returns 5 (reading 2: the example is
+      authoritative). Consistent with the instructed reading of R-CH-1 (the examples
+      are authoritative, result len(arr) = 5); under the stated definition the
+      answer would be 0, since [1, 2, 3, 2, 1] is already palindromic.
+
+scenarios:
+  - id: RV-EX-1s
+    req: R-EX-1
+    cover: "arr == [1, 2, 3, 5, 4, 7, 9, 6] && outcome == 0 && changes == 8"
+    note: >-
+      The documented call and its result must be possible together with every other
+      requirement. Reading 2 of "== 8" (example authoritative), consistent with the
+      instructed reading of R-CH-1.
+
+  - id: RV-EX-2s
+    req: R-EX-2
+    cover: "arr == [1, 2, 3, 4, 3, 2, 2] && outcome == 0 && changes == 7"
+    note: >-
+      The documented call and its result must be possible together with every other
+      requirement. Reading 2 of "== 7" (example authoritative), consistent with the
+      instructed reading of R-CH-1.
+
+  - id: RV-EX-3s
+    req: R-EX-3
+    cover: "arr == [1, 2, 3, 2, 1] && outcome == 0 && changes == 5"
+    note: >-
+      The documented call and its result must be possible together with every other
+      requirement. Reading 2 of "== 5" (example authoritative), consistent with the
+      instructed reading of R-CH-1.
+
+dont_cares:
+  - id: RV-IN-1a
+    req: R-IN-1
+    signal: changes
+    when: "len(arr) == 0"
+    note: >-
+      Reading taken as instructed (not the more natural one): "an array arr of
+      integers" is a non-empty list of integers; the behaviour on the empty list is
+      unspecified (don't care). The returned value is therefore free for the empty
+      list. That the elements are integers needs no item: the adapter only admits
+      lists of integers 0 to 15 into the trace. Encoded as don't-cares rather than
+      an assumption len(arr) > 0, because the reading makes the empty call
+      unspecified, not forbidden.
+
+  - id: RV-IN-1b
+    req: R-IN-1
+    signal: outcome
+    when: "len(arr) == 0"
+    note: >-
+      Reading taken as instructed (not the more natural one): "an array arr of
+      integers" is a non-empty list of integers; the behaviour on the empty list is
+      unspecified (don't care). How the call ends is therefore free for the empty
+      list too (it may return anything or raise); F-ZERO still ties changes to 0
+      when outcome is not 0.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the function name smallest_change and its single argument arr
+      are fixed by the adapter (design.yaml function section), which only produces
+      a trace for a function with that signature. It is not a property of the
+      trace.
+
+  - req: R-DEF-1
+    reason: >-
+      Definition of a palindromic array (arr[i] == arr[len(arr)-1-i] for every i).
+      Under the instructed reading of R-CH-1 (the examples are authoritative over
+      the stated definition, result len(arr)) the result does not depend on whether
+      the array is palindromic, so the definition constrains no output and no item
+      uses it. The specification contradicts itself here: R-EX-3 gives 5 for an
+      array that is palindromic by this definition.
+
+  - req: R-DEF-2
+    reason: >-
+      Definition of one change. Reading taken as instructed (not the more natural
+      one): "any other element" is the value of some other element already present
+      in the array. Under the instructed reading of R-CH-1 (result len(arr), the
+      examples authoritative over the definition) the result does not depend on
+      which values a change may take, so the definition constrains no output and no
+      item uses it. With this reading a one-element list admits no change at all,
+      yet RV-CH-1 requires the result 1 for it.
+
+  - req: R-FR-1
+    reason: >-
+      Adapter frame rule F-ZERO (outcome != 0 -> changes == 0), declared in the
+      design's frame and added to every formalization set; frame.md says it need
+      not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "an array arr of integers", reading: 2}
+  - {req: R-DEF-2, phrase: "any other element", reading: 2}
+  - {req: R-CH-1, phrase: "the minimum number of elements that need to be changed", reading: 2}
+  - {req: R-EX-1, phrase: "== 8", reading: 2}
+  - {req: R-EX-2, phrase: "== 7", reading: 2}
+  - {req: R-EX-3, phrase: "== 5", reading: 2}

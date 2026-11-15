@@ -1,0 +1,315 @@
+fcp: '0.1'
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model.
+# parse_duration keeps no state between calls (frame.md, "Calls"), so the
+# reference model is a combinational parse of the current argument, built
+# from the defs below; ghost state across calls would be meaningless because
+# prev(x) is an arbitrary earlier call. Every output is checked against this
+# model: outcome by RB-CONV-1 and RB-ERR-1, seconds by RB-CONV-1 (and, when
+# the call raises, by the frame rule F-ZERO).
+#
+# Readings chosen (see the notes of the items):
+#  - a number is one or more decimal digits 0-9, no sign; leading zeros are
+#    allowed and the number is the value of its digits ("01h" is 1 hour);
+#  - the units are the lowercase letters h, m, s only;
+#  - "in the order h, m, s" is relative order, units may be skipped ("1h5s");
+#  - "between 1 and 99" is inclusive and the same for every unit ("90m");
+#  - "spaces" means the space character (code 32); any other character that
+#    is not a digit or h, m, s is rejected because it is not in the syntax;
+#  - rule 6 is a further rule of what a duration is: a text that meets rules
+#    1 to 4 but totals more than 86400 seconds is not a duration, so rule 5
+#    ("anything else") makes it raise ValueError. Exactly 86400 is allowed.
+defs:
+  # rule 4 and the alphabet of rules 1-3: only digits and the units h, m, s
+  legal: 'all(i < len(text): isdigit(text[i]) || text[i] == "h" || text[i] == "m" || text[i] == "s")'
+  # rules 1-2: one or more parts, each digits followed by a unit, nothing else
+  shape: >-
+    len(text) >= 1 && isdigit(text[0])
+    && (text[len(text) - 1] == "h" || text[len(text) - 1] == "m" || text[len(text) - 1] == "s")
+    && all(i < len(text): (text[i] == "h" || text[i] == "m" || text[i] == "s") -> (i >= 1 && isdigit(text[i - 1])))
+  # rule 2: each unit at most once, in the order h, m, s (strictly increasing)
+  ordered: >-
+    all(i < len(text): all(j < len(text):
+      (i < j && (text[i] == "h" || text[i] == "m" || text[i] == "s") && (text[j] == "h" || text[j] == "m" || text[j] == "s"))
+      -> (text[i] == "h" ? 1 : (text[i] == "m" ? 2 : 3)) < (text[j] == "h" ? 1 : (text[j] == "m" ? 2 : 3))))
+  # rule 3, upper bound: no nonzero digit is followed by two more digits of
+  # the same number (with leading zeros allowed, that is: every number <= 99)
+  small: '!any(i < len(text): text[i] >= "1" && text[i] <= "9" && isdigit(text[i + 1]) && isdigit(text[i + 2]))'
+  # rule 3, lower bound: the last two digits before each unit are not both 0
+  # (given `small`, these two digits are the value of the number)
+  nonzero: >-
+    all(j < len(text): (text[j] == "h" || text[j] == "m" || text[j] == "s") ->
+      (isdigit(text[j - 1]) ? text[j - 1] - "0" : 0) + 10 * (isdigit(text[j - 2]) ? text[j - 2] - "0" : 0) >= 1)
+  # rules 1 to 4
+  wf: 'legal && shape && ordered && small && nonzero'
+  # value of the number before each unit (0 if the unit is absent); exact under wf
+  vh: 'sum(j < len(text): text[j] == "h" ? (isdigit(text[j - 1]) ? text[j - 1] - "0" : 0) + 10 * (isdigit(text[j - 2]) ? text[j - 2] - "0" : 0) : 0)'
+  vm: 'sum(j < len(text): text[j] == "m" ? (isdigit(text[j - 1]) ? text[j - 1] - "0" : 0) + 10 * (isdigit(text[j - 2]) ? text[j - 2] - "0" : 0) : 0)'
+  vs: 'sum(j < len(text): text[j] == "s" ? (isdigit(text[j - 1]) ? text[j - 1] - "0" : 0) + 10 * (isdigit(text[j - 2]) ? text[j - 2] - "0" : 0) : 0)'
+  # length of the text in seconds (meaningful under wf)
+  total: '3600 * vh + 60 * vm + vs'
+  # rule 6: never longer than one day
+  day_ok: 'total <= 86400'
+  # a duration: rules 1 to 4 and rule 6
+  dur: 'wf && day_ok'
+
+  # Requirement-level triggers on arbitrary texts. A "part" ends at a unit
+  # letter that immediately follows a digit; its number is the maximal run of
+  # digits before that letter.
+  no_part: '!any(j < len(text): (text[j] == "h" || text[j] == "m" || text[j] == "s") && j >= 1 && isdigit(text[j - 1]))'
+  unit_without_number: 'any(j < len(text): (text[j] == "h" || text[j] == "m" || text[j] == "s") && !(j >= 1 && isdigit(text[j - 1])))'
+  number_without_unit: 'any(i < len(text): isdigit(text[i]) && !isdigit(text[i + 1]) && !(text[i + 1] == "h" || text[i + 1] == "m" || text[i + 1] == "s"))'
+  signed_number: 'any(i < len(text): (text[i] == "+" || text[i] == "-") && isdigit(text[i + 1]))'
+  number_other_letter: 'any(i < len(text): isdigit(text[i]) && isalpha(text[i + 1]) && !(text[i + 1] == "h" || text[i + 1] == "m" || text[i + 1] == "s"))'
+  unit_repeated: >-
+    any(i < len(text): any(j < len(text):
+      i < j && text[i] == text[j]
+      && (text[i] == "h" || text[i] == "m" || text[i] == "s") && i >= 1 && isdigit(text[i - 1])
+      && j >= 1 && isdigit(text[j - 1])))
+  units_out_of_order: >-
+    any(i < len(text): any(j < len(text):
+      i < j
+      && (text[i] == "h" || text[i] == "m" || text[i] == "s") && i >= 1 && isdigit(text[i - 1])
+      && (text[j] == "h" || text[j] == "m" || text[j] == "s") && j >= 1 && isdigit(text[j - 1])
+      && (text[i] == "h" ? 1 : (text[i] == "m" ? 2 : 3)) > (text[j] == "h" ? 1 : (text[j] == "m" ? 2 : 3))))
+  # some part's number is above 99: a nonzero digit at i, at least two more
+  # digits after it, and digits all the way to the unit letter at j
+  number_above_99: >-
+    any(j < len(text): (text[j] == "h" || text[j] == "m" || text[j] == "s") && any(i < len(text):
+      i + 2 < j && text[i] >= "1" && text[i] <= "9"
+      && all(k < len(text): (i < k && k < j) -> isdigit(text[k]))))
+  # some part's number is 0: the digits from i to the unit letter at j are all
+  # "0", and i starts the run (start of text or a non-digit before it)
+  number_below_1: >-
+    any(j < len(text): (text[j] == "h" || text[j] == "m" || text[j] == "s") && any(i < len(text):
+      i < j && (i == 0 || !isdigit(text[i - 1]))
+      && all(k < len(text): (i <= k && k < j) -> text[k] == "0")))
+
+properties:
+  - id: RB-IF-2
+    req: R-IF-2
+    expr: 'outcome != 3'
+    note: >-
+      "-> int": a call never returns something other than an int. The trace
+      encoding lumps a returned non-int together with a returned int outside
+      0..524287 (outcome 3), so this property also forbids returning a
+      negative or very large int; the text alone does not, but RB-CONV-1,
+      RB-ERR-1 and RB-MAX-1b forbid those anyway.
+
+  - id: RB-CONV-1
+    req: R-CONV-1
+    pattern: implies
+    args:
+      trigger: 'dur'
+      cond: 'outcome == 0 && seconds == total'
+    note: >-
+      Main model check: every duration returns 3600 x (number before h) + 60 x
+      (number before m) + (number before s). "A duration" is read as defined by
+      all the statements about durations in the list, including rule 6, so the
+      trigger is rules 1-4 AND at most 86400 seconds (reading 2 of the
+      ambiguity). Under reading 1, "25h" would have to return 90000, which
+      contradicts R-MAX-1; this set does not require that. Leading zeros are
+      read as allowed ("01h" returns 3600, "007s" returns 7), since "01" is a
+      whole number written with digits; this is one of three readings of
+      R-FMT-2.
+
+  - id: RB-ERR-1
+    req: R-ERR-1
+    pattern: implies
+    args:
+      trigger: '!dur'
+      cond: 'outcome == 1'
+    note: >-
+      Main model check, other side: every text that is not a duration raises
+      ValueError. "Anything else" is read as anything that is not a duration,
+      and rule 6 is read as part of what a duration is, so a text that meets
+      rules 1-4 but is longer than one day ("25h") is included (reading 2).
+      Under reading 1 (rules 1-4 only) the trigger would be !wf; the
+      difference is exactly the texts that RB-MAX-1a also rejects.
+
+  - id: RB-ERR-2
+    req: R-ERR-2
+    pattern: implies
+    args:
+      trigger: 'len(text) == 0'
+      cond: 'outcome == 1'
+
+  - id: RB-FMT-1
+    req: R-FMT-1
+    pattern: implies
+    args:
+      trigger: 'no_part'
+      cond: 'outcome == 1'
+    note: >-
+      R-FMT-1 is a definition (realized by `shape` in the model). Its
+      observable consequence, with rule 5, is checked here: a text in which no
+      unit letter immediately follows a digit has no part, is not a duration,
+      and raises ValueError (e.g. "", "45", "h", "abc").
+
+  - id: RB-FMT-2a
+    req: R-FMT-2
+    pattern: implies
+    args:
+      trigger: 'unit_without_number || number_without_unit'
+      cond: 'outcome == 1'
+    note: >-
+      R-FMT-2 is a definition (realized by `shape` in the model). Observable
+      consequence, with rule 5: a unit letter not immediately preceded by a
+      digit ("h", "h30m") or a run of digits not immediately followed by h, m
+      or s ("45", "1h30", "45 s") makes the text not a duration, so it raises
+      ValueError.
+
+  - id: RB-FMT-2b
+    req: R-FMT-2
+    pattern: implies
+    args:
+      trigger: 'signed_number'
+      cond: 'outcome == 1'
+    note: >-
+      Ambiguity "a whole number": read as decimal digits only, with no sign, so
+      a "+" or "-" right before a digit ("+1h", "-5s") makes the text not a
+      duration and it raises ValueError. The other reading (a sign allowed, as
+      Python int() accepts) is not taken. On leading zeros the reading taken
+      is that they are allowed and the number is the value of its digits (see
+      RB-CONV-1 and `small` / `nonzero`).
+
+  - id: RB-FMT-3
+    req: R-FMT-3
+    pattern: implies
+    args:
+      trigger: 'number_other_letter'
+      cond: 'outcome == 1'
+    note: >-
+      R-FMT-3 is a definition. Its weights (h = 3600, m = 60, s = 1 seconds)
+      are in `total`, checked by RB-CONV-1. "There is no other unit" is checked
+      here: a number followed by any letter other than lowercase h, m, s raises
+      ValueError ("1d", "5x"). Literal reading of the backquoted `h`, `m`,
+      `s`: units are case-sensitive, so "1H30M" raises ValueError; the
+      case-insensitive reading is not taken.
+
+  - id: RB-FMT-4
+    req: R-FMT-4
+    pattern: implies
+    args:
+      trigger: 'unit_repeated'
+      cond: 'outcome == 1'
+    note: >-
+      Two parts (a unit letter right after a digit) end with the same unit
+      letter ("1h2h", "5s5s"): ValueError.
+
+  - id: RB-FMT-5
+    req: R-FMT-5
+    pattern: implies
+    args:
+      trigger: 'units_out_of_order'
+      cond: 'outcome == 1'
+    note: >-
+      Some part with a later unit (in h < m < s) comes before a part with an
+      earlier unit ("30m1h", "5s1m"): ValueError. Ambiguity "in the order h,
+      m, s": read as relative order with units allowed to be skipped, so
+      "1h5s" is a duration (3605, via RB-CONV-1); the contiguous-run reading is
+      not taken.
+
+  - id: RB-NUM-1
+    req: R-NUM-1
+    pattern: implies
+    args:
+      trigger: 'number_below_1 || number_above_99'
+      cond: 'outcome == 1'
+    note: >-
+      The number of some part is 0 or above 99 ("0m", "00s", "100s", "1h0100m"):
+      ValueError. "Between 1 and 99" is read as inclusive (1 and 99 allowed),
+      and with the same range for every unit (no clock-style limit below 60 for
+      m and s, see RB-NUM-2). Leading zeros count by value ("099s" is 99,
+      "0100s" is 100). The quote is only a necessary condition; it does not
+      say that every number from 1 to 99 is accepted with every unit. The
+      requirement text adds "every number from 1 to 99 is allowed for every
+      unit", which conflicts with R-MAX-1 for hours: "25h" to "99h" meet this
+      rule but are longer than one day, and this set rejects them (RB-MAX-1a).
+
+  - id: RB-FMT-6
+    req: R-FMT-6
+    pattern: implies
+    args:
+      trigger: '" " in text'
+      cond: 'outcome == 1'
+    note: >-
+      Any space character (code 32) anywhere in the text, including leading
+      or trailing (" 45s", "45s "): ValueError. "Spaces" is read literally as
+      the space character; other whitespace (tab, newline) is not a digit or
+      a unit and raises ValueError through RB-ERR-1 anyway, so the first two
+      readings agree on behaviour. The reading where surrounding whitespace is
+      trimmed first is not taken.
+
+  - id: RB-MAX-1a
+    req: R-MAX-1
+    pattern: implies
+    args:
+      trigger: 'wf && total > 86400'
+      cond: 'outcome == 1'
+    note: >-
+      Rule 6 read as a validity rule: a text that meets rules 1-4 but totals
+      more than 86400 seconds ("25h", "24h1s", "99h99m99s") is not a duration
+      and raises ValueError. Not taken: rule 6 as an assumption on callers
+      (would make these texts a dont_care), or as a bound on the result only
+      (clamping to 86400). The spec is contradictory if rule 3 is read as
+      allowing every number 1-99 for every unit, since "99h" is 356400
+      seconds; this set reads rule 3 as a necessary condition only.
+
+  - id: RB-MAX-1b
+    req: R-MAX-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'seconds <= 86400'
+    note: 'parse_duration never returns a value above 86400.'
+
+scenarios:
+  - id: RB-MAX-1c
+    req: R-MAX-1
+    cover: 'text == "24h" && outcome == 0 && seconds == 86400'
+    note: 'Exactly one day is not longer than one day and is accepted.'
+
+  - id: RB-FMT-1s
+    req: R-FMT-1
+    cover: 'dur && ("h" in text) && ("m" in text) && ("s" in text) && outcome == 0 && seconds == total'
+    note: '"One or more parts": a duration with all three parts is converted.'
+
+  - id: RB-NUM-2
+    req: R-NUM-1
+    cover: 'text == "99m99s" && outcome == 0 && seconds == 6039'
+    note: >-
+      The range 1-99 applies to minutes and seconds too, beyond 59 ("Every
+      number"), so "99m99s" is a duration of 6039 seconds. The clock-style
+      reading ("1m75s" raises) is not taken.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: 'text == "1h30m" && outcome == 0 && seconds == 5400'
+
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: 'text == "45s" && outcome == 0 && seconds == 45'
+
+unformalized:
+  - req: R-NF-1
+    reason: >-
+      Non-functional: that the deliverable is a Python function for a
+      scheduling app is not a property of the calls. The adapter
+      (design.yaml, function) runs it as a Python function.
+  - req: R-IF-1
+    reason: >-
+      Interface binding: the name parse_duration and the single str parameter
+      text are fixed by the adapter (design.yaml, function), which calls
+      parse_duration(text) in every cycle. A function that cannot be called
+      that way ends every call with outcome 2, which RB-CONV-1 and RB-ERR-1
+      reject, but "exactly one parameter" (e.g. no extra optional parameter)
+      is not observable on the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter: F-ZERO in design.yaml (outcome != 0 ->
+      seconds == 0) is added to every formalization set by construction and
+      need not be restated (frame.md, "Frame rules").
+    covered_by: [F-ZERO]

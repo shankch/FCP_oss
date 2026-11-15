@@ -1,0 +1,241 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # a call of load that did not raise ValueError (R-LOAD-1, R-BON-1 apply to these)
+  ld_ok: 'op == 1 && outcome != 1'
+  # a call of balance() that returned a value
+  seen: 'op == 3 && outcome == 0'
+  # 'the balance covers amount', read (as required for R-SPD-1..4) as: strictly more than amount
+  covers: 'bal > amount'
+  # number of full $100.00 (10,000 cents) in amount, for 'a $5.00 bonus' read as 500 cents per full $100.00 (R-BON-1)
+  full100: '(amount >= 10000) + (amount >= 20000) + (amount >= 30000) + (amount >= 40000) + (amount >= 50000) + (amount >= 60000)'
+
+ghosts:
+  # known: the model knows the card's balance. Under the reading taken for 'Raise ValueError'
+  # (R-VAL-1..4) and 'raise ValueError for a load' (R-CAP-2), the request does not say what a call
+  # that raises ValueError does to the balance, so the model loses it after such a call and takes it
+  # back from the next balance() call that returns (balance() returns the balance, R-BAL-1).
+  - {name: known, range: [0, 1], init: 1, next: 'seen || (known == 1 && outcome != 1)'}
+  # bal: the card's balance as the specification defines it. A new card has 0 (R-INIT-1); a load that
+  # does not raise ValueError adds exactly amount and no bonus (R-LOAD-1, R-BON-1 'on the card', both as
+  # required); a spend the balance covers (strictly more) takes amount off (R-SPD-1), any other spend
+  # leaves it (R-SPD-4); balance() does not change it, and its returned value resynchronizes the model.
+  - {name: bal, range: [0, 65535], init: 0, next: 'seen ? balance : ld_ok ? min(bal + amount, 65535) : op == 2 && covers ? bal - amount : bal'}
+  # earned: the bonuses recorded on the card separately from the balance (R-BON-1 'on the card' as
+  # required): 500 cents per full $100.00 of every load that does not raise ValueError, in full whatever
+  # the cap (R-BON-1 'Every load ...' as required). Saturates; only used as the allowance of R-CAP-1.
+  - {name: earned, range: [0, 65535], init: 0, next: 'min(earned + (ld_ok ? 500 * full100 : 0), 65535)'}
+  # fresh: no call has yet been made on this card (used for 'on a new card' in R-EX-1)
+  - {name: fresh, range: [0, 1], init: 1, next: '0'}
+
+properties:
+  - id: RV-IF-2
+    req: R-IF-2
+    expr: 'op == 1 && outcome != 1 -> outcome == 0'
+    note: >-
+      A load that does not raise ValueError returns an int that fits the bonus signal. Outcome 3 also
+      covers an int outside 0..65535, which the type alone would allow; R-BON-2/R-BON-3 require the
+      returned value to be 0, so nothing the specification allows is excluded.
+  - id: RV-IF-3
+    req: R-IF-3
+    expr: 'op == 2 && outcome != 1 -> outcome == 0'
+    note: A spend that does not raise ValueError returns True or False.
+  - id: RV-IF-4
+    req: R-IF-4
+    expr: 'op == 3 -> outcome == 0'
+    note: balance() takes no amount, so no rule lets it raise; it returns an int (the balance fits 16 bits).
+  - id: RV-INIT-1
+    req: R-INIT-1
+    expr: 'op == 3 && hist(op == 3) -> balance == 0'
+    note: >-
+      Observed directly: a balance() call on a card on which only balance() has been called returns 0.
+      The same fact is the initial value 0 of the ghost bal, which RV-BAL-1 checks after any calls.
+  - id: RV-VAL-1
+    req: R-VAL-1
+    expr: 'op == 1 && amount < 1 -> outcome == 1'
+    note: >-
+      'Raise ValueError' taken as reading 2 (most literal): the request does not say what happens to the
+      balance, so the model forgets it after the call (ghost known) until the next balance() call.
+  - id: RV-VAL-2
+    req: R-VAL-2
+    expr: 'op == 1 && amount > 50000 -> outcome == 1'
+    note: >-
+      'Raise ValueError' taken as reading 2 (most literal): the balance after the call is not specified,
+      so the model forgets it (ghost known) until the next balance() call.
+  - id: RV-VAL-3
+    req: R-VAL-3
+    expr: 'op == 2 && amount < 1 -> outcome != 1'
+    note: >-
+      Read as required by the request, even though the rule's wording ('`amount`', with no method named)
+      more naturally covers spend too: 'Raise ValueError if `amount` is less than 1' covers load only (or
+      rule 5 takes precedence for spend), so spend(0) does not raise ValueError and its result comes from
+      rule 5. The reading says spend(0) returns True by R-SPD-2; under the reading of 'covers it' that is
+      also required (strictly more than amount), that holds only when the balance is above 0: on a zero
+      balance, e.g. a new card, spend(0) returns False by R-SPD-3.
+  - id: RV-VAL-4
+    req: R-VAL-4
+    expr: 'op == 2 && amount > 50000 -> outcome != 1'
+    note: >-
+      Read as required by the request, even though the rule's wording more naturally covers spend too:
+      'or more than 50,000' covers load only (or rule 5 takes precedence for spend), so spend(50001) does
+      not raise ValueError and returns False by R-SPD-3 (balance at most amount), since the modelled
+      balance never exceeds 50,000 cents.
+  - id: RV-LOAD-1
+    req: R-LOAD-1
+    expr: 'seen && prev(ld_ok && known == 1) -> balance == prev(bal + amount)'
+    note: >-
+      Read as required by the request: 'adds `amount` to the balance' means the balance grows by exactly
+      amount and any bonus is not part of the balance. Observed when balance() immediately follows the
+      load; the general effect is the update of ghost bal, checked at every balance() call by RV-BAL-1.
+      This contradicts the examples in the readings required for R-CAP-1, R-CAP-2 and R-BON-1
+      ('load(50000) on a new card leaves 50,500'): here it leaves 50,000.
+  - id: RV-LOAD-1b
+    req: R-LOAD-1
+    expr: 'op == 1 && known == 1 && amount >= 1 && bal + amount <= 50000 -> outcome != 1'
+    note: >-
+      Rule 2 says without condition that load adds amount; the only exceptions the text gives are rules 1
+      and 3, so a load neither rejects returns normally. Rule 3 is applied as balance + amount > 50,000
+      (R-CAP-2 read as required by the request: the bonus is not counted), so e.g. load(50000) on a new
+      card succeeds. Not checked while the balance is unknown after a ValueError.
+  - id: RV-CAP-1
+    req: R-CAP-1
+    expr: 'seen -> balance <= 50000 + earned'
+    note: >-
+      Read as required by the request, against the literal 'never': only loaded amounts are capped and a
+      bonus may take the balance above 50,000 cents, so the bound allows the bonuses earned so far (ghost
+      earned). Because R-LOAD-1 and R-BON-1 'on the card' are also read as required (the bonus is not in
+      the balance), the other items keep the balance at or below 50,000 anyway, and the example in this
+      reading (load(50000) on a new card leaves 50,500) cannot happen. This is the only bound on the
+      balance after a load that raised ValueError (R-CAP-2 'raise ValueError for a load', reading 2).
+  - id: RV-CAP-2
+    req: R-CAP-2
+    expr: 'op == 1 && known == 1 && bal + amount > 50000 -> outcome == 1'
+    note: >-
+      Read as required by the request: 'a load that would take it over' is balance + amount > 50,000; the
+      bonus is not counted. With R-BON-1 as required, the request's own reading says this lets load(50000)
+      on a new card leave 50,500, contradicting R-CAP-1; with R-LOAD-1 as required it leaves 50,000.
+      'raise ValueError for a load' taken as reading 2 (most literal): the balance after the rejected load
+      is not specified beyond R-CAP-1, so the model forgets it (ghost known) and RV-CAP-1 bounds it.
+  - id: RV-BON-1
+    req: R-BON-1
+    expr: 'seen && prev(op == 1 && outcome == 0 && amount >= 10000 && known == 1) -> balance == prev(bal + amount)'
+    note: >-
+      Read as required by the request: 'on the card' means the bonus is recorded on the card separately
+      and is not part of the balance returned by balance(), so after a qualifying load balance() shows
+      only amount added. 'a $5.00 bonus' (as required: 500 cents per full $100.00, e.g. 1,000 for
+      load(20000)) is kept in ghost earned; no method reports it (balance() excludes it and load returns
+      the bonus added to the balance, R-BON-2), so its amount is observable only through the allowance of
+      RV-CAP-1.
+  - id: RV-BON-1b
+    req: R-BON-1
+    expr: 'op == 1 && known == 1 && amount >= 10000 && bal + amount <= 50000 && bal + amount + 500 * full100 > 50000 -> outcome != 1'
+    note: >-
+      Read as required by the request: 'Every load of $100.00 or more earns a $5.00 bonus' means every
+      qualifying load that succeeds earns the full bonus even when that would take the balance over
+      50,000 cents, so such a load is not rejected or cut because of its bonus (e.g. load(50000) on a new
+      card succeeds). The request's reading says this contradicts R-CAP-1; with 'on the card' also read
+      as required the bonus never reaches the balance, so the balance does not actually go over.
+  - id: RV-BON-2
+    req: R-BON-2
+    expr: 'op == 1 && outcome == 0 && amount >= 10000 -> bonus == 0'
+    note: >-
+      Read as required by the request: 'the bonus it earned' is the bonus actually added to the balance
+      (less than 500 when the $500.00 cap cuts it). Under the readings also required for R-LOAD-1 (the
+      balance grows by exactly amount) and R-BON-1 'on the card' (the bonus is kept separately), a load
+      adds no bonus to the balance, so the bonus actually added, and returned, is 0 even for a qualifying
+      load. This contradicts the requirement's own '500 for a $5.00 bonus' and leaves the bonus of
+      R-BON-1 unreported; the cap never cuts the bonus, since R-BON-1 grants it in full.
+  - id: RV-BON-3
+    req: R-BON-3
+    expr: 'op == 1 && outcome == 0 && amount < 10000 -> bonus == 0'
+    note: A load below $100.00 earns no bonus under any reading of R-BON-1 and returns 0.
+  - id: RV-SPD-1
+    req: R-SPD-1
+    expr: 'seen && prev(op == 2 && known == 1 && covers) -> balance == prev(bal - amount)'
+    note: >-
+      Read as required by the request: 'covers it' means the balance is strictly more than amount, so the
+      whole balance can never be spent (spend(b) on a balance of b returns False). Observed when balance()
+      immediately follows; the general effect is the update of ghost bal, checked by RV-BAL-1.
+  - id: RV-SPD-2
+    req: R-SPD-2
+    expr: 'op == 2 && known == 1 && covers -> outcome == 0 && spent'
+    note: >-
+      Read as required by the request: 'covers it' means the balance is strictly more than amount.
+      'returns True if the balance covers it' taken as reading 1, for every amount including 0, which is
+      consistent with R-VAL-3 read as required (spend(0) does not raise).
+  - id: RV-SPD-3
+    req: R-SPD-3
+    expr: 'op == 2 && known == 1 && !covers -> outcome == 0 && !spent'
+    note: >-
+      Read as required by the request: 'otherwise' means the balance is at most amount. 'otherwise it
+      returns False' taken as reading 1, for every amount including amounts above 50,000, which is
+      consistent with R-VAL-4 read as required (spend(50001) returns False).
+  - id: RV-SPD-3b
+    req: R-SPD-3
+    expr: 'op == 2 -> outcome == 0'
+    note: >-
+      Rule 5 gives spend a returned value in both cases (True if the balance covers amount, otherwise
+      False), so every spend returns, whatever the balance, including while the model does not know the
+      balance after a ValueError ('otherwise it returns False' taken as reading 1, for every amount).
+  - id: RV-SPD-4
+    req: R-SPD-4
+    expr: 'seen && prev(op == 2 && known == 1 && !covers) -> balance == prev(bal)'
+    note: >-
+      Read as required by the request: 'otherwise' means the balance is at most amount. Observed when
+      balance() immediately follows; the general effect is the update of ghost bal, checked by RV-BAL-1.
+  - id: RV-BAL-1
+    req: R-BAL-1
+    expr: 'op == 3 && known == 1 -> outcome == 0 && balance == bal'
+    note: >-
+      balance() returns the balance left by the earlier calls, modelled by ghost bal, which uses the
+      readings required by the request for R-LOAD-1 (exactly amount, no bonus), R-BON-1 'on the card'
+      (bonus kept separately) and R-SPD-1/R-SPD-4 ('covers' = strictly more). After a call that raised
+      ValueError the balance is not specified ('Raise ValueError', reading 2) and is not checked until
+      balance() has returned it once.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'op == 3 && outcome == 0 && balance == 1500 && prev(op == 2 && amount == 500 && outcome == 0) && prev(op == 1 && amount == 2000 && outcome == 0 && fresh == 1, 2)'
+    note: On a new card, load(2000), spend(500), then balance() returns 1500.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Structural (class and method names and signatures); the adapter's function section calls
+      GiftCard.load, GiftCard.spend and GiftCard.balance, so it is not a property of the trace.
+  - req: R-UNIT-1
+    reason: >-
+      Definition of units: every signal is read in cents, and $500.00, $100.00 and $5.00 appear in the
+      items as 50000, 10000 and 500; integer values are guaranteed by the adapter's encoding.
+    covered_by: [RV-VAL-2, RV-CAP-1, RV-CAP-2, RV-BON-1b, RV-BON-3]
+  - req: R-FR-1
+    reason: Frame rule of the adapter, added to every set by construction (design.yaml frame F-ZERO).
+    covered_by: [F-ZERO]
+  - req: R-FR-2
+    reason: Frame rule of the adapter, added to every set by construction (design.yaml frame F-OTHER).
+    covered_by: [F-OTHER]
+
+decisions:
+  - {req: R-VAL-1, phrase: 'Raise ValueError', reading: 2}
+  - {req: R-VAL-2, phrase: 'Raise ValueError', reading: 2}
+  - {req: R-VAL-3, phrase: 'Raise ValueError if `amount` is less than 1', reading: 2}
+  - {req: R-VAL-3, phrase: 'Raise ValueError', reading: 2}
+  - {req: R-VAL-4, phrase: 'or more than 50,000', reading: 2}
+  - {req: R-VAL-4, phrase: 'Raise ValueError', reading: 2}
+  - {req: R-LOAD-1, phrase: 'adds `amount` to the balance', reading: 2}
+  - {req: R-CAP-1, phrase: 'The balance is never more than $500.00', reading: 2}
+  - {req: R-CAP-2, phrase: 'a load that would take it over', reading: 1}
+  - {req: R-CAP-2, phrase: 'raise ValueError for a load', reading: 2}
+  - {req: R-BON-1, phrase: 'a $5.00 bonus', reading: 2}
+  - {req: R-BON-1, phrase: 'on the card', reading: 2}
+  - {req: R-BON-1, phrase: 'Every load of $100.00 or more earns a $5.00 bonus', reading: 1}
+  - {req: R-BON-2, phrase: 'the bonus it earned', reading: 2}
+  - {req: R-SPD-1, phrase: 'covers it', reading: 2}
+  - {req: R-SPD-2, phrase: 'covers it', reading: 2}
+  - {req: R-SPD-2, phrase: 'returns True if the balance covers it', reading: 1}
+  - {req: R-SPD-3, phrase: 'otherwise', reading: 2}
+  - {req: R-SPD-3, phrase: 'otherwise it returns False', reading: 1}
+  - {req: R-SPD-4, phrase: 'otherwise', reading: 2}

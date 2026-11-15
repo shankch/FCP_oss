@@ -1,0 +1,67 @@
+design: sync_fifo
+bugs:
+- id: B1
+  file: bugs/B1.v
+  desc: full flag asserted one entry early (off-by-one)
+  class: flag-logic
+  violates:
+  - R-ST-1
+  - R-WR-1
+  - R-ST-4
+  note: ''
+- id: B2
+  file: bugs/B2.v
+  desc: write pointer wraps at 2**AW instead of DEPTH (breaks non-power-of-two depths)
+  class: pointer-wrap
+  violates:
+  - R-ORD-1
+  - R-ORD-2
+  - R-RD-1
+  note: ''
+- id: B3
+  file: bugs/B3.v
+  desc: push accepted while full when a pop happens in the same cycle (other reading of the R-SIM-1 conflict)
+  class: spec-conflict-choice
+  violates:
+  - R-WR-2
+  note: ''
+- id: B4
+  file: bugs/B4.v
+  desc: count increments on simultaneous push and pop
+  class: counter-update
+  violates:
+  - R-SIM-1
+  - R-ST-4
+  note: ''
+- id: B5
+  file: bugs/B5.v
+  desc: read pointer not reset
+  class: reset
+  violates:
+  - R-RST-1
+  - R-ORD-1
+  - R-RD-1
+  note: ''
+- id: B6
+  file: bugs/B6.v
+  desc: almost_full uses > instead of >= (other reading of the R-ST-3/R-TM-2 inconsistency)
+  class: spec-conflict-choice
+  violates:
+  - R-ST-3
+  note: ''
+- id: B7
+  file: bugs/B7.v
+  desc: empty derived from pointer equality (also true when full)
+  class: flag-logic
+  violates:
+  - R-ST-2
+  - R-RD-1
+  note: ''
+- id: B8
+  file: bugs/B8.v
+  desc: 'data corruption: entries after the first store a stale neighbour value'
+  class: datapath
+  violates:
+  - R-ORD-2
+  - R-RD-1
+  note: ''

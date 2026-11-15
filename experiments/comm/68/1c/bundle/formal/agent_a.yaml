@@ -1,0 +1,190 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # arr contains at least one even value (0 counts as even).
+  has_even: 'any(i < len(arr): arr[i] % 2 == 0)'
+  # Position of the first occurrence of the smallest even value of arr
+  # (0 when arr has no even value; only used under has_even).
+  min_even_pos: 'sum(k < len(arr): (arr[k] % 2 == 0 && all(j < len(arr): arr[j] % 2 == 0 -> arr[k] <= arr[j]) && all(j < k: arr[j] != arr[k])) ? k : 0)'
+  # The smallest even value of arr (only meaningful under has_even).
+  min_even: 'arr[min_even_pos]'
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: 'all(i < len(arr): arr[i] >= 0)'
+    note: >-
+      Every node (element of arr) is a non-negative integer. The list encoding
+      only carries integers 0..255 (frame.md), so this assumption holds on
+      every trace by construction; it is stated to keep the obligation explicit.
+  - id: RA-IN-2
+    req: R-IN-2
+    expr: 'len(arr) >= 1'
+    note: >-
+      Literal reading of the Constraints line "1 <= nodes.length": the empty
+      array is outside the input domain. "nodes" is not the name of the
+      argument; it is read as arr. This contradicts the specification's own
+      "or the given array is empty, return []" (R-EMP-2, RA-EMP-2) and
+      Example 3 (R-EX-3, RA-EX-3): under this assumption RA-EMP-2 is vacuous
+      and RA-EX-3 is unreachable. The contradiction is left visible rather
+      than repaired.
+  - id: RA-IN-3
+    req: R-IN-3
+    expr: 'len(arr) <= 10000'
+    note: >-
+      Upper bound of "1 <= nodes.length <= 10000". The trace carries at most
+      16 elements (frame.md), so this holds on every trace by construction.
+  - id: RA-IN-4
+    req: R-IN-4
+    expr: 'all(i < len(arr): arr[i] >= 0)'
+    note: >-
+      "0 <= node.value". Same content as RA-IN-1; holds on every trace by
+      construction of the encoding (elements 0..255).
+
+properties:
+  - id: RA-PL-1
+    req: R-PL-1
+    pattern: implies
+    args:
+      trigger: 'has_even'
+      cond: 'outcome == 0 && len(plucked) == 2 && plucked[1] < len(arr)'
+    note: >-
+      When arr has an even value, a node is plucked: the call returns normally
+      (no exception, not []) a result that designates one node of arr. Reading
+      of "return it": the node is returned in the [value, index] form of
+      R-OUT-1, so designating a node of arr means a two-element list whose
+      index is a position of arr. Reading of "pluck": select and report; any
+      mutation of the argument is not observable in the trace and is not
+      constrained.
+  - id: RA-PL-2
+    req: R-PL-2
+    pattern: implies
+    args:
+      trigger: 'has_even'
+      cond: 'len(plucked) != 0 && plucked[0] in arr && plucked[0] % 2 == 0 && all(i < len(arr): arr[i] % 2 == 0 -> plucked[0] <= arr[i])'
+    note: >-
+      The value of the plucked node (the first element of the result, per
+      R-OUT-1) is an element of arr, is even, and no even element of arr is
+      smaller. "Smallest even value" is read literally as the minimum among the
+      even elements; 0 counts as even. This contradicts Examples 1, 2 and 4
+      (RA-EX-1, RA-EX-2, RA-EX-4), which return the largest element; the
+      examples are formalized as written, so the conflict is left visible.
+  - id: RA-PL-3
+    req: R-PL-3
+    pattern: implies
+    args:
+      trigger: 'has_even && count(i < len(arr): arr[i] == min_even) >= 2'
+      cond: 'len(plucked) == 2 && plucked[1] == min_even_pos'
+    note: >-
+      When the smallest even value occurs at several positions, the index in
+      the result is the first (smallest) of those positions. Literal reading
+      of the tie-break: pluck([5, 0, 3, 0, 4, 2]) must give index 1. This
+      contradicts Example 4 (RA-EX-4, output [5, 0]).
+  - id: RA-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args:
+      trigger: 'has_even'
+      cond: 'outcome == 0 && len(plucked) == 2 && plucked[0] == min_even'
+    note: >-
+      When a node is plucked (arr has an even value, R-PL-1), the result is a
+      list of exactly two integers whose first element is "smalest_value",
+      read as the value of the plucked node, i.e. the smallest even value of
+      arr (R-PL-2). The second element (its index) is constrained by RA-OUT-2.
+      Examples 1, 2 and 4 put the largest element first instead; see RA-EX-1,
+      RA-EX-2, RA-EX-4.
+  - id: RA-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args:
+      trigger: 'outcome == 0 && len(plucked) == 2'
+      cond: 'plucked[1] < len(arr) && arr[plucked[1]] == plucked[0]'
+    note: >-
+      In a two-element result the second element is the 0-based (Python) index
+      in arr of the plucked node, so arr at that index equals the first
+      element. 0-based is the reading consistent with frame.md ("element i is
+      the element at index i in Python").
+  - id: RA-EMP-1
+    req: R-EMP-1
+    pattern: implies
+    args:
+      trigger: 'len(arr) != 0 && !has_even'
+      cond: 'outcome == 0 && len(plucked) == 0'
+    note: >-
+      A non-empty arr with no even value gives []. 0 counts as even, so an arr
+      whose only even elements are 0 does not trigger this item.
+  - id: RA-EMP-2
+    req: R-EMP-2
+    pattern: implies
+    args:
+      trigger: 'len(arr) == 0'
+      cond: 'outcome == 0 && len(plucked) == 0'
+    note: >-
+      Literal reading: the empty array is a valid input and pluck([]) returns
+      []. This contradicts the Constraints line (R-IN-2): under assumption
+      RA-IN-2 this property can never trigger. The contradiction is left
+      visible rather than repaired.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: 'arr == [4, 2, 3] && outcome == 0 && plucked == [4, 0]'
+    note: >-
+      Example 1 taken as written. It contradicts R-PL-2/R-OUT-1 (RA-PL-2,
+      RA-OUT-1), under which the result is [2, 1]; the example is not
+      repaired, so this scenario conflicts with those properties.
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: 'arr == [1, 2, 3] && outcome == 0 && plucked == [3, 2]'
+    note: >-
+      Example 2 taken as written. 3 is odd, so it contradicts R-PL-2/R-OUT-1
+      (RA-PL-2, RA-OUT-1), under which the result is [2, 1]; this scenario
+      conflicts with those properties.
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: 'len(arr) == 0 && outcome == 0 && len(plucked) == 0'
+    note: >-
+      Example 3 taken as written: pluck([]) returns []. It lies outside the
+      input domain of the Constraints line (RA-IN-2), so this scenario is
+      unreachable under that assumption; the contradiction is left visible.
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: 'arr == [5, 0, 3, 0, 4, 2] && outcome == 0 && plucked == [5, 0]'
+    note: >-
+      Example 4 taken as written. It contradicts R-PL-2, R-PL-3 and R-OUT-1
+      (RA-PL-2, RA-PL-3, RA-OUT-1), under which the result is [0, 1]; this
+      scenario conflicts with those properties.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-EMPTY of design.yaml (outcome != 0 -> len(plucked) == 0) is
+      added to every formalization set by construction of the encoding;
+      frame.md says it need not be restated.
+    covered_by: [F-EMPTY]
+  - req: R-DEF-1
+    reason: >-
+      Definition, not a behaviour: arr is a flat list, a node's value is its
+      element and its index is its 0-based position. It is used by every item
+      that reads arr[i] as the node at index i; positions carry no further tree
+      meaning.
+    covered_by: [RA-PL-1, RA-PL-2, RA-PL-3, RA-OUT-1, RA-OUT-2]
+
+decisions:
+  - {req: R-DEF-1, phrase: representing a branch of a tree, reading: 1}
+  - {req: R-IN-2, phrase: 1 <= nodes.length, reading: 1}
+  - {req: R-PL-1, phrase: pluck, reading: 1}
+  - {req: R-PL-1, phrase: return it, reading: 1}
+  - {req: R-PL-2, phrase: the smallest even value, reading: 1}
+  - {req: R-PL-2, phrase: even, reading: 1}
+  - {req: R-PL-3, phrase: return the node that has smallest index, reading: 1}
+  - {req: R-OUT-1, phrase: smalest_value, reading: 1}
+  - {req: R-OUT-2, phrase: its index, reading: 1}
+  - {req: R-EMP-1, phrase: no even values, reading: 1}
+  - {req: R-EMP-2, phrase: the given array is empty, reading: 1}
+  - {req: R-EX-1, phrase: 'Output: [4, 0]', reading: 1}
+  - {req: R-EX-2, phrase: 'Output: [3, 2]', reading: 1}
+  - {req: R-EX-3, phrase: 'Input: []', reading: 1}
+  - {req: R-EX-4, phrase: 'Output: [5, 0]', reading: 1}

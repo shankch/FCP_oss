@@ -1,0 +1,919 @@
+fcp: '0.1'
+design: sync_fifo
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-OV-1
+  doc: SPEC
+  quote: SFIFO-01 is a single-clock first-in first-out buffer
+  text: SFIFO-01 is a first-in first-out buffer that operates from a single clock, clk.
+  kind: definition
+  depends:
+  - R-IF-1
+  - R-ORD-1
+  confidence: high
+  lines:
+  - 7
+- id: R-OV-2
+  doc: SPEC
+  quote: a producer and a consumer running on the same clock
+  text: The producer (which drives push and push_data) and the consumer (which drives pop) that use the FIFO run on the same clock as the FIFO.
+  kind: assumption
+  depends:
+  - R-IF-1
+  ambiguity:
+  - phrase: running on the same clock
+    readings:
+    - Producer and consumer are clocked by the FIFO's own clk, so push, push_data and pop are synchronous to it and are sampled cleanly at every rising edge.
+    - Producer and consumer share a clock with each other, but its relation to the FIFO's clk (derived, gated, phase-shifted) is not stated, so synchronous sampling of push and pop is not guaranteed.
+  confidence: medium
+  lines:
+  - 7
+  - 8
+- id: R-OV-3
+  doc: SPEC
+  quote: decouples a producer and a consumer
+  text: 'The FIFO decouples the producer from the consumer: it buffers words so that pushes and pops need not occur in the same cycles.'
+  kind: non_functional
+  depends:
+  - R-OV-2
+  ambiguity:
+  - phrase: decouples
+    readings:
+    - 'Plain buffering: the producer may push without a simultaneous pop and the consumer may pop without a simultaneous push, bounded only by capacity; nothing beyond the push, pop and flag requirements
+      is implied.'
+    - 'Also a structural property: no combinational path between producer-side signals (push, push_data) and consumer-side signals (pop, pop_data, empty), or the reverse.'
+    - 'Also a throughput property: one push and one pop in every cycle can be sustained at mid occupancy.'
+  confidence: low
+  lines:
+  - 7
+  - 8
+- id: R-OV-4
+  doc: SPEC
+  quote: It stores up to DEPTH words of WIDTH bits each.
+  text: The FIFO never holds more than DEPTH words, each WIDTH bits wide.
+  kind: guarantee
+  depends:
+  - R-PAR-1
+  - R-PAR-4
+  ambiguity:
+  - phrase: up to DEPTH words
+    readings:
+    - 'Upper bound only: at most DEPTH words are held, but the usable capacity could be smaller than DEPTH.'
+    - 'Exact capacity: DEPTH words can be held at the same time (full is reachable with count == DEPTH), as the flag definition of Section 5 presupposes.'
+  confidence: medium
+  lines:
+  - 8
+  - 9
+- id: R-OV-5
+  doc: SPEC
+  quote: It stores up to DEPTH words of WIDTH bits each.
+  text: 'The FIFO can be filled to its full capacity: starting from reset, DEPTH accepted pushes with no pops reach a state in which DEPTH words are stored (count == DEPTH, full asserted).'
+  kind: scenario
+  depends:
+  - R-OV-4
+  - R-ST-1
+  ambiguity:
+  - phrase: up to DEPTH words
+    readings:
+    - Capacity is exactly DEPTH, so the completely full state must be reachable (this scenario assumes that reading).
+    - '''Up to'' is a bare upper bound, so reaching DEPTH stored words would not be required.'
+  confidence: medium
+  lines:
+  - 8
+  - 9
+- id: R-PAR-1
+  doc: SPEC
+  quote: DEPTH | 5 | Number of storage entries.
+  text: DEPTH is the number of storage entries (word slots) of the FIFO; its default value is 5.
+  kind: definition
+  confidence: high
+  lines:
+  - 15
+- id: R-PAR-2
+  doc: SPEC
+  quote: Any value of 2 or more is legal
+  text: The FIFO is instantiated only with an integer DEPTH of 2 or more.
+  kind: assumption
+  depends:
+  - R-PAR-1
+  ambiguity:
+  - phrase: Any value of 2 or more is legal
+    readings:
+    - 'Values below 2 are illegal: the integrator must not use DEPTH < 2 and behaviour there is unspecified.'
+    - Only says that every DEPTH >= 2 is supported; it does not say whether DEPTH < 2 is forbidden or merely unspecified.
+  - phrase: 'CONTRADICTION with R-PAR-6: ''Any value of 2 or more is legal'' vs ''1 <= AF_LEVEL <= DEPTH'' given the default AF_LEVEL = 3'
+    readings:
+    - 'DEPTH = 2 is legal only if AF_LEVEL is also overridden to 1 or 2: with the default AF_LEVEL = 3 the range of R-PAR-6 is violated, so ''any value of 2 or more'' holds only jointly with a legal AF_LEVEL.'
+    - Legality of DEPTH is meant independently of AF_LEVEL, so the defaults are simply inconsistent at DEPTH = 2 (DEPTH = 2 with AF_LEVEL = 3 is legal per R-PAR-2 and illegal per R-PAR-6).
+  confidence: medium
+  lines:
+  - 15
+- id: R-PAR-3
+  doc: SPEC
+  quote: it need not be a power of two
+  text: The FIFO is fully functional for DEPTH values that are not powers of two (for example the default 5).
+  kind: guarantee
+  depends:
+  - R-PAR-2
+  ambiguity:
+  - phrase: need not be a power of two
+    readings:
+    - 'Plain permission: no power-of-two restriction is placed on DEPTH and nothing more is promised.'
+    - 'Design obligation: every functional requirement (ordering, count, flags, storage wrap-around) holds for non-power-of-two DEPTH such as the default 5.'
+  confidence: medium
+  lines:
+  - 15
+- id: R-PAR-4
+  doc: SPEC
+  quote: WIDTH | 8 | Width of each data word in bits.
+  text: WIDTH is the width in bits of each data word (push_data, pop_data and every stored word); its default value is 8.
+  kind: definition
+  ambiguity:
+  - phrase: Width of each data word in bits.
+    readings:
+    - Any positive integer WIDTH is legal (the specification gives no explicit range for WIDTH, unlike DEPTH and AF_LEVEL).
+    - A restricted set of widths is intended, but none is stated.
+  confidence: medium
+  lines:
+  - 16
+- id: R-PAR-5
+  doc: SPEC
+  quote: AF_LEVEL | 3 | Almost-full threshold
+  text: AF_LEVEL is the almost-full threshold against which count is compared to derive almost_full; its default value is 3.
+  kind: definition
+  ambiguity:
+  - phrase: Almost-full threshold
+    readings:
+    - 'Inclusive threshold: almost_full is asserted when count >= AF_LEVEL (Section 5, R-ST-3).'
+    - 'Exclusive threshold: almost_full is asserted when count > AF_LEVEL (Section 6, R-TIM-2). The two sections disagree; see R-ST-3 and R-TIM-2.'
+  confidence: medium
+  lines:
+  - 17
+- id: R-PAR-6
+  doc: SPEC
+  quote: 1 <= AF_LEVEL <= DEPTH
+  text: The FIFO is instantiated only with AF_LEVEL satisfying 1 <= AF_LEVEL <= DEPTH.
+  kind: assumption
+  depends:
+  - R-PAR-1
+  - R-PAR-5
+  ambiguity:
+  - phrase: 'CONTRADICTION with R-PAR-2: ''1 <= AF_LEVEL <= DEPTH'' (default AF_LEVEL = 3) vs ''Any value of 2 or more is legal'' for DEPTH'
+    readings:
+    - With DEPTH = 2 the default AF_LEVEL = 3 is out of range, so DEPTH = 2 needs an explicit AF_LEVEL of 1 or 2; R-PAR-2 is then true only jointly with a legal AF_LEVEL.
+    - The range is meant to hold independently of the default value, so the default AF_LEVEL = 3 is inconsistent with the DEPTH values that R-PAR-2 declares legal (DEPTH = 2).
+  - phrase: AF_LEVEL <= DEPTH (upper end of the range)
+    readings:
+    - With AF_LEVEL = DEPTH and the inclusive threshold of R-ST-3, almost_full is identical to full.
+    - With AF_LEVEL = DEPTH and the exclusive threshold of R-TIM-2, almost_full could never be asserted (count never exceeds DEPTH), which would make the upper end of the legal range meaningless; this favours
+      the inclusive reading.
+  confidence: medium
+  lines:
+  - 17
+- id: R-IF-1
+  doc: SPEC
+  quote: clk | in | 1 | Clock. All signals are sampled on the rising edge.
+  text: clk is a 1-bit input clock; signals are sampled on its rising edge.
+  kind: definition
+  ambiguity:
+  - phrase: All signals are sampled on the rising edge
+    readings:
+    - The inputs (rst_n, push, push_data, pop) are sampled by the FIFO at each rising edge of clk; outputs are sampled by their consumers at the same edge.
+    - Every port including the outputs is only meaningful at the rising-edge sampling instants (purely cycle-based semantics); nothing is specified about outputs between edges.
+  confidence: medium
+  lines:
+  - 23
+- id: R-IF-2
+  doc: SPEC
+  quote: rst_n | in | 1 | Synchronous active-low reset.
+  text: 'rst_n is a 1-bit input: a synchronous, active-low reset that acts when it is sampled low at a rising edge of clk.'
+  kind: definition
+  depends:
+  - R-IF-1
+  confidence: high
+  lines:
+  - 24
+- id: R-IF-3
+  doc: SPEC
+  quote: push | in | 1 | Write request.
+  text: push is a 1-bit input carrying the write request from the producer.
+  kind: definition
+  depends:
+  - R-IF-1
+  confidence: high
+  lines:
+  - 25
+- id: R-IF-4
+  doc: SPEC
+  quote: push_data | in | WIDTH | Data to write.
+  text: push_data is an input of WIDTH bits carrying the data word to write.
+  kind: definition
+  depends:
+  - R-PAR-4
+  confidence: high
+  lines:
+  - 26
+- id: R-IF-5
+  doc: SPEC
+  quote: pop | in | 1 | Read request.
+  text: pop is a 1-bit input carrying the read request from the consumer.
+  kind: definition
+  depends:
+  - R-IF-1
+  confidence: high
+  lines:
+  - 27
+- id: R-IF-6
+  doc: SPEC
+  quote: pop_data | out | WIDTH | Read data.
+  text: pop_data is an output of WIDTH bits carrying the read data.
+  kind: definition
+  depends:
+  - R-PAR-4
+  ambiguity:
+  - phrase: Read data.
+    readings:
+    - pop_data carries the head word in every cycle in which the FIFO is not empty (first-word fall-through, as in R-RD-1).
+    - 'pop_data is meaningful only in connection with a pop (as R-TIM-3 suggests: it ''returns the oldest stored word when pop is asserted''), possibly one cycle after the pop; the interface table gives
+      no validity window. See the conflict between R-RD-1 and R-TIM-3.'
+  confidence: medium
+  lines:
+  - 28
+- id: R-IF-7
+  doc: SPEC
+  quote: full | out | 1 | FIFO full flag.
+  text: 'full is a 1-bit output: the FIFO full flag.'
+  kind: definition
+  ambiguity:
+  - phrase: FIFO full flag.
+    readings:
+    - 'Active-high: ''asserted'' means logic 1, the usual flag convention.'
+    - The polarity of the output flags is never stated (only rst_n is declared active-low), so an active-low flag is not excluded by the text. The same applies to empty (R-IF-8) and almost_full (R-IF-9).
+  confidence: high
+  lines:
+  - 29
+- id: R-IF-8
+  doc: SPEC
+  quote: empty | out | 1 | FIFO empty flag.
+  text: 'empty is a 1-bit output: the FIFO empty flag.'
+  kind: definition
+  ambiguity:
+  - phrase: FIFO empty flag.
+    readings:
+    - 'Active-high: ''asserted'' means logic 1, the usual flag convention.'
+    - The polarity of the output flags is never stated (see R-IF-7), so an active-low flag is not excluded by the text.
+  confidence: high
+  lines:
+  - 30
+- id: R-IF-9
+  doc: SPEC
+  quote: almost_full | out | 1 | Almost-full flag, see Section 5.
+  text: 'almost_full is a 1-bit output: the almost-full flag, whose relation to count and AF_LEVEL is defined in Section 5 of the specification.'
+  kind: definition
+  depends:
+  - R-PAR-5
+  ambiguity:
+  - phrase: see Section 5
+    readings:
+    - Section 5 is the normative definition of almost_full (count >= AF_LEVEL, R-ST-3) and the conflicting Section 6 row (count > AF_LEVEL, R-TIM-2) is a looser restatement.
+    - The pointer only says where the flag is discussed; Section 6 (R-TIM-2) may be the more specific statement. The specification states no precedence rule between sections.
+  - phrase: Almost-full flag
+    readings:
+    - 'Active-high: ''asserted'' means logic 1, the usual flag convention.'
+    - The polarity of the output flags is never stated (see R-IF-7), so an active-low flag is not excluded by the text.
+  confidence: medium
+  lines:
+  - 31
+- id: R-IF-10
+  doc: SPEC
+  quote: count | out | clog2(DEPTH+1) | Number of words currently stored.
+  text: count is an output of clog2(DEPTH+1) bits giving the number of words currently stored in the FIFO.
+  kind: definition
+  depends:
+  - R-PAR-1
+  ambiguity:
+  - phrase: clog2(DEPTH+1)
+    readings:
+    - 'clog2 is the ceiling of log2 (as SystemVerilog $clog2): the narrowest width that can represent 0..DEPTH, for example 3 bits for DEPTH = 5.'
+    - clog2 is not defined in the specification; another definition (for example the floor of log2) would give a count too narrow for some DEPTH values.
+  confidence: high
+  lines:
+  - 32
+- id: R-RST-1
+  doc: SPEC
+  quote: When rst_n is sampled low, the FIFO discards all stored words.
+  text: When rst_n is sampled low at a rising edge of clk, the FIFO discards every word it holds; none of those words is read out afterwards.
+  kind: guarantee
+  depends:
+  - R-IF-2
+  ambiguity:
+  - phrase: 'CONTRADICTION with R-ORD-2: ''the FIFO discards all stored words'' vs ''Every word that is accepted is read out exactly once'''
+    readings:
+    - 'Reset overrides: words that were accepted but not yet read out when reset is sampled are intentionally lost, so ''every word'' in R-ORD-2 implicitly excludes words discarded by a reset.'
+    - 'No exception is intended: every accepted word must still be read out (R-ORD-2), which cannot hold for words discarded by a reset, so the two statements are literally incompatible.'
+  confidence: medium
+  lines:
+  - 38
+- id: R-RST-2
+  doc: SPEC
+  quote: In the cycle after reset
+  text: '''The cycle after reset'' is the clock cycle that follows a rising edge at which rst_n is sampled low; the reset values stated in the following requirements must be visible on the outputs in that
+    cycle.'
+  kind: definition
+  depends:
+  - R-RST-1
+  ambiguity:
+  - phrase: In the cycle after reset
+    readings:
+    - The cycle that starts at each rising edge at which rst_n is sampled low, so also every cycle of a multi-cycle reset and the cycle after the last reset edge.
+    - Only the first cycle after reset is released (rst_n sampled high again); outputs during a multi-cycle reset are then not constrained by this sentence. Under both readings the outputs in the cycle
+      in which rst_n is being driven low (before the sampling edge) are unspecified.
+  confidence: medium
+  lines:
+  - 38
+  - 39
+- id: R-RST-3
+  doc: SPEC
+  quote: empty shall be asserted
+  text: In the cycle after reset, empty is asserted.
+  kind: guarantee
+  depends:
+  - R-RST-2
+  - R-IF-8
+  confidence: high
+  lines:
+  - 39
+- id: R-RST-4
+  doc: SPEC
+  quote: full and almost_full shall be deasserted
+  text: In the cycle after reset, full is deasserted.
+  kind: guarantee
+  depends:
+  - R-RST-2
+  - R-IF-7
+  confidence: high
+  lines:
+  - 39
+  - 40
+- id: R-RST-5
+  doc: SPEC
+  quote: full and almost_full shall be deasserted
+  text: In the cycle after reset, almost_full is deasserted.
+  kind: guarantee
+  depends:
+  - R-RST-2
+  - R-IF-9
+  - R-PAR-6
+  confidence: high
+  lines:
+  - 39
+  - 40
+- id: R-RST-6
+  doc: SPEC
+  quote: count shall be zero.
+  text: In the cycle after reset, count is zero.
+  kind: guarantee
+  depends:
+  - R-RST-2
+  - R-IF-10
+  confidence: high
+  lines:
+  - 40
+- id: R-WR-1
+  doc: SPEC
+  quote: When push is sampled high and the FIFO is not full, push_data is stored at the tail of the FIFO
+  text: When push is sampled high at a rising clock edge while the FIFO is not full, the value of push_data is stored at the tail of the FIFO, as its newest word.
+  kind: guarantee
+  depends:
+  - R-ST-1
+  - R-IF-3
+  - R-IF-4
+  ambiguity:
+  - phrase: the FIFO is not full
+    readings:
+    - Evaluated on the registered full flag as it is in the cycle in which push is sampled, ignoring any pop asserted in the same cycle.
+    - Evaluated after taking a simultaneous pop into account, so a push at a full FIFO is accepted if a pop frees a slot at the same edge (what 'both operations take effect' in R-SIM-1 implies; this clashes
+      with R-WR-3).
+  confidence: high
+  lines:
+  - 44
+  - 45
+- id: R-WR-2
+  doc: SPEC
+  quote: count increases by one
+  text: When push is sampled high while the FIFO is not full, count increases by one.
+  kind: guarantee
+  depends:
+  - R-WR-1
+  - R-ST-4
+  ambiguity:
+  - phrase: count increases by one
+    readings:
+    - 'The push''s own contribution: without a simultaneous pop count rises by one; with a simultaneous pop the net change is zero (R-SIM-2).'
+    - The total change of count whenever a push is accepted, regardless of pop; this would contradict R-SIM-2 in every cycle in which pop is also asserted.
+  - phrase: 'CONTRADICTION with R-SIM-2: ''count increases by one'' vs ''count is unchanged'' (push and pop asserted while empty)'
+    readings:
+    - While empty the pop is ignored (R-RD-4), so the accepted push alone raises count from 0 to 1.
+    - 'While empty R-SIM-2 applies: both operations take effect (the word passes through) and count stays 0.'
+  confidence: medium
+  lines:
+  - 45
+- id: R-WR-3
+  doc: SPEC
+  quote: 'A push while the FIFO is full is ignored: the stored words and count are unchanged by it.'
+  text: 'A push sampled while the FIFO is full is ignored: push_data is not stored and the stored words are unchanged by it.'
+  kind: guarantee
+  depends:
+  - R-ST-1
+  - R-IF-3
+  ambiguity:
+  - phrase: 'CONTRADICTION with R-SIM-1: ''A push while the FIFO is full is ignored'' vs ''both operations take effect'' (push and pop asserted while full)'
+    readings:
+    - With the FIFO full the push is ignored even if pop is also asserted; only the pop takes effect, the head is removed, count drops by one and push_data is lost.
+    - 'With the FIFO full and pop also asserted the push is accepted into the freed slot (R-SIM-1 read unconditionally): push_data is stored and count stays at DEPTH.'
+  - phrase: 'CONTRADICTION with R-USE-1 and R-USE-3: ''A push while the FIFO is full is ignored'' vs ''The producer shall not assert push while full is asserted'''
+    readings:
+    - 'R-USE-1 is a hard assumption: a push while full never occurs, so this requirement can only be checked on inputs that violate R-USE-1 and would be vacuous under that assumption.'
+    - 'R-USE-1 is only advice: pushes while full can occur and this requirement (the ''tolerates such requests'' of R-USE-3) is a guarantee that must be verified without assuming R-USE-1.'
+  confidence: medium
+  lines:
+  - 45
+  - 46
+- id: R-WR-4
+  doc: SPEC
+  quote: 'A push while the FIFO is full is ignored: the stored words and count are unchanged by it.'
+  text: 'A push sampled while the FIFO is full is ignored: count is unchanged by it.'
+  kind: guarantee
+  depends:
+  - R-WR-3
+  - R-ST-4
+  ambiguity:
+  - phrase: unchanged by it
+    readings:
+    - count has the same value in the next cycle as in the cycle of the ignored push.
+    - Only the push contributes nothing to count; a simultaneous pop would still decrement it (R-RD-3), so the net count may change in that cycle.
+  - phrase: 'CONTRADICTION with R-SIM-2: ''count ... unchanged by it'' (push ignored while full) vs ''count is unchanged'' (push and pop asserted)'
+    readings:
+    - With the FIFO full, an ignored push plus a pop leaves count decreased by one (the pop acts alone, R-RD-3), contradicting R-SIM-2.
+    - 'R-SIM-2 wins: in a cycle with both push and pop asserted count is unchanged even at full, i.e. the push is not ignored; R-WR-3 and R-WR-4 then apply only when pop is low.'
+  - phrase: 'CONTRADICTION with R-USE-1 and R-USE-3: ''A push while the FIFO is full is ignored'' vs ''The producer shall not assert push while full is asserted'''
+    readings:
+    - R-USE-1 is a hard assumption and this requirement is vacuous under it.
+    - R-USE-1 is advice only and this requirement is a guarantee that must be verified without assuming R-USE-1.
+  confidence: medium
+  lines:
+  - 45
+  - 46
+- id: R-RD-1
+  doc: SPEC
+  quote: The word at the head of the FIFO is always presented on pop_data while the FIFO is not empty.
+  text: In every cycle in which the FIFO is not empty, pop_data shows the word at the head of the FIFO (the oldest stored word), whether or not pop is asserted in that cycle.
+  kind: guarantee
+  depends:
+  - R-ST-2
+  - R-IF-6
+  ambiguity:
+  - phrase: 'CONTRADICTION with R-TIM-3: ''always presented on pop_data while the FIFO is not empty'' vs ''Returns the oldest stored word when pop is asserted'''
+    readings:
+    - 'First-word fall-through: pop_data equals the oldest stored word in every cycle with empty deasserted, whether or not pop is asserted; the consumer sees it in the same cycle in which it asserts pop
+      (R-TIM-3 is then only a consistent subset).'
+    - pop_data is specified only in cycles in which pop is asserted (R-TIM-3 read literally), so 'always' would not constrain pop_data in non-empty cycles with pop low.
+    - 'Registered read: the popped word appears on pop_data in the cycle after pop is asserted, so pop_data is not the head word in every non-empty cycle (for example the cycle after a push into an empty
+      FIFO).'
+  - phrase: presented on pop_data
+    readings:
+    - In the same cycle in which the word becomes the head (empty deasserts), with no extra latency.
+    - Possibly one cycle after the word becomes the head, if the read path is registered.
+  confidence: medium
+  lines:
+  - 50
+  - 51
+- id: R-RD-2
+  doc: SPEC
+  quote: When pop is sampled high and the FIFO is not empty, the head word is removed
+  text: When pop is sampled high at a rising clock edge while the FIFO is not empty, the word at the head of the FIFO is removed; the next-oldest word, if any, becomes the head.
+  kind: guarantee
+  depends:
+  - R-ST-2
+  - R-IF-5
+  ambiguity:
+  - phrase: the FIFO is not empty
+    readings:
+    - Evaluated on the registered empty flag as it is in the cycle in which pop is sampled, ignoring a push asserted in the same cycle.
+    - Evaluated after taking a simultaneous push into account, so a pop at an empty FIFO takes the word pushed in the same cycle (what 'both operations take effect' in R-SIM-1 implies; this clashes with
+      R-RD-4).
+  - phrase: the head word is removed
+    readings:
+    - The word consumed by the pop is the one presented on pop_data in the same cycle in which pop is asserted (first-word fall-through).
+    - The word consumed is delivered on pop_data in the cycle after pop (registered read); see the conflict between R-RD-1 and R-TIM-3.
+  confidence: high
+  lines:
+  - 51
+  - 52
+- id: R-RD-3
+  doc: SPEC
+  quote: count decreases by one
+  text: When pop is sampled high while the FIFO is not empty, count decreases by one.
+  kind: guarantee
+  depends:
+  - R-RD-2
+  - R-ST-4
+  ambiguity:
+  - phrase: count decreases by one
+    readings:
+    - 'The pop''s own contribution: without a simultaneous push count falls by one; with a simultaneous push the net change is zero (R-SIM-2).'
+    - The total change of count whenever a pop is accepted, regardless of push; this would contradict R-SIM-2 in every cycle in which push is also asserted.
+  - phrase: 'CONTRADICTION with R-SIM-2: ''count decreases by one'' vs ''count is unchanged'' (push and pop asserted while full)'
+    readings:
+    - While full the push is ignored (R-WR-3), so the pop alone lowers count from DEPTH to DEPTH-1.
+    - 'While full R-SIM-2 applies: both operations take effect (the push fills the freed slot) and count stays at DEPTH.'
+  confidence: medium
+  lines:
+  - 52
+- id: R-RD-4
+  doc: SPEC
+  quote: A pop while the FIFO is empty is ignored.
+  text: 'A pop sampled while the FIFO is empty is ignored: it has no effect on the FIFO (count stays zero and no word is removed or created).'
+  kind: guarantee
+  depends:
+  - R-ST-2
+  - R-IF-5
+  ambiguity:
+  - phrase: ignored
+    readings:
+    - 'Exactly the ''no change'' semantics that Section 4.2 spells out for a push at a full FIFO: stored words and count are unchanged by the pop.'
+    - Only that no word is removed; effects on count, flags or internal pointers are not described (the sentence, unlike its 4.2 counterpart, does not say what stays unchanged).
+  - phrase: 'CONTRADICTION with R-SIM-1: ''A pop while the FIFO is empty is ignored'' vs ''both operations take effect'' (push and pop asserted while empty)'
+    readings:
+    - With the FIFO empty the pop is ignored even if push is also asserted; only the push takes effect and count rises from 0 to 1.
+    - 'With the FIFO empty and push also asserted both take effect (R-SIM-1 read unconditionally): the pushed word passes straight through to the consumer and count stays 0; this needs pop_data to show
+      push_data while the FIFO is empty, which R-RD-5 leaves undefined.'
+  - phrase: 'CONTRADICTION with R-USE-2 and R-USE-3: ''A pop while the FIFO is empty is ignored'' vs ''the consumer shall not assert pop while empty is asserted'''
+    readings:
+    - 'R-USE-2 is a hard assumption: a pop while empty never occurs, so this requirement would be vacuous under it.'
+    - 'R-USE-2 is only advice: pops while empty can occur and this requirement (the ''tolerates such requests'' of R-USE-3) is a guarantee that must be verified without assuming R-USE-2.'
+  confidence: medium
+  lines:
+  - 52
+  - 53
+- id: R-RD-5
+  doc: SPEC
+  quote: The value of pop_data while the FIFO is empty is undefined.
+  text: While the FIFO is empty, the value of pop_data is unconstrained.
+  kind: dont_care
+  depends:
+  - R-ST-2
+  - R-IF-6
+  ambiguity:
+  - phrase: undefined
+    readings:
+    - 'Don''t-care: any value of pop_data is acceptable while the FIFO is empty, including stale data from an earlier pop; no property may constrain it.'
+    - 'Unknown value (X): the consumer must not use pop_data while empty, which is an obligation on the consumer (see R-USE-2); the design itself is still unconstrained.'
+  - phrase: 'CONTRADICTION with R-TIM-3: ''undefined while the FIFO is empty'' vs ''Returns the oldest stored word when pop is asserted'' (pop asserted while empty)'
+    readings:
+    - While empty there is no oldest stored word and pop_data is a don't-care even if pop is asserted; R-TIM-3 then applies only to non-empty cycles.
+    - R-TIM-3 applies in every cycle with pop asserted, including while empty, so pop_data would be constrained while empty, which this requirement says it is not.
+  confidence: high
+  lines:
+  - 53
+- id: R-SIM-1
+  doc: SPEC
+  quote: If push and pop are asserted in the same cycle, both operations take effect
+  text: 'When push and pop are asserted in the same cycle, both operations take effect: the pushed word is stored at the tail and the head word is removed.'
+  kind: guarantee
+  depends:
+  - R-WR-1
+  - R-RD-2
+  ambiguity:
+  - phrase: 'CONTRADICTION with R-WR-3: ''both operations take effect'' vs ''A push while the FIFO is full is ignored'' (push and pop asserted while full)'
+    readings:
+    - 'Unconditional: with the FIFO full, the simultaneous pop frees a slot and the push is accepted too; count stays at DEPTH and push_data is stored.'
+    - 'Each operation keeps its own precondition: with the FIFO full the push is ignored (R-WR-3), only the pop takes effect and count drops by one.'
+  - phrase: 'CONTRADICTION with R-RD-4: ''both operations take effect'' vs ''A pop while the FIFO is empty is ignored'' (push and pop asserted while empty)'
+    readings:
+    - 'Unconditional: with the FIFO empty, the pushed word passes straight through to the pop (bypass) and count stays 0; this needs pop_data to show push_data while empty although pop_data is undefined
+      while empty (R-RD-5).'
+    - 'Each operation keeps its own precondition: with the FIFO empty the pop is ignored (R-RD-4), only the push takes effect and count rises from 0 to 1.'
+  - phrase: 'CONTRADICTION with R-USE-3: ''both operations take effect'' vs ''tolerates such requests, as described in Sections 4.2 and 4.3'''
+    readings:
+    - Push at full and pop at empty remain tolerated exactly as in 4.2 and 4.3 even when the opposite operation is asserted, so 4.4 applies only when neither operation is a usage violation.
+    - 4.4 takes precedence whenever push and pop are both asserted, so the tolerance of 4.2 and 4.3 does not cover those combinations.
+  confidence: low
+  lines:
+  - 57
+- id: R-SIM-2
+  doc: SPEC
+  quote: and count is unchanged.
+  text: When push and pop are asserted in the same cycle, count is unchanged.
+  kind: guarantee
+  depends:
+  - R-SIM-1
+  - R-ST-4
+  ambiguity:
+  - phrase: 'CONTRADICTION with R-RD-3: ''count is unchanged'' vs ''count decreases by one'' (push and pop asserted while full)'
+    readings:
+    - count is unchanged in every cycle in which push and pop are both asserted, including at full (the push is accepted into the freed slot).
+    - At full only the pop takes effect (R-WR-3 ignores the push), so count decreases by one as R-RD-3 says.
+  - phrase: 'CONTRADICTION with R-WR-2: ''count is unchanged'' vs ''count increases by one'' (push and pop asserted while empty)'
+    readings:
+    - count is unchanged in every cycle in which push and pop are both asserted, including at empty (bypass, count stays 0).
+    - At empty only the push takes effect (R-RD-4 ignores the pop), so count increases by one as R-WR-2 says.
+  - phrase: 'CONTRADICTION with R-WR-4: ''count is unchanged'' (push and pop asserted) vs ''count ... unchanged by it'' (push ignored while full)'
+    readings:
+    - R-WR-4 covers a push at full only when pop is low; with pop also asserted, this requirement overrides it.
+    - R-WR-4 also holds with pop asserted, so the pop alone lowers count at full and this requirement must not be applied at full.
+  confidence: low
+  lines:
+  - 58
+- id: R-SIM-3
+  doc: SPEC
+  quote: If push and pop are asserted in the same cycle
+  text: It is possible for push and pop to be asserted in the same cycle (in particular while the FIFO is neither empty nor full, the case in which the specification is not in conflict with itself), and
+    the FIFO then leaves count unchanged.
+  kind: scenario
+  depends:
+  - R-SIM-1
+  - R-SIM-2
+  confidence: medium
+  lines:
+  - 57
+- id: R-ORD-1
+  doc: SPEC
+  quote: Words are read in exactly the order in which they were written.
+  text: 'Words are read out of the FIFO in exactly the order in which they were written into it: first in, first out.'
+  kind: guarantee
+  depends:
+  - R-WR-1
+  - R-RD-2
+  ambiguity:
+  - phrase: read
+    readings:
+    - A word is read when an accepted pop removes it; the order of removals equals the order of writes.
+    - A word is read when it is presented on pop_data; with first-word fall-through the head word is presented in every non-empty cycle, so 'read' and 'removed' differ and the order statement only concerns
+      which word becomes head next.
+  confidence: high
+  lines:
+  - 62
+- id: R-ORD-2
+  doc: SPEC
+  quote: Every word that is accepted is read out exactly once
+  text: 'Every word that is accepted by the FIFO is read out: no accepted word is lost or skipped.'
+  kind: guarantee
+  depends:
+  - R-WR-1
+  - R-RD-2
+  ambiguity:
+  - phrase: 'CONTRADICTION with R-RST-1: ''Every word that is accepted is read out exactly once'' vs ''the FIFO discards all stored words'''
+    readings:
+    - 'Reset overrides: words accepted but not yet read out when reset is sampled are intentionally lost, so ''every word'' implicitly excludes words discarded by a reset.'
+    - 'No exception is intended: every accepted word must be read out, which cannot hold for words discarded by a reset (R-RST-1), so the two statements are literally incompatible.'
+  - phrase: accepted
+    readings:
+    - A push sampled high while the FIFO is not full (the push that R-WR-1 stores).
+    - Any push that takes effect, which under the unconditional reading of R-SIM-1 also includes a push at a full FIFO with a simultaneous pop; 'accepted' is not defined anywhere in the specification.
+  - phrase: is read out
+    readings:
+    - 'Safety only: a stored word is eventually delivered only if the consumer keeps popping; the FIFO never drops or skips a word that is still stored, but nothing is owed if the consumer never pops.'
+    - 'Unconditional liveness: every accepted word is eventually read out, which the FIFO cannot guarantee on its own unless the consumer is assumed to keep popping; no such assumption is stated.'
+  confidence: medium
+  lines:
+  - 62
+  - 63
+- id: R-ORD-3
+  doc: SPEC
+  quote: Every word that is accepted is read out exactly once
+  text: No accepted word is read out more than once.
+  kind: guarantee
+  depends:
+  - R-WR-1
+  - R-RD-2
+  ambiguity:
+  - phrase: read out
+    readings:
+    - A word is read out when it is removed by an accepted pop; 'at most once' then means no word is removed and delivered twice.
+    - A word is read out whenever it is presented on pop_data; with first-word fall-through (R-RD-1) the head word is presented for many cycles before its pop, so 'exactly once' could not hold literally.
+  confidence: high
+  lines:
+  - 62
+  - 63
+- id: R-ORD-4
+  doc: SPEC
+  quote: its value is not modified by the FIFO
+  text: A word that is read out has exactly the value (all WIDTH bits) that push_data had when the word was written; the FIFO does not modify stored data.
+  kind: guarantee
+  depends:
+  - R-WR-1
+  - R-RD-1
+  confidence: high
+  lines:
+  - 63
+  - 64
+- id: R-ST-1
+  doc: SPEC
+  quote: full is asserted if and only if count equals DEPTH.
+  text: full is asserted if and only if count equals DEPTH.
+  kind: guarantee
+  depends:
+  - R-IF-7
+  - R-IF-10
+  - R-PAR-1
+  confidence: high
+  lines:
+  - 68
+- id: R-ST-2
+  doc: SPEC
+  quote: empty is asserted if and only if count is zero.
+  text: empty is asserted if and only if count is zero.
+  kind: guarantee
+  depends:
+  - R-IF-8
+  - R-IF-10
+  confidence: high
+  lines:
+  - 68
+  - 69
+- id: R-ST-3
+  doc: SPEC
+  quote: almost_full is asserted when count is greater than or equal to AF_LEVEL.
+  text: almost_full is asserted when count is greater than or equal to AF_LEVEL.
+  kind: guarantee
+  depends:
+  - R-IF-9
+  - R-IF-10
+  - R-PAR-5
+  - R-PAR-6
+  ambiguity:
+  - phrase: 'CONTRADICTION with R-TIM-2: ''greater than or equal to AF_LEVEL'' (Section 5) vs ''greater than AF_LEVEL'' (Section 6)'
+    readings:
+    - 'Inclusive threshold (this requirement): almost_full is asserted at count == AF_LEVEL. Section 3 (R-IF-9) points to Section 5 for the definition, and with AF_LEVEL = DEPTH the exclusive reading would
+      make almost_full unassertable.'
+    - 'Exclusive threshold (R-TIM-2): almost_full is asserted only when count > AF_LEVEL, so it stays low at count == AF_LEVEL. Section 6 is titled a ''summary'' but the specification gives no precedence
+      rule between sections.'
+  - phrase: is asserted when
+    readings:
+    - 'If and only if: almost_full == (count >= AF_LEVEL), so it is deasserted whenever count < AF_LEVEL (as the explicit ''if and only if'' of full and empty would state).'
+    - 'One-way: almost_full must be asserted whenever count >= AF_LEVEL but is unconstrained for count < AF_LEVEL (except right after reset, R-RST-5); the contrast with ''if and only if'' in the two preceding
+      sentences suggests this weaker form.'
+  confidence: low
+  lines:
+  - 69
+  - 70
+- id: R-ST-4
+  doc: SPEC
+  quote: count always reflects the number of words stored in the FIFO.
+  text: count always equals the number of words that are stored in the FIFO.
+  kind: guarantee
+  depends:
+  - R-IF-10
+  ambiguity:
+  - phrase: always reflects
+    readings:
+    - In every cycle count equals the occupancy produced by all operations sampled at earlier clock edges (accepted pushes minus accepted pops since the last reset), consistent with count being registered
+      (R-TIM-1); the corner cases of push and pop together depend on how R-SIM-1 is resolved.
+    - count equals the occupancy including the operation requested in the current cycle (combinational look-ahead); this is excluded if the 'registered' timing of R-TIM-1 holds.
+  confidence: medium
+  lines:
+  - 70
+  - 71
+- id: R-TIM-1
+  doc: SPEC
+  quote: Registered; they change in the cycle after the operation that changes them.
+  text: 'The outputs full, empty and count are registered: they change in the cycle after the operation (push, pop or reset) that changes them and not in the same cycle in which that operation is requested.'
+  kind: guarantee
+  depends:
+  - R-ST-1
+  - R-ST-2
+  - R-ST-4
+  ambiguity:
+  - phrase: Registered
+    readings:
+    - 'Observable meaning: these outputs do not depend combinationally on the current push, pop, push_data or rst_n; they are a function of state updated at the rising edge.'
+    - 'Implementation wording only: the outputs come from flip-flops, which says nothing observable beyond the one-cycle delay already given by the rest of the sentence.'
+  - phrase: the cycle after the operation
+    readings:
+    - An operation requested in cycle t (sampled at the end-of-cycle rising edge) is first visible in cycle t+1; the same timing as 'in the cycle after reset' (R-RST-2).
+    - A longer latency (visible in cycle t+2) is not excluded by the wording if 'the operation' is taken to happen at the sampling edge itself.
+  - phrase: full, empty, count
+    readings:
+    - The row lists only three outputs, so the timing of almost_full (R-TIM-2) and pop_data (R-TIM-3) is not covered by this sentence.
+    - almost_full is implicitly registered like count because it is derived from count.
+  confidence: medium
+  lines:
+  - 77
+- id: R-TIM-2
+  doc: SPEC
+  quote: Asserted when count is greater than AF_LEVEL.
+  text: almost_full is asserted when count is greater than AF_LEVEL.
+  kind: guarantee
+  depends:
+  - R-IF-9
+  - R-PAR-5
+  ambiguity:
+  - phrase: 'CONTRADICTION with R-ST-3: ''greater than AF_LEVEL'' (Section 6) vs ''greater than or equal to AF_LEVEL'' (Section 5)'
+    readings:
+    - 'Exclusive threshold (this requirement): almost_full stays low at count == AF_LEVEL; with AF_LEVEL = DEPTH it could never be asserted.'
+    - 'Inclusive threshold (R-ST-3): almost_full is asserted at count == AF_LEVEL; Section 3 (R-IF-9) defers to Section 5 for the definition.'
+  - phrase: Asserted when
+    readings:
+    - The row is in a 'Timing' column but only gives a threshold; it says nothing on whether almost_full changes in the same cycle as count (a function of the current count) or one cycle later (an extra
+      register).
+    - 'One-way versus if-and-only-if is again unstated: whether almost_full must be deasserted when count <= AF_LEVEL.'
+  confidence: low
+  lines:
+  - 78
+- id: R-TIM-3
+  doc: SPEC
+  quote: Returns the oldest stored word when pop is asserted.
+  text: pop_data returns the oldest stored word when pop is asserted.
+  kind: guarantee
+  depends:
+  - R-IF-5
+  - R-IF-6
+  ambiguity:
+  - phrase: 'CONTRADICTION with R-RD-1: ''Returns the oldest stored word when pop is asserted'' (Section 6) vs ''always presented on pop_data while the FIFO is not empty'' (Section 4.3)'
+    readings:
+    - 'Consistent subset of R-RD-1: in a cycle with pop asserted and the FIFO not empty, pop_data is the head word in that same cycle; no further constraint.'
+    - pop_data is defined only in cycles with pop asserted, so it need not show the head when pop is low, which is weaker than the 'always' of R-RD-1.
+    - 'Registered read: the word is returned in the cycle after pop is asserted (one-cycle read latency), which conflicts with the same-cycle first-word fall-through presentation of R-RD-1.'
+  - phrase: 'CONTRADICTION with R-RD-5: ''Returns the oldest stored word when pop is asserted'' vs ''undefined while the FIFO is empty'' (pop asserted while empty)'
+    readings:
+    - This row applies only to non-empty cycles; with the FIFO empty there is no oldest word and R-RD-5 leaves pop_data free.
+    - This row applies to every cycle with pop asserted, including while empty, so pop_data would be constrained while empty, which R-RD-5 says it is not.
+  confidence: low
+  lines:
+  - 79
+- id: R-USE-1
+  doc: SPEC
+  quote: The producer shall not assert push while full is asserted
+  text: The producer does not assert push in a cycle in which full is asserted.
+  kind: assumption
+  depends:
+  - R-IF-3
+  - R-IF-7
+  ambiguity:
+  - phrase: shall not assert push while full is asserted
+    readings:
+    - 'Hard environment obligation: verification may assume the producer never pushes while full, so behaviour after a violation need not be checked (assume-guarantee).'
+    - 'Usage recommendation only: the producer might still push while full and the FIFO must behave correctly, as the next sentence (R-USE-3) says.'
+  - phrase: 'CONTRADICTION with R-USE-3 (and R-WR-3, R-WR-4): ''shall not assert push while full'' vs ''push while full is ignored'' / ''nevertheless tolerates such requests'''
+    readings:
+    - If R-USE-1 is assumed, the situations described by R-WR-3, R-WR-4 and R-USE-3 (push while full) never occur, so those guarantees become vacuous; the full-case conflict between R-SIM-1 and R-WR-3 would
+      also be masked.
+    - If R-USE-3 is a guarantee verified without the assumption, R-USE-1 must not constrain the verification inputs and is advisory only.
+  confidence: medium
+  lines:
+  - 83
+- id: R-USE-2
+  doc: SPEC
+  quote: the consumer shall not assert pop while empty is asserted
+  text: The consumer does not assert pop in a cycle in which empty is asserted.
+  kind: assumption
+  depends:
+  - R-IF-5
+  - R-IF-8
+  ambiguity:
+  - phrase: shall not assert pop while empty is asserted
+    readings:
+    - 'Hard environment obligation: verification may assume the consumer never pops while empty, so behaviour after a violation need not be checked (assume-guarantee).'
+    - 'Usage recommendation only: the consumer might still pop while empty and the FIFO must behave correctly, as the next sentence (R-USE-3) says.'
+  - phrase: 'CONTRADICTION with R-USE-3 (and R-RD-4): ''shall not assert pop while empty'' vs ''pop while empty is ignored'' / ''nevertheless tolerates such requests'''
+    readings:
+    - If R-USE-2 is assumed, the situations described by R-RD-4 and R-USE-3 (pop while empty) never occur, so those guarantees become vacuous; the empty-case conflict between R-SIM-1 and R-RD-4 would also
+      be masked.
+    - If R-USE-3 is a guarantee verified without the assumption, R-USE-2 must not constrain the verification inputs and is advisory only.
+  confidence: medium
+  lines:
+  - 83
+  - 84
+- id: R-USE-3
+  doc: SPEC
+  quote: The FIFO nevertheless tolerates such requests, as described in Sections 4.2 and 4.3.
+  text: 'If the producer pushes while full is asserted or the consumer pops while empty is asserted, the FIFO tolerates the request and behaves as specified for those cases: the push or pop is ignored.'
+  kind: guarantee
+  depends:
+  - R-WR-3
+  - R-WR-4
+  - R-RD-4
+  - R-USE-1
+  - R-USE-2
+  ambiguity:
+  - phrase: tolerates
+    readings:
+    - 'Exactly the ''ignored'' behaviour of Sections 4.2 and 4.3: the offending push or pop leaves the stored words and count unchanged.'
+    - A weaker robustness notion (no data corruption, no lock-up, no illegal count value) without committing to the precise 'ignored' semantics.
+  - phrase: 'CONTRADICTION with R-SIM-1: ''tolerates such requests, as described in Sections 4.2 and 4.3'' vs ''both operations take effect'' (push and pop asserted together while full or empty)'
+    readings:
+    - '''Such requests'' include a push while full or a pop while empty even when the opposite operation is asserted in the same cycle; they are still ignored as in R-WR-3 and R-RD-4, so Section 4.4 (R-SIM-1)
+      applies only when neither operation is a usage violation.'
+    - Section 4.4 (R-SIM-1) takes precedence whenever push and pop are both asserted, so the tolerance of Sections 4.2 and 4.3 covers only a push at full or a pop at empty taken in isolation.
+  - phrase: 'CONTRADICTION with R-USE-1 and R-USE-2 (and the ''ignored'' guarantees R-WR-3, R-WR-4, R-RD-4 that it points to): ''nevertheless tolerates such requests'' vs ''shall not assert'''
+    readings:
+    - The 'shall not' rules (R-USE-1, R-USE-2) are environment assumptions and the tolerance (R-WR-3, R-WR-4, R-RD-4) is only a defensive courtesy that cannot be checked once those assumptions are in force.
+    - The 'shall not' rules are advisory and the tolerance is a firm guarantee that holds for all inputs, so the FIFO must be verified without assuming R-USE-1 and R-USE-2.
+  confidence: medium
+  lines:
+  - 84
+  - 85

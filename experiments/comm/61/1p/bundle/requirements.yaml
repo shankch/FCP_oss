@@ -1,0 +1,143 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-TASK-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete Python implementation of the function whose signature and docstring are given, keeping that signature.
+  kind: non_functional
+  ambiguity:
+  - phrase: Complete this function
+    readings:
+    - write the body only, keeping the given signature and docstring unchanged
+    - any implementation with the same name and parameter is acceptable, even if the signature (e.g. a return annotation) or docstring is changed
+  lines:
+  - 1
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def correct_bracketing(brackets: str):'
+  text: The function is named correct_bracketing and takes exactly one parameter, brackets, of type str.
+  kind: definition
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: brackets is a string of "(" and ")".
+  text: The caller passes as brackets a string every character of which is '(' or ')'; the behaviour of the function on any other argument is not specified.
+  kind: assumption
+  depends:
+  - R-IF-1
+  ambiguity:
+  - phrase: a string of "(" and ")"
+    readings:
+    - every character is '(' or ')', and the empty string is allowed
+    - every character is '(' or ')', and the string is non-empty
+    - the string contains both '(' and ')' (at least one of each); under this reading the example argument "(" violates the assumption, which contradicts R-EX-1
+  - phrase: brackets is a string of "(" and ")"
+    readings:
+    - 'a precondition on the caller: arguments with other characters are out of contract and any outcome is acceptable'
+    - characters other than '(' and ')' are to be ignored when judging the bracketing
+    - an argument with any other character is not correctly bracketed, so the function returns False
+    - an argument with any other character must be rejected by raising an exception
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: '>>> correct_bracketing("(") False'
+  text: For every argument allowed by R-IN-1, the call returns a bool (True or False) and does not raise an exception or fail to finish.
+  kind: guarantee
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: 'False'
+    readings:
+    - the function returns a bool, as the example's False suggests (no return annotation is given)
+    - the function may return any value whose truthiness gives the answer (e.g. 0/1)
+  - phrase: correct_bracketing
+    readings:
+    - '''correct'' is an adjective: the function tells whether the bracketing is correct and returns a bool'
+    - '''correct'' is a verb: the function corrects the bracketing and returns a fixed string; this reading contradicts the example R-EX-1, which returns False'
+  lines:
+  - 7
+  - 8
+- id: R-DEF-1
+  doc: SPEC
+  quote: 'def correct_bracketing(brackets: str):'
+  text: 'A string of ''('' and '')'' is correctly bracketed when every ''('' is matched by a later '')'' and every '')'' by an earlier ''('': scanning left to right, the number of '')'' never exceeds the
+    number of ''('' seen so far, and both numbers are equal at the end.'
+  kind: definition
+  ambiguity:
+  - phrase: correct_bracketing
+    readings:
+    - 'properly nested: no prefix has more '')'' than ''('' and the totals are equal (")(" is not correct)'
+    - equal numbers of '(' and ')' only, regardless of order (")(" is correct)
+    - every '(' has a matching later ')', while unmatched ')' are allowed ("())" is correct)
+  - phrase: 'correct_bracketing(brackets: str)'
+    readings:
+    - the empty string is correctly bracketed (no unmatched bracket)
+    - the empty string is not correctly bracketed (there are no brackets to match)
+    - the empty string is outside the input contract (see R-IN-1)
+  lines:
+  - 4
+- id: R-RES-1
+  doc: SPEC
+  quote: 'def correct_bracketing(brackets: str):'
+  text: For an argument allowed by R-IN-1 that is correctly bracketed (R-DEF-1), correct_bracketing returns True.
+  kind: guarantee
+  depends:
+  - R-IN-1
+  - R-DEF-1
+  - R-RET-1
+  ambiguity:
+  - phrase: correct_bracketing
+    readings:
+    - the function returns True exactly when the argument is correctly bracketed; this meaning is inferred from the name only, since the docstring never states what is returned
+    - the function's meaning is fixed only by the example, and any answer is acceptable on other arguments
+  lines:
+  - 4
+- id: R-RES-2
+  doc: SPEC
+  quote: 'def correct_bracketing(brackets: str):'
+  text: For an argument allowed by R-IN-1 that is not correctly bracketed (R-DEF-1), correct_bracketing returns False.
+  kind: guarantee
+  depends:
+  - R-IN-1
+  - R-DEF-1
+  - R-RET-1
+  ambiguity:
+  - phrase: correct_bracketing
+    readings:
+    - the function returns False exactly when the argument is not correctly bracketed; this meaning is inferred from the name only, since the docstring never states what is returned
+    - the function's meaning is fixed only by the example, and any answer is acceptable on other arguments
+  lines:
+  - 4
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> correct_bracketing("(") False'
+  text: The call correct_bracketing("(") returns False.
+  kind: scenario
+  depends:
+  - R-IF-1
+  ambiguity:
+  - phrase: correct_bracketing("(")
+    readings:
+    - '"(" is a valid argument (every character is ''('' or '')''), so the example is within the input contract of R-IN-1'
+    - '"(" lacks a '')'', so under the reading of R-IN-1 that the string contains both ''('' and '')'' the example lies outside the input contract, contradicting R-IN-1'
+  - phrase: 'False'
+    readings:
+    - the function answers with a bool, consistent with R-RET-1
+    - under the verb reading of correct_bracketing (return a corrected string) a bool answer contradicts R-RET-1
+  lines:
+  - 7
+  - 8
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, the result signal is false unless the outcome signal is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 49

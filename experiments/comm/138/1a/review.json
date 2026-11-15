@@ -1,0 +1,392 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [
+     {
+      "core": [
+       "RA-EX-1",
+       "RA-FN-2"
+      ],
+      "muses": [
+       [
+        "RA-EX-1",
+        "RA-FN-2"
+       ]
+      ],
+      "calls": [
+       [
+        4
+       ]
+      ],
+      "stimulus": [
+       "candidate(4)"
+      ],
+      "reqs": [
+       "R-EX-1",
+       "R-FN-2"
+      ]
+     },
+     {
+      "core": [
+       "RA-EX-2",
+       "RA-FN-2"
+      ],
+      "muses": [
+       [
+        "RA-EX-2",
+        "RA-FN-2"
+       ]
+      ],
+      "calls": [
+       [
+        6
+       ]
+      ],
+      "stimulus": [
+       "candidate(6)"
+      ],
+      "reqs": [
+       "R-EX-2",
+       "R-FN-2"
+      ]
+     }
+    ],
+    "candidates": 32,
+    "checked": 32,
+    "seconds": 0.04
+   },
+   "open": {
+    "open": {},
+    "checked": 210
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [
+     {
+      "core": [
+       "RB-EX-1",
+       "RB-FN-2"
+      ],
+      "muses": [
+       [
+        "RB-EX-1",
+        "RB-FN-2"
+       ]
+      ],
+      "calls": [
+       [
+        4
+       ]
+      ],
+      "stimulus": [
+       "candidate(4)"
+      ],
+      "reqs": [
+       "R-EX-1",
+       "R-FN-2"
+      ]
+     },
+     {
+      "core": [
+       "RB-EX-2",
+       "RB-FN-2"
+      ],
+      "muses": [
+       [
+        "RB-EX-2",
+        "RB-FN-2"
+       ]
+      ],
+      "calls": [
+       [
+        6
+       ]
+      ],
+      "stimulus": [
+       "candidate(6)"
+      ],
+      "reqs": [
+       "R-EX-2",
+       "R-FN-2"
+      ]
+     }
+    ],
+    "candidates": 32,
+    "checked": 32,
+    "seconds": 0.04
+   },
+   "open": {
+    "open": {},
+    "checked": 210
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FN-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FN-2": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `n >= 0 && n <= 65535`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `n >= 0 && n <= 65535`",
+    "where": {}
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FN-1",
+   "phrase": "Evaluate whether",
+   "taken": 1,
+   "variant": 2,
+   "text": "the function returns any value that compares equal to True or False (e.g. 1 or 0), not necessarily of type bool"
+  },
+  {
+   "req": "R-FN-2",
+   "phrase": "4 numbers",
+   "taken": 1,
+   "variant": 2,
+   "text": "non-negative integers (zero allowed): every n >= 0 qualifies, so the result is always True"
+  },
+  {
+   "req": "R-FN-2",
+   "phrase": "the sum of 4",
+   "taken": 1,
+   "variant": 2,
+   "text": "four or more summands"
+  },
+  {
+   "req": "R-FN-2",
+   "phrase": "can be written as",
+   "taken": 1,
+   "variant": 2,
+   "text": "the statement is abbreviated and the examples fix the kind of number (e.g. four positive even numbers), so the examples take precedence"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "candidate(4)",
+   "taken": 2,
+   "variant": 1,
+   "text": "the example holds, so the main statement must be read narrowly (e.g. four positive even numbers, or four integers of at least 2), under which 4 does not qualify"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "== False",
+   "taken": 1,
+   "variant": 2,
+   "text": "the call returns any value equal to False (e.g. 0)"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "candidate(6)",
+   "taken": 2,
+   "variant": 1,
+   "text": "the example holds, so the main statement must be read narrowly (e.g. four positive even numbers, or four integers of at least 2), under which 6 does not qualify"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "== False",
+   "taken": 1,
+   "variant": 2,
+   "text": "the call returns any value equal to False (e.g. 0)"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "candidate(8)",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradiction: if the four numbers must be distinct positive integers, the smallest such sum is 10, so 8 would not qualify and candidate(8) would be False"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "== True",
+   "taken": 1,
+   "variant": 2,
+   "text": "the call returns any value equal to True (e.g. 1)"
+  }
+ ],
+ "depends": {
+  "R-FN-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a"
+   ],
+   "witness": [
+    "candidate(62639) -> returned something else"
+   ]
+  },
+  "R-FN-2": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(4) -> False"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-EX-1",
+    "R-FN-2"
+   ],
+   "calls": [
+    "candidate(4)"
+   ],
+   "variants": 2,
+   "question": "no implementation can meet these requirements on these calls: which one gives way? (also with , at 2 places)"
+  },
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-EX-2",
+    "R-FN-2"
+   ],
+   "calls": [
+    "candidate(6)"
+   ],
+   "variants": 2,
+   "question": "no implementation can meet these requirements on these calls: which one gives way? (also with , at 2 places)"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-FN-1",
+    "R-FN-2"
+   ],
+   "calls": [
+    "candidate(62639) -> returned something else"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"Evaluate whether\" can mean: the function returns the bool True or False / the function returns any value that compares equal to True or False (e.g. 1 or 0), not necessarily of type bool. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-2"
+   ],
+   "calls": [],
+   "question": "\"4 numbers\" can mean: any integers, negatives allowed: every n qualifies, so the result is always True / non-negative integers (zero allowed): every n >= 0 qualifies, so the result is always True / positive integers: True exactly when n >= 4 / positive even integers: True exactly when n is even and n >= 8 / integers of at least 2, or primes: True exactly when n >= 8 / distinct positive integers: True exactly when n >= 10 (1+2+3+4). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-2"
+   ],
+   "calls": [],
+   "question": "\"the sum of 4\" can mean: exactly four summands / four or more summands. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-2"
+   ],
+   "calls": [],
+   "question": "\"can be written as\" can mean: contradiction with the examples: read literally (any four integers, non-negative integers or positive integers), 4 = 1+1+1+1 and 6 = 1+1+2+2 qualify, so candidate(4) and candidate(6) would be True, against candidate(4) == False and candidate(6) == False / the statement is abbreviated and the examples fix the kind of number (e.g. four positive even numbers), so the examples take precedence / contradiction with the example candidate(8) == True if the summands must be distinct: the smallest sum of four distinct positive integers is 10. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"candidate(4)\" can mean: the example holds, so the main statement must be read narrowly (e.g. four positive even numbers, or four integers of at least 2), under which 4 does not qualify / contradiction: the main statement read literally (four positive or non-negative integers) makes 4 qualify (1+1+1+1 or 4+0+0+0), so candidate(4) would be True. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1",
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"== False\" can mean: the call returns the bool False / the call returns any value equal to False (e.g. 0). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"candidate(6)\" can mean: the example holds, so the main statement must be read narrowly (e.g. four positive even numbers, or four integers of at least 2), under which 6 does not qualify / contradiction: the main statement read literally (four positive or non-negative integers) makes 6 qualify (1+1+2+2 or 6+0+0+0), so candidate(6) would be True. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"candidate(8)\" can mean: 8 qualifies because summands may repeat (2+2+2+2, 1+1+3+3) / contradiction: if the four numbers must be distinct positive integers, the smallest such sum is 10, so 8 would not qualify and candidate(8) would be False. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"== True\" can mean: the call returns the bool True / the call returns any value equal to True (e.g. 1). Which is meant?"
+  }
+ ],
+ "limits": []
+}

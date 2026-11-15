@@ -1,0 +1,77 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+ghosts:
+  # what the run has done so far (updated at every call, read at the next cycle)
+  - {name: ended, range: [0, 1], init: 0, next: 'phase ? 1 : ended'}
+  - {name: n_calls, range: [0, 15], init: 0, next: '!phase ? min(n_calls + 1, 15) : n_calls'}
+  - {name: n_res, range: [0, 3], init: 0, next: '!phase && op == 1 ? min(n_res + 1, 3) : n_res'}
+  - {name: n_chg, range: [0, 3], init: 0, next: '!phase && op == 2 ? min(n_chg + 1, 3) : n_chg'}
+  - {name: n_book, range: [0, 3], init: 0, next: '!phase && op == 3 ? min(n_book + 1, 3) : n_book'}
+  - {name: n_ref, range: [0, 3], init: 0, next: '!phase && op == 4 ? min(n_ref + 1, 3) : n_ref'}
+  - {name: n_rel, range: [0, 3], init: 0, next: '!phase && op == 5 ? min(n_rel + 1, 3) : n_rel'}
+  - {name: res_ok, range: [0, 1], init: 0, next: '!phase && op == 1 && answer == 0 ? 1 : res_ok'}
+  - {name: chg_ok, range: [0, 1], init: 0, next: '!phase && op == 2 && answer == 0 ? 1 : chg_ok'}
+  - {name: book_ok, range: [0, 1], init: 0, next: '!phase && op == 3 && answer == 0 ? 1 : book_ok'}
+  - {name: failed, range: [0, 1], init: 0, next: '!phase && op >= 1 && op <= 3 && answer != 0 ? 1 : failed'}
+defs:
+  valid: 'qty >= 1 && qty <= 100 && amount >= 1 && amount <= 1000000'
+  reserve: '!phase && op == 1'
+  charge: '!phase && op == 2'
+  book: '!phase && op == 3'
+  refund: '!phase && op == 4'
+  release: '!phase && op == 5'
+  step: '!phase && op >= 1 && op <= 3'
+  returning: 'phase && ended == 0'           # the cycle at which the function returns
+properties:
+- {id: G-ERR, req: R-ERR-1, pattern: implies, args: {trigger: '!valid', cond: 'phase && outcome == 1'}}
+- id: G-ERR-ONLY
+  req: R-ERR-1
+  pattern: implies
+  args: {trigger: 'returning && valid', cond: 'outcome != 1'}
+  note: 'no ValueError for arguments in range (rules 5 and 6 make the function return True or False)'
+- {id: G-ARG-RES, req: R-ARGS-1, pattern: implies, args: {trigger: reserve, cond: 'r_sku == sku && r_qty == qty'}}
+- {id: G-ARG-CHG, req: R-ARGS-1, pattern: implies, args: {trigger: charge, cond: 'c_order == order_id && c_amount == amount'}}
+- {id: G-ARG-BOOK, req: R-ARGS-1, pattern: implies, args: {trigger: book, cond: 'b_order == order_id'}}
+- {id: G-ARG-REF, req: R-ARGS-1, pattern: implies, args: {trigger: refund, cond: 'f_order == order_id && f_amount == amount'}}
+- {id: G-ARG-REL, req: R-ARGS-1, pattern: implies, args: {trigger: release, cond: 'l_sku == sku && l_qty == qty'}}
+- id: G-GO
+  req: R-STEPS-1
+  pattern: implies
+  args: {trigger: 'returning && valid && outcome == 0', cond: 'failed == 1 || book_ok == 1'}
+  note: 'the function may return only after a step failed or after the booking answered ok'
+- {id: G-ORD-CHG, req: R-ORDER-1, pattern: implies, args: {trigger: charge, cond: 'res_ok == 1'}}
+- {id: G-ORD-BOOK, req: R-ORDER-1, pattern: implies, args: {trigger: book, cond: 'chg_ok == 1'}}
+- {id: G-ONCE-RES, req: R-ONCE-1, pattern: implies, args: {trigger: reserve, cond: 'n_res == 0'}}
+- {id: G-ONCE-CHG, req: R-ONCE-1, pattern: implies, args: {trigger: charge, cond: 'n_chg == 0'}}
+- {id: G-ONCE-BOOK, req: R-ONCE-1, pattern: implies, args: {trigger: book, cond: 'n_book == 0'}}
+- id: G-RET
+  req: R-RET-1
+  pattern: implies
+  args: {trigger: 'returning && valid', cond: 'outcome == 0 && result == (res_ok == 1 && chg_ok == 1 && book_ok == 1)'}
+- {id: G-DONE, req: R-RET-1, pattern: implies, args: {trigger: '!phase', cond: 'book_ok == 0'}}
+- {id: G-STOP, req: R-STOP-1, pattern: implies, args: {trigger: step, cond: 'failed == 0'}}
+- {id: G-CATCH, req: R-STOP-1, pattern: implies, args: {trigger: returning, cond: 'outcome != 2'}}
+- id: G-UNDO
+  req: R-UNDO-1
+  pattern: implies
+  args: {trigger: 'returning && valid && failed == 1', cond: 'n_ref == chg_ok && n_rel == res_ok'}
+  note: 'decision: in either order'
+- id: G-UNDO-REF
+  req: R-UNDO-1
+  pattern: implies
+  args: {trigger: refund, cond: 'failed == 1 && chg_ok == 1 && n_ref == 0'}
+  note: 'decision: a refund only for a charge that went through, after a step failed'
+- id: G-UNDO-REL
+  req: R-UNDO-1
+  pattern: implies
+  args: {trigger: release, cond: 'failed == 1 && res_ok == 1 && n_rel == 0'}
+  note: 'decision: a release only for stock that was reserved, after a step failed'
+- {id: G-LIMIT, req: R-LIMIT-1, pattern: implies, args: {trigger: '!phase', cond: 'n_calls < 4'}}
+scenarios:
+- id: S-EX
+  req: R-EX-1
+  cover: 'returning && outcome == 0 && !result && n_calls == 3 && prev(op) == 5 && prev(op, 2) == 2 && prev(answer, 2) == 1 && prev(op, 3) == 1 && prev(answer, 3) == 0'
+unformalized:
+- {req: R-SIG-1, reason: 'the interface itself', covered_by: [G-RET]}
+- {req: R-API-1, reason: 'a definition of the interface, used by every item', covered_by: [G-RET, G-STOP]}

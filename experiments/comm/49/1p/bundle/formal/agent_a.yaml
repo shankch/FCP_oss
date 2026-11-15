@@ -1,0 +1,97 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # (2**n) % p for p in 1 .. 1,023 (0 when p is 0). `%` needs a constant
+  # divisor (IR 4.1), so p is split over its values: exactly one term is
+  # selected for each non-zero p (chunks of at most 256, the quantifier bound).
+  pow2n_mod_p: >-
+    sum(k < 256: p == k + 1 ? (1 << n) % (k + 1) : 0)
+    + sum(k < 256: p == k + 257 ? (1 << n) % (k + 257) : 0)
+    + sum(k < 256: p == k + 513 ? (1 << n) % (k + 513) : 0)
+    + sum(k < 255: p == k + 769 ? (1 << n) % (k + 769) : 0)
+
+properties:
+  - id: RA-RES-1-OK
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: "p >= 1", cond: "outcome == 0"}
+    note: >-
+      Reading 1 of "Return": the call returns a Python int. For p >= 1 the value
+      (2**n) % p lies in 0 .. p-1 <= 1,022, so it fits `result` and the call
+      must end with outcome 0 (no exception, no other type, no non-termination).
+
+  - id: RA-RES-1-VAL
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: "p >= 1", cond: "result == pow2n_mod_p"}
+    note: >-
+      The docstring "Return 2^n modulo." is cut off before the modulus. Taken
+      literally as written it names no modulus; the reading taken is that p,
+      the only other argument (and the "p" of "modp"), is the modulus
+      (reading 1 of "modulo."). "2^n" is read as exponentiation (written
+      1 << n), not Python's XOR. "2^n modulo p" is read as the least
+      non-negative remainder (Python's 2**n % p), so the value is in 0 .. p-1;
+      in particular modp(n, 1) is 0 for every n, including n = 0. p = 0 is
+      covered by R-RES-2.
+
+dont_cares:
+  - id: RA-RES-2-OUTCOME
+    req: R-RES-2
+    signal: outcome
+    when: "p == 0"
+    note: >-
+      The request does not define 2^n modulo 0 and names no exception. Reading 3
+      is taken: how a call with p = 0 ends is left free. Requiring an exception
+      (Python's 2**n % 0) or the identity 2^n would add behaviour the text does
+      not state. The call is still legal (no assumption excludes p = 0, see
+      R-SIG-2); only its outputs are unconstrained.
+  - id: RA-RES-2-RESULT
+    req: R-RES-2
+    signal: result
+    when: "p == 0"
+    note: >-
+      Same as RA-RES-2-OUTCOME for the returned value; the frame rule F-ZERO
+      still forces result to 0 unless outcome is 0.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter: holds by construction of the trace
+      and is added to every formalization set as F-ZERO (outcome != 0 ->
+      result == 0); frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+  - req: R-TASK-1
+    reason: >-
+      Non-functional statement about the deliverable (a complete Python
+      implementation). It is not a property of a single call. Its observable
+      consequences are covered by R-RES-1: a missing or incomplete function,
+      or one that does not finish, ends a call with outcome 1, which
+      RA-RES-1-OK forbids for p >= 1.
+  - req: R-SIG-1
+    reason: >-
+      Definition of the signature (name modp, parameters n then p). The trace
+      cannot observe a signature: the adapter calls modp(n, p) with n and p as
+      the two positional arguments by construction (design.yaml, function).
+      A different signature makes calls raise TypeError (outcome 1), which
+      RA-RES-1-OK rejects. The role of p (reading 1: the modulus) is realized
+      in RA-RES-1-VAL.
+  - req: R-SIG-2
+    reason: >-
+      The caller's obligation to pass integers holds by construction of the
+      trace: n and p are 10-bit unsigned integer inputs (0 .. 1,023), and
+      negative arguments are not part of the trace. Under the readings taken
+      (n any int, p any int including 0) the obligation excludes no trace
+      value, so no assumption is added; p = 0 stays a legal call whose outputs
+      are left free by R-RES-2.
+
+decisions:
+  - {req: R-SIG-1, phrase: "p: int", reading: 1}
+  - {req: R-SIG-2, phrase: "n: int", reading: 1}
+  - {req: R-SIG-2, phrase: "p: int", reading: 1}
+  - {req: R-RES-1, phrase: "2^n", reading: 1}
+  - {req: R-RES-1, phrase: "modulo.", reading: 1}
+  - {req: R-RES-1, phrase: "2^n modulo", reading: 1}
+  - {req: R-RES-1, phrase: "Return", reading: 1}
+  - {req: R-RES-2, phrase: "modulo", reading: 3}

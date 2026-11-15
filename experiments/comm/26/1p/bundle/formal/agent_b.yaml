@@ -1,0 +1,162 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# The function is memoryless (frame.md: calls are independent), so the
+# specification model is combinational: defs computed from the argument of
+# the current call, against which the outputs of that call are checked. A
+# ghost would carry state from one call to the next, which the frame forbids.
+defs:
+  # the call returned a list that fits (frame.md, outcome 0)
+  ret: 'outcome == 0'
+
+  # Selection model, literal reading of "remove all elements that occur":
+  # element i of numbers is selected for removal when it occurs (in numbers),
+  # i.e. when numbers[i] in numbers. n_kept is the number of elements of
+  # numbers not selected, i.e. the length the returned list must have.
+  n_kept: 'count(i < len(numbers): !(numbers[i] in numbers))'
+
+  # Greedy subsequence matcher: g<p> is how many leading elements of result
+  # are matched, in order, by distinct positions of numbers[0..p]. result is a
+  # subsequence of numbers exactly when all of it is matched after the last
+  # position (len(numbers) is at most 8 by the interface).
+  g0: '(0 < len(numbers) && 0 < len(result) && numbers[0] == result[0]) ? 1 : 0'
+  g1: 'g0 + ((1 < len(numbers) && g0 < len(result) && numbers[1] == result[g0]) ? 1 : 0)'
+  g2: 'g1 + ((2 < len(numbers) && g1 < len(result) && numbers[2] == result[g1]) ? 1 : 0)'
+  g3: 'g2 + ((3 < len(numbers) && g2 < len(result) && numbers[3] == result[g2]) ? 1 : 0)'
+  g4: 'g3 + ((4 < len(numbers) && g3 < len(result) && numbers[4] == result[g3]) ? 1 : 0)'
+  g5: 'g4 + ((5 < len(numbers) && g4 < len(result) && numbers[5] == result[g4]) ? 1 : 0)'
+  g6: 'g5 + ((6 < len(numbers) && g5 < len(result) && numbers[6] == result[g5]) ? 1 : 0)'
+  g7: 'g6 + ((7 < len(numbers) && g6 < len(result) && numbers[7] == result[g6]) ? 1 : 0)'
+  subseq: 'g7 == len(result)'
+
+properties:
+  - id: RB-SIG2-RET
+    req: R-SIG-2
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      Every call (every list of at most 8 integers 0..255 the interface can
+      carry) returns a list that fits: no exception, no non-termination, no
+      other type. "remove" is taken as reading 1 (a new list is returned and
+      numbers is left unchanged). Whether the argument is mutated is not
+      observable on this interface (numbers is an input sampled at the call),
+      so readings 1 and 2 give the same trace; the choice does not change
+      this item. What the returned list contains is formalized by the
+      R-RM-* items.
+
+  - id: RB-RM1-GONE
+    req: R-RM-1
+    pattern: implies
+    args:
+      trigger: ret
+      cond: 'all(i < len(numbers): (numbers[i] in numbers) -> !(numbers[i] in result))'
+    note: >-
+      Literal reading (reading 1 of both flagged phrases): an element is
+      "selected for removal" when it occurs in numbers, written literally as
+      numbers[i] in numbers. Every element of a list occurs in it, so every
+      value of numbers must be absent from the returned list. The
+      specification is not repaired to "occur more than once"; the docstring
+      appears truncated, and under this reading the selection condition is
+      always true.
+
+  - id: RB-RM2-SUB
+    req: R-RM-2
+    pattern: implies
+    args:
+      trigger: ret
+      cond: 'all(j < len(result): count(k < len(result): result[k] == result[j]) <= count(k < len(numbers): numbers[k] == result[j]))'
+    note: >-
+      Removal never adds or changes elements: every value of the returned list
+      occurs in it at most as many times as in numbers (sub-multiset). Not
+      flagged as ambiguous. Together with RB-RM1-GONE it forces the returned
+      list to be empty.
+
+  - id: RB-RM3-LEN
+    req: R-RM-3
+    pattern: implies
+    args:
+      trigger: ret
+      cond: 'len(result) == n_kept'
+    note: >-
+      "the returned list has exactly the elements of numbers minus the removed
+      ones": its length is the number of elements of numbers not selected for
+      removal (model n_kept). Literal reading (reading 1 of both flagged
+      phrases): every element occurs in numbers, so n_kept is always 0 and
+      nothing is kept; the returned list is empty. The restrictive clause
+      "that occur" would presuppose that some elements are kept (reading 2 of
+      "all elements that occur"); the text states no condition that leaves any
+      element unselected, so that presupposition is not honoured and the
+      contradiction is recorded rather than repaired.
+
+  - id: RB-RM3-MSET
+    req: R-RM-3
+    pattern: implies
+    args:
+      trigger: ret
+      cond: 'all(i < len(numbers): count(k < len(result): result[k] == numbers[i]) == count(k < len(numbers): numbers[k] == numbers[i] && !(numbers[k] in numbers)))'
+    note: >-
+      Every element of numbers not selected for removal is kept, with its
+      multiplicity, and no copy of a selected one remains: each value of
+      numbers occurs in the returned list exactly as often as among the
+      elements of numbers that are not selected (selection: numbers[k] in
+      numbers, the literal reading). With RB-RM3-LEN this makes the returned
+      list exactly numbers minus the removed elements. Under the literal
+      reading no element is unselected, so "is kept" constrains nothing and
+      the item says that no value of numbers is returned.
+
+  - id: RB-RM4-ORD
+    req: R-RM-4
+    pattern: implies
+    args:
+      trigger: ret
+      cond: subseq
+    note: >-
+      Reading 1 of "remove": the remaining elements keep their original
+      relative order, i.e. the returned list is a subsequence of numbers
+      (checked by the greedy matcher g0..g7). Reading 2 (any order) would
+      leave order free and is not taken. Under the literal selection of
+      R-RM-1/R-RM-3 the returned list is empty, which is trivially a
+      subsequence, so this item only matters if the selection were read
+      differently.
+
+scenarios:
+  - id: RB-SIG2-S1
+    req: R-SIG-2
+    cover: 'outcome == 0 && len(numbers) > 0'
+    note: >-
+      A call on a non-empty list returns a list (R-SIG-2 says this holds for
+      every list of integers; this scenario checks that it is possible
+      together with the R-RM-* items).
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: the deliverable is code that completes the given header.
+      This is a property of the source text, not of the behaviour of a call;
+      the adapter calls candidate(numbers) as declared in design.yaml.
+  - req: R-SIG-1
+    reason: >-
+      Non-functional: the function name and its single parameter are fixed by
+      the adapter (design.yaml function section) and are not observable in a
+      call's inputs or outputs. A function that does not have this signature
+      cannot be called and shows as outcome 1, which RB-SIG2-RET rejects.
+  - req: R-IN-1
+    reason: >-
+      Nothing to assume: the interface encodes exactly lists of integers
+      (numbers is a list of at most 8 integers 0..255, and frame.md says calls
+      with other arguments are not part of the trace). Any assumption would
+      be a tautology over the encoding.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the list adapter; design.yaml adds it to every
+      formalization set as F-EMPTY, and frame.md says it need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-SIG-2, phrase: remove, reading: 1}
+  - {req: R-RM-1, phrase: remove all elements that occur, reading: 1}
+  - {req: R-RM-1, phrase: all elements that occur, reading: 1}
+  - {req: R-RM-3, phrase: remove all elements that occur, reading: 1}
+  - {req: R-RM-3, phrase: all elements that occur, reading: 1}
+  - {req: R-RM-4, phrase: remove, reading: 1}

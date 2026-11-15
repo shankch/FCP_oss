@@ -1,0 +1,181 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+# The card's balance is kept inside the object and is never an output except
+# as the value of balance(), so it is modelled by one ghost, cb: the balance
+# of the card before the current call, driven by the calls (inputs) alone.
+#
+# Reading (1) of the ambiguous phrase of R-CAP-1, "a load that would take it
+# over", is used throughout: a load takes the balance over $500.00 when the
+# balance plus the amount loaded (without its bonus) is over 50,000 cents.
+# Under this reading an accepted load of 10,000 cents or more can still leave
+# the card above 50,000 cents once its bonus is added (for example load(49501)
+# on a new card: 49,501 is not over, the load is accepted, earns 500 and leaves
+# 50,001), which contradicts the first clause of R-CAP-1 (GV-CAP-2). The ghost
+# range allows for this (up to 50,500) instead of repairing it.
+
+defs:
+  valid: "amount >= 1 && amount <= 50000"          # R-RANGE-1: amount neither below 1 nor above 50,000
+  bonus: "amount >= 10000 ? 500 : 0"                # R-BONUS-1: $5.00 for a load of $100.00 or more
+  over: "cb + amount > 50000"                       # R-CAP-1, reading (1): balance plus the amount loaded, bonus not counted
+  load_ok: "op == 1 && valid && !over"              # a load that R-LOAD-1 says returns and adds
+  spend_ok: "op == 2 && valid && cb >= amount"      # a spend the balance covers (R-SPEND-1)
+
+ghosts:
+  - name: cb
+    range: [0, 50500]
+    init: 0                                         # R-NEW-1: a new card (each reset) has a balance of 0
+    next: "load_ok ? cb + amount + bonus : (spend_ok ? cb - amount : cb)"
+  - name: ncalls                                    # R-EX-1 only: calls made on this card before the current one (saturates at 3)
+    range: [0, 3]
+    init: 0
+    next: "min(ncalls + 1, 3)"
+
+properties:
+  - id: GV-NEW-1
+    req: R-NEW-1
+    pattern: after_reset
+    args: {cond: "!rst_active && op == 3 && outcome == 0 -> bal == 0"}
+    note: >-
+      A reset creates a new card (frame.md), so a balance() call that is the
+      first call on the card returns 0. The same requirement is also carried
+      by the ghost cb, whose initial value after every reset is 0, so every
+      later item starts from a balance of 0. Not affected by the reading of
+      R-CAP-1.
+
+  - id: GV-RANGE-1
+    req: R-RANGE-1
+    pattern: implies
+    args: {trigger: "(op == 1 || op == 2) && !valid", cond: "outcome == 1"}
+    note: >-
+      `amount` is an argument of load and spend only, so the rule applies to
+      calls of those two methods; balance() takes no amount. Amounts are
+      non-negative in the trace (frame.md), so "less than 1" is amount 0.
+      The text does not say what a call that raises does to the balance; the
+      ghost cb leaves it unchanged (rules 2 and 5 are read as applying only
+      to calls that return). Not affected by the reading of R-CAP-1.
+
+  - id: GV-LOAD-1
+    req: R-LOAD-1
+    pattern: implies
+    args: {trigger: "load_ok", cond: "outcome == 0"}
+    note: >-
+      Reading (1) of R-CAP-1: a load does not take the balance over when the
+      balance plus the amount, without the bonus, is at most 50,000 cents.
+      Such a load with a valid amount returns. That it adds the amount to the
+      balance is stated by the ghost cb (next value cb + amount + bonus),
+      and is observed through balance() (GV-BAL-1). Rule 2 is restricted to
+      valid amounts as the requirement text says, since rule 1 makes a load
+      with an invalid amount raise.
+
+  - id: GV-CAP-1
+    req: R-CAP-1
+    pattern: implies
+    args: {trigger: "op == 1 && valid && over", cond: "outcome == 1"}
+    note: >-
+      Reading (1), chosen as instructed even though reading (2) seems more
+      natural: "a load that would take it over" is a load for which the
+      balance plus the amount loaded is over 50,000 cents; the bonus the load
+      would earn is not counted. Such a load raises ValueError. The ghost cb
+      leaves the balance unchanged and adds no bonus for it (the text does
+      not say so explicitly; a call that raises is read as having no effect).
+
+  - id: GV-CAP-2
+    req: R-CAP-1
+    pattern: implies
+    args: {trigger: "op == 3 && outcome == 0", cond: "bal <= 50000"}
+    note: >-
+      "The balance is never more than $500.00", as observed: every value
+      balance() returns is at most 50,000 cents. Under reading (1) of the
+      rest of R-CAP-1 this clause contradicts R-LOAD-1, R-BONUS-1 and
+      R-BAL-1: a valid load with the balance plus the amount in 49,501 ..
+      50,000 and an amount of 10,000 or more is accepted (GV-LOAD-1), earns a
+      bonus, and leaves cb above 50,000, which balance() must then return
+      (GV-BAL-1). The conflict is left in place, not repaired.
+
+  - id: GV-BONUS-1
+    req: R-BONUS-1
+    pattern: implies
+    args: {trigger: "op == 1 && outcome == 0 && amount >= 10000", cond: "earned == 500"}
+    note: >-
+      A load of $100.00 (10,000 cents) or more that returns earns the
+      $5.00 bonus and returns it, 500 cents. A load that raises earns nothing.
+      The bonus is put "on the card" by the ghost cb, which adds 500 on every
+      such load. Which loads return depends on reading (1) of R-CAP-1
+      (GV-LOAD-1, GV-CAP-1), so the bonus is added after the reading-(1)
+      check, not counted in it.
+
+  - id: GV-BONUS-2
+    req: R-BONUS-1
+    pattern: implies
+    args: {trigger: "op == 1 && outcome == 0 && amount < 10000", cond: "earned == 0"}
+    note: >-
+      "0 if none": a load below 10,000 cents that returns earns no bonus and
+      returns 0 (and the ghost cb adds no bonus). Which loads return depends
+      on reading (1) of R-CAP-1.
+
+  - id: GV-SPEND-1
+    req: R-SPEND-1
+    pattern: implies
+    args: {trigger: "spend_ok", cond: "outcome == 0 && ok"}
+    note: >-
+      "The balance covers it" is read literally as balance >= amount, so a
+      spend of exactly the balance succeeds. Such a spend with a valid amount
+      returns True; the ghost cb takes the amount off. Restricted to valid
+      amounts as the requirement text says: without that, rule 5 (the
+      balance always covers 0) would contradict rule 1 for spend(0).
+      Affected by reading (1) of R-CAP-1 through cb, which under that
+      reading can reach 50,500.
+
+  - id: GV-SPEND-2
+    req: R-SPEND-1
+    pattern: implies
+    args: {trigger: "op == 2 && valid && cb < amount", cond: "outcome == 0 && !ok"}
+    note: >-
+      Otherwise (the balance is less than the amount) the spend returns
+      False, and the ghost cb keeps the balance as it was. Affected by
+      reading (1) of R-CAP-1 through cb.
+
+  - id: GV-BAL-1
+    req: R-BAL-1
+    pattern: implies
+    args: {trigger: "op == 3", cond: "outcome == 0 && bal == cb"}
+    note: >-
+      balance() returns, and the value it returns is the balance of the card
+      as modelled by the ghost cb. Affected by reading (1) of R-CAP-1: cb
+      counts the loads that reading accepts, so it can exceed 50,000 (see
+      GV-CAP-2).
+
+scenarios:
+  - id: GV-EX-1
+    req: R-EX-1
+    cover: >-
+      op == 3 && outcome == 0 && bal == 1500
+      && prev(op == 2 && amount == 500)
+      && prev(op == 1 && amount == 2000 && ncalls == 0, 2)
+    note: >-
+      On a new card: load(2000) is the first call, spend(500) the second and
+      balance() the third, which returns 1500. The quote does not say "new
+      card"; it is taken from the requirement text and is the only context
+      in which the example's numbers follow. The ghost ncalls (calls before
+      the current one on this card) is 0 at the load, which pins it to the
+      first call: a
+      ghost-free form such as "!once(prev(true, 3))" cannot work, because the
+      look-back inside once also delays when the cover is evaluated, so it
+      would never be reached. Not affected by the reading of R-CAP-1 (the
+      amounts are far below the cap).
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      A definition of the class, its methods, their arguments and result
+      types. It is realized by the interface (op, amount, earned, ok, bal,
+      outcome) and the frame, not by a behavioural property; returning a
+      value of the wrong type is outcome 3, which the properties requiring
+      outcome 0 already rule out.
+    covered_by: [GV-LOAD-1, GV-SPEND-1, GV-SPEND-2, GV-BAL-1]
+  - req: R-FR-1
+    reason: >-
+      A frame rule of the adapter (frame.md), added to every formalization
+      set as F-ZERO by design.yaml; it need not be restated.

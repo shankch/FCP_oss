@@ -1,0 +1,8 @@
+defects:
+  - {id: SD1, kind: unrealizable, reqs: [R-ARB-3, R-ARB-2, R-ENV-2, R-ENV-3], planted: false,
+     desc: "12-cycle acceptance bound cannot be met under round robin and the stated environment latencies (worst case 17); found by FCP, not planted"}
+  - {id: SD2, kind: incompleteness, reqs: [R-ARB-2], planted: true,
+     desc: "which port wins the first arbitration after reset is unspecified"}
+  - {id: SD3, kind: incompleteness, reqs: [R-RSP-2], planted: true, desc: "rk_rdata of write responses is unspecified"}
+  - {id: SD4, kind: contradiction, reqs: [R-RST-1, R-ARB-1], planted: false,
+     desc: "'both c0_ready and c1_ready may be high' after reset permits two acceptances in one cycle, contradicting R-ARB-1; found by the decomposer agent, not planted"}

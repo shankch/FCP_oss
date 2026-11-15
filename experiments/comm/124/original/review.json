@@ -1,0 +1,266 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 3580,
+    "checked": 3580,
+    "seconds": 101.4
+   },
+   "open": {
+    "open": {},
+    "checked": 1767
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 3608,
+    "checked": 3608,
+    "seconds": 131.56
+   },
+   "open": {
+    "open": {},
+    "checked": 1901
+   }
+  }
+ },
+ "readings": {
+  "R-DAY-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-DAY-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-DAY-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EMP-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-5": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FMT-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FMT-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FMT-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FMT-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FMT-5": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-MON-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-VAL-1",
+   "phrase": "The date is valid if all of the following rules are satisfied",
+   "taken": 1,
+   "variant": 2,
+   "text": "The four rules are necessary but not sufficient: the date must also be a real calendar date (for example February 29 only in a leap year, and no year 0000), so '02-29-2001' is invalid."
+  },
+  {
+   "req": "R-DAY-3",
+   "phrase": "higher than 29 for the month 2",
+   "taken": 1,
+   "variant": 2,
+   "text": "February allows day 29 only in a leap year (days 1 to 28 otherwise), so '02-29-2001' is invalid and '02-29-2000' is valid."
+  },
+  {
+   "req": "R-FMT-2",
+   "phrase": "mm",
+   "taken": 1,
+   "variant": 2,
+   "text": "The month field may be any text that parses as an integer (one digit, three digits, leading '+' or spaces), so '3-11-2000' is valid."
+  },
+  {
+   "req": "R-FMT-3",
+   "phrase": "dd",
+   "taken": 1,
+   "variant": 2,
+   "text": "The day field may be any text that parses as an integer, so '03-5-2000' is valid."
+  },
+  {
+   "req": "R-FMT-4",
+   "phrase": "yyyy",
+   "taken": 1,
+   "variant": 2,
+   "text": "The year field may be any text that parses as an integer, so '03-11-20' is valid."
+  },
+  {
+   "req": "R-FMT-5",
+   "phrase": "The date should be in the format: mm-dd-yyyy",
+   "taken": 1,
+   "variant": 2,
+   "text": "Leading and trailing whitespace is ignored, so ' 03-11-2000 ' is valid."
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "valid_date(\"00002-00000001-3\") -> False"
+   ]
+  }
+ },
+ "certified": [
+  "R-RET-2",
+  "R-EMP-1",
+  "R-DAY-1",
+  "R-DAY-2",
+  "R-MON-1",
+  "R-FMT-1",
+  "R-EX-1",
+  "R-EX-2",
+  "R-EX-3",
+  "R-EX-4",
+  "R-EX-5"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [
+    "valid_date(\"00002-00000001-3\") -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-DAY-3"
+   ],
+   "calls": [],
+   "question": "\"higher than 29 for the month 2\" can mean: February allows days 1 to 29 in every year, so '02-29-2001' is valid. / February allows day 29 only in a leap year (days 1 to 28 otherwise), so '02-29-2001' is invalid and '02-29-2000' is valid.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-2"
+   ],
+   "calls": [],
+   "question": "\"mm\" can mean: The month field must be exactly two ASCII digits, so '3-11-2000' is invalid. / The month field may be any text that parses as an integer (one digit, three digits, leading '+' or spaces), so '3-11-2000' is valid.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-3"
+   ],
+   "calls": [],
+   "question": "\"dd\" can mean: The day field must be exactly two ASCII digits, so '03-5-2000' is invalid (the example '04-0-2040' is invalid under either reading because its day is 0). / The day field may be any text that parses as an integer, so '03-5-2000' is valid.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-4"
+   ],
+   "calls": [],
+   "question": "\"yyyy\" can mean: The year field must be exactly four ASCII digits, so '03-11-20' and '03-11-20000' are invalid. / The year field may be any text that parses as an integer, so '03-11-20' is valid.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-4"
+   ],
+   "calls": [],
+   "question": "\"yyyy\" can mean: Any four-digit year is accepted, including '0000'. / The year must be at least 1, so '01-01-0000' is invalid.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-5"
+   ],
+   "calls": [],
+   "question": "\"The date should be in the format: mm-dd-yyyy\" can mean: The whole string must match mm-dd-yyyy, so ' 03-11-2000' or '03-11-2000 ' is invalid. / Leading and trailing whitespace is ignored, so ' 03-11-2000 ' is valid.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "request points of agent_b"
+ ]
+}

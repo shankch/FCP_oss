@@ -1,0 +1,160 @@
+fcp: "0.1"
+set: variant3
+origin: {kind: agent, role: formalizer, id: variant3}
+
+defs:
+  # R-IN-1, R-IN-2: both arguments in their stated ranges (negative values are not part of the trace)
+  valid: "subtotal <= 1000000 && coupon <= 50"
+  # R-STACK-1, reading 1: the member's 10% and the coupon's percentage add up, capped at 30%
+  disc: "min((member ? 10 : 0) + coupon, 30)"
+  # 100 x the exact discounted price, in hundredths of a cent
+  exact: "subtotal * (100 - disc)"
+  # how far the returned price is from the exact discounted price, in hundredths of a cent
+  err: "100 * price - exact"
+
+properties:
+  - id: V3-RET-1
+    req: R-RET-1
+    expr: "valid -> outcome == 0"
+    note: >-
+      For arguments in range the call returns a pair of whole numbers of cents
+      that fit the price and ship signals (outcome 0). Any correct price is at
+      most the subtotal (at most 1,000,000) and any correct fee is at most 499,
+      so both fit their signals.
+
+  - id: V3-ERR-1
+    req: R-ERR-1
+    expr: "!valid -> outcome == 1"
+    note: >-
+      subtotal above 1,000,000 or coupon above 50 raises ValueError. Negative
+      arguments, the other way out of range, are not part of the trace.
+
+  - id: V3-MEM-1
+    req: R-MEM-1
+    expr: "valid && member && coupon == 0 -> 100 * price > 90 * subtotal - 100 && 100 * price < 90 * subtotal + 100"
+    note: >-
+      A member with no coupon pays 90% of the subtotal, rounded to a whole cent
+      (less than one cent from 90% of the subtotal). The rounding direction,
+      including the tie-break, is set by V3-ROUND-1 and V3-ROUND-2. With a
+      coupon as well, the member discount is governed by the stacking rule
+      (V3-STACK-1).
+
+  - id: V3-COUP-1
+    req: R-COUP-1
+    expr: "valid && !member && coupon <= 30 -> 100 * price > (100 - coupon) * subtotal - 100 && 100 * price < (100 - coupon) * subtotal + 100"
+    note: >-
+      A non-member with a coupon pays (100 - coupon)% of the subtotal, rounded
+      to a whole cent; coupon 0 takes nothing off. This is restricted to
+      coupon <= 30. Rule 3 on its own would take 31-50% off for coupons 31 to
+      50, which rule 4 forbids ("but the total discount is never more than
+      30%"). The literal "never" overrides rule 3, so those coupons are left
+      to the cap in V3-STACK-1 and V3-STACK-2. A member's coupon is governed
+      by the stacking rule (V3-STACK-1). Rounding is fixed by V3-ROUND-1/2.
+
+  - id: V3-STACK-1
+    req: R-STACK-1
+    expr: "valid -> err > -100 && err < 100"
+    note: >-
+      "Discounts stack" read as reading 1 (the percentages add up): the total
+      discount is min(10*member + coupon, 30) percent of the subtotal (def
+      disc), and the price is that discounted amount rounded to a whole cent
+      (less than one cent from it). The 30% cap applies to the discount rate
+      before rounding, because rule 5 rounds the already discounted price.
+      Which neighbour the rounding picks is set by V3-ROUND-1/2.
+
+  - id: V3-STACK-2
+    req: R-STACK-1
+    expr: "valid -> 100 * price > 70 * subtotal - 100"
+    note: >-
+      The cap alone, true under either stacking reading: the price, before it
+      is rounded to a whole cent, is at least 70% of the subtotal. The cap is
+      not applied to the rounded price. Rule 5 rounds to the nearest cent, so
+      the rounded price can fall up to half a cent below 70% (e.g. subtotal 2,
+      member with a 20% coupon: exact 1.4, rounded 1, a 50% discount). Reading
+      the cap as a bound on the rounded price would contradict rule 5.
+
+  - id: V3-ROUND-1
+    req: R-ROUND-1
+    expr: "valid -> err >= -50 && err <= 50"
+    note: >-
+      The price is the exact discounted price (def exact, per the stacking
+      reading of V3-STACK-1) rounded to the nearest cent: at most half a cent
+      from it. Only at exactly half a cent are both neighbours this close.
+      There "the nearest cent" is read, as directed, as reading 3 (round to
+      even), which V3-ROUND-2 states.
+
+  - id: V3-ROUND-2
+    req: R-ROUND-1
+    expr: "valid && exact % 100 == 50 -> price % 2 == 0"
+    note: >-
+      "the nearest cent" read, as directed, as reading 3: at exactly half a
+      cent (the exact discounted price ends in 50 hundredths of a cent) the
+      price is the even neighbour (round half to even). With V3-ROUND-1 this
+      fixes the price uniquely.
+
+  - id: V3-SHIP-1
+    req: R-SHIP-1
+    expr: "valid -> ship == (subtotal < 5000 ? 499 : 0)"
+    note: >-
+      "Orders under $50" read as reading 1 (the subtotal before discounts is
+      under 5,000 cents): the fee is 499 cents below that and 0 at or above
+      it. The cart total is the order's value, and the discounted price is
+      never called the order.
+
+  - id: V3-MONO-1
+    req: R-MONO-1
+    expr: "valid && prev(valid) && coupon == prev(coupon) && member == prev(member) && subtotal > prev(subtotal) -> price + ship >= prev(price) + prev(ship)"
+    note: >-
+      Calls are independent and prev() is any other call, so this compares
+      every pair of calls with the same coupon and membership: a larger
+      subtotal never gives a smaller price plus shipping. Formalized
+      literally. It CONFLICTS with rule 6 and the pricing rules at the $50
+      threshold: a non-member with no coupon pays 4999 + 499 = 5498 at
+      subtotal 4999 but 5000 + 0 = 5000 at subtotal 5000. The same happens
+      for every discount rate, and also under the other reading of "Orders
+      under $50" (discounted price 4999 -> 5498, 5000 -> 5000).
+
+  - id: V3-IN-2
+    req: R-IN-2
+    expr: "valid && !member && coupon == 0 -> price == subtotal"
+    note: >-
+      "0 means no coupon": with coupon 0 and no membership no discount
+      applies (rules 2 and 3 are the only discounts), so the price is the
+      subtotal, with no rounding.
+
+  - id: V3-EX-2
+    req: R-EX-1
+    expr: "member && subtotal == 10000 && coupon == 0 -> outcome == 0 && price == 9000 && ship == 0"
+    note: >-
+      The worked example as a guarantee for that call. It holds under every
+      reading: no coupon to stack, 90% of 10,000 is exactly 9000 with no
+      rounding, and 10,000 cents ships free whether or not discounts count.
+
+scenarios:
+  - id: V3-EX-1
+    req: R-EX-1
+    cover: "member && subtotal == 10000 && coupon == 0 && outcome == 0 && price == 9000 && ship == 0"
+    note: "A member with a $100.00 cart and no coupon gets (9000, 0)."
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      The signature is fixed by the adapter (design.yaml function section,
+      frame.md): the three arguments drive subtotal, coupon and member, and
+      the returned pair drives price and ship. That the call returns a pair
+      of integers is outcome 0.
+    covered_by: [V3-RET-1]
+  - req: R-IN-1
+    reason: "Definition of the subtotal range, used in def valid."
+    covered_by: [V3-RET-1, V3-ERR-1]
+  - req: R-IN-3
+    reason: "Definition of member, the input that grants the 10% discount."
+    covered_by: [V3-MEM-1, V3-STACK-1]
+  - req: R-FR-1
+    reason: "Frame rule F-ZERO of design.yaml, part of every formalization set by construction."
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-STACK-1, phrase: "Discounts stack", reading: 1}
+  - {req: R-ROUND-1, phrase: "the nearest cent", reading: 3}
+  - {req: R-SHIP-1, phrase: "Orders under $50", reading: 1}

@@ -1,0 +1,119 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. valid_date keeps no state between calls (frame.md), so
+# the model is a combinational function of the argument rather than ghost
+# state: the expected verdict for the string in `date`.
+#
+# The docstring's rule list (SPEC line 8) consists of the label "1." with no
+# text. Read literally it states no rule, so the conjunction "all of the
+# following rules are satisfied" ranges over an empty list and is true for
+# every string. Hence every string is a valid date and the expected answer is
+# always True.
+defs:
+  # Conjunction of the listed validity rules (R-VAL-2): the list is empty.
+  rules_ok: "true"
+  # "The date is valid if all of the following rules are satisfied" (R-VAL-1),
+  # read as "if and only if", consistent with "otherwise False".
+  date_valid: "rules_ok"
+  # The call returned a bool (outcome 0) ...
+  returned: "outcome == 0"
+  # ... namely True / False.
+  returned_true: "returned && valid"
+  returned_false: "returned && !valid"
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: "returned"}
+    note: >-
+      Total reading (decision reading 1): every call, whatever string it is
+      given (including the empty string and strings that do not look like a
+      date), returns True or False; it never raises, fails to finish, or
+      returns a value of another type (outcome 1 or 2).
+
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "date_valid", cond: "returned_true"}
+    note: >-
+      "returns True if the date is valid". With the validity model date_valid
+      (empty rule list, vacuously satisfied) the trigger holds for every
+      string, so this demands True on every call.
+
+  - id: RB-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: "!date_valid", cond: "returned_false"}
+    note: >-
+      "otherwise False", formalized as stated. Under the literal reading of
+      the empty rule list (decision reading 1) no string is invalid, so the
+      trigger never holds and this property is vacuous by construction: False
+      is never required, and RB-RET-2 forbids it. The prompt asks the function
+      to "validate" and to return False for invalid dates, which presumes that
+      some string is invalid; the text gives no rule that makes any string
+      invalid. This tension is recorded here, not repaired: no omitted or
+      conventional date rules (month range, day range, format) are invented.
+
+scenarios:
+  - id: RB-S-RET-2
+    req: R-RET-2
+    cover: "returned_true"
+    note: "A call can return True (here, on any string)."
+  - id: RB-S-RET-2-EMPTY
+    req: R-RET-2
+    cover: "len(date) == 0 && returned_true"
+    note: >-
+      The empty string is a valid date under the literal reading (it breaks
+      no listed rule), so the function can return True for it.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the deliverable is an implementation of the stub. It
+      constrains the artefact, not the behaviour of a call; that an
+      implementation exists and runs is checked by the function adapter.
+  - req: R-API-2
+    reason: >-
+      Non-functional: the name valid_date and the single parameter date are
+      fixed by the function adapter (design.yaml `function` section), which
+      calls valid_date(date) in every cycle; nothing remains to state about
+      the trace.
+  - req: R-IN-1
+    reason: >-
+      Under the chosen reading (any string may be passed, reading 1) this
+      places no obligation on the environment beyond the argument being a
+      string, and the interface encoding already guarantees that: every call
+      in the trace has a string argument of at most 32 Latin-1 characters
+      (frame.md, Inputs). No assumption narrows the inputs further; RB-RET-1
+      requires a bool for every such string.
+  - req: R-VAL-1
+    reason: >-
+      Definition. Realized as the def date_valid (valid exactly when every
+      listed rule holds, reading "if and only if"), which RB-RET-2 and
+      RB-RET-3 use as the specification model of the expected verdict.
+    covered_by: [RB-RET-2, RB-RET-3]
+  - req: R-VAL-2
+    reason: >-
+      Definition. The single list item "1." carries no rule text; read
+      literally there is no rule, so the def rules_ok (the conjunction of the
+      listed rules) is the empty conjunction, true. Used through date_valid
+      by RB-RET-2 and RB-RET-3.
+    covered_by: [RB-RET-2, RB-RET-3]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md), realized by the frame item F-ZERO
+      that design.yaml adds to every formalization set; frame.md says it need
+      not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "a given date string", reading: 1}
+  - {req: R-RET-1, phrase: "returns True if the date is valid otherwise False", reading: 1}
+  - {req: R-RET-3, phrase: "otherwise False", reading: 1}
+  - {req: R-VAL-1, phrase: "is valid if", reading: 1}
+  - {req: R-VAL-1, phrase: "all of the following rules", reading: 1}
+  - {req: R-VAL-1, phrase: "The date is valid if all of the following rules are satisfied", reading: 2}
+  - {req: R-VAL-2, phrase: "1.", reading: 1}

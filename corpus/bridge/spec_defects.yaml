@@ -1,0 +1,6 @@
+defects:
+  - {id: SD1, kind: contradiction, reqs: [R-RSP-6, R-CMD-2], planted: true,
+     desc: "permission to accept a command in the response-handshake cycle is forbidden by 'cmd_ready only while idle'"}
+  - {id: SD2, kind: ambiguity, reqs: [R-CMD-2], planted: true,
+     desc: "'asserted only while idle': if-and-only-if vs only-if (the latter allows a bridge that never accepts again)"}
+  - {id: SD3, kind: incompleteness, reqs: [R-RSP-2], planted: true, desc: "rsp_rdata of write responses is unspecified"}

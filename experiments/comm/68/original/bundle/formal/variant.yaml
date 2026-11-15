@@ -1,0 +1,244 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # arr holds at least one even element
+  has_even: 'any(i < len(arr): arr[i] % 2 == 0)'
+  # the smallest value of arr overall (0 for the empty list): the element at the first position holding a minimum
+  min_all: 'sum(i < len(arr): (all(j < len(arr): arr[j] >= arr[i]) && all(j < i: arr[j] != arr[i])) ? arr[i] : 0)'
+  # R-PL-2 as instructed: the overall minimum is plucked, and only if it is even
+  plucks_min: 'len(arr) >= 1 && min_all % 2 == 0'
+  # 0-based position of the first element equal to min_all
+  first_min: 'count(i < len(arr): all(j < i + 1: arr[j] != min_all))'
+
+properties:
+  - id: RV-PL-1
+    req: R-PL-1
+    pattern: implies
+    args:
+      trigger: 'has_even'
+      cond: 'outcome == 2'
+    note: >-
+      Read as instructed: "return it" means return the node's value alone, a bare
+      integer. The frame records a returned value that is not a list as outcome 2,
+      so the value itself is not observable. Also read as instructed: "pluck" means
+      remove the node from arr, mutating the argument; the interface does not
+      observe arr after the call, so the mutation is not formalized. The trigger is
+      the requirement's own ("arr contains at least one even value"). This
+      contradicts RV-OUT-1a, which requires a returned list (outcome 0), and also
+      the examples. When the overall minimum is odd, R-PL-2's reading says no node
+      is plucked, which contradicts "pluck one of the nodes", but no trace shows
+      that difference.
+
+  - id: RV-PL-2a
+    req: R-PL-2
+    pattern: implies
+    args:
+      trigger: 'plucks_min'
+      cond: 'plucked[0] == min_all'
+    note: >-
+      Read as instructed: "the smallest even value" means the smallest value of arr
+      overall, which is plucked only if it is even. So when arr is non-empty and its
+      overall minimum is even, the returned node's value (the first list element,
+      as in R-OUT-1) equals that minimum. R-DEF-1's tree reading does not say how
+      arr encodes the tree, so it adds no constraint here. Nodes are the elements
+      of arr.
+
+  - id: RV-PL-2b
+    req: R-PL-2
+    pattern: implies
+    args:
+      trigger: 'has_even && min_all % 2 == 1'
+      cond: 'len(plucked) == 0'
+    note: >-
+      Read as instructed, "plucked only if it is even": when arr has even elements
+      but its overall minimum is odd, no node is plucked, so the returned list
+      holds no node. This conflicts with RV-OUT-1a (a two-element list whenever arr
+      has an even element), RV-PL-1, and Example 2 (RV-EX-2).
+
+  - id: RV-PL-3
+    req: R-PL-3
+    pattern: implies
+    args:
+      trigger: 'plucks_min && count(i < len(arr): arr[i] == min_all) >= 2'
+      cond: 'plucked[1] == first_min + 1'
+    note: >-
+      "the same smallest even value" uses R-PL-2's instructed reading, the overall
+      minimum, plucked only if even. So the trigger is: that minimum is even and
+      occurs at several positions. The reported index uses R-OUT-1's instructed
+      reading of "its index", a 1-based position. So the reported index is one more
+      than the first 0-based position holding the minimum. Example 4 (RV-EX-4)
+      reports 1 for a first occurrence at 0-based position 1, which conflicts with
+      this.
+
+  - id: RV-OUT-1a
+    req: R-OUT-1
+    pattern: implies
+    args:
+      trigger: 'has_even'
+      cond: 'outcome == 0 && len(plucked) == 2 && plucked[0] == min_all && plucked[1] >= 1 && plucked[1] <= len(arr)'
+    note: >-
+      A node is plucked when arr holds an even element: R-PL-1 plucks one, and
+      R-EMP-1 returns [] otherwise. The result is the two-element list
+      [smalest_value, its index]. Read as instructed: "smalest_value" is the
+      smallest value of arr overall, even if it is odd. "its index" is the 1-based
+      position of the plucked node, so it lies in 1 .. len(arr). This contradicts
+      RV-PL-1 (bare integer, outcome 2). It also contradicts RV-PL-2b when the
+      overall minimum is odd.
+
+  - id: RV-OUT-1b
+    req: R-OUT-1
+    pattern: implies
+    args:
+      trigger: 'plucks_min'
+      cond: 'arr[plucked[1] - 1] == min_all'
+    note: >-
+      Read as instructed: "its index" is the 1-based position of the plucked node
+      in arr. Under R-PL-2's instructed reading the plucked node holds the overall
+      minimum when that minimum is even, so the element at 1-based position
+      plucked[1] equals it. When the overall minimum is odd, R-PL-2's reading
+      plucks no node, and this item does not apply. This conflicts with Examples 1,
+      2 and 4, which report 0-based positions.
+
+  - id: RV-EMP-1
+    req: R-EMP-1
+    pattern: implies
+    args:
+      trigger: 'len(arr) >= 1 && !has_even'
+      cond: 'outcome == 0 && len(plucked) == 0'
+    note: >-
+      Returns the empty list [] when arr is non-empty and has no even element. The
+      empty-array half of the sentence is R-EMP-2. As instructed for R-EMP-2 and
+      R-IN-2, an empty arr is outside the precondition and a don't care, so this
+      item excludes it.
+
+dont_cares:
+  - id: RV-IN-2a
+    req: R-IN-2
+    signal: outcome
+    when: 'len(arr) == 0'
+    note: >-
+      Read as instructed: "1 <= nodes.length" puts an empty arr outside the
+      precondition. The result for [] is unconstrained, despite the empty-array
+      sentence and Example 3. Also read as instructed: "nodes.length" is the number
+      of nodes of the tree, which may differ from len(arr). That number is not
+      observable, so nothing more is stated for a non-empty arr. The constraint is
+      written as a don't care on the result, not an assumption, as the reading
+      says.
+
+  - id: RV-IN-2b
+    req: R-IN-2
+    signal: plucked
+    when: 'len(arr) == 0'
+    note: >-
+      Same reading as RV-IN-2a. The returned list for an empty arr is a don't care.
+
+  - id: RV-EMP-2a
+    req: R-EMP-2
+    signal: outcome
+    when: 'len(arr) == 0'
+    note: >-
+      Read as instructed: "the given array is empty" is contradicted by the
+      constraint "1 <= nodes.length". An empty arr is outside the precondition, so
+      how the call ends is unconstrained. The text's "return []" for this case is
+      not enforced.
+
+  - id: RV-EMP-2b
+    req: R-EMP-2
+    signal: plucked
+    when: 'len(arr) == 0'
+    note: >-
+      Same reading as RV-EMP-2a. The returned list for an empty arr is a don't care.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'arr == [4, 2, 3] && outcome == 0 && plucked == [2, 1]'
+    note: >-
+      Only the stated input and output are formalized. Read as instructed: the
+      explanation "2 has the smallest index" claims the smallest index in arr. That
+      is false here because the even node 4 is at index 0, so the explanation is
+      misleading and adds no constraint. The example conflicts with the instructed
+      readings elsewhere. RV-PL-1 requires a bare integer (outcome 2). RV-OUT-1b
+      requires the 1-based index 2, not 1.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'arr == [1, 2, 3] && outcome == 0 && plucked == [2, 1]'
+    note: >-
+      Only the stated input and output are formalized. Read as instructed: the
+      explanation "2 has the smallest even value, and 2 has the smallest index."
+      claims the smallest index in arr. That is false here because 1 is at index 0;
+      the explanation is copied from Example 1 and adds no constraint. The example
+      conflicts with the instructed readings elsewhere. The overall minimum 1 is
+      odd, so RV-PL-2b plucks nothing. RV-PL-1 requires outcome 2. RV-OUT-1a
+      requires the overall minimum 1 as the first element.
+
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'arr == [5, 0, 3, 0, 4, 2] && outcome == 0 && plucked == [0, 1]'
+    note: >-
+      Only the stated input and output are formalized. Read as instructed: "0 is
+      the smallest value" means the node is chosen as the smallest value overall.
+      That suggests the rule is about the overall minimum rather than the minimum
+      even value, which agrees with R-PL-2's instructed reading. The example
+      conflicts with the 1-based "its index" reading: RV-PL-3 and RV-OUT-1b require
+      index 2 for the first zero. It also conflicts with RV-PL-1, which requires
+      outcome 2.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional: the deliverable is an implementation of pluck(arr). This
+      states no behaviour of a call.
+  - req: R-DEF-1
+    reason: >-
+      Read as instructed: arr encodes a tree structure, such as parent/child
+      positions, that affects which node may be plucked. The specification never
+      says how the tree is encoded or how it limits plucking, so no constraint on
+      the interface signals can be stated. The other items take nodes as the
+      elements of arr and indices as positions in arr, as their requirements do.
+  - req: R-IN-1
+    reason: >-
+      The frame guarantees this by construction. Every element of arr is an
+      integer from 0 to 65,535, and calls with negative numbers are not part of the
+      trace, so an assumption would be a tautology.
+  - req: R-IN-3
+    reason: >-
+      The frame guarantees this by construction. arr has at most 8 elements, so a
+      bound of 10000 always holds. Under R-IN-2's instructed reading of
+      "nodes.length" as the tree's node count, that count is not observable
+      anyway.
+  - req: R-IN-4
+    reason: >-
+      The frame guarantees this by construction. Elements of arr range from 0 to
+      65,535, and negative numbers are not part of the trace.
+  - req: R-EX-3
+    reason: >-
+      Read as instructed: "Input: []" is contradicted by the constraint
+      "1 <= nodes.length". The example shows a don't-care case, so [] is an allowed
+      result for an empty arr but not a required one. A scenario would force the
+      code to produce it, so the example is realized by the don't cares on an
+      empty arr.
+    covered_by: [RV-IN-2a, RV-IN-2b, RV-EMP-2a, RV-EMP-2b]
+  - req: R-FR-1
+    reason: >-
+      This is the frame rule F-EMPTY of design.yaml. It is part of every
+      formalization set by construction and need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-DEF-1, phrase: "an array representing a branch of a tree", reading: 2}
+  - {req: R-IN-2, phrase: "1 <= nodes.length", reading: 2}
+  - {req: R-IN-2, phrase: "nodes.length", reading: 2}
+  - {req: R-PL-1, phrase: "return it", reading: 2}
+  - {req: R-PL-1, phrase: "pluck", reading: 2}
+  - {req: R-PL-2, phrase: "the smallest even value", reading: 2}
+  - {req: R-OUT-1, phrase: "smalest_value", reading: 2}
+  - {req: R-OUT-1, phrase: "its index", reading: 2}
+  - {req: R-EMP-2, phrase: "the given array is empty", reading: 2}
+  - {req: R-EX-1, phrase: "2 has the smallest index", reading: 2}
+  - {req: R-EX-2, phrase: "2 has the smallest even value, and 2 has the smallest index.", reading: 2}
+  - {req: R-EX-3, phrase: "Input: []", reading: 2}
+  - {req: R-EX-4, phrase: "0 is the smallest value", reading: 2}

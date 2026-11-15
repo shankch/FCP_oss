@@ -1,0 +1,165 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# eat(number, need, remaining) is a function without memory: every cycle is one
+# call, so every item relates the inputs and outputs of the same call. No ghost
+# state is needed.
+
+assumptions:
+  - id: RA-ENV-1
+    req: R-ENV-1
+    expr: "number <= 1000"
+    note: >-
+      Read as a precondition on callers (reading 1): a call with number above 1000 is
+      outside the contract and nothing is required of it. The lower bound 0 <= number
+      holds by construction (signals are unsigned; negative arguments are not part of
+      the trace).
+  - id: RA-ENV-2
+    req: R-ENV-2
+    expr: "need <= 1000"
+    note: >-
+      Precondition on callers (reading 1), as RA-ENV-1. The lower bound 0 <= need holds
+      by construction.
+  - id: RA-ENV-3
+    req: R-ENV-3
+    expr: "remaining <= 1000"
+    note: >-
+      Precondition on callers (reading 1), as RA-ENV-1. The lower bound 0 <= remaining
+      holds by construction.
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    expr: "outcome == 0 && len(result) == 2"
+    note: >-
+      The call returns a Python list (reading 1 of "an array": the adapter records only a
+      list of integers as outcome 0) of exactly two elements. Raising, not finishing, or
+      returning a tuple, a list of another length or a non-integer violates it. The
+      meaning of each element is stated by RA-TOT-1/2 and RA-LEFT-1/2.
+  - id: RA-TOT-1
+    req: R-TOT-1
+    pattern: implies
+    args:
+      trigger: "remaining >= need"
+      cond: "result[0] == number + need"
+    note: >-
+      Enough stock: the first element, the total eaten after the meals, is the carrots
+      eaten before the call plus the need (reading 1 of "total number of eaten carrots"
+      and reading 1 of "the number of carrots that you need to eat": need is additional
+      to number). Agrees with all four examples. The list shape is required by RA-RET-1.
+  - id: RA-TOT-2
+    req: R-TOT-2
+    pattern: implies
+    args:
+      trigger: "remaining < need"
+      cond: "result[0] == number + remaining"
+    note: >-
+      Not enough stock: the rabbit eats all remaining carrots, so the total eaten is
+      number + remaining (reading 1). Agrees with eat(2, 11, 5) -> [7, 5].
+  - id: RA-LEFT-1
+    req: R-LEFT-1
+    pattern: implies
+    args:
+      trigger: "remaining >= need"
+      cond: "result[1] == remaining - need"
+    note: >-
+      Literal prose (reading 1): the second element is the stock left after eating need
+      carrots. This CONTRADICTS the examples eat(5, 6, 10) -> [11, 10],
+      eat(4, 8, 9) -> [12, 9] and eat(1, 10, 10) -> [11, 10], which return the stock
+      before the meals (remaining unchanged); scenarios RA-EX-1, RA-EX-2 and RA-EX-3 are
+      therefore unreachable together with this property. The contradiction is kept, not
+      repaired.
+  - id: RA-LEFT-2
+    req: R-LEFT-2
+    pattern: implies
+    args:
+      trigger: "remaining < need"
+      cond: "result[1] == 0"
+    note: >-
+      Literal prose (reading 1): all remaining carrots are eaten, so none are left after
+      the meals. This CONTRADICTS the example eat(2, 11, 5) -> [7, 5]; scenario RA-EX-4 is
+      therefore unreachable together with this property. The contradiction is kept, not
+      repaired. result[1] reads 0 beyond the length of the list, so the existence of a
+      second element is required by RA-RET-1, not by this item.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "number == 5 && need == 6 && remaining == 10 && result == [11, 10]"
+    note: >-
+      Example binding as written (reading 1). The second element 10 is the stock before
+      the meals and contradicts RA-LEFT-1 (10 - 6 = 4): with RA-LEFT-1 this call can only
+      return [11, 4], so the scenario is unreachable in this set.
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: "number == 4 && need == 8 && remaining == 9 && result == [12, 9]"
+    note: >-
+      Example binding as written (reading 1). Contradicts RA-LEFT-1 (9 - 8 = 1): the
+      scenario is unreachable in this set.
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: "number == 1 && need == 10 && remaining == 10 && result == [11, 10]"
+    note: >-
+      Example binding as written (reading 1). Contradicts RA-LEFT-1 (10 - 10 = 0): the
+      scenario is unreachable in this set.
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: "number == 2 && need == 11 && remaining == 5 && result == [7, 5]"
+    note: >-
+      Example binding as written (reading 1). Contradicts RA-LEFT-2 (all 5 remaining
+      carrots are eaten, so 0 are left): the scenario is unreachable in this set.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: it asks for a Python implementation with the given signature. That
+      the adapter can call eat(number, need, remaining) is a precondition of every trace,
+      not a property of one; that the call returns a list is RA-RET-1.
+  - req: R-CTX-1
+    reason: >-
+      Narrative definition. Under the chosen reading 1 (with enough stock the rabbit eats
+      exactly need more carrots) its observable content is RA-TOT-1 and RA-LEFT-1.
+    covered_by: [RA-TOT-1, RA-LEFT-1]
+  - req: R-DEF-1
+    reason: Definition of the argument number; used by RA-TOT-1 and RA-TOT-2.
+    covered_by: [RA-TOT-1, RA-TOT-2]
+  - req: R-DEF-2
+    reason: >-
+      Definition of the argument need, read as additional to number (reading 1); used by
+      RA-TOT-1, RA-TOT-2, RA-LEFT-1 and RA-LEFT-2.
+    covered_by: [RA-TOT-1, RA-TOT-2, RA-LEFT-1, RA-LEFT-2]
+  - req: R-DEF-3
+    reason: >-
+      Definition of the argument remaining (stock before the meals); used by RA-TOT-1,
+      RA-TOT-2, RA-LEFT-1 and RA-LEFT-2.
+    covered_by: [RA-TOT-1, RA-TOT-2, RA-LEFT-1, RA-LEFT-2]
+  - req: R-HUN-1
+    reason: >-
+      Narrative (reading 1): "still hungry" puts no obligation on the returned value
+      beyond its two elements. The unmet need is already visible in RA-TOT-2: when
+      remaining < need the total eaten, number + remaining, is below number + need.
+    covered_by: [RA-TOT-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; design.yaml states it as frame item F-EMPTY,
+      which is added to every formalization set and need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-CTX-1, phrase: "you need to eat more carrots", reading: 1}
+  - {req: R-DEF-2, phrase: "the number of carrots that you need to eat", reading: 1}
+  - {req: R-RET-1, phrase: "an array", reading: 1}
+  - {req: R-TOT-1, phrase: "total number of eaten carrots", reading: 1}
+  - {req: R-TOT-1, phrase: "the number of carrots that you need to eat", reading: 1}
+  - {req: R-TOT-2, phrase: "total number of eaten carrots", reading: 1}
+  - {req: R-LEFT-1, phrase: "the number of carrots left after your meals", reading: 1}
+  - {req: R-LEFT-2, phrase: "you will eat all remaining carrots", reading: 1}
+  - {req: R-HUN-1, phrase: "will still be hungry", reading: 1}
+  - {req: R-EX-1, phrase: "eat(5, 6, 10) -> [11, 10]", reading: 1}
+  - {req: R-EX-2, phrase: "eat(4, 8, 9) -> [12, 9]", reading: 1}
+  - {req: R-EX-3, phrase: "eat(1, 10, 10) -> [11, 10]", reading: 1}
+  - {req: R-EX-4, phrase: "eat(2, 11, 5) -> [7, 5]", reading: 1}
+  - {req: R-ENV-1, phrase: "0 <= number <= 1000", reading: 1}
+  - {req: R-ENV-2, phrase: "0 <= need <= 1000", reading: 1}
+  - {req: R-ENV-3, phrase: "0 <= remaining <= 1000", reading: 1}

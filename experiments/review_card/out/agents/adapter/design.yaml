@@ -1,0 +1,43 @@
+fcp: '0.1'
+design: code_card
+summary: A Python object with several methods treated as a chip with memory. A reset creates a GiftCard; every later cycle is one call on it of load(amount), spend(amount) or balance(), the method chosen by the op input. The argument is an input, the value the method returned and the way the call ended are outputs, and the card's state stays inside the code. The prompt is the specification, and code written by AI models is checked by running it on sequences of calls.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt P-CARD-1: Fernwood Outfitters gift cards'}
+- {id: FRAME, path: frame.md, title: 'FCP methods adapter, version 0.7'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: op, dir: in, width: 2, desc: 'the method called: 1 load, 2 spend, 3 balance'}
+  - {name: amount, dir: in, width: 16, desc: 'amount argument of load and spend, in cents (0 in a call of balance)'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a value of its method''s form that fits, 1 raised ValueError, 2 other exception or no answer, 3 returned anything else'}
+  - {name: bonus, dir: out, width: 16, desc: 'the value returned by load (op 1, outcome 0), in cents'}
+  - {name: spent, dir: out, width: 1, desc: 'the value returned by spend (op 2, outcome 0)'}
+  - {name: balance, dir: out, width: 16, desc: 'the value returned by balance (op 3, outcome 0), in cents'}
+environment: {initial_reset: true, reset_anytime: true, bmc_depth: 8, cover_depth: 8}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> bonus == 0 && !spent && balance == 0'}
+- {id: F-OTHER, req: R-FR-2, expr: '(op != 1 -> bonus == 0) && (op != 2 -> !spent) && (op != 3 -> balance == 0)'}
+function:
+  class: GiftCard
+  module: gift_card
+  op: {signal: op}
+  methods:
+  - name: load
+    op: 1
+    args: [{name: amount, signal: amount, type: int}]
+    returns: {signal: bonus, type: int}
+  - name: spend
+    op: 2
+    args: [{name: amount, signal: amount, type: int}]
+    returns: {signal: spent, type: bool}
+  - name: balance
+    op: 3
+    returns: {signal: balance, type: int}
+  outcome: {signal: outcome, raises: [ValueError]}
+  scope:
+    sequences: 4000
+    length: [1, 14]
+    amount: {values: [0, 1, 2, 499, 500, 501, 1500, 2000, 9999, 10000, 10001, 49999, 50000, 50001]}

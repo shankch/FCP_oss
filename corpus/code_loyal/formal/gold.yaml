@@ -1,0 +1,79 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+ghosts:
+  # the specification model: the points of the account, after every call that went through
+  - {name: b, range: [-1048576, 1048575], init: 0, next: 'op == 1 && outcome == 0 ? b + earned : (op == 2 && outcome == 0 && ok ? b - points : b)'}
+  # the highest tier that tier has returned on this account
+  - {name: hi, range: [0, 3], init: 0, next: 'op == 3 && outcome == 0 && t > hi ? t : hi'}
+defs:
+  va: 'amount >= 1 && amount <= 100000'
+  vp: 'points >= 1 && points <= 100000'
+  tb: '(b >= 2000 ? 2 : (b >= 500 ? 1 : 0))'
+  due: '(tb + 1) * (amount - amount % 100)'
+properties:
+- id: G-RANGE-E
+  req: R-RANGE-1
+  pattern: implies
+  args: {trigger: 'op == 1 && !va', cond: 'outcome == 1'}
+- id: G-RANGE-R
+  req: R-RANGE-1
+  pattern: implies
+  args: {trigger: 'op == 2 && !vp', cond: 'outcome == 1'}
+- id: G-EARN
+  req: R-EARN-1
+  pattern: implies
+  args: {trigger: 'op == 1 && va', cond: 'outcome == 0'}
+  note: the points are on the account because b adds what earn returned
+- id: G-POINTS
+  req: R-POINTS-1
+  pattern: implies
+  args: {trigger: 'op == 1 && outcome == 0 && due <= 100000', cond: '100 * earned == due'}
+  note: 'decision: the rate is that of the tier before the purchase; due is a hundred times the points, so no division is needed'
+- id: G-CAP
+  req: R-CAP-1
+  pattern: implies
+  args: {trigger: 'op == 1 && outcome == 0', cond: 'earned <= 1000'}
+- id: G-CAPPED
+  req: R-CAP-1
+  pattern: implies
+  args: {trigger: 'op == 1 && outcome == 0 && due > 100000', cond: 'earned == 1000'}
+  note: 'decision: a purchase that would earn more earns exactly 1,000'
+- id: G-REDEEM-RET
+  req: R-REDEEM-1
+  pattern: implies
+  args: {trigger: 'op == 2 && vp', cond: 'outcome == 0'}
+- id: G-REDEEM
+  req: R-REDEEM-1
+  pattern: implies
+  args: {trigger: 'op == 2 && outcome == 0', cond: 'ok == (points <= b)'}
+- id: G-GET
+  req: R-GET-1
+  pattern: implies
+  args: {trigger: 'op == 3 || op == 4', cond: 'outcome == 0'}
+- id: G-BAL
+  req: R-GET-1
+  pattern: implies
+  args: {trigger: 'op == 4 && outcome == 0', cond: 'bal == b'}
+- id: G-TIER
+  req: R-TIER-1
+  pattern: implies
+  args: {trigger: 'op == 3 && outcome == 0', cond: 't == tb'}
+- id: G-KEEP
+  req: R-KEEP-1
+  pattern: implies
+  args: {trigger: 'op == 3 && outcome == 0', cond: 't >= hi'}
+- id: G-NEW
+  req: R-NEW-1
+  pattern: implies
+  args: {trigger: 'op == 4 && outcome == 0 && !once(op == 1 && outcome == 0)', cond: 'bal == 0'}
+  note: before any earn went through, the account has 0 points
+scenarios:
+- id: G-EX
+  req: R-EX-1
+  cover: 'op == 3 && outcome == 0 && t == 1 && prev(op) == 4 && prev(bal) == 550 && prev(op, 2) == 2 && prev(points, 2) == 50 && prev(ok, 2) && prev(op, 3) == 1 && prev(amount, 3) == 60000 && prev(outcome, 3) == 0'
+unformalized:
+- {req: R-PKG-1, reason: 'the layout of the package, which the adapter loads', covered_by: [G-GET]}
+- {req: R-SIG-1, reason: 'the interface itself: the methods and their op codes', covered_by: [G-GET]}
+- {req: R-RATE-1, reason: 'the rates, used by the rule for the points of a purchase', covered_by: [G-POINTS]}
+- {req: R-FR-1, reason: 'the frame rule F-ZERO, part of every set', covered_by: [F-ZERO]}

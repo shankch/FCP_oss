@@ -1,0 +1,231 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 212,
+    "checked": 212,
+    "seconds": 6.37
+   },
+   "open": {
+    "open": {},
+    "checked": 115
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 289,
+    "checked": 289,
+    "seconds": 8.41
+   },
+   "open": {
+    "open": {},
+    "checked": 155
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-LAST-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-LAST-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-RET-1",
+   "phrase": "returns True",
+   "taken": 1,
+   "variant": 2,
+   "text": "any truthy value (e.g. 1) counts as True and any falsy value (e.g. 0 or None) counts as False"
+  },
+  {
+   "req": "R-LAST-1",
+   "phrase": "an alphabetical character",
+   "taken": 1,
+   "variant": 2,
+   "text": "any character Python str.isalpha() accepts, including Latin-1 letters such as \u00e9, \u00df, \u00aa, \u00b5 and \u00ba (codes 128-255)"
+  },
+  {
+   "req": "R-LAST-1",
+   "phrase": "is not a part of a word",
+   "taken": 1,
+   "variant": 2,
+   "text": "the character immediately before the last character is a space, so a one-character string such as \"e\" gives False"
+  },
+  {
+   "req": "R-LAST-1",
+   "phrase": "the last character",
+   "taken": 1,
+   "variant": 2,
+   "text": "the last non-space character, ignoring trailing spaces (so \"apple pi e \" would give True, contradicting its example)"
+  },
+  {
+   "req": "R-LAST-2",
+   "phrase": "otherwise",
+   "taken": 1,
+   "variant": 2,
+   "text": "covers only non-empty strings, since the condition presupposes a last character; the result for the empty string is left unspecified"
+  },
+  {
+   "req": "R-WORD-1",
+   "phrase": "a group of characters",
+   "taken": 2,
+   "variant": 1,
+   "text": "a group can be a single character, so the lone final \"e\" in \"apple pi e\" is itself a word and its last character is part of a word, giving False; this contradicts the example \"apple pi e\" \u279e True"
+  },
+  {
+   "req": "R-WORD-1",
+   "phrase": "separated by space",
+   "taken": 1,
+   "variant": 2,
+   "text": "any whitespace character (space, tab, newline, ...) separates words, so the \"e\" in \"apple\\te\" is a separate group"
+  },
+  {
+   "req": "R-WORD-1",
+   "phrase": "group of characters",
+   "taken": 1,
+   "variant": 2,
+   "text": "only letters make up a word and any non-letter ends it, so in \"1e\" or \"x.e\" the final \"e\" stands alone"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "(\"apple pi e\") \u279e True",
+   "taken": 1,
+   "variant": 2,
+   "text": "the Note is correct and the lone final \"e\" is a one-character word, so the example contradicts the definition of \"word\" and the result should be False"
+  }
+ ],
+ "depends": {
+  "R-LAST-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "check_if_last_char_is_a_letter(\" a                              \") -> False"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-3",
+  "R-EX-4"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-LAST-1"
+   ],
+   "calls": [
+    "check_if_last_char_is_a_letter(\" a                              \") -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"returns True\" can mean: the function must return the Python bool values True and False exactly / any truthy value (e.g. 1) counts as True and any falsy value (e.g. 0 or None) counts as False. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-LAST-1"
+   ],
+   "calls": [],
+   "question": "\"an alphabetical character\" can mean: only the 52 ASCII letters a-z and A-Z / any character Python str.isalpha() accepts, including Latin-1 letters such as \u00e9, \u00df, \u00aa, \u00b5 and \u00ba (codes 128-255). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-LAST-1"
+   ],
+   "calls": [],
+   "question": "\"is not a part of a word\" can mean: the last space-separated group (the text after the last space, or the whole string if it has no space) is exactly that one character, so a one-character string such as \"e\" gives True (matches the example \"apple pi e\" \u279e True) / the character immediately before the last character is a space, so a one-character string such as \"e\" gives False / literally per the Note, the last character belongs to no group of characters separated by space; every non-space character belongs to such a group, so the result is never True (contradicts the example \"apple pi e\" \u279e True). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-LAST-1"
+   ],
+   "calls": [],
+   "question": "\"the last character\" can mean: the final character of the string, even if it is a space (so \"apple pi e \" gives False, as its example says) / the last non-space character, ignoring trailing spaces (so \"apple pi e \" would give True, contradicting its example). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-LAST-2"
+   ],
+   "calls": [],
+   "question": "\"otherwise\" can mean: covers every string that does not meet the True condition, including the empty string, which has no last character, so \"\" gives False (matches the example \"\" \u279e False) / covers only non-empty strings, since the condition presupposes a last character; the result for the empty string is left unspecified. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"(\"apple pi e\") \u279e True\" can mean: the example is correct and a lone letter between spaces is not part of a word, so a word needs at least two characters (overriding the Note) / the Note is correct and the lone final \"e\" is a one-character word, so the example contradicts the definition of \"word\" and the result should be False. Which is meant?"
+  }
+ ],
+ "limits": []
+}

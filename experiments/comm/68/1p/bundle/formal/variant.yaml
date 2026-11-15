@@ -1,0 +1,138 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  nonempty: 'len(arr) > 0'
+
+assumptions:
+  - id: RV-IN-2
+    req: R-IN-2
+    expr: 'all(i < len(arr): arr[i] >= 0)'
+    note: >-
+      Every element of arr is a non-negative integer. Literal reading of "that
+      has non-negative integer nodes": the phrase constrains the values of the
+      nodes that are present and says nothing about how many there are, so an
+      empty arr is not excluded (reading 2). "that" is attached to the nearest
+      noun, the tree (reading 2); all nodes of the tree, hence of the branch,
+      are non-negative integers, which gives the same constraint on arr as
+      attaching it to the branch. The constraint holds by construction of the
+      encoding (signals are unsigned and integer; negative or non-integer
+      elements are not part of the trace), so this assumption excludes no call.
+
+properties:
+  - id: RV-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args:
+      trigger: nonempty
+      cond: 'plucked < len(arr)'
+    note: >-
+      The plucked node is one of the nodes of arr. Per the instruction for
+      R-OUT-1, "one of the nodes" is read as: any node of arr is acceptable,
+      with no further selection rule (reading 1). Per the instruction for
+      R-OUT-2, the node is returned as its position, so the plucked node is
+      the one at position plucked and being a node of arr means
+      plucked < len(arr). Per the instruction for R-IN-1, the order of arr may
+      encode tree structure on which a selection could depend, but since any
+      node is acceptable this adds no constraint. "pluck" is read as selecting
+      the node without modifying arr (reading 1); a mutation of the caller's
+      list is not observable in the trace either way. An empty arr has no node
+      to pluck; that case is left free (RV-OUT-1-EMPTY-*). By F-ZERO a call
+      that does not return normally leaves plucked at 0; normal termination is
+      required by RV-OUT-2.
+  - id: RV-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args:
+      trigger: nonempty
+      cond: 'outcome == 0 && plucked < len(arr)'
+    note: >-
+      For a non-empty arr the call terminates normally and returns the plucked
+      node. Per the instruction for R-OUT-2, "return it" is read as returning
+      the node's position (index) in arr (reading 2), and the specific node
+      plucked matters, so nodes with equal values at different positions are
+      distinguished by their index (reading 2). A position is an integer from
+      0 to len(arr) - 1 <= 7, so a correct return always fits plucked and
+      gives outcome 0. Returning the node's value or a container instead is
+      therefore not accepted. The empty case is left free (RV-OUT-1-EMPTY-*).
+
+dont_cares:
+  - id: RV-OUT-1-EMPTY-PLUCKED
+    req: R-OUT-1
+    signal: plucked
+    when: 'len(arr) == 0'
+    note: >-
+      For an empty arr there is no node to pluck and the prompt states no
+      behaviour, so the result is unspecified (reading 2 of "one of the nodes
+      (when arr is empty)"); empty calls are not excluded because R-IN-2 is
+      read as constraining only the values of the nodes.
+  - id: RV-OUT-1-EMPTY-OUTCOME
+    req: R-OUT-1
+    signal: outcome
+    when: 'len(arr) == 0'
+    note: >-
+      For an empty arr the way the call ends (return, exception, other value)
+      is unspecified (reading 2 of "one of the nodes (when arr is empty)").
+  - id: RV-SEL-1
+    req: R-SEL-1
+    signal: plucked
+    when: 'len(arr) > 1'
+    note: >-
+      Per the instruction for R-SEL-1, "The plucked node should be the node"
+      is an incomplete sentence that imposes no checkable rule: any node of arr
+      satisfies it, so which node is plucked is a don't care among the nodes of
+      arr (reading 1), and "the node" just refers to the one chosen, consistent
+      with "pluck one of the nodes" (reading 2). plucked is free only among the
+      positions of arr; RV-OUT-1 and RV-OUT-2 still require
+      plucked < len(arr), so there is a choice only when arr has more than one
+      node (with one node, plucked is 0). Per the instruction for R-IN-1, a selection may
+      depend on the order of arr, which this leaves allowed. The missing
+      selection criterion is a defect of the prompt, not repaired here.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Concerns the form of the deliverable, not the behaviour of a call. Per
+      the instruction for R-FN-1, "Complete this function" is read as: any
+      working definition of the function is acceptable and the given signature
+      and docstring need not be kept verbatim (reading 2), so there is nothing
+      to check beyond the behaviour of the calls, which RV-OUT-1 and RV-OUT-2
+      constrain.
+  - req: R-FN-2
+    reason: >-
+      The name and parameter list are fixed by the adapter's function
+      declaration (design.yaml: pluck(arr)), not by a trace property. A
+      function that cannot be called as pluck(arr) ends every call with
+      outcome 1, which RV-OUT-2 rejects for a non-empty arr; that it takes
+      exactly one parameter is not otherwise observable.
+  - req: R-IN-1
+    reason: >-
+      A definition: each element of arr is a node and its position is its
+      index, which the frame encodes as arr[i] and which RV-OUT-1, RV-OUT-2
+      and RV-SEL-1 use. Per the instruction for R-IN-1, "an array" is read as
+      any indexable sequence (list, tuple, array-like) (reading 2); the adapter
+      passes a list, so this is not observable in the trace. "a branch of a
+      tree" is read as: the order of arr encodes tree structure, on which the
+      selection of the node may depend (reading 2); with any node acceptable
+      (R-OUT-1, R-SEL-1) this adds no constraint.
+    covered_by: [RV-OUT-1, RV-OUT-2, RV-SEL-1]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, part of every formalization set by
+      construction and not restated (frame.md).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: 'Complete this function', reading: 2}
+  - {req: R-IN-1, phrase: 'an array', reading: 2}
+  - {req: R-IN-1, phrase: 'a branch of a tree', reading: 2}
+  - {req: R-IN-2, phrase: 'that has non-negative integer nodes', reading: 2}
+  - {req: R-IN-2, phrase: 'that', reading: 2}
+  - {req: R-OUT-1, phrase: 'one of the nodes', reading: 1}
+  - {req: R-OUT-1, phrase: 'pluck', reading: 1}
+  - {req: R-OUT-1, phrase: 'one of the nodes (when arr is empty)', reading: 2}
+  - {req: R-OUT-2, phrase: 'return it', reading: 2}
+  - {req: R-OUT-2, phrase: 'it (when several nodes have the same value)', reading: 2}
+  - {req: R-SEL-1, phrase: 'The plucked node should be the node', reading: 1}
+  - {req: R-SEL-1, phrase: 'the node', reading: 2}

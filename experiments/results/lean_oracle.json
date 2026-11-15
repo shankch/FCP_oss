@@ -1,0 +1,6181 @@
+{
+ "lean": {
+  "changes": [
+   {
+    "what": "quiet also asks the cycle after the span",
+    "file": "FCP/Semantics.lean",
+    "built": true,
+    "differ": 105,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.9
+   },
+   {
+    "what": "a look-back of d is met one cycle early",
+    "file": "FCP/Semantics.lean",
+    "built": true,
+    "differ": 344,
+    "on": [
+     "agent_desk/gold",
+     "arbiter/gold",
+     "code_pay/gold",
+     "hub/gold",
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.9
+   },
+   {
+    "what": "a look-back of d needs d + 1 cycles",
+    "file": "FCP/Semantics.lean",
+    "built": true,
+    "differ": 3,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.8
+   },
+   {
+    "what": "once keeps a cycle that was a reset",
+    "file": "FCP/Semantics.lean",
+    "built": true,
+    "differ": 3,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.8
+   },
+   {
+    "what": "hist keeps a cycle that was a reset",
+    "file": "FCP/Semantics.lean",
+    "built": true,
+    "differ": 18,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.8
+   },
+   {
+    "what": "since asks its first operand one cycle early",
+    "file": "FCP/Semantics.lean",
+    "built": true,
+    "differ": 411,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.8
+   },
+   {
+    "what": "% truncates",
+    "file": "FCP/Semantics.lean",
+    "built": true,
+    "differ": 213,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": false,
+    "broken": [],
+    "seconds": 5.2
+   },
+   {
+    "what": ">> truncates",
+    "file": "FCP/Semantics.lean",
+    "built": true,
+    "differ": 78,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": false,
+    "broken": [],
+    "seconds": 5.4
+   },
+   {
+    "what": "<< of a vector keeps every bit",
+    "file": "FCP/Semantics.lean",
+    "built": true,
+    "differ": 36,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": false,
+    "broken": [],
+    "seconds": 5.3
+   },
+   {
+    "what": "isspace is the space alone",
+    "file": "FCP/Semantics.lean",
+    "built": true,
+    "differ": 9,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": false,
+    "broken": [],
+    "seconds": 5.2
+   },
+   {
+    "what": "upper moves every letter",
+    "file": "FCP/Semantics.lean",
+    "built": true,
+    "differ": 48,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": false,
+    "broken": [],
+    "seconds": 5.3
+   },
+   {
+    "what": "a trigger counts before it is defined",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 63,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Causal.lean"
+    ],
+    "seconds": 5.4
+   },
+   {
+    "what": "next keeps a trigger in a reset cycle",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 145,
+    "on": [
+     "arbiter/gold",
+     "hub/gold",
+     "written/ops",
+     "written/chain"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.7
+   },
+   {
+    "what": "within opens one cycle late",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 21,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.6
+   },
+   {
+    "what": "hold_until: a release in the checked cycle ends it",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 493,
+    "on": [
+     "arbiter/gold",
+     "hub/gold",
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.7
+   },
+   {
+    "what": "bounded_wait allows one cycle more",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 181,
+    "on": [
+     "arbiter/gold",
+     "hub/gold",
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.7
+   },
+   {
+    "what": "after_reset also asks the cycles of a long reset",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 98,
+    "on": [
+     "agent_desk/gold",
+     "arbiter/gold",
+     "fifo/gold",
+     "hub/gold",
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.7
+   },
+   {
+    "what": "a verdict counts in a reset cycle",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 2316,
+    "on": [
+     "agent_desk/gold",
+     "arbiter/gold",
+     "code_card/gold",
+     "code_pay/gold",
+     "fifo/gold",
+     "hub/gold",
+     "written/ops",
+     "written/chain"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.7
+   },
+   {
+    "what": "a trigger counts in a reset cycle",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 10926,
+    "on": [
+     "agent_desk/gold",
+     "arbiter/gold",
+     "code_card/gold",
+     "code_pay/gold",
+     "fifo/gold",
+     "hub/gold",
+     "written/ops",
+     "written/chain"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.7
+   },
+   {
+    "what": "checked in reset too: a verdict counts before its look-back",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 33,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.7
+   },
+   {
+    "what": "checked in reset too: a trigger counts before its look-back",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 42,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Monitor.lean"
+    ],
+    "seconds": 4.7
+   },
+   {
+    "what": "a reset does not set the ghosts",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 3974,
+    "on": [
+     "agent_desk/gold",
+     "arbiter/gold",
+     "code_card/gold",
+     "code_pay/gold",
+     "fifo/gold",
+     "hub/gold",
+     "written/ops",
+     "written/chain"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Causal.lean"
+    ],
+    "seconds": 5.0
+   },
+   {
+    "what": "the range of a ghost is asked in reset too",
+    "file": "FCP/Items.lean",
+    "built": true,
+    "differ": 60,
+    "on": [
+     "written/ops"
+    ],
+    "proofs_break": true,
+    "broken": [
+     "FCP/Causal.lean"
+    ],
+    "seconds": 5.0
+   }
+  ],
+  "probe": [
+   "agent_desk/gold",
+   "arbiter/gold",
+   "code_card/gold",
+   "code_pay/gold",
+   "fifo/gold",
+   "hub/gold",
+   "written/ops",
+   "written/chain"
+  ],
+  "total": {
+   "changes": 23,
+   "noticed": 23,
+   "proofs_break": 18
+  },
+  "seconds": 113
+ },
+ "cold": {
+  "readings": {
+   "agent_desk/gold": {
+    "streams": 580,
+    "compared": 22196,
+    "undefined": 1004,
+    "differ_defined": 0,
+    "past_range": 0
+   },
+   "arbiter/gold": {
+    "streams": 1320,
+    "compared": 52659,
+    "undefined": 141,
+    "differ_defined": 0,
+    "past_range": 0
+   },
+   "code_card/gold": {
+    "streams": 420,
+    "compared": 14727,
+    "undefined": 2073,
+    "differ_defined": 0,
+    "past_range": 0
+   },
+   "code_pay/gold": {
+    "streams": 540,
+    "compared": 19002,
+    "undefined": 2598,
+    "differ_defined": 0,
+    "past_range": 0
+   },
+   "fifo/gold": {
+    "streams": 600,
+    "compared": 20700,
+    "undefined": 3300,
+    "differ_defined": 0,
+    "past_range": 0
+   },
+   "hub/gold": {
+    "streams": 1040,
+    "compared": 41568,
+    "undefined": 32,
+    "differ_defined": 0,
+    "past_range": 0
+   },
+   "written/ops": {
+    "streams": 6780,
+    "compared": 241322,
+    "undefined": 4074,
+    "differ_defined": 0,
+    "past_range": 25804
+   },
+   "written/chain": {
+    "streams": 660,
+    "compared": 15276,
+    "undefined": 11124,
+    "differ_defined": 0,
+    "past_range": 0
+   }
+  },
+  "total": {
+   "streams": 11940,
+   "compared": 427450,
+   "undefined": 24346,
+   "differ_defined": 0,
+   "past_range": 25804,
+   "readings": 8
+  },
+  "seconds": 3
+ },
+ "proofs": {
+  "theorems": {
+   "FCP.segGe_sat": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.eval_once": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.eval_hist": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.eval_since": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.eval_prev": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.nextOpen_eq": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.withinDue_eq": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.holdOpen_eq": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.waited_eq": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.afterReset_eq": [
+    "propext"
+   ],
+   "FCP.Pattern.raw_eq_rawReg": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.gate_eq": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.gateTrig_eq": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.Item.ok_eq_okReg": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.Item.cov_eq_covReg": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.ghostRuns_eq": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.Contracts.conflict_sound": [],
+   "FCP.Contracts.conflict_violates": [],
+   "FCP.Contracts.conflict_pinned": [
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.Contracts.enforced_meaning": [],
+   "FCP.Contracts.delegated_meaning": [
+    "propext"
+   ],
+   "FCP.Contracts.horizon": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.Contracts.proved_sound": [
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.Contracts.proved_bounded_sound": [
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.Contracts.invariant_sound": [
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.eval_causal": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.Item.ok_causal": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.ghostRun_causal": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.Item.okAll_causal": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ],
+   "FCP.Item.causal": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ]
+  },
+  "total": {
+   "listed": 30,
+   "proved": 30,
+   "theorems_in_all": 84,
+   "axioms": [
+    "Classical.choice",
+    "Quot.sound",
+    "propext"
+   ]
+  },
+  "seconds": 0
+ },
+ "agree": {
+  "readings": {
+   "agent_desk/agent_a": {
+    "streams": 1980,
+    "varied": 1496,
+    "cycles": 79200,
+    "compared": 79200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 16,
+    "skipped": {},
+    "valuations": 3,
+    "traces": 20,
+    "seconds": 0.4
+   },
+   "agent_desk/agent_b": {
+    "streams": 2280,
+    "varied": 1780,
+    "cycles": 91200,
+    "compared": 91200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 20,
+    "skipped": {},
+    "valuations": 3,
+    "traces": 20,
+    "seconds": 0.5
+   },
+   "agent_desk/gold": {
+    "streams": 580,
+    "varied": 532,
+    "cycles": 23200,
+    "compared": 23200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 15,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "arbiter/agent_a": {
+    "streams": 1920,
+    "varied": 1441,
+    "cycles": 76800,
+    "compared": 76800,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 15,
+    "skipped": {},
+    "valuations": 3,
+    "traces": 20,
+    "seconds": 0.9
+   },
+   "arbiter/agent_b": {
+    "streams": 1860,
+    "varied": 1568,
+    "cycles": 74400,
+    "compared": 74400,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 16,
+    "skipped": {},
+    "valuations": 3,
+    "traces": 20,
+    "seconds": 0.6
+   },
+   "arbiter/gold": {
+    "streams": 1320,
+    "varied": 1086,
+    "cycles": 52800,
+    "compared": 52800,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 12,
+    "skipped": {},
+    "valuations": 3,
+    "traces": 20,
+    "seconds": 0.4
+   },
+   "bridge/agent_a": {
+    "streams": 680,
+    "varied": 591,
+    "cycles": 27200,
+    "compared": 27200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 21,
+    "skipped": {
+     "BA-P-APB-1w": "pattern inorder",
+     "BA-P-APB-1a": "pattern inorder",
+     "BA-P-APB-1d": "pattern inorder",
+     "BA-P-RSP-1": "pattern inorder"
+    },
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "bridge/agent_b": {
+    "streams": 840,
+    "varied": 740,
+    "cycles": 33600,
+    "compared": 33600,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 25,
+    "skipped": {
+     "BB-P-APB-2": "pattern inorder"
+    },
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "bridge/gold": {
+    "streams": 740,
+    "varied": 647,
+    "cycles": 29600,
+    "compared": 29600,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 23,
+    "skipped": {
+     "G-APB-1a": "pattern inorder",
+     "G-APB-1b": "pattern inorder",
+     "G-APB-1c": "pattern inorder",
+     "G-APB-2": "pattern inorder",
+     "G-RSP-1": "pattern inorder",
+     "G-RSP-2": "pattern inorder"
+    },
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "code_card/agent_a": {
+    "streams": 480,
+    "varied": 343,
+    "cycles": 19200,
+    "compared": 19200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 13,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "code_card/agent_b": {
+    "streams": 720,
+    "varied": 352,
+    "cycles": 28800,
+    "compared": 28800,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 20,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "code_card/gold": {
+    "streams": 420,
+    "varied": 305,
+    "cycles": 16800,
+    "compared": 16800,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 11,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "code_card/variant": {
+    "streams": 460,
+    "varied": 290,
+    "cycles": 18400,
+    "compared": 18400,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 12,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "code_change/agent_a": {
+    "streams": 500,
+    "varied": 355,
+    "cycles": 20000,
+    "compared": 20000,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 13,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "code_change/agent_b": {
+    "streams": 620,
+    "varied": 434,
+    "cycles": 24800,
+    "compared": 24800,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 16,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "code_change/gold": {
+    "streams": 340,
+    "varied": 282,
+    "cycles": 13600,
+    "compared": 13600,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 9,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "code_checkout/agent_a": {
+    "streams": 580,
+    "varied": 275,
+    "cycles": 23200,
+    "compared": 23200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 15,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "code_checkout/agent_b": {
+    "streams": 580,
+    "varied": 336,
+    "cycles": 23200,
+    "compared": 23200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 15,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "code_checkout/gold": {
+    "streams": 380,
+    "varied": 267,
+    "cycles": 15200,
+    "compared": 15200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 10,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "code_invoice/agent_a": {
+    "streams": 460,
+    "varied": 378,
+    "cycles": 18400,
+    "compared": 18400,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 12,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "code_invoice/agent_b": {
+    "streams": 1620,
+    "varied": 1254,
+    "cycles": 64800,
+    "compared": 64800,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 13,
+    "skipped": {},
+    "valuations": 3,
+    "traces": 20,
+    "seconds": 0.6
+   },
+   "code_invoice/gold": {
+    "streams": 380,
+    "varied": 352,
+    "cycles": 15200,
+    "compared": 15200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 10,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "code_limit/agent_a": {
+    "streams": 1020,
+    "varied": 590,
+    "cycles": 40800,
+    "compared": 40800,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 9,
+    "skipped": {},
+    "valuations": 3,
+    "traces": 20,
+    "seconds": 0.4
+   },
+   "code_limit/agent_b": {
+    "streams": 1200,
+    "varied": 465,
+    "cycles": 48000,
+    "compared": 48000,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 12,
+    "skipped": {},
+    "valuations": 3,
+    "traces": 20,
+    "seconds": 0.5
+   },
+   "code_limit/gold": {
+    "streams": 780,
+    "varied": 396,
+    "cycles": 31200,
+    "compared": 31200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 7,
+    "skipped": {},
+    "valuations": 3,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "code_mask/agent_a": {
+    "streams": 540,
+    "varied": 396,
+    "cycles": 21600,
+    "compared": 21600,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 15,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 7.0
+   },
+   "code_mask/agent_b": {
+    "streams": 620,
+    "varied": 356,
+    "cycles": 24800,
+    "compared": 24800,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 18,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 7.4
+   },
+   "code_mask/gold": {
+    "streams": 340,
+    "varied": 276,
+    "cycles": 13600,
+    "compared": 13600,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 9,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 7.0
+   },
+   "code_pay/agent_a": {
+    "streams": 760,
+    "varied": 425,
+    "cycles": 30400,
+    "compared": 28550,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 1850,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 21,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "code_pay/agent_b": {
+    "streams": 820,
+    "varied": 462,
+    "cycles": 32800,
+    "compared": 32800,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 23,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "code_pay/gold": {
+    "streams": 540,
+    "varied": 343,
+    "cycles": 21600,
+    "compared": 21600,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 14,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "code_save/agent_a": {
+    "streams": 620,
+    "varied": 461,
+    "cycles": 24800,
+    "compared": 24800,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 16,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.4
+   },
+   "code_save/agent_b": {
+    "streams": 780,
+    "varied": 571,
+    "cycles": 31200,
+    "compared": 31200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 20,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.9
+   },
+   "code_save/gold": {
+    "streams": 620,
+    "varied": 306,
+    "cycles": 24800,
+    "compared": 24800,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 16,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.4
+   },
+   "fifo/agent_a": {
+    "streams": 780,
+    "varied": 677,
+    "cycles": 31200,
+    "compared": 31200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 25,
+    "skipped": {
+     "FA-RD-1": "pattern inorder",
+     "FA-ORD-1": "pattern inorder",
+     "FA-ORD-2": "pattern inorder",
+     "FA-TM-3": "pattern inorder"
+    },
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "fifo/agent_b": {
+    "streams": 860,
+    "varied": 726,
+    "cycles": 34400,
+    "compared": 34400,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 27,
+    "skipped": {
+     "FB-RST-1b": "pattern inorder",
+     "FB-WR-1b": "pattern inorder",
+     "FB-WR-2b": "pattern inorder",
+     "FB-RD-1": "pattern inorder",
+     "FB-RD-2b": "pattern inorder",
+     "FB-ORD-1": "pattern inorder",
+     "FB-ORD-2": "pattern inorder",
+     "FB-TM-3": "pattern inorder"
+    },
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "fifo/gold": {
+    "streams": 600,
+    "varied": 535,
+    "cycles": 24000,
+    "compared": 24000,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 18,
+    "skipped": {
+     "G-RD-1": "pattern inorder",
+     "G-ORD-1": "pattern inorder",
+     "G-ORD-2": "pattern inorder",
+     "G-TM-3": "pattern inorder"
+    },
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "fifo/literal": {
+    "streams": 640,
+    "varied": 578,
+    "cycles": 25600,
+    "compared": 25600,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 19,
+    "skipped": {
+     "L-RD-1": "pattern inorder",
+     "L-ORD-1": "pattern inorder",
+     "L-ORD-2": "pattern inorder",
+     "L-TM-3": "pattern inorder"
+    },
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "hub/agent_a": {
+    "streams": 1260,
+    "varied": 971,
+    "cycles": 50400,
+    "compared": 50400,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 46,
+    "skipped": {
+     "HA-XFR-1": "pattern inorder",
+     "HA-RSP-2a": "pattern inorder",
+     "HA-RSP-2b": "pattern inorder"
+    },
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.4
+   },
+   "hub/agent_b": {
+    "streams": 1580,
+    "varied": 1270,
+    "cycles": 63200,
+    "compared": 63200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 53,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.4
+   },
+   "hub/gold": {
+    "streams": 1040,
+    "varied": 788,
+    "cycles": 41600,
+    "compared": 41600,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 33,
+    "skipped": {
+     "G-XFR-1a": "pattern inorder",
+     "G-XFR-1b": "pattern inorder",
+     "G-XFR-1c": "pattern inorder",
+     "G-RSP-1b": "pattern inorder",
+     "G-RSP-1c": "pattern inorder",
+     "G-RSP-2a": "pattern inorder",
+     "G-RSP-2b": "pattern inorder"
+    },
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.3
+   },
+   "prompt_email/agent_a": {
+    "streams": 680,
+    "varied": 585,
+    "cycles": 27200,
+    "compared": 27200,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 17,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "prompt_email/agent_b": {
+    "streams": 700,
+    "varied": 616,
+    "cycles": 28000,
+    "compared": 28000,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 18,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "prompt_email/gold": {
+    "streams": 560,
+    "varied": 492,
+    "cycles": 22400,
+    "compared": 22400,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 14,
+    "skipped": {},
+    "valuations": 1,
+    "traces": 20,
+    "seconds": 0.2
+   },
+   "written/ops": {
+    "streams": 6780,
+    "varied": 5107,
+    "cycles": 271200,
+    "compared": 240102,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 31098,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 58,
+    "skipped": {},
+    "valuations": 3,
+    "traces": 20,
+    "seconds": 0.9
+   },
+   "written/chain": {
+    "streams": 660,
+    "varied": 544,
+    "cycles": 26400,
+    "compared": 26400,
+    "differ": 0,
+    "undefined": 0,
+    "past_range": 0,
+    "mismatches": [],
+    "unmatched": [],
+    "items": 5,
+    "skipped": {},
+    "valuations": 3,
+    "traces": 20,
+    "seconds": 0.4
+   }
+  },
+  "total": {
+   "items": 845,
+   "streams": 44520,
+   "varied": 33040,
+   "cycles": 1780800,
+   "compared": 1747852,
+   "differ": 0,
+   "undefined": 0,
+   "past_range": 32948,
+   "skipped": 41,
+   "readings": 46
+  },
+  "seconds": 37
+ },
+ "monitor": {
+  "readings": {
+   "agent_desk/agent_a": {
+    "changes": 318,
+    "tried": 40,
+    "noticed": 40,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "== to !=": [
+      4,
+      4
+     ],
+     "&& to ||": [
+      6,
+      6
+     ],
+     "reset dropped": [
+      4,
+      4
+     ],
+     "! dropped": [
+      9,
+      9
+     ],
+     "+ to -": [
+      2,
+      2
+     ],
+     "constant changed": [
+      9,
+      9
+     ],
+     "|| to &&": [
+      5,
+      5
+     ],
+     "count changed": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [],
+    "seconds": 4.4
+   },
+   "agent_desk/agent_b": {
+    "changes": 420,
+    "tried": 40,
+    "noticed": 39,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "! dropped": [
+      5,
+      5
+     ],
+     "constant changed": [
+      12,
+      13
+     ],
+     "|| to &&": [
+      10,
+      10
+     ],
+     "+ to -": [
+      2,
+      2
+     ],
+     "count changed": [
+      1,
+      1
+     ],
+     "&& to ||": [
+      8,
+      8
+     ],
+     ">= to >": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 288,
+      "what": "constant changed",
+      "was": "g_elig_o_o1 <= rst_active ? 1'b0 : _e84;",
+      "now": "g_elig_o_o1 <= rst_active ? 1'b1 : _e84;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 4.6
+   },
+   "agent_desk/gold": {
+    "changes": 240,
+    "tried": 40,
+    "noticed": 35,
+    "rejected": 0,
+    "initial": 1,
+    "by": {
+     "|| to &&": [
+      9,
+      9
+     ],
+     "reset dropped": [
+      2,
+      3
+     ],
+     "&& to ||": [
+      8,
+      8
+     ],
+     "constant changed": [
+      7,
+      10
+     ],
+     "! dropped": [
+      4,
+      4
+     ],
+     "+ to -": [
+      2,
+      2
+     ],
+     "<= to <": [
+      1,
+      1
+     ],
+     ">= to >": [
+      1,
+      1
+     ],
+     "== to !=": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 190,
+      "what": "reset dropped",
+      "was": "g_co <= rst_active ? 1'b0 : _e64;",
+      "now": "g_co <= 1'b0 ? 1'b0 : _e64;",
+      "read": "verdict"
+     },
+     {
+      "line": 103,
+      "what": "constant changed",
+      "was": "wire signed [3:0] _e44 = (_e43 < $signed(4'b0011)) ? _e43 : $signed(4'b0011);",
+      "now": "wire signed [3:0] _e44 = (_e43 < $signed(4'b0011)) ? _e43 : $signed(4'b0010);",
+      "read": "verdict"
+     },
+     {
+      "line": 103,
+      "what": "constant changed",
+      "was": "wire signed [3:0] _e44 = (_e43 < $signed(4'b0011)) ? _e43 : $signed(4'b0011);",
+      "now": "wire signed [3:0] _e44 = (_e43 < $signed(4'b0010)) ? _e43 : $signed(4'b0011);",
+      "read": "verdict"
+     },
+     {
+      "line": 190,
+      "what": "constant changed",
+      "was": "g_co <= rst_active ? 1'b0 : _e64;",
+      "now": "g_co <= rst_active ? 1'b1 : _e64;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 4.6
+   },
+   "arbiter/agent_a": {
+    "changes": 1446,
+    "tried": 40,
+    "noticed": 29,
+    "rejected": 0,
+    "initial": 1,
+    "by": {
+     "constant changed": [
+      6,
+      14
+     ],
+     "&& to ||": [
+      10,
+      10
+     ],
+     "|| to &&": [
+      3,
+      4
+     ],
+     "== to !=": [
+      0,
+      1
+     ],
+     "count changed": [
+      3,
+      3
+     ],
+     "+ to -": [
+      1,
+      1
+     ],
+     "< to <=": [
+      1,
+      1
+     ],
+     "! dropped": [
+      4,
+      4
+     ],
+     "<= to <": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 838,
+      "what": "constant changed",
+      "was": "wire _e793 = g_rot <= $signed(3'b010);",
+      "now": "wire _e793 = g_rot <= $signed(3'b011);",
+      "read": "verdict"
+     },
+     {
+      "line": 614,
+      "what": "== to !=",
+      "was": "wire _e569 = $signed({1'b0, gnt}) == $signed(5'b00000);",
+      "now": "wire _e569 = $signed({1'b0, gnt}) != $signed(5'b00000);",
+      "read": "verdict"
+     },
+     {
+      "line": 693,
+      "what": "constant changed",
+      "was": "wire _e648 = $signed(3'b000) < g_rot;",
+      "now": "wire _e648 = $signed(3'b001) < g_rot;",
+      "read": "verdict"
+     },
+     {
+      "line": 696,
+      "what": "|| to &&",
+      "was": "wire _e651 = _e647 || _e650;",
+      "now": "wire _e651 = _e647 && _e650;",
+      "read": "verdict"
+     },
+     {
+      "line": 570,
+      "what": "constant changed",
+      "was": "wire _e525 = $signed({1'b0, gnt}) == $signed(5'b00000);",
+      "now": "wire _e525 = $signed({1'b0, gnt}) == $signed(5'b00001);",
+      "read": "verdict"
+     },
+     {
+      "line": 217,
+      "what": "constant changed",
+      "was": "wire _e172 = $signed(3'b010) < rg_i;",
+      "now": "wire _e172 = $signed(3'b011) < rg_i;",
+      "read": "verdict"
+     },
+     {
+      "line": 1073,
+      "what": "constant changed",
+      "was": "_h559 <= rst_active ? 1'b1 : _e560;",
+      "now": "_h559 <= rst_active ? 1'b0 : _e560;",
+      "read": "verdict"
+     },
+     {
+      "line": 334,
+      "what": "constant changed",
+      "was": "wire _e289 = $signed(3'b001) < g_rot;",
+      "now": "wire _e289 = $signed(3'b000) < g_rot;",
+      "read": "verdict"
+     },
+     {
+      "line": 705,
+      "what": "constant changed",
+      "was": "wire _e660 = $signed(3'b000) < g_rot;",
+      "now": "wire _e660 = $signed(3'b001) < g_rot;",
+      "read": "verdict"
+     },
+     {
+      "line": 459,
+      "what": "constant changed",
+      "was": "wire _e414 = g_rot <= $signed(3'b011);",
+      "now": "wire _e414 = g_rot <= $signed(3'b010);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 38.6
+   },
+   "arbiter/agent_b": {
+    "changes": 497,
+    "tried": 40,
+    "noticed": 38,
+    "rejected": 0,
+    "initial": 2,
+    "by": {
+     "constant changed": [
+      9,
+      9
+     ],
+     "! dropped": [
+      6,
+      6
+     ],
+     "<= to <": [
+      1,
+      1
+     ],
+     "|| to &&": [
+      2,
+      2
+     ],
+     "+ to -": [
+      1,
+      1
+     ],
+     "reset dropped": [
+      4,
+      4
+     ],
+     "&& to ||": [
+      9,
+      9
+     ],
+     "== to !=": [
+      4,
+      4
+     ],
+     ">= to >": [
+      1,
+      1
+     ],
+     "count changed": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [],
+    "seconds": 8.8
+   },
+   "arbiter/gold": {
+    "changes": 273,
+    "tried": 40,
+    "noticed": 36,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "! dropped": [
+      6,
+      6
+     ],
+     "constant changed": [
+      14,
+      14
+     ],
+     "&& to ||": [
+      6,
+      6
+     ],
+     "|| to &&": [
+      6,
+      6
+     ],
+     "reset dropped": [
+      1,
+      4
+     ],
+     "+ to -": [
+      1,
+      2
+     ],
+     "== to !=": [
+      2,
+      2
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 204,
+      "what": "reset dropped",
+      "was": "_nx102 <= rst_active ? 1'b0 : _e98;",
+      "now": "_nx102 <= 1'b0 ? 1'b0 : _e98;",
+      "read": "verdict"
+     },
+     {
+      "line": 92,
+      "what": "+ to -",
+      "was": "wire signed [3:0] _e58 = $signed({{1{_e54[2]}}, _e54}) + $signed(4'b0010);",
+      "now": "wire signed [3:0] _e58 = $signed({{1{_e54[2]}}, _e54}) - $signed(4'b0010);",
+      "read": "verdict"
+     },
+     {
+      "line": 202,
+      "what": "reset dropped",
+      "was": "_nx93 <= rst_active ? 1'b0 : _e82;",
+      "now": "_nx93 <= 1'b0 ? 1'b0 : _e82;",
+      "read": "verdict"
+     },
+     {
+      "line": 196,
+      "what": "reset dropped",
+      "was": "_nx70 <= rst_active ? 1'b0 : _e39;",
+      "now": "_nx70 <= 1'b0 ? 1'b0 : _e39;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 6.6
+   },
+   "bridge/agent_a": {
+    "changes": 255,
+    "tried": 40,
+    "noticed": 34,
+    "rejected": 0,
+    "initial": 2,
+    "by": {
+     "constant changed": [
+      5,
+      7
+     ],
+     "&& to ||": [
+      8,
+      8
+     ],
+     "reset dropped": [
+      3,
+      4
+     ],
+     "== to !=": [
+      1,
+      1
+     ],
+     "! dropped": [
+      11,
+      11
+     ],
+     "|| to &&": [
+      6,
+      6
+     ],
+     "< to <=": [
+      0,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 291,
+      "what": "constant changed",
+      "was": "_ob21 <= rst_active ? 1'b0 : (_ob20 && !pready);",
+      "now": "_ob21 <= rst_active ? 1'b1 : (_ob20 && !pready);",
+      "read": "verdict"
+     },
+     {
+      "line": 325,
+      "what": "constant changed",
+      "was": "_nx167 <= rst_active ? 1'b0 : _e163;",
+      "now": "_nx167 <= rst_active ? 1'b1 : _e163;",
+      "read": "verdict"
+     },
+     {
+      "line": 341,
+      "what": "< to <=",
+      "was": "assign aok_BA_A_APB_9 = (rst_active || (_seg < 1) || _e22);",
+      "now": "assign aok_BA_A_APB_9 = (rst_active || (_seg <= 1) || _e22);",
+      "read": "verdict"
+     },
+     {
+      "line": 325,
+      "what": "reset dropped",
+      "was": "_nx167 <= rst_active ? 1'b0 : _e163;",
+      "now": "_nx167 <= 1'b0 ? 1'b0 : _e163;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 7.0
+   },
+   "bridge/agent_b": {
+    "changes": 369,
+    "tried": 40,
+    "noticed": 36,
+    "rejected": 0,
+    "initial": 1,
+    "by": {
+     "constant changed": [
+      6,
+      6
+     ],
+     "&& to ||": [
+      10,
+      11
+     ],
+     "|| to &&": [
+      3,
+      3
+     ],
+     "! dropped": [
+      9,
+      9
+     ],
+     "- to +": [
+      1,
+      1
+     ],
+     "reset dropped": [
+      2,
+      3
+     ],
+     "== to !=": [
+      3,
+      3
+     ],
+     "<= to <": [
+      1,
+      1
+     ],
+     "< to <=": [
+      0,
+      1
+     ],
+     ">= to >": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 305,
+      "what": "reset dropped",
+      "was": "_ob172 <= rst_active ? 1'b0 : (_ob171 && !rsp_valid);",
+      "now": "_ob172 <= 1'b0 ? 1'b0 : (_ob171 && !rsp_valid);",
+      "read": "verdict"
+     },
+     {
+      "line": 227,
+      "what": "&& to ||",
+      "was": "wire _e149 = (_e148 >= $signed(9'b000000000)) && (_e148 <= $signed(9'b011111111));  // ghost done_rdata update stays in its declared range",
+      "now": "wire _e149 = (_e148 >= $signed(9'b000000000)) || (_e148 <= $signed(9'b011111111));  // ghost done_rdata update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 328,
+      "what": "< to <=",
+      "was": "assign ok_BB_P_APB_5 = (rst_active || (_seg < 1) || _e132) && _e42;",
+      "now": "assign ok_BB_P_APB_5 = (rst_active || (_seg <= 1) || _e132) && _e42;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 5.7
+   },
+   "bridge/gold": {
+    "changes": 276,
+    "tried": 40,
+    "noticed": 38,
+    "rejected": 0,
+    "initial": 1,
+    "by": {
+     "reset dropped": [
+      3,
+      3
+     ],
+     "! dropped": [
+      7,
+      7
+     ],
+     "&& to ||": [
+      11,
+      11
+     ],
+     "constant changed": [
+      8,
+      9
+     ],
+     "|| to &&": [
+      5,
+      5
+     ],
+     "== to !=": [
+      2,
+      2
+     ],
+     ">= to >": [
+      1,
+      1
+     ],
+     "< to <=": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 406,
+      "what": "constant changed",
+      "was": "_nx162 <= rst_active ? 1'b0 : _e152;",
+      "now": "_nx162 <= rst_active ? 1'b1 : _e152;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 5.0
+   },
+   "code_card/agent_a": {
+    "changes": 277,
+    "tried": 40,
+    "noticed": 29,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "constant changed": [
+      15,
+      17
+     ],
+     "|| to &&": [
+      6,
+      6
+     ],
+     "== to !=": [
+      2,
+      4
+     ],
+     "&& to ||": [
+      1,
+      7
+     ],
+     ">= to >": [
+      0,
+      1
+     ],
+     "! dropped": [
+      5,
+      5
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 145,
+      "what": "constant changed",
+      "was": "wire _e106 = $signed({1'b0, outcome}) == $signed(3'b000);",
+      "now": "wire _e106 = $signed({1'b1, outcome}) == $signed(3'b000);",
+      "read": "scenario"
+     },
+     {
+      "line": 152,
+      "what": "== to !=",
+      "was": "wire _e113 = $signed({1'b0, outcome}) == $signed(3'b000);",
+      "now": "wire _e113 = $signed({1'b0, outcome}) != $signed(3'b000);",
+      "read": "scenario"
+     },
+     {
+      "line": 153,
+      "what": "&& to ||",
+      "was": "wire _e114 = _e112 && _e113;",
+      "now": "wire _e114 = _e112 || _e113;",
+      "read": "scenario"
+     },
+     {
+      "line": 207,
+      "what": ">= to >",
+      "was": "assign cov_GA_EX_1 = !rst_active && (_seg >= 2) && _e124;",
+      "now": "assign cov_GA_EX_1 = !rst_active && (_seg > 2) && _e124;",
+      "read": "scenario"
+     },
+     {
+      "line": 79,
+      "what": "constant changed",
+      "was": "wire signed [9:0] _e40 = _e39 ? $signed(10'b0111110100) : $signed(10'b0000000000);",
+      "now": "wire signed [9:0] _e40 = _e39 ? $signed(10'b0111110101) : $signed(10'b0000000000);",
+      "read": "verdict"
+     },
+     {
+      "line": 146,
+      "what": "&& to ||",
+      "was": "wire _e107 = _e105 && _e106;",
+      "now": "wire _e107 = _e105 || _e106;",
+      "read": "scenario"
+     },
+     {
+      "line": 159,
+      "what": "&& to ||",
+      "was": "wire _e120 = _h119 && _e118;",
+      "now": "wire _e120 = _h119 || _e118;",
+      "read": "scenario"
+     },
+     {
+      "line": 157,
+      "what": "&& to ||",
+      "was": "wire _e118 = _e27 && _e117;",
+      "now": "wire _e118 = _e27 || _e117;",
+      "read": "scenario"
+     },
+     {
+      "line": 154,
+      "what": "== to !=",
+      "was": "wire _e115 = $signed({1'b0, earned}) == $signed(17'b00000000000000000);",
+      "now": "wire _e115 = $signed({1'b0, earned}) != $signed(17'b00000000000000000);",
+      "read": "scenario"
+     },
+     {
+      "line": 151,
+      "what": "&& to ||",
+      "was": "wire _e112 = _e27 && _e111;",
+      "now": "wire _e112 = _e27 || _e111;",
+      "read": "scenario"
+     },
+     {
+      "line": 147,
+      "what": "&& to ||",
+      "was": "wire _e108 = _e107 && ok;",
+      "now": "wire _e108 = _e107 || ok;",
+      "read": "scenario"
+     }
+    ],
+    "seconds": 9.7
+   },
+   "code_card/agent_b": {
+    "changes": 421,
+    "tried": 40,
+    "noticed": 34,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "|| to &&": [
+      8,
+      8
+     ],
+     "&& to ||": [
+      10,
+      10
+     ],
+     "<= to <": [
+      1,
+      3
+     ],
+     "constant changed": [
+      10,
+      12
+     ],
+     "== to !=": [
+      3,
+      3
+     ],
+     "+ to -": [
+      0,
+      1
+     ],
+     "count changed": [
+      0,
+      1
+     ],
+     "! dropped": [
+      2,
+      2
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 119,
+      "what": "<= to <",
+      "was": "wire _e67 = (_e66 >= $signed(19'b0000000000000000000)) && (_e66 <= $signed(19'b0001100001101010000));  // ghost cb update stays in its declared range",
+      "now": "wire _e67 = (_e66 >= $signed(19'b0000000000000000000)) && (_e66 < $signed(19'b0001100001101010000));  // ghost cb update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 155,
+      "what": "+ to -",
+      "was": "wire signed [18:0] _e103 = $signed({{2{_p101[16]}}, _p101}) + $signed({2'b0, _p102});",
+      "now": "wire signed [18:0] _e103 = $signed({{2{_p101[16]}}, _p101}) - $signed({2'b0, _p102});",
+      "read": "verdict"
+     },
+     {
+      "line": 156,
+      "what": "constant changed",
+      "was": "wire signed [18:0] _e104 = _e103 + $signed(19'b0000000000111110100);",
+      "now": "wire signed [18:0] _e104 = _e103 + $signed(19'b0000000000111110101);",
+      "read": "verdict"
+     },
+     {
+      "line": 284,
+      "what": "count changed",
+      "was": "assign ok_GB_EX_2 = (rst_active || (_seg < 2) || _e150) && _e31;",
+      "now": "assign ok_GB_EX_2 = (rst_active || (_seg < 3) || _e150) && _e31;",
+      "read": "verdict"
+     },
+     {
+      "line": 189,
+      "what": "constant changed",
+      "was": "wire _e137 = $signed({1'b0, amount}) == $signed(18'b000000000111110100);",
+      "now": "wire _e137 = $signed({1'b0, amount}) == $signed(18'b000000000111110101);",
+      "read": "verdict"
+     },
+     {
+      "line": 94,
+      "what": "<= to <",
+      "was": "wire _e43 = $signed({1'b0, amount}) <= $signed(18'b001100001101010000);",
+      "now": "wire _e43 = $signed({1'b0, amount}) < $signed(18'b001100001101010000);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 7.4
+   },
+   "code_card/gold": {
+    "changes": 272,
+    "tried": 40,
+    "noticed": 32,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "reset dropped": [
+      2,
+      2
+     ],
+     "constant changed": [
+      13,
+      18
+     ],
+     "&& to ||": [
+      4,
+      5
+     ],
+     "! dropped": [
+      6,
+      6
+     ],
+     ">= to >": [
+      0,
+      1
+     ],
+     "== to !=": [
+      1,
+      2
+     ],
+     "+ to -": [
+      1,
+      1
+     ],
+     "|| to &&": [
+      4,
+      4
+     ],
+     "!= to ==": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 102,
+      "what": "constant changed",
+      "was": "wire signed [9:0] _e66 = _e65 ? $signed(10'b0111110100) : $signed(10'b0000000000);",
+      "now": "wire signed [9:0] _e66 = _e65 ? $signed(10'b0111110101) : $signed(10'b0000000000);",
+      "read": "verdict"
+     },
+     {
+      "line": 130,
+      "what": "constant changed",
+      "was": "wire _e94 = $signed({1'b0, op}) == $signed(3'b011);",
+      "now": "wire _e94 = $signed({1'b0, op}) == $signed(3'b010);",
+      "read": "scenario"
+     },
+     {
+      "line": 190,
+      "what": ">= to >",
+      "was": "assign cov_G_EX = !rst_active && (_seg >= 2) && _e118;",
+      "now": "assign cov_G_EX = !rst_active && (_seg > 2) && _e118;",
+      "read": "scenario"
+     },
+     {
+      "line": 82,
+      "what": "constant changed",
+      "was": "wire _e46 = _e45 <= $signed(22'b0000001100001101010000);",
+      "now": "wire _e46 = _e45 <= $signed(22'b0000001100001101010001);",
+      "read": "verdict"
+     },
+     {
+      "line": 134,
+      "what": "&& to ||",
+      "was": "wire _e98 = _e96 && _e97;",
+      "now": "wire _e98 = _e96 || _e97;",
+      "read": "scenario"
+     },
+     {
+      "line": 131,
+      "what": "== to !=",
+      "was": "wire _e95 = $signed({1'b0, outcome}) == $signed(3'b000);",
+      "now": "wire _e95 = $signed({1'b0, outcome}) != $signed(3'b000);",
+      "read": "scenario"
+     },
+     {
+      "line": 153,
+      "what": "constant changed",
+      "was": "wire _e117 = $signed({1'b0, _p116}) == $signed(3'b000);",
+      "now": "wire _e117 = $signed({1'b1, _p116}) == $signed(3'b000);",
+      "read": "scenario"
+     },
+     {
+      "line": 157,
+      "what": "constant changed",
+      "was": "_seg <= rst_active ? 3'd0 : (_seg == 3'd3) ? _seg : _seg + 1'b1;",
+      "now": "_seg <= rst_active ? 3'd0 : (_seg == 3'd3) ? _seg : _seg + 1'b0;",
+      "read": "scenario"
+     }
+    ],
+    "seconds": 8.1
+   },
+   "code_card/variant": {
+    "changes": 288,
+    "tried": 40,
+    "noticed": 30,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "&& to ||": [
+      6,
+      7
+     ],
+     "constant changed": [
+      14,
+      19
+     ],
+     "|| to &&": [
+      6,
+      6
+     ],
+     "== to !=": [
+      3,
+      6
+     ],
+     "! dropped": [
+      1,
+      1
+     ],
+     ">= to >": [
+      0,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 154,
+      "what": "&& to ||",
+      "was": "wire _e116 = _e114 && _e115;",
+      "now": "wire _e116 = _e114 || _e115;",
+      "read": "scenario"
+     },
+     {
+      "line": 79,
+      "what": "constant changed",
+      "was": "wire _e41 = _e40 > $signed(19'b0001100001101010000);",
+      "now": "wire _e41 = _e40 > $signed(19'b0001100001101010001);",
+      "read": "verdict"
+     },
+     {
+      "line": 152,
+      "what": "constant changed",
+      "was": "wire _e114 = $signed({1'b0, op}) == $signed(3'b001);",
+      "now": "wire _e114 = $signed({1'b1, op}) == $signed(3'b001);",
+      "read": "scenario"
+     },
+     {
+      "line": 143,
+      "what": "== to !=",
+      "was": "wire _e105 = $signed({1'b0, outcome}) == $signed(3'b000);",
+      "now": "wire _e105 = $signed({1'b0, outcome}) != $signed(3'b000);",
+      "read": "scenario"
+     },
+     {
+      "line": 142,
+      "what": "== to !=",
+      "was": "wire _e104 = $signed({1'b0, op}) == $signed(3'b011);",
+      "now": "wire _e104 = $signed({1'b0, op}) != $signed(3'b011);",
+      "read": "scenario"
+     },
+     {
+      "line": 152,
+      "what": "== to !=",
+      "was": "wire _e114 = $signed({1'b0, op}) == $signed(3'b001);",
+      "now": "wire _e114 = $signed({1'b0, op}) != $signed(3'b001);",
+      "read": "scenario"
+     },
+     {
+      "line": 153,
+      "what": "constant changed",
+      "was": "wire _e115 = $signed({1'b0, amount}) == $signed(18'b000000011111010000);",
+      "now": "wire _e115 = $signed({1'b1, amount}) == $signed(18'b000000011111010000);",
+      "read": "scenario"
+     },
+     {
+      "line": 148,
+      "what": "constant changed",
+      "was": "wire _e110 = $signed({1'b0, amount}) == $signed(18'b000000000111110100);",
+      "now": "wire _e110 = $signed({1'b1, amount}) == $signed(18'b000000000111110100);",
+      "read": "scenario"
+     },
+     {
+      "line": 172,
+      "what": "constant changed",
+      "was": "g_ncalls <= rst_active ? $signed(3'b000) : _e120[2:0];",
+      "now": "g_ncalls <= rst_active ? $signed(3'b001) : _e120[2:0];",
+      "read": "scenario"
+     },
+     {
+      "line": 115,
+      "what": ">= to >",
+      "was": "wire _e77 = $signed({1'b0, amount}) >= $signed(18'b000010011100010000);",
+      "now": "wire _e77 = $signed({1'b0, amount}) > $signed(18'b000010011100010000);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 8.7
+   },
+   "code_change/agent_a": {
+    "changes": 214,
+    "tried": 40,
+    "noticed": 29,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "constant changed": [
+      9,
+      13
+     ],
+     "== to !=": [
+      3,
+      3
+     ],
+     "&& to ||": [
+      6,
+      8
+     ],
+     "! dropped": [
+      4,
+      6
+     ],
+     "- to +": [
+      2,
+      2
+     ],
+     "+ to -": [
+      1,
+      2
+     ],
+     "< to <=": [
+      0,
+      1
+     ],
+     "|| to &&": [
+      3,
+      3
+     ],
+     "!= to ==": [
+      1,
+      1
+     ],
+     ">= to >": [
+      0,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 81,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e38 = $signed(29'b00000000000000000000001100100) * $signed({8'b0, price});",
+      "now": "wire signed [28:0] _e38 = $signed(29'b00000000000000000000001100101) * $signed({8'b0, price});",
+      "read": "verdict"
+     },
+     {
+      "line": 133,
+      "what": "constant changed",
+      "was": "wire _e90 = $signed({1'b0, ship}) == $signed(11'b00000000000);",
+      "now": "wire _e90 = $signed({1'b1, ship}) == $signed(11'b00000000000);",
+      "read": "scenario"
+     },
+     {
+      "line": 126,
+      "what": "&& to ||",
+      "was": "wire _e83 = _e81 && _e82;",
+      "now": "wire _e83 = _e81 || _e82;",
+      "read": "scenario"
+     },
+     {
+      "line": 130,
+      "what": "&& to ||",
+      "was": "wire _e87 = _e85 && _e86;",
+      "now": "wire _e87 = _e85 || _e86;",
+      "read": "scenario"
+     },
+     {
+      "line": 163,
+      "what": "! dropped",
+      "was": "assign cov_CA_EX_1 = !rst_active && _e91;",
+      "now": "assign cov_CA_EX_1 = rst_active && _e91;",
+      "read": "scenario"
+     },
+     {
+      "line": 123,
+      "what": "constant changed",
+      "was": "wire _e80 = $signed({1'b0, subtotal}) == $signed(22'b0000000010011100010000);",
+      "now": "wire _e80 = $signed({1'b0, subtotal}) == $signed(22'b0000000010011100010001);",
+      "read": "scenario"
+     },
+     {
+      "line": 92,
+      "what": "< to <=",
+      "was": "wire _e49 = $signed({1'b0, subtotal}) < $signed(22'b0000000001110101001100);",
+      "now": "wire _e49 = $signed({1'b0, subtotal}) <= $signed(22'b0000000001110101001100);",
+      "read": "verdict"
+     },
+     {
+      "line": 115,
+      "what": "! dropped",
+      "was": "wire _e72 = !member;",
+      "now": "wire _e72 = member;",
+      "read": "verdict"
+     },
+     {
+      "line": 75,
+      "what": "+ to -",
+      "was": "wire signed [8:0] _e32 = $signed({2'b0, coupon}) + $signed({{4{_e31[4]}}, _e31});",
+      "now": "wire signed [8:0] _e32 = $signed({2'b0, coupon}) - $signed({{4{_e31[4]}}, _e31});",
+      "read": "verdict"
+     },
+     {
+      "line": 125,
+      "what": "constant changed",
+      "was": "wire _e82 = $signed({1'b0, coupon}) == $signed(8'b00000000);",
+      "now": "wire _e82 = $signed({1'b1, coupon}) == $signed(8'b00000000);",
+      "read": "scenario"
+     },
+     {
+      "line": 87,
+      "what": ">= to >",
+      "was": "wire _e44 = $signed({1'b0, subtotal}) >= $signed(22'b0000000001110101001100);",
+      "now": "wire _e44 = $signed({1'b0, subtotal}) > $signed(22'b0000000001110101001100);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 7.8
+   },
+   "code_change/agent_b": {
+    "changes": 296,
+    "tried": 40,
+    "noticed": 29,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "! dropped": [
+      5,
+      5
+     ],
+     "constant changed": [
+      14,
+      23
+     ],
+     "&& to ||": [
+      6,
+      6
+     ],
+     "< to <=": [
+      0,
+      2
+     ],
+     "== to !=": [
+      1,
+      1
+     ],
+     "+ to -": [
+      1,
+      1
+     ],
+     "|| to &&": [
+      2,
+      2
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 165,
+      "what": "constant changed",
+      "was": "wire _e116 = $signed({1'b0, outcome}) == $signed(3'b000);",
+      "now": "wire _e116 = $signed({1'b1, outcome}) == $signed(3'b000);",
+      "read": "verdict"
+     },
+     {
+      "line": 181,
+      "what": "constant changed",
+      "was": "wire _e132 = $signed({1'b0, ship}) == $signed(11'b00000000000);",
+      "now": "wire _e132 = $signed({1'b1, ship}) == $signed(11'b00000000000);",
+      "read": "scenario"
+     },
+     {
+      "line": 150,
+      "what": "< to <=",
+      "was": "wire _e101 = _e98 < _e100;",
+      "now": "wire _e101 = _e98 <= _e100;",
+      "read": "verdict"
+     },
+     {
+      "line": 168,
+      "what": "constant changed",
+      "was": "wire _e119 = $signed({1'b0, ship}) == $signed(11'b00000000000);",
+      "now": "wire _e119 = $signed({1'b0, ship}) == $signed(11'b00000000001);",
+      "read": "verdict"
+     },
+     {
+      "line": 173,
+      "what": "constant changed",
+      "was": "wire _e124 = $signed({1'b0, coupon}) == $signed(8'b00000000);",
+      "now": "wire _e124 = $signed({1'b1, coupon}) == $signed(8'b00000000);",
+      "read": "scenario"
+     },
+     {
+      "line": 66,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e17 = $signed(29'b00000000000000000000001010101) * $signed({8'b0, subtotal});",
+      "now": "wire signed [28:0] _e17 = $signed(29'b00000000000000000000001010100) * $signed({8'b0, subtotal});",
+      "read": "verdict"
+     },
+     {
+      "line": 67,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e18 = _e17 - $signed(29'b00000000000000000000001100100);",
+      "now": "wire signed [28:0] _e18 = _e17 - $signed(29'b00000000000000000000001100101);",
+      "read": "verdict"
+     },
+     {
+      "line": 93,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e44 = $signed(29'b00000000000000000000001100100) * $signed({8'b0, price});",
+      "now": "wire signed [28:0] _e44 = $signed(29'b00000000000000000000001100101) * $signed({8'b0, price});",
+      "read": "verdict"
+     },
+     {
+      "line": 171,
+      "what": "constant changed",
+      "was": "wire _e122 = $signed({1'b0, subtotal}) == $signed(22'b0000000010011100010000);",
+      "now": "wire _e122 = $signed({1'b1, subtotal}) == $signed(22'b0000000010011100010000);",
+      "read": "scenario"
+     },
+     {
+      "line": 95,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e46 = $signed(29'b00000000000000000000001100100) * $signed({8'b0, price});",
+      "now": "wire signed [28:0] _e46 = $signed(29'b00000000000000000000001100101) * $signed({8'b0, price});",
+      "read": "verdict"
+     },
+     {
+      "line": 142,
+      "what": "< to <=",
+      "was": "wire signed [8:0] _e93 = (_e92 < $signed(9'b000011110)) ? _e92 : $signed(9'b000011110);",
+      "now": "wire signed [8:0] _e93 = (_e92 <= $signed(9'b000011110)) ? _e92 : $signed(9'b000011110);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 8.6
+   },
+   "code_change/gold": {
+    "changes": 165,
+    "tried": 40,
+    "noticed": 29,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "constant changed": [
+      13,
+      17
+     ],
+     "! dropped": [
+      3,
+      5
+     ],
+     "< to <=": [
+      1,
+      1
+     ],
+     "== to !=": [
+      5,
+      7
+     ],
+     "|| to &&": [
+      5,
+      5
+     ],
+     "<= to <": [
+      0,
+      1
+     ],
+     "&& to ||": [
+      1,
+      3
+     ],
+     "!= to ==": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 75,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e40 = $signed(29'b00000000000000000000001100100) * $signed({8'b0, price});",
+      "now": "wire signed [28:0] _e40 = $signed(29'b00000000000000000000001100101) * $signed({8'b0, price});",
+      "read": "verdict"
+     },
+     {
+      "line": 99,
+      "what": "! dropped",
+      "was": "wire _e64 = !member;",
+      "now": "wire _e64 = member;",
+      "read": "scenario"
+     },
+     {
+      "line": 128,
+      "what": "! dropped",
+      "was": "assign cov_S_EX = !rst_active && _e72;",
+      "now": "assign cov_S_EX = rst_active && _e72;",
+      "read": "scenario"
+     },
+     {
+      "line": 81,
+      "what": "constant changed",
+      "was": "wire _e46 = $signed({1'b0, subtotal}) < $signed(22'b0000000001110101001100);",
+      "now": "wire _e46 = $signed({1'b0, subtotal}) < $signed(22'b0000000001110101001101);",
+      "read": "verdict"
+     },
+     {
+      "line": 93,
+      "what": "<= to <",
+      "was": "wire _e58 = _e31 <= $signed(30'b000000000000000000000000110010);",
+      "now": "wire _e58 = _e31 < $signed(30'b000000000000000000000000110010);",
+      "read": "verdict"
+     },
+     {
+      "line": 96,
+      "what": "== to !=",
+      "was": "wire _e61 = $signed({1'b0, subtotal}) == $signed(22'b0000000010011100010000);",
+      "now": "wire _e61 = $signed({1'b0, subtotal}) != $signed(22'b0000000010011100010000);",
+      "read": "scenario"
+     },
+     {
+      "line": 101,
+      "what": "&& to ||",
+      "was": "wire _e66 = _e65 && student;",
+      "now": "wire _e66 = _e65 || student;",
+      "read": "scenario"
+     },
+     {
+      "line": 100,
+      "what": "&& to ||",
+      "was": "wire _e65 = _e63 && _e64;",
+      "now": "wire _e65 = _e63 || _e64;",
+      "read": "scenario"
+     },
+     {
+      "line": 82,
+      "what": "constant changed",
+      "was": "wire signed [9:0] _e47 = _e46 ? $signed(10'b0111110011) : $signed(10'b0000000000);",
+      "now": "wire signed [9:0] _e47 = _e46 ? $signed(10'b0111110010) : $signed(10'b0000000000);",
+      "read": "verdict"
+     },
+     {
+      "line": 104,
+      "what": "== to !=",
+      "was": "wire _e69 = $signed({1'b0, price}) == $signed(22'b0000000010000100110100);",
+      "now": "wire _e69 = $signed({1'b0, price}) != $signed(22'b0000000010000100110100);",
+      "read": "scenario"
+     },
+     {
+      "line": 77,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e42 = _e41 - $signed(29'b00000000000000000000000110010);",
+      "now": "wire signed [28:0] _e42 = _e41 - $signed(29'b00000000000000000000000110011);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 7.0
+   },
+   "code_checkout/agent_a": {
+    "changes": 317,
+    "tried": 40,
+    "noticed": 30,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "&& to ||": [
+      9,
+      9
+     ],
+     "constant changed": [
+      13,
+      21
+     ],
+     "+ to -": [
+      2,
+      3
+     ],
+     "|| to &&": [
+      4,
+      4
+     ],
+     "! dropped": [
+      1,
+      1
+     ],
+     "> to >=": [
+      0,
+      1
+     ],
+     "- to +": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 189,
+      "what": "constant changed",
+      "was": "wire _e146 = $signed({1'b0, ship}) == $signed(11'b00000000000);",
+      "now": "wire _e146 = $signed({1'b0, ship}) == $signed(11'b00000000001);",
+      "read": "scenario"
+     },
+     {
+      "line": 95,
+      "what": "constant changed",
+      "was": "wire _e52 = _e51 > $signed(29'b11111111111111111111110011100);",
+      "now": "wire _e52 = _e51 > $signed(29'b11111111111111111111110011101);",
+      "read": "verdict"
+     },
+     {
+      "line": 185,
+      "what": "constant changed",
+      "was": "wire _e142 = $signed({1'b0, outcome}) == $signed(3'b000);",
+      "now": "wire _e142 = $signed({1'b0, outcome}) == $signed(3'b001);",
+      "read": "scenario"
+     },
+     {
+      "line": 107,
+      "what": "> to >=",
+      "was": "wire _e64 = _e63 > $signed(30'b111111111111111111111110011100);",
+      "now": "wire _e64 = _e63 >= $signed(30'b111111111111111111111110011100);",
+      "read": "verdict"
+     },
+     {
+      "line": 92,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e49 = $signed(29'b00000000000000000000001100100) * $signed({8'b0, price});",
+      "now": "wire signed [28:0] _e49 = $signed(29'b00000000000000000000001100101) * $signed({8'b0, price});",
+      "read": "verdict"
+     },
+     {
+      "line": 65,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e22 = $signed(29'b00000000000000000000001011010) * $signed({8'b0, subtotal});",
+      "now": "wire signed [28:0] _e22 = $signed(29'b00000000000000000000001011011) * $signed({8'b0, subtotal});",
+      "read": "verdict"
+     },
+     {
+      "line": 107,
+      "what": "constant changed",
+      "was": "wire _e64 = _e63 > $signed(30'b111111111111111111111110011100);",
+      "now": "wire _e64 = _e63 > $signed(30'b111111111111111111111110011101);",
+      "read": "verdict"
+     },
+     {
+      "line": 193,
+      "what": "+ to -",
+      "was": "_seg <= rst_active ? 3'd0 : (_seg == 3'd2) ? _seg : _seg + 1'b1;",
+      "now": "_seg <= rst_active ? 3'd0 : (_seg == 3'd2) ? _seg : _seg - 1'b1;",
+      "read": "verdict"
+     },
+     {
+      "line": 178,
+      "what": "constant changed",
+      "was": "wire _e135 = $signed({1'b0, ship}) == $signed(11'b00000000000);",
+      "now": "wire _e135 = $signed({1'b1, ship}) == $signed(11'b00000000000);",
+      "read": "verdict"
+     },
+     {
+      "line": 125,
+      "what": "constant changed",
+      "was": "wire _e82 = _e81 > $signed(29'b11111111111111111111110011100);",
+      "now": "wire _e82 = _e81 > $signed(29'b11111111111111111111110011101);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 12.0
+   },
+   "code_checkout/agent_b": {
+    "changes": 303,
+    "tried": 40,
+    "noticed": 29,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "|| to &&": [
+      3,
+      3
+     ],
+     "== to !=": [
+      1,
+      2
+     ],
+     "constant changed": [
+      10,
+      19
+     ],
+     "&& to ||": [
+      6,
+      6
+     ],
+     "! dropped": [
+      3,
+      3
+     ],
+     "count changed": [
+      0,
+      1
+     ],
+     "+ to -": [
+      2,
+      2
+     ],
+     "< to <=": [
+      1,
+      1
+     ],
+     "> to >=": [
+      1,
+      1
+     ],
+     "- to +": [
+      1,
+      1
+     ],
+     ">= to >": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 135,
+      "what": "constant changed",
+      "was": "wire _e92 = $signed({1'b0, subtotal}) < $signed(22'b0000000001001110001000);",
+      "now": "wire _e92 = $signed({1'b0, subtotal}) < $signed(22'b0000000001001110001001);",
+      "read": "verdict"
+     },
+     {
+      "line": 116,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e73 = _e72 + $signed(29'b00000000000000000000001100100);",
+      "now": "wire signed [28:0] _e73 = _e72 + $signed(29'b00000000000000000000001100101);",
+      "read": "verdict"
+     },
+     {
+      "line": 217,
+      "what": "count changed",
+      "was": "assign ok_PB_MONO_1 = (rst_active || (_seg < 1) || _e119);",
+      "now": "assign ok_PB_MONO_1 = (rst_active || (_seg < 2) || _e119);",
+      "read": "verdict"
+     },
+     {
+      "line": 167,
+      "what": "== to !=",
+      "was": "wire _e124 = $signed({1'b0, outcome}) == $signed(3'b000);",
+      "now": "wire _e124 = $signed({1'b0, outcome}) != $signed(3'b000);",
+      "read": "verdict"
+     },
+     {
+      "line": 110,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e67 = $signed(29'b00000000000000000000001100100) * $signed({8'b0, price});",
+      "now": "wire signed [28:0] _e67 = $signed(29'b00000000000000000000001100101) * $signed({8'b0, price});",
+      "read": "verdict"
+     },
+     {
+      "line": 67,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e24 = $signed(29'b00000000000000000000001011010) * $signed({8'b0, subtotal});",
+      "now": "wire signed [28:0] _e24 = $signed(29'b00000000000000000000001011011) * $signed({8'b0, subtotal});",
+      "read": "verdict"
+     },
+     {
+      "line": 121,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e78 = _e77 + $signed(29'b00000000000000000000001100100);",
+      "now": "wire signed [28:0] _e78 = _e77 + $signed(29'b00000000000000000000001100101);",
+      "read": "verdict"
+     },
+     {
+      "line": 131,
+      "what": "constant changed",
+      "was": "wire signed [28:0] _e88 = _e82 + $signed(29'b00000000000000000000000110010);",
+      "now": "wire signed [28:0] _e88 = _e82 + $signed(29'b00000000000000000000000110011);",
+      "read": "verdict"
+     },
+     {
+      "line": 177,
+      "what": "constant changed",
+      "was": "wire _e134 = $signed({1'b0, outcome}) == $signed(3'b000);",
+      "now": "wire _e134 = $signed({1'b1, outcome}) == $signed(3'b000);",
+      "read": "scenario"
+     },
+     {
+      "line": 99,
+      "what": "constant changed",
+      "was": "wire signed [7:0] _e56 = $signed(8'b01011010) - $signed({1'b0, coupon});",
+      "now": "wire signed [7:0] _e56 = $signed(8'b01011011) - $signed({1'b0, coupon});",
+      "read": "verdict"
+     },
+     {
+      "line": 126,
+      "what": "constant changed",
+      "was": "wire signed [8:0] _e83 = (_e64 < $signed(9'b000011110)) ? _e64 : $signed(9'b000011110);",
+      "now": "wire signed [8:0] _e83 = (_e64 < $signed(9'b000011111)) ? _e64 : $signed(9'b000011110);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 9.8
+   },
+   "code_checkout/gold": {
+    "changes": 208,
+    "tried": 40,
+    "noticed": 37,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "< to <=": [
+      1,
+      2
+     ],
+     "! dropped": [
+      7,
+      7
+     ],
+     "count changed": [
+      1,
+      1
+     ],
+     "&& to ||": [
+      4,
+      4
+     ],
+     "+ to -": [
+      2,
+      2
+     ],
+     "constant changed": [
+      12,
+      13
+     ],
+     "> to >=": [
+      2,
+      3
+     ],
+     "|| to &&": [
+      5,
+      5
+     ],
+     "== to !=": [
+      2,
+      2
+     ],
+     "- to +": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 156,
+      "what": "< to <=",
+      "was": "assign ok_G_MONO = (rst_active || (_seg < 1) || _e86);",
+      "now": "assign ok_G_MONO = (rst_active || (_seg <= 1) || _e86);",
+      "read": "verdict"
+     },
+     {
+      "line": 53,
+      "what": "> to >=",
+      "was": "wire _e20 = _e17 > _e19;",
+      "now": "wire _e20 = _e17 >= _e19;",
+      "read": "verdict"
+     },
+     {
+      "line": 91,
+      "what": "constant changed",
+      "was": "wire _e58 = _e57 <= $signed(30'b000000000000000000000000110010);",
+      "now": "wire _e58 = _e57 <= $signed(30'b000000000000000000000000110011);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 5.2
+   },
+   "code_invoice/agent_a": {
+    "changes": 642,
+    "tried": 40,
+    "noticed": 28,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "constant changed": [
+      11,
+      17
+     ],
+     "|| to &&": [
+      2,
+      2
+     ],
+     "! dropped": [
+      3,
+      3
+     ],
+     "< to <=": [
+      5,
+      6
+     ],
+     "== to !=": [
+      2,
+      3
+     ],
+     "&& to ||": [
+      3,
+      6
+     ],
+     "!= to ==": [
+      1,
+      1
+     ],
+     "> to >=": [
+      0,
+      1
+     ],
+     "- to +": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 331,
+      "what": "constant changed",
+      "was": "wire _e288 = $signed({1'b0, total}) == $signed(20'b00000000111000001111);",
+      "now": "wire _e288 = $signed({1'b1, total}) == $signed(20'b00000000111000001111);",
+      "read": "verdict"
+     },
+     {
+      "line": 321,
+      "what": "== to !=",
+      "was": "wire _e278 = $signed({1'b0, _e76}) == $signed(2'b00);",
+      "now": "wire _e278 = $signed({1'b0, _e76}) != $signed(2'b00);",
+      "read": "verdict"
+     },
+     {
+      "line": 255,
+      "what": "constant changed",
+      "was": "wire _e212 = $signed(4'b0011) < _e15;",
+      "now": "wire _e212 = $signed(4'b0010) < _e15;",
+      "read": "verdict"
+     },
+     {
+      "line": 347,
+      "what": "&& to ||",
+      "was": "wire _e304 = _e302 && _e303;",
+      "now": "wire _e304 = _e302 || _e303;",
+      "read": "scenario"
+     },
+     {
+      "line": 302,
+      "what": "constant changed",
+      "was": "wire signed [16:0] _e259 = $signed({5'b0, _e20}) * $signed({13'b0, _e28});",
+      "now": "wire signed [16:0] _e259 = $signed({5'b1, _e20}) * $signed({13'b0, _e28});",
+      "read": "verdict"
+     },
+     {
+      "line": 283,
+      "what": "< to <=",
+      "was": "wire _e240 = $signed(4'b0100) < _e2;",
+      "now": "wire _e240 = $signed(4'b0100) <= _e2;",
+      "read": "verdict"
+     },
+     {
+      "line": 355,
+      "what": "&& to ||",
+      "was": "wire _e312 = _e310 && _e311;",
+      "now": "wire _e312 = _e310 || _e311;",
+      "read": "scenario"
+     },
+     {
+      "line": 58,
+      "what": "> to >=",
+      "was": "wire signed [3:0] _e15 = ($signed({1'b0, price__len}) > $signed(4'b0101)) ? $signed(4'b0101) : $signed({1'b0, price__len});  // len(price)",
+      "now": "wire signed [3:0] _e15 = ($signed({1'b0, price__len}) >= $signed(4'b0101)) ? $signed(4'b0101) : $signed({1'b0, price__len});  // len(price)",
+      "read": "verdict"
+     },
+     {
+      "line": 266,
+      "what": "constant changed",
+      "was": "wire signed [16:0] _e223 = _e212 ? _e215 : $signed(17'b00000000000000000);",
+      "now": "wire signed [16:0] _e223 = _e212 ? _e215 : $signed(17'b00000000000000001);",
+      "read": "verdict"
+     },
+     {
+      "line": 250,
+      "what": "constant changed",
+      "was": "wire signed [16:0] _e207 = _e205 ? _e206 : $signed(17'b00000000000000000);",
+      "now": "wire signed [16:0] _e207 = _e205 ? _e206 : $signed(17'b00000000000000001);",
+      "read": "verdict"
+     },
+     {
+      "line": 345,
+      "what": "&& to ||",
+      "was": "wire _e302 = _e298 && _e301;",
+      "now": "wire _e302 = _e298 || _e301;",
+      "read": "scenario"
+     },
+     {
+      "line": 339,
+      "what": "constant changed",
+      "was": "wire _e296 = $signed({1'b0, _e24}) == $signed(5'b00010);",
+      "now": "wire _e296 = $signed({1'b0, _e24}) == $signed(5'b00011);",
+      "read": "scenario"
+     }
+    ],
+    "seconds": 15.5
+   },
+   "code_invoice/agent_b": {
+    "changes": 662,
+    "tried": 40,
+    "noticed": 28,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "constant changed": [
+      11,
+      19
+     ],
+     "|| to &&": [
+      5,
+      5
+     ],
+     "! dropped": [
+      3,
+      3
+     ],
+     "== to !=": [
+      5,
+      5
+     ],
+     "< to <=": [
+      2,
+      4
+     ],
+     "&& to ||": [
+      2,
+      3
+     ],
+     "- to +": [
+      0,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 228,
+      "what": "constant changed",
+      "was": "wire signed [20:0] _e180 = $signed(21'b000000000000000001010) * $signed({{4{_e179[16]}}, _e179});",
+      "now": "wire signed [20:0] _e180 = $signed(21'b000000000000000001011) * $signed({{4{_e179[16]}}, _e179});",
+      "read": "verdict"
+     },
+     {
+      "line": 320,
+      "what": "constant changed",
+      "was": "wire _e272 = $signed(4'b0011) < _e15;",
+      "now": "wire _e272 = $signed(4'b0010) < _e15;",
+      "read": "verdict"
+     },
+     {
+      "line": 319,
+      "what": "constant changed",
+      "was": "wire signed [16:0] _e271 = $signed({5'b0, _e18}) * $signed({13'b0, _e27});",
+      "now": "wire signed [16:0] _e271 = $signed({5'b1, _e18}) * $signed({13'b0, _e27});",
+      "read": "verdict"
+     },
+     {
+      "line": 155,
+      "what": "- to +",
+      "was": "wire signed [16:0] _e107 = _e102 - $signed({{12{_e106[4]}}, _e106});",
+      "now": "wire signed [16:0] _e107 = _e102 + $signed({{12{_e106[4]}}, _e106});",
+      "read": "verdict"
+     },
+     {
+      "line": 361,
+      "what": "constant changed",
+      "was": "wire _e313 = _e2 == $signed(4'b0001);",
+      "now": "wire _e313 = _e2 == $signed(4'b0000);",
+      "read": "scenario"
+     },
+     {
+      "line": 302,
+      "what": "< to <=",
+      "was": "wire _e254 = $signed(4'b0001) < _e2;",
+      "now": "wire _e254 = $signed(4'b0001) <= _e2;",
+      "read": "verdict"
+     },
+     {
+      "line": 322,
+      "what": "< to <=",
+      "was": "wire _e274 = $signed(4'b0100) < _e15;",
+      "now": "wire _e274 = $signed(4'b0100) <= _e15;",
+      "read": "verdict"
+     },
+     {
+      "line": 363,
+      "what": "&& to ||",
+      "was": "wire _e315 = _e313 && _e314;",
+      "now": "wire _e315 = _e313 || _e314;",
+      "read": "scenario"
+     },
+     {
+      "line": 182,
+      "what": "constant changed",
+      "was": "wire signed [4:0] _e134 = _e130 % $signed(17'b00000000000001010);",
+      "now": "wire signed [4:0] _e134 = _e130 % $signed(17'b00000000000001011);",
+      "read": "verdict"
+     },
+     {
+      "line": 271,
+      "what": "constant changed",
+      "was": "wire _e223 = $signed(4'b0001) < _e15;",
+      "now": "wire _e223 = $signed(4'b0000) < _e15;",
+      "read": "verdict"
+     },
+     {
+      "line": 333,
+      "what": "constant changed",
+      "was": "wire _e285 = _e15 == $signed(4'b0001);",
+      "now": "wire _e285 = _e15 == $signed(4'b0000);",
+      "read": "verdict"
+     },
+     {
+      "line": 154,
+      "what": "constant changed",
+      "was": "wire signed [4:0] _e106 = _e102 % $signed(17'b00000000000001010);",
+      "now": "wire signed [4:0] _e106 = _e102 % $signed(17'b00000000000001011);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 28.3
+   },
+   "code_invoice/gold": {
+    "changes": 532,
+    "tried": 40,
+    "noticed": 35,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "< to <=": [
+      4,
+      5
+     ],
+     "constant changed": [
+      15,
+      17
+     ],
+     "|| to &&": [
+      6,
+      6
+     ],
+     "+ to -": [
+      0,
+      1
+     ],
+     "== to !=": [
+      3,
+      3
+     ],
+     "! dropped": [
+      4,
+      4
+     ],
+     "!= to ==": [
+      1,
+      1
+     ],
+     "> to >=": [
+      0,
+      1
+     ],
+     "&& to ||": [
+      2,
+      2
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 274,
+      "what": "< to <=",
+      "was": "wire _e235 = $signed(4'b0100) < _e15;",
+      "now": "wire _e235 = $signed(4'b0100) <= _e15;",
+      "read": "verdict"
+     },
+     {
+      "line": 281,
+      "what": "+ to -",
+      "was": "wire signed [19:0] _e242 = $signed({{3{_e237[16]}}, _e237}) + $signed({{3{_e238[16]}}, _e238}) + $signed({{3{_e239[16]}}, _e239}) + $signed({{3{_e240[16]}}, _e240}) + $signed({{3{_e241[16]}}, _e241});",
+      "now": "wire signed [19:0] _e242 = $signed({{3{_e237[16]}}, _e237}) - $signed({{3{_e238[16]}}, _e238}) + $signed({{3{_e239[16]}}, _e239}) + $signed({{3{_e240[16]}}, _e240}) + $signed({{3{_e241[16]}}, _e241});",
+      "read": "verdict"
+     },
+     {
+      "line": 223,
+      "what": "constant changed",
+      "was": "wire signed [16:0] _e184 = _e182 ? $signed(17'b00000000000000000) : _e183;",
+      "now": "wire signed [16:0] _e184 = _e182 ? $signed(17'b00000000000000001) : _e183;",
+      "read": "verdict"
+     },
+     {
+      "line": 54,
+      "what": "> to >=",
+      "was": "wire signed [3:0] _e15 = ($signed({1'b0, price__len}) > $signed(4'b0101)) ? $signed(4'b0101) : $signed({1'b0, price__len});  // len(price)",
+      "now": "wire signed [3:0] _e15 = ($signed({1'b0, price__len}) >= $signed(4'b0101)) ? $signed(4'b0101) : $signed({1'b0, price__len});  // len(price)",
+      "read": "verdict"
+     },
+     {
+      "line": 287,
+      "what": "constant changed",
+      "was": "wire _e248 = $signed({1'b0, _e16}) == $signed(13'b0011111001111);",
+      "now": "wire _e248 = $signed({1'b1, _e16}) == $signed(13'b0011111001111);",
+      "read": "scenario"
+     }
+    ],
+    "seconds": 11.3
+   },
+   "code_limit/agent_a": {
+    "changes": 266,
+    "tried": 40,
+    "noticed": 28,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "constant changed": [
+      10,
+      12
+     ],
+     "== to !=": [
+      4,
+      7
+     ],
+     "&& to ||": [
+      3,
+      6
+     ],
+     "! dropped": [
+      3,
+      3
+     ],
+     "|| to &&": [
+      3,
+      3
+     ],
+     "< to <=": [
+      1,
+      3
+     ],
+     "<= to <": [
+      2,
+      3
+     ],
+     ">= to >": [
+      1,
+      2
+     ],
+     "!= to ==": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 139,
+      "what": "== to !=",
+      "was": "wire _e104 = _p103 == user;",
+      "now": "wire _e104 = _p103 != user;",
+      "read": "scenario"
+     },
+     {
+      "line": 166,
+      "what": "constant changed",
+      "was": "wire _e131 = $signed({1'b0, outcome}) == $signed(3'b000);",
+      "now": "wire _e131 = $signed({1'b0, outcome}) == $signed(3'b001);",
+      "read": "scenario"
+     },
+     {
+      "line": 166,
+      "what": "== to !=",
+      "was": "wire _e131 = $signed({1'b0, outcome}) == $signed(3'b000);",
+      "now": "wire _e131 = $signed({1'b0, outcome}) != $signed(3'b000);",
+      "read": "scenario"
+     },
+     {
+      "line": 156,
+      "what": "&& to ||",
+      "was": "wire _e121 = _e120 && allowed;",
+      "now": "wire _e121 = _e120 || allowed;",
+      "read": "scenario"
+     },
+     {
+      "line": 77,
+      "what": "< to <=",
+      "was": "wire signed [16:0] _e44 = ($signed({1'b0, now}) < g_t_ok1) ? $signed({1'b0, now}) : g_t_ok1;",
+      "now": "wire signed [16:0] _e44 = ($signed({1'b0, now}) <= g_t_ok1) ? $signed({1'b0, now}) : g_t_ok1;",
+      "read": "verdict"
+     },
+     {
+      "line": 67,
+      "what": "<= to <",
+      "was": "wire _e35 = (_e34 >= $signed(17'b11111111111000011)) && (_e34 <= $signed(17'b01111111111111111));  // ghost t_ok2 update stays in its declared range",
+      "now": "wire _e35 = (_e34 >= $signed(17'b11111111111000011)) && (_e34 < $signed(17'b01111111111111111));  // ghost t_ok2 update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 220,
+      "what": ">= to >",
+      "was": "assign cov_LA_EX_1 = !rst_active && (_seg >= 3) && _e138;",
+      "now": "assign cov_LA_EX_1 = !rst_active && (_seg > 3) && _e138;",
+      "read": "scenario"
+     },
+     {
+      "line": 151,
+      "what": "== to !=",
+      "was": "wire _e116 = $signed({1'b0, _p115}) == $signed(17'b00000000000000010);",
+      "now": "wire _e116 = $signed({1'b0, _p115}) != $signed(17'b00000000000000010);",
+      "read": "scenario"
+     },
+     {
+      "line": 72,
+      "what": "constant changed",
+      "was": "wire _e39 = (_e38 >= $signed(17'b11111111111000011)) && (_e38 <= $signed(17'b01111111111111111));  // ghost t_ok3 update stays in its declared range",
+      "now": "wire _e39 = (_e38 >= $signed(17'b11111111111000010)) && (_e38 <= $signed(17'b01111111111111111));  // ghost t_ok3 update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 140,
+      "what": "&& to ||",
+      "was": "wire _e105 = _e102 && _e104;",
+      "now": "wire _e105 = _e102 || _e104;",
+      "read": "scenario"
+     },
+     {
+      "line": 79,
+      "what": "< to <=",
+      "was": "wire signed [16:0] _e46 = (_e44 < _e45) ? _e44 : _e45;",
+      "now": "wire signed [16:0] _e46 = (_e44 <= _e45) ? _e44 : _e45;",
+      "read": "verdict"
+     },
+     {
+      "line": 162,
+      "what": "&& to ||",
+      "was": "wire _e127 = _e126 && allowed;",
+      "now": "wire _e127 = _e126 || allowed;",
+      "read": "scenario"
+     }
+    ],
+    "seconds": 14.3
+   },
+   "code_limit/agent_b": {
+    "changes": 368,
+    "tried": 40,
+    "noticed": 26,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "&& to ||": [
+      5,
+      6
+     ],
+     "constant changed": [
+      8,
+      15
+     ],
+     "== to !=": [
+      1,
+      6
+     ],
+     "|| to &&": [
+      3,
+      3
+     ],
+     "! dropped": [
+      6,
+      6
+     ],
+     "<= to <": [
+      1,
+      2
+     ],
+     "reset dropped": [
+      1,
+      1
+     ],
+     "- to +": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 149,
+      "what": "constant changed",
+      "was": "wire _e109 = $signed({1'b0, _p108}) == $signed(17'b00000000000000000);",
+      "now": "wire _e109 = $signed({1'b1, _p108}) == $signed(17'b00000000000000000);",
+      "read": "scenario"
+     },
+     {
+      "line": 173,
+      "what": "constant changed",
+      "was": "wire _e133 = $signed({1'b0, _p132}) == $signed(17'b00000000000001010);",
+      "now": "wire _e133 = $signed({1'b1, _p132}) == $signed(17'b00000000000001010);",
+      "read": "scenario"
+     },
+     {
+      "line": 180,
+      "what": "constant changed",
+      "was": "wire _e140 = $signed({1'b0, _p139}) <= $signed(11'b01111101000);",
+      "now": "wire _e140 = $signed({1'b1, _p139}) <= $signed(11'b01111101000);",
+      "read": "scenario"
+     },
+     {
+      "line": 133,
+      "what": "== to !=",
+      "was": "wire _e93 = g_ncalls == $signed(4'b0011);",
+      "now": "wire _e93 = g_ncalls != $signed(4'b0011);",
+      "read": "scenario"
+     },
+     {
+      "line": 261,
+      "what": "constant changed",
+      "was": "wire _e221 = $signed({1'b0, _p220}) == $signed(17'b00000000000110011);",
+      "now": "wire _e221 = $signed({1'b1, _p220}) == $signed(17'b00000000000110011);",
+      "read": "scenario"
+     },
+     {
+      "line": 194,
+      "what": "== to !=",
+      "was": "wire _e154 = user == _p153;",
+      "now": "wire _e154 = user != _p153;",
+      "read": "scenario"
+     },
+     {
+      "line": 139,
+      "what": "== to !=",
+      "was": "wire _e99 = user == _p98;",
+      "now": "wire _e99 = user != _p98;",
+      "read": "scenario"
+     },
+     {
+      "line": 178,
+      "what": "&& to ||",
+      "was": "wire _e138 = _e134 && _e137;",
+      "now": "wire _e138 = _e134 || _e137;",
+      "read": "scenario"
+     },
+     {
+      "line": 43,
+      "what": "constant changed",
+      "was": "wire _e9 = (_e8 >= $signed(5'b00000)) && (_e8 <= $signed(5'b00111));  // ghost ncalls update stays in its declared range",
+      "now": "wire _e9 = (_e8 >= $signed(5'b00001)) && (_e8 <= $signed(5'b00111));  // ghost ncalls update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 80,
+      "what": "constant changed",
+      "was": "wire _e42 = (_e41 >= $signed(17'b11111111111000100)) && (_e41 <= $signed(17'b01111111111111111));  // ghost a3 update stays in its declared range",
+      "now": "wire _e42 = (_e41 >= $signed(17'b11111111111000100)) && (_e41 <= $signed(17'b01111111111111110));  // ghost a3 update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 48,
+      "what": "constant changed",
+      "was": "wire _e13 = ($signed({1'b0, now}) >= $signed(17'b00000000000000000)) && ($signed({1'b0, now}) <= $signed(17'b01111111111111111));  // ghost last_now update stays in its declared range",
+      "now": "wire _e13 = ($signed({1'b0, now}) >= $signed(17'b00000000000000000)) && ($signed({1'b1, now}) <= $signed(17'b01111111111111111));  // ghost last_now update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 183,
+      "what": "== to !=",
+      "was": "wire _e143 = $signed({1'b0, _p142}) == $signed(17'b00000000000000101);",
+      "now": "wire _e143 = $signed({1'b0, _p142}) != $signed(17'b00000000000000101);",
+      "read": "scenario"
+     },
+     {
+      "line": 80,
+      "what": "<= to <",
+      "was": "wire _e42 = (_e41 >= $signed(17'b11111111111000100)) && (_e41 <= $signed(17'b01111111111111111));  // ghost a3 update stays in its declared range",
+      "now": "wire _e42 = (_e41 >= $signed(17'b11111111111000100)) && (_e41 < $signed(17'b01111111111111111));  // ghost a3 update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 144,
+      "what": "== to !=",
+      "was": "wire _e104 = user == _p103;",
+      "now": "wire _e104 = user != _p103;",
+      "read": "scenario"
+     }
+    ],
+    "seconds": 17.2
+   },
+   "code_limit/gold": {
+    "changes": 227,
+    "tried": 40,
+    "noticed": 23,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "&& to ||": [
+      4,
+      6
+     ],
+     "- to +": [
+      1,
+      2
+     ],
+     "< to <=": [
+      0,
+      2
+     ],
+     "== to !=": [
+      2,
+      4
+     ],
+     ">= to >": [
+      3,
+      3
+     ],
+     "|| to &&": [
+      3,
+      3
+     ],
+     "constant changed": [
+      7,
+      12
+     ],
+     "<= to <": [
+      1,
+      3
+     ],
+     "count changed": [
+      0,
+      1
+     ],
+     "reset dropped": [
+      1,
+      1
+     ],
+     "!= to ==": [
+      1,
+      1
+     ],
+     "+ to -": [
+      0,
+      1
+     ],
+     "! dropped": [
+      0,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 66,
+      "what": "&& to ||",
+      "was": "wire _e36 = (_e35 >= $signed(17'b11111111110011100)) && (_e35 <= $signed(17'b01111111111111111));  // ghost a1 update stays in its declared range",
+      "now": "wire _e36 = (_e35 >= $signed(17'b11111111110011100)) || (_e35 <= $signed(17'b01111111111111111));  // ghost a1 update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 83,
+      "what": "< to <=",
+      "was": "wire _e53 = _e52 < $signed(18'b000000000000111100);",
+      "now": "wire _e53 = _e52 <= $signed(18'b000000000000111100);",
+      "read": "verdict"
+     },
+     {
+      "line": 135,
+      "what": "== to !=",
+      "was": "wire _e104 = $signed({1'b0, _p103}) == $signed(17'b00000000000000000);",
+      "now": "wire _e104 = $signed({1'b0, _p103}) != $signed(17'b00000000000000000);",
+      "read": "scenario"
+     },
+     {
+      "line": 85,
+      "what": "- to +",
+      "was": "wire signed [17:0] _e55 = $signed({2'b0, now}) - $signed({{1{g_a2[16]}}, g_a2});",
+      "now": "wire signed [17:0] _e55 = $signed({2'b0, now}) + $signed({{1{g_a2[16]}}, g_a2});",
+      "read": "verdict"
+     },
+     {
+      "line": 119,
+      "what": "&& to ||",
+      "was": "wire _e88 = _e86 && _e87;",
+      "now": "wire _e88 = _e86 || _e87;",
+      "read": "scenario"
+     },
+     {
+      "line": 121,
+      "what": "== to !=",
+      "was": "wire _e90 = $signed({1'b0, _p89}) == $signed(17'b00000000000000010);",
+      "now": "wire _e90 = $signed({1'b0, _p89}) != $signed(17'b00000000000000010);",
+      "read": "scenario"
+     },
+     {
+      "line": 74,
+      "what": "constant changed",
+      "was": "wire _e44 = (_e43 >= $signed(17'b11111111110011100)) && (_e43 <= $signed(17'b01111111111111111));  // ghost a3 update stays in its declared range",
+      "now": "wire _e44 = (_e43 >= $signed(17'b11111111110011100)) && (_e43 <= $signed(17'b01111111111111110));  // ghost a3 update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 84,
+      "what": "constant changed",
+      "was": "wire signed [1:0] _e54 = _e53 ? $signed(2'b01) : $signed(2'b00);",
+      "now": "wire signed [1:0] _e54 = _e53 ? $signed(2'b01) : $signed(2'b01);",
+      "read": "verdict"
+     },
+     {
+      "line": 32,
+      "what": "<= to <",
+      "was": "wire _e5 = $signed({1'b0, user}) <= $signed(11'b01111101000);",
+      "now": "wire _e5 = $signed({1'b0, user}) < $signed(11'b01111101000);",
+      "read": "verdict"
+     },
+     {
+      "line": 36,
+      "what": "constant changed",
+      "was": "wire _e9 = (_e8 >= $signed(17'b11111111111111111)) && (_e8 <= $signed(17'b01111111111111111));  // ghost last update stays in its declared range",
+      "now": "wire _e9 = (_e8 >= $signed(17'b11111111111111110)) && (_e8 <= $signed(17'b01111111111111111));  // ghost last update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 160,
+      "what": "constant changed",
+      "was": "g_pen <= rst_active ? $signed(18'b111111111110011100) : _e78;",
+      "now": "g_pen <= rst_active ? $signed(18'b111111111110011101) : _e78;",
+      "read": "verdict"
+     },
+     {
+      "line": 74,
+      "what": "<= to <",
+      "was": "wire _e44 = (_e43 >= $signed(17'b11111111110011100)) && (_e43 <= $signed(17'b01111111111111111));  // ghost a3 update stays in its declared range",
+      "now": "wire _e44 = (_e43 >= $signed(17'b11111111110011100)) && (_e43 < $signed(17'b01111111111111111));  // ghost a3 update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 192,
+      "what": "count changed",
+      "was": "assign cov_S_EX = !rst_active && (_seg >= 3) && _e121;",
+      "now": "assign cov_S_EX = !rst_active && (_seg >= 4) && _e121;",
+      "read": "scenario"
+     },
+     {
+      "line": 86,
+      "what": "< to <=",
+      "was": "wire _e56 = _e55 < $signed(18'b000000000000111100);",
+      "now": "wire _e56 = _e55 <= $signed(18'b000000000000111100);",
+      "read": "verdict"
+     },
+     {
+      "line": 155,
+      "what": "+ to -",
+      "was": "_seg <= rst_active ? 4'd0 : (_seg == 4'd4) ? _seg : _seg + 1'b1;",
+      "now": "_seg <= rst_active ? 4'd0 : (_seg == 4'd4) ? _seg : _seg - 1'b1;",
+      "read": "scenario"
+     },
+     {
+      "line": 118,
+      "what": "! dropped",
+      "was": "wire _e87 = !allowed;",
+      "now": "wire _e87 = allowed;",
+      "read": "scenario"
+     },
+     {
+      "line": 115,
+      "what": "constant changed",
+      "was": "wire _e84 = $signed({1'b0, now}) == $signed(17'b00000000000000011);",
+      "now": "wire _e84 = $signed({1'b0, now}) == $signed(17'b00000000000000010);",
+      "read": "scenario"
+     }
+    ],
+    "seconds": 18.0
+   },
+   "code_mask/agent_a": {
+    "changes": 47763,
+    "tried": 40,
+    "noticed": 6,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "&& to ||": [
+      2,
+      15
+     ],
+     "constant changed": [
+      3,
+      13
+     ],
+     "< to <=": [
+      0,
+      4
+     ],
+     "<= to <": [
+      1,
+      3
+     ],
+     ">= to >": [
+      0,
+      2
+     ],
+     "+ to -": [
+      0,
+      1
+     ],
+     "|| to &&": [
+      0,
+      1
+     ],
+     "== to !=": [
+      0,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 6826,
+      "what": "&& to ||",
+      "was": "wire _e6786 = 1'b0 && _e6785;",
+      "now": "wire _e6786 = 1'b0 || _e6785;",
+      "read": "verdict"
+     },
+     {
+      "line": 12477,
+      "what": "&& to ||",
+      "was": "wire _e12437 = 1'b1 && _e12436;",
+      "now": "wire _e12437 = 1'b1 || _e12436;",
+      "read": "verdict"
+     },
+     {
+      "line": 12855,
+      "what": "constant changed",
+      "was": "wire _e12815 = $signed({1'b0, _e39}) >= $signed(9'b000110000);",
+      "now": "wire _e12815 = $signed({1'b0, _e39}) >= $signed(9'b000110001);",
+      "read": "verdict"
+     },
+     {
+      "line": 6112,
+      "what": "&& to ||",
+      "was": "wire _e6072 = 1'b1 && _e6071;",
+      "now": "wire _e6072 = 1'b1 || _e6071;",
+      "read": "verdict"
+     },
+     {
+      "line": 17398,
+      "what": "< to <=",
+      "was": "wire _e17358 = $signed(7'b0001010) < _e38;",
+      "now": "wire _e17358 = $signed(7'b0001010) <= _e38;",
+      "read": "verdict"
+     },
+     {
+      "line": 17172,
+      "what": "constant changed",
+      "was": "wire _e17132 = $signed({1'b0, _e50}) <= $signed(9'b000111001);",
+      "now": "wire _e17132 = $signed({1'b1, _e50}) <= $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 5529,
+      "what": "constant changed",
+      "was": "wire _e5489 = $signed({1'b0, _e45}) <= $signed(9'b000111001);",
+      "now": "wire _e5489 = $signed({1'b1, _e45}) <= $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 15190,
+      "what": ">= to >",
+      "was": "wire _e15150 = $signed({1'b0, _e40}) >= $signed(9'b000110000);",
+      "now": "wire _e15150 = $signed({1'b0, _e40}) > $signed(9'b000110000);",
+      "read": "verdict"
+     },
+     {
+      "line": 21828,
+      "what": "&& to ||",
+      "was": "wire _e21788 = _e21786 && _e21787;",
+      "now": "wire _e21788 = _e21786 || _e21787;",
+      "read": "verdict"
+     },
+     {
+      "line": 23253,
+      "what": "< to <=",
+      "was": "wire _e23213 = $signed(7'b0010000) < _e38;",
+      "now": "wire _e23213 = $signed(7'b0010000) <= _e38;",
+      "read": "verdict"
+     },
+     {
+      "line": 22459,
+      "what": "&& to ||",
+      "was": "wire _e22419 = _e22346 && _e22350;",
+      "now": "wire _e22419 = _e22346 || _e22350;",
+      "read": "verdict"
+     },
+     {
+      "line": 2805,
+      "what": "+ to -",
+      "was": "wire signed [6:0] _e2765 = $signed({{5{_e2702[1]}}, _e2702}) + $signed({{5{_e2704[1]}}, _e2704}) + $signed({{5{_e2706[1]}}, _e2706}) + $signed({{5{_e2708[1]}}, _e2708}) + $signed({{5{_e2710[1]}}, _e2710}) + $signed({{5{_e2712[1]}}, _e2712}) + $signed({{5{_e2714[1]}}, _e2714}) + $signed({{5{_e2716[1]}}, _e2716}) + $signed({{5{_e2718[1]}}, _e2718}) + $signed({{5{_e2720[1]}}, _e2720}) + $signed({{5{_e2722[1]}}, _e2722}) + $signed({{5{_e2724[1]}}, _e2724}) + $signed({{5{_e2726[1]}}, _e2726}) + $signed({{5{_e2728[1]}}, _e2728}) + $signed({{5{_e2730[1]}}, _e2730}) + $signed({{5{_e2732[1]}}, _e2732}) + $signed({{5{_e2734[1]}}, _e2734}) + $signed({{5{_e2736[1]}}, _e2736}) + $signed({{5{_e2738[1]}}, _e2738}) + $signed({{5{_e2740[1]}}, _e2740}) + $signed({{5{_e2742[1]}}, _e2742}) + $signed({{5{_e2744[1]}}, _e2744}) + $signed({{5{_e2746[1]}}, _e2746}) + $signed({{5{_e2748[1]}}, _e2748}) + $signed({{5{_e2750[1]}}, _e2750}) + $signed({{5{_e2752[1]}}, _e2752}) + $signed({{5{_e2754[1]}}, _e2754}) + $signed({{5{_e2756[1]}}, _e2756}) + $signed({{5{_e2758[1]}}, _e2758}) + $signed({{5{_e2760[1]}}, _e2760}) + $signed({{5{_e2762[1]}}, _e2762}) + $signed({{5{_e2764[1]}}, _e2764});",
+      "now": "wire signed [6:0] _e2765 = $signed({{5{_e2702[1]}}, _e2702}) + $signed({{5{_e2704[1]}}, _e2704}) + $signed({{5{_e2706[1]}}, _e2706}) + $signed({{5{_e2708[1]}}, _e2708}) + $signed({{5{_e2710[1]}}, _e2710}) + $signed({{5{_e2712[1]}}, _e2712}) + $signed({{5{_e2714[1]}}, _e2714}) + $signed({{5{_e2716[1]}}, _e2716}) + $signed({{5{_e2718[1]}}, _e2718}) + $signed({{5{_e2720[1]}}, _e2720}) + $signed({{5{_e2722[1]}}, _e2722}) + $signed({{5{_e2724[1]}}, _e2724}) + $signed({{5{_e2726[1]}}, _e2726}) + $signed({{5{_e2728[1]}}, _e2728}) + $signed({{5{_e2730[1]}}, _e2730}) + $signed({{5{_e2732[1]}}, _e2732}) + $signed({{5{_e2734[1]}}, _e2734}) + $signed({{5{_e2736[1]}}, _e2736}) + $signed({{5{_e2738[1]}}, _e2738}) + $signed({{5{_e2740[1]}}, _e2740}) + $signed({{5{_e2742[1]}}, _e2742}) + $signed({{5{_e2744[1]}}, _e2744}) + $signed({{5{_e2746[1]}}, _e2746}) + $signed({{5{_e2748[1]}}, _e2748}) + $signed({{5{_e2750[1]}}, _e2750}) - $signed({{5{_e2752[1]}}, _e2752}) + $signed({{5{_e2754[1]}}, _e2754}) + $signed({{5{_e2756[1]}}, _e2756}) + $signed({{5{_e2758[1]}}, _e2758}) + $signed({{5{_e2760[1]}}, _e2760}) + $signed({{5{_e2762[1]}}, _e2762}) + $signed({{5{_e2764[1]}}, _e2764});",
+      "read": "verdict"
+     },
+     {
+      "line": 3780,
+      "what": "constant changed",
+      "was": "wire signed [8:0] _e3740 = $signed({1'b0, _e51}) - $signed(9'b000110000);",
+      "now": "wire signed [8:0] _e3740 = $signed({1'b1, _e51}) - $signed(9'b000110000);",
+      "read": "verdict"
+     },
+     {
+      "line": 16443,
+      "what": "constant changed",
+      "was": "wire _e16403 = $signed({1'b0, _e44}) <= $signed(9'b000111001);",
+      "now": "wire _e16403 = $signed({1'b0, _e44}) <= $signed(9'b000111000);",
+      "read": "verdict"
+     },
+     {
+      "line": 17550,
+      "what": "&& to ||",
+      "was": "wire _e17510 = _e17413 && _e17417;",
+      "now": "wire _e17510 = _e17413 || _e17417;",
+      "read": "verdict"
+     },
+     {
+      "line": 22976,
+      "what": "constant changed",
+      "was": "wire _e22936 = $signed({1'b0, _e46}) >= $signed(9'b000110000);",
+      "now": "wire _e22936 = $signed({1'b0, _e46}) >= $signed(9'b000110001);",
+      "read": "verdict"
+     },
+     {
+      "line": 7310,
+      "what": "<= to <",
+      "was": "wire _e7270 = $signed({1'b0, _e61}) <= $signed(9'b000111001);",
+      "now": "wire _e7270 = $signed({1'b0, _e61}) < $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 23668,
+      "what": "|| to &&",
+      "was": "wire _e23628 = _e23627 || _e20099;",
+      "now": "wire _e23628 = _e23627 && _e20099;",
+      "read": "verdict"
+     },
+     {
+      "line": 11903,
+      "what": "&& to ||",
+      "was": "wire _e11863 = _e11784 && _e11788;",
+      "now": "wire _e11863 = _e11784 || _e11788;",
+      "read": "verdict"
+     },
+     {
+      "line": 20713,
+      "what": "&& to ||",
+      "was": "wire _e20673 = _e20671 && _e20672;",
+      "now": "wire _e20673 = _e20671 || _e20672;",
+      "read": "verdict"
+     },
+     {
+      "line": 188,
+      "what": "== to !=",
+      "was": "wire _e148 = $signed({1'b0, _e47}) == $signed(9'b000100000);",
+      "now": "wire _e148 = $signed({1'b0, _e47}) != $signed(9'b000100000);",
+      "read": "verdict"
+     },
+     {
+      "line": 14064,
+      "what": "< to <=",
+      "was": "wire _e14024 = $signed(7'b0001001) < _e38;",
+      "now": "wire _e14024 = $signed(7'b0001001) <= _e38;",
+      "read": "verdict"
+     },
+     {
+      "line": 6493,
+      "what": "constant changed",
+      "was": "wire _e6453 = 1'b0 && _e6452;",
+      "now": "wire _e6453 = 1'b1 && _e6452;",
+      "read": "verdict"
+     },
+     {
+      "line": 7998,
+      "what": "constant changed",
+      "was": "wire _e7958 = $signed({1'b0, _e53}) >= $signed(9'b000110000);",
+      "now": "wire _e7958 = $signed({1'b0, _e53}) >= $signed(9'b000110001);",
+      "read": "verdict"
+     },
+     {
+      "line": 9892,
+      "what": "<= to <",
+      "was": "wire _e9852 = $signed({1'b0, _e52}) <= $signed(9'b000111001);",
+      "now": "wire _e9852 = $signed({1'b0, _e52}) < $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 11523,
+      "what": "constant changed",
+      "was": "wire _e11483 = $signed({1'b0, _e52}) <= $signed(9'b000111001);",
+      "now": "wire _e11483 = $signed({1'b0, _e52}) <= $signed(9'b000111000);",
+      "read": "verdict"
+     },
+     {
+      "line": 9964,
+      "what": "&& to ||",
+      "was": "wire _e9924 = 1'b1 && _e9923;",
+      "now": "wire _e9924 = 1'b1 || _e9923;",
+      "read": "verdict"
+     },
+     {
+      "line": 13685,
+      "what": "constant changed",
+      "was": "wire _e13645 = $signed({1'b0, _e65}) <= $signed(9'b000111001);",
+      "now": "wire _e13645 = $signed({1'b1, _e65}) <= $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 7874,
+      "what": "&& to ||",
+      "was": "wire _e7834 = _e7719 && _e7723;",
+      "now": "wire _e7834 = _e7719 || _e7723;",
+      "read": "verdict"
+     },
+     {
+      "line": 14591,
+      "what": ">= to >",
+      "was": "wire _e14551 = $signed({1'b0, _e60}) >= $signed(9'b000110000);",
+      "now": "wire _e14551 = $signed({1'b0, _e60}) > $signed(9'b000110000);",
+      "read": "verdict"
+     },
+     {
+      "line": 4163,
+      "what": "&& to ||",
+      "was": "wire _e4123 = 1'b1 && _e4122;",
+      "now": "wire _e4123 = 1'b1 || _e4122;",
+      "read": "verdict"
+     },
+     {
+      "line": 2313,
+      "what": "&& to ||",
+      "was": "wire _e2273 = _e2200 && _e2204;",
+      "now": "wire _e2273 = _e2200 || _e2204;",
+      "read": "verdict"
+     },
+     {
+      "line": 7794,
+      "what": "< to <=",
+      "was": "wire _e7754 = $signed(7'b0010110) < _e38;",
+      "now": "wire _e7754 = $signed(7'b0010110) <= _e38;",
+      "read": "verdict"
+     },
+     {
+      "line": 16608,
+      "what": "&& to ||",
+      "was": "wire _e16568 = _e16456 && _e16460;",
+      "now": "wire _e16568 = _e16456 || _e16460;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 328.4
+   },
+   "code_mask/agent_b": {
+    "changes": 49194,
+    "tried": 40,
+    "noticed": 7,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "&& to ||": [
+      4,
+      9
+     ],
+     "constant changed": [
+      3,
+      21
+     ],
+     "<= to <": [
+      0,
+      2
+     ],
+     "+ to -": [
+      0,
+      5
+     ],
+     ">= to >": [
+      0,
+      1
+     ],
+     "== to !=": [
+      0,
+      2
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 6818,
+      "what": "&& to ||",
+      "was": "wire _e6774 = 1'b0 && _e6773;",
+      "now": "wire _e6774 = 1'b0 || _e6773;",
+      "read": "verdict"
+     },
+     {
+      "line": 2477,
+      "what": "constant changed",
+      "was": "wire _e2433 = 1'b1 && _e2432;",
+      "now": "wire _e2433 = 1'b0 && _e2432;",
+      "read": "verdict"
+     },
+     {
+      "line": 12463,
+      "what": "&& to ||",
+      "was": "wire _e12419 = _e12417 && _e12418;",
+      "now": "wire _e12419 = _e12417 || _e12418;",
+      "read": "verdict"
+     },
+     {
+      "line": 12842,
+      "what": "constant changed",
+      "was": "wire _e12798 = $signed({1'b0, _e42}) >= $signed(9'b000110000);",
+      "now": "wire _e12798 = $signed({1'b1, _e42}) >= $signed(9'b000110000);",
+      "read": "verdict"
+     },
+     {
+      "line": 6105,
+      "what": "constant changed",
+      "was": "wire _e6061 = $signed({1'b0, _e67}) <= $signed(9'b000111001);",
+      "now": "wire _e6061 = $signed({1'b1, _e67}) <= $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 17384,
+      "what": "constant changed",
+      "was": "wire _e17340 = 1'b1 && _e17339;",
+      "now": "wire _e17340 = 1'b0 && _e17339;",
+      "read": "verdict"
+     },
+     {
+      "line": 17159,
+      "what": "<= to <",
+      "was": "wire _e17115 = $signed({1'b0, _e53}) <= $signed(9'b000111001);",
+      "now": "wire _e17115 = $signed({1'b0, _e53}) < $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 5524,
+      "what": "constant changed",
+      "was": "wire _e5480 = $signed(7'b0001001) < _e38;",
+      "now": "wire _e5480 = $signed(7'b0001000) < _e38;",
+      "read": "verdict"
+     },
+     {
+      "line": 15176,
+      "what": "constant changed",
+      "was": "wire _e15132 = $signed(7'b0000100) < _e38;",
+      "now": "wire _e15132 = $signed(7'b0000101) < _e38;",
+      "read": "verdict"
+     },
+     {
+      "line": 21814,
+      "what": "constant changed",
+      "was": "wire _e21770 = $signed({1'b0, _e52}) <= $signed(9'b000111001);",
+      "now": "wire _e21770 = $signed({1'b0, _e52}) <= $signed(9'b000111000);",
+      "read": "verdict"
+     },
+     {
+      "line": 23239,
+      "what": "constant changed",
+      "was": "wire _e23195 = 1'b0 && _e23194;",
+      "now": "wire _e23195 = 1'b1 && _e23194;",
+      "read": "verdict"
+     },
+     {
+      "line": 22437,
+      "what": "+ to -",
+      "was": "wire signed [6:0] _e22393 = $signed({{5{_e22330[1]}}, _e22330}) + $signed({{5{_e22332[1]}}, _e22332}) + $signed({{5{_e22334[1]}}, _e22334}) + $signed({{5{_e22336[1]}}, _e22336}) + $signed({{5{_e22338[1]}}, _e22338}) + $signed({{5{_e22340[1]}}, _e22340}) + $signed({{5{_e22342[1]}}, _e22342}) + $signed({{5{_e22344[1]}}, _e22344}) + $signed({{5{_e22346[1]}}, _e22346}) + $signed({{5{_e22348[1]}}, _e22348}) + $signed({{5{_e22350[1]}}, _e22350}) + $signed({{5{_e22352[1]}}, _e22352}) + $signed({{5{_e22354[1]}}, _e22354}) + $signed({{5{_e22356[1]}}, _e22356}) + $signed({{5{_e22358[1]}}, _e22358}) + $signed({{5{_e22360[1]}}, _e22360}) + $signed({{5{_e22362[1]}}, _e22362}) + $signed({{5{_e22364[1]}}, _e22364}) + $signed({{5{_e22366[1]}}, _e22366}) + $signed({{5{_e22368[1]}}, _e22368}) + $signed({{5{_e22370[1]}}, _e22370}) + $signed({{5{_e22372[1]}}, _e22372}) + $signed({{5{_e22374[1]}}, _e22374}) + $signed({{5{_e22376[1]}}, _e22376}) + $signed({{5{_e22378[1]}}, _e22378}) + $signed({{5{_e22380[1]}}, _e22380}) + $signed({{5{_e22382[1]}}, _e22382}) + $signed({{5{_e22384[1]}}, _e22384}) + $signed({{5{_e22386[1]}}, _e22386}) + $signed({{5{_e22388[1]}}, _e22388}) + $signed({{5{_e22390[1]}}, _e22390}) + $signed({{5{_e22392[1]}}, _e22392});",
+      "now": "wire signed [6:0] _e22393 = $signed({{5{_e22330[1]}}, _e22330}) + $signed({{5{_e22332[1]}}, _e22332}) + $signed({{5{_e22334[1]}}, _e22334}) + $signed({{5{_e22336[1]}}, _e22336}) + $signed({{5{_e22338[1]}}, _e22338}) + $signed({{5{_e22340[1]}}, _e22340}) + $signed({{5{_e22342[1]}}, _e22342}) + $signed({{5{_e22344[1]}}, _e22344}) + $signed({{5{_e22346[1]}}, _e22346}) + $signed({{5{_e22348[1]}}, _e22348}) + $signed({{5{_e22350[1]}}, _e22350}) + $signed({{5{_e22352[1]}}, _e22352}) + $signed({{5{_e22354[1]}}, _e22354}) + $signed({{5{_e22356[1]}}, _e22356}) + $signed({{5{_e22358[1]}}, _e22358}) + $signed({{5{_e22360[1]}}, _e22360}) + $signed({{5{_e22362[1]}}, _e22362}) + $signed({{5{_e22364[1]}}, _e22364}) + $signed({{5{_e22366[1]}}, _e22366}) + $signed({{5{_e22368[1]}}, _e22368}) + $signed({{5{_e22370[1]}}, _e22370}) + $signed({{5{_e22372[1]}}, _e22372}) + $signed({{5{_e22374[1]}}, _e22374}) + $signed({{5{_e22376[1]}}, _e22376}) + $signed({{5{_e22378[1]}}, _e22378}) + $signed({{5{_e22380[1]}}, _e22380}) + $signed({{5{_e22382[1]}}, _e22382}) - $signed({{5{_e22384[1]}}, _e22384}) + $signed({{5{_e22386[1]}}, _e22386}) + $signed({{5{_e22388[1]}}, _e22388}) + $signed({{5{_e22390[1]}}, _e22390}) + $signed({{5{_e22392[1]}}, _e22392});",
+      "read": "verdict"
+     },
+     {
+      "line": 24245,
+      "what": "constant changed",
+      "was": "wire _e24201 = $signed({1'b0, _e60}) == $signed(9'b000100000);",
+      "now": "wire _e24201 = $signed({1'b0, _e60}) == $signed(9'b000100001);",
+      "read": "scenario"
+     },
+     {
+      "line": 3782,
+      "what": ">= to >",
+      "was": "wire _e3738 = $signed({1'b0, _e52}) >= $signed(9'b000110000);",
+      "now": "wire _e3738 = $signed({1'b0, _e52}) > $signed(9'b000110000);",
+      "read": "verdict"
+     },
+     {
+      "line": 16430,
+      "what": "constant changed",
+      "was": "wire _e16386 = $signed({1'b0, _e47}) <= $signed(9'b000111001);",
+      "now": "wire _e16386 = $signed({1'b1, _e47}) <= $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 17544,
+      "what": "+ to -",
+      "was": "wire signed [6:0] _e17500 = $signed({{5{_e17437[1]}}, _e17437}) + $signed({{5{_e17439[1]}}, _e17439}) + $signed({{5{_e17441[1]}}, _e17441}) + $signed({{5{_e17443[1]}}, _e17443}) + $signed({{5{_e17445[1]}}, _e17445}) + $signed({{5{_e17447[1]}}, _e17447}) + $signed({{5{_e17449[1]}}, _e17449}) + $signed({{5{_e17451[1]}}, _e17451}) + $signed({{5{_e17453[1]}}, _e17453}) + $signed({{5{_e17455[1]}}, _e17455}) + $signed({{5{_e17457[1]}}, _e17457}) + $signed({{5{_e17459[1]}}, _e17459}) + $signed({{5{_e17461[1]}}, _e17461}) + $signed({{5{_e17463[1]}}, _e17463}) + $signed({{5{_e17465[1]}}, _e17465}) + $signed({{5{_e17467[1]}}, _e17467}) + $signed({{5{_e17469[1]}}, _e17469}) + $signed({{5{_e17471[1]}}, _e17471}) + $signed({{5{_e17473[1]}}, _e17473}) + $signed({{5{_e17475[1]}}, _e17475}) + $signed({{5{_e17477[1]}}, _e17477}) + $signed({{5{_e17479[1]}}, _e17479}) + $signed({{5{_e17481[1]}}, _e17481}) + $signed({{5{_e17483[1]}}, _e17483}) + $signed({{5{_e17485[1]}}, _e17485}) + $signed({{5{_e17487[1]}}, _e17487}) + $signed({{5{_e17489[1]}}, _e17489}) + $signed({{5{_e17491[1]}}, _e17491}) + $signed({{5{_e17493[1]}}, _e17493}) + $signed({{5{_e17495[1]}}, _e17495}) + $signed({{5{_e17497[1]}}, _e17497}) + $signed({{5{_e17499[1]}}, _e17499});",
+      "now": "wire signed [6:0] _e17500 = $signed({{5{_e17437[1]}}, _e17437}) + $signed({{5{_e17439[1]}}, _e17439}) + $signed({{5{_e17441[1]}}, _e17441}) + $signed({{5{_e17443[1]}}, _e17443}) + $signed({{5{_e17445[1]}}, _e17445}) + $signed({{5{_e17447[1]}}, _e17447}) + $signed({{5{_e17449[1]}}, _e17449}) + $signed({{5{_e17451[1]}}, _e17451}) + $signed({{5{_e17453[1]}}, _e17453}) + $signed({{5{_e17455[1]}}, _e17455}) + $signed({{5{_e17457[1]}}, _e17457}) - $signed({{5{_e17459[1]}}, _e17459}) + $signed({{5{_e17461[1]}}, _e17461}) + $signed({{5{_e17463[1]}}, _e17463}) + $signed({{5{_e17465[1]}}, _e17465}) + $signed({{5{_e17467[1]}}, _e17467}) + $signed({{5{_e17469[1]}}, _e17469}) + $signed({{5{_e17471[1]}}, _e17471}) + $signed({{5{_e17473[1]}}, _e17473}) + $signed({{5{_e17475[1]}}, _e17475}) + $signed({{5{_e17477[1]}}, _e17477}) + $signed({{5{_e17479[1]}}, _e17479}) + $signed({{5{_e17481[1]}}, _e17481}) + $signed({{5{_e17483[1]}}, _e17483}) + $signed({{5{_e17485[1]}}, _e17485}) + $signed({{5{_e17487[1]}}, _e17487}) + $signed({{5{_e17489[1]}}, _e17489}) + $signed({{5{_e17491[1]}}, _e17491}) + $signed({{5{_e17493[1]}}, _e17493}) + $signed({{5{_e17495[1]}}, _e17495}) + $signed({{5{_e17497[1]}}, _e17497}) + $signed({{5{_e17499[1]}}, _e17499});",
+      "read": "verdict"
+     },
+     {
+      "line": 22963,
+      "what": "constant changed",
+      "was": "wire _e22919 = $signed({1'b0, _e49}) >= $signed(9'b000110000);",
+      "now": "wire _e22919 = $signed({1'b1, _e49}) >= $signed(9'b000110000);",
+      "read": "verdict"
+     },
+     {
+      "line": 7300,
+      "what": "constant changed",
+      "was": "wire _e7256 = $signed({1'b0, _e64}) <= $signed(9'b000111001);",
+      "now": "wire _e7256 = $signed({1'b0, _e64}) <= $signed(9'b000111000);",
+      "read": "verdict"
+     },
+     {
+      "line": 11885,
+      "what": "+ to -",
+      "was": "wire signed [6:0] _e11841 = $signed({{5{_e11778[1]}}, _e11778}) + $signed({{5{_e11780[1]}}, _e11780}) + $signed({{5{_e11782[1]}}, _e11782}) + $signed({{5{_e11784[1]}}, _e11784}) + $signed({{5{_e11786[1]}}, _e11786}) + $signed({{5{_e11788[1]}}, _e11788}) + $signed({{5{_e11790[1]}}, _e11790}) + $signed({{5{_e11792[1]}}, _e11792}) + $signed({{5{_e11794[1]}}, _e11794}) + $signed({{5{_e11796[1]}}, _e11796}) + $signed({{5{_e11798[1]}}, _e11798}) + $signed({{5{_e11800[1]}}, _e11800}) + $signed({{5{_e11802[1]}}, _e11802}) + $signed({{5{_e11804[1]}}, _e11804}) + $signed({{5{_e11806[1]}}, _e11806}) + $signed({{5{_e11808[1]}}, _e11808}) + $signed({{5{_e11810[1]}}, _e11810}) + $signed({{5{_e11812[1]}}, _e11812}) + $signed({{5{_e11814[1]}}, _e11814}) + $signed({{5{_e11816[1]}}, _e11816}) + $signed({{5{_e11818[1]}}, _e11818}) + $signed({{5{_e11820[1]}}, _e11820}) + $signed({{5{_e11822[1]}}, _e11822}) + $signed({{5{_e11824[1]}}, _e11824}) + $signed({{5{_e11826[1]}}, _e11826}) + $signed({{5{_e11828[1]}}, _e11828}) + $signed({{5{_e11830[1]}}, _e11830}) + $signed({{5{_e11832[1]}}, _e11832}) + $signed({{5{_e11834[1]}}, _e11834}) + $signed({{5{_e11836[1]}}, _e11836}) + $signed({{5{_e11838[1]}}, _e11838}) + $signed({{5{_e11840[1]}}, _e11840});",
+      "now": "wire signed [6:0] _e11841 = $signed({{5{_e11778[1]}}, _e11778}) + $signed({{5{_e11780[1]}}, _e11780}) + $signed({{5{_e11782[1]}}, _e11782}) + $signed({{5{_e11784[1]}}, _e11784}) + $signed({{5{_e11786[1]}}, _e11786}) + $signed({{5{_e11788[1]}}, _e11788}) + $signed({{5{_e11790[1]}}, _e11790}) + $signed({{5{_e11792[1]}}, _e11792}) + $signed({{5{_e11794[1]}}, _e11794}) + $signed({{5{_e11796[1]}}, _e11796}) + $signed({{5{_e11798[1]}}, _e11798}) + $signed({{5{_e11800[1]}}, _e11800}) + $signed({{5{_e11802[1]}}, _e11802}) + $signed({{5{_e11804[1]}}, _e11804}) + $signed({{5{_e11806[1]}}, _e11806}) + $signed({{5{_e11808[1]}}, _e11808}) + $signed({{5{_e11810[1]}}, _e11810}) + $signed({{5{_e11812[1]}}, _e11812}) + $signed({{5{_e11814[1]}}, _e11814}) + $signed({{5{_e11816[1]}}, _e11816}) + $signed({{5{_e11818[1]}}, _e11818}) + $signed({{5{_e11820[1]}}, _e11820}) + $signed({{5{_e11822[1]}}, _e11822}) - $signed({{5{_e11824[1]}}, _e11824}) + $signed({{5{_e11826[1]}}, _e11826}) + $signed({{5{_e11828[1]}}, _e11828}) + $signed({{5{_e11830[1]}}, _e11830}) + $signed({{5{_e11832[1]}}, _e11832}) + $signed({{5{_e11834[1]}}, _e11834}) + $signed({{5{_e11836[1]}}, _e11836}) + $signed({{5{_e11838[1]}}, _e11838}) + $signed({{5{_e11840[1]}}, _e11840});",
+      "read": "verdict"
+     },
+     {
+      "line": 20699,
+      "what": "constant changed",
+      "was": "wire _e20655 = $signed({1'b0, _e62}) <= $signed(9'b000111001);",
+      "now": "wire _e20655 = $signed({1'b0, _e62}) <= $signed(9'b000111000);",
+      "read": "verdict"
+     },
+     {
+      "line": 192,
+      "what": "== to !=",
+      "was": "wire _e148 = $signed({1'b0, _e47}) == $signed(9'b000100000);",
+      "now": "wire _e148 = $signed({1'b0, _e47}) != $signed(9'b000100000);",
+      "read": "verdict"
+     },
+     {
+      "line": 14050,
+      "what": "constant changed",
+      "was": "wire _e14006 = 1'b0 && _e14005;",
+      "now": "wire _e14006 = 1'b1 && _e14005;",
+      "read": "verdict"
+     },
+     {
+      "line": 6486,
+      "what": "&& to ||",
+      "was": "wire _e6442 = 1'b0 && _e6441;",
+      "now": "wire _e6442 = 1'b0 || _e6441;",
+      "read": "verdict"
+     },
+     {
+      "line": 7988,
+      "what": "&& to ||",
+      "was": "wire _e7944 = 1'b0 && _e7943;",
+      "now": "wire _e7944 = 1'b0 || _e7943;",
+      "read": "verdict"
+     },
+     {
+      "line": 9878,
+      "what": "constant changed",
+      "was": "wire _e9834 = $signed({1'b0, _e55}) >= $signed(9'b000110000);",
+      "now": "wire _e9834 = $signed({1'b0, _e55}) >= $signed(9'b000110001);",
+      "read": "verdict"
+     },
+     {
+      "line": 11510,
+      "what": "constant changed",
+      "was": "wire _e11466 = $signed({1'b0, _e55}) <= $signed(9'b000111001);",
+      "now": "wire _e11466 = $signed({1'b1, _e55}) <= $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 9950,
+      "what": "&& to ||",
+      "was": "wire _e9906 = _e9904 && _e9905;",
+      "now": "wire _e9906 = _e9904 || _e9905;",
+      "read": "verdict"
+     },
+     {
+      "line": 23941,
+      "what": "== to !=",
+      "was": "wire _e23897 = $signed({1'b0, _e42}) == $signed(9'b000110001);",
+      "now": "wire _e23897 = $signed({1'b0, _e42}) != $signed(9'b000110001);",
+      "read": "verdict"
+     },
+     {
+      "line": 13672,
+      "what": "<= to <",
+      "was": "wire _e13628 = $signed({1'b0, _e68}) <= $signed(9'b000111001);",
+      "now": "wire _e13628 = $signed({1'b0, _e68}) < $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 7881,
+      "what": "+ to -",
+      "was": "wire signed [6:0] _e7837 = $signed({{5{_e7774[1]}}, _e7774}) + $signed({{5{_e7776[1]}}, _e7776}) + $signed({{5{_e7778[1]}}, _e7778}) + $signed({{5{_e7780[1]}}, _e7780}) + $signed({{5{_e7782[1]}}, _e7782}) + $signed({{5{_e7784[1]}}, _e7784}) + $signed({{5{_e7786[1]}}, _e7786}) + $signed({{5{_e7788[1]}}, _e7788}) + $signed({{5{_e7790[1]}}, _e7790}) + $signed({{5{_e7792[1]}}, _e7792}) + $signed({{5{_e7794[1]}}, _e7794}) + $signed({{5{_e7796[1]}}, _e7796}) + $signed({{5{_e7798[1]}}, _e7798}) + $signed({{5{_e7800[1]}}, _e7800}) + $signed({{5{_e7802[1]}}, _e7802}) + $signed({{5{_e7804[1]}}, _e7804}) + $signed({{5{_e7806[1]}}, _e7806}) + $signed({{5{_e7808[1]}}, _e7808}) + $signed({{5{_e7810[1]}}, _e7810}) + $signed({{5{_e7812[1]}}, _e7812}) + $signed({{5{_e7814[1]}}, _e7814}) + $signed({{5{_e7816[1]}}, _e7816}) + $signed({{5{_e7818[1]}}, _e7818}) + $signed({{5{_e7820[1]}}, _e7820}) + $signed({{5{_e7822[1]}}, _e7822}) + $signed({{5{_e7824[1]}}, _e7824}) + $signed({{5{_e7826[1]}}, _e7826}) + $signed({{5{_e7828[1]}}, _e7828}) + $signed({{5{_e7830[1]}}, _e7830}) + $signed({{5{_e7832[1]}}, _e7832}) + $signed({{5{_e7834[1]}}, _e7834}) + $signed({{5{_e7836[1]}}, _e7836});",
+      "now": "wire signed [6:0] _e7837 = $signed({{5{_e7774[1]}}, _e7774}) + $signed({{5{_e7776[1]}}, _e7776}) + $signed({{5{_e7778[1]}}, _e7778}) + $signed({{5{_e7780[1]}}, _e7780}) - $signed({{5{_e7782[1]}}, _e7782}) + $signed({{5{_e7784[1]}}, _e7784}) + $signed({{5{_e7786[1]}}, _e7786}) + $signed({{5{_e7788[1]}}, _e7788}) + $signed({{5{_e7790[1]}}, _e7790}) + $signed({{5{_e7792[1]}}, _e7792}) + $signed({{5{_e7794[1]}}, _e7794}) + $signed({{5{_e7796[1]}}, _e7796}) + $signed({{5{_e7798[1]}}, _e7798}) + $signed({{5{_e7800[1]}}, _e7800}) + $signed({{5{_e7802[1]}}, _e7802}) + $signed({{5{_e7804[1]}}, _e7804}) + $signed({{5{_e7806[1]}}, _e7806}) + $signed({{5{_e7808[1]}}, _e7808}) + $signed({{5{_e7810[1]}}, _e7810}) + $signed({{5{_e7812[1]}}, _e7812}) + $signed({{5{_e7814[1]}}, _e7814}) + $signed({{5{_e7816[1]}}, _e7816}) + $signed({{5{_e7818[1]}}, _e7818}) + $signed({{5{_e7820[1]}}, _e7820}) + $signed({{5{_e7822[1]}}, _e7822}) + $signed({{5{_e7824[1]}}, _e7824}) + $signed({{5{_e7826[1]}}, _e7826}) + $signed({{5{_e7828[1]}}, _e7828}) + $signed({{5{_e7830[1]}}, _e7830}) + $signed({{5{_e7832[1]}}, _e7832}) + $signed({{5{_e7834[1]}}, _e7834}) + $signed({{5{_e7836[1]}}, _e7836});",
+      "read": "verdict"
+     },
+     {
+      "line": 14577,
+      "what": "constant changed",
+      "was": "wire _e14533 = $signed(7'b0011000) < _e38;",
+      "now": "wire _e14533 = $signed(7'b0011001) < _e38;",
+      "read": "verdict"
+     },
+     {
+      "line": 2315,
+      "what": "+ to -",
+      "was": "wire signed [6:0] _e2271 = $signed({{5{_e2208[1]}}, _e2208}) + $signed({{5{_e2210[1]}}, _e2210}) + $signed({{5{_e2212[1]}}, _e2212}) + $signed({{5{_e2214[1]}}, _e2214}) + $signed({{5{_e2216[1]}}, _e2216}) + $signed({{5{_e2218[1]}}, _e2218}) + $signed({{5{_e2220[1]}}, _e2220}) + $signed({{5{_e2222[1]}}, _e2222}) + $signed({{5{_e2224[1]}}, _e2224}) + $signed({{5{_e2226[1]}}, _e2226}) + $signed({{5{_e2228[1]}}, _e2228}) + $signed({{5{_e2230[1]}}, _e2230}) + $signed({{5{_e2232[1]}}, _e2232}) + $signed({{5{_e2234[1]}}, _e2234}) + $signed({{5{_e2236[1]}}, _e2236}) + $signed({{5{_e2238[1]}}, _e2238}) + $signed({{5{_e2240[1]}}, _e2240}) + $signed({{5{_e2242[1]}}, _e2242}) + $signed({{5{_e2244[1]}}, _e2244}) + $signed({{5{_e2246[1]}}, _e2246}) + $signed({{5{_e2248[1]}}, _e2248}) + $signed({{5{_e2250[1]}}, _e2250}) + $signed({{5{_e2252[1]}}, _e2252}) + $signed({{5{_e2254[1]}}, _e2254}) + $signed({{5{_e2256[1]}}, _e2256}) + $signed({{5{_e2258[1]}}, _e2258}) + $signed({{5{_e2260[1]}}, _e2260}) + $signed({{5{_e2262[1]}}, _e2262}) + $signed({{5{_e2264[1]}}, _e2264}) + $signed({{5{_e2266[1]}}, _e2266}) + $signed({{5{_e2268[1]}}, _e2268}) + $signed({{5{_e2270[1]}}, _e2270});",
+      "now": "wire signed [6:0] _e2271 = $signed({{5{_e2208[1]}}, _e2208}) + $signed({{5{_e2210[1]}}, _e2210}) + $signed({{5{_e2212[1]}}, _e2212}) + $signed({{5{_e2214[1]}}, _e2214}) + $signed({{5{_e2216[1]}}, _e2216}) + $signed({{5{_e2218[1]}}, _e2218}) + $signed({{5{_e2220[1]}}, _e2220}) + $signed({{5{_e2222[1]}}, _e2222}) + $signed({{5{_e2224[1]}}, _e2224}) - $signed({{5{_e2226[1]}}, _e2226}) + $signed({{5{_e2228[1]}}, _e2228}) + $signed({{5{_e2230[1]}}, _e2230}) + $signed({{5{_e2232[1]}}, _e2232}) + $signed({{5{_e2234[1]}}, _e2234}) + $signed({{5{_e2236[1]}}, _e2236}) + $signed({{5{_e2238[1]}}, _e2238}) + $signed({{5{_e2240[1]}}, _e2240}) + $signed({{5{_e2242[1]}}, _e2242}) + $signed({{5{_e2244[1]}}, _e2244}) + $signed({{5{_e2246[1]}}, _e2246}) + $signed({{5{_e2248[1]}}, _e2248}) + $signed({{5{_e2250[1]}}, _e2250}) + $signed({{5{_e2252[1]}}, _e2252}) + $signed({{5{_e2254[1]}}, _e2254}) + $signed({{5{_e2256[1]}}, _e2256}) + $signed({{5{_e2258[1]}}, _e2258}) + $signed({{5{_e2260[1]}}, _e2260}) + $signed({{5{_e2262[1]}}, _e2262}) + $signed({{5{_e2264[1]}}, _e2264}) + $signed({{5{_e2266[1]}}, _e2266}) + $signed({{5{_e2268[1]}}, _e2268}) + $signed({{5{_e2270[1]}}, _e2270});",
+      "read": "verdict"
+     },
+     {
+      "line": 7783,
+      "what": "constant changed",
+      "was": "wire _e7739 = $signed({1'b0, _e64}) >= $signed(9'b000110000);",
+      "now": "wire _e7739 = $signed({1'b0, _e64}) >= $signed(9'b000110001);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 347.4
+   },
+   "code_mask/gold": {
+    "changes": 47355,
+    "tried": 40,
+    "noticed": 1,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "&& to ||": [
+      0,
+      9
+     ],
+     "<= to <": [
+      0,
+      3
+     ],
+     "constant changed": [
+      1,
+      18
+     ],
+     "< to <=": [
+      0,
+      2
+     ],
+     "+ to -": [
+      0,
+      5
+     ],
+     ">= to >": [
+      0,
+      3
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 6817,
+      "what": "&& to ||",
+      "was": "wire _e6787 = _e6714 && _e6718;",
+      "now": "wire _e6787 = _e6714 || _e6718;",
+      "read": "verdict"
+     },
+     {
+      "line": 2459,
+      "what": "&& to ||",
+      "was": "wire _e2429 = _e2272 && _e2276;",
+      "now": "wire _e2429 = _e2272 || _e2276;",
+      "read": "verdict"
+     },
+     {
+      "line": 12428,
+      "what": "<= to <",
+      "was": "wire _e12398 = $signed({1'b0, _e69}) <= $signed(9'b000111001);",
+      "now": "wire _e12398 = $signed({1'b0, _e69}) < $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 9269,
+      "what": "constant changed",
+      "was": "wire _e9239 = $signed({1'b0, _e43}) <= $signed(9'b000111001);",
+      "now": "wire _e9239 = $signed({1'b1, _e43}) <= $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 12807,
+      "what": "< to <=",
+      "was": "wire _e12777 = $signed(7'b0001101) < _e38;",
+      "now": "wire _e12777 = $signed(7'b0001101) <= _e38;",
+      "read": "verdict"
+     },
+     {
+      "line": 6106,
+      "what": "+ to -",
+      "was": "wire signed [6:0] _e6076 = $signed({{5{_e6013[1]}}, _e6013}) + $signed({{5{_e6015[1]}}, _e6015}) + $signed({{5{_e6017[1]}}, _e6017}) + $signed({{5{_e6019[1]}}, _e6019}) + $signed({{5{_e6021[1]}}, _e6021}) + $signed({{5{_e6023[1]}}, _e6023}) + $signed({{5{_e6025[1]}}, _e6025}) + $signed({{5{_e6027[1]}}, _e6027}) + $signed({{5{_e6029[1]}}, _e6029}) + $signed({{5{_e6031[1]}}, _e6031}) + $signed({{5{_e6033[1]}}, _e6033}) + $signed({{5{_e6035[1]}}, _e6035}) + $signed({{5{_e6037[1]}}, _e6037}) + $signed({{5{_e6039[1]}}, _e6039}) + $signed({{5{_e6041[1]}}, _e6041}) + $signed({{5{_e6043[1]}}, _e6043}) + $signed({{5{_e6045[1]}}, _e6045}) + $signed({{5{_e6047[1]}}, _e6047}) + $signed({{5{_e6049[1]}}, _e6049}) + $signed({{5{_e6051[1]}}, _e6051}) + $signed({{5{_e6053[1]}}, _e6053}) + $signed({{5{_e6055[1]}}, _e6055}) + $signed({{5{_e6057[1]}}, _e6057}) + $signed({{5{_e6059[1]}}, _e6059}) + $signed({{5{_e6061[1]}}, _e6061}) + $signed({{5{_e6063[1]}}, _e6063}) + $signed({{5{_e6065[1]}}, _e6065}) + $signed({{5{_e6067[1]}}, _e6067}) + $signed({{5{_e6069[1]}}, _e6069}) + $signed({{5{_e6071[1]}}, _e6071}) + $signed({{5{_e6073[1]}}, _e6073}) + $signed({{5{_e6075[1]}}, _e6075});",
+      "now": "wire signed [6:0] _e6076 = $signed({{5{_e6013[1]}}, _e6013}) + $signed({{5{_e6015[1]}}, _e6015}) + $signed({{5{_e6017[1]}}, _e6017}) + $signed({{5{_e6019[1]}}, _e6019}) + $signed({{5{_e6021[1]}}, _e6021}) + $signed({{5{_e6023[1]}}, _e6023}) + $signed({{5{_e6025[1]}}, _e6025}) + $signed({{5{_e6027[1]}}, _e6027}) + $signed({{5{_e6029[1]}}, _e6029}) + $signed({{5{_e6031[1]}}, _e6031}) - $signed({{5{_e6033[1]}}, _e6033}) + $signed({{5{_e6035[1]}}, _e6035}) + $signed({{5{_e6037[1]}}, _e6037}) + $signed({{5{_e6039[1]}}, _e6039}) + $signed({{5{_e6041[1]}}, _e6041}) + $signed({{5{_e6043[1]}}, _e6043}) + $signed({{5{_e6045[1]}}, _e6045}) + $signed({{5{_e6047[1]}}, _e6047}) + $signed({{5{_e6049[1]}}, _e6049}) + $signed({{5{_e6051[1]}}, _e6051}) + $signed({{5{_e6053[1]}}, _e6053}) + $signed({{5{_e6055[1]}}, _e6055}) + $signed({{5{_e6057[1]}}, _e6057}) + $signed({{5{_e6059[1]}}, _e6059}) + $signed({{5{_e6061[1]}}, _e6061}) + $signed({{5{_e6063[1]}}, _e6063}) + $signed({{5{_e6065[1]}}, _e6065}) + $signed({{5{_e6067[1]}}, _e6067}) + $signed({{5{_e6069[1]}}, _e6069}) + $signed({{5{_e6071[1]}}, _e6071}) + $signed({{5{_e6073[1]}}, _e6073}) + $signed({{5{_e6075[1]}}, _e6075});",
+      "read": "verdict"
+     },
+     {
+      "line": 17350,
+      "what": "&& to ||",
+      "was": "wire _e17320 = 1'b1 && _e17319;",
+      "now": "wire _e17320 = 1'b1 || _e17319;",
+      "read": "verdict"
+     },
+     {
+      "line": 17124,
+      "what": "constant changed",
+      "was": "wire _e17094 = $signed({1'b0, _e63}) >= $signed(9'b000110000);",
+      "now": "wire _e17094 = $signed({1'b0, _e63}) >= $signed(9'b000110001);",
+      "read": "verdict"
+     },
+     {
+      "line": 5495,
+      "what": "constant changed",
+      "was": "wire _e5465 = $signed({1'b0, _e57}) >= $signed(9'b000110000);",
+      "now": "wire _e5465 = $signed({1'b1, _e57}) >= $signed(9'b000110000);",
+      "read": "verdict"
+     },
+     {
+      "line": 8422,
+      "what": "<= to <",
+      "was": "wire _e8392 = $signed({1'b0, _e60}) <= $signed(9'b000111001);",
+      "now": "wire _e8392 = $signed({1'b0, _e60}) < $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 15141,
+      "what": "&& to ||",
+      "was": "wire _e15111 = 1'b0 && _e15110;",
+      "now": "wire _e15111 = 1'b0 || _e15110;",
+      "read": "verdict"
+     },
+     {
+      "line": 21780,
+      "what": "constant changed",
+      "was": "wire _e21750 = $signed({1'b0, _e62}) <= $signed(9'b000111001);",
+      "now": "wire _e21750 = $signed({1'b1, _e62}) <= $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 23205,
+      "what": "&& to ||",
+      "was": "wire _e23175 = 1'b0 && _e23174;",
+      "now": "wire _e23175 = 1'b0 || _e23174;",
+      "read": "verdict"
+     },
+     {
+      "line": 22402,
+      "what": "constant changed",
+      "was": "wire _e22372 = $signed(7'b0001000) < _e38;",
+      "now": "wire _e22372 = $signed(7'b0001001) < _e38;",
+      "read": "verdict"
+     },
+     {
+      "line": 2786,
+      "what": ">= to >",
+      "was": "wire _e2756 = $signed({1'b0, _e41}) >= $signed(9'b000110000);",
+      "now": "wire _e2756 = $signed({1'b0, _e41}) > $signed(9'b000110000);",
+      "read": "verdict"
+     },
+     {
+      "line": 3757,
+      "what": "constant changed",
+      "was": "wire _e3727 = $signed({1'b0, _e44}) >= $signed(9'b000110000);",
+      "now": "wire _e3727 = $signed({1'b0, _e44}) >= $signed(9'b000110001);",
+      "read": "verdict"
+     },
+     {
+      "line": 16396,
+      "what": "<= to <",
+      "was": "wire _e16366 = $signed({1'b0, _e57}) <= $signed(9'b000111001);",
+      "now": "wire _e16366 = $signed({1'b0, _e57}) < $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 17501,
+      "what": "constant changed",
+      "was": "wire _e17471 = $signed({1'b0, _e45}) <= $signed(9'b000111001);",
+      "now": "wire _e17471 = $signed({1'b0, _e45}) <= $signed(9'b000111000);",
+      "read": "verdict"
+     },
+     {
+      "line": 22929,
+      "what": ">= to >",
+      "was": "wire _e22899 = $signed({1'b0, _e59}) >= $signed(9'b000110000);",
+      "now": "wire _e22899 = $signed({1'b0, _e59}) > $signed(9'b000110000);",
+      "read": "verdict"
+     },
+     {
+      "line": 7301,
+      "what": "+ to -",
+      "was": "wire signed [6:0] _e7271 = $signed({{5{_e7208[1]}}, _e7208}) + $signed({{5{_e7210[1]}}, _e7210}) + $signed({{5{_e7212[1]}}, _e7212}) + $signed({{5{_e7214[1]}}, _e7214}) + $signed({{5{_e7216[1]}}, _e7216}) + $signed({{5{_e7218[1]}}, _e7218}) + $signed({{5{_e7220[1]}}, _e7220}) + $signed({{5{_e7222[1]}}, _e7222}) + $signed({{5{_e7224[1]}}, _e7224}) + $signed({{5{_e7226[1]}}, _e7226}) + $signed({{5{_e7228[1]}}, _e7228}) + $signed({{5{_e7230[1]}}, _e7230}) + $signed({{5{_e7232[1]}}, _e7232}) + $signed({{5{_e7234[1]}}, _e7234}) + $signed({{5{_e7236[1]}}, _e7236}) + $signed({{5{_e7238[1]}}, _e7238}) + $signed({{5{_e7240[1]}}, _e7240}) + $signed({{5{_e7242[1]}}, _e7242}) + $signed({{5{_e7244[1]}}, _e7244}) + $signed({{5{_e7246[1]}}, _e7246}) + $signed({{5{_e7248[1]}}, _e7248}) + $signed({{5{_e7250[1]}}, _e7250}) + $signed({{5{_e7252[1]}}, _e7252}) + $signed({{5{_e7254[1]}}, _e7254}) + $signed({{5{_e7256[1]}}, _e7256}) + $signed({{5{_e7258[1]}}, _e7258}) + $signed({{5{_e7260[1]}}, _e7260}) + $signed({{5{_e7262[1]}}, _e7262}) + $signed({{5{_e7264[1]}}, _e7264}) + $signed({{5{_e7266[1]}}, _e7266}) + $signed({{5{_e7268[1]}}, _e7268}) + $signed({{5{_e7270[1]}}, _e7270});",
+      "now": "wire signed [6:0] _e7271 = $signed({{5{_e7208[1]}}, _e7208}) + $signed({{5{_e7210[1]}}, _e7210}) + $signed({{5{_e7212[1]}}, _e7212}) - $signed({{5{_e7214[1]}}, _e7214}) + $signed({{5{_e7216[1]}}, _e7216}) + $signed({{5{_e7218[1]}}, _e7218}) + $signed({{5{_e7220[1]}}, _e7220}) + $signed({{5{_e7222[1]}}, _e7222}) + $signed({{5{_e7224[1]}}, _e7224}) + $signed({{5{_e7226[1]}}, _e7226}) + $signed({{5{_e7228[1]}}, _e7228}) + $signed({{5{_e7230[1]}}, _e7230}) + $signed({{5{_e7232[1]}}, _e7232}) + $signed({{5{_e7234[1]}}, _e7234}) + $signed({{5{_e7236[1]}}, _e7236}) + $signed({{5{_e7238[1]}}, _e7238}) + $signed({{5{_e7240[1]}}, _e7240}) + $signed({{5{_e7242[1]}}, _e7242}) + $signed({{5{_e7244[1]}}, _e7244}) + $signed({{5{_e7246[1]}}, _e7246}) + $signed({{5{_e7248[1]}}, _e7248}) + $signed({{5{_e7250[1]}}, _e7250}) + $signed({{5{_e7252[1]}}, _e7252}) + $signed({{5{_e7254[1]}}, _e7254}) + $signed({{5{_e7256[1]}}, _e7256}) + $signed({{5{_e7258[1]}}, _e7258}) + $signed({{5{_e7260[1]}}, _e7260}) + $signed({{5{_e7262[1]}}, _e7262}) + $signed({{5{_e7264[1]}}, _e7264}) + $signed({{5{_e7266[1]}}, _e7266}) + $signed({{5{_e7268[1]}}, _e7268}) + $signed({{5{_e7270[1]}}, _e7270});",
+      "read": "verdict"
+     },
+     {
+      "line": 23639,
+      "what": "constant changed",
+      "was": "wire _e23609 = $signed(7'b0000101) < _e2;",
+      "now": "wire _e23609 = $signed(7'b0000100) < _e2;",
+      "read": "verdict"
+     },
+     {
+      "line": 11846,
+      "what": "constant changed",
+      "was": "wire _e11816 = $signed({1'b0, _e46}) >= $signed(9'b000110000);",
+      "now": "wire _e11816 = $signed({1'b0, _e46}) >= $signed(9'b000110001);",
+      "read": "verdict"
+     },
+     {
+      "line": 20675,
+      "what": "constant changed",
+      "was": "wire signed [1:0] _e20645 = $signed({1'b0, _e20644});",
+      "now": "wire signed [1:0] _e20645 = $signed({1'b1, _e20644});",
+      "read": "verdict"
+     },
+     {
+      "line": 174,
+      "what": "< to <=",
+      "was": "wire _e144 = $signed(7'b0001001) < _e38;",
+      "now": "wire _e144 = $signed(7'b0001001) <= _e38;",
+      "read": "verdict"
+     },
+     {
+      "line": 9015,
+      "what": ">= to >",
+      "was": "wire _e8985 = $signed({1'b0, _e39}) >= $signed(9'b000110000);",
+      "now": "wire _e8985 = $signed({1'b0, _e39}) > $signed(9'b000110000);",
+      "read": "verdict"
+     },
+     {
+      "line": 14014,
+      "what": "constant changed",
+      "was": "wire _e13984 = $signed({1'b0, _e60}) <= $signed(9'b000111001);",
+      "now": "wire _e13984 = $signed({1'b0, _e60}) <= $signed(9'b000111000);",
+      "read": "verdict"
+     },
+     {
+      "line": 6454,
+      "what": "&& to ||",
+      "was": "wire _e6424 = 1'b0 && _e6423;",
+      "now": "wire _e6424 = 1'b0 || _e6423;",
+      "read": "verdict"
+     },
+     {
+      "line": 7951,
+      "what": "constant changed",
+      "was": "wire _e7921 = $signed({1'b0, _e70}) <= $signed(9'b000111001);",
+      "now": "wire _e7921 = $signed({1'b1, _e70}) <= $signed(9'b000111001);",
+      "read": "verdict"
+     },
+     {
+      "line": 9843,
+      "what": "constant changed",
+      "was": "wire _e9813 = $signed(7'b0011010) < _e38;",
+      "now": "wire _e9813 = $signed(7'b0011011) < _e38;",
+      "read": "verdict"
+     },
+     {
+      "line": 11475,
+      "what": "constant changed",
+      "was": "wire _e11445 = $signed({1'b0, _e65}) >= $signed(9'b000110000);",
+      "now": "wire _e11445 = $signed({1'b1, _e65}) >= $signed(9'b000110000);",
+      "read": "verdict"
+     },
+     {
+      "line": 9937,
+      "what": "+ to -",
+      "was": "wire signed [6:0] _e9907 = $signed({{5{_e9844[1]}}, _e9844}) + $signed({{5{_e9846[1]}}, _e9846}) + $signed({{5{_e9848[1]}}, _e9848}) + $signed({{5{_e9850[1]}}, _e9850}) + $signed({{5{_e9852[1]}}, _e9852}) + $signed({{5{_e9854[1]}}, _e9854}) + $signed({{5{_e9856[1]}}, _e9856}) + $signed({{5{_e9858[1]}}, _e9858}) + $signed({{5{_e9860[1]}}, _e9860}) + $signed({{5{_e9862[1]}}, _e9862}) + $signed({{5{_e9864[1]}}, _e9864}) + $signed({{5{_e9866[1]}}, _e9866}) + $signed({{5{_e9868[1]}}, _e9868}) + $signed({{5{_e9870[1]}}, _e9870}) + $signed({{5{_e9872[1]}}, _e9872}) + $signed({{5{_e9874[1]}}, _e9874}) + $signed({{5{_e9876[1]}}, _e9876}) + $signed({{5{_e9878[1]}}, _e9878}) + $signed({{5{_e9880[1]}}, _e9880}) + $signed({{5{_e9882[1]}}, _e9882}) + $signed({{5{_e9884[1]}}, _e9884}) + $signed({{5{_e9886[1]}}, _e9886}) + $signed({{5{_e9888[1]}}, _e9888}) + $signed({{5{_e9890[1]}}, _e9890}) + $signed({{5{_e9892[1]}}, _e9892}) + $signed({{5{_e9894[1]}}, _e9894}) + $signed({{5{_e9896[1]}}, _e9896}) + $signed({{5{_e9898[1]}}, _e9898}) + $signed({{5{_e9900[1]}}, _e9900}) + $signed({{5{_e9902[1]}}, _e9902}) + $signed({{5{_e9904[1]}}, _e9904}) + $signed({{5{_e9906[1]}}, _e9906});",
+      "now": "wire signed [6:0] _e9907 = $signed({{5{_e9844[1]}}, _e9844}) + $signed({{5{_e9846[1]}}, _e9846}) + $signed({{5{_e9848[1]}}, _e9848}) + $signed({{5{_e9850[1]}}, _e9850}) + $signed({{5{_e9852[1]}}, _e9852}) + $signed({{5{_e9854[1]}}, _e9854}) + $signed({{5{_e9856[1]}}, _e9856}) + $signed({{5{_e9858[1]}}, _e9858}) + $signed({{5{_e9860[1]}}, _e9860}) + $signed({{5{_e9862[1]}}, _e9862}) + $signed({{5{_e9864[1]}}, _e9864}) + $signed({{5{_e9866[1]}}, _e9866}) + $signed({{5{_e9868[1]}}, _e9868}) + $signed({{5{_e9870[1]}}, _e9870}) + $signed({{5{_e9872[1]}}, _e9872}) + $signed({{5{_e9874[1]}}, _e9874}) + $signed({{5{_e9876[1]}}, _e9876}) + $signed({{5{_e9878[1]}}, _e9878}) + $signed({{5{_e9880[1]}}, _e9880}) + $signed({{5{_e9882[1]}}, _e9882}) + $signed({{5{_e9884[1]}}, _e9884}) + $signed({{5{_e9886[1]}}, _e9886}) + $signed({{5{_e9888[1]}}, _e9888}) + $signed({{5{_e9890[1]}}, _e9890}) + $signed({{5{_e9892[1]}}, _e9892}) + $signed({{5{_e9894[1]}}, _e9894}) + $signed({{5{_e9896[1]}}, _e9896}) + $signed({{5{_e9898[1]}}, _e9898}) + $signed({{5{_e9900[1]}}, _e9900}) + $signed({{5{_e9902[1]}}, _e9902}) - $signed({{5{_e9904[1]}}, _e9904}) + $signed({{5{_e9906[1]}}, _e9906});",
+      "read": "verdict"
+     },
+     {
+      "line": 13665,
+      "what": "+ to -",
+      "was": "wire signed [6:0] _e13635 = $signed({{5{_e13572[1]}}, _e13572}) + $signed({{5{_e13574[1]}}, _e13574}) + $signed({{5{_e13576[1]}}, _e13576}) + $signed({{5{_e13578[1]}}, _e13578}) + $signed({{5{_e13580[1]}}, _e13580}) + $signed({{5{_e13582[1]}}, _e13582}) + $signed({{5{_e13584[1]}}, _e13584}) + $signed({{5{_e13586[1]}}, _e13586}) + $signed({{5{_e13588[1]}}, _e13588}) + $signed({{5{_e13590[1]}}, _e13590}) + $signed({{5{_e13592[1]}}, _e13592}) + $signed({{5{_e13594[1]}}, _e13594}) + $signed({{5{_e13596[1]}}, _e13596}) + $signed({{5{_e13598[1]}}, _e13598}) + $signed({{5{_e13600[1]}}, _e13600}) + $signed({{5{_e13602[1]}}, _e13602}) + $signed({{5{_e13604[1]}}, _e13604}) + $signed({{5{_e13606[1]}}, _e13606}) + $signed({{5{_e13608[1]}}, _e13608}) + $signed({{5{_e13610[1]}}, _e13610}) + $signed({{5{_e13612[1]}}, _e13612}) + $signed({{5{_e13614[1]}}, _e13614}) + $signed({{5{_e13616[1]}}, _e13616}) + $signed({{5{_e13618[1]}}, _e13618}) + $signed({{5{_e13620[1]}}, _e13620}) + $signed({{5{_e13622[1]}}, _e13622}) + $signed({{5{_e13624[1]}}, _e13624}) + $signed({{5{_e13626[1]}}, _e13626}) + $signed({{5{_e13628[1]}}, _e13628}) + $signed({{5{_e13630[1]}}, _e13630}) + $signed({{5{_e13632[1]}}, _e13632}) + $signed({{5{_e13634[1]}}, _e13634});",
+      "now": "wire signed [6:0] _e13635 = $signed({{5{_e13572[1]}}, _e13572}) + $signed({{5{_e13574[1]}}, _e13574}) + $signed({{5{_e13576[1]}}, _e13576}) + $signed({{5{_e13578[1]}}, _e13578}) + $signed({{5{_e13580[1]}}, _e13580}) + $signed({{5{_e13582[1]}}, _e13582}) + $signed({{5{_e13584[1]}}, _e13584}) + $signed({{5{_e13586[1]}}, _e13586}) + $signed({{5{_e13588[1]}}, _e13588}) + $signed({{5{_e13590[1]}}, _e13590}) + $signed({{5{_e13592[1]}}, _e13592}) + $signed({{5{_e13594[1]}}, _e13594}) + $signed({{5{_e13596[1]}}, _e13596}) + $signed({{5{_e13598[1]}}, _e13598}) + $signed({{5{_e13600[1]}}, _e13600}) + $signed({{5{_e13602[1]}}, _e13602}) - $signed({{5{_e13604[1]}}, _e13604}) + $signed({{5{_e13606[1]}}, _e13606}) + $signed({{5{_e13608[1]}}, _e13608}) + $signed({{5{_e13610[1]}}, _e13610}) + $signed({{5{_e13612[1]}}, _e13612}) + $signed({{5{_e13614[1]}}, _e13614}) + $signed({{5{_e13616[1]}}, _e13616}) + $signed({{5{_e13618[1]}}, _e13618}) + $signed({{5{_e13620[1]}}, _e13620}) + $signed({{5{_e13622[1]}}, _e13622}) + $signed({{5{_e13624[1]}}, _e13624}) + $signed({{5{_e13626[1]}}, _e13626}) + $signed({{5{_e13628[1]}}, _e13628}) + $signed({{5{_e13630[1]}}, _e13630}) + $signed({{5{_e13632[1]}}, _e13632}) + $signed({{5{_e13634[1]}}, _e13634});",
+      "read": "verdict"
+     },
+     {
+      "line": 7835,
+      "what": "constant changed",
+      "was": "wire _e7805 = $signed({1'b0, _e47}) >= $signed(9'b000110000);",
+      "now": "wire _e7805 = $signed({1'b0, _e47}) >= $signed(9'b000110001);",
+      "read": "verdict"
+     },
+     {
+      "line": 14553,
+      "what": "&& to ||",
+      "was": "wire _e14523 = _e14393 && _e14397;",
+      "now": "wire _e14523 = _e14393 || _e14397;",
+      "read": "verdict"
+     },
+     {
+      "line": 4144,
+      "what": "&& to ||",
+      "was": "wire _e4114 = _e3975 && _e3979;",
+      "now": "wire _e4114 = _e3975 || _e3979;",
+      "read": "verdict"
+     },
+     {
+      "line": 2287,
+      "what": "constant changed",
+      "was": "wire _e2257 = $signed({1'b0, _e45}) > $signed(9'b000110100);",
+      "now": "wire _e2257 = $signed({1'b1, _e45}) > $signed(9'b000110100);",
+      "read": "verdict"
+     },
+     {
+      "line": 7779,
+      "what": "+ to -",
+      "was": "wire signed [6:0] _e7749 = $signed({{5{_e7686[1]}}, _e7686}) + $signed({{5{_e7688[1]}}, _e7688}) + $signed({{5{_e7690[1]}}, _e7690}) + $signed({{5{_e7692[1]}}, _e7692}) + $signed({{5{_e7694[1]}}, _e7694}) + $signed({{5{_e7696[1]}}, _e7696}) + $signed({{5{_e7698[1]}}, _e7698}) + $signed({{5{_e7700[1]}}, _e7700}) + $signed({{5{_e7702[1]}}, _e7702}) + $signed({{5{_e7704[1]}}, _e7704}) + $signed({{5{_e7706[1]}}, _e7706}) + $signed({{5{_e7708[1]}}, _e7708}) + $signed({{5{_e7710[1]}}, _e7710}) + $signed({{5{_e7712[1]}}, _e7712}) + $signed({{5{_e7714[1]}}, _e7714}) + $signed({{5{_e7716[1]}}, _e7716}) + $signed({{5{_e7718[1]}}, _e7718}) + $signed({{5{_e7720[1]}}, _e7720}) + $signed({{5{_e7722[1]}}, _e7722}) + $signed({{5{_e7724[1]}}, _e7724}) + $signed({{5{_e7726[1]}}, _e7726}) + $signed({{5{_e7728[1]}}, _e7728}) + $signed({{5{_e7730[1]}}, _e7730}) + $signed({{5{_e7732[1]}}, _e7732}) + $signed({{5{_e7734[1]}}, _e7734}) + $signed({{5{_e7736[1]}}, _e7736}) + $signed({{5{_e7738[1]}}, _e7738}) + $signed({{5{_e7740[1]}}, _e7740}) + $signed({{5{_e7742[1]}}, _e7742}) + $signed({{5{_e7744[1]}}, _e7744}) + $signed({{5{_e7746[1]}}, _e7746}) + $signed({{5{_e7748[1]}}, _e7748});",
+      "now": "wire signed [6:0] _e7749 = $signed({{5{_e7686[1]}}, _e7686}) + $signed({{5{_e7688[1]}}, _e7688}) + $signed({{5{_e7690[1]}}, _e7690}) + $signed({{5{_e7692[1]}}, _e7692}) + $signed({{5{_e7694[1]}}, _e7694}) + $signed({{5{_e7696[1]}}, _e7696}) + $signed({{5{_e7698[1]}}, _e7698}) + $signed({{5{_e7700[1]}}, _e7700}) + $signed({{5{_e7702[1]}}, _e7702}) + $signed({{5{_e7704[1]}}, _e7704}) - $signed({{5{_e7706[1]}}, _e7706}) + $signed({{5{_e7708[1]}}, _e7708}) + $signed({{5{_e7710[1]}}, _e7710}) + $signed({{5{_e7712[1]}}, _e7712}) + $signed({{5{_e7714[1]}}, _e7714}) + $signed({{5{_e7716[1]}}, _e7716}) + $signed({{5{_e7718[1]}}, _e7718}) + $signed({{5{_e7720[1]}}, _e7720}) + $signed({{5{_e7722[1]}}, _e7722}) + $signed({{5{_e7724[1]}}, _e7724}) + $signed({{5{_e7726[1]}}, _e7726}) + $signed({{5{_e7728[1]}}, _e7728}) + $signed({{5{_e7730[1]}}, _e7730}) + $signed({{5{_e7732[1]}}, _e7732}) + $signed({{5{_e7734[1]}}, _e7734}) + $signed({{5{_e7736[1]}}, _e7736}) + $signed({{5{_e7738[1]}}, _e7738}) + $signed({{5{_e7740[1]}}, _e7740}) + $signed({{5{_e7742[1]}}, _e7742}) + $signed({{5{_e7744[1]}}, _e7744}) + $signed({{5{_e7746[1]}}, _e7746}) + $signed({{5{_e7748[1]}}, _e7748});",
+      "read": "verdict"
+     },
+     {
+      "line": 16565,
+      "what": "&& to ||",
+      "was": "wire _e16535 = _e16533 && _e16534;",
+      "now": "wire _e16535 = _e16533 || _e16534;",
+      "read": "verdict"
+     },
+     {
+      "line": 15965,
+      "what": "constant changed",
+      "was": "wire _e15935 = $signed({1'b0, _e64}) <= $signed(9'b000111001);",
+      "now": "wire _e15935 = $signed({1'b0, _e64}) <= $signed(9'b000111000);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 343.3
+   },
+   "code_pay/agent_a": {
+    "changes": 368,
+    "tried": 40,
+    "noticed": 36,
+    "rejected": 0,
+    "initial": 2,
+    "by": {
+     "&& to ||": [
+      8,
+      9
+     ],
+     "constant changed": [
+      9,
+      10
+     ],
+     "! dropped": [
+      8,
+      8
+     ],
+     "|| to &&": [
+      6,
+      6
+     ],
+     "reset dropped": [
+      2,
+      2
+     ],
+     "== to !=": [
+      1,
+      1
+     ],
+     "count changed": [
+      1,
+      1
+     ],
+     "<= to <": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 234,
+      "what": "&& to ||",
+      "was": "wire _e176 = _e175 && result;",
+      "now": "wire _e176 = _e175 || result;",
+      "read": "verdict"
+     },
+     {
+      "line": 208,
+      "what": "constant changed",
+      "was": "wire _e150 = g_slept == $signed(12'b000000000100);",
+      "now": "wire _e150 = g_slept == $signed(12'b000000000101);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 6.8
+   },
+   "code_pay/agent_b": {
+    "changes": 391,
+    "tried": 40,
+    "noticed": 34,
+    "rejected": 0,
+    "initial": 1,
+    "by": {
+     "+ to -": [
+      2,
+      2
+     ],
+     "&& to ||": [
+      12,
+      13
+     ],
+     "! dropped": [
+      3,
+      3
+     ],
+     "constant changed": [
+      8,
+      11
+     ],
+     ">= to >": [
+      1,
+      1
+     ],
+     "|| to &&": [
+      3,
+      3
+     ],
+     "count changed": [
+      1,
+      1
+     ],
+     "== to !=": [
+      2,
+      3
+     ],
+     "<= to <": [
+      1,
+      1
+     ],
+     "< to <=": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 211,
+      "what": "constant changed",
+      "was": "wire signed [9:0] _e147 = (_e146 < $signed(10'b0011111111)) ? _e146 : $signed(10'b0011111111);",
+      "now": "wire signed [9:0] _e147 = (_e146 < $signed(10'b0011111110)) ? _e146 : $signed(10'b0011111111);",
+      "read": "verdict"
+     },
+     {
+      "line": 269,
+      "what": "constant changed",
+      "was": "wire _e204 = g_nc == $signed(5'b00011);",
+      "now": "wire _e204 = g_nc == $signed(5'b00010);",
+      "read": "scenario"
+     },
+     {
+      "line": 179,
+      "what": "constant changed",
+      "was": "wire signed [4:0] _e118 = (_e117 < $signed(5'b01000)) ? _e117 : $signed(5'b01000);",
+      "now": "wire signed [4:0] _e118 = (_e117 < $signed(5'b01001)) ? _e117 : $signed(5'b01000);",
+      "read": "verdict"
+     },
+     {
+      "line": 248,
+      "what": "== to !=",
+      "was": "wire _e183 = g_nc == $signed(5'b00010);",
+      "now": "wire _e183 = g_nc != $signed(5'b00010);",
+      "read": "verdict"
+     },
+     {
+      "line": 378,
+      "what": "&& to ||",
+      "was": "assign ok_YB_EX_CALLS = (rst_active || (_seg < 1) || _e188) && _e121 && _e127 && _e175;",
+      "now": "assign ok_YB_EX_CALLS = (rst_active || (_seg < 1) || _e188) && _e121 || _e127 && _e175;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 6.3
+   },
+   "code_pay/gold": {
+    "changes": 334,
+    "tried": 40,
+    "noticed": 30,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "|| to &&": [
+      6,
+      6
+     ],
+     "constant changed": [
+      6,
+      12
+     ],
+     "&& to ||": [
+      13,
+      15
+     ],
+     "== to !=": [
+      3,
+      3
+     ],
+     "reset dropped": [
+      1,
+      1
+     ],
+     ">= to >": [
+      1,
+      2
+     ],
+     "< to <=": [
+      0,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 254,
+      "what": "constant changed",
+      "was": "wire _e203 = $signed({1'b0, _p202}) == $signed(3'b010);",
+      "now": "wire _e203 = $signed({1'b0, _p202}) == $signed(3'b011);",
+      "read": "scenario"
+     },
+     {
+      "line": 183,
+      "what": "constant changed",
+      "was": "wire _e134 = g_n_charge < $signed(5'b00011);",
+      "now": "wire _e134 = g_n_charge < $signed(5'b00010);",
+      "read": "verdict"
+     },
+     {
+      "line": 206,
+      "what": "&& to ||",
+      "was": "wire _e155 = _e153 && _e154;",
+      "now": "wire _e155 = _e153 || _e154;",
+      "read": "verdict"
+     },
+     {
+      "line": 233,
+      "what": "constant changed",
+      "was": "wire _e182 = $signed({1'b0, _p181}) == $signed(3'b001);",
+      "now": "wire _e182 = $signed({1'b1, _p181}) == $signed(3'b001);",
+      "read": "scenario"
+     },
+     {
+      "line": 343,
+      "what": ">= to >",
+      "was": "assign cov_S_EX = !rst_active && (_seg >= 3) && _e204;",
+      "now": "assign cov_S_EX = !rst_active && (_seg > 3) && _e204;",
+      "read": "scenario"
+     },
+     {
+      "line": 210,
+      "what": "constant changed",
+      "was": "wire signed [13:0] _e159 = $signed({{1{g_slept[12]}}, g_slept}) + $signed({6'b0, s_seconds});",
+      "now": "wire signed [13:0] _e159 = $signed({{1{g_slept[12]}}, g_slept}) + $signed({6'b1, s_seconds});",
+      "read": "verdict"
+     },
+     {
+      "line": 164,
+      "what": "< to <=",
+      "was": "wire signed [5:0] _e116 = (_e115 < $signed(6'b001111)) ? _e115 : $signed(6'b001111);",
+      "now": "wire signed [5:0] _e116 = (_e115 <= $signed(6'b001111)) ? _e115 : $signed(6'b001111);",
+      "read": "verdict"
+     },
+     {
+      "line": 233,
+      "what": "constant changed",
+      "was": "wire _e182 = $signed({1'b0, _p181}) == $signed(3'b001);",
+      "now": "wire _e182 = $signed({1'b0, _p181}) == $signed(3'b000);",
+      "read": "scenario"
+     },
+     {
+      "line": 164,
+      "what": "constant changed",
+      "was": "wire signed [5:0] _e116 = (_e115 < $signed(6'b001111)) ? _e115 : $signed(6'b001111);",
+      "now": "wire signed [5:0] _e116 = (_e115 < $signed(6'b001110)) ? _e115 : $signed(6'b001111);",
+      "read": "verdict"
+     },
+     {
+      "line": 135,
+      "what": "&& to ||",
+      "was": "wire _e89 = (_e88 >= $signed(2'b00)) && (_e88 <= $signed(2'b01));  // ghost ended update stays in its declared range",
+      "now": "wire _e89 = (_e88 >= $signed(2'b00)) || (_e88 <= $signed(2'b01));  // ghost ended update stays in its declared range",
+      "read": "range"
+     }
+    ],
+    "seconds": 7.8
+   },
+   "code_save/agent_a": {
+    "changes": 535,
+    "tried": 40,
+    "noticed": 26,
+    "rejected": 0,
+    "initial": 1,
+    "by": {
+     "constant changed": [
+      5,
+      12
+     ],
+     "|| to &&": [
+      5,
+      6
+     ],
+     "reset dropped": [
+      0,
+      1
+     ],
+     "&& to ||": [
+      5,
+      7
+     ],
+     ">= to >": [
+      1,
+      1
+     ],
+     "== to !=": [
+      4,
+      5
+     ],
+     "! dropped": [
+      5,
+      6
+     ],
+     "count changed": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 464,
+      "what": "reset dropped",
+      "was": "_s219 <= rst_active ? 1'b0 : _e220;",
+      "now": "_s219 <= 1'b0 ? 1'b0 : _e220;",
+      "read": "verdict"
+     },
+     {
+      "line": 388,
+      "what": "! dropped",
+      "was": "wire _e333 = !phase;",
+      "now": "wire _e333 = phase;",
+      "read": "scenario"
+     },
+     {
+      "line": 359,
+      "what": "constant changed",
+      "was": "wire _e304 = $signed({1'b0, op}) == $signed(4'b0101);",
+      "now": "wire _e304 = $signed({1'b1, op}) == $signed(4'b0101);",
+      "read": "scenario"
+     },
+     {
+      "line": 297,
+      "what": "constant changed",
+      "was": "wire _e242 = g_th != $signed(4'b0000);",
+      "now": "wire _e242 = g_th != $signed(4'b0001);",
+      "read": "verdict"
+     },
+     {
+      "line": 256,
+      "what": "|| to &&",
+      "was": "wire _e201 = _e193 || _e200;",
+      "now": "wire _e201 = _e193 && _e200;",
+      "read": "verdict"
+     },
+     {
+      "line": 251,
+      "what": "&& to ||",
+      "was": "wire _e196 = _e194 && _e195;",
+      "now": "wire _e196 = _e194 || _e195;",
+      "read": "verdict"
+     },
+     {
+      "line": 344,
+      "what": "constant changed",
+      "was": "wire _e289 = $signed({1'b0, r_dst}) == $signed(3'b001);",
+      "now": "wire _e289 = $signed({1'b1, r_dst}) == $signed(3'b001);",
+      "read": "scenario"
+     },
+     {
+      "line": 198,
+      "what": "&& to ||",
+      "was": "wire _e143 = (_e142 >= $signed(4'b0000)) && (_e142 <= $signed(4'b0111));  // ghost th update stays in its declared range",
+      "now": "wire _e143 = (_e142 >= $signed(4'b0000)) || (_e142 <= $signed(4'b0111));  // ghost th update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 351,
+      "what": "== to !=",
+      "was": "wire _e296 = $signed({1'b0, op}) == $signed(4'b0100);",
+      "now": "wire _e296 = $signed({1'b0, op}) != $signed(4'b0100);",
+      "read": "scenario"
+     },
+     {
+      "line": 303,
+      "what": "constant changed",
+      "was": "wire _e248 = $signed({1'b0, op}) == $signed(4'b0101);",
+      "now": "wire _e248 = $signed({1'b0, op}) == $signed(4'b0100);",
+      "read": "verdict"
+     },
+     {
+      "line": 303,
+      "what": "constant changed",
+      "was": "wire _e248 = $signed({1'b0, op}) == $signed(4'b0101);",
+      "now": "wire _e248 = $signed({1'b1, op}) == $signed(4'b0101);",
+      "read": "verdict"
+     },
+     {
+      "line": 210,
+      "what": "constant changed",
+      "was": "wire signed [2:0] _e155 = _e154 ? $signed(3'b010) : $signed(3'b011);",
+      "now": "wire signed [2:0] _e155 = _e154 ? $signed(3'b010) : $signed(3'b010);",
+      "read": "verdict"
+     },
+     {
+      "line": 334,
+      "what": "constant changed",
+      "was": "wire _e279 = $signed({1'b0, cents}) == $signed(28'b0000000000000000010011100010);",
+      "now": "wire _e279 = $signed({1'b1, cents}) == $signed(28'b0000000000000000010011100010);",
+      "read": "scenario"
+     }
+    ],
+    "seconds": 14.8
+   },
+   "code_save/agent_b": {
+    "changes": 732,
+    "tried": 40,
+    "noticed": 31,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "reset dropped": [
+      2,
+      2
+     ],
+     "&& to ||": [
+      7,
+      7
+     ],
+     "constant changed": [
+      9,
+      17
+     ],
+     "|| to &&": [
+      6,
+      6
+     ],
+     "!= to ==": [
+      1,
+      1
+     ],
+     ">= to >": [
+      1,
+      1
+     ],
+     "! dropped": [
+      4,
+      4
+     ],
+     "== to !=": [
+      1,
+      2
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 455,
+      "what": "== to !=",
+      "was": "wire _e384 = $signed({1'b0, op}) == $signed(4'b0100);",
+      "now": "wire _e384 = $signed({1'b0, op}) != $signed(4'b0100);",
+      "read": "scenario"
+     },
+     {
+      "line": 317,
+      "what": "constant changed",
+      "was": "wire _e248 = $signed({1'b0, of}) == g_th;",
+      "now": "wire _e248 = $signed({1'b1, of}) == g_th;",
+      "read": "verdict"
+     },
+     {
+      "line": 324,
+      "what": "constant changed",
+      "was": "wire signed [2:0] _e255 = _e254 ? $signed(3'b001) : $signed(3'b010);",
+      "now": "wire signed [2:0] _e255 = _e254 ? $signed(3'b000) : $signed(3'b010);",
+      "read": "verdict"
+     },
+     {
+      "line": 313,
+      "what": "constant changed",
+      "was": "wire _e244 = $signed({1'b0, op}) == $signed(4'b0010);",
+      "now": "wire _e244 = $signed({1'b1, op}) == $signed(4'b0010);",
+      "read": "verdict"
+     },
+     {
+      "line": 278,
+      "what": "constant changed",
+      "was": "wire _e211 = g_bh != $signed(4'b0000);",
+      "now": "wire _e211 = g_bh != $signed(4'b0001);",
+      "read": "verdict"
+     },
+     {
+      "line": 455,
+      "what": "constant changed",
+      "was": "wire _e384 = $signed({1'b0, op}) == $signed(4'b0100);",
+      "now": "wire _e384 = $signed({1'b0, op}) == $signed(4'b0101);",
+      "read": "scenario"
+     },
+     {
+      "line": 481,
+      "what": "constant changed",
+      "was": "wire _e410 = $signed({1'b0, outcome}) == $signed(3'b000);",
+      "now": "wire _e410 = $signed({1'b0, outcome}) == $signed(3'b001);",
+      "read": "scenario"
+     },
+     {
+      "line": 203,
+      "what": "constant changed",
+      "was": "wire _e140 = $signed({1'b0, r_src}) == $signed(3'b010);",
+      "now": "wire _e140 = $signed({1'b0, r_src}) == $signed(3'b011);",
+      "read": "verdict"
+     },
+     {
+      "line": 284,
+      "what": "constant changed",
+      "was": "wire _e216 = $signed({1'b0, op}) == $signed(4'b0100);",
+      "now": "wire _e216 = $signed({1'b1, op}) == $signed(4'b0100);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 14.9
+   },
+   "code_save/gold": {
+    "changes": 573,
+    "tried": 40,
+    "noticed": 27,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "! dropped": [
+      6,
+      6
+     ],
+     "constant changed": [
+      6,
+      13
+     ],
+     "|| to &&": [
+      5,
+      5
+     ],
+     "&& to ||": [
+      7,
+      13
+     ],
+     "!= to ==": [
+      1,
+      1
+     ],
+     "== to !=": [
+      1,
+      1
+     ],
+     ">= to >": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 312,
+      "what": "constant changed",
+      "was": "wire _e251 = $signed({1'b0, s_handle}) == g_tmp_h;",
+      "now": "wire _e251 = $signed({1'b1, s_handle}) == g_tmp_h;",
+      "read": "verdict"
+     },
+     {
+      "line": 196,
+      "what": "&& to ||",
+      "was": "wire _e140 = _e138 && _e139;",
+      "now": "wire _e140 = _e138 || _e139;",
+      "read": "verdict"
+     },
+     {
+      "line": 348,
+      "what": "constant changed",
+      "was": "wire _e285 = $signed({1'b0, op}) == $signed(4'b0100);",
+      "now": "wire _e285 = $signed({1'b0, op}) == $signed(4'b0101);",
+      "read": "verdict"
+     },
+     {
+      "line": 301,
+      "what": "constant changed",
+      "was": "wire _e240 = $signed({1'b0, op}) == $signed(4'b0010);",
+      "now": "wire _e240 = $signed({1'b1, op}) == $signed(4'b0010);",
+      "read": "verdict"
+     },
+     {
+      "line": 292,
+      "what": "&& to ||",
+      "was": "wire _e232 = (_e231 >= $signed(2'b00)) && (_e231 <= $signed(2'b01));  // ghost stored update stays in its declared range",
+      "now": "wire _e232 = (_e231 >= $signed(2'b00)) || (_e231 <= $signed(2'b01));  // ghost stored update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 304,
+      "what": "constant changed",
+      "was": "wire _e243 = $signed({1'b0, op}) == $signed(4'b0001);",
+      "now": "wire _e243 = $signed({1'b1, op}) == $signed(4'b0001);",
+      "read": "verdict"
+     },
+     {
+      "line": 323,
+      "what": "&& to ||",
+      "was": "wire _e261 = _e259 && _e260;",
+      "now": "wire _e261 = _e259 || _e260;",
+      "read": "verdict"
+     },
+     {
+      "line": 245,
+      "what": "constant changed",
+      "was": "wire _e187 = $signed({1'b0, op}) == $signed(4'b0110);",
+      "now": "wire _e187 = $signed({1'b1, op}) == $signed(4'b0110);",
+      "read": "verdict"
+     },
+     {
+      "line": 484,
+      "what": "&& to ||",
+      "was": "assign ok_G_MOVE = (rst_active || _e176) && _e119 && _e133 && _e163 && _e174;",
+      "now": "assign ok_G_MOVE = (rst_active || _e176) || _e119 && _e133 && _e163 && _e174;",
+      "read": "verdict"
+     },
+     {
+      "line": 318,
+      "what": "constant changed",
+      "was": "wire _e256 = $signed({1'b0, op}) == $signed(4'b0010);",
+      "now": "wire _e256 = $signed({1'b0, op}) == $signed(4'b0011);",
+      "read": "verdict"
+     },
+     {
+      "line": 195,
+      "what": "constant changed",
+      "was": "wire _e139 = $signed({1'b0, o_path}) == $signed(3'b010);",
+      "now": "wire _e139 = $signed({1'b1, o_path}) == $signed(3'b010);",
+      "read": "verdict"
+     },
+     {
+      "line": 342,
+      "what": "&& to ||",
+      "was": "wire _e280 = (_e279 >= $signed(2'b00)) && (_e279 <= $signed(2'b01));  // ghost synced update stays in its declared range",
+      "now": "wire _e280 = (_e279 >= $signed(2'b00)) || (_e279 <= $signed(2'b01));  // ghost synced update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 257,
+      "what": "&& to ||",
+      "was": "wire _e199 = (_e198 >= $signed(2'b00)) && (_e198 <= $signed(2'b01));  // ghost tmp_on update stays in its declared range",
+      "now": "wire _e199 = (_e198 >= $signed(2'b00)) || (_e198 <= $signed(2'b01));  // ghost tmp_on update stays in its declared range",
+      "read": "range"
+     }
+    ],
+    "seconds": 13.9
+   },
+   "fifo/agent_a": {
+    "changes": 239,
+    "tried": 40,
+    "noticed": 37,
+    "rejected": 0,
+    "initial": 1,
+    "by": {
+     "< to <=": [
+      2,
+      2
+     ],
+     "|| to &&": [
+      10,
+      10
+     ],
+     "- to +": [
+      1,
+      1
+     ],
+     "&& to ||": [
+      7,
+      7
+     ],
+     "! dropped": [
+      5,
+      5
+     ],
+     "!= to ==": [
+      1,
+      1
+     ],
+     "constant changed": [
+      7,
+      9
+     ],
+     "<= to <": [
+      1,
+      1
+     ],
+     "== to !=": [
+      3,
+      3
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 316,
+      "what": "constant changed",
+      "was": "_nx83 <= rst_active ? 1'b0 : _e80;",
+      "now": "_nx83 <= rst_active ? 1'b1 : _e80;",
+      "read": "verdict"
+     },
+     {
+      "line": 311,
+      "what": "constant changed",
+      "was": "_nx71 <= rst_active ? 1'b0 : _e23;",
+      "now": "_nx71 <= rst_active ? 1'b1 : _e23;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 4.3
+   },
+   "fifo/agent_b": {
+    "changes": 295,
+    "tried": 40,
+    "noticed": 34,
+    "rejected": 0,
+    "initial": 2,
+    "by": {
+     "&& to ||": [
+      9,
+      9
+     ],
+     "|| to &&": [
+      4,
+      4
+     ],
+     "count changed": [
+      0,
+      2
+     ],
+     "reset dropped": [
+      0,
+      1
+     ],
+     "constant changed": [
+      6,
+      7
+     ],
+     "- to +": [
+      1,
+      1
+     ],
+     "! dropped": [
+      7,
+      7
+     ],
+     "== to !=": [
+      5,
+      5
+     ],
+     ">= to >": [
+      1,
+      1
+     ],
+     "<= to <": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 573,
+      "what": "count changed",
+      "was": "assign ok_FB_RD_2 = (rst_active || (_seg < 1) || _e162) && _e15;",
+      "now": "assign ok_FB_RD_2 = (rst_active || (_seg < 2) || _e162) && _e15;",
+      "read": "verdict"
+     },
+     {
+      "line": 516,
+      "what": "reset dropped",
+      "was": "_nx218 <= rst_active ? 1'b0 : _e215;",
+      "now": "_nx218 <= 1'b0 ? 1'b0 : _e215;",
+      "read": "verdict"
+     },
+     {
+      "line": 474,
+      "what": "constant changed",
+      "was": "_nx96 <= rst_active ? 1'b0 : _e91;",
+      "now": "_nx96 <= rst_active ? 1'b1 : _e91;",
+      "read": "verdict"
+     },
+     {
+      "line": 565,
+      "what": "count changed",
+      "was": "assign ok_FB_WR_2 = (rst_active || (_seg < 1) || _e97) && _e15;",
+      "now": "assign ok_FB_WR_2 = (rst_active || (_seg < 2) || _e97) && _e15;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 7.9
+   },
+   "fifo/gold": {
+    "changes": 201,
+    "tried": 40,
+    "noticed": 35,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "! dropped": [
+      14,
+      14
+     ],
+     "|| to &&": [
+      1,
+      1
+     ],
+     "reset dropped": [
+      0,
+      2
+     ],
+     "&& to ||": [
+      5,
+      5
+     ],
+     "constant changed": [
+      9,
+      10
+     ],
+     "== to !=": [
+      4,
+      4
+     ],
+     "< to <=": [
+      0,
+      1
+     ],
+     "+ to -": [
+      2,
+      2
+     ],
+     "count changed": [
+      0,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 263,
+      "what": "reset dropped",
+      "was": "_seg <= rst_active ? 3'd0 : (_seg == 3'd2) ? _seg : _seg + 1'b1;",
+      "now": "_seg <= 1'b0 ? 3'd0 : (_seg == 3'd2) ? _seg : _seg + 1'b1;",
+      "read": "verdict"
+     },
+     {
+      "line": 286,
+      "what": "reset dropped",
+      "was": "_nx85 <= rst_active ? 1'b0 : _e80;",
+      "now": "_nx85 <= 1'b0 ? 1'b0 : _e80;",
+      "read": "verdict"
+     },
+     {
+      "line": 268,
+      "what": "constant changed",
+      "was": "_nx34 <= rst_active ? 1'b0 : _e30;",
+      "now": "_nx34 <= rst_active ? 1'b1 : _e30;",
+      "read": "verdict"
+     },
+     {
+      "line": 326,
+      "what": "< to <=",
+      "was": "assign ok_G_WR_2 = (rst_active || (_seg < 1) || _e42) && _e25;",
+      "now": "assign ok_G_WR_2 = (rst_active || (_seg <= 1) || _e42) && _e25;",
+      "read": "verdict"
+     },
+     {
+      "line": 331,
+      "what": "count changed",
+      "was": "assign ok_G_RD_2 = (rst_active || (_seg < 1) || _e79) && _e25;",
+      "now": "assign ok_G_RD_2 = (rst_active || (_seg < 2) || _e79) && _e25;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 5.6
+   },
+   "fifo/literal": {
+    "changes": 204,
+    "tried": 40,
+    "noticed": 35,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "|| to &&": [
+      3,
+      3
+     ],
+     "&& to ||": [
+      4,
+      4
+     ],
+     "! dropped": [
+      13,
+      13
+     ],
+     "reset dropped": [
+      0,
+      2
+     ],
+     "constant changed": [
+      9,
+      10
+     ],
+     "== to !=": [
+      4,
+      4
+     ],
+     "< to <=": [
+      0,
+      1
+     ],
+     "+ to -": [
+      2,
+      2
+     ],
+     "count changed": [
+      0,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 263,
+      "what": "reset dropped",
+      "was": "_seg <= rst_active ? 3'd0 : (_seg == 3'd2) ? _seg : _seg + 1'b1;",
+      "now": "_seg <= 1'b0 ? 3'd0 : (_seg == 3'd2) ? _seg : _seg + 1'b1;",
+      "read": "verdict"
+     },
+     {
+      "line": 286,
+      "what": "reset dropped",
+      "was": "_nx85 <= rst_active ? 1'b0 : _e80;",
+      "now": "_nx85 <= 1'b0 ? 1'b0 : _e80;",
+      "read": "verdict"
+     },
+     {
+      "line": 268,
+      "what": "constant changed",
+      "was": "_nx34 <= rst_active ? 1'b0 : _e30;",
+      "now": "_nx34 <= rst_active ? 1'b1 : _e30;",
+      "read": "verdict"
+     },
+     {
+      "line": 326,
+      "what": "< to <=",
+      "was": "assign ok_L_WR_2 = (rst_active || (_seg < 1) || _e42) && _e25;",
+      "now": "assign ok_L_WR_2 = (rst_active || (_seg <= 1) || _e42) && _e25;",
+      "read": "verdict"
+     },
+     {
+      "line": 331,
+      "what": "count changed",
+      "was": "assign ok_L_RD_2 = (rst_active || (_seg < 1) || _e79) && _e25;",
+      "now": "assign ok_L_RD_2 = (rst_active || (_seg < 2) || _e79) && _e25;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 5.7
+   },
+   "hub/agent_a": {
+    "changes": 547,
+    "tried": 40,
+    "noticed": 38,
+    "rejected": 0,
+    "initial": 1,
+    "by": {
+     "== to !=": [
+      3,
+      3
+     ],
+     "! dropped": [
+      7,
+      7
+     ],
+     "|| to &&": [
+      7,
+      7
+     ],
+     "constant changed": [
+      3,
+      3
+     ],
+     "count changed": [
+      2,
+      3
+     ],
+     "reset dropped": [
+      4,
+      4
+     ],
+     "&& to ||": [
+      12,
+      12
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 525,
+      "what": "count changed",
+      "was": "assign aok_HA_ENV_2 = (rst_active || (_seg < 1) || _e35);",
+      "now": "assign aok_HA_ENV_2 = (rst_active || (_seg < 2) || _e35);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 8.4
+   },
+   "hub/agent_b": {
+    "changes": 544,
+    "tried": 40,
+    "noticed": 40,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "== to !=": [
+      4,
+      4
+     ],
+     "&& to ||": [
+      8,
+      8
+     ],
+     "|| to &&": [
+      14,
+      14
+     ],
+     "! dropped": [
+      7,
+      7
+     ],
+     ">= to >": [
+      1,
+      1
+     ],
+     "constant changed": [
+      2,
+      2
+     ],
+     "count changed": [
+      1,
+      1
+     ],
+     "!= to ==": [
+      1,
+      1
+     ],
+     "reset dropped": [
+      1,
+      1
+     ],
+     "<= to <": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [],
+    "seconds": 7.2
+   },
+   "hub/gold": {
+    "changes": 345,
+    "tried": 40,
+    "noticed": 38,
+    "rejected": 0,
+    "initial": 1,
+    "by": {
+     "&& to ||": [
+      11,
+      11
+     ],
+     "constant changed": [
+      4,
+      5
+     ],
+     "count changed": [
+      1,
+      1
+     ],
+     "reset dropped": [
+      4,
+      4
+     ],
+     "|| to &&": [
+      7,
+      7
+     ],
+     "! dropped": [
+      9,
+      9
+     ],
+     "== to !=": [
+      2,
+      2
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 498,
+      "what": "constant changed",
+      "was": "_bw71 <= rst_active ? $signed(6'b000000) : (_e70 ? (_e72 ? _bw71 : _bw71 + $signed(6'b000001)) : $signed(6'b000000));",
+      "now": "_bw71 <= rst_active ? $signed(6'b000001) : (_e70 ? (_e72 ? _bw71 : _bw71 + $signed(6'b000001)) : $signed(6'b000000));",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 8.3
+   },
+   "prompt_email/agent_a": {
+    "changes": 195,
+    "tried": 40,
+    "noticed": 38,
+    "rejected": 0,
+    "initial": 1,
+    "by": {
+     "reset dropped": [
+      2,
+      2
+     ],
+     "constant changed": [
+      9,
+      9
+     ],
+     "|| to &&": [
+      12,
+      12
+     ],
+     "! dropped": [
+      9,
+      9
+     ],
+     "&& to ||": [
+      3,
+      3
+     ],
+     "< to <=": [
+      1,
+      2
+     ],
+     "+ to -": [
+      1,
+      1
+     ],
+     "count changed": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 91,
+      "what": "< to <=",
+      "was": "wire signed [3:0] _e37 = (_e36 < $signed(4'b0100)) ? _e36 : $signed(4'b0100);",
+      "now": "wire signed [3:0] _e37 = (_e36 <= $signed(4'b0100)) ? _e36 : $signed(4'b0100);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 4.7
+   },
+   "prompt_email/agent_b": {
+    "changes": 250,
+    "tried": 40,
+    "noticed": 36,
+    "rejected": 0,
+    "initial": 1,
+    "by": {
+     "constant changed": [
+      7,
+      9
+     ],
+     "== to !=": [
+      2,
+      2
+     ],
+     "|| to &&": [
+      12,
+      12
+     ],
+     "! dropped": [
+      9,
+      9
+     ],
+     "&& to ||": [
+      5,
+      6
+     ],
+     "<= to <": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 107,
+      "what": "constant changed",
+      "was": "wire _e50 = (_e49 >= $signed(3'b000)) && (_e49 <= $signed(3'b010));  // ghost nprice update stays in its declared range",
+      "now": "wire _e50 = (_e49 >= $signed(3'b000)) && (_e49 <= $signed(3'b011));  // ghost nprice update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 107,
+      "what": "&& to ||",
+      "was": "wire _e50 = (_e49 >= $signed(3'b000)) && (_e49 <= $signed(3'b010));  // ghost nprice update stays in its declared range",
+      "now": "wire _e50 = (_e49 >= $signed(3'b000)) || (_e49 <= $signed(3'b010));  // ghost nprice update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 143,
+      "what": "constant changed",
+      "was": "wire _e83 = ($signed({1'b0, cta}) >= $signed(2'b00)) && ($signed({1'b0, cta}) <= $signed(2'b01));  // ghost lastcta update stays in its declared range",
+      "now": "wire _e83 = ($signed({1'b0, cta}) >= $signed(2'b00)) && ($signed({1'b1, cta}) <= $signed(2'b01));  // ghost lastcta update stays in its declared range",
+      "read": "range"
+     }
+    ],
+    "seconds": 4.8
+   },
+   "prompt_email/gold": {
+    "changes": 200,
+    "tried": 40,
+    "noticed": 34,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "constant changed": [
+      6,
+      10
+     ],
+     "|| to &&": [
+      7,
+      7
+     ],
+     "&& to ||": [
+      5,
+      5
+     ],
+     "! dropped": [
+      8,
+      8
+     ],
+     "+ to -": [
+      1,
+      2
+     ],
+     "count changed": [
+      2,
+      2
+     ],
+     ">= to >": [
+      3,
+      3
+     ],
+     "< to <=": [
+      1,
+      2
+     ],
+     "reset dropped": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 81,
+      "what": "constant changed",
+      "was": "wire _e33 = (_e32 >= $signed(6'b000000)) && (_e32 <= $signed(6'b001111));  // ghost k update stays in its declared range",
+      "now": "wire _e33 = (_e32 >= $signed(6'b000001)) && (_e32 <= $signed(6'b001111));  // ghost k update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 135,
+      "what": "+ to -",
+      "was": "_seg <= rst_active ? 3'd0 : (_seg == 3'd2) ? _seg : _seg + 1'b1;",
+      "now": "_seg <= rst_active ? 3'd0 : (_seg == 3'd2) ? _seg : _seg - 1'b1;",
+      "read": "verdict"
+     },
+     {
+      "line": 119,
+      "what": "< to <=",
+      "was": "wire signed [5:0] _e68 = (_e67 < $signed(6'b001111)) ? _e67 : $signed(6'b001111);",
+      "now": "wire signed [5:0] _e68 = (_e67 <= $signed(6'b001111)) ? _e67 : $signed(6'b001111);",
+      "read": "verdict"
+     },
+     {
+      "line": 104,
+      "what": "constant changed",
+      "was": "wire signed [5:0] _e54 = (_e53 < $signed(6'b001111)) ? _e53 : $signed(6'b001111);",
+      "now": "wire signed [5:0] _e54 = (_e53 < $signed(6'b001110)) ? _e53 : $signed(6'b001111);",
+      "read": "verdict"
+     },
+     {
+      "line": 104,
+      "what": "constant changed",
+      "was": "wire signed [5:0] _e54 = (_e53 < $signed(6'b001111)) ? _e53 : $signed(6'b001111);",
+      "now": "wire signed [5:0] _e54 = (_e53 < $signed(6'b001111)) ? _e53 : $signed(6'b001110);",
+      "read": "verdict"
+     },
+     {
+      "line": 80,
+      "what": "constant changed",
+      "was": "wire signed [5:0] _e32 = (_e31 < $signed(6'b001111)) ? _e31 : $signed(6'b001111);",
+      "now": "wire signed [5:0] _e32 = (_e31 < $signed(6'b001111)) ? _e31 : $signed(6'b001110);",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 7.0
+   },
+   "written/ops": {
+    "changes": 1129,
+    "tried": 40,
+    "noticed": 34,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "constant changed": [
+      15,
+      17
+     ],
+     "&& to ||": [
+      5,
+      6
+     ],
+     "! dropped": [
+      4,
+      4
+     ],
+     "< to <=": [
+      2,
+      5
+     ],
+     "+ to -": [
+      1,
+      1
+     ],
+     "- to +": [
+      1,
+      1
+     ],
+     "<= to <": [
+      1,
+      1
+     ],
+     "|| to &&": [
+      2,
+      2
+     ],
+     "count changed": [
+      1,
+      1
+     ],
+     "!= to ==": [
+      1,
+      1
+     ],
+     "== to !=": [
+      1,
+      1
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 262,
+      "what": "< to <=",
+      "was": "wire [7:0] _e133 = ($signed(4'b0010) < _e130) ? s[23:16] : 8'b00000000;",
+      "now": "wire [7:0] _e133 = ($signed(4'b0010) <= _e130) ? s[23:16] : 8'b00000000;",
+      "read": "verdict"
+     },
+     {
+      "line": 491,
+      "what": "constant changed",
+      "was": "wire signed [5:0] _e357 = ($signed(6'b111000) > _e356) ? $signed(6'b111000) : _e356;",
+      "now": "wire signed [5:0] _e357 = ($signed(6'b111001) > _e356) ? $signed(6'b111000) : _e356;",
+      "read": "verdict"
+     },
+     {
+      "line": 780,
+      "what": "< to <=",
+      "was": "assign ok_P_ALWAYS5 = ((_cyc < 1) || _e468);",
+      "now": "assign ok_P_ALWAYS5 = ((_cyc <= 1) || _e468);",
+      "read": "verdict"
+     },
+     {
+      "line": 657,
+      "what": "constant changed",
+      "was": "_nx416 <= rst_active ? 1'b0 : _e412;",
+      "now": "_nx416 <= rst_active ? 1'b1 : _e412;",
+      "read": "verdict"
+     },
+     {
+      "line": 459,
+      "what": "&& to ||",
+      "was": "wire _e328 = (_e327 >= $signed(6'b111000)) && (_e327 <= $signed(6'b001000));  // ghost acc update stays in its declared range",
+      "now": "wire _e328 = (_e327 >= $signed(6'b111000)) || (_e327 <= $signed(6'b001000));  // ghost acc update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 265,
+      "what": "< to <=",
+      "was": "wire _e136 = $signed(4'b0000) < _e130;",
+      "now": "wire _e136 = $signed(4'b0000) <= _e130;",
+      "read": "verdict"
+     }
+    ],
+    "seconds": 20.7
+   },
+   "written/chain": {
+    "changes": 314,
+    "tried": 40,
+    "noticed": 38,
+    "rejected": 0,
+    "initial": 0,
+    "by": {
+     "|| to &&": [
+      6,
+      6
+     ],
+     "reset dropped": [
+      3,
+      3
+     ],
+     "== to !=": [
+      2,
+      2
+     ],
+     "constant changed": [
+      15,
+      15
+     ],
+     "&& to ||": [
+      7,
+      9
+     ],
+     "! dropped": [
+      1,
+      1
+     ],
+     "<= to <": [
+      1,
+      1
+     ],
+     "!= to ==": [
+      3,
+      3
+     ]
+    },
+    "unnoticed": [
+     {
+      "line": 35,
+      "what": "&& to ||",
+      "was": "wire _e10 = (_e9 >= $signed(4'b0000)) && (_e9 <= $signed(4'b0111));  // ghost g2 update stays in its declared range",
+      "now": "wire _e10 = (_e9 >= $signed(4'b0000)) || (_e9 <= $signed(4'b0111));  // ghost g2 update stays in its declared range",
+      "read": "range"
+     },
+     {
+      "line": 83,
+      "what": "&& to ||",
+      "was": "wire _e52 = (_e51 >= $signed(4'b0000)) && (_e51 <= $signed(4'b0111));  // ghost g2 update stays in its declared range",
+      "now": "wire _e52 = (_e51 >= $signed(4'b0000)) || (_e51 <= $signed(4'b0111));  // ghost g2 update stays in its declared range",
+      "read": "range"
+     }
+    ],
+    "seconds": 3.8
+   }
+  },
+  "total": {
+   "changes": 161260,
+   "tried": 1840,
+   "noticed": 1436,
+   "rejected": 0,
+   "initial": 19,
+   "readings": 46,
+   "unnoticed": {
+    "verdict": 273,
+    "range": 24,
+    "scenario": 88
+   }
+  },
+  "seconds": 1446
+ }
+}

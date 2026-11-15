@@ -1,0 +1,154 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The response supplies a complete implementation (the body) of the given Python function stub, keeping its header.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def sort_array(array):'
+  text: The function is a Python function named sort_array that takes exactly one parameter, named array.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: Given an array of non-negative integers
+  text: The argument array is a list whose elements are all non-negative integers.
+  kind: assumption
+  ambiguity:
+  - phrase: an array of non-negative integers
+    readings:
+    - Any such list is a valid argument, including the empty list.
+    - 'Only non-empty lists are valid arguments: the empty list has no first or last element, so it is outside the assumption and the behaviour on it is unconstrained.'
+  lines:
+  - 6
+- id: R-RET-1
+  doc: SPEC
+  quote: return a copy of the given array after sorting
+  text: For every argument that meets the input assumption, the call finishes and returns a list; it does not raise an exception.
+  kind: guarantee
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: return a copy of the given array
+    readings:
+    - The function returns for every list of non-negative integers, including the empty list, for which it returns an empty list.
+    - The empty list is not covered, because the sum of its first and last index values is undefined; the function may raise (for example an IndexError) or return anything on it.
+  lines:
+  - 6
+- id: R-RET-2
+  doc: SPEC
+  quote: a copy of the given array
+  text: 'The returned list contains exactly the elements of the given array, each as many times as it occurs there: it is a permutation of the argument and has the same length.'
+  kind: guarantee
+  lines:
+  - 6
+- id: R-RET-3
+  doc: SPEC
+  quote: after sorting
+  text: 'The returned list is sorted: its elements are in non-decreasing order or in non-increasing order.'
+  kind: guarantee
+  ambiguity:
+  - phrase: after sorting
+    readings:
+    - The returned list is always sorted in one of the two directions, whatever the sum of the first and last index values is.
+    - Only the cases the condition names constrain the order; where the text is cut off (after "or sort it") the order of the returned list is unconstrained.
+  lines:
+  - 6
+- id: R-RET-4
+  doc: SPEC
+  quote: return a copy of the given array after sorting
+  text: 'The call does not modify the argument list: after the call it holds the same elements in the same order as before the call.'
+  kind: guarantee
+  ambiguity:
+  - phrase: a copy of the given array after sorting
+    readings:
+    - A copy of the given array is made and the copy is sorted and returned; the given array is left unchanged.
+    - The given array is sorted (in place) and then a copy of it is returned; the given array is modified. This is what "you will sort the given array" says, which contradicts leaving it unchanged.
+  lines:
+  - 6
+- id: R-RET-5
+  doc: SPEC
+  quote: return a copy
+  text: The returned list is a new list object, distinct from the argument object.
+  kind: guarantee
+  ambiguity:
+  - phrase: a copy
+    readings:
+    - The returned list must be a different object from the argument, even when the argument is already in the required order (or is empty or has one element).
+    - Only the contents of the returned list matter; returning the argument object itself is acceptable as long as it holds the required elements.
+  lines:
+  - 6
+- id: R-KEY-1
+  doc: SPEC
+  quote: the sum( first index value, last index value)
+  text: 'The sum that decides the sort direction is the first element of the given array plus its last element: array[0] + array[len(array) - 1].'
+  kind: definition
+  ambiguity:
+  - phrase: first index value, last index value
+    readings:
+    - 'The values stored at the first and last positions of the array: array[0] + array[len(array) - 1].'
+    - 'The index numbers themselves: 0 + (len(array) - 1), so the parity depends only on the length of the array.'
+  - phrase: the sum( first index value, last index value)
+    readings:
+    - The first and last elements of the given array as passed in, before sorting.
+    - The first and last elements of the array after sorting, that is its minimum plus its maximum.
+  - phrase: last index value
+    readings:
+    - For a one-element array the first and last index values are the same element counted twice, so the sum is twice that element and always even.
+    - For a one-element array the single element is counted once, so the sum is that element.
+  lines:
+  - 7
+- id: R-ORD-1
+  doc: SPEC
+  quote: you will sort the given array in ascending order if the sum( first index value, last index value) is odd
+  text: If the sum of the first element and the last element of the given array is odd, the returned list holds the given array's elements in ascending order.
+  kind: guarantee
+  depends:
+  - R-KEY-1
+  - R-RET-2
+  ambiguity:
+  - phrase: ascending order
+    readings:
+    - Non-decreasing order, keeping duplicate values (each element appears as often as in the given array).
+    - Strictly increasing order, so duplicate values are removed; this contradicts returning a copy of the given array.
+  - phrase: you will sort the given array
+    readings:
+    - A sorted copy is produced and returned; the given array is left unchanged, as "return a copy of the given array" says.
+    - The given array itself is sorted in place (and a copy of it returned); this contradicts leaving the given array unchanged.
+  lines:
+  - 7
+- id: R-ORD-2
+  doc: SPEC
+  quote: or sort it
+  text: If the sum of the first element and the last element of the given array is not odd (it is even), the returned list holds the given array's elements in sorted order; the text is cut off after "or
+    sort it" and does not state the direction.
+  kind: guarantee
+  depends:
+  - R-KEY-1
+  - R-RET-2
+  ambiguity:
+  - phrase: or sort it
+    readings:
+    - When the sum is even, the returned list is in descending (non-increasing) order, the usual counterpart of the ascending case.
+    - 'When the sum is even, the returned list may be in either order: the direction is unspecified and any sorted permutation is acceptable.'
+    - When the sum is even, the returned list is in ascending order as well, the same as when the sum is odd.
+    - 'The sentence is incomplete: neither the condition nor the order of this case is stated, so the order of the returned list is unconstrained when the sum is even.'
+  lines:
+  - 8
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `result` is the empty list unless `outcome` is 0.'
+  text: Whenever outcome is not 0, result is the empty list.
+  kind: guarantee
+  lines:
+  - 46

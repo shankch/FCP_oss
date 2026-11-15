@@ -1,0 +1,15 @@
+# Defects planted in spec.md (hidden from every agent).
+design: code_checkout
+defects:
+- id: D-1
+  kind: conflict
+  reqs: [R-SHIP-1, R-MONO-1]
+  note: >
+    Free shipping from $50 (rule 6) lowers the amount charged when one cent is added at
+    the threshold: with no discount a 4,999-cent cart is charged 4,999 + 499 = 5,498 and a
+    5,000-cent cart 5,000, which rule 7 forbids. It happens whether the $50 is measured
+    before or after discounts, so no implementation can meet both rules.
+- {id: D-2, kind: ambiguity, reqs: [R-SHIP-1], note: '"Orders under $50": the subtotal before discounts, or the discounted price?'}
+- {id: D-3, kind: ambiguity, reqs: [R-ROUND-1], note: 'at exactly half a cent the nearest cent is not unique: round up, round to even, or either'}
+- {id: D-4, kind: ambiguity, reqs: [R-STACK-1], note: '"Discounts stack": the percentages add up, or the discounts apply one after the other'}
+- {id: D-5, kind: ambiguity, reqs: [R-COUP-1, R-STACK-1], note: 'coupons run up to 50% (line 9), the total discount is capped at 30% (rule 4): does the cap override a larger coupon?'}

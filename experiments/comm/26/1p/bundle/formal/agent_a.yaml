@@ -1,0 +1,98 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # result is a subsequence of numbers: some set of positions of numbers
+  # (bit j of the mask m selects numbers[j]) holds, in increasing order,
+  # exactly the elements of result.
+  subseq: "any(m < 256: count(j < 8: (m >> j) % 2 == 1) == len(result) && all(j < 8: (m >> j) % 2 == 1 -> j < len(numbers) && numbers[j] == result[count(k < j: (m >> k) % 2 == 1)]))"
+
+properties:
+  - id: RA-SIG-2
+    req: R-SIG-2
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Every call returns a list that fits the encoding (no exception, no hang,
+      no other type). Strictly, "returns List[int]" alone would also allow a
+      list of integers outside 0..255 or longer than 8, which the adapter
+      reports as outcome 2 together with "another type"; the encoding cannot
+      tell them apart, so outcome == 0 is the closest reading. With RA-RM-2
+      the returned values are taken from numbers, so they always fit. The
+      ambiguity of "remove" (new list or in-place) cannot be observed: the
+      trace records only the argument as passed and the returned list.
+
+  - id: RA-RM-1
+    req: R-RM-1
+    expr: "all(i < len(numbers): !(numbers[i] in result))"
+    note: >-
+      Literal reading: every element of a list occurs in it, so "all elements
+      that occur" selects every element of numbers for removal, and no value
+      of numbers appears in the returned list. Together with RA-RM-2 this
+      forces the returned list to be empty. The prompt looks truncated
+      (e.g. "that occur more than once"), but no condition is added here.
+      When outcome != 0, result is empty by F-EMPTY, so no guard is needed.
+
+  - id: RA-RM-2
+    req: R-RM-2
+    expr: "all(i < len(result): count(j < len(result): result[j] == result[i]) <= count(j < len(numbers): numbers[j] == result[i]))"
+    note: >-
+      Each value appears in result at most as many times as in numbers
+      (result is a sub-multiset of numbers). Independent of the reading of
+      "that occur".
+
+  - id: RA-RM-3
+    req: R-RM-3
+    expr: "len(result) == 0"
+    note: >-
+      Literal reading: every element of numbers occurs in numbers, so every
+      element is removed, no element is left to keep, and "the elements of
+      numbers minus the removed ones" is the empty list. The "kept" part is
+      vacuous under this reading; there is no logical contradiction with
+      R-RM-1, the restrictive clause "that occur" just selects nothing out.
+
+  - id: RA-RM-4
+    req: R-RM-4
+    expr: "subseq"
+    note: >-
+      Reading 1 of "remove": the remaining elements keep their relative
+      order, so result is a subsequence of numbers. Stated as the
+      existence of a set of positions of numbers (an 8-bit mask) whose
+      elements, in order, are exactly result. Under the literal reading of
+      R-RM-1/R-RM-3 the result is empty and this holds trivially.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: concerns how the deliverable is written (the body
+      completed, the header kept), not the behaviour of a call. A missing
+      or unusable function would show as outcome != 0, which RA-SIG-2
+      rejects, but that only covers part of it.
+  - req: R-SIG-1
+    reason: >-
+      Non-functional: the name, the parameter name and the type annotation
+      are not observable in the trace. The adapter calls candidate(numbers)
+      by name, so a misnamed function shows as outcome 1, which RA-SIG-2
+      rejects; the annotation is not checked.
+  - req: R-IN-1
+    reason: >-
+      The interface encoding already enforces it: the input signal numbers
+      can carry only a list of integers (at most 8, each 0..255), and calls
+      outside that are not part of the trace (frame.md, Inputs). An
+      assumption here would be a tautology. Note that the encoding is
+      narrower than "list of integers" (no negative or larger values, no
+      lists longer than 8).
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter; F-EMPTY (outcome != 0 -> len(result) == 0)
+      is added to every formalization set and need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-SIG-2, phrase: "remove", reading: 1}
+  - {req: R-RM-1, phrase: "remove all elements that occur", reading: 1}
+  - {req: R-RM-1, phrase: "all elements that occur", reading: 1}
+  - {req: R-RM-3, phrase: "remove all elements that occur", reading: 1}
+  - {req: R-RM-3, phrase: "all elements that occur", reading: 1}
+  - {req: R-RM-4, phrase: "remove", reading: 1}

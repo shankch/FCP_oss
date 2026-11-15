@@ -1,0 +1,113 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-API-1
+  doc: SPEC
+  quote: 'def smallest_change(arr):'
+  text: The deliverable is a Python function named smallest_change that takes a single argument arr.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: Given an array arr of integers
+  text: The argument arr is an array (list) of integers.
+  kind: assumption
+  ambiguity:
+  - phrase: an array arr of integers
+    readings:
+    - any list of integers, including the empty list (for which the answer is 0, since an empty array is already palindromic)
+    - a non-empty list of integers; the behaviour on the empty list is unspecified (don't care)
+  lines:
+  - 6
+- id: R-DEF-1
+  doc: SPEC
+  quote: A palindromic array is an array that is read the same backwards and forwards.
+  text: An array is palindromic exactly when it equals its own reversal, i.e. arr[i] == arr[len(arr)-1-i] for every index i.
+  kind: definition
+  lines:
+  - 7
+  - 8
+- id: R-DEF-2
+  doc: SPEC
+  quote: In one change, you can change one element to any other element.
+  text: A single change replaces the value of exactly one element of the array with another value; the cost being minimized counts one per changed element.
+  kind: definition
+  ambiguity:
+  - phrase: any other element
+    readings:
+    - any other integer value (not restricted to values present in the array)
+    - the value of some other element already present in the array
+  lines:
+  - 8
+- id: R-CH-1
+  doc: SPEC
+  quote: find the minimum number of elements that need to be changed to make the array palindromic
+  text: smallest_change(arr) returns the minimum number of elements of arr that must be changed for the array to become palindromic, which is the number of mirror positions i < len(arr)/2 with arr[i] !=
+    arr[len(arr)-1-i].
+  kind: guarantee
+  depends:
+  - R-IN-1
+  - R-DEF-1
+  - R-DEF-2
+  ambiguity:
+  - phrase: the minimum number of elements that need to be changed
+    readings:
+    - the number of mirror pairs whose two elements differ, as the definition gives (4, 1 and 0 for the three examples); the examples, which contradict this, are wrong
+    - the value the examples give (8, 7 and 5), which in all three cases is len(arr); the examples are authoritative over the stated definition
+  lines:
+  - 6
+  - 7
+- id: R-EX-1
+  doc: SPEC
+  quote: smallest_change([1,2,3,5,4,7,9,6]) == 8
+  text: Calling smallest_change([1, 2, 3, 5, 4, 7, 9, 6]) returns 8.
+  kind: scenario
+  depends:
+  - R-CH-1
+  ambiguity:
+  - phrase: == 8
+    readings:
+    - 'the example is erroneous and contradicts R-CH-1: all four mirror pairs (1,6), (2,9), (3,7), (5,4) differ, so the minimum is 4 and the call should return 4'
+    - 'the example is authoritative: the call returns 8 (the length of the array), overriding the minimum-change definition'
+  lines:
+  - 11
+- id: R-EX-2
+  doc: SPEC
+  quote: smallest_change([1, 2, 3, 4, 3, 2, 2]) == 7
+  text: Calling smallest_change([1, 2, 3, 4, 3, 2, 2]) returns 7.
+  kind: scenario
+  depends:
+  - R-CH-1
+  ambiguity:
+  - phrase: == 7
+    readings:
+    - 'the example is erroneous and contradicts R-CH-1: only the mirror pair (1,2) differs, so the minimum is 1 and the call should return 1'
+    - 'the example is authoritative: the call returns 7 (the length of the array), overriding the minimum-change definition'
+  lines:
+  - 12
+- id: R-EX-3
+  doc: SPEC
+  quote: smallest_change([1, 2, 3, 2, 1]) == 5
+  text: Calling smallest_change([1, 2, 3, 2, 1]) returns 5.
+  kind: scenario
+  depends:
+  - R-CH-1
+  ambiguity:
+  - phrase: == 5
+    readings:
+    - 'the example is erroneous and contradicts R-CH-1 and R-DEF-1: [1, 2, 3, 2, 1] is already palindromic, so the minimum is 0 and the call should return 0'
+    - 'the example is authoritative: the call returns 5 (the length of the array), overriding the minimum-change definition'
+  lines:
+  - 13
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `changes` is 0 unless `outcome` is 0.'
+  text: Whenever outcome is not 0 (the call did not return an integer from 0 to 15), changes is 0.
+  kind: guarantee
+  lines:
+  - 48

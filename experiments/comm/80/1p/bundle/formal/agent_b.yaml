@@ -1,0 +1,167 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. is_happy keeps no state between calls (frame.md,
+# "Calls"), so the reference model is a combinational function of the
+# argument of the current call; a ghost with a next-state would lag one call
+# behind. Every output is checked against it: outcome against model_outcome
+# (R-FN-2) and happy against model_happy (R-FN-1).
+defs:
+  # R-DEF-1, reading 1 of "happy": at least 3 characters and every window of
+  # 3 consecutive characters is pairwise distinct. Reading 1 of "the string":
+  # characters are compared by their exact code (no case folding).
+  window_ok: "all(i < len(s): (i + 2 < len(s)) -> (s[i] != s[i + 1] && s[i] != s[i + 2] && s[i + 1] != s[i + 2]))"
+  model_happy: "len(s) >= 3 && window_ok"
+  # R-FN-2, reading 1 of "check": every call returns a bool (outcome 0).
+  model_outcome: "0"
+  returned_bool: "outcome == model_outcome"
+
+properties:
+  - id: RB-FN-1-T
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: "model_happy", cond: "returned_bool && happy"}
+    note: >-
+      "returns True when s is happy", read literally: the call returns (outcome 0)
+      the bool True. Holds for every string the interface admits (R-IN-1 readings 1
+      and 1: any characters, empty string included). Happy is model_happy, which
+      encodes R-DEF-1 reading 1 (windows of 3 pairwise distinct, length >= 3,
+      exact character codes); the prompt itself never defines "happy".
+  - id: RB-FN-1-F
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: "!model_happy", cond: "returned_bool && !happy"}
+    note: >-
+      "and False when s is not happy", read literally: the call returns (outcome 0)
+      the bool False. Covers the empty string and every string shorter than 3
+      characters (not happy under R-DEF-1 reading 1), and strings of any
+      characters (R-IN-1 reading 1).
+  - id: RB-FN-2
+    req: R-FN-2
+    pattern: invariant
+    args: {cond: "returned_bool"}
+    note: >-
+      Reading 1 of "check": the answer is the bool True or False (outcome 0), as the
+      examples show; raising, not finishing (outcome 1) or returning another type
+      such as 1/0 or None (outcome 2) breaks it. Unconditional, because R-IN-1 is
+      taken to admit every string, empty included.
+
+  # The examples. Each states the result of one call, so it is formalized both as
+  # an obligation on every call with that argument (property) and as a behaviour
+  # that must be possible (scenario, the kind requirements.yaml gives). The
+  # argument is read as the string written without quotes (reading 1).
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'len(s) == 1 && s[0] == "a"', cond: "returned_bool && !happy"}
+    note: >-
+      is_happy(a) => False, with a read as the string 'a' (reading 1). Written as
+      length 1 and first code "a" so that the one-character literal cannot be
+      taken as a character code instead of a string.
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 's == "aa"', cond: "returned_bool && !happy"}
+    note: "is_happy(aa) => False, with aa read as the string 'aa' (reading 1)."
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 's == "abcd"', cond: "returned_bool && happy"}
+    note: "is_happy(abcd) => True, with abcd read as the string 'abcd' (reading 1)."
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 's == "aabb"', cond: "returned_bool && !happy"}
+    note: "is_happy(aabb) => False, with aabb read as the string 'aabb' (reading 1)."
+  - id: RB-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 's == "adb"', cond: "returned_bool && happy"}
+    note: "is_happy(adb) => True, with adb read as the string 'adb' (reading 1)."
+  - id: RB-EX-6
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 's == "xyy"', cond: "returned_bool && !happy"}
+    note: "is_happy(xyy) => False, with xyy read as the string 'xyy' (reading 1)."
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: 'len(s) == 1 && s[0] == "a" && returned_bool && !happy'
+    note: "A call with the string 'a' that returns False is possible."
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: 's == "aa" && returned_bool && !happy'
+    note: "A call with the string 'aa' that returns False is possible."
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: 's == "abcd" && returned_bool && happy'
+    note: "A call with the string 'abcd' that returns True is possible."
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: 's == "aabb" && returned_bool && !happy'
+    note: "A call with the string 'aabb' that returns False is possible."
+  - id: RB-EX-5-S
+    req: R-EX-5
+    cover: 's == "adb" && returned_bool && happy'
+    note: "A call with the string 'adb' that returns True is possible."
+  - id: RB-EX-6-S
+    req: R-EX-6
+    cover: 's == "xyy" && returned_bool && !happy'
+    note: "A call with the string 'xyy' that returns False is possible."
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: it asks for a complete implementation of the stub. Whether the
+      deliverable is complete is not a property of a call trace; what the completed
+      function must do is formalized under R-FN-1, R-FN-2 and R-EX-*.
+  - req: R-API-2
+    reason: >-
+      Non-functional: the function name and its single parameter s are fixed by the
+      adapter (design.yaml, function section), which calls is_happy(s) in every
+      cycle; a function with another name or signature yields no trace to check.
+  - req: R-IN-1
+    reason: >-
+      Under the readings taken ("a string": reading 1, any characters; "a string s":
+      reading 1, the empty string included), the only obligation on the caller is
+      that s is a string, which the interface encoding (sequence signal s of at most
+      16 characters, codes 0-255) already guarantees. No further assumption is
+      placed on the environment; R-FN-1 and R-FN-2 are therefore required on every
+      string, including the empty string and strings with uppercase letters,
+      digits, spaces and other codes.
+    covered_by: [RB-FN-1-T, RB-FN-1-F, RB-FN-2]
+  - req: R-DEF-1
+    reason: >-
+      A definition, not a behaviour: it is realized by the def model_happy used in
+      the R-FN-1 properties. The prompt never defines "happy"; readings 1, 2 and 3
+      of the requirement (and 4 on these inputs) all agree with the six examples,
+      none of which contains a repeat at distance 2 ('aba'), a non-adjacent repeat
+      ('abca') or a 2-character string of distinct characters ('ab'). Reading 1
+      (every 3 consecutive characters pairwise distinct, length at least 3) is
+      taken as the conventional meaning of this prompt and the first listed;
+      characters are compared by exact code, the literal reading of "the string",
+      since nothing mentions case.
+    covered_by: [RB-FN-1-T, RB-FN-1-F]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md): F-ZERO in design.yaml is added to every
+      formalization set by construction and need not be restated.
+  - req: R-FR-2
+    reason: >-
+      Frame rule of the adapter (frame.md): F-CODE in design.yaml is added to every
+      formalization set by construction and need not be restated.
+
+decisions:
+  - {req: R-IN-1, phrase: "a string", reading: 1}
+  - {req: R-IN-1, phrase: "a string s", reading: 1}
+  - {req: R-DEF-1, phrase: "happy", reading: 1}
+  - {req: R-DEF-1, phrase: "the string", reading: 1}
+  - {req: R-FN-2, phrase: "check", reading: 1}
+  - {req: R-EX-1, phrase: "is_happy(a)", reading: 1}
+  - {req: R-EX-2, phrase: "is_happy(aa)", reading: 1}
+  - {req: R-EX-3, phrase: "is_happy(abcd)", reading: 1}
+  - {req: R-EX-4, phrase: "is_happy(aabb)", reading: 1}
+  - {req: R-EX-5, phrase: "is_happy(adb)", reading: 1}
+  - {req: R-EX-6, phrase: "is_happy(xyy)", reading: 1}

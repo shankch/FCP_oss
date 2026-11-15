@@ -1,0 +1,473 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 477,
+    "checked": 477,
+    "seconds": 1.27
+   },
+   "open": {
+    "open": {},
+    "checked": 280
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 675,
+    "checked": 675,
+    "seconds": 2.43
+   },
+   "open": {
+    "open": {},
+    "checked": 387
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-HUN-1": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-HUN-2": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-HUN-3": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-MEAL-1": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-3": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-CON-1",
+    "req": "R-CON-1",
+    "says": "every call meets `number <= 1000`",
+    "where": {
+     "number": "x"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-CON-2",
+    "req": "R-CON-2",
+    "says": "every call meets `need <= 1000`",
+    "where": {
+     "need": "y"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-CON-3",
+    "req": "R-CON-3",
+    "says": "every call meets `remaining <= 1000`",
+    "where": {
+     "remaining": "z"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-CON-1",
+    "req": "R-CON-1",
+    "says": "every call meets `number <= 1000`",
+    "where": {
+     "number": "x"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-CON-2",
+    "req": "R-CON-2",
+    "says": "every call meets `need <= 1000`",
+    "where": {
+     "need": "y"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-CON-3",
+    "req": "R-CON-3",
+    "says": "every call meets `remaining <= 1000`",
+    "where": {
+     "remaining": "z"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-CON-1-OUT",
+    "req": "R-CON-1",
+    "says": "`outcome` is free when `number > 1000`",
+    "where": {
+     "number": "x"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-CON-1-RES",
+    "req": "R-CON-1",
+    "says": "`result` is free when `number > 1000`",
+    "where": {
+     "number": "x"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-CON-2-OUT",
+    "req": "R-CON-2",
+    "says": "`outcome` is free when `need > 1000`",
+    "where": {
+     "need": "y"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-CON-2-RES",
+    "req": "R-CON-2",
+    "says": "`result` is free when `need > 1000`",
+    "where": {
+     "need": "y"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-CON-3-OUT",
+    "req": "R-CON-3",
+    "says": "`outcome` is free when `remaining > 1000`",
+    "where": {
+     "remaining": "z"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-CON-3-RES",
+    "req": "R-CON-3",
+    "says": "`result` is free when `remaining > 1000`",
+    "where": {
+     "remaining": "z"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-SIG-1",
+   "phrase": "x, y, z",
+   "taken": 1,
+   "variant": 2,
+   "text": "the parameters map to number, need and remaining in some other order: the signature and the docstring use different names and nothing states the mapping (seeming contradiction between the signature and the Variables section)"
+  },
+  {
+   "req": "R-MEAL-1",
+   "phrase": "no or more carrots",
+   "taken": 1,
+   "variant": 2,
+   "text": "'need or more': need is only a minimum and the rabbit may eat more than need carrots when the stock allows"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "an array",
+   "taken": 1,
+   "variant": 2,
+   "text": "any array-like sequence of two integers (list, tuple, array.array, ...)"
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "needed or eaten",
+   "taken": 1,
+   "variant": 2,
+   "text": "needed: number + need, regardless of the stock (fits eat(5, 6, 10), eat(4, 8, 9) and eat(1, 10, 10), but contradicts eat(2, 11, 5) -> [7, 0], which would give 13)"
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "before or after your meals",
+   "taken": 1,
+   "variant": 2,
+   "text": "before the meal: the first element is number alone (contradicts every example, e.g. eat(5, 6, 10) would give 5, not 11)"
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "total number",
+   "taken": 1,
+   "variant": 2,
+   "text": "only the carrots eaten in this meal, min(need, remaining) (contradicts every example, e.g. eat(5, 6, 10) would give 6, not 11)"
+  },
+  {
+   "req": "R-RET-3",
+   "phrase": "needed or eaten left",
+   "taken": 1,
+   "variant": 2,
+   "text": "carrots still needed after the meal: max(need - remaining, 0) (contradicts eat(5, 6, 10) -> [11, 4], eat(4, 8, 9) -> [12, 1] and eat(2, 11, 5) -> [7, 0], which would give 0, 0 and 6)"
+  },
+  {
+   "req": "R-HUN-1",
+   "phrase": "not enough remaining carrots",
+   "taken": 1,
+   "variant": 2,
+   "text": "remaining <= need (at remaining == need both readings give the same returned list)"
+  },
+  {
+   "req": "R-HUN-3",
+   "phrase": "will still be hungry",
+   "taken": 1,
+   "variant": 2,
+   "text": "the returned list reports the unmet need need - remaining, e.g. as the second element (contradicts eat(2, 11, 5) -> [7, 0], which would then be [7, 6])"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "[11, 4]",
+   "taken": 1,
+   "variant": 2,
+   "text": "the second element is the carrots still needed (reading 2 of R-RET-3), which would give [11, 0]: the example contradicts that reading"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "[12, 1]",
+   "taken": 1,
+   "variant": 2,
+   "text": "the second element is the carrots still needed (reading 2 of R-RET-3), which would give [12, 0]: the example contradicts that reading"
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "[7, 0]",
+   "taken": 1,
+   "variant": 2,
+   "text": "the first element is the total needed (reading 2 of R-RET-2 'needed or eaten'), which would give 13: the example contradicts that reading"
+  },
+  {
+   "req": "R-VAR-1",
+   "phrase": "@number",
+   "taken": 1,
+   "variant": 2,
+   "text": "number is y, the second parameter"
+  },
+  {
+   "req": "R-VAR-2",
+   "phrase": "@need",
+   "taken": 1,
+   "variant": 2,
+   "text": "need is x, the first parameter"
+  },
+  {
+   "req": "R-VAR-3",
+   "phrase": "@remaining",
+   "taken": 1,
+   "variant": 2,
+   "text": "remaining is x, the first parameter"
+  },
+  {
+   "req": "R-CON-1",
+   "phrase": "0 <= number <= 1000",
+   "taken": 1,
+   "variant": 2,
+   "text": "a check the function must make: it must reject number outside 0..1000, e.g. by raising an exception"
+  },
+  {
+   "req": "R-CON-2",
+   "phrase": "0 <= need <= 1000",
+   "taken": 1,
+   "variant": 2,
+   "text": "a check the function must make: it must reject need outside 0..1000, e.g. by raising an exception"
+  },
+  {
+   "req": "R-CON-3",
+   "phrase": "0 <= remaining <= 1000",
+   "taken": 1,
+   "variant": 2,
+   "text": "a check the function must make: it must reject remaining outside 0..1000, e.g. by raising an exception"
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "eat(776, 1000, 1023) -> raised another exception or did not finish"
+   ]
+  },
+  "R-RET-2": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "eat(0, 1, 1) -> [1, 0]"
+   ]
+  }
+ },
+ "certified": [
+  "R-HUN-2",
+  "R-EX-3"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1",
+    "R-RET-2"
+   ],
+   "calls": [
+    "eat(776, 1000, 1023) -> raised another exception or did not finish"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MEAL-1"
+   ],
+   "calls": [],
+   "question": "\"no or more carrots\" can mean: 'zero or more': need is a non-negative count that may be 0, and the rabbit eats exactly need carrots when the stock allows (fits eat(5, 6, 10) -> [11, 4] and eat(4, 8, 9) -> [12, 1]) / 'need or more': need is only a minimum and the rabbit may eat more than need carrots when the stock allows. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"an array\" can mean: a Python list / any array-like sequence of two integers (list, tuple, array.array, ...). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"needed or eaten\" can mean: eaten: number + min(need, remaining), the carrots actually eaten (fits all four examples) / needed: number + need, regardless of the stock (fits eat(5, 6, 10), eat(4, 8, 9) and eat(1, 10, 10), but contradicts eat(2, 11, 5) -> [7, 0], which would give 13). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"before or after your meals\" can mean: after the meal: the count includes the carrots eaten in this meal (fits all four examples) / before the meal: the first element is number alone (contradicts every example, e.g. eat(5, 6, 10) would give 5, not 11). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"total number\" can mean: the total includes the carrots eaten before the meal (number) plus those eaten in it (fits all four examples) / only the carrots eaten in this meal, min(need, remaining) (contradicts every example, e.g. eat(5, 6, 10) would give 6, not 11). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-3"
+   ],
+   "calls": [],
+   "question": "\"needed or eaten left\" can mean: carrots left in stock after the meal: max(remaining - need, 0) (fits all four examples) / carrots still needed after the meal: max(need - remaining, 0) (contradicts eat(5, 6, 10) -> [11, 4], eat(4, 8, 9) -> [12, 1] and eat(2, 11, 5) -> [7, 0], which would give 0, 0 and 6) / carrots eaten in the meal: min(need, remaining) (contradicts every example, e.g. eat(5, 6, 10) would give 6, not 4). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HUN-1"
+   ],
+   "calls": [],
+   "question": "\"not enough remaining carrots\" can mean: remaining < need / remaining <= need (at remaining == need both readings give the same returned list). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HUN-3"
+   ],
+   "calls": [],
+   "question": "\"will still be hungry\" can mean: narrative only: the returned list does not report the shortfall, and the second element stays the stock left, 0 / the returned list reports the unmet need need - remaining, e.g. as the second element (contradicts eat(2, 11, 5) -> [7, 0], which would then be [7, 6]). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"[11, 4]\" can mean: the second element is the stock left (10 - 6 = 4), as in reading 1 of R-RET-3 / the second element is the carrots still needed (reading 2 of R-RET-3), which would give [11, 0]: the example contradicts that reading. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"[12, 1]\" can mean: the second element is the stock left (9 - 8 = 1), as in reading 1 of R-RET-3 / the second element is the carrots still needed (reading 2 of R-RET-3), which would give [12, 0]: the example contradicts that reading. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"[7, 0]\" can mean: [total actually eaten, stock left] = [2 + 5, 0], as in reading 1 of R-RET-2 'needed or eaten', of R-RET-3 and of R-HUN-3 / the first element is the total needed (reading 2 of R-RET-2 'needed or eaten'), which would give 13: the example contradicts that reading / the second element is the carrots still needed, the unmet hunger of R-HUN-3 (reading 2 of R-RET-3 and of R-HUN-3), which would give 6: the example contradicts that reading. Which is meant?"
+  }
+ ],
+ "limits": []
+}

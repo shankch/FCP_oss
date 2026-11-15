@@ -1,0 +1,260 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-ENV-1..3 are read as rules the function enforces (reading 2): the
+  # behaviour of the prose applies to calls inside the constraints, calls
+  # outside them must be rejected (RV-ENV-1..3).
+  valid: 'number <= 1000 && need <= 1000 && remaining <= 1000'
+  # A valid call that returned a list. R-RET-1 is read as allowing any
+  # two-element sequence (reading 2); the adapter records anything but a list
+  # as outcome 2 without its elements, so element rules apply to lists only.
+  answered: 'valid && outcome == 0'
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: valid, cond: 'outcome == 2 || (outcome == 0 && len(result) == 2)'}
+    note: >-
+      Reading 2 of "an array" (as instructed): any two-element sequence, such as a tuple,
+      would do. The adapter records only a list as outcome 0 and anything else, a tuple
+      included, as outcome 2 without its elements, so a valid call must either return a
+      two-element list or end with outcome 2. This also admits other returned values the
+      adapter cannot tell apart from a tuple. Raising (outcome 1) is excluded. Scoped to
+      valid arguments because R-ENV-1..3 are read as rules the function enforces
+      (reading 2), so out-of-range calls must be rejected instead (RV-ENV-1..3).
+
+  - id: RV-CTX-1
+    req: R-CTX-1
+    pattern: implies
+    args: {trigger: 'answered && remaining >= need', cond: 'result[0] >= number + need && result[0] <= number + remaining'}
+    note: >-
+      Reading 2 of "you need to eat more carrots" (as instructed): the rabbit eats at least
+      need further carrots and may eat more when stock allows. With the first element as
+      the total eaten after the meals (R-RET-1), the carrots eaten in these meals,
+      result[0] - number, are at least need; "when stock allows" is read as bounding them
+      by the stock, remaining. Stated only when the stock allows need further carrots
+      (remaining >= need). need is the further amount here, as this reading says, not the
+      day's total of R-DEF-2 reading 2, with which it conflicts. Guarded by outcome == 0
+      because R-RET-1 reading 2 lets a valid call return a non-list sequence whose elements
+      the adapter cannot see; scoped to valid arguments per R-ENV-1..3 reading 2.
+
+  - id: RV-TOT-1-MEAL
+    req: R-TOT-1
+    pattern: implies
+    args: {trigger: 'answered && remaining >= need', cond: 'result[0] == need'}
+    note: >-
+      Reading 2 of "total number of eaten carrots" (as instructed): only the carrots eaten
+      in these meals, so the first element is need, not number + need. The condition
+      remaining >= need is kept as the requirement states it. The other flagged phrase of
+      R-TOT-1 is formalized in RV-TOT-1-DAY; the two readings as given (need and
+      max(number, need)) disagree whenever number > need, so R-TOT-1 is contradictory
+      there. Contradicts the examples eat(5, 6, 10), eat(4, 8, 9) and eat(1, 10, 10),
+      whose first elements are number + need. Guarded by outcome == 0 because R-RET-1
+      reading 2 allows a non-list sequence the adapter cannot see into; scoped to valid
+      arguments per R-ENV-1..3 reading 2.
+
+  - id: RV-TOT-1-DAY
+    req: R-TOT-1
+    pattern: implies
+    args: {trigger: 'answered && remaining >= need', cond: 'result[0] == max(number, need)'}
+    note: >-
+      Reading 2 of "the number of carrots that you need to eat" in R-TOT-1, the same
+      reading as taken for R-DEF-2 (as instructed): need is the day's total including the
+      carrots already eaten, so the first element is max(number, need). The condition
+      remaining >= need is kept literally as the requirement states it, although under
+      this reading the stock would already suffice when number + remaining >= need.
+      Disagrees with RV-TOT-1-MEAL (reading 2 of the other phrase) whenever number > need,
+      and with the examples eat(5, 6, 10), eat(4, 8, 9) and eat(1, 10, 10). Guarded by
+      outcome == 0 because R-RET-1 reading 2 allows a non-list sequence the adapter cannot
+      see into; scoped to valid arguments per R-ENV-1..3 reading 2.
+
+  - id: RV-TOT-2
+    req: R-TOT-2
+    pattern: implies
+    args: {trigger: 'answered && remaining < need', cond: 'result[0] == remaining'}
+    note: >-
+      Reading 2 of "total number of eaten carrots" (as instructed): only the carrots eaten
+      in these meals, which are all remaining carrots, so the first element is remaining,
+      not number + remaining. Contradicts eat(2, 11, 5) -> [7, 5], whose first element is
+      7. "not enough remaining carrots" is read literally as remaining < need, as the
+      requirement states; R-DEF-2 reading 2 (need as the day's total) is not applied to
+      this condition. Guarded by outcome == 0 because R-RET-1 reading 2 allows a non-list
+      sequence the adapter cannot see into; scoped to valid arguments per R-ENV-1..3
+      reading 2.
+
+  - id: RV-LEFT-1
+    req: R-LEFT-1
+    pattern: implies
+    args: {trigger: 'answered && remaining >= need', cond: 'result[1] == remaining'}
+    note: >-
+      Reading 2 of "the number of carrots left after your meals" (as instructed): the
+      remaining argument unchanged, as the examples eat(5, 6, 10), eat(4, 8, 9) and
+      eat(1, 10, 10) show as printed. This contradicts the literal prose "left after your
+      meals" (remaining - need), and it contradicts RV-EX-1..3, which under their own
+      readings 2 expect remaining - need. Guarded by outcome == 0 because R-RET-1 reading 2
+      allows a non-list sequence the adapter cannot see into; scoped to valid arguments
+      per R-ENV-1..3 reading 2.
+
+  - id: RV-LEFT-2
+    req: R-LEFT-2
+    pattern: implies
+    args: {trigger: 'answered && remaining < need', cond: 'result[1] == remaining'}
+    note: >-
+      Reading 2 of "you will eat all remaining carrots" (as instructed): the second element
+      is the remaining argument unchanged, as eat(2, 11, 5) -> [7, 5] shows as printed,
+      even though all of it is eaten. This contradicts RV-EX-4, which under its own
+      reading 2 expects [7, 0]. Not enough stock is read literally as remaining < need.
+      Guarded by outcome == 0 because R-RET-1 reading 2 allows a non-list sequence the
+      adapter cannot see into; scoped to valid arguments per R-ENV-1..3 reading 2.
+
+  - id: RV-HUN-1
+    req: R-HUN-1
+    pattern: implies
+    args: {trigger: 'valid && remaining < need', cond: 'outcome == 2 || len(result) == 3'}
+    note: >-
+      Reading 2 of "will still be hungry" (as instructed): the returned value must somehow
+      report the unmet need, e.g. an extra element or a flag. The adapter can see this as
+      a returned list with a third element (it records lists of up to 3 numbers) or as a
+      returned value of another form (outcome 2, e.g. a tuple or dict that carries a flag),
+      whose content it cannot see. Nothing is required of the content of the report.
+      Raising is not a returned value and does not count. As the reading itself says, this
+      conflicts with the two-element list of R-RET-1: together with RV-RET-1 only
+      outcome 2 remains for such calls, and RV-EX-4 ([7, 0]) cannot be met. Hungry is
+      read as remaining < need, the condition of R-TOT-2 (need as the further amount).
+      Scoped to valid arguments per R-ENV-1..3 reading 2.
+
+  - id: RV-ENV-1
+    req: R-ENV-1
+    pattern: implies
+    args: {trigger: 'number > 1000', cond: 'outcome != 0'}
+    note: >-
+      Reading 2 of "0 <= number <= 1000" (as instructed): a rule the function enforces, so
+      it is a guarantee here and not an assumption. The function must reject number
+      outside 0..1000. Rejection is read as not returning a list answer (outcome != 0:
+      raising, as in the example, or returning a value of another form); a returned list
+      such as [] does not count. Negative arguments are not part of the trace (the signals
+      are unsigned), so only the upper bound (1001..1023) is checked.
+
+  - id: RV-ENV-2
+    req: R-ENV-2
+    pattern: implies
+    args: {trigger: 'need > 1000', cond: 'outcome != 0'}
+    note: >-
+      Reading 2 of "0 <= need <= 1000" (as instructed): a rule the function enforces, so it
+      is a guarantee here and not an assumption. The function must reject need outside
+      0..1000. Rejection is read as not returning a list answer (outcome != 0: raising, as
+      in the example, or returning a value of another form); a returned list such as []
+      does not count. Negative arguments are not part of the trace (the signals are
+      unsigned), so only the upper bound (1001..1023) is checked.
+
+  - id: RV-ENV-3
+    req: R-ENV-3
+    pattern: implies
+    args: {trigger: 'remaining > 1000', cond: 'outcome != 0'}
+    note: >-
+      Reading 2 of "0 <= remaining <= 1000" (as instructed): a rule the function enforces,
+      so it is a guarantee here and not an assumption. The function must reject remaining
+      outside 0..1000. Rejection is read as not returning a list answer (outcome != 0:
+      raising, as in the example, or returning a value of another form); a returned list
+      such as [] does not count. Negative arguments are not part of the trace (the signals
+      are unsigned), so only the upper bound (1001..1023) is checked.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'number == 5 && need == 6 && remaining == 10 && result == [11, 4]'
+    note: >-
+      Reading 2 of "eat(5, 6, 10) -> [11, 10]" (as instructed): the printed second element
+      is an error; following the prose of R-LEFT-1 (remaining - need) the intended result
+      is [11, 4]. This conflicts with RV-LEFT-1 (second element 10 under R-LEFT-1
+      reading 2) and with RV-TOT-1-MEAL and RV-TOT-1-DAY (first element 6). Stated on the
+      returned list; a tuple, which R-RET-1 reading 2 would accept, is recorded as
+      outcome 2 without elements and cannot witness the example.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'number == 4 && need == 8 && remaining == 9 && result == [12, 1]'
+    note: >-
+      Reading 2 of "eat(4, 8, 9) -> [12, 9]" (as instructed): the printed second element is
+      an error; following the prose of R-LEFT-1 (remaining - need) the intended result is
+      [12, 1]. This conflicts with RV-LEFT-1 (second element 9 under R-LEFT-1 reading 2)
+      and with RV-TOT-1-MEAL and RV-TOT-1-DAY (first element 8). Stated on the returned
+      list; a tuple, which R-RET-1 reading 2 would accept, is recorded as outcome 2
+      without elements and cannot witness the example.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'number == 1 && need == 10 && remaining == 10 && result == [11, 0]'
+    note: >-
+      Reading 2 of "eat(1, 10, 10) -> [11, 10]" (as instructed): the printed second element
+      is an error; following the prose of R-LEFT-1 (remaining - need) the intended result
+      is [11, 0]. This conflicts with RV-LEFT-1 (second element 10 under R-LEFT-1
+      reading 2) and with RV-TOT-1-MEAL and RV-TOT-1-DAY (first element 10). Stated on the
+      returned list; a tuple, which R-RET-1 reading 2 would accept, is recorded as
+      outcome 2 without elements and cannot witness the example.
+
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'number == 2 && need == 11 && remaining == 5 && result == [7, 0]'
+    note: >-
+      Reading 2 of "eat(2, 11, 5) -> [7, 5]" (as instructed): the printed second element is
+      an error; following the prose of R-LEFT-2 (all remaining carrots eaten, none left)
+      the intended result is [7, 0]. This conflicts with RV-LEFT-2 (second element 5 under
+      R-LEFT-2 reading 2), with RV-TOT-2 (first element 5) and with RV-HUN-1 (a third
+      element or a non-list value). Stated on the returned list; a tuple, which R-RET-1
+      reading 2 would accept, is recorded as outcome 2 without elements and cannot
+      witness the example.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the deliverable is the function with this signature. The adapter
+      calls eat(number, need, remaining) on every cycle, so a missing function or a wrong
+      signature shows as outcome 1 on every call, which RV-RET-1 already forbids for valid
+      arguments; no rule over the calls states the deliverable itself.
+  - req: R-DEF-1
+    reason: >-
+      Definition of the argument number (carrots already eaten); it gives meaning to the
+      rules that use number and imposes nothing by itself.
+    covered_by: [RV-CTX-1, RV-TOT-1-DAY]
+  - req: R-DEF-2
+    reason: >-
+      Definition of the argument need. Read as instructed with reading 2: need is the
+      day's total including the carrots already eaten, so only max(0, need - number) more
+      are needed. Its observable consequence is the first element max(number, need) of
+      RV-TOT-1-DAY (the same reading of the same phrase in R-TOT-1). It is not applied to
+      the conditions remaining >= need / remaining < need, which R-TOT-1, R-TOT-2,
+      R-LEFT-1, R-LEFT-2 and R-HUN-1 state literally, nor to RV-CTX-1, whose own reading
+      takes need as the further amount.
+    covered_by: [RV-TOT-1-DAY]
+  - req: R-DEF-3
+    reason: >-
+      Definition of the argument remaining (carrots in stock before the meals); it gives
+      meaning to the rules that use remaining and imposes nothing by itself.
+    covered_by: [RV-CTX-1, RV-TOT-2, RV-LEFT-1, RV-LEFT-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, realized by frame item F-EMPTY of design.yaml,
+      which is part of every formalization set and need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-CTX-1, phrase: 'you need to eat more carrots', reading: 2}
+  - {req: R-DEF-2, phrase: 'the number of carrots that you need to eat', reading: 2}
+  - {req: R-RET-1, phrase: 'an array', reading: 2}
+  - {req: R-TOT-1, phrase: 'total number of eaten carrots', reading: 2}
+  - {req: R-TOT-1, phrase: 'the number of carrots that you need to eat', reading: 2}
+  - {req: R-TOT-2, phrase: 'total number of eaten carrots', reading: 2}
+  - {req: R-LEFT-1, phrase: 'the number of carrots left after your meals', reading: 2}
+  - {req: R-LEFT-2, phrase: 'you will eat all remaining carrots', reading: 2}
+  - {req: R-HUN-1, phrase: 'will still be hungry', reading: 2}
+  - {req: R-EX-1, phrase: 'eat(5, 6, 10) -> [11, 10]', reading: 2}
+  - {req: R-EX-2, phrase: 'eat(4, 8, 9) -> [12, 9]', reading: 2}
+  - {req: R-EX-3, phrase: 'eat(1, 10, 10) -> [11, 10]', reading: 2}
+  - {req: R-EX-4, phrase: 'eat(2, 11, 5) -> [7, 5]', reading: 2}
+  - {req: R-ENV-1, phrase: '0 <= number <= 1000', reading: 2}
+  - {req: R-ENV-2, phrase: '0 <= need <= 1000', reading: 2}
+  - {req: R-ENV-3, phrase: '0 <= remaining <= 1000', reading: 2}

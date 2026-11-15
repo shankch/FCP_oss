@@ -1,0 +1,52 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+ghosts:
+  # what the run has done so far (updated at every call, read at the next cycle)
+  - {name: ended, range: [0, 1], init: 0, next: 'phase ? 1 : ended'}
+  - {name: n_charge, range: [0, 15], init: 0, next: '!phase && op == 1 ? min(n_charge + 1, 15) : n_charge'}
+  - {name: got_ok, range: [0, 1], init: 0, next: '!phase && op == 1 && answer == 0 ? 1 : got_ok'}
+  - {name: got_decl, range: [0, 1], init: 0, next: '!phase && op == 1 && answer == 1 ? 1 : got_decl'}
+  - {name: last_err, range: [0, 1], init: 0, next: '!phase && op == 1 ? (answer == 2 ? 1 : 0) : last_err'}
+  - {name: slept, range: [0, 4095], init: 0, next: '!phase && op == 1 ? 0 : (!phase && op == 2 ? min(slept + s_seconds, 4095) : slept)'}
+defs:
+  valid: 'amount >= 1 && amount <= 1000000'
+  charge: '!phase && op == 1'
+  returning: 'phase && ended == 0'           # the cycle at which the function returns
+properties:
+- {id: G-ERR, req: R-ERR-1, pattern: implies, args: {trigger: '!valid', cond: 'phase && outcome == 1'}}
+- {id: G-CALL, req: R-CALL-1, pattern: implies, args: {trigger: charge, cond: 'c_order == order_id && c_amount == amount'}}
+- id: G-RET
+  req: R-RET-1
+  pattern: implies
+  args: {trigger: 'returning && valid', cond: 'outcome == 0 && result == (got_ok == 1)'}
+- id: G-RET-NOW
+  req: R-RET-1
+  pattern: implies
+  args: {trigger: '!phase', cond: 'got_ok == 0'}
+  note: 'decision: "once a charge returns ok" means as soon as: no call after an ok'
+- {id: G-MAX, req: R-RETRY-1, pattern: implies, args: {trigger: charge, cond: 'n_charge < 3'}}
+- id: G-AGAIN
+  req: R-RETRY-1
+  pattern: implies
+  args: {trigger: 'returning && valid', cond: '!(last_err == 1 && n_charge < 3)'}
+  note: 'after an error, the function may not return before its third attempt'
+- {id: G-DECL, req: R-DECL-1, pattern: implies, args: {trigger: charge, cond: 'got_decl == 0'}}
+- id: G-WAIT
+  req: R-WAIT-1
+  pattern: implies
+  args: {trigger: 'charge && n_charge >= 1 && n_charge <= 2', cond: 'slept == (n_charge == 1 ? 2 : 4)'}
+  note: 'decision: the time slept since the previous charge, in one call or several'
+- {id: G-ONCE, req: R-ONCE-1, pattern: implies, args: {trigger: charge, cond: 'got_ok == 0'}}
+- id: G-KEEP
+  req: R-KEEP-1
+  pattern: implies
+  args: {trigger: 'returning && valid && outcome == 0', cond: 'result || got_decl == 1'}
+  note: 'literal: the function may give up only on a declined card (rule 4 says never try again after one); after three errors it may neither try again (rule 3) nor give up'
+scenarios:
+- id: S-EX
+  req: R-EX-1
+  cover: 'returning && result && n_charge == 2 && prev(op) == 1 && prev(answer) == 0 && prev(op, 2) == 2 && prev(s_seconds, 2) == 2 && prev(op, 3) == 1 && prev(answer, 3) == 2'
+unformalized:
+- {req: R-SIG-1, reason: 'the interface itself', covered_by: [G-RET]}
+- {req: R-API-1, reason: 'a definition of the interface, used by every item', covered_by: [G-RET, G-WAIT]}

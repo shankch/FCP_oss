@@ -1,0 +1,152 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # Only '(' and ')' are judged; any other character is ignored (R-IN-1, reading 2).
+  n_open: 'count(i < len(brackets): brackets[i] == "(")'
+  n_close: 'count(i < len(brackets): brackets[i] == ")")'
+  # Equal-count reading of "has a corresponding closing or opening bracket" (R-RET-1/R-RET-2, reading 2).
+  matched: 'n_open == n_close'
+  # The empty string is outside the contract (R-IN-1, reading 2).
+  nonempty: 'len(brackets) > 0'
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: 'nonempty && matched'
+      cond: 'outcome == 0 && result'
+    note: >-
+      "has a corresponding closing or opening bracket" is read as instructed as
+      reading 2 (equal counts: the number of '(' equals the number of ')', in any
+      order), although proper nesting seems the more natural reading. This
+      contradicts the example candidate(")(()") == False (two '(' and two ')'),
+      so this property and RV-SC-4 cannot both hold; the contradiction is kept,
+      not repaired. "a string of "(" and ")"" is read as instructed as reading 2
+      of R-IN-1 (typical input only): no alphabet assumption is made, the
+      property applies to strings with any characters, and only '(' and ')' are
+      counted, so e.g. "a" or "(x)" must return True. "brackets is a string" is
+      read as instructed as reading 2 of R-IN-1 (the empty string is outside the
+      contract), so the empty string, which has equal counts, is excluded by the
+      nonempty guard. "returns True" is taken to mean the call returns the bool
+      True (outcome 0).
+
+dont_cares:
+  - id: RV-IN-1a
+    req: R-IN-1
+    signal: result
+    when: 'len(brackets) == 0'
+    note: >-
+      "brackets is a string" is read as instructed as reading 2 (the empty string
+      is not a string of brackets, so it is outside the contract and its result
+      is unconstrained), although reading 1 (empty string is valid, returns True)
+      seems more natural. It is stated as a don't-care rather than an assumption
+      so that an empty-string call does not switch off checking of later calls.
+      "a string of "(" and ")"" is read as instructed as reading 2 (typical input
+      only, other characters are judged by ignoring them), so no assumption
+      restricts the characters of brackets; that reading is realized by the
+      definitions n_open/n_close used in RV-RET-1 and RV-RET-2a/b.
+  - id: RV-IN-1b
+    req: R-IN-1
+    signal: outcome
+    when: 'len(brackets) == 0'
+    note: >-
+      "brackets is a string" is read as instructed as reading 2 (the empty string
+      is outside the contract and its result is unconstrained), although reading
+      1 seems more natural: how the call ends (bool, exception, other value) is
+      free for the empty string. "a string of "(" and ")"" is read as instructed
+      as reading 2 (typical input only), so no assumption restricts the
+      characters; see RV-IN-1a.
+  - id: RV-RET-2a
+    req: R-RET-2
+    signal: result
+    when: 'n_open != n_close'
+    note: >-
+      "return True if" is read as instructed as reading 2 (a sufficient condition
+      only: the text says nothing about strings with an unmatched bracket, so any
+      result is allowed for them), although the False examples suggest "if and
+      only if". So the requirement's False guarantee is not imposed; the returned
+      value is free. "has a corresponding closing or opening bracket" is read as
+      instructed as reading 2 (equal counts), so "unmatched" means the number of
+      '(' differs from the number of ')'; this contradicts the example
+      candidate(")(()") == False, which has equal counts. "a string of "(" and
+      ")"" is read as instructed as reading 2 of R-IN-1: only '(' and ')' are
+      counted, other characters are ignored. The empty string has equal counts
+      and is covered by RV-IN-1a.
+  - id: RV-RET-2b
+    req: R-RET-2
+    signal: outcome
+    when: 'n_open != n_close'
+    note: >-
+      "return True if" is read as instructed as reading 2 (sufficient condition
+      only), so for a string with unequal counts the call may end in any way,
+      including None or an exception, although "if and only if" seems more
+      natural. "has a corresponding closing or opening bracket" is read as
+      instructed as reading 2 (equal counts), contradicting the example
+      candidate(")(()") == False. "a string of "(" and ")"" is read as
+      instructed as reading 2 of R-IN-1 (only '(' and ')' are counted).
+
+scenarios:
+  - id: RV-SC-1
+    req: R-SC-1
+    cover: 'brackets == "(" && outcome == 0 && !result'
+    note: >-
+      Doctest candidate("(") == False, as a behaviour that must be possible. "("
+      has unequal counts, so under RV-RET-2a/b any answer is allowed and this one
+      is possible.
+  - id: RV-SC-2
+    req: R-SC-2
+    cover: 'brackets == "()" && outcome == 0 && result'
+    note: >-
+      Doctest candidate("()") == True. The phrase candidate("()") is read as
+      instructed as reading 2: the example contradicts the literal respective
+      reading of R-RET-1 (a closing bracket corresponds to a closing one, an
+      opening to an opening), under which the lone '(' and ')' are unmatched,
+      although reading 1 (consistent with R-RET-1) seems more natural. Under the
+      equal-count reading taken for R-RET-1 in this set, the example is
+      consistent and RV-RET-1 in fact forces it.
+  - id: RV-SC-3
+    req: R-SC-3
+    cover: 'brackets == "(()())" && outcome == 0 && result'
+    note: >-
+      Doctest candidate("(()())") == True. The phrase candidate("(()())") is read
+      as instructed as reading 2: the example contradicts the literal respective
+      reading of R-RET-1 (same-kind partners), under which three '(' and three
+      ')' cannot all be paired, although reading 1 seems more natural. Under the
+      equal-count reading taken for R-RET-1 in this set, the example is
+      consistent and RV-RET-1 forces it.
+  - id: RV-SC-4
+    req: R-SC-4
+    cover: 'brackets == ")(()" && outcome == 0 && !result'
+    note: >-
+      Doctest candidate(")(()") == False, formalized literally. The phrase
+      candidate(")(()") is read as instructed as reading 2: it contradicts
+      R-RET-1 under the equal-count reading, since ")(()" has two '(' and two ')'
+      and the result would be True, although reading 1 (consistent under
+      nesting) seems more natural. With RV-RET-1 in this set the scenario is
+      unreachable; the contradiction in the specification is kept, not repaired.
+
+unformalized:
+  - req: R-NF-1
+    reason: >-
+      Non-functional: the name of the function and its single string argument
+      are fixed by the interface (design.yaml, function section), not by any
+      behaviour of a call; there is nothing to state over the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; it is the frame item F-ZERO of
+      design.yaml, which is added to every formalization set and need not be
+      restated (frame.md).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: 'a string of "(" and ")"', reading: 2}
+  - {req: R-IN-1, phrase: 'brackets is a string', reading: 2}
+  - {req: R-RET-1, phrase: 'has a corresponding closing or opening bracket', reading: 2}
+  - {req: R-RET-2, phrase: 'return True if', reading: 2}
+  - {req: R-RET-2, phrase: 'has a corresponding closing or opening bracket', reading: 2}
+  - {req: R-SC-2, phrase: 'candidate("()")', reading: 2}
+  - {req: R-SC-3, phrase: 'candidate("(()())")', reading: 2}
+  - {req: R-SC-4, phrase: 'candidate(")(()")', reading: 2}

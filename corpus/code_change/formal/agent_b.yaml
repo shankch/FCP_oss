@@ -1,0 +1,266 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model.
+# Calls are independent (frame.md: "Calls are independent; the checker chooses
+# them and their order freely"), so the reference model is combinational: it is
+# computed from the arguments of the call and, where a requirement says "as
+# before", from the answer of the code before the change (old_outcome,
+# old_price, old_ship). No ghost register is needed, since nothing carries over
+# from one call to the next.
+#   outcome : as the code before the change (CB-SAME-OUT, CB-KEEP-OUT)
+#   price   : non-student as before (CB-SAME-PRICE); student by the model
+#             below (CB-KEEP-PRICE), with the discount rules stated up to
+#             rounding by CB-STU-* and CB-CAP-*
+#   ship    : non-student as before (CB-SAME-SHIP); threshold for every
+#             order (CB-SHIP-*), fee for a student (CB-KEEP-FEE)
+defs:
+  # the discounts of the code before the change, in percent, before the cap:
+  # the coupon plus 10% for members (impl/old.py)
+  other_disc: "coupon + (member ? 10 : 0)"
+  # a student's total discount after the change, in percent (rule 1)
+  student_disc: "min(other_disc + 15, 30)"
+  # 100 times a student's exact (unrounded) price in cents
+  student_x100: "subtotal * (100 - student_disc)"
+
+properties:
+  # ---------------------------------------------------------------- R-STU-1
+  - id: CB-STU-ALONE
+    req: R-STU-1
+    pattern: implies
+    args:
+      trigger: "student && outcome == 0 && coupon == 0 && !member"
+      cond: "85 * subtotal - 100 < 100 * price && 100 * price < 85 * subtotal + 100"
+    note: >-
+      Students get 15% off. The student discount stands alone when there is no
+      coupon and no membership; then a student pays the subtotal less 15%, in
+      whole cents: the price is within one cent of 85% of the subtotal (rounded
+      either way). The rule says nothing about rounding; R-KEEP-1 keeps the
+      rounding of the code before the change (CB-KEEP-PRICE). Guarded by
+      outcome == 0 because price is 0 unless the call returns (F-ZERO);
+      whether a student's call returns is R-KEEP-1 (CB-KEEP-OUT).
+
+  - id: CB-STU-MIN
+    req: R-STU-1
+    pattern: implies
+    args:
+      trigger: "student && outcome == 0"
+      cond: "100 * price < 85 * subtotal + 100"
+    note: >-
+      Students get 15% off, for every student: no student pays more than the
+      subtotal less 15%, up to rounding to a whole cent. For a student who also
+      has a coupon or membership, the total is not 15%: R-CAP-1 adds the other
+      discounts and caps the sum at 30%, which is above 15%. So only this lower
+      bound on the total discount holds for every student and is stated here.
+      Read as "15 more percentage points for every student", the rule would
+      clash with the cap whenever the other discounts exceed 15% (a 20% coupon:
+      20 + 15 = 35, capped to 30; a 50% coupon: the student discount adds
+      nothing). The change request limits it with the cap itself, so that
+      reading is not taken.
+
+  # ---------------------------------------------------------------- R-CAP-1
+  - id: CB-CAP-ADD
+    req: R-CAP-1
+    pattern: implies
+    args:
+      trigger: "student && outcome == 0 && other_disc + 15 <= 30"
+      cond: "subtotal * (85 - other_disc) - 100 < 100 * price && 100 * price < subtotal * (85 - other_disc) + 100"
+    note: >-
+      This adds to the other discounts: a student's discount is the coupon
+      percent plus 10% for members (the other discounts, as before) plus the
+      15% student discount, while that sum is at most 30%. The price is then
+      within one cent of subtotal * (100 - (other_disc + 15)) / 100. "Adds" is
+      read as adding percentage points, the way the code before the change adds
+      the coupon and membership discounts. The exact rounding is R-KEEP-1
+      (CB-KEEP-PRICE).
+
+  - id: CB-CAP-MAX
+    req: R-CAP-1
+    pattern: implies
+    args:
+      trigger: "student && outcome == 0 && other_disc + 15 > 30"
+      cond: "70 * subtotal - 100 < 100 * price && 100 * price < 70 * subtotal + 100"
+    note: >-
+      The total discount is still never more than 30%: when coupon + 10% for
+      members + 15% exceeds 30%, a student's discount is 30%, so the price is
+      within one cent of 70% of the subtotal. "Still never more than 30%" is
+      read as the existing cap of the code before the change, min(sum, 30), so
+      the discount is exactly 30% then. On their own, the words "never more
+      than" give only an upper bound. Together with "adds to the other
+      discounts" (the total is the sum) and "still" (the cap as before), the
+      total is the sum cut at 30%, not any value up to 30%. The exact rounding
+      is R-KEEP-1 (CB-KEEP-PRICE).
+
+  # --------------------------------------------------------------- R-SHIP-1
+  - id: CB-SHIP-FREE
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && subtotal >= 7500"
+      cond: "ship == 0"
+    note: >-
+      Free shipping now starts at $75: an order of 7500 cents or more ships
+      free. Read for every customer, the most literal reading: rule 2 names no
+      group of customers (the other reading listed in requirements.yaml,
+      students only, is not taken). As in the code before the change, the
+      order amount compared with the threshold is the subtotal (before
+      discounts), and "starts at" includes $75 itself, as "orders of $50 or
+      more ship free" did. This half agrees with the code before the change
+      for every order of $75 or more, so it conflicts with nothing; the
+      contradiction is in CB-SHIP-PAID.
+
+  - id: CB-SHIP-PAID
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && subtotal < 7500"
+      cond: "ship != 0"
+    note: >-
+      Free shipping starts at $75 instead of $50: an order under 7500 cents
+      does not ship free, for every customer (literal reading, see
+      CB-SHIP-FREE). The amount of the fee is R-KEEP-1 (CB-KEEP-FEE: $4.99 as
+      before). CONTRADICTION with R-SAME-1: for a non-student with a subtotal
+      of 5000 to 7499 cents and arguments in range (for example subtotal 6000,
+      coupon 0, not a member), the code before the change ships free, so
+      CB-SAME-SHIP keeps ship at 0 while this item requires a fee. Formalized
+      as written, not repaired: rules 2 and 3 of the change request conflict
+      on these orders unless rule 2 is meant for students only.
+
+  # --------------------------------------------------------------- R-SAME-1
+  - id: CB-SAME-OUT
+    req: R-SAME-1
+    pattern: implies
+    args:
+      trigger: "!student"
+      cond: "outcome == old_outcome"
+    note: >-
+      Nothing may change for customers who are not students (student false,
+      which is also its default): the changed call ends as the call of the code
+      before the change on the same subtotal, coupon and member ends (returns
+      a pair, ValueError, any other end).
+
+  - id: CB-SAME-PRICE
+    req: R-SAME-1
+    pattern: implies
+    args:
+      trigger: "!student"
+      cond: "price == old_price"
+    note: >-
+      Nothing may change for customers who are not students: the price is the
+      price the code before the change returns for the same subtotal, coupon
+      and member (both are 0 when the calls do not return, by F-ZERO and
+      F-OLD).
+
+  - id: CB-SAME-SHIP
+    req: R-SAME-1
+    pattern: implies
+    args:
+      trigger: "!student"
+      cond: "ship == old_ship"
+    note: >-
+      Nothing may change for customers who are not students: the shipping fee
+      is the one the code before the change returns. CONTRADICTION with
+      R-SHIP-1 read for every customer: for a non-student with a subtotal of
+      5000 to 7499 cents and arguments in range, the code before the change
+      ships free and CB-SHIP-PAID requires a fee. Formalized as written, not
+      repaired.
+
+  # --------------------------------------------------------------- R-KEEP-1
+  - id: CB-KEEP-OUT
+    req: R-KEEP-1
+    pattern: implies
+    args:
+      trigger: "student"
+      cond: "outcome == old_outcome"
+    note: >-
+      Keep everything else as it is: ranges and errors. Rules 1 and 2 change
+      neither, so a student's call ends as the call of the code before the
+      change on the same subtotal, coupon and member: ValueError exactly when
+      subtotal > 1,000,000 or coupon > 50 (arguments are non-negative in the
+      trace), a returned pair otherwise. Stated against the old answer, so it
+      means "as before" for whatever the code before the change does. The
+      requirement is about students; for other customers R-SAME-1 already
+      keeps everything.
+
+  - id: CB-KEEP-PRICE
+    req: R-KEEP-1
+    pattern: implies
+    args:
+      trigger: "student && outcome == 0"
+      cond: "100 * price <= student_x100 + 50 && student_x100 + 50 < 100 * price + 100"
+    note: >-
+      Keep everything else as it is: a student's price is computed as in the
+      code before the change, (subtotal * (100 - discount) + 50) // 100, that
+      is rounded to the nearest cent with half a cent up, with the coupon and
+      the 10% membership discount as before and the discount changed only as
+      rule 1 says (R-STU-1, R-CAP-1): min(coupon + 10*member + 15, 30). FCP-PL
+      has no division, so the floor division is written as
+      100*price <= x + 50 < 100*price + 100. This is the exact reference model
+      of the student price. It has to name the new discount because "apart
+      from rules 1 and 2" leaves the discount to rule 1; the R-STU-1 and
+      R-CAP-1 items state the discount up to rounding only.
+
+  - id: CB-KEEP-FEE
+    req: R-KEEP-1
+    pattern: implies
+    args:
+      trigger: "student && outcome == 0"
+      cond: "ship == 0 || ship == 499"
+    note: >-
+      Keep everything else as it is: the shipping fee is unchanged, $4.99 (499
+      cents) as in the code before the change, so a student's shipping is free
+      or 499 cents. Which orders ship free is rule 2 (CB-SHIP-FREE,
+      CB-SHIP-PAID).
+
+  # ----------------------------------------------------------------- R-EX-1
+  - id: CB-EX-ANSWER
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "student && subtotal == 10000 && coupon == 0 && !member"
+      cond: "outcome == 0 && price == 8500 && ship == 0"
+    note: >-
+      The example as a guarantee: a student with a $100.00 cart (10000 cents),
+      no coupon (0) and no membership gets (8500, 0). It agrees with the model:
+      15% off 10000 is 8500 exactly, and 10000 cents is at or above both $75
+      and $50, so it ships free under either reading of R-SHIP-1.
+
+scenarios:
+  - id: CB-EX-CALL
+    req: R-EX-1
+    cover: "student && subtotal == 10000 && coupon == 0 && !member && outcome == 0 && price == 8500 && ship == 0"
+    note: >-
+      The example as a behaviour that must be possible: the call
+      checkout(10000, 0, False, True) returning (8500, 0).
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the interface, realized by design.yaml and frame.md:
+      student is the fourth argument and an input signal, and price and ship
+      are the two elements of the returned pair. Every call in the trace
+      passes student explicitly, so the default value False is never used and
+      cannot be observed. The return type tuple[int, int] is outcome 0 in the
+      encoding; CB-SAME-OUT and CB-KEEP-OUT already tie the outcome of every
+      call to the outcome of the code before the change, which returns
+      integer pairs that fit or raises ValueError. A separate type property
+      (outcome != 3) is therefore not added; it would also clash with "as
+      before" for an old code that returned anything else.
+  - req: R-TEST-1
+    reason: >-
+      Non-functional: it asks for the tests in test_checkout.py to be updated.
+      The tests are not part of the trace, which records only calls of
+      checkout, so there is nothing about the function's answers to formalize.
+  - req: R-FR-1
+    covered_by: [F-ZERO]
+    reason: >-
+      Frame rule of the change adapter (frame.md, F-ZERO in design.yaml):
+      holds by construction of the trace and is added to every formalization
+      set, so it is not restated.
+  - req: R-FR-2
+    covered_by: [F-OLD]
+    reason: >-
+      Frame rule of the change adapter (frame.md, F-OLD in design.yaml):
+      holds by construction of the trace and is added to every formalization
+      set, so it is not restated.

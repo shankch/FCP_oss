@@ -1,0 +1,126 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # the call returned a list that fits the result signal
+  ret: "outcome == 0"
+  # R-KEY-1: first element plus last element of the given array (before sorting);
+  # for a one-element array the element is counted twice
+  key: "array[0] + array[len(array) - 1]"
+  odd: "key % 2 == 1"
+  # result is a permutation of array (same length, same multiplicity of every element)
+  perm: "len(result) == len(array) && all(i < len(array): count(j < len(array): array[j] == array[i]) == count(j < len(result): result[j] == array[i]))"
+  asc: "all(i < len(result) - 1: result[i] <= result[i + 1])"
+  desc: "all(i < len(result) - 1: result[i] >= result[i + 1])"
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: "ret"}
+    note: >-
+      Reading 1 of "return a copy of the given array": every call returns a list,
+      the empty array included (the interface makes every element a non-negative
+      integer, so every call meets R-IN-1). The text gives no rule for the sum of
+      the first and last index values of an empty array, yet still says to return;
+      an implementation that raises on the empty list violates this item.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "ret", cond: "perm"}
+    note: >-
+      When the call returns, the returned list has the same length as the argument
+      and holds every value as many times as the argument does (a permutation).
+
+  - id: RA-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: "ret", cond: "asc || desc"}
+    note: >-
+      Reading 1 of "after sorting": the returned list is always sorted, in
+      non-decreasing or non-increasing order, whatever the sum of the first and
+      last values is.
+
+  - id: RA-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args: {trigger: "ret && odd", cond: "perm && asc"}
+    note: >-
+      When the first element plus the last element of the given array (as passed
+      in) is odd, the returned list is the argument's elements in non-decreasing
+      order, duplicates kept (reading 1 of "ascending order"). Whether the given
+      array itself is also sorted in place is not observable on this interface.
+
+  - id: RA-ORD-2
+    req: R-ORD-2
+    pattern: implies
+    args: {trigger: "ret && !odd", cond: "perm && (asc || desc)"}
+    note: >-
+      The text breaks off at "or sort it": it names neither the condition nor the
+      direction. Most literal reading (2): when the sum is not odd (even), the
+      returned list is a sorted permutation of the argument in either direction.
+      The descending reading (1) is the usual counterpart but the text does not
+      state it, so it is not imposed. For the empty array key is 0 + 0 (FCP-PL
+      reads slots outside a list as 0), so this item applies, and only the empty
+      list meets it.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: concerns the form of the response (a completed function
+      body), not the values a call returns. The adapter can only run a response
+      that defines the function.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name sort_array and its single parameter array are fixed
+      by the adapter's function section in design.yaml; code without that
+      signature cannot be called and gives no trace. No signal carries it.
+  - req: R-IN-1
+    reason: >-
+      Reading 1 (any list of non-negative integers, the empty list included). The
+      interface already holds only such lists: elements are unsigned 0..255 and
+      negative numbers cannot enter the trace (frame.md, Inputs). The assumption
+      therefore constrains no trace and no assumption item is needed.
+  - req: R-RET-4
+    reason: >-
+      Not observable: the interface records the argument only as passed in and
+      the returned list; the argument's contents after the call are carried by no
+      signal. Also, under the most literal reading taken (reading 2: "you will
+      sort the given array" sorts the argument itself, then a copy is returned)
+      the text does not say the argument stays unchanged; it says the opposite,
+      which contradicts this requirement's own text.
+  - req: R-RET-5
+    reason: >-
+      Not observable: object identity is not carried by any signal, since result
+      holds only the returned values. Reading 1 taken ("a copy" is a distinct
+      object, even for an empty or already-sorted argument), but no item can
+      check it.
+  - req: R-KEY-1
+    reason: >-
+      Definition, realized as def `key` = array[0] + array[len(array) - 1] (values
+      at the first and last positions of the given array as passed in, the
+      single element counted twice for a one-element array), used by RA-ORD-1 and
+      RA-ORD-2. A one-element list is sorted in both directions, so the
+      one-element reading has no observable effect.
+    covered_by: [RA-ORD-1, RA-ORD-2]
+  - req: R-FR-1
+    reason: >-
+      Adapter frame rule, already realized by frame item F-EMPTY (outcome != 0 ->
+      len(result) == 0), which design.yaml adds to every formalization set;
+      frame.md says it need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IN-1, phrase: "an array of non-negative integers", reading: 1}
+  - {req: R-RET-1, phrase: "return a copy of the given array", reading: 1}
+  - {req: R-RET-3, phrase: "after sorting", reading: 1}
+  - {req: R-RET-4, phrase: "a copy of the given array after sorting", reading: 2}
+  - {req: R-RET-5, phrase: "a copy", reading: 1}
+  - {req: R-KEY-1, phrase: "first index value, last index value", reading: 1}
+  - {req: R-KEY-1, phrase: "the sum( first index value, last index value)", reading: 1}
+  - {req: R-KEY-1, phrase: "last index value", reading: 1}
+  - {req: R-ORD-1, phrase: "ascending order", reading: 1}
+  - {req: R-ORD-1, phrase: "you will sort the given array", reading: 2}
+  - {req: R-ORD-2, phrase: "or sort it", reading: 2}

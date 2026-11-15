@@ -1,0 +1,251 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-API-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a Python implementation that completes the given function stub, keeping its docstring contract.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-API-2
+  doc: SPEC
+  quote: 'def is_happy(s):'
+  text: The function is named is_happy and takes exactly one argument, s.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: You are given a string s.
+  text: The argument s of is_happy is a string.
+  kind: assumption
+  ambiguity:
+  - phrase: a string s
+    readings:
+    - 'any string: it may contain non-letter characters (digits, spaces, punctuation, other codes) and upper-case letters, and every such string must be answered'
+    - 'a string of letters only (as ''substrings of letters'' suggests): strings containing non-letters are outside the contract and their result is a don''t care'
+  lines:
+  - 5
+- id: R-OUT-1
+  doc: SPEC
+  quote: Your task is to check if the string is happy or not.
+  text: is_happy(s) returns True when s is happy and False when s is not happy.
+  kind: guarantee
+  depends:
+  - R-HAP-1
+  - R-HAP-2
+  - R-HAP-3
+  lines:
+  - 6
+- id: R-OUT-2
+  doc: SPEC
+  quote: Your task is to check if the string is happy or not.
+  text: Every call of is_happy(s) returns a bool (True or False); it does not raise an exception and does not return a value of another type.
+  kind: guarantee
+  ambiguity:
+  - phrase: check if the string is happy or not
+    readings:
+    - the result must be the bool True or False (as the examples show)
+    - any truthy or falsy value (such as 1/0, or a non-empty/empty object) is an acceptable answer
+  - phrase: check if the string is happy or not
+    readings:
+    - every string must be answered with True or False, including strings with non-letter characters
+    - only strings of letters must be answered; for other strings the function may raise or return anything
+  lines:
+  - 6
+- id: R-HAP-1
+  doc: SPEC
+  quote: A string is happy if its length is at least 3
+  text: 'A string whose length is less than 3 (including the empty string) is not happy: is_happy returns False for it.'
+  kind: guarantee
+  ambiguity:
+  - phrase: A string is happy if
+    readings:
+    - '''if'' means ''if and only if'': a length of at least 3 is necessary, so every string shorter than 3 is not happy'
+    - '''if'' gives only a sufficient condition: the sentence says nothing about strings shorter than 3 (only the examples a and aa say they are not happy)'
+  - phrase: its length
+    readings:
+    - the number of characters of s
+    - the number of letters of s (non-letter characters not counted)
+  lines:
+  - 7
+- id: R-HAP-2
+  doc: SPEC
+  quote: roughly substrings of letters are distinct
+  text: 'A string whose substrings of letters are not distinct is not happy, whatever its length: is_happy returns False for it.'
+  kind: guarantee
+  ambiguity:
+  - phrase: A string is happy if
+    readings:
+    - '''if'' means ''if and only if'': distinct substrings of letters are necessary, so a string without them is not happy'
+    - '''if'' gives only a sufficient condition: the sentence says nothing about strings without distinct substrings (only the examples aabb and xyy say they are not happy)'
+  - phrase: substrings of letters are distinct
+    readings:
+    - every substring of 3 consecutive characters consists of 3 pairwise different characters (s[i], s[i+1], s[i+2] all differ)
+    - every two adjacent characters differ (no substring of 2 equal letters)
+    - all characters of the string are pairwise different (equivalently, no substring occurs twice)
+    - the substrings of some fixed length (2 or 3) are all different from one another (no repeated pair or triple); this makes aabb and xyy happy, contradicting the examples
+  - phrase: roughly
+    readings:
+    - 'a hedge or filler word: the distinctness condition is strict and a single repeat makes the string unhappy'
+    - 'approximately: most substrings must be distinct and a small number of repeats is tolerated'
+    - the exact condition is left unspecified and is to be inferred from the examples
+  - phrase: roughly substrings of letters are distinct
+    readings:
+    - 'contradiction resolved by the examples: aabb and xyy (each with a single repeated adjacent letter) are not happy, so the condition is strict'
+    - 'contradiction resolved by the definition: under a tolerant reading of ''roughly'' (or the reading that substrings differ from one another) xyy and aabb would be happy, so the examples is_happy(aabb)
+      => False and is_happy(xyy) => False are overruled'
+  - phrase: letters
+    readings:
+    - every character of s counts, whatever its kind
+    - 'only alphabetic characters count: non-letters are skipped (or removed) before checking distinctness'
+    - s is assumed to contain only letters; strings with non-letters are a don't care
+  - phrase: distinct
+    readings:
+    - 'case-sensitive: ''A'' and ''a'' are different letters'
+    - 'case-insensitive: ''A'' and ''a'' are the same letter'
+  lines:
+  - 7
+- id: R-HAP-3
+  doc: SPEC
+  quote: A string is happy if its length is at least 3 and roughly substrings of letters are distinct
+  text: 'A string whose length is at least 3 and whose substrings of letters are distinct is happy: is_happy returns True for it.'
+  kind: guarantee
+  ambiguity:
+  - phrase: substrings of letters are distinct
+    readings:
+    - every substring of 3 consecutive characters consists of 3 pairwise different characters (s[i], s[i+1], s[i+2] all differ)
+    - every two adjacent characters differ (no substring of 2 equal letters)
+    - all characters of the string are pairwise different (equivalently, no substring occurs twice)
+    - the substrings of some fixed length (2 or 3) are all different from one another (no repeated pair or triple); this makes aabb and xyy happy, contradicting the examples
+  - phrase: roughly
+    readings:
+    - 'a hedge or filler word: the distinctness condition is strict and a single repeat makes the string unhappy'
+    - 'approximately: most substrings must be distinct and a small number of repeats is tolerated'
+    - the exact condition is left unspecified and is to be inferred from the examples
+  - phrase: roughly substrings of letters are distinct
+    readings:
+    - 'contradiction resolved by the examples: aabb and xyy (each with a single repeated adjacent letter) are not happy, so the condition is strict'
+    - 'contradiction resolved by the definition: under a tolerant reading of ''roughly'' (or the reading that substrings differ from one another) xyy and aabb would be happy, so the examples is_happy(aabb)
+      => False and is_happy(xyy) => False are overruled'
+  - phrase: letters
+    readings:
+    - every character of s counts, whatever its kind
+    - 'only alphabetic characters count: non-letters are skipped (or removed) before checking distinctness'
+    - s is assumed to contain only letters; strings with non-letters are a don't care
+  - phrase: distinct
+    readings:
+    - 'case-sensitive: ''A'' and ''a'' are different letters'
+    - 'case-insensitive: ''A'' and ''a'' are the same letter'
+  - phrase: its length
+    readings:
+    - the number of characters of s
+    - the number of letters of s (non-letter characters not counted)
+  lines:
+  - 7
+- id: R-EX-1
+  doc: SPEC
+  quote: is_happy(a) => False
+  text: is_happy("a") returns False.
+  kind: scenario
+  depends:
+  - R-HAP-1
+  ambiguity:
+  - phrase: is_happy(a)
+    readings:
+    - the argument is the one-character string "a" (quotes omitted)
+    - the argument is a variable named a whose value is not given
+  lines:
+  - 9
+- id: R-EX-2
+  doc: SPEC
+  quote: is_happy(aa) => False
+  text: is_happy("aa") returns False.
+  kind: scenario
+  depends:
+  - R-HAP-1
+  ambiguity:
+  - phrase: is_happy(aa)
+    readings:
+    - the argument is the string "aa" (quotes omitted)
+    - the argument is a variable named aa whose value is not given
+  lines:
+  - 10
+- id: R-EX-3
+  doc: SPEC
+  quote: is_happy(abcd) => True
+  text: is_happy("abcd") returns True.
+  kind: scenario
+  depends:
+  - R-HAP-3
+  ambiguity:
+  - phrase: is_happy(abcd)
+    readings:
+    - the argument is the string "abcd" (quotes omitted)
+    - the argument is a variable named abcd whose value is not given
+  lines:
+  - 11
+- id: R-EX-4
+  doc: SPEC
+  quote: is_happy(aabb) => False
+  text: is_happy("aabb") returns False.
+  kind: scenario
+  depends:
+  - R-HAP-2
+  ambiguity:
+  - phrase: is_happy(aabb)
+    readings:
+    - the argument is the string "aabb" (quotes omitted)
+    - the argument is a variable named aabb whose value is not given
+  - phrase: is_happy(aabb) => False
+    readings:
+    - 'contradiction resolved by the example: aabb has length 4 but repeated adjacent letters, so the distinctness condition is strict and the string is not happy'
+    - 'contradiction resolved by the definition: ''roughly ... distinct'' tolerates a few repeats, or only requires substrings of a fixed length to differ from one another (aa, ab, bb are all different;
+      aab, abb are different), so aabb would be happy and the example is overruled'
+  lines:
+  - 12
+- id: R-EX-5
+  doc: SPEC
+  quote: is_happy(adb) => True
+  text: is_happy("adb") returns True.
+  kind: scenario
+  depends:
+  - R-HAP-3
+  ambiguity:
+  - phrase: is_happy(adb)
+    readings:
+    - the argument is the string "adb" (quotes omitted)
+    - the argument is a variable named adb whose value is not given
+  lines:
+  - 13
+- id: R-EX-6
+  doc: SPEC
+  quote: is_happy(xyy) => False
+  text: is_happy("xyy") returns False.
+  kind: scenario
+  depends:
+  - R-HAP-2
+  ambiguity:
+  - phrase: is_happy(xyy)
+    readings:
+    - the argument is the string "xyy" (quotes omitted)
+    - the argument is a variable named xyy whose value is not given
+  - phrase: is_happy(xyy) => False
+    readings:
+    - 'contradiction resolved by the example: xyy has length 3 but one repeated adjacent letter, so the distinctness condition is strict and the string is not happy'
+    - 'contradiction resolved by the definition: ''roughly ... distinct'' tolerates a single repeat, or only requires substrings to differ from one another (xyy has a single substring of length 3), so xyy
+      would be happy and the example is overruled'
+  lines:
+  - 14
+- id: R-FR-1
+  doc: FRAME
+  quote: '`happy` is false unless `outcome` is 0.'
+  text: In every call, the output happy is false unless outcome is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 49

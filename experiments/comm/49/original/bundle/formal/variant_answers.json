@@ -1,0 +1,37 @@
+[
+ {
+  "req": "R-RES-1",
+  "phrase": "2^n",
+  "taken": 1,
+  "variant": 2,
+  "text": "2 XOR n, which is what 2 ^ n means in Python code; this reading contradicts the examples modp(3, 5) = 3, modp(1101, 101) = 2, modp(0, 101) = 1 and modp(3, 11) = 8"
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "modulo p",
+  "taken": 1,
+  "variant": 2,
+  "text": "for n = 0 the value 2^0 = 1 is returned as is, as the example modp(0, 101) = 1 may be generalized to modp(0, p) = 1 for every p, so modp(0, 1) is 1; this contradicts the first reading at p = 1"
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "Return",
+  "taken": 1,
+  "variant": 2,
+  "text": "any number equal to the residue is acceptable, such as the float 3.0 (the doctest output 3 and the frame's outcome 2 for other types argue against this)"
+ },
+ {
+  "req": "R-RES-2",
+  "phrase": "modulo p",
+  "taken": 1,
+  "variant": 2,
+  "text": "the call must raise an exception for p = 0, as Python's 2**n % 0 raises ZeroDivisionError and pow(2, n, 0) raises ValueError"
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "modp(0, 101)",
+  "taken": 1,
+  "variant": 2,
+  "text": "an illustration that modp(0, p) is 1 for every p, which contradicts R-RES-1's reduced result 2^0 mod 1 = 0 at p = 1"
+ }
+]

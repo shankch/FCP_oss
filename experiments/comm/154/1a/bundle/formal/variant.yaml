@@ -1,0 +1,207 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # some character of the first or the second word is an upper-case letter
+  has_upper: 'any(i < len(a): isupper(a[i])) || any(i < len(b): isupper(b[i]))'
+  # some rearrangement of b occurs as a (not necessarily contiguous) subsequence
+  # of a, characters compared ignoring case; equivalently every character of b
+  # occurs in a at least as often as in b
+  related: 'all(i < len(b): count(j < len(b): lower(b[j]) == lower(b[i])) <= count(j < len(a): lower(a[j]) == lower(b[i])))'
+
+properties:
+  - id: RV-IN-1-ANSWER
+    req: R-IN-1
+    pattern: implies
+    args: {trigger: '!has_upper', cond: 'outcome != 1'}
+    note: >-
+      "2 words" is read as the request imposes (reading 1): any two strings,
+      including the empty string and strings with non-letter characters
+      (codes 0-255), and the function must answer for all of them, so it
+      never raises or fails to finish (outcome 1). No assumption restricts the
+      inputs beyond the 12-character frame. "words" is read as the request
+      imposes (reading 2): words are lower-case only and calls with an
+      upper-case letter are a don't-care (RV-IN-1-UP-RESULT,
+      RV-IN-1-UP-OUTCOME), so this obligation is only for calls without one.
+      "Answer" is taken as returning some value: a returned non-bool
+      (outcome 2) counts, since R-RET-1 is read as allowing any truthy value
+      and R-RET-2 leaves the other case unspecified. isupper is ASCII only.
+
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: '!has_upper && related', cond: '(outcome == 0 && result) || outcome == 2'}
+    note: >-
+      All readings below are the ones the request imposes. "related to the
+      first word" (reading 2): occurs as a subsequence, not necessarily
+      contiguous, of a; this contradicts the example abcd/abd => False
+      (RV-EX-1). "related" (reading 2): characters compared ignoring letter
+      case (lower). "any of its rotations" (reading 2): any rearrangement of
+      the characters of b, b itself included; this contradicts the example
+      efef/eeff => False (RV-EX-5). Together, some rearrangement of b is a
+      subsequence of a exactly when every character occurs in a at least as
+      often as in b, which is the def related. "the second word" (reading 1):
+      an empty b has the rotation "" which occurs in every a, so the call
+      returns True; related is then vacuously true. "return True" (reading 2):
+      any truthy value; a returned bool must be True, and a returned non-bool
+      (outcome 2) is allowed because the signals cannot show whether it is
+      truthy, so falsy non-bools are admitted too. "2 words" (reading 1): all
+      strings, including empty ones and non-letters; "words" (reading 2):
+      calls with an upper-case letter are a don't-care, hence the guard
+      !has_upper.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'a == "abcd" && b == "abd"', cond: 'outcome == 0 && !result'}
+    note: >-
+      The example is stated as a property: this call returns the bool False.
+      "=> False" is read as the request imposes (reading 2): it contradicts
+      R-RET-1 when related means subsequence, which is the reading of R-RET-1
+      taken here: abd is itself a subsequence of abcd, so RV-RET-1 demands a
+      truthy value on this call and this property demands False. The
+      contradiction is recorded, not repaired; no output satisfies both.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'a == "hello" && b == "ell"', cond: 'outcome == 0 && result'}
+    note: >-
+      The example is stated as a property: this call returns the bool True
+      (the example shows True literally, stronger than the truthy value of
+      RV-RET-1). "=> True" is read as the request imposes (reading 2): it
+      contradicts R-RET-1 when related means equal to the first word. That is
+      not the reading of related taken here (subsequence of a rearrangement,
+      ignoring case), under which ell is related to hello, so this example
+      agrees with RV-RET-1.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'a == "whassup" && b == "psus"', cond: 'outcome == 0 && !result'}
+    note: >-
+      The example is stated as a property: this call returns the bool False.
+      "=> False" is read as the request imposes (reading 2): it contradicts
+      R-RET-1 when related means the characters occur in the first word
+      counting multiplicity. With the readings taken for R-RET-1 (subsequence,
+      any rearrangement) related is exactly that: whassup contains p, s, s and
+      u, so the rearrangement ssup of psus is a subsequence of whassup and
+      RV-RET-1 demands a truthy value on this call while this property
+      demands False. The contradiction is recorded, not repaired.
+
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'a == "abab" && b == "baa"', cond: 'outcome == 0 && result'}
+    note: >-
+      The example is stated as a property: this call returns the bool True
+      (the example shows True literally, stronger than the truthy value of
+      RV-RET-1). "=> True" is read as the request imposes (reading 2): it
+      contradicts R-RET-1 when related means equal to the first word. That is
+      not the reading of related taken here (subsequence of a rearrangement,
+      ignoring case), under which baa is related to abab (aab, aba are
+      subsequences), so this example agrees with RV-RET-1.
+
+  - id: RV-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 'a == "efef" && b == "eeff"', cond: 'outcome == 0 && !result'}
+    note: >-
+      The example is stated as a property: this call returns the bool False.
+      "=> False" is read as the request imposes (reading 2): it contradicts
+      R-RET-1 when rotations means any rearrangement, which is the reading of
+      "any of its rotations" taken here: efef is a rearrangement of eeff and a
+      subsequence of efef, so RV-RET-1 demands a truthy value on this call and
+      this property demands False. The contradiction is recorded, not
+      repaired.
+
+  - id: RV-EX-6
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 'a == "himenss" && b == "simen"', cond: 'outcome == 0 && result'}
+    note: >-
+      The example is stated as a property: this call returns the bool True
+      (the example shows True literally, stronger than the truthy value of
+      RV-RET-1). "=> True" is read as the request imposes (reading 2): it
+      contradicts R-RET-1 when related means equal to the first word. That is
+      not the reading of related taken here (subsequence of a rearrangement,
+      ignoring case), under which simen is related to himenss, so this
+      example agrees with RV-RET-1.
+
+dont_cares:
+  - id: RV-IN-1-UP-RESULT
+    req: R-IN-1
+    signal: result
+    when: has_upper
+    note: >-
+      "words" is read as the request imposes (reading 2): words are lower-case
+      only and a call with an upper-case letter in a or b is a don't-care.
+      "2 words" (reading 1) still admits every other string. isupper is ASCII
+      only.
+
+  - id: RV-IN-1-UP-OUTCOME
+    req: R-IN-1
+    signal: outcome
+    when: has_upper
+    note: >-
+      "words" is read as the request imposes (reading 2): a call with an
+      upper-case letter in a or b is a don't-care, including how it ends; the
+      obligation to answer (RV-IN-1-ANSWER) does not cover it.
+
+  - id: RV-RET-2-RESULT
+    req: R-RET-2
+    signal: result
+    when: '!has_upper && !related'
+    note: >-
+      "if" is read as the request imposes (reading 2): a sufficient condition
+      only, so when neither b nor any rearrangement of it is related to a the
+      returned value is unspecified apart from the examples. With the readings
+      taken for R-RET-1 every example call is related, so no example falls
+      under this don't-care. "words" (reading 2): upper-case calls are
+      covered by RV-IN-1-UP-RESULT instead.
+
+  - id: RV-RET-2-OUTCOME
+    req: R-RET-2
+    signal: outcome
+    when: '!has_upper && !related'
+    note: >-
+      "if" is read as the request imposes (reading 2): when no rearrangement
+      of b is related to a the returned value is unspecified, so it may be a
+      bool or anything else; the call must still answer (RV-IN-1-ANSWER, from
+      the imposed reading 1 of "2 words"), which excludes outcome 1.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      The deliverable being a Python function cycpattern_check(a, b) is a
+      property of the artifact, not of a call; the function section of
+      design.yaml and the adapter (frame.md) realize it, and every item is
+      stated over calls of that function.
+  - req: R-IF-2
+    reason: >-
+      A definition: the first word is the signal a and the second word the
+      signal b. It is used by the defs has_upper and related and by every
+      item that mentions a or b.
+    covered_by: [RV-IN-1-ANSWER, RV-RET-1, RV-RET-2-RESULT]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (outcome != 0 -> !result) is added to
+      every formalization set by construction and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: '2 words', reading: 1}
+  - {req: R-IN-1, phrase: 'words', reading: 2}
+  - {req: R-RET-1, phrase: 'related to the first word', reading: 2}
+  - {req: R-RET-1, phrase: 'related', reading: 2}
+  - {req: R-RET-1, phrase: 'any of its rotations', reading: 2}
+  - {req: R-RET-1, phrase: 'the second word', reading: 1}
+  - {req: R-RET-1, phrase: 'return True', reading: 2}
+  - {req: R-RET-2, phrase: 'if', reading: 2}
+  - {req: R-EX-1, phrase: '=> False', reading: 2}
+  - {req: R-EX-2, phrase: '=> True', reading: 2}
+  - {req: R-EX-3, phrase: '=> False', reading: 2}
+  - {req: R-EX-4, phrase: '=> True', reading: 2}
+  - {req: R-EX-5, phrase: '=> False', reading: 2}
+  - {req: R-EX-6, phrase: '=> True', reading: 2}

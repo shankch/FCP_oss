@@ -1,0 +1,206 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. is_happy keeps no state between calls (frame.md), so
+# the reference model is combinational: it is computed from the argument s of
+# the current call alone, and every output is checked against it.
+defs:
+  # "its length is at least 3": the number of characters of s
+  long_enough: 'len(s) >= 3'
+  # window i is s[i], s[i+1], s[i+2], for every start i from 0 to len(s)-3
+  # (overlapping windows); "distinct" is pairwise different by exact code
+  windows_distinct: 'all(i < len(s) - 2: s[i] != s[i + 1] && s[i] != s[i + 2] && s[i + 1] != s[i + 2])'
+  window_repeats: 'any(i < len(s) - 2: s[i] == s[i + 1] || s[i] == s[i + 2] || s[i + 1] == s[i + 2])'
+  # the definition of a happy string, as the text states it
+  happy_def: 'long_enough && windows_distinct'
+  # how the call ended
+  returned_bool: 'outcome == 0'
+  returns_true: 'outcome == 0 && happy'
+  returns_false: 'outcome == 0 && !happy'
+
+properties:
+  - id: RB-OUT-1
+    req: R-OUT-1
+    pattern: invariant
+    args: {cond: 'returned_bool'}
+    note: >-
+      Every call finishes and returns a Python bool (outcome 0): no exception,
+      no non-termination, no value of another type. Reading 1 of "check if the
+      string is happy or not" (return True or False); a truthy/falsy value of
+      another type would be outcome 2 and is not allowed.
+
+  - id: RB-HAP-1
+    req: R-HAP-1
+    pattern: implies
+    args: {trigger: 'happy_def', cond: 'returns_true'}
+    note: >-
+      If s has at least 3 characters and every overlapping window of 3
+      consecutive characters is pairwise distinct by exact code, the call
+      returns True. Readings: "letters" = every character, whatever its class;
+      "its length" = number of characters; "3 consecutive letters" =
+      overlapping windows; "distinct" = pairwise different by code. The
+      definition is taken literally and as authoritative (reading 1). This
+      CONTRADICTS the examples: 'abcd' and 'adb' satisfy the definition, yet
+      R-EX-3 and R-EX-5 say they return False (see RB-EX-3-P, RB-EX-5-P).
+      Not repaired: the conflict is left for the consistency analysis.
+
+  - id: RB-HAP-2
+    req: R-HAP-2
+    pattern: implies
+    args: {trigger: 'len(s) < 3', cond: 'returns_false'}
+    note: >-
+      A string with fewer than 3 characters (including the empty string) is
+      not happy, so the call returns False. "is happy if" is read as the
+      definitional "if and only if" (reading 1): the definition is the only
+      way a string can be happy. "its length" = number of characters. The
+      definition is taken as authoritative (reading 1). This CONTRADICTS the
+      examples: R-EX-1 and R-EX-2 say 'a' and 'aa' return True (see
+      RB-EX-1-P, RB-EX-2-P). Not repaired.
+
+  - id: RB-HAP-3
+    req: R-HAP-3
+    pattern: implies
+    args: {trigger: 'window_repeats', cond: 'returns_false'}
+    note: >-
+      If some overlapping window s[i], s[i+1], s[i+2] (0 <= i <= len(s)-3)
+      contains two equal characters (exact code), the string is not happy and
+      the call returns False. "is happy if" read as "if and only if"
+      (reading 1); every character counts as a letter; windows overlap;
+      distinct = pairwise different by code. The definition is taken as
+      authoritative (reading 1). This CONTRADICTS the examples: 'aabb' (window
+      'aab') and 'xyy' repeat a character, yet R-EX-4 and R-EX-6 say they
+      return True (see RB-EX-4-P, RB-EX-6-P). Not repaired.
+
+  # The docstring examples. Each fixes the result of one call of a function
+  # without state, so it is stated as a guarantee on every call with that
+  # argument (-P) and as a behaviour that must be possible (-S).
+  - id: RB-EX-1-P
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 's == "a"', cond: 'returns_true'}
+    note: >-
+      is_happy('a') returns True. The argument is read as the string 'a' with
+      the quotes omitted (reading 1; '=>' is not Python, so the line is
+      notation, not code), and the example is taken literally (reading 1).
+      CONTRADICTS RB-HAP-2 ('a' has fewer than 3 characters). Not repaired.
+
+  - id: RB-EX-2-P
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 's == "aa"', cond: 'returns_true'}
+    note: >-
+      is_happy('aa') returns True (argument = the string 'aa', example taken
+      literally). CONTRADICTS RB-HAP-2 ('aa' has fewer than 3 characters).
+      Not repaired.
+
+  - id: RB-EX-3-P
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 's == "abcd"', cond: 'returns_false'}
+    note: >-
+      is_happy('abcd') returns False (argument = the string 'abcd', example
+      taken literally). CONTRADICTS RB-HAP-1 ('abcd' has 4 characters and its
+      windows 'abc' and 'bcd' are pairwise distinct). Not repaired.
+
+  - id: RB-EX-4-P
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 's == "aabb"', cond: 'returns_true'}
+    note: >-
+      is_happy('aabb') returns True (argument = the string 'aabb', example
+      taken literally). CONTRADICTS RB-HAP-3 (window 'aab' repeats 'a').
+      Not repaired.
+
+  - id: RB-EX-5-P
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 's == "adb"', cond: 'returns_false'}
+    note: >-
+      is_happy('adb') returns False (argument = the string 'adb', example
+      taken literally). CONTRADICTS RB-HAP-1 ('adb' has 3 pairwise distinct
+      characters). Not repaired.
+
+  - id: RB-EX-6-P
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 's == "xyy"', cond: 'returns_true'}
+    note: >-
+      is_happy('xyy') returns True (argument = the string 'xyy', example
+      taken literally). CONTRADICTS RB-HAP-3 (window 'xyy' repeats 'y').
+      Not repaired.
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: 's == "a" && returns_true'
+    note: A call is_happy('a') that returns True must be possible. Unreachable together with RB-HAP-2.
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: 's == "aa" && returns_true'
+    note: A call is_happy('aa') that returns True must be possible. Unreachable together with RB-HAP-2.
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: 's == "abcd" && returns_false'
+    note: A call is_happy('abcd') that returns False must be possible. Unreachable together with RB-HAP-1.
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: 's == "aabb" && returns_true'
+    note: A call is_happy('aabb') that returns True must be possible. Unreachable together with RB-HAP-3.
+  - id: RB-EX-5-S
+    req: R-EX-5
+    cover: 's == "adb" && returns_false'
+    note: A call is_happy('adb') that returns False must be possible. Unreachable together with RB-HAP-1.
+  - id: RB-EX-6-S
+    req: R-EX-6
+    cover: 's == "xyy" && returns_true'
+    note: A call is_happy('xyy') that returns True must be possible. Unreachable together with RB-HAP-3.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the function's name and its single parameter s are
+      fixed by the adapter (design.yaml `function`: name is_happy, one
+      argument s), not by any value on the trace, so FCP-PL cannot state it.
+  - req: R-IN-1
+    reason: >-
+      Under the reading taken ("a string" = any string, including the empty
+      string and strings with non-letter characters; reading 1) the
+      obligation leaves no constraint on s: the interface encoding already
+      makes s a string of at most 32 Latin-1 characters, and calls whose
+      argument is not a string are not part of the trace (frame.md, Inputs).
+      An assumption here would be a tautology.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md): F-ZERO is added to every
+      formalization set by construction and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "a string", reading: 1}
+  - {req: R-OUT-1, phrase: "check if the string is happy or not", reading: 1}
+  - {req: R-HAP-1, phrase: "letters", reading: 1}
+  - {req: R-HAP-1, phrase: "its length", reading: 1}
+  - {req: R-HAP-1, phrase: "3 consecutive letters", reading: 1}
+  - {req: R-HAP-1, phrase: "distinct", reading: 1}
+  - {req: R-HAP-1, phrase: "A string is happy if its length is at least 3 and every 3 consecutive letters are distinct", reading: 1}
+  - {req: R-HAP-2, phrase: "is happy if", reading: 1}
+  - {req: R-HAP-2, phrase: "its length", reading: 1}
+  - {req: R-HAP-2, phrase: "its length is at least 3", reading: 1}
+  - {req: R-HAP-3, phrase: "is happy if", reading: 1}
+  - {req: R-HAP-3, phrase: "letters", reading: 1}
+  - {req: R-HAP-3, phrase: "3 consecutive letters", reading: 1}
+  - {req: R-HAP-3, phrase: "distinct", reading: 1}
+  - {req: R-HAP-3, phrase: "every 3 consecutive letters are distinct", reading: 1}
+  - {req: R-EX-1, phrase: "is_happy(a)", reading: 1}
+  - {req: R-EX-1, phrase: "is_happy(a) => True", reading: 1}
+  - {req: R-EX-2, phrase: "is_happy(aa)", reading: 1}
+  - {req: R-EX-2, phrase: "is_happy(aa) => True", reading: 1}
+  - {req: R-EX-3, phrase: "is_happy(abcd)", reading: 1}
+  - {req: R-EX-3, phrase: "is_happy(abcd) => False", reading: 1}
+  - {req: R-EX-4, phrase: "is_happy(aabb)", reading: 1}
+  - {req: R-EX-4, phrase: "is_happy(aabb) => True", reading: 1}
+  - {req: R-EX-5, phrase: "is_happy(adb)", reading: 1}
+  - {req: R-EX-5, phrase: "is_happy(adb) => False", reading: 1}
+  - {req: R-EX-6, phrase: "is_happy(xyy)", reading: 1}
+  - {req: R-EX-6, phrase: "is_happy(xyy) => True", reading: 1}

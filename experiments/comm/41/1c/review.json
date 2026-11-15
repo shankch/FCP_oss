@@ -1,0 +1,145 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 26,
+    "checked": 26,
+    "seconds": 0.03
+   },
+   "open": {
+    "open": {},
+    "checked": 209
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 26,
+    "checked": 26,
+    "seconds": 0.02
+   },
+   "open": {
+    "open": {},
+    "checked": 209
+   }
+  }
+ },
+ "readings": {
+  "R-OUT-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FN-2",
+   "phrase": "is_prime",
+   "taken": 1,
+   "variant": 2,
+   "text": "The name governs: is_prime(n) decides whether n is a prime number and returns a bool. This contradicts the docstring sentence 'This function outputs the number of such collisions.' (R-OUT-1)."
+  },
+  {
+   "req": "R-CAR-3",
+   "phrase": "very far from each other",
+   "taken": 1,
+   "variant": 2,
+   "text": "Only the distance between the sets is stated, not their order; the sets could be moving away from each other, in which case no car ever meets an oppositely moving car."
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "This function outputs the number of such collisions",
+   "taken": 1,
+   "variant": 2,
+   "text": "is_prime(n) decides whether n is prime and returns a bool, as its name says (R-FN-2); this sentence then contradicts the function's name."
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "outputs",
+   "taken": 1,
+   "variant": 2,
+   "text": "The count is printed (e.g. to standard output); the return value is not specified."
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "the number of such collisions",
+   "taken": 1,
+   "variant": 2,
+   "text": "The number of distinct collision events, where several cars meeting at the same point at the same time count as a single collision."
+  }
+ ],
+ "depends": {
+  "R-OUT-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_prime(25) -> returned something else"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [
+    "is_prime(25) -> returned something else"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"This function outputs the number of such collisions\" can mean: is_prime(n) returns the collision count for n cars in each set; the docstring governs and the name is_prime is a misnomer. / is_prime(n) decides whether n is prime and returns a bool, as its name says (R-FN-2); this sentence then contradicts the function's name.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"outputs\" can mean: The count is the function's return value (an int). / The count is printed (e.g. to standard output); the return value is not specified.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"the number of such collisions\" can mean: The number of (left-to-right car, right-to-left car) pairs that meet over the whole, unbounded duration of the scenario; with the sets approaching each other (R-CAR-3 reading 1) and cars passing through (R-COL-2), every pair meets exactly once, giving n*n. / The number of distinct collision events, where several cars meeting at the same point at the same time count as a single collision.. Which is meant?"
+  }
+ ],
+ "limits": []
+}

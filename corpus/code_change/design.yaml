@@ -1,0 +1,44 @@
+fcp: '0.1'
+design: code_change
+summary: A change to a Python function. Each cycle is one call of the changed checkout(subtotal, coupon, member, student) and, with the same first three arguments, one call of the code before the change, whose answer is on three more input signals. The change request is the specification, the old code defines what must stay the same, and the code changed by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Change request C-STUDENT-1: student pricing at Fernwood Outfitters'}
+- {id: FRAME, path: frame.md, title: 'FCP change adapter, version 0.4'}
+- {id: OLD, path: impl/old.py, title: 'checkout.py before the change'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: subtotal, dir: in, width: 21, desc: 'subtotal argument: the cart total in cents'}
+  - {name: coupon, dir: in, width: 7, desc: 'coupon argument: the coupon discount in percent'}
+  - {name: member, dir: in, width: 1, desc: 'member argument'}
+  - {name: student, dir: in, width: 1, desc: 'student argument (new)'}
+  - {name: old_outcome, dir: in, width: 2, desc: 'how the call of the code before the change ended'}
+  - {name: old_price, dir: in, width: 21, desc: 'the price before the change'}
+  - {name: old_ship, dir: in, width: 10, desc: 'the shipping fee before the change'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a pair that fits, 1 raised ValueError, 2 other exception or no answer, 3 returned anything else'}
+  - {name: price, dir: out, width: 21, desc: 'first element of the returned pair (outcome 0), in cents'}
+  - {name: ship, dir: out, width: 10, desc: 'second element of the returned pair (outcome 0), in cents'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 6, cover_depth: 6}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> price == 0 && ship == 0'}
+- {id: F-OLD, req: R-FR-2, expr: 'old_outcome != 0 -> old_price == 0 && old_ship == 0'}
+function:
+  name: checkout
+  args:
+  - {name: subtotal, signal: subtotal, type: int}
+  - {name: coupon, signal: coupon, type: int}
+  - {name: member, signal: member, type: bool}
+  - {name: student, signal: student, type: bool}
+  returns: {signals: [price, ship]}
+  outcome: {signal: outcome, raises: [ValueError]}
+  baseline:
+    path: impl/old.py
+    args: [subtotal, coupon, member]
+    returns: [old_price, old_ship]
+    outcome: old_outcome
+  scope:
+    subtotal: {dense: [0, 2000], random: 400}
+    coupon: {dense: [0, 60], random: 8}

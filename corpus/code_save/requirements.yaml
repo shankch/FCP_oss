@@ -1,0 +1,101 @@
+fcp: '0.1'
+design: code_save
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def save_balance(cents: int) -> bool:'
+  text: The function's name, argument and result type.
+  kind: definition
+  lines:
+  - 5
+- id: R-ERR-1
+  doc: SPEC
+  quote: Raise ValueError if `cents` is negative or more than 100,000,000, and touch no file.
+  text: With a balance outside 0 to 100,000,000 the function raises ValueError without any call on a file.
+  kind: guarantee
+  lines:
+  - 9
+- id: R-STORE-1
+  doc: SPEC
+  quote: Store the balance as its decimal digits in the text file `balance.txt`, in the current directory.
+  text: The balance ends up in balance.txt as its decimal digits.
+  kind: guarantee
+  lines:
+  - 10
+- id: R-TMP-1
+  doc: SPEC
+  quote: 'Never open `balance.txt` itself: write the digits to `balance.txt.tmp`, then move that file over `balance.txt` with `os.replace`.'
+  text: The function never opens balance.txt; it writes to balance.txt.tmp and moves that file over balance.txt with os.replace.
+  kind: guarantee
+  lines:
+  - 11
+- id: R-SYNC-1
+  doc: SPEC
+  quote: Before moving it, call `os.fsync` on the temporary file and close it.
+  text: Before os.replace, the temporary file has been synced to disk and closed.
+  kind: guarantee
+  ambiguity:
+  - phrase: call `os.fsync` on the temporary file
+    readings:
+    - os.fsync on its descriptor
+    - os.fsync after flushing Python's buffer, so that the digits are on disk
+  lines:
+  - 12
+- id: R-RET-1
+  doc: SPEC
+  quote: Return True once the balance is in `balance.txt`, and False otherwise.
+  text: The function returns True when the balance is in balance.txt, and False otherwise.
+  kind: guarantee
+  lines:
+  - 13
+- id: R-CLEAN-1
+  doc: SPEC
+  quote: Leave no temporary file behind.
+  text: When the function returns, balance.txt.tmp does not exist.
+  kind: guarantee
+  ambiguity:
+  - phrase: Leave no temporary file behind
+    readings:
+    - when the function returns, no temporary file exists
+    - no temporary file is ever left, even by a crash
+  lines:
+  - 14
+- id: R-KEEP-1
+  doc: SPEC
+  quote: 'Never lose a balance: if `os.replace` fails, keep `balance.txt.tmp` so that the balance can be recovered from it, and return False.'
+  text: After os.replace fails the function keeps balance.txt.tmp and returns False.
+  kind: guarantee
+  lines:
+  - 15
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: `save_balance(1250)` opens `balance.txt.tmp` for writing, writes `"1250"`, calls `os.fsync` on it, closes it, moves it over `balance.txt` with `os.replace`, and returns True.'
+  text: With 1250 and os.replace succeeding, the function stores 1250 and returns True.
+  kind: scenario
+  lines:
+  - 17
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-END: once `phase` is 1 it stays 1, with the same `outcome` and `result`.'
+  text: The return is the last cycle of a run.
+  kind: definition
+  lines:
+  - 57
+- id: R-FR-2
+  doc: FRAME
+  quote: 'F-ZERO: at a call, `outcome` is 0 and `result` is false; once returned, `op` is 0; `result` is false unless `outcome` is 0.'
+  text: Unused outputs are zero.
+  kind: definition
+  lines:
+  - 58
+- id: R-FR-3
+  doc: FRAME
+  quote: 'F-LIMIT: a run makes at most 10 calls: after 10 calls, the next cycle is the return (a run that would go on ends there, with `outcome` 2).'
+  text: A run makes at most 10 calls.
+  kind: definition
+  lines:
+  - 59

@@ -1,0 +1,44 @@
+{
+ "b1": {
+  "questions": "The docstring defines what counts as a vowel but never says what the function should return, so I have some questions before writing code:\n\n1. **Return value:** What should `candidate` return?\n   - The number of vowels in the word (e.g., `\"abcde\"` \u2192 `2`)?\n   - A boolean for whether the word contains any vowels?\n   - The vowels themselves, as a string or list?\n   - Something else?\n\n2. **Case sensitivity:** Should uppercase vowels (`'A'`, `'E'`, \u2026, and a final `'Y'`) count the same as lowercase? For example, should `\"ACEDY\"` \u2192 `3`?\n\n3. **Edge cases:**\n   - What should an empty string return?\n   - Can the input contain non-letter characters (digits, spaces, punctuation), and should they be ignored?\n   - Can the input contain more than one word, or is it always a single word?\n\n4. **\"Add more test cases\":** Should I include test cases (e.g., `assert` statements or doctests) with the implementation?",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0143319,
+  "seconds": 2.8
+ },
+ "b2": {
+  "questions": "The description defines vowels but never says what the function should do with them. Before I can implement it, I need answers to these:\n\n1. **What should the function return?** For example:\n   - the number of vowels in the word (an integer),\n   - a boolean such as \"contains a vowel\",\n   - the word with vowels removed or replaced, or\n   - a list of the vowels or their positions.\n2. **Is matching case-insensitive?** Should uppercase 'A', 'E', 'I', 'O', 'U' count as vowels, and should a final 'Y' count like a final 'y'?\n3. **How should the trailing 'y' count?** It's a vowel only when it is the last character. If the function counts vowels, does a final 'y' add exactly one? Does a 'y' anywhere else count as zero?\n4. **What about edge cases?**\n   - What should an empty string return?\n   - Can the input contain non-letter characters (digits, spaces, punctuation)? If so, should they be ignored?\n5. **Can you give a few example inputs with their expected outputs?** For instance, \"abcde\", \"ACEDY\" and \"key\".",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0141532,
+  "seconds": 2.9
+ },
+ "b0": {
+  "questions": "The docstring is cut off and never says what the function should return. This matches the well-known `vowels_count` problem, so I've assumed it **returns the number of vowels** in the word. Matching is case-insensitive, so `\"ACEDY\"` gives 3. Per the `FIX` note, I've also added test cases as doctests.\n\n```python\nFIX = \"\"\"\nAdd more test cases.\n\"\"\"\n\ndef candidate(s):\n    \"\"\"Write a function candidate which takes a string representing\n    a word as input and returns the number of vowels in the string.\n    Vowels in this case are 'a', 'e', 'i', 'o', 'u'. Here, 'y' is also a\n    vowel, but only when it is at the end of the given word.\n\n    Example:\n    >>> candidate(\"abcde\")\n    2\n    >>> candidate(\"ACEDY\")\n    3\n    >>> candidate(\"\")\n    0\n    >>> candidate(\"y\")\n    1\n    >>> candidate(\"yay\")\n    2\n    >>> candidate(\"rhythm\")\n    0\n    >>> candidate(\"key\")\n    2\n    >>> candidate(\"bcdfg\")\n    0\n    >>> candidate(\"AEIOU\")\n    5\n    >>> candidate(\"Yummy\")\n    2\n    \"\"\"\n    vowels = set(\"aeiouAEIOU\")\n    count = sum(1 for ch in s if ch in vowels)\n    if s and s[-1] in \"yY\":\n        count += 1\n    return count\n\n\nif __name__ == \"__main__\":\n    import doctest\n    doctest.testmod()\n```\n\n**How it works:**\n- It counts every character that is one of `a, e, i, o, u`, in either case.\n- If the word ends in `y` or `Y`, it adds one more.\n- The `if s and ...` check means an empty string returns 0 instead of raising an `IndexError`.\n\n**Edge cases in the tests:**\n- `\"yay\"` \u2192 2: the leading `y` isn't counted, but the `a` and the trailing `y` are.\n- `\"rhythm\"` \u2192 0: its `y` is in the middle.\n- `\"Yummy\"` \u2192 2: the capital `Y` at the start isn't counted, but the `u` and the final `y` are.\n\nIf the function is meant to do something else with the vowels, such as return a list or a boolean, let me know and I'll change it.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0168516,
+  "seconds": 2.8
+ },
+ "fcp": {
+  "questions": "1. the request allows `result` to be 0 or 1 (the reading leaves this free on purpose: RA-OUT-1a) and lets this call end in two ways, \"returned\" or \"returned something else\": is any answer acceptable, or which is meant?\n   - R-OUT-1: candidate(s) returns a result computed from the vowels of the word s; the request never states what that result is.\n   - on: candidate(\"A\")\n2. the request lets this call end in two ways, \"returned\" or \"returned something else\": which is meant?\n   - on: candidate(\"E\")\n3. \"takes a string representing a word as input\" can mean: candidate must return normally for every such string, including edge cases such as the empty string / the phrase only describes the parameter type; behaviour on unusual strings (for example the empty string) is unconstrained. Which is meant?\n   - R-IN-2: For every string s that represents a word, candidate(s) finishes and returns a value without raising an exception.\n4. \"Write a function candidate\" can mean: candidate returns the number of vowel characters (occurrences) in s, with vowels as defined by the request / candidate returns the number of distinct vowels in s / candidate returns whether s contains a vowel (True/False or 1/0) / the return value is not specified at all, so any returned value is acceptable. Which is meant?\n   - R-OUT-1: candidate(s) returns a result computed from the vowels of the word s; the request never states what that result is.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0162536,
+  "seconds": 3.2
+ },
+ "fcp_formal": {
+  "questions": "1. the request allows `result` to be 0 or 1 (the reading leaves this free on purpose: RA-OUT-1a) and lets this call end in two ways, \"returned\" or \"returned something else\": is any answer acceptable, or which is meant?\n   - R-OUT-1: candidate(s) returns a result computed from the vowels of the word s; the request never states what that result is.\n   - on: candidate(\"A\")\n2. the request lets this call end in two ways, \"returned\" or \"returned something else\": which is meant?\n   - on: candidate(\"E\")",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0190503,
+  "seconds": 6.1
+ },
+ "fcp_hard": {
+  "questions": "1. the request allows `result` to be 0 or 1 (the reading leaves this free on purpose: RA-OUT-1a) and lets this call end in two ways, \"returned\" or \"returned something else\": is any answer acceptable, or which is meant?\n   - R-OUT-1: candidate(s) returns a result computed from the vowels of the word s; the request never states what that result is.\n   - on: candidate(\"A\")\n2. the request lets this call end in two ways, \"returned\" or \"returned something else\": which is meant?\n   - on: candidate(\"E\")",
+  "reply": "1",
+  "grade": 1,
+  "cost_usd": 0.0100118,
+  "seconds": 5.6
+ }
+}

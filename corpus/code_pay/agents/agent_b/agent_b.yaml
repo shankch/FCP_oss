@@ -1,0 +1,278 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model of one run of charge_order(api, order_id, amount).
+# A reset starts a run; each later cycle is one call on api (phase 0) and then
+# the return (phase 1, absorbing, frame F-END).  The ghosts are registers
+# cleared by reset: their value in a cycle summarises the EARLIER cycles of the
+# run (the attempts made, the latest answer, the time waited since the latest
+# attempt), and every output is checked against them.
+
+defs:
+  call: '!phase'                            # a call on api
+  chg: '!phase && op == 1'                  # a call of api.charge: an attempt
+  slp: '!phase && op == 2'                  # a call of api.sleep: waiting
+  ok: 'chg && answer == 0'                  # this charge went through
+  dec: 'chg && answer == 1'                 # this charge was declined
+  err: 'chg && answer == 2'                 # this charge failed with "error"
+  valid: 'amount >= 1 && amount <= 1000000' # rule 1 accepts the amount
+  went_through: 'got_ok == 1'               # an earlier charge of the run returned "ok"
+  was_declined: 'got_dec == 1'              # an earlier charge of the run returned "declined"
+  ret_true: 'phase && outcome == 0 && result'
+  ret_false: 'phase && outcome == 0 && !result'
+  cutoff: 'phase && outcome == 2 && nc == 8' # the frame ended, after 8 calls, a run that would go on
+
+ghosts:
+  # attempts (charges) made before this cycle
+  - {name: n, range: [0, 8], init: 0, next: 'min(n + chg, 8)'}
+  # calls on api made before this cycle
+  - {name: nc, range: [0, 8], init: 0, next: 'min(nc + call, 8)'}
+  # answer of the latest charge before this cycle: 0 ok, 1 declined, 2 error, 3 none yet
+  - {name: last, range: [0, 3], init: 3, next: 'chg ? answer : last'}
+  # 1 once an earlier charge of the run returned "ok" / "declined"
+  - {name: got_ok, range: [0, 1], init: 0, next: 'ok ? 1 : got_ok'}
+  - {name: got_dec, range: [0, 1], init: 0, next: 'dec ? 1 : got_dec'}
+  # seconds waited with api.sleep since the latest charge (since the start of the run if none)
+  - {name: w, range: [0, 255], init: 0, next: 'chg ? 0 : (slp ? min(w + s_seconds, 255) : w)'}
+
+assumptions:
+  - id: YB-SIG-ARGS
+    req: R-SIG-1
+    expr: 'stable(order_id) && stable(amount)'
+    note: >-
+      A run is one call charge_order(api, order_id, amount), so its arguments
+      do not change while it runs (frame.md: the same in every cycle of a run).
+      A new run (after a reset) may have new arguments.
+
+  - id: YB-API-ANS
+    req: R-API-1
+    pattern: implies
+    args: {trigger: 'chg', cond: 'answer <= 2'}
+    note: >-
+      A charge returns "ok", "declined" or "error" (answer 0, 1, 2), never
+      anything else; at other cycles the answer means nothing and is left
+      free. The second sentence (api.sleep(seconds) waits that many seconds)
+      is what the wait model w uses: waiting is done with api.sleep, and the
+      time waited is the sum of the seconds passed to it.
+
+properties:
+  # ---- R-SIG-1: def charge_order(api, order_id: int, amount: int) -> bool
+  - id: YB-SIG-BOOL
+    req: R-SIG-1
+    pattern: implies
+    args: {trigger: 'phase', cond: 'outcome != 3'}
+    note: >-
+      "-> bool": a value the function returns is a bool (outcome 3 means it
+      returned anything else). The signature itself does not forbid raising.
+      The name and the argument order are fixed by the adapter and are not
+      observable on the trace.
+
+  # ---- R-CALL-1: every charge is for this order and this amount
+  - id: YB-CALL-ARGS
+    req: R-CALL-1
+    pattern: implies
+    args: {trigger: 'chg', cond: 'c_order == order_id && c_amount == amount'}
+    note: >-
+      Every api.charge call of the run passes the run's own order_id and its
+      amount in cents, unchanged.
+
+  # ---- R-ERR-1: ValueError outside 1 .. 1,000,000
+  - id: YB-ERR-RAISE
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: 'phase && !valid', cond: 'outcome == 1'}
+    note: >-
+      AMBIGUOUS "between 1 and 1,000,000 cents": read inclusively, so 1 and
+      1,000,000 are accepted and 0 and 1,000,001 are not. A run on a rejected
+      amount ends by raising ValueError (not by returning, by another
+      exception, or by being cut off). The rule fixes how the run ends; the
+      text does not say that no call on api may come before the raise, so
+      none is ruled out here. Because YB-RET-TRUE has no such exception, a
+      function meeting both must not charge a rejected amount (the service
+      could answer "ok"). Negative amounts cannot be represented on the
+      21-bit amount input.
+
+  # ---- R-RET-1: True once a charge returns ok, False otherwise
+  - id: YB-RET-TRUE
+    req: R-RET-1
+    pattern: next
+    args: {trigger: 'ok', cond: 'ret_true'}
+    note: >-
+      AMBIGUOUS "once a charge returns": read as "as soon as" (the first
+      listed reading, the dictionary sense of the conjunction "once"). The
+      cycle right after a charge answered "ok" is the return of True: no
+      further call of any kind (not even api.sleep) comes in between. The
+      other reading (True if some charge has returned "ok", other calls
+      allowed before returning) is weaker. The text gives no exception, so
+      this is not limited to accepted amounts.
+
+  - id: YB-RET-FALSE
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'phase && valid && !went_through', cond: 'ret_false'}
+    note: >-
+      "and False otherwise": a run that ends with no charge answered "ok"
+      returns False (a normal return, not an exception and not a cut-off).
+      Read for an amount that rule 1 accepts: for a rejected amount the
+      function raises (rule 1) and so does not return at all; read without
+      that scope, "otherwise" would also cover those amounts and contradict
+      rule 1. CONTRADICTS R-KEEP-1: YB-KEEP-END has the same trigger and an
+      incompatible condition, and the service forces that situation by never
+      answering "ok".
+
+  # ---- R-RETRY-1: retry on error, at most 3 attempts in total
+  - id: YB-RETRY-MAX
+    req: R-RETRY-1
+    pattern: implies
+    args: {trigger: 'chg', cond: 'n < 3'}
+    note: >-
+      "up to 3 attempts in total": a run makes at most three charges, whatever
+      the answers were (n counts the charges before this one, so a fourth
+      charge has n == 3). CONTRADICTED by R-KEEP-1 (scenario
+      YB-KEEP-AFTER-ERR).
+
+  - id: YB-RETRY-AGAIN
+    req: R-RETRY-1
+    pattern: implies
+    args: {trigger: 'phase && last == 2', cond: 'n >= 3'}
+    note: >-
+      "If a charge returns error, try again": a run whose latest charge was
+      answered "error" does not end (return, raise or cut-off) before three
+      attempts have been made. When the next attempt comes is set only by
+      R-WAIT-1.
+
+  # ---- R-DECL-1: never try again after declined
+  - id: YB-DECL-STOP
+    req: R-DECL-1
+    pattern: implies
+    args: {trigger: 'chg', cond: '!was_declined'}
+    note: >-
+      No charge in a run after a charge answered "declined". CONTRADICTED by
+      R-KEEP-1 (scenario YB-KEEP-AFTER-DECL).
+
+  # ---- R-WAIT-1: 2 s before the second attempt, 4 s before the third
+  - id: YB-WAIT-2
+    req: R-WAIT-1
+    pattern: implies
+    args: {trigger: 'chg && n == 1', cond: 'w == 2'}
+    note: >-
+      w is the number of seconds slept with api.sleep since the previous
+      charge. AMBIGUOUS "wait 2 seconds before the second attempt": read as
+      exactly 2 seconds of api.sleep between the first and the second attempt.
+      The rule does not require one call (sleep(1) twice also waits 2
+      seconds); the example shows one call, sleep(2), for its script
+      (YB-EX-CALLS).
+
+  - id: YB-WAIT-4
+    req: R-WAIT-1
+    pattern: implies
+    args: {trigger: 'chg && n == 2', cond: 'w == 4'}
+    note: >-
+      AMBIGUOUS "4 seconds before the third": read as the wait between the
+      second and the third attempt (each new attempt has its own wait), not 4
+      seconds counted from the first attempt.
+
+  - id: YB-WAIT-EACH
+    req: R-WAIT-1
+    pattern: implies
+    args: {trigger: 'chg && n >= 3', cond: 'w >= 1'}
+    note: >-
+      "Before each new attempt, wait": a later attempt (only possible against
+      R-RETRY-1, e.g. under R-KEEP-1) also comes after some wait; the text
+      gives no length for it, so any positive wait is accepted. Sleeps that do
+      not precede a new attempt are not constrained by this rule.
+
+  # ---- R-ONCE-1: never charge again once a charge returned ok
+  - id: YB-ONCE-NOCHG
+    req: R-ONCE-1
+    pattern: implies
+    args: {trigger: 'chg', cond: '!went_through'}
+    note: >-
+      No charge in a run after a charge answered "ok". A run concerns one
+      order and every charge is for it (R-CALL-1), so "charge an order again"
+      is read as any further charge.
+
+  # ---- R-KEEP-1: keep trying until the charge goes through
+  - id: YB-KEEP-END
+    req: R-KEEP-1
+    pattern: implies
+    args: {trigger: 'phase && valid && !went_through', cond: 'cutoff'}
+    note: >-
+      "Keep trying until the charge goes through" read literally: the
+      function does not stop (return False, raise, or return anything else)
+      while no charge has been answered "ok". The only end such a run may
+      have is the frame's cut-off after 8 calls (outcome 2), which is how a
+      run that would go on is recorded. "until" is read weakly: the function
+      cannot make the service answer "ok". Read for an amount that rule 1
+      accepts. Within 8 calls a run that only sleeps cannot be told from one
+      that waits long before its next attempt, so this item does not demand
+      new attempts; scenarios YB-KEEP-AFTER-DECL and YB-KEEP-AFTER-ERR do.
+      CONTRADICTS R-RET-1 ("False otherwise", YB-RET-FALSE: same trigger,
+      incompatible condition), and through the scenarios R-DECL-1 and
+      R-RETRY-1.
+
+  # ---- R-EX-1: error then ok -> charge, sleep(2), charge, True
+  - id: YB-EX-CALLS
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'ok && n == 1 && last == 2', cond: 'nc == 2 && prev(slp && s_seconds == 2)'}
+    note: >-
+      The example states what the function does when the first charge returns
+      "error" and the second "ok", so besides the scenario it is checked as a
+      guarantee: when the second charge is answered "ok" after the first was
+      answered "error", exactly two calls came before it, the first charge
+      and then api.sleep(2).
+
+  - id: YB-EX-TRUE
+    req: R-EX-1
+    pattern: next
+    args: {trigger: 'ok && n == 1 && last == 2', cond: 'ret_true'}
+    note: >-
+      "... and returns True": the example's list of calls ends with the
+      second charge, so the next cycle is the return of True.
+
+scenarios:
+  - id: YB-KEEP-AFTER-DECL
+    req: R-KEEP-1
+    cover: 'valid && chg && was_declined'
+    note: >-
+      Rule 7 requires the function to try again after a charge that did not
+      go through, including one answered "declined", so a new attempt after a
+      decline must be possible. CONTRADICTS R-DECL-1 ("Never try again after
+      declined"), which makes this unreachable.
+
+  - id: YB-KEEP-AFTER-ERR
+    req: R-KEEP-1
+    cover: 'valid && chg && n == 3 && !went_through && !was_declined'
+    note: >-
+      Rule 7 requires a fourth attempt after three charges answered "error",
+      so it must be possible. CONTRADICTS R-RETRY-1 ("up to 3 attempts in
+      total"), which makes this unreachable.
+
+  - id: YB-EX-RUN
+    req: R-EX-1
+    cover: 'ret_true && nc == 3 && prev(ok) && prev(slp && s_seconds == 2, 2) && prev(err, 3)'
+    note: >-
+      The example run is possible: a charge answered "error", api.sleep(2), a
+      charge answered "ok", then the return of True, with no other call.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the interface adapter (frame.md), added to every
+      formalization set from design.yaml as F-END; frame.md says it need not
+      be restated.
+    covered_by: [F-END]
+  - req: R-FR-2
+    reason: >-
+      Frame rule of the interface adapter (frame.md), added to every
+      formalization set from design.yaml as F-ZERO; frame.md says it need not
+      be restated.
+    covered_by: [F-ZERO]
+  - req: R-FR-3
+    reason: >-
+      Frame rule of the interface adapter (frame.md), added to every
+      formalization set from design.yaml as F-LIMIT; frame.md says it need not
+      be restated. The model uses its 8-call cut-off (def cutoff).
+    covered_by: [F-LIMIT]

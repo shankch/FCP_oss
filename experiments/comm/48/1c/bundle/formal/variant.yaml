@@ -1,0 +1,181 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-DEF-1, readings taken as instructed: case-insensitive comparison in which
+  # every character counts ("palindrome", reading 2), and the empty string is
+  # not a palindrome ("given string", reading 2). Case is folded as Python's
+  # str.lower() does on Latin-1: A-Z and the uppercase letters 192-214 and
+  # 216-222 map to their lowercase forms (code + 32); every other code,
+  # including spaces and punctuation, is compared as it is.
+  pal: >-
+    len(text) > 0 && all(i < len(text):
+      ((isupper(text[i]) || (text[i] >= 192 && text[i] <= 222 && text[i] != 215)) ? text[i] + 32 : text[i])
+      ==
+      ((isupper(text[len(text) - 1 - i]) || (text[len(text) - 1 - i] >= 192 && text[len(text) - 1 - i] <= 222 && text[len(text) - 1 - i] != 215)) ? text[len(text) - 1 - i] + 32 : text[len(text) - 1 - i]))
+  # the call returned the bool True or False (frame: outcome 0)
+  returned_bool: 'outcome == 0'
+
+properties:
+  - id: RV-FN-1
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: 'pal && returned_bool', cond: '!result'}
+    note: >-
+      R-FN-1, phrase 'Checks if given string is a palindrome', read as instructed
+      (reading 2) although the description and the function name more naturally
+      say the opposite: the examples govern and the answer is inverted, so a
+      palindrome yields False. 'Palindrome' follows R-DEF-1 as instructed
+      (reading 2 of 'palindrome': case-insensitive, every character counts;
+      reading 2 of 'given string': the empty string is not a palindrome).
+      R-FN-3 is read as instructed (reading 2 of 'Checks'): any falsy value is an
+      acceptable answer, so only a returned bool is checked here; a returned
+      non-bool (outcome 2) is not observable as a truth value in the trace.
+      The parenthetical of the reading (True exactly when text is not a
+      palindrome) is the R-FN-2 half and is formalized in RV-FN-2.
+  - id: RV-FN-2
+    req: R-FN-2
+    pattern: implies
+    args: {trigger: '!pal && returned_bool', cond: 'result'}
+    note: >-
+      R-FN-2, phrase 'Checks if given string is a palindrome', read as instructed
+      (reading 2) although the description more naturally requires False: the
+      examples govern and every string that is not a palindrome yields True.
+      'Palindrome' follows R-DEF-1 as instructed (case-insensitive, every
+      character counts; the empty string is not a palindrome, so '' is covered
+      here and must yield True). R-FN-3 is read as instructed (reading 2 of
+      'Checks'): any truthy value is an acceptable answer, so only a returned
+      bool is constrained; a returned non-bool (outcome 2) carries no observable
+      truth value. Conflicts with RV-EX-1 (''), RV-EX-4 ('zbcd'), which under
+      their instructed readings require False for non-palindromes.
+  - id: RV-FN-3
+    req: R-FN-3
+    expr: 'outcome == 0 || outcome == 2'
+    note: >-
+      R-FN-3, phrase 'Checks', read as instructed (reading 2) although the
+      examples printing True and False suggest an exact bool: the call must
+      finish and return without raising (outcome 1 excluded), but any returned
+      value is acceptable, a bool (outcome 0) or any other value (outcome 2)
+      whose truth value is the answer.
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'text == "" && returned_bool', cond: '!result'}
+    note: >-
+      R-EX-1, phrase 'False', read as instructed (reading 2): the example is
+      correct because the empty string is not a palindrome (R-DEF-1, reading 2
+      of 'given string'). The reading calls this consistent with R-FN-2, but
+      R-FN-2 is itself read as inverted (reading 2), which requires True for
+      every non-palindrome, '' included: RV-EX-1 and RV-FN-2 together forbid
+      returning a bool for ''. Kept as stated, not repaired. Under R-FN-3
+      reading 2 any falsy value answers False; the frame already forces result
+      false when no bool is returned.
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'text == "aba" && returned_bool', cond: 'result'}
+    note: >-
+      R-EX-2, phrase 'False', read as instructed (reading 2): the printed False
+      is wrong and the description governs, so is_palindrome('aba') returns
+      True. This contradicts RV-FN-1 (R-FN-1 read as inverted: 'aba' is a
+      palindrome, so False); together they forbid returning a bool for 'aba'.
+      Kept as stated, not repaired. Under R-FN-3 reading 2 a truthy non-bool
+      (outcome 2) would also answer True; its truth value is not observable.
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'text == "aaaaa" && returned_bool', cond: 'result'}
+    note: >-
+      R-EX-3, phrase 'False', read as instructed (reading 2): the printed False
+      is wrong and the description governs, so is_palindrome('aaaaa') returns
+      True. This contradicts RV-FN-1 (R-FN-1 read as inverted: 'aaaaa' is a
+      palindrome, so False). Kept as stated, not repaired. Under R-FN-3 reading
+      2 a truthy non-bool (outcome 2) would also answer True; its truth value is
+      not observable.
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'text == "zbcd" && returned_bool', cond: '!result'}
+    note: >-
+      R-EX-4, phrase 'True', read as instructed (reading 2): the printed True is
+      wrong and the description governs, so is_palindrome('zbcd') returns
+      False. This contradicts RV-FN-2 (R-FN-2 read as inverted: 'zbcd' is not a
+      palindrome, so True). Kept as stated, not repaired. Under R-FN-3 reading 2
+      any falsy value answers False; the frame already forces result false when
+      no bool is returned.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'text == "" && returned_bool && !result'
+    note: >-
+      The example call is_palindrome('') returning False must be possible.
+      Phrase 'False' read as instructed (reading 2: correct, the empty string is
+      not a palindrome per R-DEF-1 reading 2 of 'given string'). Unreachable
+      together with RV-FN-2 (R-FN-2 read as inverted), which requires True for
+      the non-palindrome ''.
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'text == "aba" && returned_bool && result'
+    note: >-
+      The call is_palindrome('aba') returning True must be possible. Phrase
+      'False' read as instructed (reading 2: the example is wrong, the
+      description governs). Unreachable together with RV-FN-1 (R-FN-1 read as
+      inverted).
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'text == "aaaaa" && returned_bool && result'
+    note: >-
+      The call is_palindrome('aaaaa') returning True must be possible. Phrase
+      'False' read as instructed (reading 2: the example is wrong, the
+      description governs). Unreachable together with RV-FN-1 (R-FN-1 read as
+      inverted).
+  - id: RV-EX-4-S
+    req: R-EX-4
+    cover: 'text == "zbcd" && returned_bool && !result'
+    note: >-
+      The call is_palindrome('zbcd') returning False must be possible. Phrase
+      'True' read as instructed (reading 2: the example is wrong, the
+      description governs). Unreachable together with RV-FN-2 (R-FN-2 read as
+      inverted).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is an implementation of the stub with its
+      name and signature unchanged. The adapter fixes the name and the single
+      str argument (design.yaml, function section); nothing about it is
+      observable as a property of the call trace.
+  - req: R-IF-2
+    reason: >-
+      Interface definition realized by the encoding: each cycle is one call
+      is_palindrome(text) with one str argument on the sequence input text
+      (frame.md, Inputs). There is no further constraint to state; an
+      assumption would only restate the encoding.
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized by the def pal used in RV-FN-1 and RV-FN-2. Readings
+      taken as instructed although another seems more natural: 'palindrome'
+      reading 2 (case-insensitive, every character counts: 'Aa' is a
+      palindrome, 'ab, a' is not); 'given string' reading 2 (the empty string
+      is not a palindrome; non-empty strings are judged by reversal). Case is
+      folded as Python's str.lower() does on Latin-1 (A-Z, 192-214, 216-222).
+    covered_by: [RV-FN-1, RV-FN-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter (F-ZERO: result is false unless outcome
+      is 0); it is part of every formalization set by construction and is not
+      restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-DEF-1, phrase: palindrome, reading: 2}
+  - {req: R-DEF-1, phrase: given string, reading: 2}
+  - {req: R-FN-1, phrase: Checks if given string is a palindrome, reading: 2}
+  - {req: R-FN-2, phrase: Checks if given string is a palindrome, reading: 2}
+  - {req: R-FN-3, phrase: Checks, reading: 2}
+  - {req: R-EX-1, phrase: 'False', reading: 2}
+  - {req: R-EX-2, phrase: 'False', reading: 2}
+  - {req: R-EX-3, phrase: 'False', reading: 2}
+  - {req: R-EX-4, phrase: 'True', reading: 2}

@@ -1,0 +1,181 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 69,
+    "checked": 69,
+    "seconds": 0.66
+   },
+   "open": {
+    "open": {},
+    "checked": 44
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 93,
+    "checked": 93,
+    "seconds": 1.67
+   },
+   "open": {
+    "open": {},
+    "checked": 58
+   }
+  }
+ },
+ "readings": {
+  "R-DEF-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-DEF-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-IN-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-CH-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [
+    "RA-EX-1",
+    "RA-EX-2",
+    "RA-EX-3"
+   ]
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "an array arr of integers",
+   "taken": 1,
+   "variant": 2,
+   "text": "a non-empty list of integers; the behaviour on the empty list is unspecified (don't care)"
+  },
+  {
+   "req": "R-DEF-2",
+   "phrase": "any other element",
+   "taken": 1,
+   "variant": 2,
+   "text": "the value of some other element already present in the array"
+  },
+  {
+   "req": "R-CH-1",
+   "phrase": "the minimum number of elements that need to be changed",
+   "taken": 1,
+   "variant": 2,
+   "text": "the value the examples give (8, 7 and 5), which in all three cases is len(arr); the examples are authoritative over the stated definition"
+  }
+ ],
+ "depends": {
+  "R-CH-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "smallest_change([0, 1, 0]) -> 0"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-1 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-2 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-3 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-CH-1"
+   ],
+   "calls": [
+    "smallest_change([0, 1, 0]) -> 0"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CH-1"
+   ],
+   "calls": [],
+   "question": "\"the minimum number of elements that need to be changed\" can mean: the number of mirror pairs whose two elements differ, as the definition gives (4, 1 and 0 for the three examples); the examples, which contradict this, are wrong / the value the examples give (8, 7 and 5), which in all three cases is len(arr); the examples are authoritative over the stated definition. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"== 8\" can mean: the example is erroneous and contradicts R-CH-1: all four mirror pairs (1,6), (2,9), (3,7), (5,4) differ, so the minimum is 4 and the call should return 4 / the example is authoritative: the call returns 8 (the length of the array), overriding the minimum-change definition. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"== 7\" can mean: the example is erroneous and contradicts R-CH-1: only the mirror pair (1,2) differs, so the minimum is 1 and the call should return 1 / the example is authoritative: the call returns 7 (the length of the array), overriding the minimum-change definition. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"== 5\" can mean: the example is erroneous and contradicts R-CH-1 and R-DEF-1: [1, 2, 3, 2, 1] is already palindromic, so the minimum is 0 and the call should return 0 / the example is authoritative: the call returns 5 (the length of the array), overriding the minimum-change definition. Which is meant?"
+  }
+ ],
+ "limits": []
+}

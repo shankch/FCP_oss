@@ -1,0 +1,37 @@
+{
+ "b1": {
+  "questions": "The function name and the docstring describe two different tasks, so I need to know which one you want:\n\n1. **Car collision count (what the docstring describes):** Every left-to-right car eventually meets every right-to-left car, so the function would return `n * n`.\n2. **Primality test (what the name `is_prime` suggests):** The function would return `True` if `n` is prime and `False` otherwise.\n\nShould I implement the collision count, perhaps renaming the function to something like `car_race_collision`? Or should I implement a primality check and update the docstring to match?",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0141291,
+  "seconds": 3.2
+ },
+ "b2": {
+  "questions": "The function name and the docstring describe two different problems, so I need to know which one to implement:\n\n1. **Which behavior is intended?**\n   - The name `is_prime(n)` suggests checking whether `n` is prime and returning a boolean.\n   - The docstring describes the car collision problem, which returns the number of collisions as an integer. With `n` cars going each way, every left-to-right car meets every right-to-left car, which gives `n * n` collisions.\n\n2. **What should the return type be?** Should it be `bool` (prime check) or `int` (collision count)?\n\n3. **If it is the collision problem, how should `n = 0` and negative `n` be handled?** For example, should they return 0 or raise an error?",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.013872,
+  "seconds": 2.4
+ },
+ "b0": {
+  "questions": "Each of the `n` left-to-right cars eventually passes each of the `n` right-to-left cars exactly once. The cars pass through each other without changing course, so every pair collides once and only once. That gives `n * n` collisions.\n\n```python\ndef is_prime(n: int):\n    \"\"\"\n    Imagine a road that's a perfectly straight infinitely long line.\n    n cars are driving left to right;  simultaneously, a different set of n cars\n    are driving right to left.   The two sets of cars start out being very far from\n    each other.  All cars move in the same speed.  Two cars are said to collide\n    when a car that's moving left to right hits a car that's moving right to left.\n    However, the cars are infinitely sturdy and strong; as a result, they continue moving\n    in their trajectory as if they did not collide.\n\n    This function outputs the number of such collisions.\n    \"\"\"\n    return n * n\n```\n\n**Note:** The function is named `is_prime`, but the docstring describes the car collision problem, which has nothing to do with primes. I implemented what the docstring describes. You may want to rename the function to something like `car_race_collision`. If you actually wanted a primality check, let me know and I'll write that instead.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0143689,
+  "seconds": 2.6
+ },
+ "fcp": {
+  "questions": "1. both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?\n   - R-OUT-1: For every n, the result of is_prime(n) is the number of collisions (as defined in R-COL-1) that occur in the scenario with n cars in each set.\n   - on: is_prime(25) -> returned something else\n   - \"is_prime\" (R-FN-2) could also mean: The name governs: is_prime(n) decides whether n is a prime number and returns a bool. This contradicts the docstring sentence 'This function outputs the number of such collisions.' (R-OUT-1).\n   - \"very far from each other\" (R-CAR-3) could also mean: Only the distance between the sets is stated, not their order; the sets could be moving away from each other, in which case no car ever meets an oppositely moving car.\n   - \"This function outputs the number of such collisions\" (R-OUT-1) could also mean: is_prime(n) decides whether n is prime and returns a bool, as its name says (R-FN-2); this sentence then contradicts the function's name.\n   - \"outputs\" (R-OUT-1) could also mean: The count is printed (e.g. to standard output); the return value is not specified.\n   - \"the number of such collisions\" (R-OUT-1) could also mean: The number of distinct collision events, where several cars meeting at the same point at the same time count as a single collision.\n2. \"This function outputs the number of such collisions\" can mean: is_prime(n) returns the collision count for n cars in each set; the docstring governs and the name is_prime is a misnomer. / is_prime(n) decides whether n is prime and returns a bool, as its name says (R-FN-2); this sentence then contradicts the function's name.. Which is meant?\n   - R-OUT-1: For every n, the result of is_prime(n) is the number of collisions (as defined in R-COL-1) that occur in the scenario with n cars in each set.\n3. \"outputs\" can mean: The count is the function's return value (an int). / The count is printed (e.g. to standard output); the return value is not specified.. Which is meant?\n   - R-OUT-1: For every n, the result of is_prime(n) is the number of collisions (as defined in R-COL-1) that occur in the scenario with n cars in each set.\n4. \"the number of such collisions\" can mean: The number of (left-to-right car, right-to-left car) pairs that meet over the whole, unbounded duration of the scenario; with the sets approaching each other (R-CAR-3 reading 1) and cars passing through (R-COL-2), every pair meets exactly once, giving n*n. / The number of distinct collision events, where several cars meeting at the same point at the same time count as a single collision.. Which is meant?\n   - R-OUT-1: For every n, the result of is_prime(n) is the number of collisions (as defined in R-COL-1) that occur in the scenario with n cars in each set.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.020392,
+  "seconds": 3.0
+ },
+ "fcp_formal": {
+  "questions": "1. both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?\n   - R-OUT-1: For every n, the result of is_prime(n) is the number of collisions (as defined in R-COL-1) that occur in the scenario with n cars in each set.\n   - on: is_prime(25) -> returned something else\n   - \"is_prime\" (R-FN-2) could also mean: The name governs: is_prime(n) decides whether n is a prime number and returns a bool. This contradicts the docstring sentence 'This function outputs the number of such collisions.' (R-OUT-1).\n   - \"very far from each other\" (R-CAR-3) could also mean: Only the distance between the sets is stated, not their order; the sets could be moving away from each other, in which case no car ever meets an oppositely moving car.\n   - \"This function outputs the number of such collisions\" (R-OUT-1) could also mean: is_prime(n) decides whether n is prime and returns a bool, as its name says (R-FN-2); this sentence then contradicts the function's name.\n   - \"outputs\" (R-OUT-1) could also mean: The count is printed (e.g. to standard output); the return value is not specified.\n   - \"the number of such collisions\" (R-OUT-1) could also mean: The number of distinct collision events, where several cars meeting at the same point at the same time count as a single collision.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0174797,
+  "seconds": 3.2
+ }
+}

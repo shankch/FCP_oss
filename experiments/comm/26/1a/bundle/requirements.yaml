@@ -1,0 +1,103 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-NF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: 'The deliverable is a Python implementation of the body of the function candidate, keeping the given signature: one parameter numbers of type List[int], returning List[int].'
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IO-1
+  doc: SPEC
+  quote: From a list of integers
+  text: The caller passes candidate a single argument numbers that is a list of integers.
+  kind: assumption
+  lines:
+  - 8
+- id: R-IO-2
+  doc: SPEC
+  quote: 'def candidate(numbers: List[int]) -> List[int]:'
+  text: Every call of candidate on a list of integers returns a list of integers; it does not raise an exception, fail to finish, or return a value of another type.
+  kind: guarantee
+  lines:
+  - 7
+- id: R-FN-1
+  doc: SPEC
+  quote: remove all elements that occur K time(s)
+  text: For every value v whose number of occurrences in the input list numbers is K, v does not appear anywhere in the returned list (all of its occurrences are removed).
+  kind: guarantee
+  ambiguity:
+  - phrase: K
+    readings:
+    - K is 2, the only value consistent with the example (2 occurs twice and is removed; 1, 3 and 4 occur once and are kept)
+    - 'K stands for ''more than once'', as in the usual remove-duplicates task: every value occurring 2 or more times is removed'
+    - K is an undefined placeholder (possibly a missing second parameter of candidate, which takes only numbers), so the removal count is not determined by the request
+  - phrase: occur K time(s)
+    readings:
+    - 'exactly K times: a value occurring more than K times is kept'
+    - 'at least K times: a value occurring K or more times is removed'
+  - phrase: time(s)
+    readings:
+    - 'contradiction with the example R-EX-1: the singular ''time'' admits K = 1, and removing values that occur once turns [1, 2, 3, 2, 4] into [2, 2], not [1, 3, 4]; likewise any K of 3 or more removes
+      nothing and returns [1, 2, 3, 2, 4]'
+    - 'no contradiction: K = 2 (exactly or at least), which gives [1, 3, 4] as in the example; ''(s)'' is only template wording'
+  - phrase: remove
+    readings:
+    - return a new list without those elements, leaving the argument numbers unchanged
+    - delete those elements from the argument numbers in place (and return that list)
+  lines:
+  - 8
+- id: R-FN-2
+  doc: SPEC
+  quote: remove all elements that occur K time(s)
+  text: For every value v whose number of occurrences in the input list numbers is not K, the returned list contains v exactly as many times as numbers does (only the elements occurring K times are removed;
+    nothing else is removed or added).
+  kind: guarantee
+  ambiguity:
+  - phrase: K
+    readings:
+    - K is 2, the only value consistent with the example (2 occurs twice and is removed; 1, 3 and 4 occur once and are kept)
+    - 'K stands for ''more than once'', as in the usual remove-duplicates task: every value occurring 2 or more times is removed'
+    - K is an undefined placeholder (possibly a missing second parameter of candidate, which takes only numbers), so the removal count is not determined by the request
+  - phrase: occur K time(s)
+    readings:
+    - 'exactly K times: every occurrence of a value occurring more than K times is kept'
+    - 'at least K times: a value occurring more than K times is also removed, so only values occurring fewer than K times are kept'
+  - phrase: remove all elements that occur K time(s)
+    readings:
+    - only the elements occurring K times are removed; every other element is kept with all of its occurrences (implied by 'elements left' and by the example)
+    - the request only obliges the removal of those elements and states nothing about keeping the others
+  lines:
+  - 8
+- id: R-FN-3
+  doc: SPEC
+  quote: Keep order of elements left the same as in the input.
+  text: The elements that remain appear in the returned list in the same relative order as in the input list numbers, i.e. the returned list is a subsequence of numbers.
+  kind: guarantee
+  lines:
+  - 9
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> candidate([1, 2, 3, 2, 4]) [1, 3, 4]'
+  text: Calling candidate([1, 2, 3, 2, 4]) returns [1, 3, 4].
+  kind: scenario
+  ambiguity:
+  - phrase: '[1, 3, 4]'
+    readings:
+    - consistent with R-FN-1 and R-FN-2 only if K = 2 (exactly 2 or at least 2); the example does not decide between 'exactly' and 'at least'
+    - 'contradiction with R-FN-1: for any other K the rule gives a different result, e.g. K = 1 (allowed by the singular ''time'') gives [2, 2] and K of 3 or more gives [1, 2, 3, 2, 4]'
+  lines:
+  - 10
+  - 11
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `result` is the empty list unless `outcome` is 0.'
+  text: Whenever outcome is not 0, result is the empty list.
+  kind: guarantee
+  lines:
+  - 46

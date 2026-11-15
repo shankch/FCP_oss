@@ -1,0 +1,476 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 0,
+    "checked": 0
+   },
+   "open": {
+    "open": {},
+    "checked": 0
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 3242,
+    "checked": 221,
+    "seconds": 307.57
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "candidate(0, 0)",
+      "args": [
+       0,
+       0
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": [
+       "RB-MOD-1-Y0-RESULT"
+      ]
+     },
+     "outcome": {
+      "call": "candidate(0, 0)",
+      "args": [
+       0,
+       0
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "returned",
+       "raised another exception or did not finish"
+      ],
+      "ending": true,
+      "declared": [
+       "RB-MOD-1-Y0-OUTCOME"
+      ]
+     }
+    },
+    "checked": 1
+   }
+  }
+ },
+ "readings": {
+  "R-NUM-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-1": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-EX-5": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-MOD-1": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": [
+   {
+    "reading": "agent_a",
+    "id": "RA-MOD-Z1",
+    "req": "R-MOD-1",
+    "says": "`outcome` is free when `y == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-MOD-Z2",
+    "req": "R-MOD-1",
+    "says": "`result` is free when `y == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-MOD-1-Y0-OUTCOME",
+    "req": "R-MOD-1",
+    "says": "`outcome` is free when `y == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-MOD-1-Y0-RESULT",
+    "req": "R-MOD-1",
+    "says": "`result` is free when `y == 0`",
+    "where": {}
+   }
+  ]
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": [
+    "RA-EX-1C",
+    "RA-EX-2C",
+    "RA-EX-3C",
+    "RA-EX-4C",
+    "RA-EX-5C"
+   ]
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-SIG-2",
+   "phrase": "x: int, y: int",
+   "taken": 1,
+   "variant": 2,
+   "text": "x is the modulus the docstring calls p, and y is the exponent it calls n"
+  },
+  {
+   "req": "R-MOD-1",
+   "phrase": "2^n modulo p",
+   "taken": 1,
+   "variant": 2,
+   "text": "n is the second argument y and p is the first argument x"
+  },
+  {
+   "req": "R-MOD-1",
+   "phrase": "2^n",
+   "taken": 1,
+   "variant": 2,
+   "text": "2 XOR n, which is what the operator ^ means in Python"
+  },
+  {
+   "req": "R-MOD-1",
+   "phrase": "modulo p",
+   "taken": 1,
+   "variant": 2,
+   "text": "any integer congruent to 2^n modulo p; for example candidate(0, 1) may return 1 instead of 0"
+  },
+  {
+   "req": "R-MOD-1",
+   "phrase": "modulo p, when p is 0",
+   "taken": 1,
+   "variant": 2,
+   "text": "for y = 0 the call must raise an exception, as division by zero does in Python"
+  },
+  {
+   "req": "R-MOD-1",
+   "phrase": "p",
+   "taken": 1,
+   "variant": 2,
+   "text": "p denotes a prime (every example uses one of the primes 5, 11, 101), so calls with a non-prime y are outside the contract"
+  },
+  {
+   "req": "R-MOD-1",
+   "phrase": "Return",
+   "taken": 1,
+   "variant": 2,
+   "text": "any value numerically equal to the residue is acceptable, for example the float 3.0"
+  },
+  {
+   "req": "R-NUM-1",
+   "phrase": "be aware of numerics",
+   "taken": 1,
+   "variant": 2,
+   "text": "the computation must be efficient for large n, for example by modular exponentiation rather than forming 2^n in full"
+  }
+ ],
+ "depends": {
+  "R-MOD-1": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(0, 2) -> 1"
+   ]
+  }
+ },
+ "steps": [
+  {
+   "step": "the scenarios of agent_a",
+   "seconds": 362.6,
+   "peak_gb": 2.06
+  },
+  {
+   "step": "the conflicts of agent_a",
+   "seconds": 300.0,
+   "failed": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "peak_gb": 1.14
+  },
+  {
+   "step": "the open choices of agent_a",
+   "seconds": 0.0,
+   "failed": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "peak_gb": 0.05
+  },
+  {
+   "step": "the scenarios of agent_b",
+   "seconds": 21.7,
+   "failed": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "peak_gb": 7.2
+  },
+  {
+   "step": "the conflicts of agent_b",
+   "seconds": 307.6,
+   "peak_gb": 2.16
+  },
+  {
+   "step": "the open choices of agent_b",
+   "seconds": 26.6,
+   "peak_gb": 2.25
+  },
+  {
+   "step": "the comparison of agent_a and agent_b",
+   "seconds": 300.1,
+   "peak_gb": 2.92
+  },
+  {
+   "step": "the comparison of agent_a and agent_b, in context",
+   "seconds": 0.0
+  },
+  {
+   "step": "the comparison of agent_a and variant",
+   "seconds": 300.1,
+   "peak_gb": 2.9
+  },
+  {
+   "step": "the comparison of agent_b and variant",
+   "seconds": 49.7,
+   "peak_gb": 3.3
+  },
+  {
+   "step": "the replay of the calls of the comparison of agent_b and variant",
+   "seconds": 0.3,
+   "peak_gb": 1.86
+  }
+ ],
+ "failed": [
+  {
+   "step": "the conflicts of agent_a",
+   "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the open choices of agent_a",
+   "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the scenarios of agent_b",
+   "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "rests": "scenarios",
+   "reading": "agent_b"
+  }
+ ],
+ "limits": [
+  "the scenarios of agent_a: RA-EX-1C, RA-EX-2C, RA-EX-3C, RA-EX-4C, RA-EX-5C",
+  "conflict search of agent_b",
+  "the comparison of agent_a and agent_b: the translation of the monitors for the solver (yosys) did not end in 300 s; what the integer encoding left open stays undecided",
+  "the comparison of agent_a and agent_b",
+  "the comparison of agent_a and variant: the translation of the monitors for the solver (yosys) did not end in 300 s; what the integer encoding left open stays undecided",
+  "the comparison of agent_a and variant"
+ ],
+ "certified": [],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_b",
+   "calls": [
+    "candidate(0, 0)"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_b",
+     "shown": [
+      "0",
+      "1"
+     ],
+     "ending": false,
+     "declared": [
+      "RB-MOD-1-Y0-RESULT"
+     ],
+     "reqs": [
+      "R-MOD-1"
+     ]
+    },
+    "outcome": {
+     "reading": "agent_b",
+     "shown": [
+      "returned",
+      "raised another exception or did not finish"
+     ],
+     "ending": true,
+     "declared": [
+      "RB-MOD-1-Y0-OUTCOME"
+     ],
+     "reqs": [
+      "R-MOD-1"
+     ]
+    }
+   },
+   "signal": "result, outcome",
+   "reqs": [
+    "R-MOD-1"
+   ],
+   "question": "the request allows `result` to be 0 or 1 (the reading leaves this free on purpose: RB-MOD-1-Y0-RESULT) and lets this call end in two ways, \"returned\" or \"raised another exception or did not finish\" (the reading leaves this free on purpose: RB-MOD-1-Y0-OUTCOME): is any answer acceptable, or which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-MOD-1"
+   ],
+   "calls": [
+    "candidate(0, 2) -> 1"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-EX-5"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-MOD-1"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MOD-1"
+   ],
+   "calls": [],
+   "question": "\"2^n modulo p\" can mean: n is the first argument x and p is the second argument y (all five examples agree with this) / n is the second argument y and p is the first argument x. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MOD-1"
+   ],
+   "calls": [],
+   "question": "\"2^n\" can mean: 2 raised to the power n / 2 XOR n, which is what the operator ^ means in Python. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MOD-1"
+   ],
+   "calls": [],
+   "question": "\"modulo p\" can mean: the least non-negative residue, a value in 0..p-1; for example candidate(0, 1) returns 0 / any integer congruent to 2^n modulo p; for example candidate(0, 1) may return 1 instead of 0. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MOD-1"
+   ],
+   "calls": [],
+   "question": "\"modulo p, when p is 0\" can mean: modulo 0 is undefined, so for y = 0 the call may end in any way / for y = 0 the call must raise an exception, as division by zero does in Python / for y = 0 the call returns 2^n unreduced, by the convention that a modulo 0 is a. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MOD-1"
+   ],
+   "calls": [],
+   "question": "\"p\" can mean: p is any positive integer modulus / p denotes a prime (every example uses one of the primes 5, 11, 101), so calls with a non-prime y are outside the contract. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MOD-1"
+   ],
+   "calls": [],
+   "question": "\"Return\" can mean: the returned value must be a Python int (the examples print 3, not 3.0) / any value numerically equal to the residue is acceptable, for example the float 3.0. Which is meant?"
+  }
+ ],
+ "trace": "check_errors.txt"
+}

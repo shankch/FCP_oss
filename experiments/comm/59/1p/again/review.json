@@ -1,0 +1,314 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 568,
+    "checked": 132,
+    "seconds": 305.96
+   },
+   "open": {
+    "open": {
+     "factor": {
+      "call": "candidate(6)",
+      "args": [
+       6
+      ],
+      "values": [
+       2,
+       3
+      ],
+      "shown": [
+       "2",
+       "3"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 454
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 54,
+    "checked": 54,
+    "seconds": 303.6
+   },
+   "open": {
+    "open": {},
+    "checked": 0
+   }
+  }
+ },
+ "readings": {},
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-1",
+    "req": "R-ENV-1",
+    "says": "every call meets `n > 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-2",
+    "req": "R-ENV-2",
+    "says": "every call meets `!n_prime`",
+    "where": {
+     "n_prime": "n > 1 && all(i < 254: i + 2 < n -> n % (i + 2) != 0)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-ENV1",
+    "req": "R-ENV-1",
+    "says": "every call meets `n > 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-ENV2",
+    "req": "R-ENV-2",
+    "says": "every call meets `!n_prime`",
+    "where": {
+     "n_prime": "n >= 2 && all(i < 254: (i + 2) * (i + 2) <= n -> n % (i + 2) != 0)"
+    }
+   }
+  ],
+  "free": [
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-3-OUTCOME",
+    "req": "R-ENV-3",
+    "says": "`outcome` is free when `n <= 1 || n_prime`",
+    "where": {
+     "n_prime": "n > 1 && all(i < 254: i + 2 < n -> n % (i + 2) != 0)"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-3-FACTOR",
+    "req": "R-ENV-3",
+    "says": "`factor` is free when `n <= 1 || n_prime`",
+    "where": {
+     "n_prime": "n > 1 && all(i < 254: i + 2 < n -> n % (i + 2) != 0)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-ENV3-OUTCOME",
+    "req": "R-ENV-3",
+    "says": "`outcome` is free when `!in_contract`",
+    "where": {
+     "in_contract": "n > 1 && !n_prime"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-ENV3-FACTOR",
+    "req": "R-ENV-3",
+    "says": "`factor` is free when `!in_contract`",
+    "where": {
+     "in_contract": "n > 1 && !n_prime"
+    }
+   }
+  ]
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-ENV-2",
+   "phrase": "is not a prime",
+   "taken": 1,
+   "variant": 2,
+   "text": "n is meant to have a single prime factor, as 'the prime factor' (R-RET-4) presupposes, i.e. n is a prime power such as 4, 8 or 9; a call whose n has several distinct prime factors is outside the contract (contradicts reading 1, which the words 'not a prime' alone allow)"
+  },
+  {
+   "req": "R-ENV-3",
+   "phrase": "Assume",
+   "taken": 1,
+   "variant": 2,
+   "text": "on n <= 1 or prime n the call must still return an integer normally; only the returned value is unconstrained"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "Return",
+   "taken": 1,
+   "variant": 2,
+   "text": "any number numerically equal to the required prime factor (for example the float 3.0) is acceptable"
+  },
+  {
+   "req": "R-RET-4",
+   "phrase": "the prime factor",
+   "taken": 4,
+   "variant": 1,
+   "text": "any prime factor of n is acceptable (the definite article is loose)"
+  }
+ ],
+ "depends": {},
+ "steps": [
+  {
+   "step": "the scenarios of agent_a",
+   "seconds": 11.6,
+   "failed": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "peak_gb": 6.94
+  },
+  {
+   "step": "the conflicts of agent_a",
+   "seconds": 306.0,
+   "peak_gb": 0.4
+  },
+  {
+   "step": "the open choices of agent_a",
+   "seconds": 643.7,
+   "peak_gb": 0.47
+  },
+  {
+   "step": "the scenarios of agent_b",
+   "seconds": 13.3,
+   "failed": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "peak_gb": 7.04
+  },
+  {
+   "step": "the conflicts of agent_b",
+   "seconds": 303.6,
+   "peak_gb": 0.42
+  },
+  {
+   "step": "the open choices of agent_b",
+   "seconds": 900.1,
+   "failed": "did not end in 900 s",
+   "peak_gb": 0.56
+  },
+  {
+   "step": "the comparison of agent_a and agent_b",
+   "seconds": 136.3,
+   "failed": "was stopped: the check reached its time limit of 2340 s",
+   "peak_gb": 0.36
+  },
+  {
+   "step": "the comparison of agent_a and agent_b, in context",
+   "seconds": null,
+   "failed": "not run: the check reached its time limit of 2340 s"
+  },
+  {
+   "step": "the comparison of agent_a and variant",
+   "seconds": null,
+   "failed": "not run: the check reached its time limit of 2340 s"
+  },
+  {
+   "step": "the comparison of agent_b and variant",
+   "seconds": null,
+   "failed": "not run: the check reached its time limit of 2340 s"
+  }
+ ],
+ "failed": [
+  {
+   "step": "the scenarios of agent_a",
+   "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "rests": "scenarios",
+   "reading": "agent_a"
+  },
+  {
+   "step": "the scenarios of agent_b",
+   "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "rests": "scenarios",
+   "reading": "agent_b"
+  },
+  {
+   "step": "the open choices of agent_b",
+   "why": "did not end in 900 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_a and agent_b",
+   "why": "was stopped: the check reached its time limit of 2340 s",
+   "rests": "none",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_a and agent_b, in context",
+   "why": "not run: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_a and variant",
+   "why": "not run: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_b and variant",
+   "why": "not run: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  }
+ ],
+ "limits": [
+  "conflict search of agent_a"
+ ],
+ "certified": [],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "candidate(6)"
+   ],
+   "outputs": {
+    "factor": {
+     "reading": "agent_a",
+     "shown": [
+      "2",
+      "3"
+     ],
+     "ending": false,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "factor",
+   "reqs": [],
+   "question": "the request allows 2 or 3: which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"Return\" can mean: the returned value must be a Python int / any number numerically equal to the required prime factor (for example the float 3.0) is acceptable. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-4"
+   ],
+   "calls": [],
+   "question": "\"the prime factor\" can mean: any prime factor of n is acceptable (the definite article is loose) / the smallest prime factor of n / the largest prime factor of n / the unique prime factor of n: defined only when n has exactly one distinct prime factor (n is a prime power), with calls on n having several distinct prime factors outside the contract (contradicts 'is not a prime' in R-ENV-2, which admits such n). Which is meant?"
+  }
+ ]
+}

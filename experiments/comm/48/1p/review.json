@@ -1,0 +1,297 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 35,
+    "checked": 35,
+    "seconds": 0.24
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "candidate(\"\")",
+      "args": [
+       ""
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "False",
+       "True"
+      ],
+      "ending": false,
+      "declared": [
+       "RA-CHK-2",
+       "RA-CHK-3"
+      ]
+     }
+    },
+    "checked": 26
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 238,
+    "checked": 238,
+    "seconds": 0.58
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "candidate(\"\")",
+      "args": [
+       ""
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "False",
+       "True"
+      ],
+      "ending": false,
+      "declared": [
+       "RB-CHK2-FREE",
+       "RB-CHK3-FREE"
+      ]
+     }
+    },
+    "checked": 25
+   }
+  }
+ },
+ "readings": {
+  "R-CHK-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-CHK-3": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-CHK-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": [
+   {
+    "reading": "agent_a",
+    "id": "RA-CHK-2",
+    "req": "R-CHK-2",
+    "says": "`result` is free when `outcome == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-CHK-3",
+    "req": "R-CHK-3",
+    "says": "`result` is free when `outcome == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-CHK2-FREE",
+    "req": "R-CHK-2",
+    "says": "`result` is free when `returned`",
+    "where": {
+     "returned": "outcome == spec_outcome"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-CHK3-FREE",
+    "req": "R-CHK-3",
+    "says": "`result` is free when `returned`",
+    "where": {
+     "returned": "outcome == spec_outcome"
+    }
+   }
+  ]
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-TASK-1",
+   "phrase": "Complete this function",
+   "taken": 1,
+   "variant": 2,
+   "text": "also finish the truncated docstring, i.e. choose what property the function checks"
+  },
+  {
+   "req": "R-IF-2",
+   "phrase": "text: str",
+   "taken": 1,
+   "variant": 2,
+   "text": "the function must itself reject an argument that is not a str (e.g. raise TypeError)"
+  },
+  {
+   "req": "R-CHK-1",
+   "phrase": "Checks if",
+   "taken": 1,
+   "variant": 2,
+   "text": "returns any truthy or falsy value (such as 1/0, the string itself, or None for no)"
+  },
+  {
+   "req": "R-CHK-2",
+   "phrase": "is a",
+   "taken": 3,
+   "variant": 1,
+   "text": "a palindrome compared exactly: text equals its reverse character by character, with case, spaces and punctuation significant"
+  },
+  {
+   "req": "R-CHK-2",
+   "phrase": "given string",
+   "taken": 1,
+   "variant": 2,
+   "text": "only non-empty strings are meant; the answer for the empty string is unspecified"
+  },
+  {
+   "req": "R-CHK-3",
+   "phrase": "is a",
+   "taken": 3,
+   "variant": 1,
+   "text": "a palindrome compared exactly: text equals its reverse character by character, with case, spaces and punctuation significant"
+  },
+  {
+   "req": "R-CHK-3",
+   "phrase": "given string",
+   "taken": 1,
+   "variant": 2,
+   "text": "only non-empty strings are meant; the answer for the empty string is unspecified"
+  }
+ ],
+ "depends": {
+  "R-CHK-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(\"\") -> returned something else"
+   ]
+  },
+  "R-CHK-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(\"\\u0001\\b\\u008b;N\\u008a*\\u0080\\u00f3\\fi\\u001f\\u00e3\\u0085Y\\u0085\\u00e3\\u001fi\\f\\u00f3\\u0080*\\u008aN;\\u008b\\b\\u0001\") -> False",
+    "candidate(\"\\u0001\") -> False"
+   ]
+  },
+  "R-CHK-3": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(\"\\u0001\\u0002\\u0001\\u0001\\u0001\\u0001\\u0001\") -> True",
+    "candidate(\"\") -> False"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "candidate(\"\")"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "False",
+      "True"
+     ],
+     "ending": false,
+     "declared": [
+      "RA-CHK-2",
+      "RA-CHK-3"
+     ],
+     "reqs": [
+      "R-CHK-2",
+      "R-CHK-3"
+     ]
+    }
+   },
+   "signal": "result",
+   "reqs": [
+    "R-CHK-2",
+    "R-CHK-3"
+   ],
+   "question": "the request allows False or True (the reading leaves this free on purpose: RA-CHK-2, RA-CHK-3): is any answer acceptable, or which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-CHK-1",
+    "R-CHK-2",
+    "R-CHK-3"
+   ],
+   "calls": [
+    "candidate(\"\") -> returned something else"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CHK-1"
+   ],
+   "calls": [],
+   "question": "\"Checks if\" can mean: returns the answer as a bool, True or False / returns any truthy or falsy value (such as 1/0, the string itself, or None for no) / reports a failed check by raising an exception or failing an assertion instead of returning False. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CHK-2",
+    "R-CHK-3"
+   ],
+   "calls": [],
+   "question": "\"is a\" can mean: a palindrome compared exactly: text equals its reverse character by character, with case, spaces and punctuation significant / a palindrome ignoring case and non-alphanumeric characters: only letters and digits are compared, case-insensitively / some other property the prompt does not state, so no particular answer is required for any string. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CHK-2",
+    "R-CHK-3"
+   ],
+   "calls": [],
+   "question": "\"given string\" can mean: every string, including the empty string, is judged by the same rule (under a palindrome reading the empty string is one) / only non-empty strings are meant; the answer for the empty string is unspecified. Which is meant?"
+  }
+ ],
+ "limits": []
+}

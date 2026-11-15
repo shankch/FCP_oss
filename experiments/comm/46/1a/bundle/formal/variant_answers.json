@@ -1,0 +1,44 @@
+[
+ {
+  "req": "R-IF-1",
+  "phrase": "n: int",
+  "taken": 1,
+  "variant": 2,
+  "text": "n is a non-negative index into the sequence (the sequence starts at fib4(0)); a negative n is never passed."
+ },
+ {
+  "req": "R-REC-1",
+  "phrase": "+/-",
+  "taken": 4,
+  "variant": 1,
+  "text": "Every '+/-' is '+': fib4(n) = fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4), as 'similar to the Fibonacci sequence' suggests (0, 0, 2, 0, 2, 4, 8, 14, ...)."
+ },
+ {
+  "req": "R-REC-1",
+  "phrase": "fib4(n) -> fib4(n-1) +/- fib4(n-2) +/- fib4(n-3) +/- fib4(n-4)",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with the examples fib4(5) = 2, fib4(6) = 4, fib4(7) = 6: the examples are right and the definition is wrong as stated. The examples fit the all-'+' recurrence only if fib4(4) = 0, which no choice of signs gives from the base values."
+ },
+ {
+  "req": "R-FUN-1",
+  "phrase": "n-th element",
+  "taken": 1,
+  "variant": 2,
+  "text": "The n-th element counting from 1: fib4(n) returns the value the definition gives for index n-1 (with all '+' this matches fib4(5) = 2 and fib4(6) = 4 but not fib4(7) = 6, and leaves fib4(0) undefined)."
+ },
+ {
+  "req": "R-NF-1",
+  "phrase": "efficiently",
+  "taken": 4,
+  "variant": 1,
+  "text": "In time linear in n with constant extra memory (an iterative loop that keeps the last four elements)."
+ },
+ {
+  "req": "R-NF-2",
+  "phrase": "recursion",
+  "taken": 2,
+  "variant": 1,
+  "text": "fib4 must not call itself, directly or through other functions; a recursive helper that does not call fib4 is allowed."
+ }
+]

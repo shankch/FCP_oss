@@ -1,0 +1,138 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md),
+# so the model is combinational in the arguments of the current call: a ghost
+# register would only see the previous call. The model is the precondition,
+# the range [lo, hi] spanned by a and b in either order, and the set of
+# qualifying values: the even single digits d (0, 2, 4, 6, 8) with
+# lo <= d <= hi. Every output is checked against it.
+defs:
+  pre: "a >= 1 && b >= 1"
+  lo: "min(a, b)"
+  hi: "max(a, b)"
+  ok: "pre && outcome == 0"
+  nexp: "count(d < 10: d % 2 == 0 && lo <= d && d <= hi)"
+
+assumptions:
+  - id: RB-A-POS
+    req: R-IN-1
+    expr: "a >= 1 && b >= 1"
+    note: >-
+      "positive" read strictly (a >= 1 and b >= 1). No order between a and b
+      is assumed: a call with a > b is a legal call. The properties are also
+      guarded by the precondition (def pre), so each call is judged on its own
+      even if the assumption failed in an earlier call.
+
+properties:
+  - id: RB-P-RETURNS
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: pre, cond: "outcome == 0"}
+    note: >-
+      A call with positive a and b finishes without an exception and returns a
+      list (outcome 0). "return" is read as returning a Python list, as the
+      requirement text says; the prompt itself names no type. Under the
+      reading "any collection", a tuple or set (outcome 2) would also be
+      acceptable.
+
+  - id: RB-P-EVEN-DIGIT
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: ok, cond: "all(i < len(result): result[i] <= 9 && result[i] % 2 == 0)"}
+    note: >-
+      Every element is an even single decimal digit (0, 2, 4, 6 or 8): the
+      docstring's "even digits" is taken literally, so the function name
+      generate_integers is only a label.
+
+  - id: RB-P-IN-RANGE
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: ok, cond: "all(i < len(result): lo <= result[i] && result[i] <= hi)"}
+    note: >-
+      Every element lies between a and b. The prompt's sentence stops at
+      "between"; following the requirement, its object is taken to be a and
+      b. "between" is read inclusively and symmetrically: the range is
+      min(a, b) .. max(a, b) whatever the order of the arguments.
+
+  - id: RB-P-COMPLETE
+    req: R-RET-4
+    pattern: implies
+    args: {trigger: ok, cond: "all(d < 10: (d % 2 == 0 && lo <= d && d <= hi) -> d in result)"}
+    note: >-
+      Every even single digit d with min(a, b) <= d <= max(a, b) appears in
+      the returned list (inclusive, either order). Nothing is required when
+      the range lies above 9. Guarded by outcome 0 because "the returned
+      list" presupposes a returned list; a call that does not return one
+      already breaks RB-P-RETURNS.
+
+  - id: RB-P-DISTINCT
+    req: R-RET-5
+    pattern: implies
+    args: {trigger: ok, cond: "all(i < len(result): all(j < i: result[j] != result[i]))"}
+    note: >-
+      "the even digits" read as the set of qualifying values: no value occurs
+      twice in the returned list.
+
+dont_cares:
+  - id: RB-D-ORDER
+    req: R-RET-6
+    signal: result
+    when: "pre && nexp >= 2"
+    note: >-
+      The prompt states no order, so the order of the elements is free
+      whenever there are at least two of them. Only the order is free: which
+      values appear, and how often, is fixed by RB-P-EVEN-DIGIT, RB-P-IN-RANGE,
+      RB-P-COMPLETE and RB-P-DISTINCT. No ascending order is imposed.
+
+  - id: RB-D-OUTSIDE-RESULT
+    req: R-IN-1
+    signal: result
+    when: "!pre"
+    note: >-
+      A call with a == 0 or b == 0 is outside the precondition ("positive"
+      read as >= 1); the prompt does not constrain its result.
+
+  - id: RB-D-OUTSIDE-OUTCOME
+    req: R-IN-1
+    signal: outcome
+    when: "!pre"
+    note: >-
+      A call with a == 0 or b == 0 is outside the precondition; the prompt
+      does not constrain how it ends (it may raise or return anything).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: it concerns the deliverable (a complete body for the
+      stub), not the behaviour of a call. A missing or incomplete body shows
+      in the trace only as outcome 1, which RB-P-RETURNS rejects for every
+      call within the precondition.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name and the two parameters (a, then b) are fixed by
+      the adapter's binding of generate_integers(a, b) in design.yaml, not by
+      a property of the trace. A wrong name or arity makes every call end in
+      outcome 1, which RB-P-RETURNS rejects. The name is read as a label only;
+      the returned values are the docstring's even digits.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, part of every formalization set by
+      construction (frame.md: "need not be restated").
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IF-2, phrase: "generate_integers", reading: 1}
+  - {req: R-IN-1, phrase: "positive", reading: 1}
+  - {req: R-IN-1, phrase: "a and b", reading: 1}
+  - {req: R-RET-1, phrase: "return", reading: 1}
+  - {req: R-RET-2, phrase: "even digits", reading: 1}
+  - {req: R-RET-3, phrase: "between", reading: 1}
+  - {req: R-RET-3, phrase: "a and b", reading: 1}
+  - {req: R-RET-3, phrase: "even digits", reading: 1}
+  - {req: R-RET-4, phrase: "between", reading: 1}
+  - {req: R-RET-4, phrase: "a and b", reading: 1}
+  - {req: R-RET-4, phrase: "even digits", reading: 1}
+  - {req: R-RET-5, phrase: "the even digits", reading: 1}
+  - {req: R-RET-6, phrase: "return the even digits", reading: 1}

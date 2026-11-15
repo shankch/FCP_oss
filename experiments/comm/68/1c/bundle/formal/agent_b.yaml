@@ -1,0 +1,211 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. pluck keeps no state between calls (frame.md), so the
+# reference model is combinational: the defs below compute, from the input
+# arr alone, the node the prose says must be plucked (the first occurrence of
+# the smallest even value), and every output is checked against them.
+# Node i of the branch is arr[i] at 0-based index i (R-DEF-1, reading 1).
+defs:
+  # arr has at least one even element (0 counts as even)
+  has_even: 'any(i < len(arr): arr[i] % 2 == 0)'
+  # index of the reference node: the even element j such that every even
+  # element is larger, or equal and not before j (first occurrence of the
+  # smallest even value); 0 when arr has no even element
+  ref_idx: 'sum(j < len(arr): (arr[j] % 2 == 0 && all(k < len(arr): arr[k] % 2 == 0 -> (arr[k] > arr[j] || (arr[k] == arr[j] && k >= j)))) ? j : 0)'
+  # the smallest even value of arr (meaningful when has_even)
+  ref_val: 'arr[ref_idx]'
+  # how many positions of arr hold the smallest even value
+  n_min: 'count(i < len(arr): arr[i] == ref_val)'
+  # the call returned a two-element list [value, index]
+  ret_pair: 'outcome == 0 && len(plucked) == 2'
+  # the call returned the empty list
+  ret_empty: 'outcome == 0 && len(plucked) == 0'
+  got_val: 'plucked[0]'
+  got_idx: 'plucked[1]'
+
+assumptions:
+  - id: RB-IN-1
+    req: R-IN-1
+    expr: 'all(i < len(arr): arr[i] >= 0)'
+    note: >-
+      Every node is a non-negative integer. The arr signal carries unsigned
+      8-bit integers and negative numbers are not part of the trace
+      (frame.md, Inputs), so this obligation holds by encoding.
+  - id: RB-IN-3
+    req: R-IN-3
+    expr: 'len(arr) <= 10000'
+    note: >-
+      The trace bounds len(arr) at 16 (frame.md, Inputs), so this upper bound
+      holds by encoding; lengths 17 to 10000 are outside the trace and are not
+      checked.
+  - id: RB-IN-4
+    req: R-IN-4
+    expr: 'all(i < len(arr): arr[i] >= 0)'
+    note: >-
+      0 <= node.value. Same content as RB-IN-1; holds by the unsigned encoding
+      of arr.
+
+properties:
+  - id: RB-PL-1
+    req: R-PL-1
+    pattern: implies
+    args:
+      trigger: 'has_even'
+      cond: 'ret_pair && got_idx < len(arr)'
+    note: >-
+      "pluck" read as select-and-report (reading 1): arr is an input, so a
+      mutation of the argument is not observable in this trace anyway.
+      "return it" read as the [value, index] form of R-OUT-1 (reading 1), so
+      "designates exactly one node of arr" is a normal return of a
+      two-element list whose index is a position of arr. This excludes an
+      exception, [] and any other shape.
+
+  - id: RB-PL-2
+    req: R-PL-2
+    pattern: implies
+    args:
+      trigger: 'has_even && ret_pair'
+      cond: 'got_val == ref_val'
+    note: >-
+      "the smallest even value" taken literally as the minimum among the even
+      elements of arr (reading 1), with 0 counted as even (reading 1). This
+      contradicts Examples 1, 2 and 4, which show the largest element of any
+      parity; the prose rule is taken and the examples are treated as wrong
+      (see RB-EX-1, RB-EX-2, RB-EX-4). The value of the plucked node is the
+      first element of the returned [value, index] pair; that a pair is
+      returned at all is RB-PL-1/RB-OUT-1.
+
+  - id: RB-PL-3
+    req: R-PL-3
+    pattern: implies
+    args:
+      trigger: 'has_even && n_min > 1 && ret_pair'
+      cond: 'got_idx == ref_idx'
+    note: >-
+      Ties on the smallest even value are broken by the smallest index
+      (reading 1), so pluck([5, 0, 3, 0, 4, 2]) returns [0, 1]; this
+      contradicts Example 4 as written ([5, 0]). ref_idx is the first
+      position holding the smallest even value.
+
+  - id: RB-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args:
+      trigger: 'has_even'
+      cond: 'ret_pair && got_val == ref_val'
+    note: >-
+      A node is plucked exactly when arr has an even element (R-PL-1,
+      R-EMP-1, R-EMP-2). The result is then a list of exactly two integers
+      whose first element is "smalest_value", read as the smallest even value,
+      i.e. the value of the plucked node (reading 1). That the second element
+      is its index is RB-OUT-2. The quote spells "smalest_value"; taken as
+      "smallest_value".
+
+  - id: RB-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args:
+      trigger: 'ret_pair'
+      cond: 'got_idx < len(arr) && arr[got_idx] == got_val'
+    note: >-
+      "its index" read as the 0-based Python index (reading 1): in any
+      two-element result the second element is a position of arr holding the
+      first element.
+
+  - id: RB-EMP-1
+    req: R-EMP-1
+    pattern: implies
+    args:
+      trigger: 'len(arr) > 0 && !has_even'
+      cond: 'ret_empty'
+    note: >-
+      "no even values" with 0 counted as even (reading 1): an array whose only
+      even elements are 0 does have even values and is handled by RB-PL-1,
+      not here. Returning [] means a normal return (outcome 0) of the empty
+      list.
+
+  - id: RB-EMP-2
+    req: R-EMP-2
+    pattern: implies
+    args:
+      trigger: 'len(arr) == 0'
+      cond: 'ret_empty'
+    note: >-
+      The empty array is taken as a valid input that must return []
+      (reading 1), as this sentence and Example 3 state. This contradicts the
+      Constraints line "1 <= nodes.length" (R-IN-2), which is therefore not
+      imposed as an assumption (see unformalized R-IN-2).
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: 'arr == [4, 2, 3] && outcome == 0 && plucked == [2, 1]'
+    note: >-
+      The example as written says pluck([4, 2, 3]) returns [4, 0], which
+      contradicts R-PL-2 (the smallest even value is 2, at index 1). Reading 2
+      taken: the prose rule holds and the intended output is [2, 1]; the
+      example is wrong. The scenario records the input as part of the domain
+      with the output the rule gives.
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: 'arr == [1, 2, 3] && outcome == 0 && plucked == [2, 1]'
+    note: >-
+      The example as written says pluck([1, 2, 3]) returns [3, 2], which
+      contradicts R-PL-2 (3 is odd; the only even value is 2, at index 1).
+      Reading 2 taken: the intended output is [2, 1]; the example is wrong.
+  - id: RB-EX-3
+    req: R-EX-3
+    cover: 'len(arr) == 0 && ret_empty'
+    note: >-
+      The empty array is a valid input whose result is [] (reading 1),
+      contradicting the Constraints line "1 <= nodes.length" (R-IN-2).
+  - id: RB-EX-4
+    req: R-EX-4
+    cover: 'arr == [5, 0, 3, 0, 4, 2] && outcome == 0 && plucked == [0, 1]'
+    note: >-
+      The example as written says pluck([5, 0, 3, 0, 4, 2]) returns [5, 0],
+      which contradicts R-PL-2 and R-PL-3 (the smallest even value 0 first
+      occurs at index 1). Reading 2 taken: the intended output is [0, 1]; the
+      example is wrong.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the list adapter; it is the frame item F-EMPTY of
+      design.yaml, which is added to every formalization set and need not be
+      restated (frame.md, Frame rules).
+    covered_by: [F-EMPTY]
+  - req: R-DEF-1
+    reason: >-
+      Definition, no behaviour of its own. Read as a flat list of node values
+      (reading 1): node i has value arr[i] and index i, with no parent/child
+      meaning of positions. Realized by the defs has_even, ref_idx and ref_val
+      and by the properties that use them.
+    covered_by: [RB-PL-1, RB-PL-2, RB-PL-3, RB-OUT-1, RB-OUT-2]
+  - req: R-IN-2
+    reason: >-
+      The Constraints line "1 <= nodes.length" contradicts R-EMP-2 ("or the
+      given array is empty, return []") and Example 3 (Input: [] Output: []),
+      which both specify the empty array. Reading 2 taken: the constraint is
+      loose and the empty array is a valid input, so no lower bound on
+      len(arr) is placed on the environment. Assuming len(arr) >= 1 would
+      make RB-EMP-2 vacuous and the scenario RB-EX-3 unreachable.
+
+decisions:
+  - {req: R-DEF-1, phrase: representing a branch of a tree, reading: 1}
+  - {req: R-IN-2, phrase: 1 <= nodes.length, reading: 2}
+  - {req: R-PL-1, phrase: pluck, reading: 1}
+  - {req: R-PL-1, phrase: return it, reading: 1}
+  - {req: R-PL-2, phrase: the smallest even value, reading: 1}
+  - {req: R-PL-2, phrase: even, reading: 1}
+  - {req: R-PL-3, phrase: return the node that has smallest index, reading: 1}
+  - {req: R-OUT-1, phrase: smalest_value, reading: 1}
+  - {req: R-OUT-2, phrase: its index, reading: 1}
+  - {req: R-EMP-1, phrase: no even values, reading: 1}
+  - {req: R-EMP-2, phrase: the given array is empty, reading: 1}
+  - {req: R-EX-1, phrase: 'Output: [4, 0]', reading: 2}
+  - {req: R-EX-2, phrase: 'Output: [3, 2]', reading: 2}
+  - {req: R-EX-3, phrase: 'Input: []', reading: 1}
+  - {req: R-EX-4, phrase: 'Output: [5, 0]', reading: 2}

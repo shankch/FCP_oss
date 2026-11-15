@@ -1,0 +1,13 @@
+# Defects planted in spec.md (hidden from every agent).
+design: code_order
+defects:
+- id: D-1
+  kind: conflict
+  reqs: [R-UNDO-1, R-LIMIT-1]
+  note: >
+    When the stock is reserved, the charge goes through and the booking is refused or raises,
+    rules 2 to 4 have already cost three calls and rule 7 needs two more (a refund and a
+    release), while rule 8 allows four calls in all: no implementation can meet every rule.
+    The conflict shows only on that path; every other path takes at most three calls.
+- {id: D-2, kind: ambiguity, reqs: [R-UNDO-1], note: 'the order of the refund and the release: either, or the refund first?'}
+- {id: D-3, kind: ambiguity, reqs: [R-UNDO-1], note: 'may the function refund or release when there is nothing to undo (a release after a refused reservation)?'}

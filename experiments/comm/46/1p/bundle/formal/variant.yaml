@@ -1,0 +1,188 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # elem[k]: the element the prompt writes fib4(k), for k = 0 to 126, under
+  # reading 1 of R-SEQ-1 (imposed by the request): starting values 0, 0, 2, 0,
+  # then each element the sum of the four before it. Under reading 2 of
+  # R-NTH-1's 'n-th element' (counting from 1) the call fib4(n) returns
+  # elem[n - 1], so calls 1 to 127 need elements 0 to 126.
+  elem: '[0, 0, 2, 0, 2, 4, 8, 14, 28, 54, 104, 200, 386, 744, 1434, 2764, 5328, 10270, 19796, 38158,
+    73552, 141776, 273282, 526768, 1015378, 1957204, 3772632, 7271982, 14017196, 27019014, 52080824,
+    100389016, 193506050, 372994904, 718970794, 1385860764, 2671332512, 5149158974, 9925323044,
+    19131675294, 36877489824, 71083647136, 137018135298, 264110947552, 509090219810, 981302949796,
+    1891522252456, 3646026369614, 7027941791676, 13546793363542, 26112283777288, 50333045302120,
+    97020064234626, 187012186677576, 360477579991610, 694842876205932, 1339352707109744,
+    2581685349984862, 4976358513292148, 9592239446592686, 18489636016979440, 35639919326849136,
+    68698153303713410, 132419948094134672, 255247656741676658, 492005677466373876,
+    948371435605898616, 1828044717908083822, 3523669487722032972, 6792091318702389286,
+    13092176959938404696, 25235982484270910776, 48643920250633737730, 93764171013545442488,
+    180736250708388495690, 348380324456838586684, 671524666429406262592, 1294405412608178787454,
+    2495046654202812132420, 4809357057697235769150, 9270333790937632951616, 17869142915445859640640,
+    34443880418283540493826, 66392714182364268855232, 127976071307031301941314,
+    246681808823124970931012, 475494474730804082221384, 916545069043324623948942,
+    1766697423904284979042652, 3405418776501538656143990, 6564155744179952341356968,
+    12652817013629100600492552, 24389088958214876577036162, 47011480492525468175029672,
+    90617542208549397693915354, 174670928672918843046473740, 336689040332208585492454928,
+    648988991706202294407873694, 1250966502919879120640717716, 2411315463631208843587520078,
+    4647959998589498844128566416, 8959230956846789102764677904, 17269472921987375911121482114,
+    33287979341054872701602246512, 64164643218478536559616972946, 123681326438367574275105379476,
+    238403421919888359447446081048, 459537370917789342983770679982, 885786762494523813265939113452,
+    1707408881770569089972261253958, 3291136437102770605669417128440, 6343869452285652851891388175832,
+    12228201533653516360799005671682, 23570616304812508908332072229912,
+    45433823727854448726691883205866, 87576511018606126847714349283292,
+    168809152584926600843537310390752, 325390103636199685326275615109822,
+    627209590967586861744219157989732, 1208985358207319274761746432773598,
+    2330394205396032422675778516263904, 4491979258207138244508019722137056,
+    8658568412778076803689763829164290, 16689927234588566745635308500338848,
+    32170869110969814216508870567904098, 62011344016543596010341962619544292,
+    119530708774880053776175905516951528]'
+
+assumptions:
+  - id: RV-IF-1
+    req: R-IF-1
+    expr: 'n >= 0'
+    note: >-
+      Reading imposed by the request for 'n: int' (reading 2 of R-IF-1): n is an index into the
+      sequence, so only non-negative integers are valid arguments. That makes it an obligation on
+      the caller, not something left open for negative n (reading 1). The adapter's 7-bit n
+      (frame.md: 0 to 127, negative arguments are not part of the trace) already meets it, so the
+      assumption removes no trace. 'Each call is checked on its own' is the adapter's call
+      independence (frame.md) and needs no item.
+
+properties:
+  - id: RV-BASE-1
+    req: R-BASE-1
+    pattern: implies
+    args: {trigger: 'n == 0', cond: 'outcome == 0 && result == 0'}
+    note: >-
+      Literal: the call fib4(0) returns the integer 0 (outcome 0, result 0). The listed value is an
+      integer, so a float 0.0 does not meet it; the 'compute' reading taken for R-NTH-1 (any equal
+      number) is a reading of R-NTH-1's phrase only. Under the reading imposed for R-NTH-1's 'n-th
+      element' (counting from 1) fib4(0) has no element, so this is the only item that fixes the
+      call fib4(0).
+
+  - id: RV-BASE-2
+    req: R-BASE-2
+    pattern: implies
+    args: {trigger: 'n == 1', cond: 'outcome == 0 && result == 0'}
+    note: >-
+      Literal: the call fib4(1) returns the integer 0. This agrees with RV-NTH-2. Counting from 1
+      (the reading imposed for R-NTH-1), fib4(1) returns the element written fib4(0), which is
+      also 0.
+
+  - id: RV-BASE-3
+    req: R-BASE-3
+    pattern: implies
+    args: {trigger: 'n == 2', cond: 'outcome == 0 && result == 0'}
+    note: >-
+      Reading imposed by the request for 'fib4(2) -> 2' (reading 2 of R-BASE-3): the Fibonacci rule
+      (each element the sum of the two before it) applies from fib4(2) on, so the call fib4(2)
+      returns fib4(1) + fib4(0) = 0 + 0 = 0 (the values of R-BASE-2 and R-BASE-1). This contradicts
+      the value 2 that the prompt lists and the requirement text states; the contradiction is kept,
+      not repaired. The two-term rule this reading assumes also differs from the four-term rule
+      imposed for R-SEQ-1 (reading 1), which starts only at fib4(4). The value 0 agrees with RV-NTH-2:
+      counting from 1, fib4(2) returns the element written fib4(1), which is 0. The result must be an
+      integer (outcome 0), as the listed values are integers.
+
+  - id: RV-BASE-4
+    req: R-BASE-4
+    pattern: implies
+    args: {trigger: 'n == 3', cond: 'outcome == 0 && result == 2'}
+    note: >-
+      Reading imposed by the request for 'fib4(3) -> 0' (reading 2 of R-BASE-4): the Fibonacci rule
+      applies from fib4(2) on, so the call fib4(3) returns fib4(2) + fib4(1) = 2 + 0 = 2, the value
+      the reading states. This contradicts the listed value 0; it is kept, not repaired. The reading
+      adds the listed fib4(2) = 2, but RV-BASE-3 (same rule, reading 2 of R-BASE-3) makes the call
+      fib4(2) return 0, and with that value the rule would give 0 + 0 = 0. This item uses the value
+      the reading states, 2. The two-term rule also differs from the four-term rule imposed for
+      R-SEQ-1. The value 2 agrees with RV-NTH-2: counting from 1, fib4(3) returns the element written
+      fib4(2), which is 2. The result must be an integer (outcome 0).
+
+  - id: RV-NTH-1
+    req: R-NTH-1
+    pattern: implies
+    args: {trigger: 'n >= 1', cond: 'outcome != 1'}
+    note: >-
+      Readings imposed by the request for R-NTH-1. 'n-th element' counts from 1 (reading 2): the
+      call fib4(n) returns the element written fib4(n-1), and fib4(0) has no element, so n = 0 is
+      outside the trigger and only RV-BASE-1 constrains it. 'the fib4 number sequence' extends to
+      every n by the rule of R-SEQ-1 (reading 1), so an element exists, and must be returned, for
+      every n >= 1 in the trace (1 to 127). 'compute' accepts any number equal to the element
+      (reading 2). So the call must return a value: it may not raise or fail to finish (outcome 1).
+      A non-integer return (outcome 2) is not excluded, because a float such as 2.0 meets the
+      requirement.
+
+  - id: RV-NTH-2
+    req: R-NTH-1
+    pattern: implies
+    args: {trigger: 'n >= 1 && outcome == 0', cond: 'result == elem[n - 1]'}
+    note: >-
+      Same readings as RV-NTH-1. An integer return equals the element written fib4(n-1). elem holds
+      that sequence under reading 1 of R-SEQ-1 (imposed by the request): starting values 0, 0, 2, 0,
+      each later element the sum of the four before it (0, 0, 2, 0, 2, 4, 8, 14, 28, 54, 104, ...).
+      It lists elements 0 to 126 (calls 1 to 127), and every value fits result (elem[126] < 2^128).
+      Under 'compute' reading 2, a float equal to the element also meets the requirement. The trace,
+      however, encodes any non-integer return as outcome 2 without its value (result is 0, F-ZERO).
+      So equality is checked only for integer returns, and a non-integer return that differs from
+      the element is not caught; neither is a negative or too-large integer, which is also
+      outcome 2. Counting from 1 conflicts with the listed values read as calls: fib4(2) would
+      return 0, not 2 (see RV-BASE-3). The conflict is kept, not repaired.
+
+  - id: RV-NF-1
+    req: R-NF-1
+    expr: 'outcome != 1'
+    note: >-
+      Reading 3 of 'efficiently', taken as the most literal because the prompt names no complexity
+      bound: any method is acceptable that finishes promptly for the checked arguments (0 to 127).
+      Running time is not a signal of the trace. Its only observable consequence is a call that
+      does not finish within the adapter's limit, and outcome 1 records that together with raised
+      exceptions. This item therefore also excludes exceptions, which RV-BASE-1 to RV-BASE-4 and
+      RV-NTH-1 exclude anyway. A naive recursive evaluation of the four-term rule does not finish
+      for large n and fails here.
+
+unformalized:
+  - req: R-IF-2
+    reason: >-
+      Concerns the form of the answer: a complete implementation of the stub that keeps the name
+      fib4 and the single parameter n. That form is not a signal of the trace, but its observable
+      consequence is that the adapter's call fib4(n) succeeds. A missing or renamed function or a
+      changed signature makes every call raise (outcome 1), and an unfinished stub returns None
+      (outcome 2, not an integer). The covering items exclude both.
+    covered_by: [RV-NF-1, RV-NTH-1, RV-BASE-1, RV-BASE-2, RV-BASE-3, RV-BASE-4]
+  - req: R-SEQ-1
+    reason: >-
+      A definition, not a behaviour: it defines the elements written fib4(0), fib4(1), and so on.
+      Under the reading imposed for R-NTH-1 (counting from 1) the call fib4(n) returns the element
+      written fib4(n-1), so the elements reach the calls only through R-NTH-1. Reading 1 of 'similar
+      to the Fibbonacci sequnece', imposed by the request: fib4(0) to fib4(3) are the starting values
+      0, 0, 2, 0 and every later element is the sum of the four before it (0, 0, 2, 0, 2, 4, 8, 14,
+      28, 54, 104, ...). That sequence is the def elem, which RV-NTH-2 uses for every call fib4(1) to
+      fib4(127). The prompt itself states no rule; the four-term rule comes from the imposed reading
+      (and the name Fib4).
+    covered_by: [RV-NTH-2]
+  - req: R-NF-2
+    reason: >-
+      Reading 2 of 'recursion', imposed by the request: only fib4 itself must not call itself,
+      directly or indirectly; a recursive helper function is allowed. This is a property of the
+      source code (its call graph), not of the returned values. The trace records only the argument,
+      the result and the outcome of each call, so it cannot be stated in FCP-PL. Recursion in fib4
+      shows in the trace only if it makes a call fail (outcome 1, e.g. RecursionError), which
+      RV-NF-1 and RV-NTH-1 reject for their own reasons.
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the adapter (design.yaml frame). It holds by construction and is part of
+      every formalization set; frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-1, phrase: 'n: int', reading: 2}
+  - {req: R-SEQ-1, phrase: similar to the Fibbonacci sequnece, reading: 1}
+  - {req: R-BASE-3, phrase: 'fib4(2) -> 2', reading: 2}
+  - {req: R-BASE-4, phrase: 'fib4(3) -> 0', reading: 2}
+  - {req: R-NTH-1, phrase: n-th element, reading: 2}
+  - {req: R-NTH-1, phrase: the fib4 number sequence, reading: 1}
+  - {req: R-NTH-1, phrase: compute, reading: 2}
+  - {req: R-NF-1, phrase: efficiently, reading: 3}
+  - {req: R-NF-2, phrase: recursion, reading: 2}

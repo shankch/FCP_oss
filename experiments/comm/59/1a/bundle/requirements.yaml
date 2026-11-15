@@ -1,0 +1,141 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-GEN-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a completed body for the given Python function candidate, keeping its name and signature.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-ARG-1
+  doc: SPEC
+  quote: 'def candidate(n: int):'
+  text: candidate takes exactly one argument, n, which is an integer.
+  kind: definition
+  lines:
+  - 4
+- id: R-ENV-1
+  doc: SPEC
+  quote: Assume n > 1
+  text: Callers only call candidate(n) with n > 1; the guarantees on the result apply only to such calls.
+  kind: assumption
+  ambiguity:
+  - phrase: Assume n > 1
+    readings:
+    - For n <= 1 (0 and 1 in the trace) the outcome and the returned value are completely unconstrained (any value, any exception, or no answer is acceptable).
+    - For n <= 1 the function should still end in a defined way (for example raise an exception); only the returned value is left free.
+  lines:
+  - 5
+- id: R-ENV-2
+  doc: SPEC
+  quote: and is not a prime
+  text: Callers only call candidate(n) with a composite n (n is not a prime number); the guarantees on the result apply only to such calls.
+  kind: assumption
+  depends:
+  - R-ENV-1
+  ambiguity:
+  - phrase: is not a prime
+    readings:
+    - For a prime n the outcome and the returned value are completely unconstrained.
+    - 'The assumption is only a promise about typical inputs: a prime n still has a well-defined smallest and largest prime factor (n itself), so for a prime n the function must still return n.'
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: Return the smallest or largest prime factor of n.
+  text: 'For every n with n > 1 that is not prime, candidate(n) finishes and returns an integer (no exception, no non-integer result): outcome is 0.'
+  kind: guarantee
+  depends:
+  - R-ENV-1
+  - R-ENV-2
+  lines:
+  - 5
+- id: R-FAC-1
+  doc: SPEC
+  quote: prime factor of n
+  text: For every n with n > 1 that is not prime, the integer returned by candidate(n) divides n exactly (n % factor == 0).
+  kind: guarantee
+  depends:
+  - R-ENV-1
+  - R-ENV-2
+  - R-RET-1
+  lines:
+  - 5
+- id: R-FAC-2
+  doc: SPEC
+  quote: prime factor
+  text: For every n with n > 1 that is not prime, the integer returned by candidate(n) is a prime number (greater than 1 and with no divisor other than 1 and itself).
+  kind: guarantee
+  depends:
+  - R-ENV-1
+  - R-ENV-2
+  - R-RET-1
+  lines:
+  - 5
+- id: R-FAC-3
+  doc: SPEC
+  quote: the smallest or largest prime factor of n
+  text: For every n with n > 1 that is not prime, the integer returned by candidate(n) is either the smallest prime factor of n or the largest prime factor of n; any other prime factor (one strictly between
+    the two) is not allowed.
+  kind: guarantee
+  depends:
+  - R-ENV-1
+  - R-ENV-2
+  - R-RET-1
+  - R-FAC-1
+  - R-FAC-2
+  ambiguity:
+  - phrase: the smallest or largest prime factor
+    readings:
+    - 'Either answer is acceptable on every call independently: each call may return the smallest or the largest prime factor of its n.'
+    - 'The implementation picks one convention and keeps it: either every call returns the smallest prime factor, or every call returns the largest.'
+    - Only the largest prime factor is correct, as the example candidate(13195) == 29 shows; 'smallest or' is not a real option.
+    - Only the smallest prime factor is correct; this contradicts the example candidate(13195) == 29, whose smallest prime factor is 5.
+  - phrase: smallest or largest (contradiction with the example candidate(13195) -> 29)
+    readings:
+    - 'No contradiction: the example shows one allowed answer (the largest, 29); returning 5 (the smallest) for 13195 is also correct.'
+    - 'Contradiction: if the example is a required output, returning the smallest prime factor 5 for 13195 is wrong although ''smallest or largest'' allows it, so the example overrides the ''smallest''
+      option.'
+  lines:
+  - 5
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> candidate(13195) 29'
+  text: 'Example: candidate(13195) returns 29 (13195 = 5 * 7 * 13 * 29, so 29 is its largest prime factor and 5 its smallest).'
+  kind: scenario
+  depends:
+  - R-FAC-3
+  ambiguity:
+  - phrase: '>>> candidate(13195) 29'
+    readings:
+    - 'An illustration of one acceptable behaviour: a call candidate(13195) returning 29 must be possible, but returning 5 (the smallest prime factor) is also acceptable.'
+    - 'A required output: candidate(13195) must return 29, which rules out the ''smallest'' option of ''smallest or largest'' at least for this n (and, read as a convention, for every n).'
+  - phrase: candidate(13195) returns 29 (contradiction with 'the smallest or largest prime factor')
+    readings:
+    - 'Consistent: 29 is the largest prime factor, one of the two answers ''smallest or largest'' allows.'
+    - 'Contradiction: under the reading that the smallest prime factor is required (or allowed and chosen), the answer for 13195 is 5, not 29.'
+  lines:
+  - 6
+  - 7
+- id: R-EX-2
+  doc: SPEC
+  quote: '>>> candidate(2048) 2'
+  text: 'Example: candidate(2048) returns 2 (2048 = 2^11, so 2 is both its smallest and its largest prime factor).'
+  kind: scenario
+  depends:
+  - R-FAC-3
+  lines:
+  - 8
+  - 9
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `factor` is 0 unless `outcome` is 0.'
+  text: In every call whose outcome is not 0 (exception, no answer, or a result that is not a fitting integer), the factor output is 0.
+  kind: guarantee
+  lines:
+  - 38

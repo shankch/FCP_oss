@@ -1,0 +1,153 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. frame.md: the function keeps no state between calls,
+# so the model of one call is combinational in the argument n. It follows the
+# scenario of the prompt: two sets of cars whose sizes are each n or 2*n
+# (R-CAR-1, R-CAR-2), approaching each other (R-POS-1) at equal speed
+# (R-SPD-1), so same-direction cars never meet and every opposing pair meets;
+# a meeting is a collision (R-COL-1) and leaves both cars on their course
+# (R-COL-2), so each opposing pair collides exactly once and the number of
+# collisions is the product of the two set sizes.
+defs:
+  ltr_a: "n"                       # left-to-right set has n cars (R-CAR-1)
+  ltr_b: "2 * n"                   # left-to-right set has 2*n cars (R-CAR-1)
+  rtl_a: "n"                       # right-to-left set has n cars (R-CAR-2)
+  rtl_b: "2 * n"                   # right-to-left set has 2*n cars (R-CAR-2)
+  col_aa: "ltr_a * rtl_a"          # n * n
+  col_ab: "ltr_a * rtl_b"          # n * 2n
+  col_ba: "ltr_b * rtl_a"          # 2n * n
+  col_bb: "ltr_b * rtl_b"          # 2n * 2n
+  returned: "outcome == 0"         # the call returned an integer that fits collisions
+  model_count: "collisions == col_aa || collisions == col_ab || collisions == col_ba || collisions == col_bb"
+
+assumptions:
+  - id: RB-ENV-1
+    req: R-ENV-1
+    expr: "n >= 0"
+    note: >-
+      Reading 1 of 'n: int': n counts cars, so only n >= 0 is specified. The
+      10-bit unsigned encoding (frame.md) already excludes negative arguments,
+      so this assumption holds by construction; it is kept to record the
+      environment obligation explicitly.
+
+properties:
+  - id: RB-OUT-1
+    req: R-OUT-1
+    expr: "returned"
+    note: >-
+      Reading 1 of 'outputs': the function returns the count (a Python
+      function's output is its return value; the adapter observes only the
+      returned value). Every valid call must return an integer that fits
+      collisions (outcome 0): not raise, not hang, not return another type or a
+      negative number. Every count the model allows is at most 4*1023*1023 =
+      4,186,116, below the 24-bit limit 16,777,215, so a correct count always
+      fits.
+  - id: RB-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args:
+      trigger: "returned"
+      cond: "model_count"
+    note: >-
+      Literal reading of '2*n or n cars' for both sets (R-CAR-1, R-CAR-2
+      reading 3) with 'a different set' meaning a disjoint set whose size is
+      chosen independently (reading 1): the text does not fix either size, so
+      the returned count may be any product of the two sizes, n*n, 2*n*n or
+      4*n*n (reading 4 of 'the number of such collisions'). The text therefore
+      does not determine 'the number' for a given n (reading 2): the property
+      admits all three values and the output is underdetermined; this
+      contradiction in the prompt is not repaired. The text also does not say
+      that the same choice of sizes is made for every n, so the property is
+      checked per call and an implementation may choose differently for
+      different n. Guarded by outcome 0: the value is constrained only when a
+      value is returned (RB-OUT-1 requires that it is).
+
+scenarios:
+  - id: RB-SC-1
+    req: R-OUT-2
+    cover: "returned && n > 0 && collisions > 0"
+    note: >-
+      Under reading 1 of 'start out being very far from each other' the sets
+      approach and every opposing pair meets, so a call with at least one car
+      in each set must be able to report a positive number of collisions.
+  - id: RB-SC-2
+    req: R-OUT-2
+    cover: "returned && n == 0 && collisions == 0"
+    note: With no cars there are no collisions; every reading gives 0 for n = 0.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is an implementation of the stub with its
+      name and single parameter. This is fixed by the function section of
+      design.yaml (car_race_collision, argument n), not by a property of the
+      trace.
+  - req: R-RD-1
+    reason: >-
+      Definition of the setting (a straight, infinite line: cars never leave
+      it). It has no observable counterpart of its own; it is the premise that
+      every opposing pair can meet, used by the count model in RB-OUT-2.
+    covered_by: [RB-OUT-2]
+  - req: R-CAR-1
+    reason: >-
+      Definition: the size of the left-to-right set, n or 2*n. Realized by the
+      defs ltr_a and ltr_b of the count model in RB-OUT-2. Literal reading 3
+      (open: either n or 2*n) and reading 2 of '2*n or n' (genuinely open).
+    covered_by: [RB-OUT-2]
+  - req: R-CAR-2
+    reason: >-
+      Definition: the size of the right-to-left set, n or 2*n, a set disjoint
+      from the first whose size is chosen independently. Realized by the defs
+      rtl_a and rtl_b of the count model in RB-OUT-2. Literal reading 3 (open),
+      reading 1 of 'a different set' (disjoint, independent size) and reading 2
+      of '2*n or n' (genuinely open).
+    covered_by: [RB-OUT-2]
+  - req: R-POS-1
+    reason: >-
+      Definition: the sets start far apart, left-to-right set on the left, so
+      they approach and every opposing pair meets (reading 1: 'start out'
+      implies the distance later shrinks, and the definition of a collision
+      and the request to count collisions presuppose that the sets meet;
+      reading 2 would make every count 0). Realized by taking the product of
+      the set sizes in RB-OUT-2, and by scenario RB-SC-1.
+    covered_by: [RB-OUT-2, RB-SC-1]
+  - req: R-SPD-1
+    reason: >-
+      Definition: equal speeds, so same-direction cars never meet. Realized by
+      counting only opposing pairs in the count model of RB-OUT-2.
+    covered_by: [RB-OUT-2]
+  - req: R-COL-1
+    reason: >-
+      Definition of a collision as the meeting of one left-to-right and one
+      right-to-left car (reading 1: the meeting is counted even though the cars
+      continue). Realized by counting opposing pairs in RB-OUT-2.
+    covered_by: [RB-OUT-2]
+  - req: R-COL-2
+    reason: >-
+      Definition: cars pass through each other, so each car collides with
+      every oncoming car (reading 1: only the motion is unaffected, the
+      collision still counts). Realized by counting every opposing pair once,
+      the product of the set sizes, in RB-OUT-2.
+    covered_by: [RB-OUT-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter: realized by frame item F-ZERO of
+      design.yaml, which is part of every formalization set and holds by
+      construction (frame.md: need not be restated).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-1, phrase: "n: int", reading: 1}
+  - {req: R-CAR-1, phrase: "2*n or n cars", reading: 3}
+  - {req: R-CAR-1, phrase: "2*n or n", reading: 2}
+  - {req: R-CAR-2, phrase: "2*n or n cars", reading: 3}
+  - {req: R-CAR-2, phrase: "a different set", reading: 1}
+  - {req: R-CAR-2, phrase: "2*n or n", reading: 2}
+  - {req: R-POS-1, phrase: "start out being very far from each other", reading: 1}
+  - {req: R-COL-1, phrase: "said to collide", reading: 1}
+  - {req: R-COL-2, phrase: "as if they did not collide", reading: 1}
+  - {req: R-OUT-1, phrase: "outputs", reading: 1}
+  - {req: R-OUT-2, phrase: "the number of such collisions", reading: 4}
+  - {req: R-OUT-2, phrase: "the number", reading: 2}

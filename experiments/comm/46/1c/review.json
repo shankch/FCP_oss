@@ -1,0 +1,238 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 50,
+    "checked": 50,
+    "seconds": 0.52
+   },
+   "open": {
+    "open": {},
+    "checked": 64
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 50,
+    "checked": 50,
+    "seconds": 0.71
+   },
+   "open": {
+    "open": {},
+    "checked": 64
+   }
+  }
+ },
+ "readings": {
+  "R-BASE-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FN-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-REC-1": {
+   "plain": "INCOMPARABLE",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-ENV-1",
+   "phrase": "n: int",
+   "taken": 1,
+   "variant": 2,
+   "text": "n is a non-negative integer, an index into the sequence; negative n is never passed."
+  },
+  {
+   "req": "R-REC-1",
+   "phrase": "fib4(n)",
+   "taken": 1,
+   "variant": 2,
+   "text": "The recurrence applies to every integer n not listed as a base value, including negative n, where it extends the sequence backwards."
+  },
+  {
+   "req": "R-REC-1",
+   "phrase": "fib4(n) -> fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4)",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradiction with the docstring examples (R-EX-1, R-EX-2, R-EX-3): the examples are authoritative, so fib4(5) = 0, fib4(6) = 0 and fib4(7) = 2, and the recurrence does not hold at n = 5 and n = 6 (its meaning for larger n is then unclear)."
+  },
+  {
+   "req": "R-FN-1",
+   "phrase": "the n-th element",
+   "taken": 1,
+   "variant": 2,
+   "text": "The n-th element counting from 1, so fib4(n) is the value at index n - 1 (and fib4(0) has no meaning)."
+  },
+  {
+   "req": "R-FN-1",
+   "phrase": "compute",
+   "taken": 1,
+   "variant": 2,
+   "text": "fib4 only has to produce the value somehow (for instance print it, or return it as a float); the form of the answer is not fixed."
+  },
+  {
+   "req": "R-NF-1",
+   "phrase": "efficiently",
+   "taken": 2,
+   "variant": 1,
+   "text": "Time linear in n (an iterative loop over the sequence), with constant extra memory."
+  },
+  {
+   "req": "R-NF-2",
+   "phrase": "recursion",
+   "taken": 2,
+   "variant": 1,
+   "text": "Only fib4 calling itself directly is forbidden; recursive helper functions are allowed."
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": ">>> fib4(5) 0",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(5) returns 0, and the recurrence does not hold at n = 5."
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": ">>> fib4(6) 0",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(6) returns 0, and the recurrence does not hold at n = 6."
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": ">>> fib4(7) 2",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(7) returns 2 (which is what the recurrence gives at n = 7 if fib4(5) = fib4(6) = 0 as R-EX-1 and R-EX-2 say), and the recurrence's value 14 is wrong."
+  }
+ ],
+ "depends": {
+  "R-FN-1": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "fib4(3) -> 0"
+   ]
+  }
+ },
+ "certified": [
+  "R-BASE-1",
+  "R-BASE-2",
+  "R-BASE-3",
+  "R-BASE-4"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [
+    "fib4(3) -> 0"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-REC-1"
+   ],
+   "calls": [],
+   "question": "\"fib4(n)\" can mean: The recurrence applies to every n >= 4 only; the base values cover 0 to 3. / The recurrence applies to every integer n not listed as a base value, including negative n, where it extends the sequence backwards.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-REC-1"
+   ],
+   "calls": [],
+   "question": "\"fib4(n) -> fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4)\" can mean: Contradiction with the docstring examples (R-EX-1, R-EX-2, R-EX-3): the recurrence and base values are authoritative, so fib4(5) = 4, fib4(6) = 8 and fib4(7) = 14, and the examples fib4(5) -> 0, fib4(6) -> 0, fib4(7) -> 2 are wrong. / Contradiction with the docstring examples (R-EX-1, R-EX-2, R-EX-3): the examples are authoritative, so fib4(5) = 0, fib4(6) = 0 and fib4(7) = 2, and the recurrence does not hold at n = 5 and n = 6 (its meaning for larger n is then unclear).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"the n-th element\" can mean: The element at index n counting from 0, so fib4(n) is the sequence value labelled fib4(n) in the definition. / The n-th element counting from 1, so fib4(n) is the value at index n - 1 (and fib4(0) has no meaning).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"compute\" can mean: fib4 returns the element as a Python int. / fib4 only has to produce the value somehow (for instance print it, or return it as a float); the form of the answer is not fixed.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\">>> fib4(5) 0\" can mean: Contradiction with the recurrence (R-REC-1) and base values: these give fib4(5) = fib4(4) + fib4(3) + fib4(2) + fib4(1) = 2 + 0 + 2 + 0 = 4, so the example is wrong and fib4(5) returns 4. / Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(5) returns 0, and the recurrence does not hold at n = 5.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\">>> fib4(6) 0\" can mean: Contradiction with the recurrence (R-REC-1) and base values: these give fib4(6) = fib4(5) + fib4(4) + fib4(3) + fib4(2) = 4 + 2 + 0 + 2 = 8, so the example is wrong and fib4(6) returns 8. / Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(6) returns 0, and the recurrence does not hold at n = 6.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\">>> fib4(7) 2\" can mean: Contradiction with the recurrence (R-REC-1) and base values: these give fib4(7) = fib4(6) + fib4(5) + fib4(4) + fib4(3) = 8 + 4 + 2 + 0 = 14, so the example is wrong and fib4(7) returns 14. / Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(7) returns 2 (which is what the recurrence gives at n = 7 if fib4(5) = fib4(6) = 0 as R-EX-1 and R-EX-2 say), and the recurrence's value 14 is wrong.. Which is meant?"
+  }
+ ],
+ "limits": []
+}

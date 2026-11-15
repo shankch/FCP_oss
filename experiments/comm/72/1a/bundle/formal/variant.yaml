@@ -1,0 +1,152 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-FLY-2: balanced = palindromic list; reading 2 (as instructed): [] is not a palindromic list
+  balanced: 'len(q) > 0 && all(i < len(q): q[i] == q[len(q) - 1 - i])'
+  # the sum of the elements of q (0 for [])
+  total: 'sum(i < len(q): q[i])'
+  # R-FLY-3: weight condition; reading 1 of both phrases (as instructed): sum(q) <= w
+  light: 'total <= w'
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'balanced && light', cond: 'outcome == 0 && fly'}
+    note: >-
+      A q that will fly makes the call return the bool True. Readings taken as instructed, even
+      where another seems more natural: R-FLY-1 'will fly if' reading 2, so balanced and meeting
+      the weight condition is only a sufficient condition for flying, and this property is the
+      only one it yields (no 'only if'). R-FLY-2 'palindromic list' reading 2, so [] is not
+      balanced and is not covered here. R-FLY-3 'more than or less than or equal' reading 1, so
+      the weight condition is sum(q) <= w ('more than or' taken as a slip). R-FLY-3 'the sum of
+      its elements is more than' reading 1, so the example ([3, 2, 3], 1) governs over the rule
+      and a sum above w does not meet the weight condition.
+
+  - id: RV-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: 'balanced && total > w', cond: 'outcome == 0 && !fly'}
+    note: >-
+      A balanced q whose sum is more than w does not fly, so the call returns the bool False.
+      Readings taken as instructed, even where another seems more natural: R-FLY-3 'the sum of
+      its elements is more than' reading 1 and R-EX-2 '3+2+3 is more than the maximum possible
+      weight' reading 1, so the example governs over the rule's literal 'more than or' and such a
+      q does not fly. R-FLY-3 'more than or less than or equal' reading 1 (weight condition
+      sum(q) <= w, so 'not meeting it' is sum(q) > w). R-FLY-2 'palindromic list' reading 2 ([]
+      is not balanced; it could not trigger this anyway, as its sum 0 is never above w).
+      R-FLY-1 'will fly if' reading 2: the conditions are only sufficient, so failing balance does
+      not by itself make q not fly; this property therefore covers only the balanced case, and
+      the unbalanced case is RV-DC-1.
+
+  - id: RV-RET-3
+    req: R-RET-2
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      'returns True if the object q will fly, and False otherwise': whichever way q falls, the
+      call returns a bool (True or False), never raises and never returns anything else.
+      Affected by R-FLY-1 'will fly if' reading 2 (as instructed, even where another seems more
+      natural): even for a q where the text does not say whether it flies (unbalanced q, and []
+      under R-FLY-2 'palindromic list' reading 2), the result is still True or False.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'q == [1, 2] && w == 5', cond: 'outcome == 0 && !fly'}
+    note: >-
+      will_it_fly([1, 2], 5) returns False. Affected by R-FLY-1 'will fly if' reading 2 (as
+      instructed, even where another seems more natural): the rule is only sufficient, so it does
+      not decide this unbalanced call; the example alone fixes the result False. The example's
+      reason ('it's unbalanced') suggests the 'if and only if' reading, which was not taken.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'q == [3, 2, 3] && w == 1', cond: 'outcome == 0 && !fly'}
+    note: >-
+      will_it_fly([3, 2, 3], 1) returns False. Readings taken as instructed, even where another
+      seems more natural: R-EX-2 '3+2+3 is more than the maximum possible weight' reading 1 and
+      R-FLY-3 'the sum of its elements is more than' reading 1, so the example governs over the
+      rule ('more than or less than or equal', which literally lets every sum fly) and the result
+      is False. Consistent with RV-RET-2 under R-FLY-3 'more than or less than or equal'
+      reading 1 (sum(q) <= w).
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'q == [3, 2, 3] && w == 9', cond: 'outcome == 0 && fly'}
+    note: will_it_fly([3, 2, 3], 9) returns True (balanced, sum 8 <= 9).
+
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'q == [3] && w == 5', cond: 'outcome == 0 && fly'}
+    note: will_it_fly([3], 5) returns True (one-element list is balanced, sum 3 <= 5).
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'q == [1, 2] && w == 5 && outcome == 0 && !fly'
+    note: >-
+      The example call will_it_fly([1, 2], 5) returning False must be possible. Affected by R-FLY-1
+      'will fly if' reading 2 (as instructed): the general rule does not decide this unbalanced
+      call, only the example does.
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'q == [3, 2, 3] && w == 1 && outcome == 0 && !fly'
+    note: >-
+      The example call will_it_fly([3, 2, 3], 1) returning False must be possible. Affected by
+      R-EX-2 '3+2+3 is more than the maximum possible weight' reading 1 and R-FLY-3 'the sum of its
+      elements is more than' reading 1 (as instructed, even where another seems more natural): the
+      example governs over the rule.
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'q == [3, 2, 3] && w == 9 && outcome == 0 && fly'
+    note: The example call will_it_fly([3, 2, 3], 9) returning True must be possible.
+  - id: RV-EX-4-S
+    req: R-EX-4
+    cover: 'q == [3] && w == 5 && outcome == 0 && fly'
+    note: The example call will_it_fly([3], 5) returning True must be possible.
+
+dont_cares:
+  - id: RV-DC-1
+    req: R-FLY-1
+    signal: fly
+    when: '!balanced && !(q == [1, 2] && w == 5)'
+    note: >-
+      R-FLY-1 'will fly if' reading 2 (as instructed, even where another seems more natural):
+      being balanced and meeting the weight condition is only sufficient for flying, and the text
+      does not say whether a q that is not balanced flies, so the returned bool is left free for
+      every unbalanced q (it is still a bool, RV-RET-3). Under R-FLY-2 'palindromic list'
+      reading 2 (as instructed) this includes []. The one unbalanced call the prompt decides,
+      the example ([1, 2], 5), is excluded and fixed by RV-EX-1.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the name will_it_fly and the arguments q and w of the deliverable are bound
+      by the function adapter (design.yaml, function section), not a property of the trace of calls.
+  - req: R-FLY-2
+    reason: >-
+      Definition of 'balanced' (a palindromic list), realized by the def 'balanced' and used by the
+      items listed. Reading 2 of 'palindromic list' (as instructed): [] is not balanced.
+    covered_by: [RV-RET-1, RV-RET-2, RV-DC-1]
+  - req: R-FLY-3
+    reason: >-
+      Definition of the weight condition, realized by the def 'light' (sum(q) <= w): reading 1 of
+      'more than or less than or equal' and reading 1 of 'the sum of its elements is more than'
+      (as instructed). Its consequence that a balanced q with sum above w does not fly is RV-RET-2.
+    covered_by: [RV-RET-1, RV-RET-2]
+  - req: R-FR-1
+    reason: Frame rule of the function adapter, added to every formalization set by design.yaml (F-ZERO).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FLY-1, phrase: 'will fly if', reading: 2}
+  - {req: R-FLY-2, phrase: 'palindromic list', reading: 2}
+  - {req: R-FLY-3, phrase: 'more than or less than or equal', reading: 1}
+  - {req: R-FLY-3, phrase: 'the sum of its elements is more than', reading: 1}
+  - {req: R-EX-2, phrase: '3+2+3 is more than the maximum possible weight', reading: 1}

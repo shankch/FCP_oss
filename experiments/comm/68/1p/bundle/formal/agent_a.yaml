@@ -1,0 +1,103 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+assumptions:
+  - id: RA-IN-2
+    req: R-IN-2
+    expr: "len(arr) >= 1"
+    note: >-
+      "Given an array representing a branch of a tree that has non-negative
+      integer nodes": the branch is said to have nodes, and the next sentence
+      asks to pluck "one of the nodes", so the caller always passes at least
+      one node (decision: reading 1 of "that has non-negative integer nodes").
+      "that" is read as the branch (reading 1); reading 2 (the whole tree)
+      gives the same constraint on the elements of arr. That the elements are
+      non-negative integers holds by construction of the encoding (unsigned
+      8-bit slots; negative or non-integer elements are not part of the
+      trace), so only non-emptiness is stated here.
+
+properties:
+  - id: RA-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args: {trigger: "outcome == 0", cond: "plucked in arr"}
+    note: >-
+      "pluck one of the nodes": the plucked node is one of the elements of arr.
+      The plucked node is observable only as the returned integer, so the
+      property constrains plucked when the call returns an integer (outcome 0);
+      that it returns at all is R-OUT-2 (RA-OUT-2). "Exactly one" holds by
+      construction (one return value per call). Membership is by value
+      (decision for R-OUT-2: only the value matters). "one of the nodes" is
+      read as saying only that the node comes from arr, a particular node
+      being required by the truncated next sentence (reading 2, see R-SEL-1);
+      the formula is the same under reading 1. "pluck" is read as selecting
+      without modifying arr (reading 1); reading 2 would add a mutation of the
+      caller's list, which the trace cannot observe (arr is an input only).
+      An empty arr is excluded by RA-IN-2 (reading 1 of "one of the nodes
+      (when arr is empty)").
+
+  - id: RA-OUT-2
+    req: R-OUT-2
+    expr: "outcome == 0 && plucked in arr"
+    note: >-
+      "and return it": every call terminates normally and returns the plucked
+      node. "it" is the node, and the nodes are non-negative integers, so the
+      result is the node's integer value (reading 1 of "return it"), not its
+      index (reading 2) nor a container holding it (reading 3, which the
+      adapter would record as outcome 2). A node value is 0..255, so it always
+      fits and the call has outcome 0. Equal values at different positions are
+      indistinguishable in the result (reading 1 of "it (when several nodes
+      have the same value)"). Relies on RA-IN-2 (arr is never empty).
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional: concerns the deliverable (fill in the body of the given
+      function, keeping the signature and docstring: reading 1), not the
+      behaviour of a call. The only observable part, that a call runs and
+      returns normally, is stated by RA-OUT-2.
+  - req: R-FN-2
+    reason: >-
+      Non-functional: the function name and its single parameter arr are
+      fixed by the adapter (design.yaml function section: pluck(arr)) and are
+      not a property of the trace.
+  - req: R-IN-1
+    reason: >-
+      Definition: the mapping from the list to nodes and from node positions
+      to indices is the interface encoding of frame.md (element i of arr is
+      arr[i]). arr is read as a Python list (reading 1 of "an array"; the
+      adapter passes only lists) and the tree branch as purely descriptive
+      (reading 1 of "a branch of a tree": the text states no structure that
+      the order of arr encodes), so it imposes no constraint of its own.
+  - req: R-SEL-1
+    reason: >-
+      The sentence "The plucked node should be the node" is truncated: the
+      definite "the node" requires one particular node of arr (reading 1 of
+      "the node"), but the criterion that identifies it is missing, so the
+      correct result cannot be determined from the prompt (reading 2 of "The
+      plucked node should be the node"). It is not read as a complete
+      tautological sentence (reading 3) nor as licensing any node (reading 1).
+      Consequence: this set constrains plucked only to be some node of arr
+      (RA-OUT-1, RA-OUT-2) and leaves which node unconstrained; this is a gap
+      in the specification, not an intentional don't-care.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, already part of every formalization set as
+      F-ZERO (outcome != 0 -> plucked == 0); frame.md says it need not be
+      restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: "Complete this function", reading: 1}
+  - {req: R-IN-1, phrase: "an array", reading: 1}
+  - {req: R-IN-1, phrase: "a branch of a tree", reading: 1}
+  - {req: R-IN-2, phrase: "that has non-negative integer nodes", reading: 1}
+  - {req: R-IN-2, phrase: "that", reading: 1}
+  - {req: R-OUT-1, phrase: "one of the nodes", reading: 2}
+  - {req: R-OUT-1, phrase: "pluck", reading: 1}
+  - {req: R-OUT-1, phrase: "one of the nodes (when arr is empty)", reading: 1}
+  - {req: R-OUT-2, phrase: "return it", reading: 1}
+  - {req: R-OUT-2, phrase: "it (when several nodes have the same value)", reading: 1}
+  - {req: R-SEL-1, phrase: "The plucked node should be the node", reading: 2}
+  - {req: R-SEL-1, phrase: "the node", reading: 1}

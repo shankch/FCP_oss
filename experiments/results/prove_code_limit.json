@@ -1,0 +1,3602 @@
+{
+ "calls": 175528,
+ "implementations": {
+  "haiku": {
+   "gold": {
+    "status": "ok",
+    "seconds": 74.9,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "self._last_now >= last"
+      ]
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 57)",
+       "allow(1000, 58)",
+       "allow(1000, 59)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(U in self._locked_until) -> a3 >= pen",
+       "U in self._locked_until -> a3 >= 0",
+       "a1 >= a2",
+       "a2 >= a3",
+       "len(self._allowed[U]) <= 2 -> a3 + 60 <= self._last_now",
+       "len(self._allowed[U]) > 0 -> self._allowed[U][0] >= a3",
+       "pen >= -100"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "pen <= 65545",
+       "pen >= -100",
+       "self._locked_until[U] >= pen"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(self._last_now is None) -> self._last_now == last",
+       "last >= -1"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 8556,
+     "sampled": 4000,
+     "invariant": 422,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 50.7,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 0)",
+       "allow(1000, 7)",
+       "allow(1000, 59)",
+       "allow(1000, 68)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-MAX-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 51)",
+       "allow(1000, 52)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 50)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-2"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "none",
+     "why": "every requirement fails or is undecided over a few calls"
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 204.1,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 59)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(999, 65535)",
+       "allow(1000, 65534)",
+       "allow(998, 65534)"
+      ],
+      "rigids": {
+       "u": 998
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -60",
+       "len(self._allowed[u]) <= 2 -> a3 + 60 <= self._last_now",
+       "len(self._allowed[u]) > 0 -> self._allowed[u][0] >= a3"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(999, 65524)",
+       "allow(999, 65526)",
+       "allow(1001, 65525)",
+       "allow(999, 65527)",
+       "allow(999, 65534)",
+       "allow(998, 65535)",
+       "allow(1000, 65525)",
+       "allow(999, 65534)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 65535)",
+       "allow(1001, 65534)",
+       "allow(1000, 65534)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 13895,
+     "sampled": 4000,
+     "invariant": 263,
+     "undecided": 0
+    }
+   }
+  },
+  "sonnet": {
+   "gold": {
+    "status": "ok",
+    "seconds": 103.6,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "self._last_now >= last"
+      ]
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 42)",
+       "allow(1000, 43)",
+       "allow(1000, 51)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -100",
+       "len(self._customers[U].allowed_at) <= 2 -> a3 + 60 <= self._last_now",
+       "len(self._customers[U].allowed_at) > 1 -> self._customers[U].allowed_at[1] >= a2",
+       "len(self._customers[U].allowed_at) > 2 -> self._customers[U].allowed_at[0] == a3",
+       "len(self._customers[U].allowed_at) > 2 -> self._customers[U].allowed_at[2] == a1"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(U in self._customers) -> pen + 60 <= last",
+       "last >= -1",
+       "pen <= 65545",
+       "pen <= self._customers[U].last_denied_at + 10",
+       "pen >= -100",
+       "self._customers[U].last_denied_at is None -> pen + 60 <= self._last_now"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(self._last_now is None) -> self._last_now == last",
+       "last >= -1"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 11544,
+     "sampled": 4000,
+     "invariant": 568,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 28.7,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 58)",
+       "allow(1000, 58)",
+       "allow(1000, 59)",
+       "allow(1000, 61)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-MAX-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 51)",
+       "allow(1000, 52)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(0, 0)",
+       "allow(0, 41)",
+       "allow(0, 41)",
+       "allow(0, 50)",
+       "allow(0, 60)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-2"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "none",
+     "why": "every requirement fails or is undecided over a few calls"
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 95.5,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 42)",
+       "allow(1000, 50)",
+       "allow(1000, 51)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1000, 0)",
+       "allow(999, 0)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -60",
+       "len(self._customers[*].allowed_at) > 1 -> self._customers[*].allowed_at[0] <= self._customers[*].allowed_at[1]",
+       "len(self._customers[*].allowed_at) > 2 -> self._customers[*].allowed_at[1] <= self._customers[*].allowed_at[2]",
+       "len(self._customers[u].allowed_at) <= 2 -> a3 + 60 <= self._last_now",
+       "len(self._customers[u].allowed_at) > 0 -> self._customers[u].allowed_at[0] >= a3"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 3)",
+       "allow(1002, 2)",
+       "allow(1000, 10)",
+       "allow(1000, 63)",
+       "allow(1001, 10)",
+       "allow(1000, 11)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 13895,
+     "sampled": 4000,
+     "invariant": 271,
+     "undecided": 0
+    }
+   }
+  },
+  "opus": {
+   "gold": {
+    "status": "ok",
+    "seconds": 86.1,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "self._last_now >= last"
+      ]
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(1000, 65467)",
+       "allow(1000, 65517)",
+       "allow(1000, 65526)",
+       "allow(1000, 65526)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -100",
+       "len(self._allowed[U]) <= 2 -> a3 + 60 <= last",
+       "len(self._allowed[U]) > 0 -> self._allowed[U][0] >= a3",
+       "self._last_now >= last"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "pen <= 65545",
+       "pen >= -100",
+       "self._cooldown_ends[U] >= pen"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(self._last_now is None) -> self._last_now == last",
+       "last >= -1"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 8556,
+     "sampled": 4000,
+     "invariant": 422,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 51.2,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 65473)",
+       "allow(1000, 65473)",
+       "allow(1000, 65474)",
+       "allow(1000, 65526)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-MAX-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 59)",
+       "allow(1000, 60)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 50)",
+       "allow(1000, 58)",
+       "allow(1000, 59)",
+       "allow(1000, 69)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-2"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "none",
+     "why": "every requirement fails or is undecided over a few calls"
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 79.9,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 65475)",
+       "allow(1000, 65475)",
+       "allow(1000, 65476)",
+       "allow(1000, 65526)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(999, 0)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -60",
+       "len(self._allowed[u]) <= 2 -> a3 + 60 <= self._last_now",
+       "len(self._allowed[u]) > 2 -> self._allowed[u][0] == a3"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(998, 0)",
+       "allow(998, 1)",
+       "allow(998, 3)",
+       "allow(999, 2)",
+       "allow(998, 4)",
+       "allow(1000, 6)",
+       "allow(1001, 5)",
+       "allow(998, 5)"
+      ],
+      "rigids": {
+       "u": 998
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 65535)",
+       "allow(1001, 65534)",
+       "allow(1000, 65534)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 13895,
+     "sampled": 4000,
+     "invariant": 263,
+     "undecided": 0
+    }
+   }
+  },
+  "ref": {
+   "gold": {
+    "status": "ok",
+    "seconds": 73.2,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "self.last >= last"
+      ]
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(1000, 65475)",
+       "allow(1000, 65534)",
+       "allow(1000, 65534)",
+       "allow(1000, 65534)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a3",
+       "a2 >= a3",
+       "a3 >= -100",
+       "len(self.allowed[U]) <= 2 -> a3 + 60 <= last",
+       "len(self.allowed[U]) > 0 -> self.allowed[U][0] >= a3",
+       "len(self.allowed[U]) > 2 -> self.allowed[U][1] == a2",
+       "len(self.allowed[U]) > 2 -> self.allowed[U][2] == a1",
+       "self.last >= last"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "pen <= 65545",
+       "pen >= -100",
+       "self.blocked_until[U] >= pen"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(self.last is None) -> self.last == last",
+       "last >= -1"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 8556,
+     "sampled": 4000,
+     "invariant": 422,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 28.4,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 2)",
+       "allow(1000, 9)",
+       "allow(1000, 52)",
+       "allow(1000, 61)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-MAX-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 9)",
+       "allow(1000, 9)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 65475)",
+       "allow(1000, 65475)",
+       "allow(1000, 65525)",
+       "allow(1000, 65525)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-2"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "none",
+     "why": "every requirement fails or is undecided over a few calls"
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 107.0,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 2)",
+       "allow(1000, 51)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(999, 0)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a3",
+       "a2 >= a3",
+       "a3 >= -60",
+       "len(self.allowed[u]) <= 2 -> a3 + 60 <= self.last",
+       "len(self.allowed[u]) > 0 -> self.allowed[u][0] >= a3",
+       "len(self.allowed[u]) > 2 -> self.allowed[u][1] == a2",
+       "len(self.allowed[u]) > 2 -> self.allowed[u][2] == a1"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(999, 65526)",
+       "allow(999, 65526)",
+       "allow(999, 65527)",
+       "allow(999, 65533)",
+       "allow(1000, 65535)",
+       "allow(1001, 65532)",
+       "allow(999, 65534)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 65535)",
+       "allow(1001, 65534)",
+       "allow(0, 65534)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 13895,
+     "sampled": 4000,
+     "invariant": 263,
+     "undecided": 0
+    }
+   }
+  },
+  "C1": {
+   "gold": {
+    "status": "ok",
+    "seconds": 173.3,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "self.last >= last"
+      ]
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 59)",
+       "allow(1000, 60)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -100",
+       "len(self.allowed[U]) <= 2 -> a3 + 61 <= last",
+       "len(self.allowed[U]) > 0 -> self.allowed[U][0] >= a3",
+       "len(self.allowed[U]) > 2 -> self.allowed[U][1] == a2",
+       "len(self.allowed[U]) > 2 -> self.allowed[U][2] == a1",
+       "self.last >= last"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "pen <= 65545",
+       "pen >= -100",
+       "self.blocked_until[U] >= pen"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(self.last is None) -> self.last == last",
+       "last >= -1"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 9552,
+     "sampled": 4000,
+     "invariant": 436,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 251.4,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 65474)",
+       "allow(1000, 65475)",
+       "allow(1000, 65483)",
+       "allow(1000, 65534)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "len(self.allowed[c]) <= 2 -> t_ok3 + 61 <= self.last",
+       "len(self.allowed[c]) > 2 -> self.allowed[c][0] == t_ok3",
+       "len(self.allowed[c]) > 2 -> self.allowed[c][1] == t_ok2",
+       "len(self.allowed[c]) > 2 -> self.allowed[c][2] == t_ok1",
+       "t_ok1 >= -61",
+       "t_ok2 >= -61",
+       "t_ok3 >= -61"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 65473)",
+       "allow(1000, 65474)",
+       "allow(1000, 65525)",
+       "allow(1000, 65525)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-2"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "cap": 3,
+     "candidates": 10200,
+     "sampled": 4000,
+     "invariant": 398,
+     "undecided": 0
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 153.4,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 2)",
+       "allow(1000, 54)",
+       "allow(1000, 63)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(998, 62)",
+       "allow(999, 0)",
+       "allow(1000, 61)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -60",
+       "len(self.allowed[*]) > 1 -> self.allowed[*][0] <= self.allowed[*][1]",
+       "len(self.allowed[*]) > 2 -> self.allowed[*][1] <= self.allowed[*][2]",
+       "len(self.allowed[u]) <= 2 -> a3 + 60 <= self.last",
+       "len(self.allowed[u]) > 2 -> self.allowed[u][0] == a3"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 53)",
+       "allow(1000, 54)",
+       "allow(1000, 55)",
+       "allow(1000, 61)",
+       "allow(999, 62)",
+       "allow(998, 0)",
+       "allow(1001, 61)",
+       "allow(1000, 61)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(1000, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 15449,
+     "sampled": 4000,
+     "invariant": 257,
+     "undecided": 0
+    }
+   }
+  },
+  "C2": {
+   "gold": {
+    "status": "ok",
+    "seconds": 66.4,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "PROVED-BOUNDED",
+      "scope": "PASS",
+      "k": 15
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 2)",
+       "allow(1000, 52)",
+       "allow(1000, 61)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED-BOUNDED",
+      "scope": "PASS",
+      "k": 15
+     },
+     "R-PEN-1": {
+      "proof": "PROVED-BOUNDED",
+      "scope": "PASS",
+      "k": 15
+     },
+     "R-RET-1": {
+      "proof": "PROVED-BOUNDED",
+      "scope": "PASS",
+      "k": 15
+     }
+    },
+    "induction": {
+     "status": "none",
+     "why": "no bound on the lists of the state"
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 28.7,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 3)",
+       "allow(1000, 59)",
+       "allow(1000, 62)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-MAX-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 2)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 4)",
+       "allow(1000, 54)",
+       "allow(1000, 54)",
+       "allow(1000, 64)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-2"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "none",
+     "why": "every requirement fails or is undecided over a few calls"
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 331.1,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 65475)",
+       "allow(1000, 65532)",
+       "allow(1000, 65533)",
+       "allow(1000, 65534)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(999, 0)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED-BOUNDED",
+      "scope": "PASS",
+      "k": 8
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(999, 0)",
+       "allow(999, 1)",
+       "allow(999, 2)",
+       "allow(999, 9)",
+       "allow(1001, 8)",
+       "allow(1000, 18)",
+       "allow(1002, 8)",
+       "allow(999, 17)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(1000, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "none",
+     "why": "no bound on the lists of the state"
+    }
+   }
+  },
+  "C3": {
+   "gold": {
+    "status": "ok",
+    "seconds": 74.0,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "self.last >= last"
+      ]
+     },
+     "R-FAIR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(self.last is None) -> self.last == last",
+       "a1 >= a3",
+       "a2 >= a3",
+       "a3 >= -100",
+       "last >= -1",
+       "len(self.allowed[U]) > 2 -> self.allowed[U][0] == a3"
+      ]
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a3",
+       "a2 >= a3",
+       "a3 >= -100",
+       "len(self.allowed[*]) > 2 -> self.allowed[*][1] <= self.allowed[*][2]",
+       "len(self.allowed[U]) <= 2 -> a3 + 60 <= self.last",
+       "len(self.allowed[U]) > 0 -> self.allowed[U][0] >= a3",
+       "len(self.allowed[U]) > 1 -> self.allowed[U][1] >= a2"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-PEN"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 0)",
+       "allow(1000, 0)",
+       "allow(1000, 51)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(self.last is None) -> self.last == last",
+       "last >= -1"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 8556,
+     "sampled": 4000,
+     "invariant": 420,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 202.4,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "len(self.allowed[c]) > 2 -> self.allowed[c][0] == t_ok3",
+       "self.last >= t_ok1",
+       "t_ok1 >= t_ok2",
+       "t_ok2 >= t_ok3",
+       "t_ok3 >= -61",
+       "t_ok_older >= -61"
+      ]
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-MAX-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 2)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 65474)",
+       "allow(1000, 65475)",
+       "allow(1000, 65476)",
+       "allow(1000, 65533)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-2"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "cap": 3,
+     "candidates": 10200,
+     "sampled": 4000,
+     "invariant": 402,
+     "undecided": 0
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 61.1,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "PASS",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 2)",
+       "allow(1000, 3)",
+       "allow(1000, 4)",
+       "allow(1001, 2)",
+       "allow(999, 61)",
+       "allow(999, 4)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(999, 65535)",
+       "allow(1001, 0)",
+       "allow(1000, 59)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -60",
+       "len(self.allowed[u]) <= 1 -> a2 + 60 <= self.last",
+       "len(self.allowed[u]) == 2 -> a3 + 60 <= a1",
+       "len(self.allowed[u]) > 2 -> self.allowed[u][0] == a3",
+       "len(self.allowed[u]) > 2 -> self.allowed[u][1] == a2",
+       "len(self.allowed[u]) > 2 -> self.allowed[u][2] == a1"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 65473)",
+       "allow(1000, 65474)",
+       "allow(1000, 65475)",
+       "allow(1000, 65532)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(1000, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 13895,
+     "sampled": 4000,
+     "invariant": 278,
+     "undecided": 0
+    }
+   }
+  },
+  "C4": {
+   "gold": {
+    "status": "ok",
+    "seconds": 734.4,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "self.last >= last"
+      ]
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(999, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 1)",
+       "allow(1000, 9)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED-BOUNDED",
+      "scope": "PASS",
+      "k": 12
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "pen <= 65545",
+       "pen >= -100",
+       "self.blocked_until[U] >= pen"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(self.last is None) -> self.last == last",
+       "last >= -1"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 11544,
+     "sampled": 4000,
+     "invariant": 494,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 209.2,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(999, 0)",
+       "allow(1000, 9)",
+       "allow(999, 9)",
+       "allow(999, 9)"
+      ],
+      "rigids": {
+       "c": 999
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-MAX-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 9)",
+       "allow(1000, 9)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 65475)",
+       "allow(998, 65483)",
+       "allow(997, 65484)",
+       "allow(999, 65525)",
+       "allow(999, 65535)"
+      ],
+      "rigids": {
+       "c": 999
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-2"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "none",
+     "why": "every requirement fails or is undecided over a few calls"
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 454.6,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 58)",
+       "allow(1000, 59)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(999, 0)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED-BOUNDED",
+      "scope": "PASS",
+      "k": 8
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 21)",
+       "allow(997, 22)",
+       "allow(996, 23)",
+       "allow(998, 60)",
+       "allow(1001, 24)",
+       "allow(999, 0)",
+       "allow(996, 32)"
+      ],
+      "rigids": {
+       "u": 996
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 65535)",
+       "allow(1001, 65534)",
+       "allow(0, 65534)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 18557,
+     "sampled": 4000,
+     "invariant": 209,
+     "undecided": 0
+    }
+   }
+  },
+  "C5": {
+   "gold": {
+    "status": "ok",
+    "seconds": 200.8,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-ERR"
+      ],
+      "calls": [
+       "allow(1000, 65535)",
+       "allow(1000, 65534)"
+      ],
+      "rigids": {
+       "U": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(1000, 52)",
+       "allow(1000, 53)",
+       "allow(1000, 0)",
+       "allow(1000, 60)",
+       "allow(1000, 61)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-MAX"
+      ],
+      "calls": [
+       "allow(0, 2)",
+       "allow(0, 65535)",
+       "allow(0, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "U": 0
+      }
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "pen <= 65545",
+       "pen >= -100",
+       "self.blocked_until[U] >= pen"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 8556,
+     "sampled": 4000,
+     "invariant": 370,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 201.2,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1000, 2)",
+       "allow(1000, 0)",
+       "allow(1000, 1)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-MAX-1"
+      ],
+      "calls": [
+       "allow(1000, 59)",
+       "allow(1000, 0)",
+       "allow(1000, 59)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 51)",
+       "allow(1000, 0)",
+       "allow(1000, 52)",
+       "allow(1000, 50)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "cap": 3,
+     "candidates": 10200,
+     "sampled": 4000,
+     "invariant": 147,
+     "undecided": 2
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 38.9,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 65475)",
+       "allow(1000, 65475)",
+       "allow(1000, 65526)",
+       "allow(1000, 65526)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 2)",
+       "allow(1000, 51)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "PASS",
+      "confirmed": true,
+      "items": [
+       "LB-MAX-1"
+      ],
+      "calls": [
+       "allow(1000, 12)",
+       "allow(1000, 11)",
+       "allow(1000, 11)",
+       "allow(1001, 11)",
+       "allow(1000, 63)",
+       "allow(1000, 72)",
+       "allow(1000, 0)",
+       "allow(1000, 10)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "d + 10 <= self.blocked_until[u]",
+       "d >= -60",
+       "ncalls >= 0"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "ncalls >= 0"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 13895,
+     "sampled": 4000,
+     "invariant": 199,
+     "undecided": 0
+    }
+   }
+  },
+  "C6": {
+   "gold": {
+    "status": "ok",
+    "seconds": 107.1,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-ERR"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(999, 0)"
+      ],
+      "rigids": {
+       "U": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(1000, 0)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -100",
+       "len(self.allowed[U]) <= 2 -> a3 + 60 <= self.last",
+       "len(self.allowed[U]) > 0 -> self.allowed[U][0] >= a3",
+       "len(self.allowed[U]) > 1 -> self.allowed[U][1] >= a2",
+       "len(self.allowed[U]) > 2 -> self.allowed[U][2] == a1"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "pen <= 65545",
+       "pen >= -100",
+       "self.blocked_until[U] >= pen"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RET"
+      ],
+      "calls": [
+       "allow(1000, 0)"
+      ],
+      "rigids": {
+       "U": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 8556,
+     "sampled": 4000,
+     "invariant": 266,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 29.3,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(999, 0)",
+       "allow(999, 42)",
+       "allow(999, 43)",
+       "allow(999, 52)",
+       "allow(999, 61)"
+      ],
+      "rigids": {
+       "c": 999
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-MAX-1"
+      ],
+      "calls": [
+       "allow(0, 0)",
+       "allow(0, 60)",
+       "allow(0, 60)",
+       "allow(0, 60)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(0, 65475)",
+       "allow(0, 65507)",
+       "allow(0, 65516)",
+       "allow(0, 65525)",
+       "allow(0, 65535)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "none",
+     "why": "every requirement fails or is undecided over a few calls"
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 60.4,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(999, 65475)",
+       "allow(999, 65483)",
+       "allow(999, 65484)",
+       "allow(999, 65526)",
+       "allow(999, 65535)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 0)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a3",
+       "a2 >= a3",
+       "a3 >= -60",
+       "len(self.allowed[u]) <= 2 -> a3 + 60 <= self.last",
+       "len(self.allowed[u]) > 1 -> self.allowed[u][1] >= a2",
+       "len(self.allowed[u]) > 2 -> self.allowed[u][0] == a3",
+       "len(self.allowed[u]) > 2 -> self.allowed[u][2] == a1"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(998, 65473)",
+       "allow(998, 65531)",
+       "allow(998, 65532)",
+       "allow(998, 65533)",
+       "allow(998, 65534)",
+       "allow(999, 65535)",
+       "allow(997, 65532)",
+       "allow(998, 65534)"
+      ],
+      "rigids": {
+       "u": 998
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 13895,
+     "sampled": 4000,
+     "invariant": 262,
+     "undecided": 0
+    }
+   }
+  },
+  "C7": {
+   "gold": {
+    "status": "ok",
+    "seconds": 124.0,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "self.last >= last"
+      ]
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 50)",
+       "allow(1000, 51)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -100",
+       "len(self.allowed[U]) <= 2 -> a3 + 60 <= last",
+       "len(self.allowed[U]) > 2 -> self.allowed[U][0] == a3",
+       "len(self.allowed[U]) > 2 -> self.allowed[U][1] == a2",
+       "len(self.allowed[U]) > 2 -> self.allowed[U][2] == a1",
+       "self.last >= last"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "PASS",
+      "confirmed": true,
+      "items": [
+       "G-PEN"
+      ],
+      "calls": [
+       "allow(1000, 65472)",
+       "allow(1000, 65473)",
+       "allow(1000, 65474)",
+       "allow(1000, 65525)",
+       "allow(1000, 65534)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(self.last is None) -> self.last == last",
+       "last >= -1"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 8556,
+     "sampled": 4000,
+     "invariant": 417,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 29.3,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 58)",
+       "allow(1000, 59)",
+       "allow(1000, 62)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-MAX-1"
+      ],
+      "calls": [
+       "allow(1000, 65475)",
+       "allow(1000, 65534)",
+       "allow(1000, 65535)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 49)",
+       "allow(1000, 50)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-2"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "none",
+     "why": "every requirement fails or is undecided over a few calls"
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 110.3,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 51)",
+       "allow(1000, 52)",
+       "allow(1000, 53)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(999, 0)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -60",
+       "len(self.allowed[u]) <= 2 -> a3 + 60 <= self.last",
+       "len(self.allowed[u]) > 1 -> self.allowed[u][1] >= a2",
+       "len(self.allowed[u]) > 2 -> self.allowed[u][0] == a3",
+       "len(self.allowed[u]) > 2 -> self.allowed[u][2] == a1"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 2)",
+       "allow(1000, 51)",
+       "allow(1000, 60)",
+       "allow(1000, 69)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(1000, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 13895,
+     "sampled": 4000,
+     "invariant": 270,
+     "undecided": 0
+    }
+   }
+  },
+  "C8": {
+   "gold": {
+    "status": "ok",
+    "seconds": 29.3,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "self.last >= last"
+      ]
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "U": 0
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= -100",
+       "a2 >= -100",
+       "a3 >= -100"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "pen <= 65545",
+       "pen >= -100"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RET"
+      ],
+      "calls": [
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "U": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 8556,
+     "sampled": 4000,
+     "invariant": 378,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 34.7,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 2)",
+       "allow(1000, 2)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "t_ok1 >= -61",
+       "t_ok2 >= -61",
+       "t_ok3 >= -61"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "t_denied >= -11"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-1"
+      ],
+      "calls": [
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "cap": 3,
+     "candidates": 10200,
+     "sampled": 4000,
+     "invariant": 320,
+     "undecided": 0
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 36.0,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 65474)",
+       "allow(1000, 65475)",
+       "allow(1000, 65482)",
+       "allow(1000, 65483)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= -60",
+       "a2 >= -60",
+       "a3 >= -60"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(999, 0)",
+       "allow(999, 1)",
+       "allow(999, 2)",
+       "allow(999, 2)",
+       "allow(999, 3)",
+       "allow(1000, 5)",
+       "allow(999, 2)",
+       "allow(999, 4)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 13895,
+     "sampled": 4000,
+     "invariant": 218,
+     "undecided": 0
+    }
+   }
+  },
+  "C9": {
+   "gold": {
+    "status": "ok",
+    "seconds": 123.8,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "self.last >= last"
+      ]
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-FAIR"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 52)",
+       "allow(1000, 52)",
+       "allow(1000, 61)"
+      ],
+      "rigids": {
+       "U": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a2",
+       "a2 >= a3",
+       "a3 >= -100",
+       "len(self.allowed[U]) <= 2 -> a3 + 60 <= self.last",
+       "len(self.allowed[U]) > 0 -> self.allowed[U][0] >= a3"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "last >= -1",
+       "pen <= 65545",
+       "pen >= -100",
+       "self.blocked_until[U] >= pen"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!(self.last is None) -> self.last == last",
+       "last >= -1"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 8556,
+     "sampled": 4000,
+     "invariant": 422,
+     "undecided": 0
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 52.5,
+    "requirements": {
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-ERR-2"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 65474)",
+       "allow(1000, 65526)",
+       "allow(1000, 65526)",
+       "allow(1000, 65526)",
+       "allow(1000, 65535)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-MAX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-MAX-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 2)",
+       "allow(1000, 60)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-PEN-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 8)",
+       "allow(1000, 9)",
+       "allow(1000, 57)",
+       "allow(1000, 67)"
+      ],
+      "rigids": {
+       "c": 1000
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LA-RET-2"
+      ],
+      "calls": [
+       "allow(0, 1)",
+       "allow(0, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "c": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "none",
+     "why": "every requirement fails or is undecided over a few calls"
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 96.4,
+    "requirements": {
+     "R-COUNT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-COUNT-1"
+      ],
+      "calls": [
+       "allow(1000, 0)",
+       "allow(1000, 1)",
+       "allow(1000, 2)",
+       "allow(1000, 52)",
+       "allow(1000, 61)"
+      ],
+      "rigids": {
+       "u": 1000
+      }
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-ERR-TIME"
+      ],
+      "calls": [
+       "allow(1001, 1)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     },
+     "R-FAIR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-FAIR-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(999, 0)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-MAX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "a1 >= a3",
+       "a2 >= a3",
+       "a3 >= -60",
+       "len(self.allowed[u]) <= 2 -> a3 + 60 <= self.last",
+       "len(self.allowed[u]) > 0 -> self.allowed[u][0] >= a3"
+      ]
+     },
+     "R-PEN-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-PEN-1"
+      ],
+      "calls": [
+       "allow(999, 0)",
+       "allow(999, 0)",
+       "allow(999, 0)",
+       "allow(999, 0)",
+       "allow(1000, 3)",
+       "allow(1001, 2)",
+       "allow(1002, 1)",
+       "allow(999, 2)"
+      ],
+      "rigids": {
+       "u": 999
+      }
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "LB-RET-1"
+      ],
+      "calls": [
+       "allow(1000, 1)",
+       "allow(1001, 0)",
+       "allow(0, 0)"
+      ],
+      "rigids": {
+       "u": 0
+      }
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "cap": 3,
+     "candidates": 13895,
+     "sampled": 4000,
+     "invariant": 263,
+     "undecided": 0
+    }
+   }
+  }
+ },
+ "summary": {
+  "proved": 65,
+  "proved_bounded": 7,
+  "fails_both": 140,
+  "missed_by_scope": 3,
+  "scope_only": 0,
+  "unknown": 0,
+  "pairs": 39,
+  "untranslatable": [],
+  "seconds": [
+   28.4,
+   734.4
+  ]
+ },
+ "seconds": 5793
+}

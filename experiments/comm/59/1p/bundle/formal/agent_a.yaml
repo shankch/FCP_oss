@@ -1,0 +1,131 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-DEF-1: a prime is an integer > 1 whose only positive divisors are 1 and itself.
+  # Trial division by 2..255 is exact for 16-bit values: a composite x <= 65535 has a
+  # divisor d with 2 <= d <= sqrt(x) <= 255 (256 * 256 > 65535).
+  n_prime: "n > 1 && all(i < 254: i + 2 < n -> n % (i + 2) != 0)"
+  f_prime: "factor > 1 && all(i < 254: i + 2 < factor -> factor % (i + 2) != 0)"
+  # R-ENV-1 and R-ENV-2 together: the calls the request covers.
+  in_contract: "n > 1 && !n_prime"
+  # factor divides n (n % factor == 0, factor != 0). n = factor * q with n <= 65535, so
+  # factor <= 255 or q <= 255; both cases use only constant divisors / multipliers.
+  f_divides_n: "any(i < 255: (factor == i + 1 && n % (i + 1) == 0) || factor * (i + 1) == n)"
+  # n = p^k for a prime p and k >= 2: the composite n with exactly one distinct prime
+  # factor (all 92 such values up to 65,535, grouped by p).
+  n_prime_power: >-
+    n in [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768,
+    9, 27, 81, 243, 729, 2187, 6561, 19683, 59049,
+    25, 125, 625, 3125, 15625,
+    49, 343, 2401, 16807,
+    121, 1331, 14641,
+    169, 2197, 28561,
+    289, 4913, 361, 6859, 529, 12167, 841, 24389, 961, 29791, 1369, 50653,
+    1681, 1849, 2209, 2809, 3481, 3721, 4489, 5041, 5329, 6241, 6889, 7921, 9409,
+    10201, 10609, 11449, 11881, 12769, 16129, 17161, 18769, 19321, 22201, 22801,
+    24649, 26569, 27889, 29929, 32041, 32761, 36481, 37249, 38809, 39601, 44521,
+    49729, 51529, 52441, 54289, 57121, 58081, 63001]
+
+assumptions:
+  - id: RA-ENV-1
+    req: R-ENV-1
+    expr: "n > 1"
+    note: "candidate(n) is only called with n > 1. Each cycle is one call, so this restricts the argument of every call."
+
+  - id: RA-ENV-2
+    req: R-ENV-2
+    expr: "!n_prime"
+    note: >-
+      Reading 1 of 'is not a prime': n may be any non-prime, including composites with several
+      distinct prime factors such as 6. No restriction to prime powers is added (that is reading 2,
+      which the words alone do not state). This contradicts reading 4 of 'the prime factor' taken for
+      R-RET-4; see RA-RET-4.
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "in_contract", cond: "outcome == 0"}
+    note: >-
+      Reading 1 of 'Return': the call must return a Python int (outcome 0). A float such as 3.0 is
+      'anything else' (outcome 2) and fails. Outcome 0 also requires the int to be in 0..65,535,
+      which every divisor of a 16-bit n is, so this adds nothing beyond 'returns an integer'.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "in_contract && outcome == 0", cond: "f_divides_n"}
+    note: >-
+      'The value returned' presupposes a return, so the obligation applies to calls that returned an
+      integer (outcome 0); that such a call must return at all is RA-RET-1. A returned value outside
+      0..65,535 or of another type is outcome 2 and is not visible on factor, so R-RET-2 cannot be
+      checked on it (for example -2, for which n % -2 == 0 holds in Python when n is even).
+
+  - id: RA-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: "in_contract && outcome == 0", cond: "f_prime"}
+    note: "Prime as defined in R-DEF-1 (def f_prime). Guarded by outcome 0 as in RA-RET-2."
+
+  - id: RA-RET-4
+    req: R-RET-4
+    pattern: implies
+    args: {trigger: "in_contract && n_prime_power && outcome == 0", cond: "f_prime && f_divides_n"}
+    note: >-
+      Reading 4 of 'the prime factor', the literal sense of the definite article: the unique prime
+      factor of n. It is defined only when n = p^k has exactly one distinct prime factor, and then the
+      returned value must be p. A prime that divides p^k can only be p, so the condition 'factor is a
+      prime that divides n' states factor == p. If n has several distinct prime factors, 'the prime
+      factor' refers to nothing and this item constrains nothing. This contradicts R-ENV-2 (reading 1),
+      which admits such n. The contradiction is left visible, not repaired: no assumption excludes these
+      n and no dont_care frees them. RA-RET-1 to RA-RET-3 still apply to them. Which prime factor is
+      meant (smallest, largest) is not stated, so none is chosen.
+
+scenarios:
+  - id: RA-ENV-2-S1
+    req: R-ENV-2
+    cover: "in_contract && !n_prime_power"
+    note: >-
+      Under reading 1 of 'is not a prime', a call whose n has several distinct prime factors (for
+      example n = 6) is a legal call.
+
+dont_cares:
+  - id: RA-ENV-3-OUTCOME
+    req: R-ENV-3
+    signal: outcome
+    when: "n <= 1 || n_prime"
+    note: >-
+      Reading 1 of 'Assume': a pure precondition. On n <= 1 or a prime n, any behaviour is acceptable,
+      including raising or not finishing (outcome 1) or returning a non-integer (outcome 2). It is not
+      reading 3 (a prime n returns n), so primes are left free too.
+
+  - id: RA-ENV-3-FACTOR
+    req: R-ENV-3
+    signal: factor
+    when: "n <= 1 || n_prime"
+    note: "Reading 1 of 'Assume': the returned value is unconstrained on n <= 1 or a prime n (the frame rule F-ZERO still fixes factor to 0 when outcome is not 0)."
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional interface requirement: a Python function named candidate taking one integer
+      argument n. The adapter realizes it (function section of design.yaml: name candidate, argument n
+      bound to signal n). It is not a property of the call trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition of a prime. It is realized by the defs n_prime and f_prime (trial division by 2..255,
+      exact for 16-bit values) and used by the items listed.
+    covered_by: [RA-ENV-2, RA-RET-3, RA-RET-4, RA-ENV-3-OUTCOME, RA-ENV-3-FACTOR]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter. design.yaml adds it to every formalization set as F-ZERO
+      ('outcome != 0 -> factor == 0'), and frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-2, phrase: "is not a prime", reading: 1}
+  - {req: R-ENV-3, phrase: "Assume", reading: 1}
+  - {req: R-RET-1, phrase: "Return", reading: 1}
+  - {req: R-RET-4, phrase: "the prime factor", reading: 4}

@@ -1,0 +1,156 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-DEF-1, reading 1 of "happy", reading 1 of "the string": at least 3
+  # characters and every window of 3 consecutive characters is pairwise
+  # distinct, characters compared by their exact code.
+  hp: "len(s) >= 3 && all(i < len(s) - 2: s[i] != s[i + 1] && s[i] != s[i + 2] && s[i + 1] != s[i + 2])"
+
+properties:
+  - id: RA-FN-1-T
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: "hp", cond: "outcome == 0 && happy"}
+    note: >-
+      Literal reading of "returns True when s is happy": the call returns
+      (outcome 0) and the returned value is True. "happy" is the def hp, which
+      takes reading 1 of R-DEF-1; the prompt itself never defines the property.
+      Overlaps with R-FN-2 on the outcome, as the text of R-FN-1 says "returns".
+  - id: RA-FN-1-F
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: "!hp", cond: "outcome == 0 && !happy"}
+    note: >-
+      Literal reading of "returns False when s is not happy": the call returns
+      (outcome 0) and the returned value is False. Covers the empty string and
+      every string of fewer than 3 characters (R-IN-1, reading 1).
+  - id: RA-FN-2-RET
+    req: R-FN-2
+    expr: "outcome != 1"
+    note: >-
+      Every call finishes and raises no exception (outcome 1 is any exception
+      or no answer). Holds for every string, empty and non-lowercase ones
+      included (R-IN-1, reading 1 of both flagged phrases).
+  - id: RA-FN-2-BOOL
+    req: R-FN-2
+    expr: "outcome != 2"
+    note: >-
+      Reading 1 of "check": the answer is the bool True or False, as the
+      examples show; a truthy or falsy value of another type (outcome 2) does
+      not count. With frame rule F-CODE (outcome never 3) this item and
+      RA-FN-2-RET together give outcome == 0 in every call.
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 's == "a"', cond: "outcome == 0 && !happy"}
+    note: >-
+      Reading 1 of "is_happy(a)": a call with the string 'a', written without
+      quotes. The example fixes the answer for this call, so it is stated as a
+      guarantee as well as a scenario (RA-EX-1-S); it holds whatever reading of
+      "happy" is taken.
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 's == "aa"', cond: "outcome == 0 && !happy"}
+    note: "Reading 1 of \"is_happy(aa)\": a call with the string 'aa'."
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 's == "abcd"', cond: "outcome == 0 && happy"}
+    note: "Reading 1 of \"is_happy(abcd)\": a call with the string 'abcd'."
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 's == "aabb"', cond: "outcome == 0 && !happy"}
+    note: "Reading 1 of \"is_happy(aabb)\": a call with the string 'aabb'."
+  - id: RA-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 's == "adb"', cond: "outcome == 0 && happy"}
+    note: "Reading 1 of \"is_happy(adb)\": a call with the string 'adb'."
+  - id: RA-EX-6
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 's == "xyy"', cond: "outcome == 0 && !happy"}
+    note: "Reading 1 of \"is_happy(xyy)\": a call with the string 'xyy'."
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: 's == "a" && outcome == 0 && !happy'
+    note: "The call is_happy('a') returning False must be possible."
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: 's == "aa" && outcome == 0 && !happy'
+    note: "The call is_happy('aa') returning False must be possible."
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: 's == "abcd" && outcome == 0 && happy'
+    note: "The call is_happy('abcd') returning True must be possible."
+  - id: RA-EX-4-S
+    req: R-EX-4
+    cover: 's == "aabb" && outcome == 0 && !happy'
+    note: "The call is_happy('aabb') returning False must be possible."
+  - id: RA-EX-5-S
+    req: R-EX-5
+    cover: 's == "adb" && outcome == 0 && happy'
+    note: "The call is_happy('adb') returning True must be possible."
+  - id: RA-EX-6-S
+    req: R-EX-6
+    cover: 's == "xyy" && outcome == 0 && !happy'
+    note: "The call is_happy('xyy') returning False must be possible."
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the deliverable is a complete implementation of the stub.
+      It is a property of the submitted code, not of any trace of calls.
+  - req: R-API-2
+    reason: >-
+      Non-functional: the name is_happy and the single parameter s are fixed by
+      the function adapter (design.yaml `function`), which calls is_happy(s);
+      they are not a property of a trace of calls.
+  - req: R-IN-1
+    reason: >-
+      Reading 1 of "a string" (any characters) and reading 1 of "a string s"
+      (the empty string included): every value of the input s is a valid
+      argument and must be answered, so no environment constraint and no
+      don't-care remains. The interface encoding already limits s to strings
+      of at most 16 Latin-1 characters. The obligation to answer every such
+      string is carried by the properties of R-FN-1 and R-FN-2, which have no
+      restriction on s.
+    covered_by: [RA-FN-1-T, RA-FN-1-F, RA-FN-2-RET, RA-FN-2-BOOL]
+  - req: R-DEF-1
+    reason: >-
+      Definition. The prompt never defines "happy"; it is realized by the def
+      hp (reading 1: at least 3 characters and every 3 consecutive characters
+      pairwise distinct, compared by exact code), which the properties of
+      R-FN-1 use. All four flagged readings agree with the six examples, so the
+      choice is not forced by the text; reading 1 is taken because its length
+      threshold (3) is the window size of its rule, so that one rule (at least
+      one window of 3, every window pairwise distinct) explains every example.
+      The example items RA-EX-* hold under every reading.
+    covered_by: [RA-FN-1-T, RA-FN-1-F]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO (outcome != 0 -> !happy) of design.yaml; frame items
+      are part of every formalization set and are not restated.
+  - req: R-FR-2
+    reason: >-
+      Frame rule F-CODE (outcome != 3) of design.yaml; frame items are part of
+      every formalization set and are not restated.
+
+decisions:
+  - {req: R-IN-1, phrase: "a string", reading: 1}
+  - {req: R-IN-1, phrase: "a string s", reading: 1}
+  - {req: R-DEF-1, phrase: "happy", reading: 1}
+  - {req: R-DEF-1, phrase: "the string", reading: 1}
+  - {req: R-FN-2, phrase: "check", reading: 1}
+  - {req: R-EX-1, phrase: "is_happy(a)", reading: 1}
+  - {req: R-EX-2, phrase: "is_happy(aa)", reading: 1}
+  - {req: R-EX-3, phrase: "is_happy(abcd)", reading: 1}
+  - {req: R-EX-4, phrase: "is_happy(aabb)", reading: 1}
+  - {req: R-EX-5, phrase: "is_happy(adb)", reading: 1}
+  - {req: R-EX-6, phrase: "is_happy(xyy)", reading: 1}

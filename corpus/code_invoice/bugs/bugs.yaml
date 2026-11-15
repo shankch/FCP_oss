@@ -1,0 +1,42 @@
+# Planted bugs: one textual patch of impl/ref.py each (the target text must
+# occur exactly once).  `violates` is the gold requirement each one breaks.
+design: code_invoice
+bugs:
+- id: C1
+  desc: the discounted line is rounded down instead of its discount
+  violates: [R-MEM-1]
+  note: correct under the other reading of "rounded down to the cent"
+  patch: {from: 'amount -= amount // 10', to: 'amount = amount * 9 // 10'}
+- id: C2
+  desc: members also get 10% off the lines on sale
+  violates: [R-LINES-1]
+  patch: {from: 'if member and not it["sale"]:', to: 'if member:'}
+- id: C3
+  desc: the order discount counts the items on sale too
+  violates: [R-DISC-1]
+  patch: {from: 'offsale = sum(it["price"] * it["qty"] for it in items if not it["sale"])', to: 'offsale = sum(it["price"] * it["qty"] for it in items)'}
+- id: C4
+  desc: an empty order returns zeros instead of raising
+  violates: [R-ERR-1]
+  patch: {from: 'if not items or any(', to: 'if any('}
+- id: C5
+  desc: the lines come out in reverse order
+  violates: [R-LINES-1]
+  patch: {from: 'lines.append(amount)', to: 'lines.insert(0, amount)'}
+- id: C6
+  desc: the first item's sale flag decides every line
+  violates: [R-LINES-1, R-MEM-1]
+  patch: {from: 'if member and not it["sale"]:', to: 'if member and not items[0]["sale"]:'}
+- id: C7
+  desc: a quantity of 0 is rejected only when every quantity is 0
+  violates: [R-ERR-1]
+  patch: {from: 'any(it["qty"] == 0 for it in items)', to: 'all(it["qty"] == 0 for it in items)'}
+- id: C8
+  desc: the result is returned as a tuple
+  violates: [R-RET-1]
+  patch: {from: 'return {"lines": lines, "discount": discount, "total": sum(lines)}', to: 'return lines, discount, sum(lines)'}
+- id: C9
+  desc: the lines are built in one comprehension; the same behaviour, written differently
+  violates: []
+  note: a refactoring, not a bug, which FCP must not flag
+  patch: {from: "    lines = []\n    for it in items:\n        amount = it[\"price\"] * it[\"qty\"]\n        if member and not it[\"sale\"]:\n            amount -= amount // 10\n        lines.append(amount)\n", to: "    lines = [it[\"price\"] * it[\"qty\"] - (it[\"price\"] * it[\"qty\"] // 10 if member and not it[\"sale\"] else 0)\n             for it in items]\n"}

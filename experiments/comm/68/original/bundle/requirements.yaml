@@ -1,0 +1,192 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FN-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is an implementation of the Python function pluck(arr) whose signature and docstring are given.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-DEF-1
+  doc: SPEC
+  quote: Given an array representing a branch of a tree
+  text: The argument arr is a list whose elements are the nodes; a node's value is the element and a node's index is its position in arr.
+  kind: definition
+  ambiguity:
+  - phrase: an array representing a branch of a tree
+    readings:
+    - arr is just a flat sequence of node values; the tree structure plays no role in the result.
+    - arr encodes a tree structure (e.g. parent/child positions) that affects which node may be plucked.
+  lines:
+  - 6
+- id: R-IN-1
+  doc: SPEC
+  quote: that has non-negative integer nodes
+  text: Every element of arr is a non-negative integer.
+  kind: assumption
+  lines:
+  - 6
+- id: R-IN-2
+  doc: SPEC
+  quote: 1 <= nodes.length
+  text: arr contains at least one element (callers never pass an empty list).
+  kind: assumption
+  ambiguity:
+  - phrase: 1 <= nodes.length
+    readings:
+    - 'Contradicted by ''the given array is empty, return []'' and Example 3: an empty arr is a valid call and pluck must return [] for it; the lower bound is not a real precondition.'
+    - An empty arr is outside the precondition, so the result for [] is unconstrained (don't care), despite the empty-array sentence and Example 3.
+  - phrase: nodes.length
+    readings:
+    - the length of the argument arr
+    - the number of nodes of the tree, which may differ from the length of arr
+  lines:
+  - 35
+- id: R-IN-3
+  doc: SPEC
+  quote: nodes.length <= 10000
+  text: arr contains at most 10000 elements.
+  kind: assumption
+  lines:
+  - 35
+- id: R-IN-4
+  doc: SPEC
+  quote: 0 <= node.value
+  text: Every element of arr is at least 0.
+  kind: assumption
+  lines:
+  - 36
+- id: R-PL-1
+  doc: SPEC
+  quote: your task is to pluck one of the nodes and return it.
+  text: When arr contains at least one even value, pluck returns exactly one node of arr (one value together with its index), not zero or several nodes.
+  kind: guarantee
+  ambiguity:
+  - phrase: return it
+    readings:
+    - return the plucked node as the list [value, index], as the later sentence specifies
+    - return the node's value alone (a bare integer)
+  - phrase: pluck
+    readings:
+    - only select and report the node; arr is left unchanged
+    - remove the node from arr (mutate the argument) and return it
+  lines:
+  - 7
+- id: R-PL-2
+  doc: SPEC
+  quote: The plucked node should be the node with the smallest even value.
+  text: When arr contains at least one even value, the value of the returned node equals the minimum over all even elements of arr.
+  kind: guarantee
+  ambiguity:
+  - phrase: the smallest even value
+    readings:
+    - the smallest value among the even elements of arr (odd elements are ignored)
+    - the smallest value of arr overall, which is plucked only if it is even
+  lines:
+  - 8
+- id: R-PL-3
+  doc: SPEC
+  quote: If multiple nodes with the same smallest even value are found return the node that has smallest index.
+  text: When the smallest even value of arr occurs at several positions, the returned index is the smallest position i with arr[i] equal to that value.
+  kind: guarantee
+  lines:
+  - 9
+- id: R-OUT-1
+  doc: SPEC
+  quote: The plucked node should be returned in a list, [ smalest_value, its index ],
+  text: 'When a node is plucked, pluck returns a list of exactly two elements: first the plucked node''s value, then the plucked node''s index in arr (so arr[index] equals value).'
+  kind: guarantee
+  ambiguity:
+  - phrase: smalest_value
+    readings:
+    - the smallest even value (the plucked node's value); 'smalest' is a typo of 'smallest'
+    - the smallest value of arr overall, even if it is odd
+  - phrase: its index
+    readings:
+    - the 0-based position of the plucked node in arr (as Examples 1, 2 and 4 show)
+    - the 1-based position of the plucked node in arr
+  lines:
+  - 11
+- id: R-EMP-1
+  doc: SPEC
+  quote: If there are no even values or the given array is empty, return [].
+  text: When arr is non-empty and contains no even element, pluck returns the empty list [].
+  kind: guarantee
+  lines:
+  - 12
+- id: R-EMP-2
+  doc: SPEC
+  quote: the given array is empty, return [].
+  text: When arr is the empty list, pluck returns the empty list [].
+  kind: guarantee
+  ambiguity:
+  - phrase: the given array is empty
+    readings:
+    - An empty arr is a valid call and pluck must return [] for it; the constraint '1 <= nodes.length' is not a real precondition.
+    - 'Contradicted by the constraint ''1 <= nodes.length'': an empty arr is outside the precondition, so its result is unconstrained (don''t care).'
+  lines:
+  - 12
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example 1: Input: [4,2,3] Output: [2, 1]'
+  text: pluck([4, 2, 3]) returns [2, 1].
+  kind: scenario
+  ambiguity:
+  - phrase: 2 has the smallest index
+    readings:
+    - 2 has the smallest index among the nodes holding the smallest even value (it is the only one)
+    - 2 has the smallest index in arr, which is false here because the even node 4 is at index 0; the explanation is misleading
+  lines:
+  - 14
+  - 16
+- id: R-EX-2
+  doc: SPEC
+  quote: 'Example 2: Input: [1,2,3] Output: [2, 1]'
+  text: pluck([1, 2, 3]) returns [2, 1].
+  kind: scenario
+  ambiguity:
+  - phrase: 2 has the smallest even value, and 2 has the smallest index.
+    readings:
+    - 2 has the smallest index among the nodes holding the smallest even value (it is the only even node)
+    - 2 has the smallest index in arr, which is false here because 1 is at index 0; the explanation is copied from Example 1
+  lines:
+  - 19
+  - 21
+- id: R-EX-3
+  doc: SPEC
+  quote: 'Example 3: Input: [] Output: []'
+  text: pluck([]) returns [].
+  kind: scenario
+  ambiguity:
+  - phrase: 'Input: []'
+    readings:
+    - An empty arr is a valid call and pluck must return [] for it; the constraint '1 <= nodes.length' is not a real precondition.
+    - 'Contradicted by the constraint ''1 <= nodes.length'': an empty arr is outside the precondition, so this example illustrates a don''t-care case.'
+  lines:
+  - 24
+  - 26
+- id: R-EX-4
+  doc: SPEC
+  quote: 'Example 4: Input: [5, 0, 3, 0, 4, 2] Output: [0, 1]'
+  text: 'pluck([5, 0, 3, 0, 4, 2]) returns [0, 1]: of the two zeros the one at index 1 is chosen.'
+  kind: scenario
+  ambiguity:
+  - phrase: 0 is the smallest value
+    readings:
+    - 0 is the smallest even value (it also happens to be the smallest value overall)
+    - the node is chosen as the smallest value overall, suggesting the rule is about the overall minimum rather than the minimum even value
+  lines:
+  - 28
+  - 30
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `plucked` is the empty list unless `outcome` is 0.'
+  text: Whenever outcome is not 0, plucked is the empty list.
+  kind: guarantee
+  lines:
+  - 43

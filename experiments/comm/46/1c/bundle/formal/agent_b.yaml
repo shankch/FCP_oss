@@ -1,0 +1,193 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. frame.md makes the function a chip without memory: every
+# cycle after reset is one independent call fib4(n), and prev() is just some
+# earlier call the checker chose. So the reference model is combinational
+# rather than a ghost register: fib4_seq is the Fib4 number sequence of R-DEF-1
+# for the indices 0..63 the 6-bit argument can take. Entries 0..3 are the base
+# values of R-BASE-1..4 (0, 0, 2, 0); every entry k >= 4 is the sum of the
+# four entries before it (R-REC-1, checked entry by entry when this set was
+# written; entry 63 = 132419948094134672 fits the 57-bit result). It is a
+# literal table because the same chain written as recursive defs expands
+# exponentially in the tools.
+# `expected` is the element at index n (counting from 0) for the current call.
+defs:
+  fib4_seq: >-
+    [0, 0, 2, 0, 2, 4, 8, 14, 28, 54, 104, 200, 386, 744, 1434, 2764, 5328,
+    10270, 19796, 38158, 73552, 141776, 273282, 526768, 1015378, 1957204,
+    3772632, 7271982, 14017196, 27019014, 52080824, 100389016, 193506050,
+    372994904, 718970794, 1385860764, 2671332512, 5149158974, 9925323044,
+    19131675294, 36877489824, 71083647136, 137018135298, 264110947552,
+    509090219810, 981302949796, 1891522252456, 3646026369614, 7027941791676,
+    13546793363542, 26112283777288, 50333045302120, 97020064234626,
+    187012186677576, 360477579991610, 694842876205932, 1339352707109744,
+    2581685349984862, 4976358513292148, 9592239446592686, 18489636016979440,
+    35639919326849136, 68698153303713410, 132419948094134672]
+  expected: "fib4_seq[n]"
+  # the four calls before this one asked for n-1, n-2, n-3, n-4 (most recent
+  # first) and each returned an integer
+  preceded_by_four: >-
+    prev(n) == n - 1 && prev(n, 2) == n - 2 && prev(n, 3) == n - 3 && prev(n, 4) == n - 4 &&
+    prev(outcome) == 0 && prev(outcome, 2) == 0 && prev(outcome, 3) == 0 && prev(outcome, 4) == 0
+
+properties:
+  - id: RB-BASE-1
+    req: R-BASE-1
+    pattern: implies
+    args: {trigger: "n == 0", cond: "outcome == 0 && result == 0"}
+    note: "fib4(0) -> 0: the call returns the integer 0 (outcome 0, result 0). Entry 0 of the model."
+
+  - id: RB-BASE-2
+    req: R-BASE-2
+    pattern: implies
+    args: {trigger: "n == 1", cond: "outcome == 0 && result == 0"}
+    note: "fib4(1) -> 0: the call returns the integer 0. Entry 1 of the model."
+
+  - id: RB-BASE-3
+    req: R-BASE-3
+    pattern: implies
+    args: {trigger: "n == 2", cond: "outcome == 0 && result == 2"}
+    note: "fib4(2) -> 2: the call returns the integer 2. Entry 2 of the model."
+
+  - id: RB-BASE-4
+    req: R-BASE-4
+    pattern: implies
+    args: {trigger: "n == 3", cond: "outcome == 0 && result == 0"}
+    note: "fib4(3) -> 0: the call returns the integer 0. Entry 3 of the model."
+
+  - id: RB-REC-1
+    req: R-REC-1
+    pattern: implies
+    args:
+      trigger: "n >= 4 && preceded_by_four"
+      cond: "outcome == 0 && result == prev(result) + prev(result, 2) + prev(result, 3) + prev(result, 4)"
+    note: >-
+      The recurrence as a relation between the function's own answers. Each cycle
+      is one call, so fib4(n-1) .. fib4(n-4) can only be seen as earlier calls:
+      whenever a call fib4(n) with n >= 4 directly follows calls of n-1, n-2,
+      n-3 and n-4 (an ascending sweep, which the checker's dense scope
+      produces) that each returned an integer, it returns their sum. This
+      states R-REC-1 alone, without the base values; the absolute value of every
+      element follows only together with R-BASE-1..4 and is checked against the
+      model by RB-FN-1. 'fib4(n)' is read as n >= 4 only (reading 1); in the
+      trace n is 0..63, so n >= 4 is exactly 'n not a base value' and reading 2
+      would give the same item. CONTRADICTION: with the base values this
+      recurrence gives fib4(5) = 4, fib4(6) = 8, fib4(7) = 14, while the
+      docstring examples (R-EX-1..3) print 0, 0 and 2. Reading 1 taken: the base
+      values and recurrence are the definition the docstring announces ('defined
+      as follows') and the examples are wrong. The recurrence is kept literally
+      at every n >= 4, including 5 and 6.
+
+  - id: RB-FN-1
+    req: R-FN-1
+    pattern: invariant
+    args: {cond: "outcome == 0 && result == expected"}
+    note: >-
+      Every call returns, as an integer that fits result (outcome 0), the element
+      of the model sequence at index n. 'the n-th element' is read as index n
+      counting from 0 (reading 1), the indexing the base values use (fib4(0) ..
+      fib4(3)); counting from 1 would contradict fib4(2) -> 2 and leave fib4(0)
+      meaningless. 'compute' is read as returning a Python int (reading 1),
+      which the doctest form '>>> fib4(5)' followed by a bare integer also shows;
+      a float, a print or None is outcome 2 and violates this. The model follows
+      the definition, so at n = 5, 6, 7 it gives 4, 8, 14, not the example values
+      (see RB-REC-1). Within the trace (n <= 63) any call that raises or does not
+      finish (outcome 1) violates this.
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: "n == 5 && outcome == 0 && result == 4"
+    note: >-
+      CONTRADICTION. The text prints 0 for fib4(5), but the base values and the
+      recurrence give fib4(4) + fib4(3) + fib4(2) + fib4(1) = 2 + 0 + 2 + 0 = 4.
+      Reading 1 taken (the example is wrong and fib4(5) returns 4), consistent
+      with RB-REC-1. The scenario keeps the example's call and its normal return
+      and uses the value the definition gives; this departs from the printed
+      value on purpose. A cover of the literal value 0 would be unreachable under
+      RB-FN-1 and RB-REC-1.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: "n == 6 && outcome == 0 && result == 8"
+    note: >-
+      CONTRADICTION. The text prints 0 for fib4(6), but the definition gives
+      fib4(5) + fib4(4) + fib4(3) + fib4(2) = 4 + 2 + 0 + 2 = 8. Reading 1 taken
+      (the example is wrong and fib4(6) returns 8). The value departs from the
+      printed one on purpose; the literal value 0 would be unreachable under
+      RB-FN-1 and RB-REC-1.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    cover: "n == 7 && outcome == 0 && result == 14"
+    note: >-
+      CONTRADICTION. The text prints 2 for fib4(7), but the definition gives
+      fib4(6) + fib4(5) + fib4(4) + fib4(3) = 8 + 4 + 2 + 0 = 14. (2 is what the
+      recurrence would give at 7 if fib4(5) = fib4(6) = 0 as the other two
+      examples print, so the three examples agree with each other but not with
+      the definition.) Reading 1 taken (the example is wrong and fib4(7) returns
+      14). The value departs from the printed one on purpose.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Says what the deliverable is (complete the body of the stub, keep its name
+      and signature), not how the calls behave. The adapter can only run code
+      that defines fib4(n), so this holds for any trace that exists; nothing in
+      the trace is left to constrain.
+  - req: R-IF-1
+    reason: >-
+      Interface definition (name fib4, one argument n). The design's function
+      section (name fib4, one argument driving the input n) realizes it; it
+      places no condition on a cycle.
+  - req: R-ENV-1
+    reason: >-
+      'n: int' read as any Python int, negative included (reading 1, the literal
+      meaning of the annotation). Nothing is left for the environment to obey in
+      the trace: frame.md encodes n as a 6-bit unsigned input, so every call in
+      the trace passes an integer 0..63, and negative or larger arguments are not
+      part of the trace (the prompt leaves their result unstated, so no item
+      constrains them). An assumption would be a tautology of the encoding.
+  - req: R-DEF-1
+    reason: >-
+      Definition of the sequence. It is the specification model: the def
+      fib4_seq holds base values 0, 0, 2, 0 followed by the four-term recurrence
+      for indices up to 63, and the items below check the function against it
+      and against the recurrence.
+    covered_by: [RB-BASE-1, RB-BASE-2, RB-BASE-3, RB-BASE-4, RB-REC-1, RB-FN-1]
+  - req: R-NF-1
+    reason: >-
+      'efficiently' read as time linear in n, memory unconstrained (reading 2:
+      the word speaks of computing, i.e. time, and says nothing about memory).
+      Running time is not a signal of the trace. Its only visible consequence is
+      that every call with n <= 63 finishes (an exponential naive recursion would
+      not finish at the larger n, giving outcome 1). RB-FN-1 already requires
+      outcome 0 for every call, but that is not this requirement, since it also
+      excludes exceptions.
+  - req: R-NF-2
+    reason: >-
+      'recursion' read as any recursion, helpers, mutual and memoized recursion
+      included (reading 2: the instruction 'Do not use recursion' is unqualified).
+      This is a property of the source code, not of the calls: a recursive and an
+      iterative implementation give the same trace for n <= 63, so no item over
+      the trace can tell them apart. It needs a code review or a static check.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, part of every formalization set by
+      construction (design.yaml frame item F-ZERO: outcome != 0 -> result == 0);
+      frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-1, phrase: "n: int", reading: 1}
+  - {req: R-REC-1, phrase: "fib4(n)", reading: 1}
+  - {req: R-REC-1, phrase: "fib4(n) -> fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4)", reading: 1}
+  - {req: R-FN-1, phrase: "the n-th element", reading: 1}
+  - {req: R-FN-1, phrase: "compute", reading: 1}
+  - {req: R-NF-1, phrase: "efficiently", reading: 2}
+  - {req: R-NF-2, phrase: "recursion", reading: 2}
+  - {req: R-EX-1, phrase: ">>> fib4(5) 0", reading: 1}
+  - {req: R-EX-2, phrase: ">>> fib4(6) 0", reading: 1}
+  - {req: R-EX-3, phrase: ">>> fib4(7) 2", reading: 1}

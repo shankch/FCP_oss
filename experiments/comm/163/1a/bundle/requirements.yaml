@@ -1,0 +1,167 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a Python implementation of the function generate_integers(a, b), keeping that name and its two parameters a and b.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IN-1
+  doc: SPEC
+  quote: Given two positive integers a and b
+  text: The argument a is a positive integer (a >= 1).
+  kind: assumption
+  ambiguity:
+  - phrase: positive integers
+    readings:
+    - 'An environment obligation: calls with a = 0 never happen, so the result for a = 0 is unconstrained (don''t care).'
+    - 'Only a description of typical inputs: the function must still follow the other requirements when a = 0 (for instance listing 0 as an even digit when it lies between a and b).'
+  lines:
+  - 6
+- id: R-IN-2
+  doc: SPEC
+  quote: Given two positive integers a and b
+  text: The argument b is a positive integer (b >= 1).
+  kind: assumption
+  ambiguity:
+  - phrase: positive integers
+    readings:
+    - 'An environment obligation: calls with b = 0 never happen, so the result for b = 0 is unconstrained (don''t care).'
+    - 'Only a description of typical inputs: the function must still follow the other requirements when b = 0 (for instance listing 0 as an even digit when it lies between a and b).'
+  lines:
+  - 6
+- id: R-OUT-1
+  doc: SPEC
+  quote: Given two positive integers a and b, return the odd or even digits
+  text: For positive integer arguments a and b, the call returns a list of integers (it neither raises an exception nor returns another type).
+  kind: guarantee
+  lines:
+  - 6
+- id: R-SEL-1
+  doc: SPEC
+  quote: return the odd or even digits
+  text: Every element of the returned list is a digit, that is, an integer from 0 to 9.
+  kind: guarantee
+  ambiguity:
+  - phrase: digits
+    readings:
+    - The single-digit integers 0 to 9 that lie in the range between a and b (consistent with generate_integers(10, 14) => []).
+    - The decimal digits that occur in the integers between a and b (for 10..14 this would include 0, 2 and 4, contradicting generate_integers(10, 14) => []).
+    - Loosely, the integers between a and b of any size (for 10..14 this would include 10, 12 and 14 or 11 and 13, contradicting generate_integers(10, 14) => []).
+  lines:
+  - 6
+- id: R-SEL-2
+  doc: SPEC
+  quote: digits between a and b
+  text: Every element of the returned list lies in the closed range from min(a, b) to max(a, b), whichever argument is larger.
+  kind: guarantee
+  ambiguity:
+  - phrase: between a and b
+    readings:
+    - 'Inclusive: a and b themselves count as between a and b (consistent with generate_integers(2, 8) => [2, 4, 6, 8]).'
+    - 'Exclusive: only values strictly greater than the smaller and strictly less than the larger argument (contradicts generate_integers(2, 8) => [2, 4, 6, 8], which contains 2 and 8).'
+  - phrase: between a and b
+    readings:
+    - 'Order-independent: the range from min(a, b) to max(a, b) (consistent with generate_integers(8, 2) => [2, 4, 6, 8]).'
+    - 'Directed: the values from a up to b, empty when a > b (contradicts generate_integers(8, 2) => [2, 4, 6, 8]).'
+  lines:
+  - 6
+  - 7
+- id: R-SEL-3
+  doc: SPEC
+  quote: return the odd or even digits
+  text: 'All elements of the returned list have the selected parity: either all are odd or all are even.'
+  kind: guarantee
+  ambiguity:
+  - phrase: odd or even
+    readings:
+    - Even digits only (the parity every example shows).
+    - Odd digits only (contradicts generate_integers(2, 8) => [2, 4, 6, 8] and generate_integers(8, 2) => [2, 4, 6, 8]).
+    - Both odd and even digits, i.e. every digit regardless of parity (contradicts generate_integers(2, 8) => [2, 4, 6, 8], which omits 3, 5 and 7).
+    - The implementer chooses one parity, odd or even, and uses it for every call (the examples then bind only an implementation that chose even).
+    - The parity may be chosen per call, e.g. odd digits when a is odd and even digits when a is even (consistent with all three examples, whose first argument is even).
+  lines:
+  - 6
+- id: R-SEL-4
+  doc: SPEC
+  quote: return the odd or even digits between a and b
+  text: Every digit (0 to 9) of the selected parity that lies between a and b appears in the returned list.
+  kind: guarantee
+  lines:
+  - 6
+  - 7
+- id: R-SEL-5
+  doc: SPEC
+  quote: return the odd or even digits between a and b
+  text: No value appears more than once in the returned list.
+  kind: guarantee
+  lines:
+  - 6
+  - 7
+- id: R-ORD-1
+  doc: SPEC
+  quote: in descending or ascending order
+  text: The returned list is sorted, in descending or in ascending order.
+  kind: guarantee
+  ambiguity:
+  - phrase: in descending or ascending order
+    readings:
+    - Always ascending (the order every example shows).
+    - Always descending (contradicts generate_integers(2, 8) => [2, 4, 6, 8] and generate_integers(8, 2) => [2, 4, 6, 8]).
+    - The implementer chooses one order and uses it for every call (the examples then bind only an implementation that chose ascending).
+    - 'Following the argument order: ascending when a <= b and descending when a > b (contradicts generate_integers(8, 2) => [2, 4, 6, 8]).'
+    - 'Paired with the parity respectively: odd digits in descending order, even digits in ascending order.'
+    - Either order on any call, as long as the list is sorted one way or the other.
+  lines:
+  - 7
+- id: R-EX-1
+  doc: SPEC
+  quote: generate_integers(2, 8) => [2, 4, 6, 8]
+  text: The call generate_integers(2, 8) returns [2, 4, 6, 8].
+  kind: scenario
+  ambiguity:
+  - phrase: generate_integers(2, 8) => [2, 4, 6, 8]
+    readings:
+    - 'Binding: the call must return exactly [2, 4, 6, 8], which fixes even parity and ascending order and contradicts the odd and descending options of ''odd or even digits'' and ''in descending or ascending
+      order'' (R-SEL-3, R-ORD-1).'
+    - 'Illustrative: one admissible answer for an implementation that chose even digits in ascending order; an implementation that chose odd digits or descending order may return another list.'
+  lines:
+  - 10
+- id: R-EX-2
+  doc: SPEC
+  quote: generate_integers(8, 2) => [2, 4, 6, 8]
+  text: The call generate_integers(8, 2) returns [2, 4, 6, 8].
+  kind: scenario
+  ambiguity:
+  - phrase: generate_integers(8, 2) => [2, 4, 6, 8]
+    readings:
+    - 'Binding: the call must return exactly [2, 4, 6, 8], which fixes even parity and ascending order even when a > b, contradicting the odd and descending options of ''odd or even digits'' and ''in descending
+      or ascending order'' (R-SEL-3, R-ORD-1) and the reading that descending order applies when a > b.'
+    - 'Illustrative: one admissible answer for an implementation that chose even digits in ascending order; an implementation that chose odd digits or descending order may return another list.'
+  lines:
+  - 11
+- id: R-EX-3
+  doc: SPEC
+  quote: generate_integers(10, 14) => []
+  text: The call generate_integers(10, 14) returns the empty list [].
+  kind: scenario
+  ambiguity:
+  - phrase: generate_integers(10, 14) => []
+    readings:
+    - 'Consistent with ''digits'' meaning the single-digit integers 0 to 9 in the range: no digit lies between 10 and 14.'
+    - Contradicts 'digits' read as the digits occurring in the numbers 10 to 14 (0, 2, 4 even; 1, 3 odd) or as the integers 10 to 14 themselves (R-SEL-1).
+  lines:
+  - 12
+- id: R-FR-1
+  doc: FRAME
+  quote: '`result` is the empty list unless `outcome` is 0.'
+  text: Whenever a call does not end by returning a fitting list (outcome other than 0), the result signal is the empty list.
+  kind: guarantee
+  lines:
+  - 47

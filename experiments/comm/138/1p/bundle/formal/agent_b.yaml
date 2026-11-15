@@ -1,0 +1,122 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. frame.md: the function keeps no state between calls and
+# each cycle is one independent call, so the reference model is a combinational
+# function of the argument n (defs only; there is no state for a ghost to hold).
+defs:
+  # n is the sum of exactly 4 even integers, the same value allowed more than
+  # once. A sum of even numbers is even, so an odd n never qualifies; an even n
+  # always does (n = n + 0 + 0 + 0). On the trace n is 0 .. 65535 (frame.md).
+  sum4_even: "n % 2 == 0"
+  returned: "outcome != 1"               # the call finished without an exception
+  returned_bool: "outcome == 0"          # the call returned True or False
+  says_true: "outcome == 0 && result"    # the call returned True
+  says_false: "outcome == 0 && !result"  # the call returned False
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: "returned"}
+    note: >-
+      Every call terminates and returns normally: outcome 1 (any exception, or
+      the call did not finish) never occurs. Returning a value of the wrong
+      type (outcome 2) is a normal return and is left to RB-RET-2.
+
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "returned", cond: "returned_bool"}
+    note: >-
+      Reading 1 of "Evaluate whether": the returned value is the bool True or
+      False, so a truthy/falsy value of another type (outcome 2) is a
+      violation. The requirement constrains the value the function returns,
+      so it is conditioned on a normal return; with RB-RET-1 it gives
+      outcome == 0 in every call.
+
+  - id: RB-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args: {trigger: "sum4_even", cond: "says_true"}
+    note: >-
+      The request is truncated after "the sum of exactly 4" and never names
+      the kind of summand. Taken literally, the function name
+      is_equal_to_sum_even supplies "even" (and nothing more); no text says
+      the summands are positive or distinct. Reading taken: four even
+      integers, repetition allowed, sign unrestricted (reading 3 of "the sum
+      of exactly 4"), which on the trace domain 0 .. 65535 means exactly the
+      even n. Consequence: n = 0, 2, 4, 6 must return True; the positive-even
+      reading (reading 1) would require False there, and the distinct
+      reading would move the boundary to 20. The word "exactly" constrains
+      nothing under this reading (zero summands pad any count); that is a
+      sign the author may have meant positive summands, but the text does
+      not say so and it is not repaired here.
+
+  - id: RB-SUM-2
+    req: R-SUM-2
+    pattern: implies
+    args: {trigger: "!sum4_even", cond: "says_false"}
+    note: >-
+      Same reading as RB-SUM-1 (four even integers, repetition allowed, sign
+      unrestricted): n cannot be written so exactly when n is odd, and then
+      the call must return the bool False (outcome 0, result false). Under
+      the positive-even reading n = 0, 2, 4, 6 would also be False; not under
+      this one.
+
+scenarios:
+  - id: RB-S-SUM-1
+    req: R-SUM-1
+    cover: "sum4_even && says_true"
+    note: A call whose n is a sum of exactly 4 even numbers, answered True.
+
+  - id: RB-S-SUM-2
+    req: R-SUM-2
+    cover: "!sum4_even && says_false"
+    note: A call whose n is not a sum of exactly 4 even numbers, answered False.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a complete implementation that keeps
+      the stub's signature. The signature is how the adapter calls the
+      function and is not a property of the trace; a stub left incomplete
+      (returning None) or a changed signature (the call raises) shows up only
+      through the behavioural items listed.
+    covered_by: [RB-RET-1, RB-RET-2, RB-SUM-1, RB-SUM-2]
+
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the function's name and its single parameter n fix how
+      the adapter calls it, not a value on the trace. A wrong arity makes
+      every call raise (outcome 1) and is caught by RB-RET-1, but the name
+      itself is not observable. The name is still read for its meaning
+      (reading 1: it supplies "even" as the kind of summand), which is used in
+      RB-SUM-1 and RB-SUM-2.
+
+  - req: R-DOM-1
+    reason: >-
+      Environment obligation with nothing to constrain on the trace. Reading
+      taken: "the given number n" is any number, floats included (reading 3,
+      the most literal: the text says only "number"). The frame encodes n as
+      an unsigned 16-bit integer 0 .. 65535 and excludes every other argument,
+      so every n on the trace is a given number under every reading; the
+      assumption would be the constant true.
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (outcome != 0 -> !result). frame.md says it is
+      part of every formalization set and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-2, phrase: "is_equal_to_sum_even", reading: 1}
+  - {req: R-DOM-1, phrase: "the given number n", reading: 3}
+  - {req: R-RET-2, phrase: "Evaluate whether", reading: 1}
+  - {req: R-SUM-1, phrase: "the sum of exactly 4", reading: 3}
+  - {req: R-SUM-1, phrase: "exactly 4", reading: 1}
+  - {req: R-SUM-1, phrase: "is_equal_to_sum_even", reading: 1}
+  - {req: R-SUM-2, phrase: "the sum of exactly 4", reading: 3}
+  - {req: R-SUM-2, phrase: "exactly 4", reading: 1}
+  - {req: R-SUM-2, phrase: "is_equal_to_sum_even", reading: 1}

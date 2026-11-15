@@ -1,0 +1,6 @@
+I wrote `design.yaml`, `frame.md` and `requirements.yaml` for `fib4(n)`, and `fcp lint` reports the bundle clean. Each cycle after the reset in cycle 0 is one independent call:
+- **Input:** `n` is 7 bits, so 0 to 127.
+- **Result:** `result` is 128 bits, enough for every value in that range with room to spare.
+- **Outcome:** 2 bits. 0 means it returned an integer that fits, 1 means any exception or no answer, and 2 means it returned anything else. `raises` is `[]` because the request names no exception, and `frame.md` says so.
+
+The request puts no upper limit on `n`, so the 0–127 cap is my choice, not the request's. `frame.md` says that negative values and anything above 127 are not part of the trace. The `function` section names `fib4`, with one int argument and an int return, and its scope covers every `n` from 0 to 127. There is one frame rule, F-ZERO (`outcome != 0 -> result == 0`). It cites R-FR-1, which quotes the matching line of `frame.md`; `fcp anchor` computed its line number (36) from `draft.yaml`, which is still in the workspace.

@@ -1,0 +1,144 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md),
+# so the model is combinational: defs computed from the arguments of the
+# current call, and both outputs (outcome, result) are checked against it.
+defs:
+  # R-IN-1: a word is a non-empty string of letters (ASCII A-Z, a-z; either case)
+  a_word: 'len(a) >= 1 && all(i < len(a): isalpha(a[i]))'
+  b_word: 'len(b) >= 1 && all(i < len(b): isalpha(b[i]))'
+  # R-RET-1/2: rotation k of b (cyclic shift: b[k..] followed by b[..k-1]; k = 0 is b itself)
+  # occurs as a contiguous substring of a, starting at position p; characters compared exactly.
+  # The empty string has the single rotation "" (k = 0), which occurs in every a.
+  related: 'any(k < max(len(b), 1): any(p < len(a) - len(b) + 1: all(j < len(b): a[p + j] == (j + k < len(b) ? b[j + k] : b[j + k - len(b)]))))'
+  returns_true: 'outcome == 0 && result'
+  returns_false: 'outcome == 0 && !result'
+
+assumptions:
+  - id: RB-IN-1
+    req: R-IN-1
+    expr: 'a_word && b_word'
+    note: >-
+      "You are given 2 words" is an obligation on the caller. Reading taken for
+      "2 words": both arguments are non-empty strings of letters; calls with an
+      empty string or a non-letter character are outside the contract, so both
+      outputs are unconstrained for them. Letters are the ASCII letters (FCP-PL
+      isalpha); Latin-1 letters above code 127 are not counted as letters, which
+      is a choice the text does not settle. Reading taken for "words": upper- and
+      lower-case letters are both allowed (the text does not restrict words to
+      lower case; only the examples are lower case), and case is significant.
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'related', cond: 'returns_true'}
+    note: >-
+      Whenever some rotation of b (b itself is the rotation by 0) occurs as a
+      contiguous substring of a, the call returns the bool True (outcome 0,
+      result 1). Readings: "related to the first word" = occurs as a contiguous
+      substring of a, compared case-sensitively; "rotations" = cyclic shifts;
+      "return True" = the bool True, not any truthy value. An empty b is
+      excluded by RB-IN-1 (reading 2 of "the second word"), so the model's
+      value for it is never used.
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: '!related', cond: 'returns_false'}
+    note: >-
+      Whenever no rotation of b occurs as a contiguous substring of a, the call
+      returns the bool False. Reading taken for "if": if and only if. Taken
+      strictly as a logical "if", the prompt states only when to return True; the
+      False value comes from the examples (abcd/abd, whassup/psus, efef/eeff),
+      which show False exactly in the cases where no rotation is related.
+
+  # The examples are stated as facts ("=>"), so each one is also a guarantee
+  # for its own call, independent of how "related" is read.
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'a == "abcd" && b == "abd"', cond: 'returns_false'}
+    note: 'cycpattern_check("abcd","abd") returns the bool False. Agrees with RB-RET-2: none of abd, bda, dab is a substring of abcd.'
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'a == "hello" && b == "ell"', cond: 'returns_true'}
+    note: 'cycpattern_check("hello","ell") returns the bool True. Agrees with RB-RET-1: ell is a substring of hello.'
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'a == "whassup" && b == "psus"', cond: 'returns_false'}
+    note: 'cycpattern_check("whassup","psus") returns the bool False. Agrees with RB-RET-2: none of psus, susp, usps, spsu is a substring of whassup.'
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'a == "abab" && b == "baa"', cond: 'returns_true'}
+    note: 'cycpattern_check("abab","baa") returns the bool True. Agrees with RB-RET-1: the rotation aba is a substring of abab.'
+  - id: RB-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 'a == "efef" && b == "eeff"', cond: 'returns_false'}
+    note: 'cycpattern_check("efef","eeff") returns the bool False. Agrees with RB-RET-2: none of the cyclic shifts eeff, effe, ffee, feef is a substring of efef.'
+  - id: RB-EX-6
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 'a == "himenss" && b == "simen"', cond: 'returns_true'}
+    note: 'cycpattern_check("himenss","simen") returns the bool True. Agrees with RB-RET-1: the rotation imens is a substring of himenss.'
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: 'a == "abcd" && b == "abd" && returns_false'
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: 'a == "hello" && b == "ell" && returns_true'
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: 'a == "whassup" && b == "psus" && returns_false'
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: 'a == "abab" && b == "baa" && returns_true'
+  - id: RB-EX-5-S
+    req: R-EX-5
+    cover: 'a == "efef" && b == "eeff" && returns_false'
+  - id: RB-EX-6-S
+    req: R-EX-6
+    cover: 'a == "himenss" && b == "simen" && returns_true'
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Deliverable statement ("Complete this function"): the function name and
+      signature are fixed by the adapter (design.yaml function section), not a
+      property of the call trace. That a completed function returns a bool on
+      every word pair is required by RB-RET-1 and RB-RET-2.
+  - req: R-IF-2
+    reason: >-
+      Definition: the first word is the argument a and the second word is the
+      argument b. Realized by using signal a as the first word and signal b as
+      the second word in every item.
+    covered_by: [RB-IN-1, RB-RET-1, RB-RET-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the adapter (result is false unless outcome is 0)
+      holds by construction and is added to every formalization set; frame.md
+      says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "2 words", reading: 2}
+  - {req: R-IN-1, phrase: "words", reading: 1}
+  - {req: R-RET-1, phrase: "related to the first word", reading: 1}
+  - {req: R-RET-1, phrase: "related", reading: 1}
+  - {req: R-RET-1, phrase: "any of its rotations", reading: 1}
+  - {req: R-RET-1, phrase: "the second word", reading: 2}
+  - {req: R-RET-1, phrase: "return True", reading: 1}
+  - {req: R-RET-2, phrase: "if", reading: 1}
+  - {req: R-EX-1, phrase: "=> False", reading: 1}
+  - {req: R-EX-2, phrase: "=> True", reading: 1}
+  - {req: R-EX-3, phrase: "=> False", reading: 1}
+  - {req: R-EX-4, phrase: "=> True", reading: 1}
+  - {req: R-EX-5, phrase: "=> False", reading: 1}
+  - {req: R-EX-6, phrase: "=> True", reading: 1}

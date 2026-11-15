@@ -1,0 +1,134 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # n is a sum of exactly 4 DISTINCT positive even numbers (reading 2 of
+  # "exactly 4 positive even numbers"): the smallest such sum is 2+4+6+8 = 20,
+  # and every even n >= 20 is 2+4+6+(n-12) with n-12 >= 8.
+  rep: 'n % 2 == 0 && n >= 20'
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    expr: 'outcome != 1'
+    note: >-
+      Variant reading of "Evaluate whether" (reading 2, as instructed): any value
+      that compares equal to True or False (such as 1 or 0) is acceptable, since the
+      examples only check == True / == False. So the call must finish without raising
+      (outcome != 1), and a non-bool return (outcome 2) is allowed. The frame records
+      every non-bool return as outcome 2 without its value, so this also admits
+      returns such as None or a string, which the reading does not accept; the
+      interface cannot separate them.
+
+  - id: RV-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args:
+      trigger: 'rep'
+      cond: 'outcome == 0 -> !result'
+    note: >-
+      Variant readings, as instructed. "exactly 4 positive even numbers": the four
+      summands must be distinct (reading 2), so the representable n are exactly the
+      even n >= 20 (def rep). "can be written as the sum of exactly 4 positive even
+      numbers": the examples are authoritative and the description is inverted
+      (reading 2), so a representable n gets False. "Evaluate whether" (R-RET-1,
+      reading 2) also affects this item: a value equal to False such as 0 is
+      acceptable, so the answer is constrained only when the call returns a bool
+      (outcome 0). The R-SUM-1 inverted reading says this makes
+      is_equal_to_sum_even(8) return False, but that only holds when summands may
+      repeat. Under the distinct-summands reading 8 is not representable, so this
+      item does not cover n = 8, and RV-SUM-2 (inverted) requires True there. The
+      claimed consequence is recorded here and not formalized.
+
+  - id: RV-SUM-2
+    req: R-SUM-2
+    pattern: implies
+    args:
+      trigger: '!rep'
+      cond: 'outcome == 0 -> result'
+    note: >-
+      Variant readings, as instructed. "exactly 4 positive even numbers": the four
+      summands must be distinct (reading 2), so the representable n are exactly the
+      even n >= 20 (def rep). "can be written as the sum of exactly 4 positive even
+      numbers": the examples are authoritative and the description is inverted
+      (reading 2), so every n that is not representable (odd n, 0, and the even n
+      below 20) gets True. This includes is_equal_to_sum_even(4) and (6), as the
+      reading states, and also is_equal_to_sum_even(8). "Evaluate whether"
+      (R-RET-1, reading 2) also affects this item: a value equal to True such as 1
+      is acceptable, so the answer is constrained only when the call returns a
+      bool (outcome 0).
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'n == 4'
+      cond: 'outcome == 0 -> !result'
+    note: >-
+      Variant reading of "is_equal_to_sum_even(4) == True" (reading 2, as
+      instructed): the description is authoritative. 4 is not a sum of 4 positive
+      even numbers, so is_equal_to_sum_even(4) returns False and the example is
+      wrong. It is stated as a property because a call on a fixed argument has one
+      answer. "Evaluate whether" (R-RET-1, reading 2) also affects this item: 0 is
+      acceptable, so only a bool answer (outcome 0) is constrained. This contradicts
+      RV-SUM-2, whose inverted reading gives True at n = 4. With R-RET-1 reading 2
+      the set stays satisfiable only because a non-bool return (outcome 2) at n = 4
+      meets both. That is an artefact of the interface, not a real resolution.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'n == 6'
+      cond: 'outcome == 0 -> !result'
+    note: >-
+      Variant reading of "is_equal_to_sum_even(6) == True" (reading 2, as
+      instructed): the description is authoritative. 6 is not a sum of 4 positive
+      even numbers, so is_equal_to_sum_even(6) returns False and the example is
+      wrong. It is stated as a property because a call on a fixed argument has one
+      answer. "Evaluate whether" (R-RET-1, reading 2) also affects this item: 0 is
+      acceptable, so only a bool answer (outcome 0) is constrained. This contradicts
+      RV-SUM-2, whose inverted reading gives True at n = 6. With R-RET-1 reading 2
+      the set stays satisfiable only because a non-bool return (outcome 2) at n = 6
+      meets both. That is an artefact of the interface, not a real resolution.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'n == 8'
+      cond: 'outcome == 0 -> result'
+    note: >-
+      Variant reading of "is_equal_to_sum_even(8) == False" (reading 2, as
+      instructed): the description is authoritative. 8 = 2+2+2+2, so
+      is_equal_to_sum_even(8) returns True and the example is wrong. It is stated
+      as a property because a call on a fixed argument has one answer. "Evaluate
+      whether" (R-RET-1, reading 2) also affects this item: 1 is acceptable, so only
+      a bool answer (outcome 0) is constrained. This reading counts 2+2+2+2 as a
+      valid sum (repeated summands), which conflicts with the distinct-summands
+      reading taken for R-SUM-1/R-SUM-2. The value at n = 8 still agrees with
+      RV-SUM-2 (inverted: 8 is not representable with distinct summands, so True).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the name is_equal_to_sum_even and the single argument n are
+      the binding of the function adapter (design.yaml function section and
+      frame.md), not a property of the call trace. A function with another name or
+      signature cannot be run by the adapter at all.
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO (outcome != 0 -> !result) is part of every formalization
+      set by construction (frame.md, Frame rules); it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-RET-1, phrase: 'Evaluate whether', reading: 2}
+  - {req: R-SUM-1, phrase: 'exactly 4 positive even numbers', reading: 2}
+  - {req: R-SUM-1, phrase: 'can be written as the sum of exactly 4 positive even numbers', reading: 2}
+  - {req: R-SUM-2, phrase: 'exactly 4 positive even numbers', reading: 2}
+  - {req: R-SUM-2, phrase: 'can be written as the sum of exactly 4 positive even numbers', reading: 2}
+  - {req: R-EX-1, phrase: 'is_equal_to_sum_even(4) == True', reading: 2}
+  - {req: R-EX-2, phrase: 'is_equal_to_sum_even(6) == True', reading: 2}
+  - {req: R-EX-3, phrase: 'is_equal_to_sum_even(8) == False', reading: 2}

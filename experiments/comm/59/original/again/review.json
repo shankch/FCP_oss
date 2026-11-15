@@ -1,0 +1,234 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 72,
+    "checked": 40,
+    "seconds": 301.0
+   },
+   "open": {
+    "open": {},
+    "checked": 0
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 328,
+    "checked": 328,
+    "seconds": 59.67
+   },
+   "open": {
+    "open": {},
+    "checked": 250
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": null,
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": null,
+   "witness": null
+  },
+  "R-FN-1": {
+   "plain": "UNKNOWN",
+   "context": null,
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-1",
+    "req": "R-ENV-1",
+    "says": "every call meets `n > 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-2",
+    "req": "R-ENV-2",
+    "says": "every call meets `!n_prime`",
+    "where": {
+     "n_prime": "n >= 2 && all(i < 254: n == i + 2 || n % (i + 2) != 0)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-1",
+    "req": "R-ENV-1",
+    "says": "every call meets `n > 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-2",
+    "req": "R-ENV-2",
+    "says": "every call meets `!n_prime`",
+    "where": {
+     "n_prime": "n >= 2 && all(j < 54: primes[j] < n -> n % primes[j] != 0)"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FN-1",
+   "phrase": "Return",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any returned value numerically equal to the largest prime factor is acceptable, e.g. the float 29.0 or a numpy integer (no return type is annotated in the signature)."
+  },
+  {
+   "req": "R-ENV-1",
+   "phrase": "Assume n > 1",
+   "taken": 1,
+   "variant": 2,
+   "text": "For n <= 1, which has no prime factor, the function must signal the error by raising an exception."
+  },
+  {
+   "req": "R-ENV-2",
+   "phrase": "is not a prime",
+   "taken": 1,
+   "variant": 2,
+   "text": "For prime n the largest prime factor is still well defined (n itself), so the function must return n; the assumption only tells the implementer that this case need not be handled specially."
+  }
+ ],
+ "depends": {},
+ "steps": [
+  {
+   "step": "the scenarios of agent_a",
+   "seconds": 51.9,
+   "failed": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "peak_gb": 7.09
+  },
+  {
+   "step": "the conflicts of agent_a",
+   "seconds": 301.0,
+   "peak_gb": 3.22
+  },
+  {
+   "step": "the open choices of agent_a",
+   "seconds": 900.1,
+   "failed": "did not end in 900 s",
+   "peak_gb": 3.95
+  },
+  {
+   "step": "the scenarios of agent_b",
+   "seconds": 18.3,
+   "failed": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "peak_gb": 7.45
+  },
+  {
+   "step": "the conflicts of agent_b",
+   "seconds": 59.7,
+   "peak_gb": 1.27
+  },
+  {
+   "step": "the open choices of agent_b",
+   "seconds": 253.2,
+   "peak_gb": 1.82
+  },
+  {
+   "step": "the comparison of agent_a and agent_b",
+   "seconds": 384.1,
+   "peak_gb": 4.05
+  },
+  {
+   "step": "the comparison of agent_a and agent_b, in context",
+   "seconds": 255.3,
+   "failed": "was stopped: the check reached its time limit of 2340 s",
+   "peak_gb": 4.02
+  },
+  {
+   "step": "the comparison of agent_a and variant",
+   "seconds": null,
+   "failed": "not run: the check reached its time limit of 2340 s"
+  },
+  {
+   "step": "the comparison of agent_b and variant",
+   "seconds": null,
+   "failed": "not run: the check reached its time limit of 2340 s"
+  }
+ ],
+ "failed": [
+  {
+   "step": "the scenarios of agent_a",
+   "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "rests": "scenarios",
+   "reading": "agent_a"
+  },
+  {
+   "step": "the open choices of agent_a",
+   "why": "did not end in 900 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the scenarios of agent_b",
+   "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "rests": "scenarios",
+   "reading": "agent_b"
+  },
+  {
+   "step": "the comparison of agent_a and agent_b, in context",
+   "why": "was stopped: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_a and variant",
+   "why": "not run: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_b and variant",
+   "why": "not run: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  }
+ ],
+ "limits": [
+  "conflict search of agent_a",
+  "the comparison of agent_a and agent_b"
+ ],
+ "certified": [],
+ "queue": [
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"Return\" can mean: The returned value must be a Python int equal to the largest prime factor. / Any returned value numerically equal to the largest prime factor is acceptable, e.g. the float 29.0 or a numpy integer (no return type is annotated in the signature).. Which is meant?"
+  }
+ ]
+}

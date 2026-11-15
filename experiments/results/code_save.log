@@ -1,0 +1,125 @@
+== 1. The prompt, before any code
+[gold] trigger situations consistent: True; conflicts on scripts: 1 (217 checked, 18.45s)
+    R-CLEAN-1 + R-FR-3 + R-KEEP-1 + R-RET-1 + R-STORE-1 + R-TMP-1:  save_balance(0) with answers ["fail"]
+[agent_a] trigger situations consistent: True; conflicts on scripts: 1 (217 checked, 13.48s)
+    R-CLEAN-1 + R-FR-3 + R-KEEP-1 + R-STORE-1 + R-TMP-1:  save_balance(0) with answers ["fail"]
+[agent_b] trigger situations consistent: True; conflicts on scripts: 1 (217 checked, 35.51s)
+    R-CLEAN-1 + R-FR-3 + R-KEEP-1 + R-STORE-1 + R-TMP-1:  save_balance(0) with answers ["fail"]
+  gold|agent_a: 
+    R-TMP-1    INCOMPARABLE  in context INCOMPARABLE
+        a_not_b: [cents=83882240] ; open(2, 4) ; f1.write(67108863) ; f1.write(1) ; f1.flush() ; os.fsync(1) ; f1.close() ; os.replace(2, 1) -> "fail"
+        b_not_a: [cents=83882240] ; f0.write(0) ; open(2, 3)
+    R-STORE-1  INCOMPARABLE  in context A-STRONGER
+        b_not_a: [cents=83882240] ; open(2, 2) ; f4.write(67108863) ; open(2, 3) ; f1.flush() ; os.fsync(1) ; f1.close() ; os.replace(2, 1) -> "fail"
+    R-SYNC-1   INCOMPARABLE  in context INCOMPARABLE
+        a_not_b: [cents=83882240] ; open(2, 2) ; f7.write(67108863) ; f7.flush() ; f7.close() ; os.fsync(7) ; os.replace(2, 1) -> "ok"
+        b_not_a: [cents=83882240] ; open(2, 2) ; f2.write(67108863) ; os.fsync(2) ; f2.close() ; os.replace(2, 1) -> "fail" ; os.replace(2, 1) -> "ok"
+    R-RET-1    INCOMPARABLE  in context A-WEAKER
+        a_not_b: [cents=83882240] ; open(2, 2) ; f4.write(67108863) ; f4.flush() ; os.fsync(4) ; f4.close() ; os.replace(2, 1) -> "ok" ; returns raised ValueError
+    R-CLEAN-1  INCOMPARABLE  in context INCOMPARABLE
+        a_not_b: [cents=83882240] ; open(2, 2) ; returns raised ValueError
+        b_not_a: [cents=83882240] ; open(2, 2) ; f7.write(67108863) ; f7.flush() ; os.fsync(7) ; f7.close() ; os.replace(2, 1) -> "ok" ; open(2, 5) ; returns True
+    R-KEEP-1   INCOMPARABLE  in context INCOMPARABLE
+        a_not_b: [cents=83882240] ; open(2, 2) ; f4.write(67108863) ; f4.flush() ; os.fsync(4) ; f4.close() ; os.replace(2, 1) -> "fail" ; os.replace(2, 1) -> "ok" ; returns raised ValueError
+        b_not_a: [cents=83882240] ; open(2, 2) ; f5.write(67108863) ; f5.flush() ; os.fsync(5) ; f5.close() ; os.replace(2, 1) -> "fail" ; os.remove(2)
+  gold|agent_b: 
+    R-TMP-1    INCOMPARABLE  in context INCOMPARABLE
+        a_not_b: [cents=83882240] ; open(2, 3) ; f5.close() ; f5.write(0) ; f5.flush() ; os.fsync(5) ; os.replace(2, 1) -> "fail"
+        b_not_a: [cents=83882240] ; f0.write(0)
+    R-STORE-1  INCOMPARABLE  in context A-STRONGER
+        b_not_a: [cents=83882240] ; open(2, 3) ; f1.write(67108863) ; f1.close() ; f1.write(1) ; f1.flush() ; os.fsync(1) ; os.replace(2, 1) -> "fail" ; os.replace(2, 1) -> "ok"
+    R-SYNC-1   INCOMPARABLE  in context INCOMPARABLE
+        a_not_b: [cents=83882240] ; open(2, 4) ; f5.write(67108863) ; open(2, 7) ; f4.write(0) ; f4.flush() ; f4.close() ; os.fsync(4) ; os.replace(2, 1) -> "ok"
+        b_not_a: [cents=83882240] ; open(2, 3) ; f1.write(67108863) ; os.fsync(1) ; f1.close() ; os.replace(2, 1) -> "fail"
+    R-RET-1    INCOMPARABLE  in context A-WEAKER
+        a_not_b: [cents=67105024] ; open(2, 3) ; f1.write(67108863) ; f1.flush() ; os.fsync(1) ; f1.close() ; os.replace(2, 1) -> "ok" ; returns raised ValueError
+    R-CLEAN-1  INCOMPARABLE  in context INCOMPARABLE
+        a_not_b: [cents=83882240] ; open(2, 3) ; returns raised ValueError
+        b_not_a: [cents=83882240] ; open(2, 3) ; f4.write(67108863) ; f4.flush() ; os.fsync(4) ; f4.close() ; os.replace(2, 1) -> "ok" ; open(2, 5) ; returns True
+    R-KEEP-1   INCOMPARABLE  in context INCOMPARABLE
+        a_not_b: [cents=83882240] ; open(2, 3) ; f1.write(67108863) ; f1.flush() ; os.fsync(1) ; f1.close() ; os.replace(2, 1) -> "fail" ; os.replace(2, 1) -> "ok" ; open(0, 4)
+        b_not_a: [cents=83882240] ; open(2, 3) ; f7.write(67108863) ; f7.flush() ; os.fsync(7) ; f7.close() ; os.replace(2, 1) -> "fail" ; open(2, 1)
+  agent_a|agent_b: 
+    R-STORE-1  INCOMPARABLE  in context EQUIVALENT
+    R-TMP-1    INCOMPARABLE  in context INCOMPARABLE
+        a_not_b: [cents=83882240] ; os.replace(1, 1) -> "ok"
+        b_not_a: [cents=83882240] ; open(2, 4) ; f1.write(67108863) ; os.fsync(1) ; f1.close() ; f1.write(67108863) ; os.replace(2, 1) -> "fail" ; open(2, 2)
+    R-SYNC-1   INCOMPARABLE  in context A-STRONGER
+        b_not_a: [cents=83882240] ; open(2, 3) ; f4.write(67108863) ; f4.close() ; os.fsync(4) ; os.replace(2, 1) -> "fail" ; open(2, 2)
+    R-RET-1    INCOMPARABLE  in context EQUIVALENT
+    R-CLEAN-1  A-STRONGER    in context EQUIVALENT
+    R-KEEP-1   INCOMPARABLE  in context A-WEAKER
+        a_not_b: [cents=83882240] ; open(2, 3) ; f1.write(67108863) ; os.fsync(1) ; f1.close() ; os.replace(2, 1) -> "fail" ; os.replace(2, 1) -> "ok" ; os.remove(3)
+== 2. Every implementation against every reading (failing requirements)
+  haiku  1441 runs  gold: R-CLEAN-1  agent_a: R-CLEAN-1,R-EX-1  agent_b: R-CLEAN-1,R-EX-1
+      G-CLEAN: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns False  (replay confirmed)
+  sonnet 1441 runs  gold: R-CLEAN-1  agent_a: R-CLEAN-1,R-EX-1  agent_b: R-CLEAN-1,R-EX-1
+      G-CLEAN: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns False  (replay confirmed)
+  opus   1441 runs  gold: R-CLEAN-1  agent_a: R-CLEAN-1,R-EX-1  agent_b: R-CLEAN-1,R-EX-1
+      G-CLEAN: save_balance(0) with answers ["fail"]: os.remove('balance.txt.tmp') -> FileNotFoundError ; f1 = open('balance.txt.tmp', 'x') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns False  (replay confirmed)
+  ref    1441 runs  gold: R-CLEAN-1  agent_a: R-CLEAN-1,R-EX-1  agent_b: R-CLEAN-1,R-EX-1
+      G-CLEAN: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns False  (replay confirmed)
+  C1     1441 runs  gold: R-CLEAN-1,R-SYNC-1  agent_a: R-CLEAN-1  agent_b: R-CLEAN-1
+      G-SYNC: save_balance(0) with answers []: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "ok"  (replay confirmed)
+      G-CLEAN: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns False  (replay confirmed)
+  C2     1441 runs  gold: R-EX-1,R-STORE-1,R-SYNC-1,R-TMP-1  agent_a: R-EX-1,R-STORE-1,R-SYNC-1,R-TMP-1  agent_b: R-EX-1,R-KEEP-1,R-RET-1,R-STORE-1,R-SYNC-1,R-TMP-1
+      G-OPEN: save_balance(0) with answers []: f1 = open('balance.txt', 'w')  (replay confirmed)
+      G-WRITE: save_balance(0) with answers []: f1 = open('balance.txt', 'w') ; f1.write('0')  (replay confirmed)
+      G-DIGITS: save_balance(0) with answers []: f1 = open('balance.txt', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError  (replay confirmed)
+      G-STORE: save_balance(0) with answers []: f1 = open('balance.txt', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError ; returns False  (replay confirmed)
+      G-SYNC: save_balance(0) with answers []: f1 = open('balance.txt', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> FileNotFoundError  (replay confirmed)
+  C3     1441 runs  gold: R-CLEAN-1,R-SYNC-1  agent_a: R-CLEAN-1,R-EX-1,R-SYNC-1  agent_b: R-CLEAN-1,R-EX-1,R-SYNC-1
+      G-SYNC: save_balance(0) with answers []: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; os.replace('balance.txt.tmp', 'balance.txt') -> "ok"  (replay confirmed)
+      G-CLEAN: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; f1.close() ; returns False  (replay confirmed)
+  C4     1441 runs  gold: R-CLEAN-1,R-RET-1,R-STORE-1  agent_a: R-CLEAN-1,R-EX-1,R-RET-1,R-STORE-1,R-TMP-1  agent_b: R-CLEAN-1,R-EX-1,R-RET-1,R-STORE-1,R-TMP-1
+      G-STORE: save_balance(100000000) with answers []: returns raised ValueError  (replay confirmed)
+      G-RET: save_balance(100000000) with answers []: returns raised ValueError  (replay confirmed)
+      G-CLEAN: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns False  (replay confirmed)
+  C5     1441 runs  gold: R-EX-1,R-KEEP-1,R-RET-1  agent_a: R-EX-1,R-KEEP-1,R-RET-1  agent_b: R-EX-1,R-KEEP-1,R-RET-1
+      G-RET: save_balance(0) with answers []: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "ok" ; os.remove('balance.txt.tmp') -> FileNotFoundError ; returns FileNotFoundError: [Errno 2] No such file or directory: 'balance.txt.tmp'  (replay confirmed)
+      G-KEEP: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; os.remove('balance.txt.tmp')  (replay confirmed)
+  C6     1441 runs  gold: R-CLEAN-1,R-EX-1,R-RET-1,R-STORE-1  agent_a: R-CLEAN-1,R-EX-1,R-KEEP-1,R-RET-1,R-STORE-1,R-TMP-1  agent_b: R-CLEAN-1,R-EX-1,R-KEEP-1,R-RET-1,R-STORE-1,R-TMP-1
+      G-DIGITS: save_balance(1) with answers []: f1 = open('balance.txt.tmp', 'w') ; f1.write('0.01') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "ok"  (replay confirmed)
+      G-STORE: save_balance(1) with answers []: f1 = open('balance.txt.tmp', 'w') ; f1.write('0.01') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "ok" ; returns True  (replay confirmed)
+      G-RET: save_balance(1) with answers []: f1 = open('balance.txt.tmp', 'w') ; f1.write('0.01') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "ok" ; returns True  (replay confirmed)
+      G-CLEAN: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0.0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns False  (replay confirmed)
+  C7     1441 runs  gold: R-CLEAN-1,R-KEEP-1,R-RET-1  agent_a: R-CLEAN-1,R-EX-1,R-KEEP-1,R-RET-1  agent_b: R-CLEAN-1,R-EX-1,R-KEEP-1,R-RET-1
+      G-RET: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns True  (replay confirmed)
+      G-CLEAN: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns True  (replay confirmed)
+      G-KEEP-RET: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns True  (replay confirmed)
+  C8     1441 runs  gold: R-CLEAN-1,R-ERR-1  agent_a: R-CLEAN-1,R-ERR-1,R-EX-1  agent_b: R-CLEAN-1,R-ERR-1,R-EX-1
+      G-ERR: save_balance(100000001) with answers []: f1 = open('balance.txt.tmp', 'w')  (replay confirmed)
+      G-CLEAN: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns False  (replay confirmed)
+  C9     1441 runs  gold: R-CLEAN-1  agent_a: R-CLEAN-1,R-EX-1  agent_b: R-CLEAN-1,R-EX-1
+      G-CLEAN: save_balance(0) with answers ["fail"]: f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "fail" ; returns False  (replay confirmed)
+== 3. Where the AI implementations disagree
+    1179 runs split [['haiku', 'sonnet'], ['opus']]: save_balance(0) with answers []
+      haiku  f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "ok" ; returns True
+      sonnet f1 = open('balance.txt.tmp', 'w') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "ok" ; returns True
+      opus   os.remove('balance.txt.tmp') -> FileNotFoundError ; f1 = open('balance.txt.tmp', 'x') ; f1.write('0') ; f1.flush() ; os.fsync(f1.fileno()) ; f1.close() ; os.replace('balance.txt.tmp', 'balance.txt') -> "ok" ; returns True
+== 4. The tests each model wrote, against every implementation (tests failing / run)
+  haiku  haiku:0/18 sonnet:0/18 opus:0/18 ref:6/18 C1:6/18 C2:13/18 C3:7/18 C4:7/18 C5:14/18 C6:11/18 C7:7/18 C8:10/18 C9:6/18
+  sonnet haiku:3/37 sonnet:0/37 opus:3/37 ref:11/37 C1:11/37 C2:28/37 C3:12/37 C4:13/37 C5:29/37 C6:26/37 C7:14/37 C8:14/37 C9:11/37
+  opus   haiku:3/33 sonnet:11/33 opus:0/33 ref:18/33 C1:18/33 C2:27/33 C3:18/33 C4:19/33 C5:27/33 C6:27/33 C7:19/33 C8:24/33 C9:18/33
+  C1: fsync without flushing Python's buffer first; planted ['R-SYNC-1']; FCP ['R-CLEAN-1', 'R-SYNC-1']; tests {'haiku': 0, 'sonnet': 0, 'opus': 0}
+  C2: writes balance.txt directly, then moves a file that does not exist; planted ['R-TMP-1']; FCP ['R-CLEAN-1', 'R-STORE-1', 'R-SYNC-1', 'R-TMP-1']; tests {'haiku': 7, 'sonnet': 17, 'opus': 9}
+  C3: moves the file before closing it; planted ['R-SYNC-1']; FCP ['R-SYNC-1']; tests {'haiku': 1, 'sonnet': 1, 'opus': 0}
+  C4: rejects the largest valid balance; planted ['R-STORE-1', 'R-RET-1']; FCP ['R-CLEAN-1', 'R-RET-1', 'R-STORE-1']; tests {'haiku': 1, 'sonnet': 2, 'opus': 1}
+  C5: removes the temporary file in finally, after it has been moved; planted ['R-RET-1', 'R-KEEP-1']; FCP ['R-CLEAN-1', 'R-KEEP-1', 'R-RET-1']; tests {'haiku': 8, 'sonnet': 18, 'opus': 9}
+  C6: writes dollars instead of cents; planted ['R-STORE-1']; FCP ['R-RET-1', 'R-STORE-1']; tests {'haiku': 5, 'sonnet': 15, 'opus': 9}
+  C7: returns True when os.replace fails; planted ['R-KEEP-1', 'R-RET-1']; FCP ['R-KEEP-1', 'R-RET-1']; tests {'haiku': 1, 'sonnet': 3, 'opus': 1}
+  C8: checks the balance after writing the file; planted ['R-ERR-1']; FCP ['R-ERR-1']; tests {'haiku': 4, 'sonnet': 3, 'opus': 6}
+  C9: refactoring: the digits written with %d; planted []; FCP -; tests {'haiku': 0, 'sonnet': 0, 'opus': 0}
+== 5. Mutants: observable, killed per reading
+  haiku  7/9 observable; killed gold:7 agent_a:7 agent_b:7
+  sonnet 7/9 observable; killed gold:7 agent_a:7 agent_b:7
+  opus   8/10 observable; killed gold:8 agent_a:8 agent_b:8
+  ref    7/8 observable; killed gold:7 agent_a:7 agent_b:7
+== 6. False assurance on the AI implementations (requirement violated under gold, but certified)
+  violations 3; naive (own tests pass) certifies 3; FCP certifies 0; FCP certified 6/24 cells
+== 7. Proofs beyond the scope (every run: every argument, every script of answers)
+  haiku  gold: R-CLEAN-1=FAILS  agent_a: R-CLEAN-1=FAILS  agent_b: R-CLEAN-1=FAILS
+  sonnet gold: R-CLEAN-1=FAILS  agent_a: R-CLEAN-1=FAILS  agent_b: R-CLEAN-1=FAILS
+  opus   gold: R-CLEAN-1=FAILS  agent_a: R-CLEAN-1=FAILS  agent_b: R-CLEAN-1=FAILS
+  ref    gold: R-CLEAN-1=FAILS  agent_a: R-CLEAN-1=FAILS  agent_b: R-CLEAN-1=FAILS
+total 95.3s

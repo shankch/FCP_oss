@@ -1,0 +1,275 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 70,
+    "checked": 70,
+    "seconds": 190.93
+   },
+   "open": {
+    "open": {},
+    "checked": 0
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 804,
+    "checked": 804,
+    "seconds": 270.17
+   },
+   "open": {
+    "open": {},
+    "checked": 472
+   }
+  }
+ },
+ "readings": {
+  "R-FN-1": {
+   "plain": "UNKNOWN",
+   "context": null,
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-1",
+    "req": "R-ENV-1",
+    "says": "every call meets `n > 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-2",
+    "req": "R-ENV-2",
+    "says": "every call meets `!n_prime`",
+    "where": {
+     "n_prime": "n >= 2 && all(i < 254: (i + 2) * (i + 2) <= n -> n % (i + 2) != 0)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-1",
+    "req": "R-ENV-1",
+    "says": "every call meets `n > 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-2",
+    "req": "R-ENV-2",
+    "says": "every call meets `!n_is_prime`",
+    "where": {
+     "n_is_prime": "n >= 2 && all(j < 54: primes[j] * primes[j] <= n -> n % primes[j] != 0)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-1-D-OUT",
+    "req": "R-ENV-1",
+    "says": "`outcome` is free when `n <= 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-1-D-FAC",
+    "req": "R-ENV-1",
+    "says": "`factor` is free when `n <= 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-2-D-OUT",
+    "req": "R-ENV-2",
+    "says": "`outcome` is free when `n_is_prime`",
+    "where": {
+     "n_is_prime": "n >= 2 && all(j < 54: primes[j] * primes[j] <= n -> n % primes[j] != 0)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-2-D-FAC",
+    "req": "R-ENV-2",
+    "says": "`factor` is free when `n_is_prime`",
+    "where": {
+     "n_is_prime": "n >= 2 && all(j < 54: primes[j] * primes[j] <= n -> n % primes[j] != 0)"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [
+    "RB-EX-1"
+   ],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FN-1",
+   "phrase": "the largest prime factor of n",
+   "taken": 1,
+   "variant": 2,
+   "text": "the value the examples show: for 13195 the example gives 5, which is the smallest prime factor of 13195 (and 2 for 2048 fits both), so the intended result follows the examples (smallest prime factor) rather than the words"
+  },
+  {
+   "req": "R-ENV-1",
+   "phrase": "Assume n > 1",
+   "taken": 1,
+   "variant": 2,
+   "text": "a statement of the valid domain that the function should enforce: for n <= 1 (no prime factor exists) it must raise an exception rather than return a value"
+  },
+  {
+   "req": "R-ENV-2",
+   "phrase": "and is not a prime",
+   "taken": 1,
+   "variant": 2,
+   "text": "prime arguments are merely not expected; the largest prime factor of a prime n is n itself, so returning n is still required by R-FN-1"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "largest_prime_factor(13195) 5",
+   "taken": 2,
+   "variant": 1,
+   "text": "the example is wrong: 13195 = 5 * 7 * 13 * 29, so by R-FN-1 the largest prime factor is 29 and the call must return 29, not 5"
+  }
+ ],
+ "depends": {},
+ "steps": [
+  {
+   "step": "the scenarios of agent_a",
+   "seconds": 12.3,
+   "failed": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "peak_gb": 7.14
+  },
+  {
+   "step": "the conflicts of agent_a",
+   "seconds": 190.9,
+   "peak_gb": 0.43
+  },
+  {
+   "step": "the open choices of agent_a",
+   "seconds": 900.0,
+   "failed": "did not end in 900 s",
+   "peak_gb": 0.53
+  },
+  {
+   "step": "the scenarios of agent_b",
+   "seconds": 95.8,
+   "peak_gb": 6.91
+  },
+  {
+   "step": "the conflicts of agent_b",
+   "seconds": 270.2,
+   "peak_gb": 0.46
+  },
+  {
+   "step": "the open choices of agent_b",
+   "seconds": 472.1,
+   "peak_gb": 0.6
+  },
+  {
+   "step": "the comparison of agent_a and agent_b",
+   "seconds": 305.0,
+   "peak_gb": 0.66
+  },
+  {
+   "step": "the comparison of agent_a and agent_b, in context",
+   "seconds": 72.8,
+   "failed": "was stopped: the check reached its time limit of 2340 s",
+   "peak_gb": 0.8
+  },
+  {
+   "step": "the comparison of agent_a and variant",
+   "seconds": null,
+   "failed": "not run: the check reached its time limit of 2340 s"
+  },
+  {
+   "step": "the comparison of agent_b and variant",
+   "seconds": null,
+   "failed": "not run: the check reached its time limit of 2340 s"
+  }
+ ],
+ "failed": [
+  {
+   "step": "the scenarios of agent_a",
+   "why": "passed the memory limit of 6.8 GB, also with one task at a time",
+   "rests": "scenarios",
+   "reading": "agent_a"
+  },
+  {
+   "step": "the open choices of agent_a",
+   "why": "did not end in 900 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_a and agent_b, in context",
+   "why": "was stopped: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_a and variant",
+   "why": "not run: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_b and variant",
+   "why": "not run: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  }
+ ],
+ "limits": [
+  "the comparison of agent_a and agent_b",
+  "the comparison of agent_a and agent_b: it cannot assume RA-FN-1-MAX (rules stated for every value of a variable), and requirements they bear on stay undecided"
+ ],
+ "certified": [],
+ "queue": [
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-1 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"the largest prime factor of n\" can mean: the greatest prime p that divides n, as the words say (for 13195 = 5 * 7 * 13 * 29 this is 29), which contradicts the example largest_prime_factor(13195) -> 5 (R-EX-1) / the value the examples show: for 13195 the example gives 5, which is the smallest prime factor of 13195 (and 2 for 2048 fits both), so the intended result follows the examples (smallest prime factor) rather than the words. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"largest_prime_factor(13195) 5\" can mean: the example is wrong: 13195 = 5 * 7 * 13 * 29, so by R-FN-1 the largest prime factor is 29 and the call must return 29, not 5 / the example is authoritative: the call must return 5 (the smallest prime factor of 13195), and R-FN-1's 'largest' is to be read through the examples. Which is meant?"
+  }
+ ]
+}

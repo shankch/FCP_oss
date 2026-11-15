@@ -1,0 +1,321 @@
+{
+ "task": "invoice",
+ "readers": {
+  "variant1": {
+   "k": 1,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-MEM-1",
+     "phrase": "rounded down to the cent",
+     "reading": 1,
+     "text": "the line's discount is rounded down (the line is rounded up)"
+    },
+    {
+     "req": "R-DISC-1",
+     "phrase": "summed and rounded down",
+     "reading": 1,
+     "text": "the sum is taken first, then 10% of it is rounded down"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-MEM-1",
+     "phrase": "rounded down to the cent",
+     "reading": 1
+    },
+    {
+     "req": "R-DISC-1",
+     "phrase": "summed and rounded down",
+     "reading": 1
+    }
+   ],
+   "pairs": {
+    "agent_a|variant1": {
+     "seconds": 0,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-DISC-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-LINES-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-MEM-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-SUM-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-TOT-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      }
+     }
+    },
+    "agent_b|variant1": {
+     "seconds": 72,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-DISC-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-LINES-1": {
+       "plain": "A-STRONGER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-MEM-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-SUM-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-TOT-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      }
+     }
+    }
+   }
+  },
+  "variant2": {
+   "k": 2,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-MEM-1",
+     "phrase": "rounded down to the cent",
+     "reading": 2,
+     "text": "the discounted line amount is rounded down"
+    },
+    {
+     "req": "R-DISC-1",
+     "phrase": "summed and rounded down",
+     "reading": 2,
+     "text": "each item's 10% is rounded down, then summed"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-MEM-1",
+     "phrase": "rounded down to the cent",
+     "reading": 2
+    },
+    {
+     "req": "R-DISC-1",
+     "phrase": "summed and rounded down",
+     "reading": 2
+    }
+   ],
+   "pairs": {
+    "agent_a|variant2": {
+     "seconds": 92,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-EX-1": {
+       "plain": "ONLY-A",
+       "k": 1,
+       "exact": true
+      },
+      "R-DISC-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-LINES-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-MEM-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "calls": [
+         [
+          [
+           1
+          ],
+          [
+           1
+          ],
+          [
+           0
+          ],
+          1
+         ]
+        ],
+        "lines": [
+         "invoice([{\"price\": 1, \"qty\": 1, \"sale\": False}], True) -> {\"lines\": [1], \"discount\": 0, \"total\": 1}"
+        ]
+       }
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-SUM-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-TOT-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      }
+     }
+    },
+    "agent_b|variant2": {
+     "seconds": 145,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-EX-1": {
+       "plain": "ONLY-A",
+       "k": 1,
+       "exact": true
+      },
+      "R-DISC-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-LINES-1": {
+       "plain": "A-STRONGER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-MEM-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "calls": [
+         [
+          [
+           1
+          ],
+          [
+           2
+          ],
+          [
+           0
+          ],
+          1
+         ]
+        ],
+        "lines": [
+         "invoice([{\"price\": 1, \"qty\": 2, \"sale\": False}], True) -> {\"lines\": [2], \"discount\": 0, \"total\": 2}"
+        ]
+       }
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-SUM-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-TOT-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "settings": {
+  "jobs": 2,
+  "bit_jobs": 1
+ }
+}

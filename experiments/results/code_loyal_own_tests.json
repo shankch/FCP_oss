@@ -1,0 +1,2363 @@
+{
+ "haiku": {
+  "tests": 32,
+  "observable": 48,
+  "killed_by_tests": 47,
+  "timeouts": 0,
+  "killed_by_fcp": {
+   "agent_a": 47,
+   "agent_b": 47,
+   "gold": 47
+  },
+  "only_fcp": [
+   {
+    "id": "loyalty/tiers.py:M2",
+    "desc": "loyalty/tiers.py: line 3: 0 becomes -1",
+    "tests_failing": 0,
+    "killed_by_tests": false,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "tier()",
+     "original": "0",
+     "mutant": "returned -1 (int)"
+    }
+   }
+  ],
+  "only_tests": [
+   {
+    "id": "loyalty/tiers.py:M15",
+    "desc": "loyalty/tiers.py: line 10: 3 becomes 4",
+    "tests_failing": 4,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": false,
+     "agent_a": false,
+     "agent_b": false
+    },
+    "example": {
+     "call": "earn(33400); earn(99900); tier(); earn(1); earn(100000); redeem(2000); balance(); balance(); redeem(100001); earn(33300)",
+     "original": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 999",
+     "mutant": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 1000"
+    }
+   }
+  ],
+  "all": [
+   {
+    "id": "loyalty/account.py:M1",
+    "desc": "loyalty/account.py: line 6: 1 becomes 2",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(1)",
+     "original": "False",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M1",
+    "desc": "loyalty/points.py: line 5: 1000 becomes 1001",
+    "tests_failing": 4,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(90248); earn(99900)",
+     "original": "902; 1000",
+     "mutant": "902; 1001"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M1",
+    "desc": "loyalty/tiers.py: line 3: 0 becomes 1",
+    "tests_failing": 12,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "tier()",
+     "original": "0",
+     "mutant": "1"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M2",
+    "desc": "loyalty/account.py: line 6: 1 becomes 0",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(0)",
+     "original": "raised ValueError",
+     "mutant": "True"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M2",
+    "desc": "loyalty/points.py: line 5: 1000 becomes 999",
+    "tests_failing": 5,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000)",
+     "original": "1000",
+     "mutant": "999"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M2",
+    "desc": "loyalty/tiers.py: line 3: 0 becomes -1",
+    "tests_failing": 0,
+    "killed_by_tests": false,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "tier()",
+     "original": "0",
+     "mutant": "returned -1 (int)"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M3",
+    "desc": "loyalty/account.py: line 7: 100000 becomes 100001",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(100001)",
+     "original": "raised ValueError",
+     "mutant": "False"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M3",
+    "desc": "loyalty/points.py: line 6: 1 becomes 2",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(1)",
+     "original": "0",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M3",
+    "desc": "loyalty/tiers.py: line 4: 1 becomes 2",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 261"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M4",
+    "desc": "loyalty/account.py: line 7: 100000 becomes 99999",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(100000)",
+     "original": "False",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M4",
+    "desc": "loyalty/points.py: line 6: 1 becomes 0",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(0)",
+     "original": "raised ValueError",
+     "mutant": "0"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M4",
+    "desc": "loyalty/tiers.py: line 4: 1 becomes 0",
+    "tests_failing": 12,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "666"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M5",
+    "desc": "loyalty/points.py: line 7: 100000 becomes 100001",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100001)",
+     "original": "raised ValueError",
+     "mutant": "1000"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M5",
+    "desc": "loyalty/tiers.py: line 5: 2 becomes 3",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000); earn(65556); tier()",
+     "original": "1000; 1000; 2",
+     "mutant": "1000; 1000; 3"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M6",
+    "desc": "loyalty/account.py: line 11: \"not\" removed",
+    "tests_failing": 14,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(0)",
+     "original": "raised ValueError",
+     "mutant": "TypeError: amount must be an int, not int"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M6",
+    "desc": "loyalty/points.py: line 7: 100000 becomes 99999",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000)",
+     "original": "1000",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M6",
+    "desc": "loyalty/tiers.py: line 5: 2 becomes 1",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 261"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M7",
+    "desc": "loyalty/account.py: line 20: 0 becomes 1",
+    "tests_failing": 17,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "balance()",
+     "original": "0",
+     "mutant": "1"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M7",
+    "desc": "loyalty/tiers.py: line 7: 500 becomes 501",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50000); earn(199)",
+     "original": "500; 2",
+     "mutant": "500; 1"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M8",
+    "desc": "loyalty/account.py: line 20: 0 becomes -1",
+    "tests_failing": 16,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "balance()",
+     "original": "0",
+     "mutant": "returned -1 (int)"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M8",
+    "desc": "loyalty/points.py: line 18: \"not\" removed",
+    "tests_failing": 17,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M8",
+    "desc": "loyalty/tiers.py: line 7: 500 becomes 499",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(49900); tier()",
+     "original": "499; 0",
+     "mutant": "499; 1"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M9",
+    "desc": "loyalty/account.py: line 30: \"not\" removed",
+    "tests_failing": 11,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M9",
+    "desc": "loyalty/points.py: line 20: // becomes /",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "returned 333.0 (float)"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M9",
+    "desc": "loyalty/tiers.py: line 8: 2000 becomes 2001",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000); earn(65556); tier()",
+     "original": "1000; 1000; 2",
+     "mutant": "1000; 1000; 1"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M10",
+    "desc": "loyalty/account.py: line 34: max() becomes min()",
+    "tests_failing": 4,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 87"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M10",
+    "desc": "loyalty/points.py: line 21: min() becomes max()",
+    "tests_failing": 14,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "1000"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M10",
+    "desc": "loyalty/tiers.py: line 8: 2000 becomes 1999",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(99904); earn(76798); earn(199)",
+     "original": "999; 1000; 2",
+     "mutant": "999; 1000; 3"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M11",
+    "desc": "loyalty/account.py: line 43: \"not\" removed",
+    "tests_failing": 8,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(0)",
+     "original": "raised ValueError",
+     "mutant": "True"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M11",
+    "desc": "loyalty/points.py: line 16: \"not\" removed",
+    "tests_failing": 17,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "TypeError: amount must be an int number of cents"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M11",
+    "desc": "loyalty/tiers.py: line 10: 1 becomes 2",
+    "tests_failing": 12,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "666"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M12",
+    "desc": "loyalty/account.py: line 45: > becomes >=",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(60000); redeem(600)",
+     "original": "600; True",
+     "mutant": "600; False"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M12",
+    "desc": "loyalty/points.py: line 18: <= becomes <",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(1)",
+     "original": "0",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M12",
+    "desc": "loyalty/tiers.py: line 10: 1 becomes 0",
+    "tests_failing": 15,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "0"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M13",
+    "desc": "loyalty/account.py: line 30: <= becomes <",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(1)",
+     "original": "0",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M13",
+    "desc": "loyalty/points.py: line 18: <= becomes <",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000)",
+     "original": "1000",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M13",
+    "desc": "loyalty/tiers.py: line 10: 2 becomes 3",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 261"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M14",
+    "desc": "loyalty/account.py: line 30: <= becomes <",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000)",
+     "original": "1000",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M14",
+    "desc": "loyalty/points.py: line 20: 100 becomes 101",
+    "tests_failing": 13,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "329"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M14",
+    "desc": "loyalty/tiers.py: line 10: 2 becomes 1",
+    "tests_failing": 5,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 87"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M15",
+    "desc": "loyalty/account.py: line 43: <= becomes <",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(1)",
+     "original": "False",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M15",
+    "desc": "loyalty/points.py: line 20: 100 becomes 99",
+    "tests_failing": 8,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "336"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M15",
+    "desc": "loyalty/tiers.py: line 10: 3 becomes 4",
+    "tests_failing": 4,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": false,
+     "agent_a": false,
+     "agent_b": false
+    },
+    "example": {
+     "call": "earn(33400); earn(99900); tier(); earn(1); earn(100000); redeem(2000); balance(); balance(); redeem(100001); earn(33300)",
+     "original": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 999",
+     "mutant": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 1000"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M16",
+    "desc": "loyalty/account.py: line 43: <= becomes <",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(100000)",
+     "original": "False",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M16",
+    "desc": "loyalty/points.py: line 21: * becomes //",
+    "tests_failing": 6,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 43"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M16",
+    "desc": "loyalty/tiers.py: line 10: 3 becomes 2",
+    "tests_failing": 5,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(77336); earn(37407); earn(24096); earn(49900)",
+     "original": "773; 748; 480; 1000",
+     "mutant": "773; 748; 480; 998"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M17",
+    "desc": "loyalty/tiers.py: line 20: >= becomes >",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000); earn(65556); tier()",
+     "original": "1000; 1000; 2",
+     "mutant": "1000; 1000; 1"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M18",
+    "desc": "loyalty/tiers.py: line 22: >= becomes >",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50000); earn(199)",
+     "original": "500; 2",
+     "mutant": "500; 1"
+    }
+   }
+  ]
+ },
+ "sonnet": {
+  "tests": 74,
+  "observable": 41,
+  "killed_by_tests": 41,
+  "timeouts": 0,
+  "killed_by_fcp": {
+   "agent_a": 40,
+   "agent_b": 40,
+   "gold": 40
+  },
+  "only_fcp": [],
+  "only_tests": [
+   {
+    "id": "loyalty/tiers.py:M15",
+    "desc": "loyalty/tiers.py: line 11: 3 becomes 4",
+    "tests_failing": 5,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": false,
+     "agent_a": false,
+     "agent_b": false
+    },
+    "example": {
+     "call": "earn(33400); earn(99900); tier(); earn(1); earn(100000); redeem(2000); balance(); balance(); redeem(100001); earn(33300)",
+     "original": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 999",
+     "mutant": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 1000"
+    }
+   }
+  ],
+  "all": [
+   {
+    "id": "loyalty/account.py:M1",
+    "desc": "loyalty/account.py: line 6: 1 becomes 2",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(1)",
+     "original": "0",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M1",
+    "desc": "loyalty/points.py: line 5: 100 becomes 101",
+    "tests_failing": 28,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "329"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M1",
+    "desc": "loyalty/tiers.py: line 3: 0 becomes 1",
+    "tests_failing": 20,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "tier()",
+     "original": "0",
+     "mutant": "1"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M2",
+    "desc": "loyalty/account.py: line 6: 1 becomes 0",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(0)",
+     "original": "raised ValueError",
+     "mutant": "0"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M2",
+    "desc": "loyalty/points.py: line 5: 100 becomes 99",
+    "tests_failing": 20,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "336"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M2",
+    "desc": "loyalty/tiers.py: line 3: 0 becomes -1",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "tier()",
+     "original": "0",
+     "mutant": "returned -1 (int)"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M3",
+    "desc": "loyalty/account.py: line 7: 100000 becomes 100001",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100001)",
+     "original": "raised ValueError",
+     "mutant": "1000"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M3",
+    "desc": "loyalty/points.py: line 6: 1000 becomes 1001",
+    "tests_failing": 9,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(90248); earn(99900)",
+     "original": "902; 1000",
+     "mutant": "902; 1001"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M3",
+    "desc": "loyalty/tiers.py: line 4: 1 becomes 2",
+    "tests_failing": 8,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 261"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M4",
+    "desc": "loyalty/account.py: line 7: 100000 becomes 99999",
+    "tests_failing": 8,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000)",
+     "original": "1000",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M4",
+    "desc": "loyalty/points.py: line 6: 1000 becomes 999",
+    "tests_failing": 12,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000)",
+     "original": "1000",
+     "mutant": "999"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M4",
+    "desc": "loyalty/tiers.py: line 4: 1 becomes 0",
+    "tests_failing": 20,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "666"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M5",
+    "desc": "loyalty/account.py: line 8: 1 becomes 2",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(1)",
+     "original": "False",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M5",
+    "desc": "loyalty/points.py: line 16: // becomes /",
+    "tests_failing": 9,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "returned 333.0 (float)"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M5",
+    "desc": "loyalty/tiers.py: line 5: 2 becomes 3",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000); earn(65556); tier()",
+     "original": "1000; 1000; 2",
+     "mutant": "1000; 1000; 3"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M6",
+    "desc": "loyalty/account.py: line 8: 1 becomes 0",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(0)",
+     "original": "raised ValueError",
+     "mutant": "True"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M6",
+    "desc": "loyalty/points.py: line 17: min() becomes max()",
+    "tests_failing": 37,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "1000"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M6",
+    "desc": "loyalty/tiers.py: line 5: 2 becomes 1",
+    "tests_failing": 7,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 261"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M7",
+    "desc": "loyalty/account.py: line 9: 100000 becomes 100001",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(100001)",
+     "original": "raised ValueError",
+     "mutant": "False"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M7",
+    "desc": "loyalty/points.py: line 17: * becomes //",
+    "tests_failing": 19,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 43"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M7",
+    "desc": "loyalty/tiers.py: line 7: 500 becomes 501",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50000); earn(199)",
+     "original": "500; 2",
+     "mutant": "500; 1"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M8",
+    "desc": "loyalty/account.py: line 9: 100000 becomes 99999",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(100000)",
+     "original": "False",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M8",
+    "desc": "loyalty/tiers.py: line 7: 500 becomes 499",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(49900); tier()",
+     "original": "499; 0",
+     "mutant": "499; 1"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M9",
+    "desc": "loyalty/tiers.py: line 8: 2000 becomes 2001",
+    "tests_failing": 6,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000); earn(65556); tier()",
+     "original": "1000; 1000; 2",
+     "mutant": "1000; 1000; 1"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M10",
+    "desc": "loyalty/account.py: line 16: or becomes and",
+    "tests_failing": 11,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(0)",
+     "original": "raised ValueError",
+     "mutant": "0"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M10",
+    "desc": "loyalty/tiers.py: line 8: 2000 becomes 1999",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(99904); earn(76798); earn(199)",
+     "original": "999; 1000; 2",
+     "mutant": "999; 1000; 3"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M11",
+    "desc": "loyalty/account.py: line 14: \"not\" removed",
+    "tests_failing": 35,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(0)",
+     "original": "raised ValueError",
+     "mutant": "TypeError: amount must be an int, got int"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M11",
+    "desc": "loyalty/tiers.py: line 11: 1 becomes 2",
+    "tests_failing": 19,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "666"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M12",
+    "desc": "loyalty/account.py: line 16: < becomes <=",
+    "tests_failing": 4,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(1)",
+     "original": "0",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M12",
+    "desc": "loyalty/tiers.py: line 11: 1 becomes 0",
+    "tests_failing": 28,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "0"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M13",
+    "desc": "loyalty/account.py: line 16: > becomes >=",
+    "tests_failing": 9,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000)",
+     "original": "1000",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M13",
+    "desc": "loyalty/tiers.py: line 11: 2 becomes 3",
+    "tests_failing": 6,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 261"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M14",
+    "desc": "loyalty/account.py: line 22: 0 becomes 1",
+    "tests_failing": 33,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "balance()",
+     "original": "0",
+     "mutant": "1"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M14",
+    "desc": "loyalty/tiers.py: line 11: 2 becomes 1",
+    "tests_failing": 8,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 87"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M15",
+    "desc": "loyalty/account.py: line 22: 0 becomes -1",
+    "tests_failing": 33,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "balance()",
+     "original": "0",
+     "mutant": "returned -1 (int)"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M15",
+    "desc": "loyalty/tiers.py: line 11: 3 becomes 4",
+    "tests_failing": 5,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": false,
+     "agent_a": false,
+     "agent_b": false
+    },
+    "example": {
+     "call": "earn(33400); earn(99900); tier(); earn(1); earn(100000); redeem(2000); balance(); balance(); redeem(100001); earn(33300)",
+     "original": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 999",
+     "mutant": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 1000"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M16",
+    "desc": "loyalty/account.py: line 35: max() becomes min()",
+    "tests_failing": 12,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 87"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M16",
+    "desc": "loyalty/tiers.py: line 11: 3 becomes 2",
+    "tests_failing": 6,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(77336); earn(37407); earn(24096); earn(49900)",
+     "original": "773; 748; 480; 1000",
+     "mutant": "773; 748; 480; 998"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M17",
+    "desc": "loyalty/account.py: line 45: > becomes >=",
+    "tests_failing": 4,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(60000); redeem(600)",
+     "original": "600; True",
+     "mutant": "600; False"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M17",
+    "desc": "loyalty/tiers.py: line 21: >= becomes >",
+    "tests_failing": 6,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000); earn(65556); tier()",
+     "original": "1000; 1000; 2",
+     "mutant": "1000; 1000; 1"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M18",
+    "desc": "loyalty/tiers.py: line 23: >= becomes >",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50000); earn(199)",
+     "original": "500; 2",
+     "mutant": "500; 1"
+    }
+   }
+  ]
+ },
+ "opus": {
+  "tests": 72,
+  "observable": 43,
+  "killed_by_tests": 43,
+  "timeouts": 2,
+  "killed_by_fcp": {
+   "agent_a": 42,
+   "agent_b": 42,
+   "gold": 42
+  },
+  "only_fcp": [],
+  "only_tests": [
+   {
+    "id": "loyalty/tiers.py:M15",
+    "desc": "loyalty/tiers.py: line 11: 3 becomes 4",
+    "tests_failing": 6,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": false,
+     "agent_a": false,
+     "agent_b": false
+    },
+    "example": {
+     "call": "earn(33400); earn(99900); tier(); earn(1); earn(100000); redeem(2000); balance(); balance(); redeem(100001); earn(33300)",
+     "original": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 999",
+     "mutant": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 1000"
+    }
+   }
+  ],
+  "all": [
+   {
+    "id": "loyalty/account.py:M1",
+    "desc": "loyalty/account.py: line 6: 1 becomes 2",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(1)",
+     "original": "0",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M1",
+    "desc": "loyalty/points.py: line 5: 100 becomes 101",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": true,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "329"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M1",
+    "desc": "loyalty/tiers.py: line 3: 0 becomes 1",
+    "tests_failing": 10,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "tier()",
+     "original": "0",
+     "mutant": "1"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M2",
+    "desc": "loyalty/account.py: line 6: 1 becomes 0",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(0)",
+     "original": "raised ValueError",
+     "mutant": "0"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M2",
+    "desc": "loyalty/points.py: line 5: 100 becomes 99",
+    "tests_failing": 12,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "336"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M2",
+    "desc": "loyalty/tiers.py: line 3: 0 becomes -1",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "tier()",
+     "original": "0",
+     "mutant": "returned -1 (int)"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M3",
+    "desc": "loyalty/account.py: line 7: 100000 becomes 100001",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100001)",
+     "original": "raised ValueError",
+     "mutant": "1000"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M3",
+    "desc": "loyalty/points.py: line 6: 1000 becomes 1001",
+    "tests_failing": 9,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(90248); earn(99900)",
+     "original": "902; 1000",
+     "mutant": "902; 1001"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M3",
+    "desc": "loyalty/tiers.py: line 4: 1 becomes 2",
+    "tests_failing": 9,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 261"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M4",
+    "desc": "loyalty/account.py: line 7: 100000 becomes 99999",
+    "tests_failing": 6,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000)",
+     "original": "1000",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M4",
+    "desc": "loyalty/points.py: line 6: 1000 becomes 999",
+    "tests_failing": 10,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000)",
+     "original": "1000",
+     "mutant": "999"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M4",
+    "desc": "loyalty/tiers.py: line 4: 1 becomes 0",
+    "tests_failing": 10,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "666"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M5",
+    "desc": "loyalty/account.py: line 8: 1 becomes 2",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(1)",
+     "original": "False",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M5",
+    "desc": "loyalty/tiers.py: line 5: 2 becomes 3",
+    "tests_failing": 4,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000); earn(65556); tier()",
+     "original": "1000; 1000; 2",
+     "mutant": "1000; 1000; 3"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M6",
+    "desc": "loyalty/account.py: line 8: 1 becomes 0",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(0)",
+     "original": "raised ValueError",
+     "mutant": "True"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M6",
+    "desc": "loyalty/points.py: line 22: // becomes /",
+    "tests_failing": 37,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "TypeError: points must be an int, got float"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M6",
+    "desc": "loyalty/tiers.py: line 5: 2 becomes 1",
+    "tests_failing": 8,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 261"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M7",
+    "desc": "loyalty/account.py: line 9: 100000 becomes 100001",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(100001)",
+     "original": "raised ValueError",
+     "mutant": "False"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M7",
+    "desc": "loyalty/points.py: line 23: min() becomes max()",
+    "tests_failing": 24,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "1000"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M7",
+    "desc": "loyalty/tiers.py: line 7: 500 becomes 501",
+    "tests_failing": 4,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50000); earn(199)",
+     "original": "500; 2",
+     "mutant": "500; 1"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M8",
+    "desc": "loyalty/account.py: line 9: 100000 becomes 99999",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "redeem(100000)",
+     "original": "False",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M8",
+    "desc": "loyalty/tiers.py: line 7: 500 becomes 499",
+    "tests_failing": 2,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(49900); tier()",
+     "original": "499; 0",
+     "mutant": "499; 1"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M9",
+    "desc": "loyalty/account.py: line 14: or becomes and",
+    "tests_failing": 9,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(0)",
+     "original": "raised ValueError",
+     "mutant": "0"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M9",
+    "desc": "loyalty/tiers.py: line 8: 2000 becomes 2001",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000); earn(65556); tier()",
+     "original": "1000; 1000; 2",
+     "mutant": "1000; 1000; 1"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M10",
+    "desc": "loyalty/account.py: line 14: < becomes <=",
+    "tests_failing": 5,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(1)",
+     "original": "0",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/points.py:M10",
+    "desc": "loyalty/points.py: line 23: * becomes //",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": true,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 43"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M10",
+    "desc": "loyalty/tiers.py: line 8: 2000 becomes 1999",
+    "tests_failing": 1,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(99904); earn(76798); earn(199)",
+     "original": "999; 1000; 2",
+     "mutant": "999; 1000; 3"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M11",
+    "desc": "loyalty/account.py: line 14: > becomes >=",
+    "tests_failing": 6,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000)",
+     "original": "1000",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M11",
+    "desc": "loyalty/tiers.py: line 11: 1 becomes 2",
+    "tests_failing": 9,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "666"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M12",
+    "desc": "loyalty/account.py: line 22: 0 becomes 1",
+    "tests_failing": 9,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "balance()",
+     "original": "0",
+     "mutant": "1"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M12",
+    "desc": "loyalty/tiers.py: line 11: 1 becomes 0",
+    "tests_failing": 32,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(33300)",
+     "original": "333",
+     "mutant": "0"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M13",
+    "desc": "loyalty/account.py: line 22: 0 becomes -1",
+    "tests_failing": 10,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "balance()",
+     "original": "0",
+     "mutant": "returned -1 (int)"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M13",
+    "desc": "loyalty/tiers.py: line 11: 2 becomes 3",
+    "tests_failing": 7,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 261"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M14",
+    "desc": "loyalty/account.py: line 36: max() becomes min()",
+    "tests_failing": 13,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 87"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M14",
+    "desc": "loyalty/tiers.py: line 11: 2 becomes 1",
+    "tests_failing": 12,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50144); earn(8721)",
+     "original": "501; 174",
+     "mutant": "501; 87"
+    }
+   },
+   {
+    "id": "loyalty/account.py:M15",
+    "desc": "loyalty/account.py: line 46: > becomes >=",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(60000); redeem(600)",
+     "original": "600; True",
+     "mutant": "600; False"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M15",
+    "desc": "loyalty/tiers.py: line 11: 3 becomes 4",
+    "tests_failing": 6,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": false,
+     "agent_a": false,
+     "agent_b": false
+    },
+    "example": {
+     "call": "earn(33400); earn(99900); tier(); earn(1); earn(100000); redeem(2000); balance(); balance(); redeem(100001); earn(33300)",
+     "original": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 999",
+     "mutant": "334; 999; 1; 0; 1000; True; 333; 333; raised ValueError; 1000"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M16",
+    "desc": "loyalty/tiers.py: line 11: 3 becomes 2",
+    "tests_failing": 7,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(77336); earn(37407); earn(24096); earn(49900)",
+     "original": "773; 748; 480; 1000",
+     "mutant": "773; 748; 480; 998"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M18",
+    "desc": "loyalty/tiers.py: line 27: < becomes <=",
+    "tests_failing": 4,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(1)",
+     "original": "0",
+     "mutant": "raised ValueError"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M19",
+    "desc": "loyalty/tiers.py: line 29: >= becomes >",
+    "tests_failing": 3,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(100000); earn(65556); tier()",
+     "original": "1000; 1000; 2",
+     "mutant": "1000; 1000; 1"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M20",
+    "desc": "loyalty/tiers.py: line 31: >= becomes >",
+    "tests_failing": 4,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(50000); earn(199)",
+     "original": "500; 2",
+     "mutant": "500; 1"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M21",
+    "desc": "loyalty/tiers.py: line 16: \"not\" removed",
+    "tests_failing": 69,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(0)",
+     "original": "raised ValueError",
+     "mutant": "TypeError: amount must be an int, got int"
+    }
+   },
+   {
+    "id": "loyalty/tiers.py:M22",
+    "desc": "loyalty/tiers.py: line 27: 0 becomes 1",
+    "tests_failing": 4,
+    "killed_by_tests": true,
+    "timeout": false,
+    "killed_by": {
+     "gold": true,
+     "agent_a": true,
+     "agent_b": true
+    },
+    "example": {
+     "call": "earn(1)",
+     "original": "0",
+     "mutant": "raised ValueError"
+    }
+   }
+  ]
+ }
+}

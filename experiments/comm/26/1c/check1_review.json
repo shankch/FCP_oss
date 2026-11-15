@@ -1,0 +1,229 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 166,
+    "checked": 166,
+    "seconds": 18.93
+   },
+   "open": {
+    "open": {},
+    "checked": 101
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 63,
+    "checked": 63,
+    "seconds": 6.26
+   },
+   "open": {
+    "open": {},
+    "checked": 37
+   }
+  }
+ },
+ "readings": {
+  "R-IF-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-ORD-1": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RM-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RM-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RM-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [
+    "RA-EX-1"
+   ],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [
+    "RB-EX-1"
+   ],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IF-3",
+   "phrase": "-> List[int]",
+   "taken": 1,
+   "variant": 2,
+   "text": "the annotation only describes the type of the value when the function returns; raising an exception on some inputs is not excluded"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "occur more than once",
+   "taken": 1,
+   "variant": 2,
+   "text": "the value appears in a run of two or more adjacent equal elements (as Unix uniq treats duplicates)"
+  },
+  {
+   "req": "R-RM-1",
+   "phrase": "remove all elements that occur more than once",
+   "taken": 1,
+   "variant": 2,
+   "text": "remove only the extra (repeated) occurrences of each value that occurs more than once, so exactly one occurrence of it remains in the result (remove_duplicates([1, 2, 3, 2, 4]) == [1, 2, 3, 4]); this agrees with the example R-EX-1 and the function name remove_duplicates"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "[1, 2, 3, 4]",
+   "taken": 2,
+   "variant": 1,
+   "text": "the example is authoritative: one occurrence (the first) of the repeated value 2 is kept, so R-RM-1 means removing only the extra copies"
+  }
+ ],
+ "depends": {
+  "R-IF-3": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "remove_duplicates([0, 1, 1, 1]) -> raised another exception or did not finish"
+   ]
+  },
+  "R-RM-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "remove_duplicates([43, 43, 228, 227, 238, 238, 238, 96]) -> [228, 227, 96]"
+   ]
+  },
+  "R-RM-2": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "remove_duplicates([13, 21, 16, 11, 16, 13, 17, 7]) -> [21, 11, 17, 7]"
+   ]
+  },
+  "R-RM-3": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a"
+   ],
+   "witness": null
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-1 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-1 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-IF-3",
+    "R-RM-1",
+    "R-RM-2",
+    "R-RM-3"
+   ],
+   "calls": [
+    "remove_duplicates([0, 1, 1, 1]) -> raised another exception or did not finish"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-IF-3"
+   ],
+   "calls": [],
+   "question": "\"-> List[int]\" can mean: the return annotation obliges the function to return normally with a list of integers for every list of integers passed in / the annotation only describes the type of the value when the function returns; raising an exception on some inputs is not excluded. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RM-1"
+   ],
+   "calls": [],
+   "question": "\"remove all elements that occur more than once\" can mean: remove every occurrence of each value that occurs more than once, so no such value appears in the result (remove_duplicates([1, 2, 3, 2, 4]) would be [1, 3, 4]); this contradicts the example R-EX-1, which returns [1, 2, 3, 4] / remove only the extra (repeated) occurrences of each value that occurs more than once, so exactly one occurrence of it remains in the result (remove_duplicates([1, 2, 3, 2, 4]) == [1, 2, 3, 4]); this agrees with the example R-EX-1 and the function name remove_duplicates. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RM-3"
+   ],
+   "calls": [],
+   "question": "\"From a list of integers, remove\" can mean: build and return a new list; the list passed as numbers is left unchanged / remove the elements from the list passed as numbers in place (and return that list). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"Keep order of elements left the same as in the input\" can mean: a value that is kept once out of several occurrences takes the position of its first occurrence in numbers (the example R-EX-1 gives [1, 2, 3, 4]) / a value that is kept once out of several occurrences takes the position of its last occurrence in numbers (would give [1, 3, 2, 4] for [1, 2, 3, 2, 4]) / the order only constrains elements that occur exactly once; the position of a kept repeated value is free. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"[1, 2, 3, 4]\" can mean: the example is authoritative: one occurrence (the first) of the repeated value 2 is kept, so R-RM-1 means removing only the extra copies / the example contradicts R-RM-1 read literally (remove every element that occurs more than once), under which the call returns [1, 3, 4]; the example is in error. Which is meant?"
+  }
+ ],
+ "limits": [
+  "request points of variant, agent_a",
+  "the comparison of agent_a and variant"
+ ]
+}

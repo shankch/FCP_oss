@@ -1,0 +1,145 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. pluck(arr) keeps no state between calls (frame.md,
+# "Calls"), so the model is combinational: it is computed from the argument
+# of the current call alone, and every output is checked against it.
+defs:
+  nonempty: "len(arr) > 0"           # the branch has at least one node to pluck
+  returned: "outcome == 0"           # the call returned an integer from 0 to 255
+  is_node: "plucked in arr"          # the returned value is the value of some node (element) of arr
+
+assumptions:
+  - id: RB-IN-2-VAL
+    req: R-IN-2
+    expr: "all(i < len(arr): arr[i] >= 0)"
+    note: >-
+      Every node of arr is a non-negative integer. The interface encoding
+      already guarantees this (elements are unsigned 8-bit integers;
+      negative and non-integer elements are not part of the trace, frame.md
+      "Inputs"), so the assumption restricts nothing; it is stated to record
+      the obligation. "that" is read as attaching to the nearest noun, "a
+      tree" (decision reading 2); the nodes of the branch are nodes of that
+      tree, so they are non-negative integers too. The phrase is read as
+      constraining only the values of the nodes present (decision reading
+      2): no assumption that arr is non-empty is made, because the text
+      never states one.
+
+properties:
+  - id: RB-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args: {trigger: "nonempty && returned", cond: "is_node"}
+    note: >-
+      The plucked node is one of the nodes of arr. Which node was plucked is
+      observable only through the returned value; under the reading of
+      R-OUT-2 taken here ("return it" returns the node's integer value),
+      this means the returned integer equals some element of arr. "one of
+      the nodes" is read as saying only that the node comes from arr; the
+      particular node is the subject of R-SEL-1 (decision reading 2). For an
+      empty arr there is no node to pluck and the text gives no behaviour,
+      so empty calls are excluded here and left free by RB-OUT-1-D1/D2.
+      "pluck" is read literally as removing the node from the branch
+      (decision reading 2); the adapter does not record arr after the call,
+      so this has no observable effect and is not formalized.
+  - id: RB-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args: {trigger: "nonempty", cond: "returned"}
+    note: >-
+      "and return it": every call on a non-empty arr ends normally by
+      returning an integer (no exception, no non-termination, no value of
+      another type). The returned value is the node's integer value
+      (decision reading 1 for "return it"), which is an element of arr and
+      therefore fits 0 to 255, so a correct return is outcome 0; returning
+      the node's index or a container is not this reading. Only the value
+      is observable, so equal values at different positions are not
+      distinguished (decision reading 1). Empty arr is excluded: there is no
+      node to return (see RB-OUT-1-D1/D2).
+  - id: RB-SEL-1-DET
+    req: R-SEL-1
+    pattern: implies
+    args:
+      trigger: "nonempty && returned && prev(returned) && stable(arr)"
+      cond: "stable(plucked)"
+    note: >-
+      Partial formalization. "The plucked node should be the node" is
+      truncated: a particular node is required (definite article "the
+      node", decision reading 1) but the criterion that names it is
+      missing (decision reading 2), so which node must be returned cannot be
+      formalized. The only checkable consequence of "the node" is that the
+      choice is fixed by arr: two calls on the same non-empty arr that both
+      return give the same node. Since calls are independent and the checker
+      orders them freely, comparing a call with the previous one covers any
+      pair of calls.
+
+scenarios:
+  - id: RB-OUT-2-S1
+    req: R-OUT-2
+    cover: "nonempty && returned && is_node"
+    note: A call on a non-empty arr that returns one of its nodes must be possible.
+  - id: RB-OUT-2-S2
+    req: R-OUT-2
+    cover: "len(arr) >= 2 && returned && is_node"
+    note: The same with a branch of more than one node, where a choice among nodes exists.
+
+dont_cares:
+  - id: RB-OUT-1-D1
+    req: R-OUT-1
+    signal: outcome
+    when: "len(arr) == 0"
+    note: >-
+      For an empty arr no node can be plucked and the text states no
+      behaviour, so how the call ends is unspecified (decision reading 2
+      for "one of the nodes (when arr is empty)"). This is a gap in the
+      specification, not a stated permission.
+  - id: RB-OUT-1-D2
+    req: R-OUT-1
+    signal: plucked
+    when: "len(arr) == 0"
+    note: As RB-OUT-1-D1, for the returned value.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional: it concerns the form of the deliverable (completing
+      the given function body), not the behaviour of calls, and the trace
+      cannot observe source text. Read as filling in the body and keeping
+      the given signature and docstring (decision reading 1). A function
+      that does not run shows up as outcome 1 on every call, which RB-OUT-2
+      rejects for non-empty arr.
+  - req: R-FN-2
+    reason: >-
+      Non-functional: the name pluck and the single parameter arr are fixed
+      by the adapter (design.yaml function section calls pluck(arr)); the
+      trace cannot express a signature. A wrong name or arity makes every
+      call fail (outcome 1), which RB-OUT-2 rejects for non-empty arr.
+  - req: R-IN-1
+    reason: >-
+      Definition: a node of the branch is an element of arr and its position
+      is its index. It adds no constraint of its own and is realized by the
+      def is_node ("plucked in arr") used in the items listed. arr is read
+      as a Python list (decision reading 1; the adapter only passes lists)
+      and "a branch of a tree" as descriptive only (decision reading 1).
+    covered_by: [RB-OUT-1, RB-SEL-1-DET]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the list adapter; design.yaml adds it to every set as
+      F-ZERO ("outcome != 0 -> plucked == 0"), and frame.md says it need not
+      be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: "Complete this function", reading: 1}
+  - {req: R-IN-1, phrase: "an array", reading: 1}
+  - {req: R-IN-1, phrase: "a branch of a tree", reading: 1}
+  - {req: R-IN-2, phrase: "that has non-negative integer nodes", reading: 2}
+  - {req: R-IN-2, phrase: "that", reading: 2}
+  - {req: R-OUT-1, phrase: "one of the nodes", reading: 2}
+  - {req: R-OUT-1, phrase: "pluck", reading: 2}
+  - {req: R-OUT-1, phrase: "one of the nodes (when arr is empty)", reading: 2}
+  - {req: R-OUT-2, phrase: "return it", reading: 1}
+  - {req: R-OUT-2, phrase: "it (when several nodes have the same value)", reading: 1}
+  - {req: R-SEL-1, phrase: "The plucked node should be the node", reading: 2}
+  - {req: R-SEL-1, phrase: "the node", reading: 1}

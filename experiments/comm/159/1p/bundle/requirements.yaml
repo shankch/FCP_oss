@@ -1,0 +1,178 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-TASK-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The response supplies an implementation of the given Python function eat, as declared in the prompt (same name, parameters and purpose as its docstring describes).
+  kind: non_functional
+  ambiguity:
+  - phrase: Complete this function
+    readings:
+    - Only the body is to be written; the signature and docstring stay exactly as given.
+    - Any implementation of a function eat with this signature is acceptable, and the docstring may be changed or dropped.
+  lines:
+  - 1
+- id: R-API-1
+  doc: SPEC
+  quote: 'def eat(number, need, remaining):'
+  text: 'The implementation defines a function named eat that takes exactly three arguments, in this order: number, need, remaining, so that a call eat(number, need, remaining) is accepted.'
+  kind: guarantee
+  ambiguity:
+  - phrase: eat(number, need, remaining)
+    readings:
+    - The three arguments are integers (counts of carrots).
+    - The arguments may be any numbers, including non-integers.
+  lines:
+  - 4
+- id: R-CTX-1
+  doc: SPEC
+  quote: You're a hungry rabbit
+  text: 'The function models a hungry rabbit eating carrots: its arguments and its result are about carrots that the rabbit has eaten, needs to eat or has available.'
+  kind: definition
+  ambiguity:
+  - phrase: hungry rabbit
+    readings:
+    - Narrative framing only; it places no obligation on the result.
+    - The rabbit eats as many carrots as it can, up to what it needs (it never declines carrots it needs while some are available).
+    - 'The rabbit may stay hungry: when it cannot eat all it needs, the result reflects that it is still hungry.'
+  lines:
+  - 6
+- id: R-DEF-1
+  doc: SPEC
+  quote: you already have eaten a certain number of carrots
+  text: The argument number is the count of carrots the rabbit has already eaten before this call.
+  kind: definition
+  ambiguity:
+  - phrase: a certain number of carrots
+    readings:
+    - This count is the argument number.
+    - This count is narrative only and is not tied to any argument.
+  - phrase: already have eaten
+    readings:
+    - Carrots eaten so far today, counting toward the day's meals.
+    - Carrots eaten in total, not only toward today's meals.
+  lines:
+  - 6
+- id: R-DEF-2
+  doc: SPEC
+  quote: now you need to eat more carrots to complete the day's meals
+  text: The argument need is the count of carrots the rabbit needs to eat, in addition to those already eaten, to complete the day's meals.
+  kind: definition
+  ambiguity:
+  - phrase: need to eat more carrots
+    readings:
+    - need is the number of additional carrots still to be eaten, on top of number.
+    - need is the total number of carrots for the day's meals, of which number are already eaten, so need - number are still to be eaten.
+  lines:
+  - 7
+- id: R-DEF-3
+  doc: SPEC
+  quote: 'def eat(number, need, remaining):'
+  text: The argument remaining is a count of carrots; the prompt does not say which carrots it counts.
+  kind: definition
+  ambiguity:
+  - phrase: remaining
+    readings:
+    - The carrots left in stock that the rabbit can still eat.
+    - The carrots that remain to be eaten to complete the day's meals (the same quantity as need).
+    - Not described, so its meaning and its effect on the result are left free.
+  - phrase: need, remaining
+    readings:
+    - 'Contradiction with R-EAT-2: if remaining is the stock available, the rabbit cannot complete the day''s meals when remaining is less than need, yet the prompt says it eats to complete them.'
+    - 'No contradiction: remaining does not limit what the rabbit eats, so the meals can always be completed.'
+  lines:
+  - 4
+- id: R-ENV-3
+  doc: SPEC
+  quote: remaining
+  text: The argument remaining, being a count of carrots, is a non-negative integer.
+  kind: assumption
+  ambiguity:
+  - phrase: remaining
+    readings:
+    - remaining is a non-negative integer with no upper bound.
+    - remaining may be any integer; the prompt places no bound on it.
+  lines:
+  - 4
+- id: R-ENV-1
+  doc: SPEC
+  quote: a certain number of carrots
+  text: The argument number, being a count of carrots already eaten, is a non-negative integer.
+  kind: assumption
+  ambiguity:
+  - phrase: a certain number
+    readings:
+    - Any non-negative integer, with no upper bound.
+    - Any integer; no bound is placed on number at all.
+  lines:
+  - 6
+- id: R-ENV-2
+  doc: SPEC
+  quote: you need to eat more carrots
+  text: The argument need, being a count of carrots still to be eaten, is a non-negative integer.
+  kind: assumption
+  ambiguity:
+  - phrase: need to eat more carrots
+    readings:
+    - need is at least 1, since the rabbit needs more carrots.
+    - need is at least 0; a need of 0 is a valid call.
+    - need may be any integer; no bound is placed on it.
+  lines:
+  - 7
+- id: R-EAT-1
+  doc: SPEC
+  quote: but now you need to eat more carrots
+  text: A call of eat has the rabbit eat further carrots beyond the number it has already eaten, and the result reflects those carrots.
+  kind: guarantee
+  ambiguity:
+  - phrase: eat more carrots
+    readings:
+    - The rabbit eats exactly need more carrots.
+    - The rabbit eats up to need more carrots, limited by the carrots that remain (min(need, remaining)).
+    - The rabbit eats at least need more carrots (a hungry rabbit may eat beyond its need).
+    - 'Context only: the sentence describes the situation and places no obligation on the result.'
+  lines:
+  - 7
+- id: R-EAT-2
+  doc: SPEC
+  quote: to complete the day's meals
+  text: After the call, the rabbit has eaten enough carrots to complete the day's meals.
+  kind: guarantee
+  ambiguity:
+  - phrase: to complete
+    readings:
+    - 'After the call the day''s meals are always complete: the rabbit has eaten all it needed.'
+    - This is only the purpose of eating; the meals are complete only when enough carrots are available.
+  - phrase: complete the day's meals
+    readings:
+    - 'Contradiction with R-DEF-3: if remaining is the stock available, the meals cannot be completed when remaining is less than need, yet this says the rabbit eats to complete them.'
+    - 'No contradiction: remaining does not limit what the rabbit eats, so the meals can always be completed.'
+  lines:
+  - 7
+- id: R-OUT-1
+  doc: SPEC
+  quote: You're a hungry rabbit, and you already have eaten a certain number of carrots, but now you need to eat more carrots to complete the day's meals.
+  text: The prompt does not state what eat returns or in what form; the returned value is left unconstrained by the prompt.
+  kind: dont_care
+  ambiguity:
+  - phrase: complete the day's meals.
+    readings:
+    - 'The return value is unconstrained: the docstring names no result.'
+    - eat returns a list [total carrots eaten after the meal, carrots left after the meal], that is [number + min(need, remaining), max(remaining - need, 0)].
+    - eat returns the number of carrots eaten in this call.
+    - eat returns whether the day's meals are complete.
+  lines:
+  - 6
+  - 7
+- id: R-FR-1
+  doc: FRAME
+  quote: '`result` is the empty list unless `outcome` is 0.'
+  text: Whenever a call does not return a list that fits (outcome is not 0), the result signal is the empty list.
+  kind: guarantee
+  lines:
+  - 50

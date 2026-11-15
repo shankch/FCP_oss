@@ -1,0 +1,100 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def candidate(arr):'
+  text: The deliverable is a complete Python function named candidate that takes exactly one argument, arr.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: Given an array arr of integers
+  text: The argument arr is an array (list) whose elements are all integers; the function is only required to handle such inputs.
+  kind: assumption
+  ambiguity:
+  - phrase: an array arr of integers
+    readings:
+    - Any list of integers, including the empty list (which is trivially palindromic, so the answer is 0).
+    - Only non-empty lists are valid inputs; behaviour on the empty list is unspecified.
+  - phrase: integers
+    readings:
+    - Any integers, including negative ones.
+    - Non-negative integers only.
+  lines:
+  - 6
+- id: R-CNT-1
+  doc: SPEC
+  quote: find the number of elements that need to be changed to make the array palindromic
+  text: The function's result is the minimum number of elements of arr that must be changed so that arr becomes palindromic; for a list of length n this is the number of index pairs (i, n-1-i) with i <
+    n-1-i and arr[i] != arr[n-1-i].
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-DEF-2
+  ambiguity:
+  - phrase: the number of elements that need to be changed
+    readings:
+    - 'The minimum number of single-element changes: one per mismatched mirror pair (arr[i] != arr[n-1-i], i < n-1-i).'
+    - The number of positions whose element differs from its mirror element, counting both elements of every mismatched pair (twice the minimum).
+  - phrase: number of elements
+    readings:
+    - The answer counts distinct elements (positions) that are modified.
+    - The answer counts change operations as defined by 'In one change, you can change one element to any other element' (the two coincide for a minimal set of changes, but the text names elements here
+      and changes there).
+  lines:
+  - 6
+  - 7
+- id: R-CNT-2
+  doc: SPEC
+  quote: find the number of elements
+  text: For every valid arr the function completes normally and returns the count as a non-negative integer (it does not raise an exception or return a value of another type).
+  kind: guarantee
+  ambiguity:
+  - phrase: find
+    readings:
+    - Return the number as the function's result.
+    - Compute and output (e.g. print) the number; the return value is unspecified.
+  lines:
+  - 6
+- id: R-DEF-1
+  doc: SPEC
+  quote: A palindromic array is an array that is read the same backwards and forwards.
+  text: An array a of length n is palindromic exactly when a[i] == a[n-1-i] for every i in 0 .. n-1 (so the empty array and every one-element array are palindromic).
+  kind: definition
+  ambiguity:
+  - phrase: read the same backwards and forwards
+    readings:
+    - 'Element-wise: the sequence of elements reversed equals the original sequence.'
+    - 'Textually: the concatenated decimal digits of the elements form a palindromic string (e.g. [12, 1] reads ''121'').'
+  lines:
+  - 7
+  - 8
+- id: R-DEF-2
+  doc: SPEC
+  quote: In one change, you can change one element to any other element.
+  text: A single change replaces the value of exactly one element of the array by another value; the answer counts such changes.
+  kind: definition
+  ambiguity:
+  - phrase: any other element
+    readings:
+    - Any other integer value (not necessarily present in the array).
+    - The value of another element already present in the array (the minimum count is the same, since a mismatched element can always take its mirror's value).
+  - phrase: In one change
+    readings:
+    - The answer counts change operations, each of which modifies one element (consistent with counting elements for a minimal set of changes).
+    - The answer counts elements, as stated in 'find the number of elements that need to be changed'; the unit of a change is only explanatory.
+  lines:
+  - 8
+- id: R-FR-1
+  doc: FRAME
+  quote: '`changes` is 0 unless `outcome` is 0.'
+  text: In every call, the output changes is 0 whenever outcome is not 0 (the call did not return an integer from 0 to 15).
+  kind: guarantee
+  lines:
+  - 47

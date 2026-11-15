@@ -1,0 +1,189 @@
+fcp: '0.1'
+design: apb_bridge
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-OV-1
+  doc: SPEC
+  lines:
+  - 9
+  quote: One transaction is processed at a time.
+  text: At most one transaction is in flight.
+  kind: guarantee
+- id: R-CMD-1
+  doc: SPEC
+  lines:
+  - 37
+  - 38
+  quote: A command is accepted in a cycle in which both cmd_valid and cmd_ready are high.
+  text: Acceptance = cmd_valid && cmd_ready.
+  kind: definition
+- id: R-CMD-2
+  doc: SPEC
+  lines:
+  - 38
+  - 39
+  quote: cmd_ready is asserted only while the bridge is idle, that is, while no transfer is in progress and no response is pending.
+  text: cmd_ready is high exactly when the bridge is idle.
+  kind: guarantee
+  ambiguity:
+  - phrase: asserted only while
+    readings:
+    - cmd_ready is high if and only if the bridge is idle
+    - cmd_ready may be high only when idle (it may also be low when idle)
+- id: R-CMD-3
+  doc: SPEC
+  lines:
+  - 39
+  - 41
+  quote: The requester shall keep cmd_valid asserted and cmd_write, cmd_addr and cmd_wdata stable until the command is accepted.
+  text: A pending command is held stable until accepted.
+  kind: assumption
+- id: R-APB-1
+  doc: SPEC
+  lines:
+  - 45
+  - 47
+  quote: For every accepted command the bridge performs exactly one APB transfer whose pwrite, paddr and pwdata equal cmd_write, cmd_addr and cmd_wdata of that command.
+  text: Each accepted command yields exactly one transfer carrying its fields.
+  kind: guarantee
+- id: R-APB-2
+  doc: SPEC
+  lines:
+  - 47
+  - 48
+  quote: Transfers are performed in the order in which the commands were accepted.
+  text: Transfers preserve command order.
+  kind: guarantee
+  depends:
+  - R-APB-1
+- id: R-APB-3
+  doc: SPEC
+  lines:
+  - 50
+  - 52
+  quote: The transfer starts in the cycle after the command is accepted with a setup phase (psel high, penable low) that lasts exactly one cycle, followed by an access phase (psel and penable high).
+  text: Setup phase in the cycle after acceptance, exactly one cycle, then access.
+  kind: guarantee
+- id: R-APB-4
+  doc: SPEC
+  lines:
+  - 52
+  - 53
+  quote: The access phase lasts until pready is sampled high; the transfer completes in that cycle.
+  text: Access persists until pready; completion = access && pready.
+  kind: guarantee
+- id: R-APB-5
+  doc: SPEC
+  lines:
+  - 55
+  - 56
+  quote: psel, pwrite, paddr and pwdata remain stable from the setup phase until the transfer completes.
+  text: Transfer signals are stable during a transfer.
+  kind: guarantee
+- id: R-APB-6
+  doc: SPEC
+  lines:
+  - 56
+  quote: penable is never asserted without psel.
+  text: penable implies psel.
+  kind: guarantee
+- id: R-APB-7
+  doc: SPEC
+  lines:
+  - 56
+  - 57
+  quote: After a transfer completes, psel and penable are low in the next cycle.
+  text: psel and penable are low in the cycle after completion.
+  kind: guarantee
+- id: R-APB-8
+  doc: SPEC
+  lines:
+  - 57
+  - 58
+  quote: While psel is low, pwrite, paddr and pwdata are don't care.
+  text: pwrite/paddr/pwdata unconstrained when psel is low.
+  kind: dont_care
+- id: R-APB-9
+  doc: SPEC
+  lines:
+  - 60
+  - 61
+  quote: The APB slave shall assert pready within 4 cycles of the start of the access phase.
+  text: The access phase lasts at most 4 cycles.
+  kind: assumption
+- id: R-RSP-1
+  doc: SPEC
+  lines:
+  - 65
+  - 66
+  quote: For every completed transfer the bridge returns exactly one response, in order. rsp_err equals the pslverr value sampled when the transfer completed.
+  text: One response per completed transfer, in order, with rsp_err = pslverr at completion.
+  kind: guarantee
+- id: R-RSP-2
+  doc: SPEC
+  lines:
+  - 67
+  - 68
+  quote: For read transfers, rsp_rdata equals the prdata value sampled when the transfer completed.
+  text: Read responses carry prdata sampled at completion.
+  kind: guarantee
+  depends:
+  - R-RSP-1
+- id: R-RSP-3
+  doc: SPEC
+  lines:
+  - 70
+  quote: rsp_valid is asserted in the cycle after the transfer completes.
+  text: rsp_valid is high in the cycle after completion.
+  kind: guarantee
+- id: R-RSP-4
+  doc: SPEC
+  lines:
+  - 70
+  - 72
+  quote: Once asserted, rsp_valid stays high, and rsp_rdata and rsp_err stay stable, until rsp_ready is sampled high.
+  text: Response held stable until accepted.
+  kind: guarantee
+- id: R-RSP-5
+  doc: SPEC
+  lines:
+  - 72
+  - 73
+  quote: While rsp_valid is low, rsp_rdata and rsp_err are don't care.
+  text: rsp_rdata/rsp_err unconstrained when rsp_valid is low.
+  kind: dont_care
+- id: R-RSP-6
+  doc: SPEC
+  lines:
+  - 75
+  - 76
+  quote: To maximise throughput, the bridge may accept the next command in the same cycle in which the response is accepted.
+  text: 'Permission: accepting a command in the response-handshake cycle is allowed.'
+  kind: guarantee
+  depends:
+  - R-CMD-2
+  ambiguity:
+  - phrase: may accept
+    readings:
+    - permission (the behaviour must be possible, not required)
+    - obligation (the bridge accepts back-to-back)
+- id: R-LAT-1
+  doc: SPEC
+  lines:
+  - 78
+  quote: A response is presented within 8 cycles of the command being accepted.
+  text: rsp_valid within 8 cycles of acceptance.
+  kind: guarantee
+  depends:
+  - R-APB-9
+- id: R-RST-1
+  doc: SPEC
+  lines:
+  - 82
+  - 83
+  quote: In the cycle after reset, psel, penable and rsp_valid are low and cmd_ready is high.
+  text: 'After reset: psel=penable=rsp_valid=0, cmd_ready=1.'
+  kind: guarantee

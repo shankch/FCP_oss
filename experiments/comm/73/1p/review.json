@@ -1,0 +1,177 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 45,
+    "checked": 45,
+    "seconds": 0.39
+   },
+   "open": {
+    "open": {},
+    "checked": 33
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 89,
+    "checked": 89,
+    "seconds": 0.99
+   },
+   "open": {
+    "open": {},
+    "checked": 54
+   }
+  }
+ },
+ "readings": {
+  "R-DEF-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-CNT-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-CNT-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-DEF-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "an array arr of integers",
+   "taken": 1,
+   "variant": 2,
+   "text": "Only non-empty lists are valid inputs; behaviour on the empty list is unspecified."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "integers",
+   "taken": 1,
+   "variant": 2,
+   "text": "Non-negative integers only."
+  },
+  {
+   "req": "R-CNT-1",
+   "phrase": "the number of elements that need to be changed",
+   "taken": 1,
+   "variant": 2,
+   "text": "The number of positions whose element differs from its mirror element, counting both elements of every mismatched pair (twice the minimum)."
+  },
+  {
+   "req": "R-CNT-1",
+   "phrase": "number of elements",
+   "taken": 1,
+   "variant": 2,
+   "text": "The answer counts change operations as defined by 'In one change, you can change one element to any other element' (the two coincide for a minimal set of changes, but the text names elements here and changes there)."
+  },
+  {
+   "req": "R-CNT-2",
+   "phrase": "find",
+   "taken": 1,
+   "variant": 2,
+   "text": "Compute and output (e.g. print) the number; the return value is unspecified."
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "read the same backwards and forwards",
+   "taken": 1,
+   "variant": 2,
+   "text": "Textually: the concatenated decimal digits of the elements form a palindromic string (e.g. [12, 1] reads '121')."
+  },
+  {
+   "req": "R-DEF-2",
+   "phrase": "any other element",
+   "taken": 1,
+   "variant": 2,
+   "text": "The value of another element already present in the array (the minimum count is the same, since a mismatched element can always take its mirror's value)."
+  },
+  {
+   "req": "R-DEF-2",
+   "phrase": "In one change",
+   "taken": 2,
+   "variant": 1,
+   "text": "The answer counts change operations, each of which modifies one element (consistent with counting elements for a minimal set of changes)."
+  }
+ ],
+ "depends": {
+  "R-CNT-2": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate([]) -> returned something else"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-CNT-2"
+   ],
+   "calls": [
+    "candidate([]) -> returned something else"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CNT-1"
+   ],
+   "calls": [],
+   "question": "\"the number of elements that need to be changed\" can mean: The minimum number of single-element changes: one per mismatched mirror pair (arr[i] != arr[n-1-i], i < n-1-i). / The number of positions whose element differs from its mirror element, counting both elements of every mismatched pair (twice the minimum).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CNT-1"
+   ],
+   "calls": [],
+   "question": "\"number of elements\" can mean: The answer counts distinct elements (positions) that are modified. / The answer counts change operations as defined by 'In one change, you can change one element to any other element' (the two coincide for a minimal set of changes, but the text names elements here and changes there).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CNT-2"
+   ],
+   "calls": [],
+   "question": "\"find\" can mean: Return the number as the function's result. / Compute and output (e.g. print) the number; the return value is unspecified.. Which is meant?"
+  }
+ ],
+ "limits": []
+}

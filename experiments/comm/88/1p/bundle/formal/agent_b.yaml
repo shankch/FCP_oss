@@ -1,0 +1,173 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. sort_array keeps no state between calls (frame.md), so
+# the model is combinational: defs computed from the argument `array` give the
+# direction key and the expected sorted list, and every output (outcome,
+# result) is checked against them. No ghost state is needed.
+defs:
+  # R-KEY-1: the values at the first and last positions of the given array, as
+  # passed in. For a one-element array the element is counted twice.
+  key: 'array[0] + array[len(array) - 1]'
+  key_odd: 'len(array) > 0 && key % 2 == 1'
+  key_even: 'len(array) > 0 && key % 2 == 0'
+  # The call returned a list that fits the result signal.
+  returned: 'outcome == 0'
+  # result is a permutation of array: same length, every value of array occurs
+  # as often in result as in array (so result holds no other values).
+  perm: 'len(result) == len(array) && all(i < len(array): count(j < len(array): array[j] == array[i]) == count(j < len(result): result[j] == array[i]))'
+  # result is in non-decreasing / non-increasing order.
+  nondec: 'all(i < len(result) - 1: result[i] <= result[i + 1])'
+  noninc: 'all(i < len(result) - 1: result[i] >= result[i + 1])'
+  # Reference model of the ascending sort of array: position k holds the value
+  # v of array with (#elements < v) <= k < (#elements <= v), duplicates kept.
+  asc_ref: 'len(result) == len(array) && all(k < len(array): any(i < len(array): result[k] == array[i] && count(j < len(array): array[j] < array[i]) <= k && k < count(j < len(array): array[j] <= array[i])))'
+  # Reference model of the descending sort of array: position k holds the value
+  # v of array with (#elements > v) <= k < (#elements >= v), duplicates kept.
+  desc_ref: 'len(result) == len(array) && all(k < len(array): any(i < len(array): result[k] == array[i] && count(j < len(array): array[j] > array[i]) <= k && k < count(j < len(array): array[j] >= array[i])))'
+
+assumptions:
+  - id: RB-IN-1
+    req: R-IN-1
+    expr: 'all(i < len(array): array[i] >= 0)'
+    note: >-
+      Reading 1 of "an array of non-negative integers": every list of
+      non-negative integers is a valid argument, the empty list included
+      (it is, vacuously, an array of non-negative integers). The encoding
+      already makes every element an unsigned number 0..255 (frame.md:
+      negative numbers are not part of the trace), so this assumption excludes
+      no encodable call; it is stated to record that nothing beyond it is
+      assumed, in particular not that the array is non-empty.
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: 'returned'}
+    note: >-
+      Reading 1 of "return a copy of the given array": every call returns a
+      list (outcome 0), the empty list included. Outcome 0 also requires the
+      list to fit (at most 8 numbers 0..255), which any copy of a valid
+      argument does. Raising (outcome 1) or returning another kind of value
+      (outcome 2) violates it.
+
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: 'returned', cond: 'perm'}
+    note: >-
+      "a copy of the given array": the returned list has the same length as
+      the argument and holds every value exactly as often as the argument does
+      (a permutation; duplicates kept). Guarded by outcome 0 because the text
+      speaks of the returned list; that the call returns is RB-RET-1.
+
+  - id: RB-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: 'returned', cond: 'nondec || noninc'}
+    note: >-
+      Reading 1 of "after sorting": the returned list is always sorted, in
+      non-decreasing or in non-increasing order, whatever the sum of the first
+      and last values is. A list of length 0 or 1 is sorted both ways.
+
+  - id: RB-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args: {trigger: 'returned && key_odd', cond: 'asc_ref'}
+    note: >-
+      If array[0] + array[len(array) - 1] is odd, the returned list is the
+      given array's elements in ascending order: it equals the reference
+      ascending sort asc_ref (equivalently, a permutation of array in
+      non-decreasing order). "ascending order" is taken as non-decreasing with
+      duplicates kept (reading 1), since the result is a copy of the array.
+      "you will sort the given array" is taken as reading 1: the returned
+      sorted copy is what is checked; whether the argument object itself is
+      changed is not observable in this trace (see R-RET-4). The empty array
+      has no first or last element, so it never triggers this property (in
+      FCP-PL its key would read as 0, i.e. even); R-RET-2 still forces an
+      empty result for it.
+
+  - id: RB-ORD-2
+    req: R-ORD-2
+    pattern: implies
+    args: {trigger: 'returned && key_even', cond: 'asc_ref || desc_ref'}
+    note: >-
+      The text is cut off after "or sort it" and states no direction. Most
+      literal reading (reading 2): when the sum of the first and last values
+      is even, the returned list is the given array's elements in sorted
+      order, ascending or descending, either being acceptable. Descending
+      (reading 1) is the conventional completion of the sentence but is not
+      written, so it is not imposed. Excludes the empty array as in RB-ORD-1.
+
+scenarios:
+  - id: RB-S-EMPTY
+    req: R-RET-1
+    cover: 'len(array) == 0 && returned && len(result) == 0'
+    note: >-
+      Under reading 1 of R-IN-1 and R-RET-1, a call on the empty list returns
+      the empty list.
+  - id: RB-S-ODD
+    req: R-ORD-1
+    cover: 'key_odd && len(array) >= 3 && returned && result != array'
+    note: >-
+      A call with an odd key whose argument is not already in order returns
+      a reordered list (the requirements can all be met on it).
+  - id: RB-S-EVEN
+    req: R-ORD-2
+    cover: 'key_even && len(array) >= 3 && returned && result != array'
+    note: >-
+      A call with an even key whose argument is not already sorted returns a
+      reordered list (the requirements can all be met on it).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the response must supply the body of the given stub.
+      This is a property of the delivered source text, not of the trace of
+      calls; the adapter can only run code that defines the function.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name sort_array and the single parameter array are
+      fixed by the adapter (design.yaml function section), which calls
+      sort_array(array); they are not a property of the trace.
+  - req: R-RET-4
+    reason: >-
+      Not observable: the trace records the argument as passed in (input
+      array) and the returned list, but not the argument object after the
+      call, so in-place modification cannot be expressed. Reading 1 was taken
+      (a copy is sorted and returned; the given array is left unchanged), but
+      note that the text also says "you will sort the given array", which
+      literally describes sorting the argument itself (reading 2) and
+      contradicts this requirement.
+  - req: R-RET-5
+    reason: >-
+      Not observable: object identity of the returned list versus the
+      argument is not recorded in the trace; only the list's contents are.
+      Reading 1 was taken ("a copy" is a distinct object, even for an empty,
+      one-element or already ordered argument).
+  - req: R-KEY-1
+    reason: >-
+      Definition, realized by the def `key` (array[0] + array[len(array) - 1],
+      the first and last values of the given array as passed in; a single
+      element counted twice) and the defs key_odd / key_even used by the
+      ordering properties.
+    covered_by: [RB-ORD-1, RB-ORD-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the list adapter; design.yaml adds it to every
+      formalization set as F-EMPTY, and frame.md says it need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IN-1, phrase: 'an array of non-negative integers', reading: 1}
+  - {req: R-RET-1, phrase: 'return a copy of the given array', reading: 1}
+  - {req: R-RET-3, phrase: 'after sorting', reading: 1}
+  - {req: R-RET-4, phrase: 'a copy of the given array after sorting', reading: 1}
+  - {req: R-RET-5, phrase: 'a copy', reading: 1}
+  - {req: R-KEY-1, phrase: 'first index value, last index value', reading: 1}
+  - {req: R-KEY-1, phrase: 'the sum( first index value, last index value)', reading: 1}
+  - {req: R-KEY-1, phrase: 'last index value', reading: 1}
+  - {req: R-ORD-1, phrase: 'ascending order', reading: 1}
+  - {req: R-ORD-1, phrase: 'you will sort the given array', reading: 1}
+  - {req: R-ORD-2, phrase: 'or sort it', reading: 2}

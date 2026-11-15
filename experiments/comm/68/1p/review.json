@@ -1,0 +1,380 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 38,
+    "checked": 38,
+    "seconds": 0.17
+   },
+   "open": {
+    "open": {
+     "plucked": {
+      "call": "pluck([0, 9])",
+      "args": [
+       [
+        0,
+        9
+       ]
+      ],
+      "values": [
+       0,
+       9
+      ],
+      "shown": [
+       "0",
+       "9"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 22
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 658,
+    "checked": 658,
+    "seconds": 0.96
+   },
+   "open": {
+    "open": {
+     "plucked": {
+      "call": "pluck([])",
+      "args": [
+       []
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": [
+       "RB-OUT-1-D2"
+      ]
+     },
+     "outcome": {
+      "call": "pluck([])",
+      "args": [
+       []
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": [
+       "RB-OUT-1-D1"
+      ]
+     }
+    },
+    "checked": 1
+   }
+  }
+ },
+ "readings": {
+  "R-SEL-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-OUT-1": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-OUT-2": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-2",
+    "req": "R-IN-2",
+    "says": "every call meets `len(arr) >= 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-2-VAL",
+    "req": "R-IN-2",
+    "says": "every call meets `all(i < len(arr): arr[i] >= 0)`",
+    "where": {}
+   }
+  ],
+  "free": [
+   {
+    "reading": "agent_b",
+    "id": "RB-OUT-1-D1",
+    "req": "R-OUT-1",
+    "says": "`outcome` is free when `len(arr) == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-OUT-1-D2",
+    "req": "R-OUT-1",
+    "says": "`plucked` is free when `len(arr) == 0`",
+    "where": {}
+   }
+  ]
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FN-1",
+   "phrase": "Complete this function",
+   "taken": 1,
+   "variant": 2,
+   "text": "Produce any working definition of the function; the given signature and docstring need not be kept verbatim."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "an array",
+   "taken": 1,
+   "variant": 2,
+   "text": "arr may be any indexable sequence (list, tuple, array-like)."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "a branch of a tree",
+   "taken": 1,
+   "variant": 2,
+   "text": "The order of arr encodes tree structure (e.g. a path from the branch root outward), which the selection of the node may depend on."
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "one of the nodes",
+   "taken": 2,
+   "variant": 1,
+   "text": "Any node of arr is acceptable as the plucked node (no further selection rule)."
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "return it",
+   "taken": 1,
+   "variant": 2,
+   "text": "Return the node's position (index) in arr."
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "it (when several nodes have the same value)",
+   "taken": 1,
+   "variant": 2,
+   "text": "The specific node (position) plucked matters, so equal values at different positions are distinguishable."
+  },
+  {
+   "req": "R-SEL-1",
+   "phrase": "The plucked node should be the node",
+   "taken": 2,
+   "variant": 1,
+   "text": "The sentence is incomplete and imposes no checkable rule; any node of arr satisfies it (selection is a don't care among the elements of arr)."
+  },
+  {
+   "req": "R-SEL-1",
+   "phrase": "the node",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any node of arr is acceptable, consistent with 'pluck one of the nodes'; 'the node' just refers to the one chosen."
+  }
+ ],
+ "depends": {
+  "R-OUT-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_b"
+   ],
+   "witness": [
+    "pluck([1, 1, 1, 3, 1, 1, 1, 3]) -> 2",
+    "pluck([1, 1, 1, 1, 1, 1, 1, 1]) -> 1"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "pluck([0, 9])"
+   ],
+   "outputs": {
+    "plucked": {
+     "reading": "agent_a",
+     "shown": [
+      "0",
+      "9"
+     ],
+     "ending": false,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "plucked",
+   "reqs": [],
+   "question": "the request allows 0 or 9: which is meant?"
+  },
+  {
+   "kind": "open",
+   "reading": "agent_b",
+   "calls": [
+    "pluck([])"
+   ],
+   "outputs": {
+    "plucked": {
+     "reading": "agent_b",
+     "shown": [
+      "0",
+      "1"
+     ],
+     "ending": false,
+     "declared": [
+      "RB-OUT-1-D2"
+     ],
+     "reqs": [
+      "R-OUT-1"
+     ]
+    },
+    "outcome": {
+     "reading": "agent_b",
+     "shown": [
+      "returned",
+      "returned something else"
+     ],
+     "ending": true,
+     "declared": [
+      "RB-OUT-1-D1"
+     ],
+     "reqs": [
+      "R-OUT-1"
+     ]
+    }
+   },
+   "signal": "plucked, outcome",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "question": "the request allows `plucked` to be 0 or 1 (the reading leaves this free on purpose: RB-OUT-1-D2) and lets this call end in two ways, \"returned\" or \"returned something else\" (the reading leaves this free on purpose: RB-OUT-1-D1): is any answer acceptable, or which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [
+    "pluck([1, 1, 1, 3, 1, 1, 1, 3]) -> 2",
+    "pluck([1, 1, 1, 1, 1, 1, 1, 1]) -> 1"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement disagree (no separating call was found within the budget): which is meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement disagree (no separating call was found within the budget): which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"one of the nodes\" can mean: Any node of arr is acceptable as the plucked node (no further selection rule). / A particular node is required, as the later sentence 'The plucked node should be the node' indicates; 'one of the nodes' only says it comes from arr.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"pluck\" can mean: Select the node without modifying arr. / Remove the node from arr (mutating the caller's list) as well as selecting it.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"one of the nodes (when arr is empty)\" can mean: An empty arr never occurs (see R-IN-2), so there is always a node to pluck. / For an empty arr no node can be plucked and the behaviour is unspecified (don't care). / For an empty arr the function must still terminate normally with some agreed result, which the prompt does not state.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"return it\" can mean: Return the node's integer value itself. / Return the node's position (index) in arr. / Return the node wrapped in a container (e.g. a list holding the value, possibly with other data).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"it (when several nodes have the same value)\" can mean: Only the value matters; any node with that value is equivalent. / The specific node (position) plucked matters, so equal values at different positions are distinguishable.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SEL-1"
+   ],
+   "calls": [],
+   "question": "\"The plucked node should be the node\" can mean: The sentence is incomplete and imposes no checkable rule; any node of arr satisfies it (selection is a don't care among the elements of arr). / A specific node is required but the criterion is missing, so the correct result cannot be determined from the prompt and the requirement is unformalizable. / Read as complete: the plucked node must be the same node that is returned (consistency between R-OUT-1 and R-OUT-2), adding no new constraint.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SEL-1"
+   ],
+   "calls": [],
+   "question": "\"the node\" can mean: A particular node is required, which contradicts 'pluck one of the nodes' if that means any node is acceptable. / Any node of arr is acceptable, consistent with 'pluck one of the nodes'; 'the node' just refers to the one chosen.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the comparison of agent_a and agent_b"
+ ]
+}

@@ -1,0 +1,36 @@
+# FCP function adapter, version 0.1
+
+This document defines how calls of a Python function become a trace that the
+FCP engines can check. The function is treated as a chip without memory: its
+argument is an input signal, its result is on output signals, and each cycle
+is one call. This document is part of the adapter, not of the prompt.
+
+## Calls
+
+Cycle 0 of the trace is reset, before any call. Every later cycle is one call
+of `is_equal_to_sum_even(n)`. Calls are independent: the function keeps no
+state between them. The checker chooses the calls and their order freely, so
+`prev(x)` is the value of `x` in the previous call, which can be any call at
+all.
+
+## Inputs
+
+| Signal | Width | Meaning in a call |
+|---|---|---|
+| `n` | 16 bits | the `n` argument, 0 to 65,535 |
+
+Negative arguments, and arguments above 65,535, are not part of the trace.
+
+## Outputs
+
+| Signal | Width | Meaning in a call |
+|---|---|---|
+| `outcome` | 2 bits | how the call ended: 0 it returned True or False; 1 it raised any exception or did not finish (the prompt names no exception); 2 it returned anything else (another type, such as a number or None) |
+| `result` | 1 bit | the returned value, when `outcome` is 0 (1: True, 0: False) |
+
+## Frame rules
+
+These hold for every trace by construction. They are part of every
+formalization set and need not be restated.
+
+- F-ZERO: `result` is false unless `outcome` is 0.

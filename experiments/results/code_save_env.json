@@ -1,0 +1,297 @@
+{
+ "readings": {
+  "gold|agent_a": {
+   "R-CLEAN-1": {
+    "plain": "INCOMPARABLE",
+    "context": "INCOMPARABLE",
+    "a_not_b": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 2)",
+      "returns raised ValueError"
+     ]
+    },
+    "b_not_a": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 2)",
+      "f1.write(67108863)",
+      "f1.flush()",
+      "os.fsync(1)",
+      "f1.close()",
+      "os.replace(2, 1) -> \"ok\"",
+      "open(2, 5)",
+      "returns True"
+     ]
+    }
+   },
+   "R-ERR-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-KEEP-1": {
+    "plain": "INCOMPARABLE",
+    "context": "INCOMPARABLE",
+    "a_not_b": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 2)",
+      "f6.write(67108863)",
+      "f6.flush()",
+      "os.fsync(6)",
+      "f6.close()",
+      "os.replace(2, 1) -> \"fail\"",
+      "os.replace(2, 1) -> \"ok\"",
+      "returns raised ValueError"
+     ]
+    },
+    "b_not_a": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 2)",
+      "f1.write(67108863)",
+      "f1.flush()",
+      "os.fsync(1)",
+      "f1.close()",
+      "os.replace(2, 1) -> \"fail\"",
+      "os.remove(2)",
+      "open(2, 4)"
+     ]
+    }
+   },
+   "R-RET-1": {
+    "plain": "INCOMPARABLE",
+    "context": "A-WEAKER",
+    "a_not_b": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 2)",
+      "f4.write(67108863)",
+      "f4.flush()",
+      "os.fsync(4)",
+      "f4.close()",
+      "os.replace(2, 1) -> \"ok\"",
+      "returns raised ValueError"
+     ]
+    }
+   },
+   "R-SIG-1": {
+    "plain": "ONLY-B",
+    "context": "ONLY-B"
+   },
+   "R-STORE-1": {
+    "plain": "INCOMPARABLE",
+    "context": "A-STRONGER",
+    "b_not_a": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 4)",
+      "f2.write(67108863)",
+      "open(2, 7)",
+      "f2.flush()",
+      "os.fsync(2)",
+      "f2.close()",
+      "os.replace(2, 1) -> \"ok\"",
+      "open(2, 4)"
+     ]
+    }
+   },
+   "R-SYNC-1": {
+    "plain": "INCOMPARABLE",
+    "context": "INCOMPARABLE",
+    "a_not_b": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 2)",
+      "f1.write(67108863)",
+      "f1.close()",
+      "f1.flush()",
+      "os.fsync(1)",
+      "os.replace(2, 1) -> \"fail\"",
+      "os.replace(2, 1) -> \"ok\""
+     ]
+    },
+    "b_not_a": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 2)",
+      "f2.write(67108863)",
+      "os.fsync(2)",
+      "f2.close()",
+      "os.replace(2, 1) -> \"fail\"",
+      "os.replace(2, 1) -> \"ok\""
+     ]
+    }
+   },
+   "R-TMP-1": {
+    "plain": "INCOMPARABLE",
+    "context": "INCOMPARABLE",
+    "a_not_b": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 4)",
+      "f6.write(67108863)",
+      "f6.write(1)",
+      "f6.flush()",
+      "os.fsync(6)",
+      "f6.close()",
+      "os.replace(2, 1) -> \"ok\""
+     ]
+    },
+    "b_not_a": {
+     "lines": [
+      "[cents=83882240]",
+      "f0.write(0)",
+      "open(2, 3)"
+     ]
+    }
+   }
+  },
+  "gold|agent_b": {
+   "R-CLEAN-1": {
+    "plain": "INCOMPARABLE",
+    "context": "INCOMPARABLE",
+    "a_not_b": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 3)",
+      "returns raised ValueError"
+     ]
+    },
+    "b_not_a": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 3)",
+      "f1.write(67108863)",
+      "f1.close()",
+      "f1.flush()",
+      "os.fsync(1)",
+      "os.replace(2, 1) -> \"ok\"",
+      "open(2, 5)",
+      "returns True"
+     ]
+    }
+   },
+   "R-ERR-1": {
+    "plain": "EQUIVALENT",
+    "context": "EQUIVALENT"
+   },
+   "R-KEEP-1": {
+    "plain": "INCOMPARABLE",
+    "context": "INCOMPARABLE",
+    "a_not_b": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 3)",
+      "f4.write(67108863)",
+      "f4.flush()",
+      "os.fsync(4)",
+      "f4.close()",
+      "os.replace(2, 1) -> \"fail\"",
+      "os.replace(2, 1) -> \"ok\"",
+      "returns raised ValueError"
+     ]
+    },
+    "b_not_a": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 3)",
+      "f1.write(67108863)",
+      "f1.flush()",
+      "os.fsync(1)",
+      "f1.close()",
+      "os.replace(2, 1) -> \"fail\"",
+      "os.remove(2)"
+     ]
+    }
+   },
+   "R-RET-1": {
+    "plain": "INCOMPARABLE",
+    "context": "A-WEAKER",
+    "a_not_b": {
+     "lines": [
+      "[cents=67105024]",
+      "open(2, 3)",
+      "f1.write(67108863)",
+      "f1.flush()",
+      "os.fsync(1)",
+      "f1.close()",
+      "os.replace(2, 1) -> \"ok\"",
+      "returns raised ValueError"
+     ]
+    }
+   },
+   "R-SIG-1": {
+    "plain": "ONLY-B",
+    "context": "ONLY-B"
+   },
+   "R-STORE-1": {
+    "plain": "INCOMPARABLE",
+    "context": "A-STRONGER",
+    "b_not_a": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 4)",
+      "f5.write(67108863)",
+      "open(2, 5)",
+      "f5.close()",
+      "f5.flush()",
+      "os.fsync(5)",
+      "os.replace(2, 1) -> \"ok\"",
+      "open(2, 4)"
+     ]
+    }
+   },
+   "R-SYNC-1": {
+    "plain": "INCOMPARABLE",
+    "context": "INCOMPARABLE",
+    "a_not_b": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 4)",
+      "f4.write(67108863)",
+      "open(2, 7)",
+      "f6.close()",
+      "f6.write(1)",
+      "f6.flush()",
+      "os.fsync(6)",
+      "os.replace(2, 1) -> \"ok\""
+     ]
+    },
+    "b_not_a": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 3)",
+      "os.fsync(2)",
+      "f2.write(0)",
+      "f2.close()",
+      "os.replace(2, 1) -> \"ok\"",
+      "open(2, 4)"
+     ]
+    }
+   },
+   "R-TMP-1": {
+    "plain": "INCOMPARABLE",
+    "context": "INCOMPARABLE",
+    "a_not_b": {
+     "lines": [
+      "[cents=83882240]",
+      "open(2, 3)",
+      "f2.close()",
+      "f2.write(0)",
+      "f2.flush()",
+      "os.fsync(2)",
+      "os.replace(2, 1) -> \"ok\""
+     ]
+    },
+    "b_not_a": {
+     "lines": [
+      "[cents=83882240]",
+      "f0.write(0)"
+     ]
+    }
+   }
+  }
+ },
+ "seconds": 6.0
+}

@@ -1,0 +1,58 @@
+[
+ {
+  "req": "R-RET-1",
+  "phrase": "Complete this function",
+  "taken": 1,
+  "variant": 2,
+  "text": "only the calls shown in the examples must return a bool; on other calls (for example with an empty string) raising an exception or returning another type is allowed"
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "=> True / => False (the result notation of the examples)",
+  "taken": 1,
+  "variant": 2,
+  "text": "any truthy (falsy) value, such as 1, 0, \"\" or None, is acceptable"
+ },
+ {
+  "req": "R-RULE-1",
+  "phrase": "the prompt states no rule, only six examples",
+  "taken": 1,
+  "variant": 2,
+  "text": "True exactly when some rotation of b or some rotation of the reverse of b is a contiguous substring of a (also agrees with all six examples)"
+ },
+ {
+  "req": "R-RULE-1",
+  "phrase": "an empty b (no example has one)",
+  "taken": 1,
+  "variant": 2,
+  "text": "False: an empty pattern never matches"
+ },
+ {
+  "req": "R-RULE-1",
+  "phrase": "upper and lower case (every example is lower case)",
+  "taken": 1,
+  "variant": 2,
+  "text": "letters are compared ignoring case (\"A\" matches \"a\")"
+ },
+ {
+  "req": "R-RULE-2",
+  "phrase": "the prompt states no rule, only six examples",
+  "taken": 1,
+  "variant": 2,
+  "text": "False exactly when no rotation of b and no rotation of the reverse of b is a contiguous substring of a (also agrees with all six examples)"
+ },
+ {
+  "req": "R-RULE-2",
+  "phrase": "an empty b (no example has one)",
+  "taken": 1,
+  "variant": 2,
+  "text": "an empty b never matches, so the call returns False"
+ },
+ {
+  "req": "R-RULE-2",
+  "phrase": "upper and lower case (every example is lower case)",
+  "taken": 1,
+  "variant": 2,
+  "text": "letters are compared ignoring case (\"A\" matches \"a\")"
+ }
+]

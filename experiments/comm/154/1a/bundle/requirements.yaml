@@ -1,0 +1,180 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is an implementation of the Python function cycpattern_check with the given signature, taking two arguments a and b.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def cycpattern_check(a , b):'
+  text: The first word is the argument a and the second word is the argument b of cycpattern_check.
+  kind: definition
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: You are given 2 words.
+  text: 'The caller passes two words as the arguments: a (the first word) and b (the second word), both strings.'
+  kind: assumption
+  ambiguity:
+  - phrase: 2 words
+    readings:
+    - any two strings, including the empty string and strings containing non-letter characters (digits, spaces, punctuation, codes 0-255); the function must answer for all of them
+    - two non-empty strings of letters only; calls with an empty string or non-letter characters are outside the contract and their result is a don't-care
+  - phrase: words
+    readings:
+    - words may mix upper- and lower-case letters, and case is significant
+    - words are lower-case only (all examples are lower-case); calls with upper-case letters are a don't-care
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: You need to return True if the second word or any of its rotations is related to the first word
+  text: If the second word b, or some rotation of b, is related to the first word a, the call returns True.
+  kind: guarantee
+  depends:
+  - R-IF-2
+  - R-IN-1
+  ambiguity:
+  - phrase: related to the first word
+    readings:
+    - occurs as a contiguous substring of the first word (consistent with all six examples)
+    - occurs as a subsequence (not necessarily contiguous) of the first word; this contradicts the example cycpattern_check("abcd","abd") => False, since abd is a subsequence of abcd
+    - all of its characters occur in the first word, counting multiplicity (an anagram of part of it); this contradicts the examples whassup/psus => False (whassup contains p, s, s, u) and efef/eeff =>
+      False (eeff is an anagram of efef)
+    - is equal to the first word (b is a rotation of a); this contradicts the examples hello/ell => True, abab/baa => True and himenss/simen => True, where the lengths differ
+    - 'either one contains the other: the rotation occurs in the first word, or the first word occurs in the rotation (consistent with all six examples, but differs when the first word is shorter, e.g.
+      a = "ab", b = "bab")'
+  - phrase: related
+    readings:
+    - characters are compared exactly (case-sensitive)
+    - characters are compared ignoring letter case
+  - phrase: any of its rotations
+    readings:
+    - the cyclic shifts of the second word (moving leading characters to the end), e.g. abd, bda, dab (consistent with all six examples)
+    - any rearrangement (permutation) of the characters of the second word; this contradicts the example efef/eeff => False, since efef is a rearrangement of eeff and equals the first word
+  - phrase: the second word
+    readings:
+    - an empty second word has the single rotation "", which occurs in every first word, so the call returns True
+    - an empty second word is not a word, so the result for it is unspecified
+  - phrase: return True
+    readings:
+    - return the bool value True
+    - return any truthy value
+  lines:
+  - 5
+- id: R-RET-2
+  doc: SPEC
+  quote: You need to return True if the second word or any of its rotations is related to the first word
+  text: If neither the second word b nor any rotation of b is related to the first word a, the call returns False.
+  kind: guarantee
+  depends:
+  - R-IF-2
+  - R-IN-1
+  - R-RET-1
+  ambiguity:
+  - phrase: if
+    readings:
+    - 'if and only if: when no rotation is related, the call returns False (as the examples abcd/abd, whassup/psus and efef/eeff show)'
+    - 'a sufficient condition only: the text states nothing for the case where no rotation is related, so the result there is unspecified apart from the examples'
+  lines:
+  - 5
+- id: R-EX-1
+  doc: SPEC
+  quote: cycpattern_check("abcd","abd") => False
+  text: cycpattern_check("abcd", "abd") returns False.
+  kind: scenario
+  depends:
+  - R-RET-2
+  ambiguity:
+  - phrase: => False
+    readings:
+    - 'consistent with R-RET-1 when related means contiguous substring: none of abd, bda, dab occurs in abcd'
+    - 'contradicts R-RET-1 when related means subsequence: abd itself is a subsequence of abcd, so the call would return True'
+  lines:
+  - 6
+- id: R-EX-2
+  doc: SPEC
+  quote: cycpattern_check("hello","ell") => True
+  text: cycpattern_check("hello", "ell") returns True.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: => True
+    readings:
+    - 'consistent with R-RET-1 when related means contiguous substring: ell occurs in hello'
+    - 'contradicts R-RET-1 when related means equal to the first word (b is a rotation of a): no rotation of ell equals hello'
+  lines:
+  - 7
+- id: R-EX-3
+  doc: SPEC
+  quote: cycpattern_check("whassup","psus") => False
+  text: cycpattern_check("whassup", "psus") returns False.
+  kind: scenario
+  depends:
+  - R-RET-2
+  ambiguity:
+  - phrase: => False
+    readings:
+    - 'consistent with R-RET-1 when related means contiguous substring: none of psus, susp, usps, spsu occurs in whassup'
+    - 'contradicts R-RET-1 when related means the characters occur in the first word counting multiplicity: whassup contains p, s, s and u'
+  lines:
+  - 8
+- id: R-EX-4
+  doc: SPEC
+  quote: cycpattern_check("abab","baa") => True
+  text: cycpattern_check("abab", "baa") returns True.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: => True
+    readings:
+    - 'consistent with R-RET-1 when related means contiguous substring: the rotation aba occurs in abab'
+    - 'contradicts R-RET-1 when related means equal to the first word (b is a rotation of a): no rotation of baa equals abab'
+  lines:
+  - 9
+- id: R-EX-5
+  doc: SPEC
+  quote: cycpattern_check("efef","eeff") => False
+  text: cycpattern_check("efef", "eeff") returns False.
+  kind: scenario
+  depends:
+  - R-RET-2
+  ambiguity:
+  - phrase: => False
+    readings:
+    - 'consistent with R-RET-1 when related means contiguous substring and rotations are cyclic shifts: none of eeff, effe, ffee, feef occurs in efef'
+    - 'contradicts R-RET-1 when rotations means any rearrangement, or related means the characters occur in the first word counting multiplicity: efef is a rearrangement of eeff'
+  lines:
+  - 10
+- id: R-EX-6
+  doc: SPEC
+  quote: cycpattern_check("himenss","simen") => True
+  text: cycpattern_check("himenss", "simen") returns True.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: => True
+    readings:
+    - 'consistent with R-RET-1 when related means contiguous substring: the rotation imens occurs in himenss'
+    - 'contradicts R-RET-1 when related means equal to the first word (b is a rotation of a): no rotation of simen equals himenss'
+  lines:
+  - 11
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: The result output is false in every call whose outcome is not 0 (the call raised, did not finish, or returned something other than a bool).
+  kind: guarantee
+  lines:
+  - 49

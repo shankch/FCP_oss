@@ -1,0 +1,268 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 143,
+    "checked": 143,
+    "seconds": 24.98
+   },
+   "open": {
+    "open": {},
+    "checked": 86
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 137,
+    "checked": 137,
+    "seconds": 29.79
+   },
+   "open": {
+    "open": {},
+    "checked": 86
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RES-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RES-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1-OUT",
+    "req": "R-IN-1",
+    "says": "`outcome` is free when `!valid`",
+    "where": {
+     "valid": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1-RES",
+    "req": "R-IN-1",
+    "says": "`result` is free when `!valid`",
+    "where": {
+     "valid": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `only_brackets`",
+    "where": {
+     "only_brackets": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-DC-OUTCOME",
+    "req": "R-IN-1",
+    "says": "`outcome` is free when `!only_brackets`",
+    "where": {
+     "only_brackets": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-DC-RESULT",
+    "req": "R-IN-1",
+    "says": "`result` is free when `!only_brackets`",
+    "where": {
+     "only_brackets": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-TASK-1",
+   "phrase": "Complete this function",
+   "taken": 1,
+   "variant": 2,
+   "text": "any implementation with the same name and parameter is acceptable, even if the signature (e.g. a return annotation) or docstring is changed"
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "a string of \"(\" and \")\"",
+   "taken": 1,
+   "variant": 2,
+   "text": "every character is '(' or ')', and the string is non-empty"
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "brackets is a string of \"(\" and \")\"",
+   "taken": 1,
+   "variant": 2,
+   "text": "characters other than '(' and ')' are to be ignored when judging the bracketing"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "False",
+   "taken": 1,
+   "variant": 2,
+   "text": "the function may return any value whose truthiness gives the answer (e.g. 0/1)"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "correct_bracketing",
+   "taken": 1,
+   "variant": 2,
+   "text": "'correct' is a verb: the function corrects the bracketing and returns a fixed string; this reading contradicts the example R-EX-1, which returns False"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "correct_bracketing",
+   "taken": 1,
+   "variant": 2,
+   "text": "equal numbers of '(' and ')' only, regardless of order (\")(\" is correct)"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "correct_bracketing(brackets: str)",
+   "taken": 1,
+   "variant": 2,
+   "text": "the empty string is not correctly bracketed (there are no brackets to match)"
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "correct_bracketing",
+   "taken": 1,
+   "variant": 2,
+   "text": "the function's meaning is fixed only by the example, and any answer is acceptable on other arguments"
+  },
+  {
+   "req": "R-RES-2",
+   "phrase": "correct_bracketing",
+   "taken": 1,
+   "variant": 2,
+   "text": "the function's meaning is fixed only by the example, and any answer is acceptable on other arguments"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "correct_bracketing(\"(\")",
+   "taken": 1,
+   "variant": 2,
+   "text": "\"(\" lacks a ')', so under the reading of R-IN-1 that the string contains both '(' and ')' the example lies outside the input contract, contradicting R-IN-1"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "False",
+   "taken": 1,
+   "variant": 2,
+   "text": "under the verb reading of correct_bracketing (return a corrected string) a bool answer contradicts R-RET-1"
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "correct_bracketing(\"\\u0001\\u0001\") -> raised another exception or did not finish"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [
+    "correct_bracketing(\"\\u0001\\u0001\") -> raised another exception or did not finish"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"False\" can mean: the function returns a bool, as the example's False suggests (no return annotation is given) / the function may return any value whose truthiness gives the answer (e.g. 0/1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"correct_bracketing\" can mean: 'correct' is an adjective: the function tells whether the bracketing is correct and returns a bool / 'correct' is a verb: the function corrects the bracketing and returns a fixed string; this reading contradicts the example R-EX-1, which returns False. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"correct_bracketing\" can mean: the function returns True exactly when the argument is correctly bracketed; this meaning is inferred from the name only, since the docstring never states what is returned / the function's meaning is fixed only by the example, and any answer is acceptable on other arguments. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "calls": [],
+   "question": "\"correct_bracketing\" can mean: the function returns False exactly when the argument is not correctly bracketed; this meaning is inferred from the name only, since the docstring never states what is returned / the function's meaning is fixed only by the example, and any answer is acceptable on other arguments. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"correct_bracketing(\"(\")\" can mean: \"(\" is a valid argument (every character is '(' or ')'), so the example is within the input contract of R-IN-1 / \"(\" lacks a ')', so under the reading of R-IN-1 that the string contains both '(' and ')' the example lies outside the input contract, contradicting R-IN-1. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"False\" can mean: the function answers with a bool, consistent with R-RET-1 / under the verb reading of correct_bracketing (return a corrected string) a bool answer contradicts R-RET-1. Which is meant?"
+  }
+ ],
+ "limits": []
+}

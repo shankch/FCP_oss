@@ -1,0 +1,128 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  ret_true: "outcome == 0 && result"     # the call returned the bool True
+  ret_false: "outcome == 0 && !result"   # the call returned the bool False
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: "n >= 0 && n <= 65535"
+    note: >-
+      Reading 1 of "the given number n": n is a non-negative integer. In the trace
+      n is a 16-bit integer from 0 to 65,535 (frame.md), so this assumption only
+      records the obligation and constrains nothing beyond the interface. Negative
+      and non-integer arguments (readings 2 and 3) are not part of the trace.
+
+properties:
+  - id: RA-FN-1
+    req: R-FN-1
+    expr: "outcome == 0"
+    note: >-
+      Reading 1 of "Evaluate whether": every call finishes without raising and
+      returns the bool True or False (outcome 0). Returning another type that
+      compares equal to True/False, such as 1 or 0 (reading 2), is outcome 2 and
+      is rejected; reading 2 is not expressible exactly, because the trace does
+      not carry the value returned with outcome 2.
+
+  - id: RA-FN-2
+    req: R-FN-2
+    pattern: implies
+    args: {trigger: "outcome == 0", cond: "result"}
+    note: >-
+      Literal reading of the main statement: "4 numbers" are any integers
+      (reading 1, no restriction is stated), exactly four summands (reading 1),
+      and the statement is taken as written even though it contradicts the
+      examples ("can be written as", reading 1). Every integer n equals
+      n + 0 + 0 + 0, so every n qualifies and the returned bool is always True;
+      "False otherwise" never applies. This contradicts R-EX-1 (candidate(4) ==
+      False) and R-EX-2 (candidate(6) == False), see RA-EX-1 and RA-EX-2; the
+      contradiction is left in place, not repaired. Whether the call returns at
+      all is RA-FN-1.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 4", cond: "ret_false"}
+    note: >-
+      The docstring example candidate(4) == False, taken verbatim: every call
+      with n = 4 returns the bool False ("== False", reading 1). The function is
+      deterministic and memoryless, so the example binds every such call; it is
+      also stated as the scenario RA-EX-1-S. Reading 2 of "candidate(4)": under
+      the literal reading of R-FN-2 (RA-FN-2), 4 = 4 + 0 + 0 + 0 qualifies, so
+      this example contradicts the main statement.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 6", cond: "ret_false"}
+    note: >-
+      The docstring example candidate(6) == False, taken verbatim: every call
+      with n = 6 returns the bool False ("== False", reading 1). Also stated as
+      the scenario RA-EX-2-S. Reading 2 of "candidate(6)": under the literal
+      reading of R-FN-2 (RA-FN-2), 6 = 6 + 0 + 0 + 0 qualifies, so this example
+      contradicts the main statement.
+
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "n == 8", cond: "ret_true"}
+    note: >-
+      The docstring example candidate(8) == True, taken verbatim: every call
+      with n = 8 returns the bool True ("== True", reading 1). Also stated as the
+      scenario RA-EX-3-S. Reading 1 of "candidate(8)": summands may repeat, so 8
+      qualifies; this agrees with RA-FN-2.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: "n == 4 && ret_false"
+    note: "A call candidate(4) that returns the bool False is possible."
+
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: "n == 6 && ret_false"
+    note: "A call candidate(6) that returns the bool False is possible."
+
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: "n == 8 && ret_true"
+    note: "A call candidate(8) that returns the bool True is possible."
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: that the deliverable is a complete implementation and not
+      a stub is a property of the code, not of a trace. Its observable part is
+      covered: a stub raises or returns None (outcome 1 or 2), which RA-FN-1
+      rejects, and a working implementation must meet RA-FN-2 and the examples.
+    covered_by: [RA-FN-1, RA-FN-2]
+
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the function name and its single parameter are not
+      expressible in FCP-PL. They are fixed by the function section of
+      design.yaml (name candidate, one argument n), through which every call is
+      made.
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md): F-ZERO, outcome != 0 -> !result, is
+      declared in design.yaml and added to every formalization set, so it is not
+      restated here.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "the given number n", reading: 1}
+  - {req: R-FN-1, phrase: "Evaluate whether", reading: 1}
+  - {req: R-FN-2, phrase: "4 numbers", reading: 1}
+  - {req: R-FN-2, phrase: "the sum of 4", reading: 1}
+  - {req: R-FN-2, phrase: "can be written as", reading: 1}
+  - {req: R-EX-1, phrase: "candidate(4)", reading: 2}
+  - {req: R-EX-1, phrase: "== False", reading: 1}
+  - {req: R-EX-2, phrase: "candidate(6)", reading: 2}
+  - {req: R-EX-2, phrase: "== False", reading: 1}
+  - {req: R-EX-3, phrase: "candidate(8)", reading: 1}
+  - {req: R-EX-3, phrase: "== True", reading: 1}

@@ -1,0 +1,156 @@
+[
+ {
+  "req": "R-RET-1",
+  "phrase": "returns True if the date is valid",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with R-EX-1 and R-EX-4, examples authoritative: valid_date returns False for '03-11-2000' and '06-04-2020', so a date meeting every rule does not always yield True (validity or the return polarity means something other than stated)."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "otherwise False",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with R-EX-2, R-EX-3 and R-EX-5, examples authoritative: valid_date returns True for '15-01-2012', '04-0-2040' and '06/04/2020' even though each breaks a listed rule."
+ },
+ {
+  "req": "R-RET-3",
+  "phrase": "otherwise False",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only strings that look like dates are covered; for malformed strings (e.g. non-numeric fields) the function may raise an exception instead of returning False."
+ },
+ {
+  "req": "R-VAL-1",
+  "phrase": "The date is valid if",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only a sufficient condition: meeting every rule makes the date valid, but a string that breaks a rule is not thereby stated to be invalid."
+ },
+ {
+  "req": "R-VAL-1",
+  "phrase": "all of the following rules are satisfied",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with R-EX-1 and R-EX-4, examples authoritative: '03-11-2000' and '06-04-2020' are invalid although they satisfy every listed rule, so satisfying the rules is not enough for validity."
+ },
+ {
+  "req": "R-DAY-1",
+  "phrase": "is not less than 1 or higher than 31",
+  "taken": 1,
+  "variant": 2,
+  "text": "Literal operator scoping: the day is not less than 1, or it is higher than 31, i.e. only day >= 1 is required."
+ },
+ {
+  "req": "R-DAY-2",
+  "phrase": "is not less than 1 or higher than 30",
+  "taken": 1,
+  "variant": 2,
+  "text": "Literal operator scoping: the day is not less than 1, or it is higher than 30, i.e. only day >= 1 is required."
+ },
+ {
+  "req": "R-DAY-2",
+  "phrase": "not less than 1",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with R-EX-3, example authoritative: valid_date('04-0-2040') returns True, so day 0 in month 4 is accepted."
+ },
+ {
+  "req": "R-DAY-3",
+  "phrase": "is not less than 1 or higher than 29",
+  "taken": 1,
+  "variant": 2,
+  "text": "Literal operator scoping: the day is not less than 1, or it is higher than 29, i.e. only day >= 1 is required."
+ },
+ {
+  "req": "R-DAY-3",
+  "phrase": "higher than 29 for the month 2",
+  "taken": 1,
+  "variant": 2,
+  "text": "Day 29 of February is allowed only in leap years, since a real calendar date is meant (e.g. '02-29-2001' is invalid)."
+ },
+ {
+  "req": "R-MON-1",
+  "phrase": "should not be less than 1 or higher than 12",
+  "taken": 1,
+  "variant": 2,
+  "text": "Literal operator scoping: the month is not less than 1, or it is higher than 12, i.e. only month >= 1 is required."
+ },
+ {
+  "req": "R-MON-1",
+  "phrase": "higher than 12",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with R-EX-2, example authoritative: valid_date('15-01-2012') returns True, so month 15 is accepted (or the first field is not the month)."
+ },
+ {
+  "req": "R-FMT-1",
+  "phrase": "mm-dd-yyyy",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with R-EX-5, example authoritative: '/' (or any separator) is also accepted, so valid_date('06/04/2020') returns True."
+ },
+ {
+  "req": "R-FMT-2",
+  "phrase": "mm-dd-yyyy",
+  "taken": 1,
+  "variant": 2,
+  "text": "mm and dd may have one or two digits (yyyy four), as R-EX-3 '04-0-2040' => True suggests; this contradicts the exact two-digit reading of the format."
+ },
+ {
+  "req": "R-FMT-2",
+  "phrase": "in the format",
+  "taken": 1,
+  "variant": 2,
+  "text": "Leading and trailing whitespace is ignored (stripped) before the format is checked."
+ },
+ {
+  "req": "R-FMT-2",
+  "phrase": "yyyy",
+  "taken": 1,
+  "variant": 2,
+  "text": "The year must be a real calendar year (e.g. at least 0001), so '0000' is invalid."
+ },
+ {
+  "req": "R-FMT-3",
+  "phrase": "mm-dd-yyyy",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with R-EX-2, example authoritative: the first field is read as the day (dd-mm-yyyy), so '15-01-2012' is 15 January 2012 and valid."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "valid_date('03-11-2000') => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "Rules authoritative: '03-11-2000' is valid and the call returns True; the example's expected value is wrong."
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "valid_date('15-01-2012') => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "Example authoritative with fields read as dd-mm-yyyy: '15-01-2012' is 15 January 2012 and valid, contradicting R-FMT-3 (first field is the month)."
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "valid_date('04-0-2040') => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "Rules authoritative: '04-0-2040' has day 0 and a one-digit day field, so the call returns False; the example's expected value is wrong."
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "valid_date('06-04-2020') => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "Rules authoritative: '06-04-2020' is valid and the call returns True; the example's expected value is wrong."
+ },
+ {
+  "req": "R-EX-5",
+  "phrase": "valid_date('06/04/2020') => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "Rules authoritative: '06/04/2020' is not in the format mm-dd-yyyy, so the call returns False; the example's expected value is wrong."
+ }
+]

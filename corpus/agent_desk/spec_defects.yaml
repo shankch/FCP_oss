@@ -1,0 +1,17 @@
+# Defects planted in spec.md (hidden from every agent).
+design: agent_desk
+defects:
+- id: D-1
+  kind: conflict
+  reqs: [R-HUM-1, R-END-1, R-TOOL-3]
+  note: >
+    A handoff ends the conversation (line 12). If the customer presses "Talk to a human"
+    before the agent has asked whether there is anything else, for example in the first
+    turn, rule 8 demands a handoff at once and rule 9 forbids ending the conversation.
+    The environment forces it: no scaffold and no model can meet both literal readings.
+- {id: D-2, kind: ambiguity, reqs: [R-CONF-1], note: 'the confirmation names an order and an amount (line 10), rule 4 mentions only the amount; does a Yes for order 0 allow a refund of the same amount on order 1?'}
+- {id: D-3, kind: ambiguity, reqs: [R-ID-2], note: '"fails twice" in total or in a row; "hand off" in the next turn or later'}
+- {id: D-4, kind: ambiguity, reqs: [R-HUM-1], note: '"at once": may the agent first say that it is transferring the customer?'}
+- {id: D-5, kind: ambiguity, reqs: [R-BIG-1], note: '"hand off instead" names no observable trigger; over $150 is strict or not'}
+- {id: D-6, kind: ambiguity, reqs: [R-ELIG-1], note: 'eligible at the most recent lookup, or at some lookup'}
+- {id: D-7, kind: judged, reqs: [R-NOTE-1, R-TONE-1], note: 'rules about the model''s reasoning and wording; no event of the trace decides them'}

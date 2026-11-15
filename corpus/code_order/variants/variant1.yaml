@@ -1,0 +1,273 @@
+fcp: "0.1"
+set: variant1
+origin: {kind: agent, role: formalizer, id: variant1}
+
+defs:
+  bad: "qty < 1 || qty > 100 || amount < 1 || amount > 1000000"
+  call: "!phase"
+  returned: "phase"
+  rsv: "!phase && op == 1"
+  chg: "!phase && op == 2"
+  bok: "!phase && op == 3"
+  rfd: "!phase && op == 4"
+  rel: "!phase && op == 5"
+  step: "rsv || chg || bok"
+  rsv_ok: "rsv && answer == 0"
+  chg_ok: "chg && answer == 0"
+  bok_ok: "bok && answer == 0"
+  step_fail: "step && (answer == 1 || answer == 2)"
+  all_ok: "once(rsv_ok) && once(chg_ok) && once(bok_ok)"
+
+assumptions:
+  - id: V1-SIG-ARGS
+    req: R-SIG-1
+    expr: "stable(order_id) && stable(sku) && stable(qty) && stable(amount)"
+    note: >-
+      A run is one call of place_order with fixed arguments; frame.md says each
+      argument signal is "the same in every cycle of a run" but that is not one
+      of the frame rules, so it is stated here as an environment obligation.
+  - id: V1-API-ANS
+    req: R-API-1
+    pattern: implies
+    args: {trigger: "step", cond: "answer <= 2"}
+    note: >-
+      reserve, charge and book answer only "ok" (0), "refused" (1) or raise their
+      error (2); the code 3 never occurs. "A call that raises has done nothing"
+      is used below: a charge (reservation) counts as made only when it answered
+      "ok". That release and refund do not fail is already the frame rule F-ANS.
+
+properties:
+  # R-ARGS-1: every call is for this order
+  - id: V1-ARGS-RSV
+    req: R-ARGS-1
+    pattern: implies
+    args: {trigger: "rsv", cond: "r_sku == sku && r_qty == qty"}
+  - id: V1-ARGS-CHG
+    req: R-ARGS-1
+    pattern: implies
+    args: {trigger: "chg", cond: "c_order == order_id && c_amount == amount"}
+  - id: V1-ARGS-BOK
+    req: R-ARGS-1
+    pattern: implies
+    args: {trigger: "bok", cond: "b_order == order_id"}
+  - id: V1-ARGS-RFD
+    req: R-ARGS-1
+    pattern: implies
+    args: {trigger: "rfd", cond: "f_order == order_id && f_amount == amount"}
+    note: "Also the argument list payments.refund(order_id, amount) of R-UNDO-1."
+  - id: V1-ARGS-REL
+    req: R-ARGS-1
+    pattern: implies
+    args: {trigger: "rel", cond: "l_sku == sku && l_qty == qty"}
+    note: "Also the argument list inventory.release(sku, qty) of R-UNDO-1."
+
+  # R-ERR-1: invalid arguments
+  - id: V1-ERR-RAISE
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "returned && bad", cond: "outcome == 1"}
+    note: >-
+      Read literally as "if", not "only if"; that valid arguments do not raise
+      follows from the R-STEPS-1, R-RET-1 and R-STOP-1 items. qty and amount are
+      unsigned signals, so "less than 1" means 0.
+  - id: V1-ERR-NOCALL
+    req: R-ERR-1
+    expr: "bad -> returned"
+    note: "No cycle of the run is a call: the first cycle after reset is already the return."
+
+  # R-STEPS-1: reserve, charge, book, going on while the steps answer ok
+  - id: V1-STEPS-FIRST
+    req: R-STEPS-1
+    pattern: implies
+    args: {trigger: "call", cond: "once(rsv)"}
+    note: "Every call is the reservation or comes after it, so the first call is the reservation."
+  - id: V1-STEPS-CHG
+    req: R-STEPS-1
+    pattern: next
+    args: {trigger: "rsv_ok", cond: "chg"}
+    note: >-
+      "Goes on to the next step" is read as: the call right after a reservation
+      that answered "ok" is the charge (nothing in between).
+  - id: V1-STEPS-BOK
+    req: R-STEPS-1
+    pattern: next
+    args: {trigger: "chg_ok", cond: "bok"}
+    note: "The call right after a charge that answered \"ok\" is the booking."
+  - id: V1-STEPS-RET
+    req: R-STEPS-1
+    pattern: implies
+    args: {trigger: "returned && !bad", cond: "once(step_fail) || once(bok_ok)"}
+    note: >-
+      Rule 2 is read as applying to valid arguments only, since rule 1 says to
+      call no service with invalid ones.
+
+  # R-ORDER-1: no charge without held stock, no booking without payment
+  - id: V1-ORDER-CHG
+    req: R-ORDER-1
+    pattern: implies
+    args: {trigger: "chg", cond: "since(!rel, rsv_ok)"}
+    note: >-
+      "Stock we do not hold" read literally: the stock is held from a
+      reservation that answered "ok" until it is released, so a charge needs an
+      earlier "ok" reservation with no release since.
+  - id: V1-ORDER-BOK
+    req: R-ORDER-1
+    pattern: implies
+    args: {trigger: "bok", cond: "since(!rfd, chg_ok)"}
+    note: >-
+      "An order that is not paid" read literally: the order is paid from a charge
+      that answered "ok" until it is refunded.
+
+  # R-ONCE-1: each step at most once
+  - id: V1-ONCE-RSV
+    req: R-ONCE-1
+    pattern: implies
+    args: {trigger: "rsv", cond: "!prev(once(rsv))"}
+  - id: V1-ONCE-CHG
+    req: R-ONCE-1
+    pattern: implies
+    args: {trigger: "chg", cond: "!prev(once(chg))"}
+  - id: V1-ONCE-BOK
+    req: R-ONCE-1
+    pattern: implies
+    args: {trigger: "bok", cond: "!prev(once(bok))"}
+
+  # R-RET-1: True after three ok answers, and nothing else called
+  - id: V1-RET-TRUE
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "returned && all_ok", cond: "outcome == 0 && result"}
+  - id: V1-RET-NOMORE
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "call", cond: "!prev(all_ok)"}
+    note: "No call once all three steps have answered \"ok\"."
+  - id: V1-RET-ONLY
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "returned && all_ok", cond: "hist(returned || step)"}
+    note: >-
+      "Call nothing else in that case" read literally: in a run where all three
+      steps answered "ok", no call of the run is anything but a step (no refund,
+      no release), before or after the booking.
+  - id: V1-RET-FALSE
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "returned && result", cond: "all_ok"}
+    note: >-
+      "False otherwise" from the requirement text: the quote only says when to
+      return True; returning False after a failure is rule 6 (R-STOP-1).
+
+  # R-STOP-1: stop after a failure and return False
+  - id: V1-STOP-NOSTEP
+    req: R-STOP-1
+    pattern: implies
+    args: {trigger: "step", cond: "!prev(once(step_fail))"}
+    note: >-
+      "Stop there: take no later step" read as no step of any kind after a step
+      was refused or raised (a retry of the failed step is also R-ONCE-1).
+  - id: V1-STOP-FALSE
+    req: R-STOP-1
+    pattern: implies
+    args: {trigger: "returned && once(step_fail)", cond: "outcome == 0 && !result"}
+    note: >-
+      Returns False (outcome 0), which also means no service error leaves the
+      function (that would be outcome 2). "Undo the earlier ones" is realized by
+      the R-UNDO-1 items.
+
+  # R-UNDO-1: refund if charged, release if reserved, each exactly once
+  - id: V1-UNDO-RFD-DUE
+    req: R-UNDO-1
+    pattern: implies
+    args: {trigger: "returned && once(step_fail) && once(chg_ok)", cond: "once(rfd)"}
+    note: >-
+      Reading 1 of "refund the charge ... and release the stock" is taken as
+      instructed (in either order): no order between the refund and the release
+      is required. Reading 1 of "if the customer was charged ... if it was
+      reserved" is taken as instructed (only then); this item is the "if" half.
+      Charged means the charge answered "ok" (a call that raises has done
+      nothing). Conflicts with R-LIMIT-1 when the booking fails: reserve, charge,
+      book, refund and release are five calls.
+  - id: V1-UNDO-RFD-ONCE
+    req: R-UNDO-1
+    pattern: implies
+    args: {trigger: "rfd", cond: "!prev(once(rfd))"}
+    note: >-
+      "Exactly once": at most one refund. Readings taken as instructed: reading 1
+      (in either order) of "refund the charge ... and release the stock", reading
+      1 (only then) of "if the customer was charged ... if it was reserved".
+  - id: V1-UNDO-RFD-ONLY
+    req: R-UNDO-1
+    pattern: implies
+    args: {trigger: "rfd", cond: "once(step_fail) && once(chg_ok)"}
+    note: >-
+      Reading 1 of "if the customer was charged ... if it was reserved" is taken
+      as instructed (only then): no refund unless the charge answered "ok" and,
+      since refunding is undoing, a step has failed. Reading 1 (in either order)
+      of "refund the charge ... and release the stock": no order with the release.
+  - id: V1-UNDO-REL-DUE
+    req: R-UNDO-1
+    pattern: implies
+    args: {trigger: "returned && once(step_fail) && once(rsv_ok)", cond: "once(rel)"}
+    note: >-
+      Reading 1 of "refund the charge ... and release the stock" is taken as
+      instructed (in either order): no order between the refund and the release
+      is required. Reading 1 of "if the customer was charged ... if it was
+      reserved" is taken as instructed (only then); this item is the "if" half.
+      Reserved means the reservation answered "ok". Conflicts with R-LIMIT-1
+      when the booking fails (five calls).
+  - id: V1-UNDO-REL-ONCE
+    req: R-UNDO-1
+    pattern: implies
+    args: {trigger: "rel", cond: "!prev(once(rel))"}
+    note: >-
+      "Exactly once": at most one release. Readings taken as instructed: reading
+      1 (in either order) of "refund the charge ... and release the stock",
+      reading 1 (only then) of "if the customer was charged ... if it was
+      reserved".
+  - id: V1-UNDO-REL-ONLY
+    req: R-UNDO-1
+    pattern: implies
+    args: {trigger: "rel", cond: "once(step_fail) && once(rsv_ok)"}
+    note: >-
+      Reading 1 of "if the customer was charged ... if it was reserved" is taken
+      as instructed (only then): no release unless the reservation answered "ok"
+      and, since releasing is undoing, a step has failed. Reading 1 (in either
+      order) of "refund the charge ... and release the stock": no order with the
+      refund.
+
+  # R-LIMIT-1: at most four calls
+  - id: V1-LIMIT-4
+    req: R-LIMIT-1
+    expr: "call -> !(prev(call) && prev(call, 2) && prev(call, 3) && prev(call, 4))"
+    note: >-
+      No fifth call; the calls of a run are its first cycles (frame rule F-END),
+      so a fifth call is a call preceded by four calls. Taken literally this
+      contradicts rules 2, 6 and 7 when reserve and charge answer "ok" and the
+      booking is refused or raises: the run must then also refund and release,
+      five calls in total. The specification is not repaired here.
+
+scenarios:
+  - id: V1-EX-1
+    req: R-EX-1
+    cover: >-
+      returned && outcome == 0 && !result
+      && order_id == 7 && sku == 3 && qty == 2 && amount == 500
+      && prev(rel && l_sku == 3 && l_qty == 2)
+      && prev(chg && answer == 1 && c_order == 7 && c_amount == 500, 2)
+      && prev(rsv && answer == 0 && r_sku == 3 && r_qty == 2, 3)
+      && hist(returned || rsv || chg || rel)
+    note: >-
+      place_order(7, 3, 2, 500) with the reservation "ok" and the charge
+      "refused": reserve(3, 2), charge(7, 500), release(3, 2), then returns
+      False; the run calls nothing but reserve, charge and release.
+
+unformalized:
+  - {req: R-FR-1, reason: "Frame rule of the adapter, part of every set by construction.", covered_by: [F-END]}
+  - {req: R-FR-2, reason: "Frame rule of the adapter, part of every set by construction.", covered_by: [F-ZERO]}
+  - {req: R-FR-3, reason: "Frame rule of the adapter, part of every set by construction.", covered_by: [F-LIMIT]}
+  - {req: R-FR-4, reason: "Frame rule of the adapter, part of every set by construction.", covered_by: [F-ANS]}
+
+decisions:
+  - {req: R-UNDO-1, phrase: "refund the charge ... and release the stock", reading: 1}
+  - {req: R-UNDO-1, phrase: "if the customer was charged ... if it was reserved", reading: 1}

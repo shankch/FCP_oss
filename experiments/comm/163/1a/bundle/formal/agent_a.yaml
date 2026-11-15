@@ -1,0 +1,158 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  lo: "min(a, b)"                 # the smaller argument
+  hi: "max(a, b)"                 # the larger argument
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: "a >= 1"
+    note: >-
+      "Given two positive integers a and b" read literally as a precondition on
+      the caller: calls with a = 0 are outside the environment, so nothing is
+      required of the function for them.
+  - id: RA-IN-2
+    req: R-IN-2
+    expr: "b >= 1"
+    note: >-
+      Same precondition reading as RA-IN-1, for b.
+
+properties:
+  - id: RA-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args: {trigger: "a >= 1 && b >= 1", cond: "outcome == 0"}
+    note: >-
+      For positive arguments the call returns a list (outcome 0). The guard
+      repeats the requirement's "for positive integer arguments" and is
+      already ensured by RA-IN-1 and RA-IN-2. Outcome 0 also means the list
+      fits the result signal (at most 16 elements from 0 to 255). The text does
+      not say this, but any list that meets RA-SEL-1 and RA-SEL-5 has at most
+      10 elements, all of them digits.
+
+  - id: RA-SEL-1
+    req: R-SEL-1
+    expr: "all(i < len(result): result[i] <= 9)"
+    note: >-
+      "digits" read as the single-digit integers 0 to 9, which is the only
+      reading consistent with generate_integers(10, 14) => []. Elements are
+      never negative in the trace, so the upper bound is enough.
+
+  - id: RA-SEL-2
+    req: R-SEL-2
+    expr: "all(i < len(result): lo <= result[i] && result[i] <= hi)"
+    note: >-
+      "between a and b" read as inclusive and order-independent: the closed
+      range from min(a, b) to max(a, b). The examples (2, 8) and (8, 2), which
+      both return 2 and 8, support this.
+
+  - id: RA-SEL-3
+    req: R-SEL-3
+    expr: "all(i < len(result): result[i] % 2 == 0) || all(i < len(result): result[i] % 2 == 1)"
+    note: >-
+      "return the odd or even digits" read literally as a disjunction at each
+      call: each returned list is all even or all odd, and the parity may
+      differ between calls. The text does not say how the parity is picked,
+      so the result is not determined by the arguments. Only the binding
+      examples (RA-EX-1, RA-EX-2) fix the even parity, and only for the calls
+      (2, 8) and (8, 2). The examples suggest an intended "even digits only",
+      but the general sentence does not state it, and this set does not
+      repair the text.
+
+  - id: RA-SEL-4
+    req: R-SEL-4
+    expr: "any(p < 2: all(d < 10: (lo <= d && d <= hi && d % 2 == p) -> (d in result)))"
+    note: >-
+      There is a parity p (the parity selected for this call) such that every
+      digit d from 0 to 9 with parity p in [min(a, b), max(a, b)] appears in
+      the list. Together with RA-SEL-3 the selected parity is the parity of the
+      list's elements. An empty list is allowed only when one of the two
+      parities has no digit in the range. This uses the per-call choice of
+      RA-SEL-3, and the range has the same reading as RA-SEL-2.
+
+  - id: RA-SEL-5
+    req: R-SEL-5
+    expr: "all(i < len(result): all(j < i: result[j] != result[i]))"
+    note: No two positions of the returned list hold the same value.
+
+  - id: RA-ORD-1
+    req: R-ORD-1
+    expr: "all(i < len(result) - 1: result[i] <= result[i + 1]) || all(i < len(result) - 1: result[i] >= result[i + 1])"
+    note: >-
+      "in descending or ascending order" read literally as a disjunction at
+      each call: each returned list is sorted one way or the other, and the
+      order may differ between calls. It is not tied to the argument order or
+      to the parity. Only the binding examples (RA-EX-1, RA-EX-2) fix
+      ascending order, and only for those calls. "Sorted" is non-strict here;
+      RA-SEL-5 separately rules out repeated values.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "a == 2 && b == 8", cond: "outcome == 0 && result == [2, 4, 6, 8]"}
+    note: >-
+      The example is read as binding, since the text states it as a fact
+      about the call. It fixes even parity and ascending order for this call
+      only, and narrows the "odd or even" and "descending or ascending"
+      options of RA-SEL-3 and RA-ORD-1 here.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "a == 8 && b == 2", cond: "outcome == 0 && result == [2, 4, 6, 8]"}
+    note: >-
+      Binding, as RA-EX-1. With a > b the list is still ascending, so order
+      does not follow the argument order on this call.
+
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "a == 10 && b == 14", cond: "outcome == 0 && len(result) == 0"}
+    note: >-
+      Binding: the call returns the empty list, which is consistent with
+      "digits" meaning 0 to 9 (RA-SEL-1). outcome == 0 is required because
+      [] is a returned value, not an exception (an exception would also leave
+      result empty by F-EMPTY).
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: "a == 2 && b == 8 && outcome == 0 && result == [2, 4, 6, 8]"
+    note: The example call and its answer must be a possible behaviour.
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: "a == 8 && b == 2 && outcome == 0 && result == [2, 4, 6, 8]"
+    note: The example call and its answer must be a possible behaviour.
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: "a == 10 && b == 14 && outcome == 0 && len(result) == 0"
+    note: The example call and its answer must be a possible behaviour.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: it is about the deliverable (a Python implementation
+      that keeps the name generate_integers and the parameters a and b), not
+      about the call trace. The adapter binding in design.yaml (function name
+      and argument signals) realizes it. A call trace cannot observe it.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter. design.yaml already states it as frame item
+      F-EMPTY, which is added to every formalization set, so it is not
+      restated here.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IN-1, phrase: "positive integers", reading: 1}
+  - {req: R-IN-2, phrase: "positive integers", reading: 1}
+  - {req: R-SEL-1, phrase: "digits", reading: 1}
+  - {req: R-SEL-2, phrase: "between a and b", reading: 1}
+  - {req: R-SEL-2, phrase: "between a and b", reading: 1}
+  - {req: R-SEL-3, phrase: "odd or even", reading: 5}
+  - {req: R-ORD-1, phrase: "in descending or ascending order", reading: 6}
+  - {req: R-EX-1, phrase: "generate_integers(2, 8) => [2, 4, 6, 8]", reading: 1}
+  - {req: R-EX-2, phrase: "generate_integers(8, 2) => [2, 4, 6, 8]", reading: 1}
+  - {req: R-EX-3, phrase: "generate_integers(10, 14) => []", reading: 1}

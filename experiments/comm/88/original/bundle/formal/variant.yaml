@@ -1,0 +1,181 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # "the sum( first index value, last index value)", read as the sum of the
+  # first and the last index numbers, 0 + (len(array) - 1); for the empty
+  # array the missing values count as 0, so the sum is 0.
+  idx_sum: 'len(array) == 0 ? 0 : len(array) - 1'
+  asc_strict: 'all(i < len(result) - 1: result[i] < result[i + 1])'
+  desc_strict: 'all(i < len(result) - 1: result[i] > result[i + 1])'
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    expr: 'outcome == 0'
+    note: >-
+      Every call in the trace has a list of non-negative integers as argument
+      (the frame excludes all others), so every call must return a list that
+      fits (outcome 0): no exception, no non-termination, no other value.
+
+  - id: RV-RET-2
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: >-
+        len(result) == len(array) &&
+        all(i < len(array): count(j < len(array): array[j] == array[i]) ==
+                            count(j < len(result): result[j] == array[i]))
+    note: >-
+      When a list is returned, it has the length of the argument and holds
+      every value of the argument exactly as often; with equal lengths this
+      also excludes values not in the argument. Stated on values only: under
+      the reading taken for R-RET-3 ("a copy" means only the values matter;
+      the given array is sorted in place and then copied) the returned list
+      need not be a distinct object, which the trace does not record anyway.
+      Together with the strict orders of RV-ORD-1 and RV-ORD-2 this cannot be
+      met for an argument with repeated values.
+
+  - id: RV-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args:
+      trigger: 'idx_sum % 2 == 1'
+      cond: 'asc_strict'
+    note: >-
+      Readings imposed for this set, against the more natural ones:
+      (1) "first index value, last index value" is the first and the last
+      index numbers themselves, so the sum is 0 + (len(array) - 1) and the
+      rule applies when len(array) - 1 is odd, i.e. len(array) is even and
+      non-zero; the stored values array[0] and array[len(array) - 1] play no
+      role (the examples agree with both readings).
+      (2) "ascending order" is strictly increasing, result[i] < result[i + 1];
+      together with R-RET-2 this is impossible for an argument with repeated
+      values, e.g. [1, 1].
+      (3) "you will sort the given array" sorts the given list itself in
+      place; this contradicts "don't change the given array" (R-NC-1). The
+      trace does not record the argument after the call, so only the
+      returned list (a copy of the sorted array, R-RET-3) is constrained.
+      (4) "the sum ... is odd": for the empty array the sum is taken over the
+      missing values as 0, which is even, so this ascending rule does not
+      apply to [] (the descending rule RV-ORD-2 does), although
+      0 + (len(array) - 1) would be -1, odd.
+      A call that does not return a list has the empty result (F-EMPTY),
+      which satisfies the order trivially; RV-RET-1 rules such calls out.
+
+  - id: RV-ORD-2
+    req: R-ORD-2
+    pattern: implies
+    args:
+      trigger: 'idx_sum % 2 == 0'
+      cond: 'desc_strict'
+    note: >-
+      Readings imposed for this set, against the more natural ones:
+      (1) "first index value, last index value" is the first and the last
+      index numbers themselves, so the sum is 0 + (len(array) - 1) and the
+      rule applies when len(array) - 1 is even, i.e. len(array) is odd; the
+      stored values play no role (the examples agree with both readings).
+      (2) "descending order" is strictly decreasing, result[i] > result[i + 1];
+      together with R-RET-2 this is impossible for an argument with repeated
+      values, e.g. [1, 1, 1].
+      (3) "sort it": "it" is the given array, sorted in place; this
+      contradicts "don't change the given array" (R-NC-1). The trace does
+      not record the argument after the call, so only the returned list (a
+      copy of the sorted array, R-RET-3) is constrained.
+      (4) "the sum ... is even": for the empty array the sum is taken over
+      the missing values as 0, which is even, so this descending rule
+      applies to [] (where it holds trivially for the empty result).
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'array == [] && outcome == 0 && result == []'
+    note: >-
+      Under the readings taken for R-ORD-1/R-ORD-2 the empty array falls
+      under the descending rule (sum taken as 0), which the empty result
+      meets trivially.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'array == [5] && outcome == 0 && result == [5]'
+    note: >-
+      Index sum 0 + 0 = 0, even: the descending rule applies; a single
+      element meets it.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'array == [2, 4, 3, 0, 1, 5] && outcome == 0 && result == [0, 1, 2, 3, 4, 5]'
+    note: >-
+      Index sum 0 + 5 = 5, odd (as is the value sum 2 + 5 = 7): ascending,
+      and the result is strictly increasing.
+
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'array == [2, 4, 3, 0, 1, 5, 6] && outcome == 0 && result == [6, 5, 4, 3, 2, 1, 0]'
+    note: >-
+      Index sum 0 + 6 = 6, even (as is the value sum 2 + 6 = 8): descending,
+      and the result is strictly decreasing.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Not a property of a call: it asks for a complete implementation instead
+      of the stub. Its observable consequence, that every call returns a list,
+      is RV-RET-1.
+    covered_by: [RV-RET-1]
+
+  - req: R-IF-2
+    reason: >-
+      The function name and its single parameter array are fixed by the
+      function section of design.yaml (the adapter calls sort_array(array));
+      they are not a property of the trace.
+
+  - req: R-IN-1
+    reason: >-
+      Holds by construction of the trace: array is a sequence of unsigned
+      8-bit values, and the frame leaves arguments that are not lists of
+      non-negative integers out of the trace, so no assumption is needed.
+
+  - req: R-RET-3
+    reason: >-
+      Readings imposed for this set: "a copy of the given array after
+      sorting" means the given array is sorted in place and then a copy of it
+      is returned (contradicting "don't change the given array", R-NC-1), and
+      "a copy" means only the values matter, so returning the given list
+      object itself is acceptable when its order already matches. Under these
+      readings the requirement asks no object distinctness; what remains is
+      that the returned values are the argument's values in the sorted order,
+      which RV-RET-2 (same values, same multiplicities) and RV-ORD-1/RV-ORD-2
+      (the order) state. Object identity and the argument after the call are
+      not recorded in the trace in any case.
+    covered_by: [RV-RET-2, RV-ORD-1, RV-ORD-2]
+
+  - req: R-NC-1
+    reason: >-
+      Not observable: the frame states that what the list passed as array
+      holds after the call is not recorded in the trace. Under the reading
+      imposed for this set, the requirement is moreover contradicted by "you
+      will sort the given array" and "sort it" (R-ORD-1, R-ORD-2) and by "a
+      copy of the given array after sorting" (R-RET-3), which read as sorting
+      the given list itself in place.
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-EMPTY of design.yaml (outcome != 0 -> len(result) == 0)
+      holds by construction and is part of every formalization set; it is
+      not restated.
+
+decisions:
+  - {req: R-RET-3, phrase: 'a copy of the given array after sorting', reading: 2}
+  - {req: R-RET-3, phrase: 'a copy', reading: 2}
+  - {req: R-ORD-1, phrase: 'first index value, last index value', reading: 2}
+  - {req: R-ORD-1, phrase: 'ascending order', reading: 2}
+  - {req: R-ORD-1, phrase: 'you will sort the given array', reading: 2}
+  - {req: R-ORD-1, phrase: 'the sum( first index value, last index value) is odd', reading: 2}
+  - {req: R-ORD-2, phrase: 'first index value, last index value', reading: 2}
+  - {req: R-ORD-2, phrase: 'descending order', reading: 2}
+  - {req: R-ORD-2, phrase: 'sort it', reading: 2}
+  - {req: R-ORD-2, phrase: 'the sum( first index value, last index value) is even', reading: 2}
+  - {req: R-NC-1, phrase: "don't change the given array", reading: 2}

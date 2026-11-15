@@ -1,0 +1,134 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # The prompt never defines K; 2 is the only value under which the doctest holds (see decisions).
+  K: "2"
+  returned: "outcome == 0"
+  # result is a subsequence of numbers: some set of positions of numbers (bit j of m selects
+  # position j) holds, in order, exactly the elements of result.
+  subseq: >-
+    any(m < 256:
+      count(j < 8: (m >> j) % 2 == 1) == len(result)
+      && all(j < 8: (m >> j) % 2 == 1 ->
+           j < len(numbers) && numbers[j] == result[count(k < j: (m >> k) % 2 == 1)]))
+
+properties:
+  - id: RA-IO-2
+    req: R-IO-2
+    pattern: invariant
+    args: {cond: "returned"}
+    note: >-
+      Every call returns a list (outcome 0): no exception, no hang, no value of another type.
+      Outcome 0 also requires the list to fit the encoding (at most 8 integers, 0 to 255); the
+      text only says "a list of integers", so this is marginally stronger than the prose for
+      returned integers outside 0..255. Such values cannot arise if R-FN-1/2/3 hold, since every
+      returned element then comes from numbers.
+
+  - id: RA-FN-1
+    req: R-FN-1
+    pattern: implies
+    args:
+      trigger: "returned"
+      cond: >-
+        all(i < len(numbers):
+          count(j < len(numbers): numbers[j] == numbers[i]) == K -> !(numbers[i] in result))
+    note: >-
+      Every value that occurs exactly K = 2 times in numbers is absent from result. K is never
+      defined in the prompt; K = 2 is taken from the doctest, the only value it is consistent
+      with. "occur K time(s)" is read as exactly K times, so a value occurring 3 or more times is
+      not covered by this rule. Guarded by outcome 0 because the rule speaks of the returned
+      list; whether the call returns at all is RA-IO-2. Whether the argument is mutated in place
+      is not observable in the trace, so the "remove" reading does not change this formula.
+
+  - id: RA-FN-2-KEEP
+    req: R-FN-2
+    pattern: implies
+    args:
+      trigger: "returned"
+      cond: >-
+        all(i < len(numbers):
+          count(j < len(numbers): numbers[j] == numbers[i]) != K ->
+            count(j < len(result): result[j] == numbers[i])
+              == count(j < len(numbers): numbers[j] == numbers[i]))
+    note: >-
+      Nothing else is removed: every value of numbers whose number of occurrences is not
+      K = 2 (exactly) appears in result exactly as often as in numbers. With the exact reading,
+      values occurring 3 or more times are kept in full.
+
+  - id: RA-FN-2-ADD
+    req: R-FN-2
+    pattern: implies
+    args:
+      trigger: "returned"
+      cond: >-
+        all(i < len(result):
+          count(j < len(numbers): numbers[j] == result[i]) != K ->
+            count(j < len(result): result[j] == result[i])
+              == count(j < len(numbers): numbers[j] == result[i]))
+    note: >-
+      Nothing is added: every value in result whose number of occurrences in numbers is not
+      K = 2 occurs in result exactly as often as in numbers. In particular a value absent from
+      numbers (0 occurrences) cannot appear in result. Together with RA-FN-2-KEEP this covers
+      every value v of R-FN-2; values occurring K times are left to RA-FN-1.
+
+  - id: RA-FN-3
+    req: R-FN-3
+    pattern: implies
+    args:
+      trigger: "returned"
+      cond: "subseq"
+    note: >-
+      The returned list is a subsequence of numbers (the "i.e." of R-FN-3): there is a set of
+      positions of numbers whose elements, read in increasing position order, are exactly
+      result. This is stated independently of K. It also implies that result adds no element
+      and repeats none more often than numbers, which goes slightly beyond "keep order" in the
+      quote but is what the requirement text states.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "numbers == [1, 2, 3, 2, 4]"
+      cond: "result == [1, 3, 4]"
+    note: >-
+      The doctest is an assertion about what the call returns, so it is formalized as a property
+      on that one input as well as a scenario (RA-EX-1-S). result == [1, 3, 4] is non-empty, so
+      by the frame rule F-EMPTY it implies outcome 0. The example fixes K = 2 but does not say
+      whether the rule is "exactly" or "at least" 2 occurrences.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: "numbers == [1, 2, 3, 2, 4] && result == [1, 3, 4]"
+    note: >-
+      The doctest call and its answer must be a possible behaviour consistent with every other
+      requirement; this checks that the K = 2 reading agrees with the example.
+
+unformalized:
+  - req: R-NF-1
+    reason: >-
+      Non-functional: it concerns the deliverable (a Python body for candidate with the given
+      signature), not the value of any signal in a call. The signature itself is fixed by the
+      function section of design.yaml, and the return type is covered by RA-IO-2.
+  - req: R-IO-1
+    reason: >-
+      Ensured by the interface encoding: in every cycle numbers is a list of at most 8 integers
+      from 0 to 255, and calls with any other argument are not part of the trace (frame.md,
+      Inputs). No constraint on the inputs is left to assume.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter; frame.md states that frame rules are part of every
+      formalization set and need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-FN-1, phrase: "K", reading: 1}
+  - {req: R-FN-1, phrase: "occur K time(s)", reading: 1}
+  - {req: R-FN-1, phrase: "time(s)", reading: 2}
+  - {req: R-FN-1, phrase: "remove", reading: 1}
+  - {req: R-FN-2, phrase: "K", reading: 1}
+  - {req: R-FN-2, phrase: "occur K time(s)", reading: 1}
+  - {req: R-FN-2, phrase: "remove all elements that occur K time(s)", reading: 1}
+  - {req: R-EX-1, phrase: "[1, 3, 4]", reading: 1}

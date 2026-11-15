@@ -1,0 +1,78 @@
+fcp: '0.1'
+design: agent_desk
+summary: An agent treated as a chip. The scaffold of a returns-desk agent (its guard kernel) is the RTL, the model's proposed tool call in each turn is a free input (a cut point), and the system prompt is the specification.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt P-DESK-1: Pinecrest Home returns assistant'}
+- {id: FRAME, path: frame.md, title: 'FCP agent adapter, version 0.1'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: p_act, dir: in, width: 3, desc: 'proposed tool call: 0 none, 1 say, 2 verify, 3 lookup, 4 confirm, 5 refund, 6 handoff, 7 close'}
+  - {name: p_ord, dir: in, width: 1, desc: order argument of the proposed call}
+  - {name: p_amt, dir: in, width: 9, desc: 'amount argument of the proposed call, whole dollars'}
+  - {name: p_more, dir: in, width: 1, desc: the proposed message asks whether there is anything else}
+  - {name: human, dir: in, width: 1, desc: 'the customer pressed "Talk to a human" since the previous turn'}
+  - {name: id_ok, dir: in, width: 1, desc: verify ran in this turn and confirmed the identity}
+  - {name: elig, dir: in, width: 1, desc: lookup ran in this turn and the order is eligible}
+  - {name: total, dir: in, width: 9, desc: 'lookup ran in this turn: the order total, whole dollars'}
+  - {name: accepted, dir: in, width: 1, desc: confirm ran in this turn and the customer pressed Yes}
+  - {name: say, dir: out, width: 1, desc: a message was sent in this turn}
+  - {name: verify, dir: out, width: 1, desc: verify ran in this turn}
+  - {name: lookup, dir: out, width: 1, desc: lookup ran in this turn}
+  - {name: confirm, dir: out, width: 1, desc: confirm ran in this turn}
+  - {name: refund, dir: out, width: 1, desc: refund ran in this turn}
+  - {name: handoff, dir: out, width: 1, desc: handoff ran in this turn}
+  - {name: close, dir: out, width: 1, desc: close ran in this turn}
+  - {name: ord, dir: out, width: 1, desc: 'order of the lookup, confirm or refund that ran'}
+  - {name: amt, dir: out, width: 9, desc: 'amount of the confirm or refund that ran, whole dollars'}
+  - {name: more, dir: out, width: 1, desc: the message that was sent asks whether there is anything else}
+  - {name: done, dir: out, width: 1, desc: the conversation has ended}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 16, cover_depth: 16}
+frame:
+- {id: F-ONE, req: R-FR-1, expr: 'say + verify + lookup + confirm + refund + handoff + close <= 1'}
+- {id: F-ARG, req: R-FR-2, expr: '(!ord || lookup || confirm || refund) && (amt == 0 || confirm || refund) && (!more || say)'}
+- {id: F-DONE0, req: R-FR-3, pattern: after_reset, args: {cond: '!done'}}
+- {id: F-DONE, req: R-FR-3, expr: 'done == prev(done || handoff || close)'}
+- {id: F-STOP, req: R-FR-4, expr: 'done -> !(say || verify || lookup || confirm || refund || handoff || close)'}
+cutpoint:
+  component: the model (LLM) of the agent
+  inputs: [p_act, p_ord, p_amt, p_more]
+  actions: [say, verify, lookup, confirm, refund, handoff, close]
+  decode:
+    p_act: [none, say, verify, lookup, confirm, refund, handoff, close]
+  show:
+    p_ord: [lookup, confirm, refund]
+    p_amt: [confirm, refund]
+    p_more: [say]
+    ord: [lookup, confirm, refund]
+    amt: [confirm, refund]
+    more: [say]
+    id_ok: [verify]
+    elig: [lookup]
+    total: [lookup]
+    accepted: [confirm]
+  passes:
+    say: 'p_act == 1 && !done'
+    verify: 'p_act == 2 && !done'
+    lookup: 'p_act == 3 && !done'
+    confirm: 'p_act == 4 && !done'
+    refund: 'p_act == 5 && !done'
+    handoff: 'p_act == 6 && !done'
+    close: 'p_act == 7 && !done'
+    ord: "(p_act == 3 || p_act == 4 || p_act == 5) && !done ? p_ord : false"
+    amt: "(p_act == 4 || p_act == 5) && !done ? p_amt : 9'd0"
+    more: 'p_act == 1 && !done && p_more'
+rtl:
+  ref:
+    top: scaffold
+    files: [rtl/ref.v]
+    desc: Guarded scaffold, compiled from scaffold/desk.py.
+    origin: fcp-kernel
+  naive:
+    top: scaffold
+    files: [rtl/naive.v]
+    desc: Pass-through scaffold (a plain ReAct loop), compiled from scaffold/naive.py.
+    origin: fcp-kernel

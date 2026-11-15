@@ -1,0 +1,154 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md),
+# so the model is combinational: every call is classified from its argument
+# alone, and both outputs are checked against that classification. k is any
+# position of the argument numbers.
+rigids:
+  - {name: k, range: [0, 7]}
+
+defs:
+  # the call returned a list (outcome 0); only then is there a returned list
+  ret: "outcome == 0"
+  # how often the value at position k occurs in numbers
+  occ_k: "count(j < len(numbers): numbers[j] == numbers[k])"
+  # position k holds a value that occurs exactly once / more than once
+  uniq_k: "k < len(numbers) && occ_k == 1"
+  dup_k: "k < len(numbers) && occ_k > 1"
+  # Greedy in-order matching of result against numbers: m<j> is the number of
+  # leading elements of result matched, in order, by numbers[0..j]. Once every
+  # element of result is matched (m >= len(result)) the index is past the end
+  # of result, whose slots read as 0, so the count can only grow; result is a
+  # subsequence of numbers exactly when m7 >= len(result).
+  m0: "(0 < len(numbers) && numbers[0] == result[0]) ? 1 : 0"
+  m1: "m0 + ((1 < len(numbers) && numbers[1] == result[m0]) ? 1 : 0)"
+  m2: "m1 + ((2 < len(numbers) && numbers[2] == result[m1]) ? 1 : 0)"
+  m3: "m2 + ((3 < len(numbers) && numbers[3] == result[m2]) ? 1 : 0)"
+  m4: "m3 + ((4 < len(numbers) && numbers[4] == result[m3]) ? 1 : 0)"
+  m5: "m4 + ((5 < len(numbers) && numbers[5] == result[m4]) ? 1 : 0)"
+  m6: "m5 + ((6 < len(numbers) && numbers[6] == result[m5]) ? 1 : 0)"
+  m7: "m6 + ((7 < len(numbers) && numbers[7] == result[m6]) ? 1 : 0)"
+  subseq: "m7 >= len(result)"
+
+properties:
+  - id: RB-SIG2-1
+    req: R-SIG-2
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Reading 1 of '-> List[int]': the return annotation is an obligation, so
+      every call (every list of integers the frame admits) returns a list of
+      integers that fits the result signal; raising, not finishing or
+      returning another kind of value (outcome 1 or 2) is a violation.
+
+  - id: RB-RM1-1
+    req: R-RM-1
+    pattern: implies
+    args:
+      trigger: "ret && dup_k"
+      cond: "!(numbers[k] in result)"
+    note: >-
+      Reading 1 of 'remove all elements that occur more than once': every
+      occurrence of a value that occurs more than once in numbers is removed,
+      so that value does not occur in the returned list at all. Reading 1 of
+      'From a list of integers, remove': a new list is returned; the trace
+      records only the argument as passed and the returned list, so an
+      in-place removal (reading 2) that returns the same list is
+      indistinguishable here and the formula is the same under both.
+      Conditioned on outcome 0 because the requirement speaks of the
+      returned list (with outcome != 0 the frame makes result empty anyway).
+
+  - id: RB-RM2-1
+    req: R-RM-2
+    pattern: implies
+    args:
+      trigger: "ret && uniq_k"
+      cond: "numbers[k] in result"
+    note: >-
+      Only elements that occur more than once are removed, so a value that
+      occurs exactly once in numbers is in the returned list. Conditioned on
+      outcome 0: when the call does not return there is no returned list
+      (whether it must return is R-SIG-2).
+
+  - id: RB-RM3-1
+    req: R-RM-3
+    pattern: implies
+    args:
+      trigger: "ret"
+      cond: "all(i < len(result): count(j < len(result): result[j] == result[i]) <= count(j < len(numbers): numbers[j] == result[i]))"
+    note: >-
+      Formalizes the explicit clause of the requirement: no value occurs in
+      the returned list more often than in numbers (so no value absent from
+      numbers occurs in it). 'Obtained only by removing elements' also
+      implies that order is kept; that part is R-ORD-1 (RB-ORD1-1) and is not
+      repeated here.
+
+  - id: RB-ORD1-1
+    req: R-ORD-1
+    pattern: implies
+    args:
+      trigger: "ret"
+      cond: "subseq"
+    note: >-
+      Reading 1 of 'Keep order of elements left the same as in the input':
+      relative order is kept, i.e. the returned list is a subsequence of
+      numbers (checked by greedy in-order matching, defs m0..m7), not that
+      elements keep their indices. Reading 1 of 'elements left': the elements
+      left are the values that occur exactly once, each with a single
+      position in numbers, so being a subsequence is exactly being ordered by
+      those positions. The formula does not itself say which elements are
+      left (R-RM-1, R-RM-2, R-RM-3).
+
+  - id: RB-EX1-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "numbers == [1, 2, 3, 2, 4]"
+      cond: "outcome == 0 && result == [1, 3, 4]"
+    note: >-
+      Reading 1 of '[1, 3, 4]': the doctest is authoritative. A doctest states
+      the value the call returns, so besides the scenario RB-EX1-2 it is also
+      formalized as a guarantee for this one argument.
+
+scenarios:
+  - id: RB-EX1-2
+    req: R-EX-1
+    cover: "numbers == [1, 2, 3, 2, 4] && outcome == 0 && result == [1, 3, 4]"
+    note: The documented call remove_duplicates([1, 2, 3, 2, 4]) returning [1, 3, 4] must be possible.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional statement about the deliverable (complete the body of
+      the given function); it constrains no call of the function.
+  - req: R-SIG-1
+    reason: >-
+      Definition of the name and the single argument. The adapter fixes it by
+      construction (design.yaml function section: remove_duplicates with one
+      list argument on the input signal numbers); there is nothing left to
+      constrain. Reading 1 of 'remove_duplicates': the name only labels the
+      function and the behaviour comes from the docstring (R-RM-1, R-ORD-1,
+      R-EX-1).
+  - req: R-IN-1
+    reason: >-
+      The argument being a list of integers is already guaranteed by the
+      interface encoding: numbers is a sequence signal of at most 8 integers
+      0 to 255, and other calls are not part of the trace (frame.md, Inputs).
+      No further environment obligation is stated, so no assumption is
+      needed.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the list adapter; it holds by construction and is added
+      to every formalization set as F-EMPTY in design.yaml (frame.md: need
+      not be restated).
+
+decisions:
+  - {req: R-SIG-1, phrase: "remove_duplicates", reading: 1}
+  - {req: R-SIG-2, phrase: "-> List[int]", reading: 1}
+  - {req: R-RM-1, phrase: "remove all elements that occur more than once", reading: 1}
+  - {req: R-RM-1, phrase: "From a list of integers, remove", reading: 1}
+  - {req: R-ORD-1, phrase: "Keep order of elements left the same as in the input", reading: 1}
+  - {req: R-ORD-1, phrase: "elements left", reading: 1}
+  - {req: R-EX-1, phrase: "[1, 3, 4]", reading: 1}

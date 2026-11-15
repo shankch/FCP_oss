@@ -1,0 +1,132 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # The prompt gives no date format. "Shaped like a date" is taken as the
+  # weakest shape that excludes the empty string and strings that look
+  # nothing like a date: non-empty, only digits and the separators "-" and
+  # "/" (the separators of the design's scope alphabet), at least one digit.
+  date_shaped: 'len(date) > 0 && all(i < len(date): isdigit(date[i]) || date[i] == "-" || date[i] == "/") && any(i < len(date): isdigit(date[i]))'
+
+assumptions:
+  - id: RV-IN-1
+    req: R-IN-1
+    expr: 'date_shaped'
+    note: >-
+      Instructed reading of "a given date string": only strings shaped like
+      dates are passed, behaviour on other strings is outside the contract
+      (reading 2). The frame already excludes non-strings; this assumption
+      further restricts calls to date-shaped strings. The spec states no
+      shape, so date_shaped is a chosen minimal shape (see defs), not a
+      quoted one.
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'date_shaped', cond: 'outcome == 0'}
+    note: >-
+      Instructed reading of "returns True if the date is valid otherwise
+      False": the call returns a bool (no exception, no hang, no other type)
+      only for date-shaped strings (reading 2, see R-IN-1). Which bool is not
+      fixed here (see R-VAL-1).
+
+dont_cares:
+  - id: RV-RET-1-DC1
+    req: R-RET-1
+    signal: outcome
+    when: '!date_shaped'
+    note: >-
+      Instructed reading 2 of "returns True if the date is valid otherwise
+      False" (and of "a given date string" for R-IN-1): for strings that are
+      not date-shaped the function may raise, not finish or return anything.
+      Such calls are also excluded by assumption RV-IN-1.
+  - id: RV-RET-1-DC2
+    req: R-RET-1
+    signal: valid
+    when: '!date_shaped'
+    note: >-
+      Instructed reading 2 of "returns True if the date is valid otherwise
+      False": the returned value on non-date-shaped strings is outside the
+      contract (beyond frame rule F-ZERO).
+  - id: RV-VAL-1-DC
+    req: R-VAL-1
+    signal: valid
+    when: 'date_shaped'
+    note: >-
+      Instructed readings. "all of the following rules": the rules were
+      omitted from the prompt, so which strings are valid is unspecified and
+      the result is a don't-care beyond being a bool (reading 2; being a bool
+      is RV-RET-1). "is valid if": sufficient only (reading 2), so even a
+      known rule set would not fix where False is returned. "The date is
+      valid if all of the following rules are satisfied": read as a
+      contradiction with R-RET-3 (reading 1); see RV-VAL-1-S. The literal
+      side of that contradiction, "an empty rule list makes every string
+      valid", is NOT stated as a property here, because the instructed
+      reading of "all of the following rules" (and of R-VAL-2 "1.") treats
+      the list as omitted rather than empty, which leaves validity free; the
+      two instructed readings pull against each other.
+
+scenarios:
+  - id: RV-VAL-1-S
+    req: R-VAL-1
+    cover: 'date_shaped && outcome == 0 && !valid'
+    note: >-
+      Instructed reading 1 of "The date is valid if all of the following
+      rules are satisfied": contradiction with R-RET-3, since the function is
+      asked to validate and return False for invalid dates, which presumes
+      some string is invalid. That presumption is formalized: some
+      date-shaped call must return False. Under the literal empty list every
+      string would be valid and this cover would be impossible; that half is
+      left out (see RV-VAL-1-DC), so the contradiction is recorded here
+      rather than produced as conflicting items.
+  - id: RV-RET-3-S
+    req: R-RET-3
+    cover: 'date_shaped && outcome == 0 && !valid'
+    note: >-
+      Instructed reading 2 of "otherwise False": False is required for
+      strings that break validity rules the prompt intended but omitted;
+      which strings those are is unspecified, so no per-string obligation can
+      be written. Only that False is returned for some date-shaped string
+      (the strings that break the intended rules) is formalized. Under the
+      literal empty rule list (reading 1) False would never be required.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the deliverable is a complete implementation of the
+      stub. Not a property of calls; any implementation that the adapter can
+      run is checked against the other items.
+  - req: R-API-2
+    reason: >-
+      Non-functional: the name valid_date and the single parameter date are
+      fixed by the adapter's function declaration in design.yaml (a call
+      with another signature cannot be made), not by a trace property.
+  - req: R-RET-2
+    reason: >-
+      Under the instructed readings of R-VAL-1 ("is valid if": sufficient
+      only; "all of the following rules": rules omitted, validity
+      unspecified) and of R-VAL-2 ("1.": a rule exists but its text is
+      missing), no string is known to be valid, so there is no call on which
+      True can be required. The returned value is left free by RV-VAL-1-DC.
+  - req: R-VAL-2
+    reason: >-
+      Instructed reading 2 of "1.": a rule (and possibly more) exists but its
+      text is missing; its content is unknown and cannot be checked. Its only
+      formal consequence, that validity is unconstrained, is the don't-care
+      RV-VAL-1-DC.
+    covered_by: [RV-VAL-1-DC]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the adapter (outcome != 0 -> !valid); frame items
+      are part of every formalization set and need not be restated.
+
+decisions:
+  - {req: R-IN-1, phrase: "a given date string", reading: 2}
+  - {req: R-RET-1, phrase: "returns True if the date is valid otherwise False", reading: 2}
+  - {req: R-RET-3, phrase: "otherwise False", reading: 2}
+  - {req: R-VAL-1, phrase: "is valid if", reading: 2}
+  - {req: R-VAL-1, phrase: "all of the following rules", reading: 2}
+  - {req: R-VAL-1, phrase: "The date is valid if all of the following rules are satisfied", reading: 1}
+  - {req: R-VAL-2, phrase: "1.", reading: 2}

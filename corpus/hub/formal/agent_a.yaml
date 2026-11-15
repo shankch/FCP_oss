@@ -1,0 +1,401 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# Reading conventions used throughout (see the per-item notes):
+#  * A command on port k is "pending" in every cycle where ck_valid is high.
+#  * "Transaction" = an accepted command up to the acceptance of its response.
+#  * "within N cycles of an event at cycle t" is read literally as: at some
+#    cycle t+d with 0 <= d <= N.
+#  * No ghost state is used; "most recent acceptance" style facts are written
+#    with prev/since over the interface signals.
+
+defs:
+  # command acceptance on each port, and on either port
+  acc0: "c0_valid && c0_ready"
+  acc1: "c1_valid && c1_ready"
+  acc: "acc0 || acc1"
+  # response acceptance on each port, and on either port
+  rsp0_acc: "r0_valid && r0_ready"
+  rsp1_acc: "r1_valid && r1_ready"
+  rsp_acc: "rsp0_acc || rsp1_acc"
+  # the most recent command accepted strictly before this cycle was on port k
+  last0: "prev(since(!acc1, acc0))"
+  last1: "prev(since(!acc0, acc1))"
+  # a transaction (command accepted, its response not yet accepted) was in flight at the end of the previous cycle
+  busy: "prev(since(!rsp_acc, acc))"
+  # the most recent command accepted strictly before this cycle was a read
+  rd_acc: "(acc0 && !c0_write) || (acc1 && !c1_write)"
+  rd_resp: "prev(since(!acc, rd_acc))"
+  # APB phases
+  apb_setup: "psel && !penable"
+  apb_access: "psel && penable"
+  apb_done: "psel && penable && pready"
+  # the command fields packed as {write, addr, wdata}, and the same fields on the APB side
+  cmd0: "(zext(c0_write, 1+AW+DW) << (AW+DW)) | (zext(c0_addr, 1+AW+DW) << DW) | zext(c0_wdata, 1+AW+DW)"
+  cmd1: "(zext(c1_write, 1+AW+DW) << (AW+DW)) | (zext(c1_addr, 1+AW+DW) << DW) | zext(c1_wdata, 1+AW+DW)"
+  xfer: "(zext(pwrite, 1+AW+DW) << (AW+DW)) | (zext(paddr, 1+AW+DW) << DW) | zext(pwdata, 1+AW+DW)"
+  # response payload as seen on whichever port is presenting a response
+  rsp_any: "r0_valid || r1_valid"
+  rsp_err: "r0_valid ? r0_err : r1_err"
+  rsp_rdata: "r0_valid ? r0_rdata : r1_rdata"
+
+assumptions:
+  - id: HA-ENV-1a
+    req: R-ENV-1
+    pattern: hold_until
+    args:
+      trigger: "c0_valid && !c0_ready"
+      hold: "c0_valid && stable(c0_write) && stable(c0_addr) && stable(c0_wdata)"
+      release: "c0_ready"
+    note: >-
+      Port 0 requester: once a command is valid and not accepted, valid stays
+      high and write/addr/wdata do not change, through and including the cycle
+      in which it is accepted. Obligation is dropped by reset (IR semantics).
+  - id: HA-ENV-1b
+    req: R-ENV-1
+    pattern: hold_until
+    args:
+      trigger: "c1_valid && !c1_ready"
+      hold: "c1_valid && stable(c1_write) && stable(c1_addr) && stable(c1_wdata)"
+      release: "c1_ready"
+    note: "Same as HA-ENV-1a for port 1."
+  - id: HA-ENV-2
+    req: R-ENV-2
+    pattern: within
+    args:
+      trigger: "rose(apb_access)"
+      cond: "pready"
+      min: 0
+      max: 4
+    note: >-
+      Start of the access phase = first cycle with psel and penable high
+      (BRG-1: the cycle after the setup phase). "within 4 cycles of the start"
+      is read literally as pready high at some cycle start+0 .. start+4.
+      AMBIGUITY: the requirement gloss "access phase lasts at most 4 cycles"
+      would be start+0 .. start+3 (max: 3), one cycle tighter; the quote
+      itself says "within 4 cycles of the start", which is what is encoded.
+  - id: HA-ENV-3a
+    req: R-ENV-3
+    pattern: within
+    args:
+      trigger: "r0_valid"
+      cond: "r0_ready"
+      min: 0
+      max: 2
+    note: >-
+      Port 0 requester accepts (r0_ready high while r0_valid is high) at some
+      cycle presented+0 .. presented+2. Same literal "within N cycles"
+      reading as HA-ENV-2; the tighter reading is presented+0 .. presented+1.
+      The trigger fires in every cycle the response is presented, the first
+      such cycle gives the binding deadline.
+  - id: HA-ENV-3b
+    req: R-ENV-3
+    pattern: within
+    args:
+      trigger: "r1_valid"
+      cond: "r1_ready"
+      min: 0
+      max: 2
+    note: "Same as HA-ENV-3a for port 1."
+
+properties:
+  # ---------------------------------------------------------------- R-OV-1
+  - id: HA-OV-1
+    req: R-OV-1
+    pattern: implies
+    args: {trigger: "acc", cond: "!busy || rsp_acc"}
+    note: >-
+      "One transaction is processed at a time" is read as: a command is never
+      accepted while an earlier transaction (accepted command whose response
+      has not yet been accepted) is still in flight. The text does not define
+      when a transaction stops being "processed". Acceptance in the very cycle
+      in which the previous response is accepted is allowed, because BRG-1
+      section 5 explicitly lets the bridge accept the next command in that
+      cycle and HUB-2 contains a BRG-1 bridge. Cycle by cycle this is still
+      one transaction at a time: the old one finishes in that cycle, the new
+      one starts after it. The strictest alternative (no acceptance even in
+      that cycle) would be cond "!busy".
+
+  # --------------------------------------------------------------- R-ARB-1
+  - id: HA-ARB-1
+    req: R-ARB-1
+    pattern: invariant
+    args: {cond: "!(acc0 && acc1)"}
+    note: "Acceptance on port k is ck_valid && ck_ready, as defined in the text."
+
+  # --------------------------------------------------------------- R-ARB-2
+  - id: HA-ARB-2a
+    req: R-ARB-2
+    pattern: implies
+    args: {trigger: "c0_valid && c1_valid && last0", cond: "!acc0"}
+    note: >-
+      "Both ports have a command pending" = both valid signals high in the
+      same cycle. If port 0 was the port accepted most recently, port 0 is not
+      accepted in this cycle, so port 1 goes first. Because pending commands
+      stay pending (R-ENV-1) this safety form is what "is accepted first"
+      amounts to. AMBIGUITY (recorded in requirements.yaml): before the first
+      acceptance after reset no port has been "accepted most recently";
+      the most literal reading is that nothing is required then (last0 and
+      last1 are both false, so the property does not apply). The reading
+      "port 0 first after reset" is NOT encoded.
+  - id: HA-ARB-2b
+    req: R-ARB-2
+    pattern: implies
+    args: {trigger: "c0_valid && c1_valid && last1", cond: "!acc1"}
+    note: "Mirror of HA-ARB-2a: if port 1 was accepted most recently, port 1 is not accepted while port 0 is also pending."
+
+  # --------------------------------------------------------------- R-ARB-3
+  - id: HA-ARB-3a
+    req: R-ARB-3
+    pattern: within
+    args: {trigger: "c0_valid", cond: "acc0", min: 0, max: 12}
+    note: >-
+      Pending = c0_valid high (it stays high until accepted, R-ENV-1).
+      "Accepted within 12 cycles" is read literally as: accepted at some cycle
+      t+0 .. t+12 for any cycle t in which the command is pending; the first
+      pending cycle gives the binding deadline. A 12-cycle window (t+0 ..
+      t+11) would be stricter.
+      SPECIFICATION PROBLEM (encoded as written, not repaired): with R-ENV-2,
+      R-ENV-3, R-OV-1, R-ARB-2 and the BRG-1 timing (accept at A, setup A+1,
+      access from A+2, response one cycle after completion, next command
+      accepted at the earliest in the cycle the response is accepted) the
+      longest time between two consecutive acceptances is D = 7 cycles with the
+      tighter windows (access <= 4 cycles, response taken <= 2 cycles) and
+      D = 9 with the windows used here. If port k is accepted at A and presents
+      a new command at A+1 while port j is pending, port j is accepted first
+      (R-ARB-2) at A+D and port k only at A+2D, i.e. 2D-1 = 13 (or 17) cycles
+      after it became pending, more than 12. The bound also needs a response to
+      be presented and the next command to be accepted, which no HUB-2
+      requirement states (they come from BRG-1).
+  - id: HA-ARB-3b
+    req: R-ARB-3
+    pattern: within
+    args: {trigger: "c1_valid", cond: "acc1", min: 0, max: 12}
+    note: "Same as HA-ARB-3a for port 1."
+
+  # --------------------------------------------------------------- R-XFR-1
+  - id: HA-XFR-1
+    req: R-XFR-1
+    pattern: inorder
+    args:
+      in_fire: "acc"
+      in_data: "acc1 ? cmd1 : cmd0"
+      out_fire: "apb_setup"
+      out_data: "xfer"
+      capacity: 1
+    note: >-
+      Items are accepted commands (fields {write, addr, wdata} of the port
+      that was accepted; all three fields are compared for reads too, as the
+      text does not exempt wdata). A transfer is delivered in its setup phase
+      (psel high, penable low), the one cycle in which it starts; at that cycle
+      {pwrite, paddr, pwdata} must equal the oldest undelivered command:
+      exactly one transfer per command, none without a command, in acceptance
+      order. The fields' stability for the rest of the transfer is stated by
+      HA-XFR-2f. Capacity 1 follows from R-OV-1 (one transaction at a time).
+
+  # --------------------------------------------------------------- R-XFR-2
+  # BRG-1 section 4 is the referenced definition of the APB timing.
+  - id: HA-XFR-2a
+    req: R-XFR-2
+    pattern: next
+    args: {trigger: "acc", cond: "apb_setup"}
+    note: >-
+      BRG-1: "The transfer starts in the cycle after the command is accepted
+      with a setup phase (psel high, penable low)". Taken literally for HUB-2,
+      accepted means ck_valid && ck_ready on either port, so the selector adds
+      no latency. It is debatable whether the HUB-2 parenthesis "(setup and
+      access phases, stability, penable only with psel)" includes this start
+      time; it is encoded because the setup phase is defined by it in BRG-1.
+  - id: HA-XFR-2b
+    req: R-XFR-2
+    pattern: next
+    args: {trigger: "apb_setup", cond: "apb_access"}
+    note: "BRG-1: the setup phase lasts exactly one cycle, followed by the access phase (psel and penable high)."
+  - id: HA-XFR-2c
+    req: R-XFR-2
+    pattern: next
+    args: {trigger: "apb_access && !pready", cond: "apb_access"}
+    note: "BRG-1: the access phase lasts until pready is sampled high."
+  - id: HA-XFR-2d
+    req: R-XFR-2
+    pattern: next
+    args: {trigger: "apb_done", cond: "!psel && !penable"}
+    note: "BRG-1: the transfer completes in the cycle where pready is sampled high in the access phase; psel and penable are low in the next cycle."
+  - id: HA-XFR-2e
+    req: R-XFR-2
+    pattern: implies
+    args: {trigger: "penable", cond: "psel"}
+    note: "penable only with psel."
+  - id: HA-XFR-2f
+    req: R-XFR-2
+    pattern: next
+    args:
+      trigger: "psel && !(penable && pready)"
+      cond: "stable(psel) && stable(pwrite) && stable(paddr) && stable(pwdata)"
+    note: >-
+      BRG-1: psel, pwrite, paddr and pwdata remain stable from the setup phase
+      until the transfer completes. A cycle with psel high that is not the
+      completing cycle must be followed by a cycle with the same four values.
+
+  # --------------------------------------------------------------- R-RSP-1
+  - id: HA-RSP-1a
+    req: R-RSP-1
+    pattern: implies
+    args: {trigger: "r0_valid", cond: "last0"}
+    note: >-
+      A response may be presented on port 0 only if the command in flight
+      (the most recently accepted one, strictly before this cycle) was issued
+      on port 0. This is the "never on the other port" half; it relies on one
+      transaction at a time (R-OV-1). It also rejects a response when no
+      command was accepted since reset. The "is returned on the issuing port"
+      half is a liveness statement with no bound in the HUB-2 text, so it is
+      only covered by the reachability scenarios HA-SC-RSP-1a/b.
+  - id: HA-RSP-1b
+    req: R-RSP-1
+    pattern: implies
+    args: {trigger: "r1_valid", cond: "last1"}
+    note: "Same as HA-RSP-1a for port 1."
+
+  # --------------------------------------------------------------- R-RSP-2
+  - id: HA-RSP-2a
+    req: R-RSP-2
+    pattern: inorder
+    args:
+      in_fire: "apb_done"
+      in_data: "pslverr"
+      out_fire: "rsp_acc"
+      out_data: "rsp_err"
+      capacity: 1
+      peek: "rsp_any"
+    note: >-
+      Items are the pslverr values sampled in the completing cycle of each
+      transfer (psel && penable && pready). The err flag of the presented
+      response (on whichever port is presenting) equals the oldest
+      outstanding sample, both when the response is accepted and, via peek,
+      in every cycle it is presented. Routing is HA-RSP-1a/b, not this item.
+  - id: HA-RSP-2b
+    req: R-RSP-2
+    pattern: inorder
+    args:
+      in_fire: "apb_done && !pwrite"
+      in_data: "prdata"
+      out_fire: "rsp_acc && rd_resp"
+      out_data: "rsp_rdata"
+      capacity: 1
+      peek: "rsp_any && rd_resp"
+    note: >-
+      "For reads rk_rdata equals the prdata value sampled when the transfer
+      completed": only read transfers create items, and only responses to read
+      commands (most recently accepted command was a read) are compared. For
+      write commands the text does not constrain rk_rdata (see HA-DC-RSP-*).
+
+  # --------------------------------------------------------------- R-RSP-3
+  - id: HA-RSP-3a
+    req: R-RSP-3
+    pattern: hold_until
+    args:
+      trigger: "r0_valid && !r0_ready"
+      hold: "r0_valid && stable(r0_rdata) && stable(r0_err)"
+      release: "r0_ready"
+    note: >-
+      Once port 0 presents a response that is not accepted in that cycle,
+      r0_valid stays high and r0_rdata and r0_err stay unchanged in every
+      following cycle up to and including the cycle in which r0_ready is high.
+      rdata is held for write responses too, as the text does not exempt them.
+  - id: HA-RSP-3b
+    req: R-RSP-3
+    pattern: hold_until
+    args:
+      trigger: "r1_valid && !r1_ready"
+      hold: "r1_valid && stable(r1_rdata) && stable(r1_err)"
+      release: "r1_ready"
+    note: "Same as HA-RSP-3a for port 1."
+
+  # --------------------------------------------------------------- R-RST-1
+  - id: HA-RST-1
+    req: R-RST-1
+    pattern: after_reset
+    args: {cond: "!psel && !r0_valid && !r1_valid"}
+    note: >-
+      "The cycle after reset" is read as every cycle that follows a cycle with
+      reset asserted (the IR after_reset pattern): psel, r0_valid and r1_valid
+      are low there. penable is not named in the HUB-2 text (BRG-1 names it); it is
+      low anyway through HA-XFR-2e once reset is released. The clause about
+      c0_ready / c1_ready is a permission, formalized as the dont_cares
+      HA-DC-RST-0/1.
+
+dont_cares:
+  - id: HA-DC-RST-0
+    req: R-RST-1
+    signal: c0_ready
+    when: "prev(rst_active)"
+    note: >-
+      "both c0_ready and c1_ready may be high" in the cycle after reset: a
+      permission, so c0_ready is left free there. It is not a scenario because
+      "may" does not oblige an implementation to raise them. Note that the
+      permission cannot override R-ARB-1: with both valids high, at most one
+      ready may be high (HA-ARB-1), i.e. "may be high" cannot mean "both high
+      regardless of the valids".
+  - id: HA-DC-RST-1
+    req: R-RST-1
+    signal: c1_ready
+    when: "prev(rst_active)"
+    note: "Same as HA-DC-RST-0 for c1_ready."
+  - id: HA-DC-XFR-0
+    req: R-XFR-2
+    signal: pwrite
+    when: "!psel"
+    note: "BRG-1 section 4: while psel is low, pwrite, paddr and pwdata are don't care (referenced by R-XFR-2)."
+  - id: HA-DC-XFR-1
+    req: R-XFR-2
+    signal: paddr
+    when: "!psel"
+    note: "Same as HA-DC-XFR-0 for paddr."
+  - id: HA-DC-XFR-2
+    req: R-XFR-2
+    signal: pwdata
+    when: "!psel"
+    note: "Same as HA-DC-XFR-0 for pwdata."
+  - id: HA-DC-RSP-0
+    req: R-RSP-2
+    signal: r0_rdata
+    when: "!(r0_valid && rd_resp)"
+    note: >-
+      R-RSP-2 gives rk_rdata a value only "for reads"; for a write response
+      the text leaves it free (R-RSP-3 still requires it to be stable while the
+      response is held). While r0_valid is low the HUB-2 text is silent; BRG-1
+      section 5 (same signal meanings) declares rsp_rdata and rsp_err don't
+      care then.
+  - id: HA-DC-RSP-1
+    req: R-RSP-2
+    signal: r1_rdata
+    when: "!(r1_valid && rd_resp)"
+    note: "Same as HA-DC-RSP-0 for port 1."
+  - id: HA-DC-RSP-2
+    req: R-RSP-2
+    signal: r0_err
+    when: "!r0_valid"
+    note: "No response presented on port 0: r0_err is unconstrained (BRG-1 section 5)."
+  - id: HA-DC-RSP-3
+    req: R-RSP-2
+    signal: r1_err
+    when: "!r1_valid"
+    note: "No response presented on port 1: r1_err is unconstrained (BRG-1 section 5)."
+
+scenarios:
+  - {id: HA-SC-ARB-1, req: R-ARB-1, cover: "c0_valid && c1_valid", note: "Both ports can have a command pending at the same time, which is what makes at-most-one-acceptance and round robin meaningful."}
+  - {id: HA-SC-ARB-2a, req: R-ARB-2, cover: "c0_valid && c1_valid && last1 && acc0", note: "Port 1 was accepted most recently, both pending, port 0 is accepted."}
+  - {id: HA-SC-ARB-2b, req: R-ARB-2, cover: "c0_valid && c1_valid && last0 && acc1", note: "Port 0 was accepted most recently, both pending, port 1 is accepted."}
+  - {id: HA-SC-ARB-3a, req: R-ARB-3, cover: "acc0 && prev(c0_valid && !c0_ready)", note: "A port 0 command that had to wait at least one cycle is eventually accepted."}
+  - {id: HA-SC-ARB-3b, req: R-ARB-3, cover: "acc1 && prev(c1_valid && !c1_ready)", note: "A port 1 command that had to wait at least one cycle is eventually accepted."}
+  - {id: HA-SC-OV-1, req: R-OV-1, cover: "acc && prev(once(rsp_acc))", note: "A command can be accepted strictly after an earlier transaction finished (its response accepted): transactions are processed one after the other."}
+  - {id: HA-SC-XFR-1w, req: R-XFR-1, cover: "apb_done && pwrite", note: "A write transfer completes."}
+  - {id: HA-SC-XFR-1r, req: R-XFR-1, cover: "apb_done && !pwrite", note: "A read transfer completes."}
+  - {id: HA-SC-XFR-2, req: R-XFR-2, cover: "apb_access && !pready", note: "An access phase can be extended by wait cycles."}
+  - {id: HA-SC-RSP-1a, req: R-RSP-1, cover: "rsp0_acc", note: "A response is returned to and accepted on port 0."}
+  - {id: HA-SC-RSP-1b, req: R-RSP-1, cover: "rsp1_acc", note: "A response is returned to and accepted on port 1."}
+  - {id: HA-SC-RSP-2e, req: R-RSP-2, cover: "rsp_acc && rsp_err", note: "An error response (pslverr sampled high) is delivered."}
+  - {id: HA-SC-RSP-2r, req: R-RSP-2, cover: "rsp_acc && rd_resp && rsp_rdata != 0", note: "A read response carrying non-zero data is delivered."}
+  - {id: HA-SC-RSP-3a, req: R-RSP-3, cover: "r0_valid && !r0_ready", note: "A port 0 response can be held waiting for r0_ready."}
+  - {id: HA-SC-RSP-3b, req: R-RSP-3, cover: "r1_valid && !r1_ready", note: "A port 1 response can be held waiting for r1_ready."}

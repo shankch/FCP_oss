@@ -1,0 +1,58 @@
+[
+ {
+  "req": "R-ENV-1",
+  "phrase": "text: str",
+  "taken": 1,
+  "variant": 2,
+  "text": "a contract the function must enforce: candidate must also handle or reject arguments that are not str"
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "Palindrome",
+  "taken": 1,
+  "variant": 2,
+  "text": "case-insensitive, every character counted: 'Aba' is a palindrome, 'ab a' is not"
+ },
+ {
+  "req": "R-DEF-2",
+  "phrase": "Isogram",
+  "taken": 2,
+  "variant": 1,
+  "text": "no character of any kind occurs twice, compared exactly: 'aA' is an isogram, 'a b ' (two spaces) is not"
+ },
+ {
+  "req": "R-CHK-1",
+  "phrase": "Isogram/Palindrome",
+  "taken": 1,
+  "variant": 2,
+  "text": "both are needed: True only when text is both an isogram and a palindrome; contradicts R-EX-2 and R-EX-3, since 'aba' and 'aaaaa' repeat a letter"
+ },
+ {
+  "req": "R-CHK-2",
+  "phrase": "Isogram/Palindrome",
+  "taken": 1,
+  "variant": 2,
+  "text": "both are needed: False whenever text is not an isogram or not a palindrome; contradicts R-EX-2 and R-EX-3, since 'aba' and 'aaaaa' repeat a letter"
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "candidate('aba')",
+  "taken": 1,
+  "variant": 2,
+  "text": "the docstring is right and requires an isogram: 'aba' is not an isogram and returns False, so the example is wrong"
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "candidate('aaaaa')",
+  "taken": 1,
+  "variant": 2,
+  "text": "the docstring is right and requires an isogram: 'aaaaa' is not an isogram and returns False, so the example is wrong"
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "candidate('zbcd')",
+  "taken": 1,
+  "variant": 2,
+  "text": "the docstring is right and an isogram suffices: 'zbcd' is an isogram and returns True, so the example is wrong"
+ }
+]

@@ -1,0 +1,458 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 240,
+    "checked": 240,
+    "seconds": 71.73
+   },
+   "open": {
+    "open": {},
+    "checked": 149
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 371,
+    "checked": 371,
+    "seconds": 154.12
+   },
+   "open": {
+    "open": {},
+    "checked": 211
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-5": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-6": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-HAP-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-HAP-2": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-HAP-3": {
+   "plain": "A-STRONGER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-1": {
+   "plain": "INCOMPARABLE",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "a string s",
+   "taken": 1,
+   "variant": 2,
+   "text": "a string of letters only (as 'substrings of letters' suggests): strings containing non-letters are outside the contract and their result is a don't care"
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "check if the string is happy or not",
+   "taken": 1,
+   "variant": 2,
+   "text": "any truthy or falsy value (such as 1/0, or a non-empty/empty object) is an acceptable answer"
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "A string is happy if",
+   "taken": 1,
+   "variant": 2,
+   "text": "'if' gives only a sufficient condition: the sentence says nothing about strings shorter than 3 (only the examples a and aa say they are not happy)"
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "its length",
+   "taken": 1,
+   "variant": 2,
+   "text": "the number of letters of s (non-letter characters not counted)"
+  },
+  {
+   "req": "R-HAP-2",
+   "phrase": "A string is happy if",
+   "taken": 1,
+   "variant": 2,
+   "text": "'if' gives only a sufficient condition: the sentence says nothing about strings without distinct substrings (only the examples aabb and xyy say they are not happy)"
+  },
+  {
+   "req": "R-HAP-2",
+   "phrase": "substrings of letters are distinct",
+   "taken": 3,
+   "variant": 1,
+   "text": "every substring of 3 consecutive characters consists of 3 pairwise different characters (s[i], s[i+1], s[i+2] all differ)"
+  },
+  {
+   "req": "R-HAP-2",
+   "phrase": "roughly",
+   "taken": 1,
+   "variant": 2,
+   "text": "approximately: most substrings must be distinct and a small number of repeats is tolerated"
+  },
+  {
+   "req": "R-HAP-2",
+   "phrase": "roughly substrings of letters are distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradiction resolved by the definition: under a tolerant reading of 'roughly' (or the reading that substrings differ from one another) xyy and aabb would be happy, so the examples is_happy(aabb) => False and is_happy(xyy) => False are overruled"
+  },
+  {
+   "req": "R-HAP-2",
+   "phrase": "letters",
+   "taken": 2,
+   "variant": 1,
+   "text": "every character of s counts, whatever its kind"
+  },
+  {
+   "req": "R-HAP-2",
+   "phrase": "distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "case-insensitive: 'A' and 'a' are the same letter"
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "substrings of letters are distinct",
+   "taken": 3,
+   "variant": 1,
+   "text": "every substring of 3 consecutive characters consists of 3 pairwise different characters (s[i], s[i+1], s[i+2] all differ)"
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "roughly",
+   "taken": 1,
+   "variant": 2,
+   "text": "approximately: most substrings must be distinct and a small number of repeats is tolerated"
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "roughly substrings of letters are distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradiction resolved by the definition: under a tolerant reading of 'roughly' (or the reading that substrings differ from one another) xyy and aabb would be happy, so the examples is_happy(aabb) => False and is_happy(xyy) => False are overruled"
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "letters",
+   "taken": 2,
+   "variant": 1,
+   "text": "every character of s counts, whatever its kind"
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "case-insensitive: 'A' and 'a' are the same letter"
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "its length",
+   "taken": 1,
+   "variant": 2,
+   "text": "the number of letters of s (non-letter characters not counted)"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "is_happy(a)",
+   "taken": 1,
+   "variant": 2,
+   "text": "the argument is a variable named a whose value is not given"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "is_happy(aa)",
+   "taken": 1,
+   "variant": 2,
+   "text": "the argument is a variable named aa whose value is not given"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "is_happy(abcd)",
+   "taken": 1,
+   "variant": 2,
+   "text": "the argument is a variable named abcd whose value is not given"
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "is_happy(aabb)",
+   "taken": 1,
+   "variant": 2,
+   "text": "the argument is a variable named aabb whose value is not given"
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "is_happy(aabb) => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradiction resolved by the definition: 'roughly ... distinct' tolerates a few repeats, or only requires substrings of a fixed length to differ from one another (aa, ab, bb are all different; aab, abb are different), so aabb would be happy and the example is overruled"
+  },
+  {
+   "req": "R-EX-5",
+   "phrase": "is_happy(adb)",
+   "taken": 1,
+   "variant": 2,
+   "text": "the argument is a variable named adb whose value is not given"
+  },
+  {
+   "req": "R-EX-6",
+   "phrase": "is_happy(xyy)",
+   "taken": 1,
+   "variant": 2,
+   "text": "the argument is a variable named xyy whose value is not given"
+  },
+  {
+   "req": "R-EX-6",
+   "phrase": "is_happy(xyy) => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradiction resolved by the definition: 'roughly ... distinct' tolerates a single repeat, or only requires substrings to differ from one another (xyy has a single substring of length 3), so xyy would be happy and the example is overruled"
+  }
+ ],
+ "depends": {
+  "R-HAP-3": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_happy(\"bcdfebfcdeafgeabcstvuavrqpronppa\") -> False"
+   ]
+  }
+ },
+ "certified": [
+  "R-OUT-1"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-HAP-3"
+   ],
+   "calls": [
+    "is_happy(\"bcdfebfcdeafgeabcstvuavrqpronppa\") -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"check if the string is happy or not\" can mean: the result must be the bool True or False (as the examples show) / any truthy or falsy value (such as 1/0, or a non-empty/empty object) is an acceptable answer. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"check if the string is happy or not\" can mean: every string must be answered with True or False, including strings with non-letter characters / only strings of letters must be answered; for other strings the function may raise or return anything. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-1"
+   ],
+   "calls": [],
+   "question": "\"A string is happy if\" can mean: 'if' means 'if and only if': a length of at least 3 is necessary, so every string shorter than 3 is not happy / 'if' gives only a sufficient condition: the sentence says nothing about strings shorter than 3 (only the examples a and aa say they are not happy). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-1",
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"its length\" can mean: the number of characters of s / the number of letters of s (non-letter characters not counted). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-2"
+   ],
+   "calls": [],
+   "question": "\"A string is happy if\" can mean: 'if' means 'if and only if': distinct substrings of letters are necessary, so a string without them is not happy / 'if' gives only a sufficient condition: the sentence says nothing about strings without distinct substrings (only the examples aabb and xyy say they are not happy). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-2",
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"substrings of letters are distinct\" can mean: every substring of 3 consecutive characters consists of 3 pairwise different characters (s[i], s[i+1], s[i+2] all differ) / every two adjacent characters differ (no substring of 2 equal letters) / all characters of the string are pairwise different (equivalently, no substring occurs twice) / the substrings of some fixed length (2 or 3) are all different from one another (no repeated pair or triple); this makes aabb and xyy happy, contradicting the examples. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-2",
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"roughly\" can mean: a hedge or filler word: the distinctness condition is strict and a single repeat makes the string unhappy / approximately: most substrings must be distinct and a small number of repeats is tolerated / the exact condition is left unspecified and is to be inferred from the examples. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-2",
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"roughly substrings of letters are distinct\" can mean: contradiction resolved by the examples: aabb and xyy (each with a single repeated adjacent letter) are not happy, so the condition is strict / contradiction resolved by the definition: under a tolerant reading of 'roughly' (or the reading that substrings differ from one another) xyy and aabb would be happy, so the examples is_happy(aabb) => False and is_happy(xyy) => False are overruled. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-2",
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"letters\" can mean: every character of s counts, whatever its kind / only alphabetic characters count: non-letters are skipped (or removed) before checking distinctness / s is assumed to contain only letters; strings with non-letters are a don't care. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-2",
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"distinct\" can mean: case-sensitive: 'A' and 'a' are different letters / case-insensitive: 'A' and 'a' are the same letter. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"is_happy(a)\" can mean: the argument is the one-character string \"a\" (quotes omitted) / the argument is a variable named a whose value is not given. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"is_happy(aa)\" can mean: the argument is the string \"aa\" (quotes omitted) / the argument is a variable named aa whose value is not given. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"is_happy(abcd)\" can mean: the argument is the string \"abcd\" (quotes omitted) / the argument is a variable named abcd whose value is not given. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"is_happy(aabb)\" can mean: the argument is the string \"aabb\" (quotes omitted) / the argument is a variable named aabb whose value is not given. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"is_happy(aabb) => False\" can mean: contradiction resolved by the example: aabb has length 4 but repeated adjacent letters, so the distinctness condition is strict and the string is not happy / contradiction resolved by the definition: 'roughly ... distinct' tolerates a few repeats, or only requires substrings of a fixed length to differ from one another (aa, ab, bb are all different; aab, abb are different), so aabb would be happy and the example is overruled. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-5"
+   ],
+   "calls": [],
+   "question": "\"is_happy(adb)\" can mean: the argument is the string \"adb\" (quotes omitted) / the argument is a variable named adb whose value is not given. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-6"
+   ],
+   "calls": [],
+   "question": "\"is_happy(xyy)\" can mean: the argument is the string \"xyy\" (quotes omitted) / the argument is a variable named xyy whose value is not given. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-6"
+   ],
+   "calls": [],
+   "question": "\"is_happy(xyy) => False\" can mean: contradiction resolved by the example: xyy has length 3 but one repeated adjacent letter, so the distinctness condition is strict and the string is not happy / contradiction resolved by the definition: 'roughly ... distinct' tolerates a single repeat, or only requires substrings to differ from one another (xyy has a single substring of length 3), so xyy would be happy and the example is overruled. Which is meant?"
+  }
+ ],
+ "limits": [
+  "request points of agent_b"
+ ]
+}

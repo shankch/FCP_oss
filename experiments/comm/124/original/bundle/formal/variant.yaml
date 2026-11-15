@@ -1,0 +1,312 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  ret_true: 'outcome == 0 && valid'
+  ret_false: 'outcome == 0 && !valid'
+  # structure: '-' separators; p1, p2 = index of the first, second '-' (len(date) when absent)
+  ndash: 'count(i < len(date): date[i] == "-")'
+  p1: 'count(i < len(date): all(j < i + 1: date[j] != "-"))'
+  p2: 'count(i < len(date): count(j < i + 1: date[j] == "-") < 2)'
+  # a field parses as an integer: optional whitespace, optional '+', one run of digits, optional whitespace
+  m_int: >-
+    any(i < len(date): i < p1 && isdigit(date[i]))
+    && all(i < len(date): i < p1 -> isdigit(date[i]) || isspace(date[i]) || date[i] == "+")
+    && count(i < len(date): i < p1 && isdigit(date[i]) && !isdigit(date[i - 1])) == 1
+    && all(i < len(date): i < p1 && date[i] == "+" -> isdigit(date[i + 1]))
+  d_int: >-
+    any(i < len(date): p1 < i && i < p2 && isdigit(date[i]))
+    && all(i < len(date): p1 < i && i < p2 -> isdigit(date[i]) || isspace(date[i]) || date[i] == "+")
+    && count(i < len(date): p1 < i && i < p2 && isdigit(date[i]) && !isdigit(date[i - 1])) == 1
+    && all(i < len(date): p1 < i && i < p2 && date[i] == "+" -> isdigit(date[i + 1]))
+  y_int: >-
+    any(i < len(date): p2 < i && isdigit(date[i]))
+    && all(i < len(date): p2 < i -> isdigit(date[i]) || isspace(date[i]) || date[i] == "+")
+    && count(i < len(date): p2 < i && isdigit(date[i]) && !isdigit(date[i - 1])) == 1
+    && all(i < len(date): p2 < i && date[i] == "+" -> isdigit(date[i + 1]))
+  # month and day numbers, capped at 100 (a nonzero digit with two more after it)
+  m_lo: >-
+    sum(i < len(date): i < p1 && isdigit(date[i]) && !isdigit(date[i + 1]) ? date[i] - "0" : 0)
+    + sum(i < len(date): i < p1 && isdigit(date[i]) && isdigit(date[i + 1]) && !isdigit(date[i + 2]) ? 10 * (date[i] - "0") : 0)
+  m_big: 'any(i < len(date): i < p1 && isdigit(date[i]) && date[i] != "0" && isdigit(date[i + 1]) && isdigit(date[i + 2]))'
+  mv: 'm_big ? 100 : m_lo'
+  d_lo: >-
+    sum(i < len(date): p1 < i && i < p2 && isdigit(date[i]) && !isdigit(date[i + 1]) ? date[i] - "0" : 0)
+    + sum(i < len(date): p1 < i && i < p2 && isdigit(date[i]) && isdigit(date[i + 1]) && !isdigit(date[i + 2]) ? 10 * (date[i] - "0") : 0)
+  d_big: 'any(i < len(date): p1 < i && i < p2 && isdigit(date[i]) && date[i] != "0" && isdigit(date[i + 1]) && isdigit(date[i + 2]))'
+  dv: 'd_big ? 100 : d_lo'
+  # year: last two digits (y_lo), the two before them (y_hi), and whether it is at least 1
+  y_lo: >-
+    sum(i < len(date): p2 < i && isdigit(date[i]) && !isdigit(date[i + 1]) ? date[i] - "0" : 0)
+    + sum(i < len(date): p2 < i && isdigit(date[i]) && isdigit(date[i + 1]) && !isdigit(date[i + 2]) ? 10 * (date[i] - "0") : 0)
+  y_hi: >-
+    sum(i < len(date): p2 < i && isdigit(date[i]) && isdigit(date[i + 1]) && isdigit(date[i + 2]) && !isdigit(date[i + 3]) ? date[i] - "0" : 0)
+    + sum(i < len(date): p2 < i && isdigit(date[i]) && isdigit(date[i + 1]) && isdigit(date[i + 2]) && isdigit(date[i + 3]) && !isdigit(date[i + 4]) ? 10 * (date[i] - "0") : 0)
+  y_pos: 'any(i < len(date): p2 < i && isdigit(date[i]) && date[i] != "0")'
+  leap: 'y_lo % 4 == 0 && (y_lo != 0 || y_hi % 4 == 0)'
+  mdays: '(mv == 2) ? (leap ? 29 : 28) : ((mv == 4 || mv == 6 || mv == 9 || mv == 11) ? 30 : 31)'
+  # a real calendar date (proleptic Gregorian, year at least 1)
+  cal: '1 <= mv && mv <= 12 && 1 <= dv && dv <= mdays && y_pos'
+  ok: 'len(date) > 0 && ndash == 2 && m_int && d_int && y_int && cal'
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'ok', cond: 'ret_true'}
+    note: >-
+      A valid date (def ok) returns True. ok is the conjunction of every rule under the
+      readings taken: non-empty, exactly two '-', three fields that each parse as an integer,
+      and a real calendar date. Reading as instructed for R-VAL-1 ('The date is valid if all
+      of the following rules are satisfied'): the four rules are necessary but not sufficient,
+      the date must also be a real calendar date (February 29 only in a leap year, no year
+      0000), so '02-29-2001' is invalid. As instructed for R-DAY-3 ('higher than 29 for the
+      month 2'): February allows day 29 only in a leap year. As instructed for R-FMT-2 ('mm'),
+      R-FMT-3 ('dd') and R-FMT-4 ('yyyy'): each field may be any text that parses as an
+      integer (so '3-11-2000', '03-5-2000' and '03-11-20' are valid). As instructed for R-FMT-5
+      ('The date should be in the format: mm-dd-yyyy'): leading and trailing whitespace is
+      ignored (it is the outer whitespace of the month and year fields), so ' 03-11-2000 ' is
+      valid. Choices of mine: "parses as an integer" is optional ASCII whitespace (FCP-PL
+      isspace), an optional '+' directly before the digits, one run of ASCII digits, optional
+      whitespace; '_' digit separators and non-ASCII whitespace are not accepted; a '-' sign is
+      impossible because '-' is the separator. A real calendar date uses the proleptic
+      Gregorian leap rule and has no upper bound on the year.
+  - id: RV-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: '!ok', cond: 'ret_false'}
+    note: >-
+      Any string that is not a valid date (def ok) returns False, without raising and without
+      returning another type (outcome 0). Affected by every instructed reading through ok:
+      R-VAL-1 ('The date is valid if all of the following rules are satisfied': the rules are
+      necessary but not sufficient, the date must also be a real calendar date, so '02-29-2001'
+      is invalid); R-DAY-3 ('higher than 29 for the month 2': day 29 of February only in a
+      leap year); R-FMT-2 ('mm'), R-FMT-3 ('dd'), R-FMT-4 ('yyyy'): each field may be any text
+      that parses as an integer; R-FMT-5 ('The date should be in the format: mm-dd-yyyy'):
+      leading and trailing whitespace is ignored. Whitespace means FCP-PL isspace (ASCII).
+  - id: RV-VAL-1
+    req: R-VAL-1
+    pattern: implies
+    args: {trigger: 'ndash == 2 && m_int && d_int && y_int && !cal', cond: 'ret_false'}
+    note: >-
+      Reading as instructed for R-VAL-1 ('The date is valid if all of the following rules are
+      satisfied'): the four rules are necessary but not sufficient; the date must also be a
+      real calendar date (February 29 only in a leap year, no year 0000), so '02-29-2001' is
+      invalid. Formalized as: a string of three fields that parse as integers (the readings
+      instructed for R-FMT-2 'mm', R-FMT-3 'dd', R-FMT-4 'yyyy') that is not a real calendar
+      date returns False. Real calendar date: month 1..12, day 1..length of that month
+      (February 29 only in a leap year, as instructed for R-DAY-3 'higher than 29 for the
+      month 2'), year at least 1, proleptic Gregorian leap rule, no upper bound on the year.
+      The full definition of validity is def ok, used by RV-RET-1 and RV-RET-2.
+  - id: RV-EMP-1
+    req: R-EMP-1
+    pattern: implies
+    args: {trigger: 'len(date) == 0', cond: 'ret_false'}
+    note: >-
+      The empty string returns False. Under the reading instructed for R-FMT-5 ('The date
+      should be in the format: mm-dd-yyyy': leading and trailing whitespace is ignored), a
+      string of only whitespace is not taken as empty here (empty means length 0, literally);
+      it is rejected by RV-FMT-1 because it has no '-'.
+  - id: RV-FMT-1
+    req: R-FMT-1
+    pattern: implies
+    args: {trigger: 'ndash != 2', cond: 'ret_false'}
+    note: >-
+      A string without exactly two '-' (for example with '/' as separator) returns False.
+      Whitespace is not a '-', so the reading instructed for R-FMT-5 does not change this item.
+  - id: RV-FMT-2
+    req: R-FMT-2
+    pattern: implies
+    args: {trigger: 'ndash >= 1 && !m_int', cond: 'ret_false'}
+    note: >-
+      Reading as instructed for R-FMT-2 ('mm'): the month field may be any text that parses as
+      an integer (one digit, three digits, leading '+' or spaces), so '3-11-2000' is valid; the
+      literal requirement text ("not exactly two decimal digits") is therefore not formalized.
+      The item says: if the month field (everything before the first '-') does not parse as an
+      integer, False. Parses as an integer: optional ASCII whitespace, optional '+' directly
+      before the digits, one run of digits, optional whitespace (no '_' separators). As
+      instructed for R-FMT-5 ('The date should be in the format: mm-dd-yyyy'), leading
+      whitespace is ignored: it is part of the month field and accepted by the integer parse.
+  - id: RV-FMT-3
+    req: R-FMT-3
+    pattern: implies
+    args: {trigger: 'ndash >= 2 && !d_int', cond: 'ret_false'}
+    note: >-
+      Reading as instructed for R-FMT-3 ('dd'): the day field may be any text that parses as an
+      integer, so '03-5-2000' is valid; the literal text ("not exactly two decimal digits") is
+      therefore not formalized. The item says: if the day field (between the first and the
+      second '-') does not parse as an integer, False. Parses as an integer as in RV-FMT-2.
+  - id: RV-FMT-4
+    req: R-FMT-4
+    pattern: implies
+    args: {trigger: 'ndash >= 2 && !y_int', cond: 'ret_false'}
+    note: >-
+      Reading as instructed for R-FMT-4 ('yyyy'): the year field may be any text that parses as
+      an integer, so '03-11-20' is valid; the literal text ("not exactly four decimal digits")
+      is therefore not formalized. The item says: if the year field (everything after the
+      second '-', including any further '-') does not parse as an integer, False. Parses as an
+      integer as in RV-FMT-2. As instructed for R-FMT-5 ('The date should be in the format:
+      mm-dd-yyyy'), trailing whitespace is ignored: it is part of the year field and accepted
+      by the integer parse.
+  - id: RV-FMT-4B
+    req: R-FMT-4
+    pattern: implies
+    args: {trigger: 'ndash >= 2 && y_int && !y_pos', cond: 'ret_false'}
+    note: >-
+      Second flagged 'yyyy' phrase: reading 2, the year must be at least 1, so '01-01-0000' is
+      invalid. Taken because the reading instructed for R-VAL-1 ('The date is valid if all of
+      the following rules are satisfied') requires a real calendar date with no year 0000.
+      A year field that parses as an integer (reading instructed for R-FMT-4 'yyyy') with value
+      0 ('0', '00', '+0000', ...) returns False.
+  - id: RV-FMT-5
+    req: R-FMT-5
+    pattern: implies
+    args: {trigger: 'ok && (isspace(date[0]) || isspace(date[len(date) - 1]))', cond: 'ret_true'}
+    note: >-
+      Reading as instructed for R-FMT-5 ('The date should be in the format: mm-dd-yyyy'):
+      leading and trailing whitespace is ignored, so ' 03-11-2000 ' is valid. The requirement
+      text (any character before the month field or after the year field gives False) is
+      therefore not formalized as written: whitespace there is ignored, and any other character
+      there is part of the month or year field, so it is rejected by RV-FMT-2 or RV-FMT-4. The
+      item says: a valid date (def ok) with leading or trailing whitespace returns True.
+      Whitespace means FCP-PL isspace (ASCII). Depends on the readings instructed for R-FMT-2
+      ('mm') and R-FMT-4 ('yyyy'), under which that whitespace belongs to the integer fields,
+      and on R-VAL-1 through ok.
+  - id: RV-MON-1
+    req: R-MON-1
+    pattern: implies
+    args: {trigger: 'ndash >= 1 && m_int && (mv < 1 || mv > 12)', cond: 'ret_false'}
+    note: >-
+      If the month number is below 1 or above 12, False. The month number is the integer value
+      of the month field (before the first '-'), per R-FMT-0 and the reading instructed for
+      R-FMT-2 ('mm': any text that parses as an integer, so '3' and '003' are month 3); mv is
+      that value capped at 100. Under the reading instructed for R-FMT-5, outer whitespace is
+      part of the field and ignored by the parse.
+  - id: RV-DAY-1
+    req: R-DAY-1
+    pattern: implies
+    args:
+      trigger: 'ndash >= 2 && m_int && d_int && (mv == 1 || mv == 3 || mv == 5 || mv == 7 || mv == 8 || mv == 10 || mv == 12) && (dv < 1 || dv > 31)'
+      cond: 'ret_false'
+    note: >-
+      Months 1, 3, 5, 7, 8, 10, 12 with a day below 1 or above 31 give False. Month and day are
+      the integer values of the first and second fields (R-FMT-0), under the readings
+      instructed for R-FMT-2 ('mm') and R-FMT-3 ('dd'): any text that parses as an integer;
+      mv and dv are capped at 100.
+  - id: RV-DAY-2
+    req: R-DAY-2
+    pattern: implies
+    args:
+      trigger: 'ndash >= 2 && m_int && d_int && (mv == 4 || mv == 6 || mv == 9 || mv == 11) && (dv < 1 || dv > 30)'
+      cond: 'ret_false'
+    note: >-
+      Months 4, 6, 9, 11 with a day below 1 or above 30 give False. Month and day as in
+      RV-DAY-1, under the readings instructed for R-FMT-2 ('mm') and R-FMT-3 ('dd').
+  - id: RV-DAY-3
+    req: R-DAY-3
+    pattern: implies
+    args:
+      trigger: 'ndash >= 2 && m_int && d_int && mv == 2 && (dv < 1 || dv > 29 || dv == 29 && y_int && !leap)'
+      cond: 'ret_false'
+    note: >-
+      Reading as instructed for R-DAY-3 ('higher than 29 for the month 2'): February allows
+      day 29 only in a leap year (days 1 to 28 otherwise), so '02-29-2001' is invalid and
+      '02-29-2000' is valid. The item says: month 2 with a day below 1 or above 29, or day 29
+      in a year (a year field that parses as an integer) that is not a leap year, gives False.
+      Leap year: proleptic Gregorian rule (divisible by 4, and not by 100 unless by 400). The
+      same calendar condition follows from the reading instructed for R-VAL-1 (a real calendar
+      date). Month, day and year are integer values of their fields under the readings
+      instructed for R-FMT-2 ('mm'), R-FMT-3 ('dd') and R-FMT-4 ('yyyy').
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'date == "03-11-2000"', cond: 'ret_true'}
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'date == "15-01-2012"', cond: 'ret_false'}
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'date == "04-0-2040"', cond: 'ret_false'}
+    note: >-
+      Under the reading instructed for R-FMT-3 ('dd': any text that parses as an integer) the
+      one-digit day field '0' is accepted by the format, and the call is False because day 0 is
+      out of range (RV-DAY-2), not because of the format.
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'date == "06-04-2020"', cond: 'ret_true'}
+  - id: RV-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 'date == "06/04/2020"', cond: 'ret_false'}
+
+scenarios:
+  - {id: RV-EX-1S, req: R-EX-1, cover: 'date == "03-11-2000" && ret_true'}
+  - {id: RV-EX-2S, req: R-EX-2, cover: 'date == "15-01-2012" && ret_false'}
+  - {id: RV-EX-3S, req: R-EX-3, cover: 'date == "04-0-2040" && ret_false'}
+  - {id: RV-EX-4S, req: R-EX-4, cover: 'date == "06-04-2020" && ret_true'}
+  - {id: RV-EX-5S, req: R-EX-5, cover: 'date == "06/04/2020" && ret_false'}
+  - id: RV-VAL-1S
+    req: R-VAL-1
+    cover: 'date == "02-29-2001" && ret_false'
+    note: >-
+      The example of the reading instructed for R-VAL-1 ('The date is valid if all of the
+      following rules are satisfied'): '02-29-2001' meets the four rules as worded but is not a
+      real calendar date, so it is invalid.
+  - id: RV-DAY-3S
+    req: R-DAY-3
+    cover: 'date == "02-29-2000" && ret_true'
+    note: >-
+      The example of the reading instructed for R-DAY-3 ('higher than 29 for the month 2'):
+      2000 is a leap year, so '02-29-2000' is valid.
+  - id: RV-FMT-2S
+    req: R-FMT-2
+    cover: 'date == "3-11-2000" && ret_true'
+    note: "The example of the reading instructed for R-FMT-2 ('mm'): a one-digit month field is accepted."
+  - id: RV-FMT-3S
+    req: R-FMT-3
+    cover: 'date == "03-5-2000" && ret_true'
+    note: "The example of the reading instructed for R-FMT-3 ('dd'): a one-digit day field is accepted."
+  - id: RV-FMT-4S
+    req: R-FMT-4
+    cover: 'date == "03-11-20" && ret_true'
+    note: "The example of the reading instructed for R-FMT-4 ('yyyy'): a two-digit year field is accepted."
+  - id: RV-FMT-5S
+    req: R-FMT-5
+    cover: 'date == " 03-11-2000 " && ret_true'
+    note: >-
+      The example of the reading instructed for R-FMT-5 ('The date should be in the format:
+      mm-dd-yyyy'): leading and trailing whitespace is ignored.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the name and parameter of the function are fixed by the adapter
+      (design.yaml function section), not by a property of the trace.
+  - req: R-ARG-1
+    reason: >-
+      The adapter encodes every call argument as a string of at most 16 characters, so the
+      obligation holds by construction and there is nothing for an assumption to constrain.
+  - req: R-FMT-0
+    reason: >-
+      Definition of the fields and of the month and day numbers; realized by the defs p1, p2,
+      m_int, d_int, y_int, mv, dv, used by the items listed. Under the readings instructed for
+      R-FMT-2 ('mm'), R-FMT-3 ('dd') and R-FMT-4 ('yyyy'), the numbers are the integer values of
+      fields that parse as integers, not of two-digit fields.
+    covered_by: [RV-MON-1, RV-DAY-1, RV-DAY-2, RV-DAY-3, RV-VAL-1]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (outcome != 0 -> !valid), added to every formalization
+      set by the adapter; not restated.
+
+decisions:
+  - {req: R-VAL-1, phrase: 'The date is valid if all of the following rules are satisfied', reading: 2}
+  - {req: R-DAY-3, phrase: 'higher than 29 for the month 2', reading: 2}
+  - {req: R-FMT-2, phrase: 'mm', reading: 2}
+  - {req: R-FMT-3, phrase: 'dd', reading: 2}
+  - {req: R-FMT-4, phrase: 'yyyy', reading: 2}
+  - {req: R-FMT-4, phrase: 'yyyy', reading: 2}
+  - {req: R-FMT-5, phrase: 'The date should be in the format: mm-dd-yyyy', reading: 2}

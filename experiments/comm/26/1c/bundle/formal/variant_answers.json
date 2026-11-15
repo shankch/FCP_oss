@@ -1,0 +1,30 @@
+[
+ {
+  "req": "R-IF-3",
+  "phrase": "-> List[int]",
+  "taken": 1,
+  "variant": 2,
+  "text": "the annotation only describes the type of the value when the function returns; raising an exception on some inputs is not excluded"
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "occur more than once",
+  "taken": 1,
+  "variant": 2,
+  "text": "the value appears in a run of two or more adjacent equal elements (as Unix uniq treats duplicates)"
+ },
+ {
+  "req": "R-RM-1",
+  "phrase": "remove all elements that occur more than once",
+  "taken": 1,
+  "variant": 2,
+  "text": "remove only the extra (repeated) occurrences of each value that occurs more than once, so exactly one occurrence of it remains in the result (remove_duplicates([1, 2, 3, 2, 4]) == [1, 2, 3, 4]); this agrees with the example R-EX-1 and the function name remove_duplicates"
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "[1, 2, 3, 4]",
+  "taken": 2,
+  "variant": 1,
+  "text": "the example is authoritative: one occurrence (the first) of the repeated value 2 is kept, so R-RM-1 means removing only the extra copies"
+ }
+]

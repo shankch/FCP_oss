@@ -1,0 +1,114 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+properties:
+  - id: RA-OUT-1
+    req: R-OUT-1
+    expr: "outcome == 0"
+    note: >-
+      "This function outputs the number of such collisions": every call returns
+      a number. "outputs" is read as the function's return value (reading 1),
+      not as printing; a function that prints and returns None, raises, or
+      returns a non-integer (the number of collisions is a count) is outcome
+      1 or 2 and violates this. The largest count, 1023 * 1023 = 1,046,529,
+      fits the 21-bit collisions signal, so returning it is always outcome 0.
+  - id: RA-OUT-2
+    req: R-OUT-1
+    expr: "collisions == n * n"
+    note: >-
+      The returned number is n * n. Derivation from the definitions: the n
+      left-to-right cars all start to the left of the n right-to-left cars at
+      a finite distance (R-CARS-3, reading 1 of both phrases), all cars move
+      at one common speed along one straight line (R-ROAD-1, R-CARS-4), so
+      same-direction cars never meet and every left-to-right car meets every
+      right-to-left car exactly once; meetings do not change any trajectory
+      (R-COL-2) and each such meeting counts as a collision (R-COL-1,
+      reading 1). Hence n * n collisions, n = 0 giving 0. The prompt never
+      states the relative order of the two sets: that they approach each
+      other is an inference from the prompt talking about collisions at all.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional instruction about the deliverable (write the body of the
+      function). Its only observable consequence, that every call returns a
+      value instead of failing, is RA-OUT-1.
+    covered_by: [RA-OUT-1]
+  - req: R-SIG-1
+    reason: >-
+      Interface definition, realized by design.yaml (the function section
+      calls car_race_collision with the one integer argument n on signal n).
+      A wrong name or signature makes every call fail, which RA-OUT-1 rejects.
+    covered_by: [RA-OUT-1]
+  - req: R-ROAD-1
+    reason: >-
+      Definition of the physical model (one straight, infinite road); it has
+      no signal of its own and enters only through the count n * n of RA-OUT-2.
+    covered_by: [RA-OUT-2]
+  - req: R-CARS-1
+    reason: >-
+      Definition of the argument: n is the number of left-to-right cars. Its
+      non-negativity is guaranteed by the interface (n is a 10-bit unsigned
+      input; the adapter keeps negative arguments out of the trace), so no
+      assumption is needed. Its meaning enters through RA-OUT-2.
+    covered_by: [RA-OUT-2]
+  - req: R-CARS-2
+    reason: >-
+      Definition of the second set of n right-to-left cars, on the road during
+      the same period (reading 1 of "simultaneously"). No signal of its own;
+      it gives the second factor n of n * n in RA-OUT-2.
+    covered_by: [RA-OUT-2]
+  - req: R-CARS-3
+    reason: >-
+      Definition of the initial configuration. Read as: every left-to-right
+      car starts to the left of every right-to-left car (reading 1), at a
+      large but finite distance (reading 1 of "very far"), with no collision
+      before the start. The text itself only says the sets are far apart and
+      does not state their relative order; reading 1 is the only one under
+      which the prompt determines the output and its talk of collisions is
+      meaningful. Enters through RA-OUT-2.
+    covered_by: [RA-OUT-2]
+  - req: R-CARS-4
+    reason: >-
+      Definition: all cars move at one common speed (reading 1), so cars in
+      the same direction never meet. Under reading 2 (a common speed that may
+      vary over time) the count is the same as long as the cars keep moving.
+      Enters through RA-OUT-2.
+    covered_by: [RA-OUT-2]
+  - req: R-COL-1
+    reason: >-
+      Definition of a collision: a left-to-right car meeting a right-to-left
+      car; same-direction meetings do not count. Read as: every such meeting
+      counts even though the cars are unaffected (reading 1 of the full
+      sentence; "as if they did not collide" in R-COL-2 is taken as a
+      statement about trajectories only), and a collision is a relation of a
+      pair of cars, so each pair collides at most once (reading 1 of
+      "collide"; with straight-line motion at one speed a pair meets exactly
+      once, so counting meeting events gives the same number). Enters
+      through RA-OUT-2.
+    covered_by: [RA-OUT-2]
+  - req: R-COL-2
+    reason: >-
+      Definition: collisions do not change any car's trajectory, so every
+      left-to-right car goes on to meet every right-to-left car; the meetings
+      are still counted (reading 1 of "as if they did not collide"). Enters
+      through RA-OUT-2.
+    covered_by: [RA-OUT-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, already stated as F-ZERO in
+      design.yaml and added to every formalization set by construction
+      (frame.md: "need not be restated").
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-CARS-2, phrase: "simultaneously", reading: 1}
+  - {req: R-CARS-3, phrase: "start out being very far from each other", reading: 1}
+  - {req: R-CARS-3, phrase: "very far", reading: 1}
+  - {req: R-CARS-4, phrase: "the same speed", reading: 1}
+  - {req: R-COL-1, phrase: "Two cars are said to collide when a car that's moving left to right hits a car that's moving right to left", reading: 1}
+  - {req: R-COL-1, phrase: "collide", reading: 1}
+  - {req: R-COL-2, phrase: "as if they did not collide", reading: 1}
+  - {req: R-OUT-1, phrase: "outputs", reading: 1}
+  - {req: R-OUT-1, phrase: "the number of such collisions", reading: 1}

@@ -1,0 +1,188 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-LAST-1 "the last character", reading 2: the last non-space character,
+  # trailing spaces (code 32) ignored. ntrail counts the trailing spaces,
+  # tl is the length without them, lastc the last non-space character
+  # (0 when the string is empty or all spaces).
+  ntrail: 'count(i < len(txt): all(j < len(txt): j >= i -> txt[j] == " "))'
+  tl: 'len(txt) - ntrail'
+  lastc: 'txt[tl - 1]'
+  # R-LAST-1 "an alphabetical character", reading 2: Python str.isalpha() on
+  # Latin-1, i.e. the 52 ASCII letters plus ª (170), µ (181), º (186) and
+  # 192-255 except × (215) and ÷ (247).
+  lastalpha: 'isalpha(lastc) || lastc == 170 || lastc == 181 || lastc == 186 || (lastc >= 192 && lastc != 215 && lastc != 247)'
+  # R-LAST-1 "is not a part of a word", reading 2: the character immediately
+  # before the last (non-space) character is a space; a one-character
+  # string never qualifies.
+  alone: 'tl >= 2 && txt[tl - 2] == " "'
+  # The True condition of R-LAST-1.
+  cond_true: 'lastalpha && alone'
+  # R-RET-1 "returns True", reading 2: any truthy value counts as True and
+  # any falsy value as False. The adapter records only bool values (outcome
+  # 0); any other returned value is outcome 2 with no record of its
+  # truthiness, so it is accepted as either answer.
+  ret_true: 'outcome == 0 ? result : outcome == 2'
+  ret_false: 'outcome == 0 ? !result : outcome == 2'
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    expr: 'outcome == 0 || outcome == 2'
+    note: >-
+      R-RET-1 "returns True" taken as reading 2 (as instructed): any truthy
+      value counts as True and any falsy value (0, None, ...) as False.
+      Every Python value is truthy or falsy, so the requirement reduces to
+      "every call returns some value": no exception and no failure to finish
+      (outcome 1). Returning a value of another type (outcome 2) is allowed,
+      which the requirement text ("does not ... return a value of another
+      type") forbids; the reading overrides it.
+
+  - id: RV-LAST-1
+    req: R-LAST-1
+    pattern: implies
+    args:
+      trigger: 'cond_true'
+      cond: 'ret_true'
+    note: >-
+      Readings taken as instructed. "an alphabetical character": reading 2,
+      Python str.isalpha() on Latin-1 (ASCII letters plus codes 170, 181,
+      186 and 192-255 except 215 and 247), not the ASCII-only FCP-PL
+      isalpha. "the last character": reading 2, the last non-space
+      character, trailing spaces ignored, so "apple pi e " gives True,
+      contradicting the example R-EX-3 (RV-EX-3). "is not a part of a word":
+      reading 2, the character immediately before that character is a space
+      (code 32 only, the literal word of the reading), so "e" alone does not
+      qualify. This local test replaces the Note's definition of "word"
+      (R-WORD-1); under the R-WORD-1 readings every letter is part of a word
+      and RV-WORD-1 demands False whenever this trigger holds, and RV-EX-2
+      demands False for "apple pi e", which this item makes True. The
+      specification text is contradictory here and is not repaired. "returns
+      True": R-RET-1 reading 2 (truthy counts as True); a non-bool return
+      (outcome 2) is accepted since its truthiness is not recorded, so a
+      returned 1 passes (and so, unavoidably, does a returned 0).
+
+  - id: RV-LAST-2
+    req: R-LAST-2
+    pattern: implies
+    args:
+      trigger: 'len(txt) > 0 && !cond_true'
+      cond: 'ret_false'
+    note: >-
+      "otherwise" taken as reading 2 (as instructed): it covers only
+      non-empty strings, so the empty string is excluded from the trigger
+      and its result is left unspecified here (R-EX-4 pins it separately in
+      RV-EX-4). A non-empty all-space string is covered: it has no last
+      non-space letter, so the True condition fails and it gives False. The
+      True condition is the one of RV-LAST-1, with the R-LAST-1 readings:
+      last non-space character, Latin-1 str.isalpha(), "part of a word"
+      meaning the character before it is not a space. "returns False":
+      R-RET-1 reading 2 (falsy counts as False); a non-bool return (outcome
+      2) is accepted since its truthiness is not recorded.
+
+  - id: RV-WORD-1
+    req: R-WORD-1
+    pattern: implies
+    args:
+      trigger: 'lastalpha'
+      cond: 'ret_false'
+    note: >-
+      The Note defines "word"; this item states what that definition does to
+      the result through the R-LAST-2 clause "its last character is part of
+      a word -> False". Readings taken as instructed. "a group of
+      characters": reading 1, a group may be a single character, so a lone
+      letter is a word. "group of characters": reading 2, only letters make
+      up a word and any non-letter ends it. "separated by space": reading 2,
+      any whitespace separates words (subsumed by the previous reading,
+      since whitespace is a non-letter). Together: a word is a maximal run
+      of at least one letter, so every letter is part of a word and a last
+      character that is a letter always yields False. "last character" and
+      "letter" follow the R-LAST-1 readings (last non-space character,
+      Latin-1 str.isalpha()). This contradicts RV-LAST-1, whose trigger
+      implies this one with the opposite answer, and the example R-EX-2 as
+      stated; for bool returns the two items cannot both hold, only a
+      non-bool return (outcome 2, accepted under R-RET-1 reading 2)
+      satisfies both. Not repaired.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'txt == "apple pie"'
+      cond: 'ret_false'
+    note: >-
+      Example taken as stated: "apple pie" returns False. "returns False"
+      follows R-RET-1 reading 2 (falsy counts as False; a non-bool return,
+      outcome 2, is accepted since its truthiness is not recorded).
+      Consistent with RV-LAST-2 ("e" follows "i", not a space) and RV-WORD-1.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'txt == "apple pi e"'
+      cond: 'ret_false'
+    note: >-
+      R-EX-2 '("apple pi e") ➞ True' taken as reading 2 (as instructed): the
+      Note is correct, the lone final "e" is a one-character word, so the
+      example's stated True contradicts the definition of "word" and the
+      result must be False. This item therefore requires False, the opposite
+      of the example text; it agrees with RV-WORD-1 and contradicts RV-LAST-1
+      (whose R-LAST-1 readings give True here). "returns False" follows
+      R-RET-1 reading 2 (falsy counts as False; a non-bool return, outcome 2,
+      is accepted since its truthiness is not recorded).
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'txt == "apple pi e "'
+      cond: 'ret_false'
+    note: >-
+      Example taken as stated: "apple pi e " (trailing space) returns False.
+      It contradicts RV-LAST-1, whose R-LAST-1 reading of "the last
+      character" (last non-space character) gives True here; it agrees with
+      RV-WORD-1. "returns False" follows R-RET-1 reading 2 (falsy counts as
+      False; a non-bool return, outcome 2, is accepted since its truthiness
+      is not recorded).
+
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: 'len(txt) == 0'
+      cond: 'ret_false'
+    note: >-
+      Example taken as stated: the empty string returns False. Under R-LAST-2
+      reading 2 of "otherwise" the empty string is outside RV-LAST-2, so
+      this example is the only item that fixes its result. "returns False"
+      follows R-RET-1 reading 2 (falsy counts as False; a non-bool return,
+      outcome 2, is accepted since its truthiness is not recorded).
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the name and single parameter of the function are fixed
+      by the function section of design.yaml, through which the adapter
+      calls it; there is no signal to state it on.
+  - req: R-IN-1
+    reason: >-
+      Holds by construction of the interface: txt is a sequence signal whose
+      every value is a string (frame.md, Inputs); an assumption would be the
+      tautology true.
+  - req: R-FR-1
+    reason: Frame rule F-ZERO of design.yaml, part of every formalization set (frame.md says it need not be restated).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-RET-1, phrase: returns True, reading: 2}
+  - {req: R-LAST-1, phrase: an alphabetical character, reading: 2}
+  - {req: R-LAST-1, phrase: is not a part of a word, reading: 2}
+  - {req: R-LAST-1, phrase: the last character, reading: 2}
+  - {req: R-LAST-2, phrase: otherwise, reading: 2}
+  - {req: R-WORD-1, phrase: a group of characters, reading: 1}
+  - {req: R-WORD-1, phrase: separated by space, reading: 2}
+  - {req: R-WORD-1, phrase: group of characters, reading: 2}
+  - {req: R-EX-2, phrase: "(\"apple pi e\") ➞ True", reading: 2}

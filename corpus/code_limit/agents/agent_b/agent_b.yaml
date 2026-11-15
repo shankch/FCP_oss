@@ -1,0 +1,233 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model (frame.md: a reset creates RateLimiter(); every later
+# cycle is one call allow(user, now) on it, so ghosts and prev() range over the
+# calls on one object).
+#
+# The rules are per customer, so the model is kept for one customer u (rigid:
+# every id 0 .. 1,000). For u the ghosts record what the object has actually
+# answered: the times of u's three most recent allowed attempts (a1, a2, a3,
+# most recent first) and of u's most recent denied attempt (d); -60 stands for
+# "none" and is never inside a 60- or 10-second window. Every output is checked
+# against this record. The record follows the returned values rather than a
+# predicted decision, because the rules speak of the allowed and denied
+# attempts that occurred and contradict each other (see LB-FAIR-1); a model
+# that predicted the decision would have to settle that contradiction.
+#
+# Windows are over the time stamps `now`, in whole seconds: "60 seconds" are
+# 60 consecutive seconds (now-59 .. now is "the last 60 seconds"), "the next 10
+# seconds" after a denial at T are T .. T+9.
+#
+# While u's calls that returned are in time order and none is later than the
+# current call (in_order), the three most recent allowed attempts and the most
+# recent denial decide every window exactly. Under the literal reading of
+# R-ERR-1 a customer's calls can go back in time after a call that raised.
+# Then a bounded record cannot count windows exactly (that needs a rigid over
+# all 65,536 seconds: 65.6 million rigid cases, beyond the 4,096 the code
+# checker runs). LB-MAX-1 and LB-PEN-1 still check such calls, using only
+# what the record proves (never stricter than the text, but they can miss a
+# violation that involves older attempts); LB-FAIR-1 and LB-COUNT-1, which
+# force an answer, are not checked for that customer from then on.
+#
+# R-FR-1 is formalized by frame item F-ZERO (design.yaml), which is part of
+# every formalization set; it is not restated here.
+
+defs:
+  granted: "outcome == 0 && allowed"            # the call returned True: the attempt is allowed
+  refused: "outcome == 0 && !allowed"           # the call returned False: the attempt is denied
+  user_bad: "user > 1000"                       # user is out of range (ids are 0 .. 1,000)
+  time_back: "ncalls > 0 && now < last_now"     # now is earlier than in the previous call
+  valid: "!user_bad && !time_back"              # rule 1 does not apply: the call must not raise
+  by_u: "user == u"                             # a call of customer u
+  live_u: "by_u && !time_back"                  # a call of u that rule 1 lets through
+  in_order: "u_ordered == 1 && now >= max(a1, d)"  # u's earlier calls that returned are in time order, none later than now
+  at_u: "live_u && in_order"                    # a call of u that rule 1 lets through, in time order
+  fit3: "max(max(a1, a2), max(a3, now)) - min(min(a1, a2), min(a3, now)) < 60"  # now and u's three most recent allowed attempts lie in one 60 seconds
+  under3: "now - a3 >= 60"                      # (in order) fewer than 3 allowed attempts of u in the last 60 seconds
+  denied_10: "d <= now && now - d < 10"         # now is in the 10 seconds d .. d+9 after u's most recent denied attempt
+  denied_60: "now - d < 60"                     # (in order) u had a denied attempt in the last 60 seconds
+
+ghosts:
+  # calls made so far on this object (saturating; only small counts are used)
+  - {name: ncalls, range: [0, 7], init: 0, next: "min(ncalls + 1, 7)"}
+  # now of the previous call on this object, whatever its customer and outcome
+  - {name: last_now, range: [0, 65535], init: 0, next: "now"}
+  # times of u's three most recent allowed attempts (calls that returned True), most recent first
+  - {name: a1, range: [-60, 65535], init: -60, next: "by_u && granted ? now : a1"}
+  - {name: a2, range: [-60, 65535], init: -60, next: "by_u && granted ? a1 : a2"}
+  - {name: a3, range: [-60, 65535], init: -60, next: "by_u && granted ? a2 : a3"}
+  # time of u's most recent denied attempt (call that returned False)
+  - {name: d, range: [-60, 65535], init: -60, next: "by_u && refused ? now : d"}
+  # 0 once a call of u returned although it was earlier than an earlier call of u that returned
+  - {name: u_ordered, range: [0, 1], init: 1, next: "by_u && outcome == 0 && now < max(a1, d) ? 0 : u_ordered"}
+
+rigids:
+  - {name: u, range: [0, 1000]}      # the customer
+
+properties:
+  - id: LB-ERR-USER
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "user_bad", cond: "outcome == 1"}
+    note: >-
+      Customer ids are 0 to 1,000 (R-IN-1), so "out of range" is user above
+      1,000; negative ids are not part of the trace (frame.md).
+
+  - id: LB-ERR-TIME
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "time_back", cond: "outcome == 1"}
+    note: >-
+      Literal reading of "the previous call": the call immediately before on
+      this object, of any customer and however it ended (ghost last_now takes
+      now of every call, including calls that raised). The first call after a
+      reset has no previous call. The other listed reading ("the previous call
+      that did not raise") differs, see scenario LB-ERR-S1. Consequence of this
+      reading: a call that returns can be earlier than an earlier call that
+      returned (10 returns, 5 raises, 7 returns), and then R-MAX-1 and R-FAIR-1
+      can contradict each other (see LB-FAIR-1). Not repaired.
+
+  - id: LB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "valid", cond: "outcome == 0"}
+    note: >-
+      Formalizes the requirement text: a valid call (one that rule 1 does not
+      make raise) ends by returning True or False (outcome 0), not with another
+      exception, no answer, or a value that is not a bool. Together with
+      LB-ERR-USER and LB-ERR-TIME, ValueError is raised exactly in the rule-1
+      cases. Which of True and False ("True if the attempt may go ahead") is
+      fixed by LB-MAX-1, LB-FAIR-1, LB-COUNT-1 and LB-PEN-1.
+
+  - id: LB-MAX-1
+    req: R-MAX-1
+    pattern: implies
+    args: {trigger: "by_u && granted", cond: "!fit3"}
+    note: >-
+      For every customer u: an attempt of u may be allowed only if it does not
+      fit into one 60 seconds together with u's three most recent allowed
+      attempts (cond: from the earliest to the latest of the four is 60 seconds
+      or more). For calls in time order (in_order) this is exactly "no 60
+      seconds hold more than 3 allowed attempts of one customer", earlier calls
+      in the same second included. Reading of "in any 60 seconds" with now in
+      whole seconds: 60 seconds are 60 consecutive whole seconds, so attempts
+      at t and t + 60 are not in the same 60 seconds (the second listed reading;
+      witness LB-MAX-S1). Only attempts that returned True count (R-COUNT-1).
+      When a customer's calls go back in time (possible only after a call that
+      raised, under the reading of R-ERR-1 in LB-ERR-TIME) the check still
+      holds but looks only at the three most recent allowed attempts, so a
+      violation involving older ones can be missed.
+
+  - id: LB-COUNT-1
+    req: R-COUNT-1
+    pattern: implies
+    args: {trigger: "at_u && under3 && denied_60", cond: "granted"}
+    note: >-
+      Read as: an attempt that was not allowed (it returned False, or raised
+      ValueError) is left out of the count that R-MAX-1 and R-FAIR-1 limit; in
+      LB-MAX-1 and LB-FAIR-1 this is built into ghosts a1..a3, which record only
+      calls that returned True. On its own the sentence constrains nothing; its
+      observable content is this case of LB-FAIR-1: a customer with fewer than
+      3 allowed attempts in the last 60 seconds is allowed although it also had
+      a denied attempt in that time (with 2 allowed and 1 denied, counting every
+      attempt would make 3 and deny). Same restrictions, and same contradiction
+      with R-PEN-1, as LB-FAIR-1.
+
+  - id: LB-FAIR-1
+    req: R-FAIR-1
+    pattern: implies
+    args: {trigger: "at_u && under3", cond: "granted"}
+    note: >-
+      "Fewer than 3 allowed attempts in the last 60 seconds": the third most
+      recent allowed attempt is 60 or more seconds ago, or there is none; read
+      as in LB-MAX-1 (an attempt exactly 60 seconds earlier is not in the last
+      60 seconds; earlier calls in the same second are). Read for the calls that
+      rule 1 lets through (a call whose now went backwards must raise
+      ValueError, R-ERR-1), and checked only for calls in time order with the
+      customer's earlier calls (see the header). Taken literally ("whenever")
+      this contradicts R-PEN-1: allowed attempts at 0, 50 and 51 s, one at 54 s
+      that the limit denies, then one at 60 s: the customer had 2 allowed
+      attempts in the last 60 seconds, so this rule says allow, while R-PEN-1
+      says deny (60 is within 10 seconds of 54). Not repaired. Under the reading
+      of R-ERR-1 in LB-ERR-TIME it also contradicts R-MAX-1 once time goes back
+      (allowed at 50, 50, 50 s; a call at 10 s raises; at 20 s this rule says
+      allow, R-MAX-1 deny, since 20, 50, 50, 50 lie in the 60 seconds 0 .. 59);
+      such calls are outside what this item checks.
+
+  - id: LB-PEN-1
+    req: R-PEN-1
+    pattern: implies
+    args: {trigger: "live_u && denied_10", cond: "refused"}
+    note: >-
+      Ghost d is the time of the customer's most recent denied attempt; now lies
+      in the 10 seconds d .. d+9 that follow it. Readings: "the next 10 seconds"
+      after a denial at T are T .. T+9, so an attempt exactly 10 seconds later
+      (T + 10) is not denied (the second listed reading; witness LB-PEN-S1), and
+      later calls in second T itself are; "a denied attempt" is any attempt that
+      returned False, including one denied by this rule, so every denial starts
+      a new 10 seconds (the first listed reading); a call that raised ValueError
+      is not a denied attempt; "deny" means return False; read for the calls
+      that rule 1 lets through. Exact for calls in time order; when calls go
+      back in time only the most recent denial is looked at. Contradicts
+      R-FAIR-1 (see LB-FAIR-1). For calls in time order, LB-MAX-1 and LB-FAIR-1
+      already decide every valid call, so this rule either repeats their answer
+      or contradicts R-FAIR-1.
+
+scenarios:
+  - id: LB-EX-1
+    req: R-EX-1
+    cover: "ncalls == 3 && user == prev(user) && user == prev(user, 2) && user == prev(user, 3) && prev(now, 3) == 0 && prev(now, 2) == 1 && prev(now) == 2 && now == 3 && prev(granted, 3) && prev(granted, 2) && prev(granted) && refused"
+    note: >-
+      The example as four consecutive calls of one customer on a new object (the
+      first four calls after a reset), at 0, 1, 2 and 3 seconds: the first three
+      return True, the fourth returns False. Which customer is left free.
+
+  - id: LB-ERR-S1
+    req: R-ERR-1
+    cover: "ncalls == 2 && prev(now, 2) == 10 && prev(outcome, 2) == 0 && prev(user) <= 1000 && prev(now) == 5 && prev(outcome) == 1 && now == 7 && outcome == 0"
+    note: >-
+      Witness of the reading of "the previous call" in LB-ERR-TIME: a call at 10 s
+      returns, the next call (an in-range customer) at 5 s raises ValueError, and
+      the next at 7 s returns, since 7 is not earlier than in the previous call
+      (5). Under the other listed reading (the previous call that did not raise)
+      the call at 7 s would raise.
+
+  - id: LB-MAX-S1
+    req: R-MAX-1
+    cover: "ncalls == 3 && user == prev(user) && user == prev(user, 2) && user == prev(user, 3) && prev(now, 3) == 0 && prev(now, 2) == 1 && prev(now) == 2 && now == 60 && prev(granted, 3) && prev(granted, 2) && prev(granted) && granted"
+    note: >-
+      Witness of the reading of "in any 60 seconds" in LB-MAX-1: attempts of one
+      customer at 0, 1, 2 and 60 s on a new object are all allowed, because 0
+      and 60 are not in the same 60 seconds. Not possible under the other listed
+      reading.
+
+  - id: LB-PEN-S1
+    req: R-PEN-1
+    cover: "ncalls == 4 && user == prev(user) && user == prev(user, 2) && user == prev(user, 3) && user == prev(user, 4) && prev(now, 4) == 0 && prev(now, 3) == 50 && prev(now, 2) == 51 && prev(now) == 54 && now == 64 && prev(granted, 4) && prev(granted, 3) && prev(granted, 2) && prev(refused) && granted"
+    note: >-
+      Witness of the reading of "the next 10 seconds" in LB-PEN-1: one customer
+      on a new object is allowed at 0, 50 and 51 s, denied at 54 s (3 allowed
+      attempts in the last 60 seconds), and allowed at 64 s, exactly 10 seconds
+      after the denial, with 2 allowed attempts in the last 60 seconds. Under the
+      other listed reading this situation is a contradiction between R-FAIR-1
+      and R-PEN-1.
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the interface. The class, method and argument names and
+      their order are fixed by the object adapter (frame.md: a reset creates
+      RateLimiter(), each cycle is one call allow(user, now)), not by the
+      trace. The result type bool is checked by LB-RET-1: a valid call must end
+      with outcome 0 (returned True or False), not 3 (returned anything else).
+    covered_by: [LB-RET-1]
+  - req: R-IN-1
+    reason: >-
+      Definition. The id range 0 to 1,000 is the range of the rigid customer u
+      and the out-of-range test of LB-ERR-USER (and the valid calls of
+      LB-RET-1); "now in whole seconds" makes the 60-second and 10-second
+      windows of LB-MAX-1, LB-FAIR-1, LB-COUNT-1 and LB-PEN-1 60 and 10
+      consecutive values of now.
+    covered_by: [LB-ERR-USER, LB-RET-1, LB-MAX-1, LB-FAIR-1, LB-COUNT-1, LB-PEN-1]

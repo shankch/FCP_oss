@@ -1,0 +1,180 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  lo: "min(a, b)"        # the smaller argument ("between a and b" is order-independent)
+  hi: "max(a, b)"        # the larger argument
+
+properties:
+  - id: RV-OUT-1
+    req: R-OUT-1
+    expr: "outcome == 0"
+    note: >-
+      Every call returns a list that fits (no exception, no other type).
+      Variant reading of R-IN-1 / R-IN-2 ("positive integers"): only a
+      description of typical inputs, so the "for positive integer arguments"
+      condition is not a precondition and the property holds for every call,
+      including a = 0 and b = 0.
+
+  - id: RV-SEL-1
+    req: R-SEL-1
+    expr: "all(i < len(result): result[i] <= 9)"
+    note: >-
+      Every element is a decimal digit 0..9. Variant reading of R-SEL-1
+      ("digits"): the decimal digits that occur in the integers between a and
+      b, which are still 0..9; which integers they must come from is stated
+      in RV-SEL-2 and RV-SEL-4. Per R-IN-1 / R-IN-2 (variant reading) this
+      also applies when a = 0 or b = 0.
+
+  - id: RV-SEL-2
+    req: R-SEL-2
+    expr: >-
+      all(i < len(result): any(n < 256: lo < n && n < hi &&
+        (n % 10 == result[i]
+         || (n >= 10 && n % 100 - n % 10 == 10 * result[i])
+         || (n >= 100 && n - n % 100 == 100 * result[i]))))
+    note: >-
+      Every element is a decimal digit (units, tens or hundreds digit; no
+      leading zeros) of some integer n strictly between min(a, b) and max(a, b).
+      Variant reading of R-SEL-2 ("between a and b"): exclusive, only values
+      strictly greater than the smaller and strictly less than the larger
+      argument; this contradicts generate_integers(2, 8) => [2, 4, 6, 8]
+      (see RV-EX-1, RV-EX-2). Second "between a and b" phrase: order-independent
+      (min/max), the most literal sense of "between". Variant reading of R-SEL-1
+      ("digits"): "between" bounds the integers whose digits are taken, not the
+      digits themselves, so an element need not itself lie between a and b
+      (for 10..14 the element 2 is allowed, being a digit of 12). Per R-IN-1 /
+      R-IN-2 (variant reading) this also applies when a = 0 or b = 0.
+      Arguments are at most 255, so n ranges over 0..255.
+
+  - id: RV-SEL-3
+    req: R-SEL-3
+    expr: "all(i < len(result): result[i] % 2 == 0)"
+    note: >-
+      Variant reading of R-SEL-3 ("odd or even"): even digits only, the parity
+      every example shows; the odd option of the prose is not used. Per R-IN-1 /
+      R-IN-2 (variant reading) this also applies when a = 0 or b = 0.
+
+  - id: RV-SEL-4
+    req: R-SEL-4
+    expr: >-
+      all(d < 10: d % 2 == 0 && any(n < 256: lo < n && n < hi &&
+        (n % 10 == d
+         || (n >= 10 && n % 100 - n % 10 == 10 * d)
+         || (n >= 100 && n - n % 100 == 100 * d))) -> d in result)
+    note: >-
+      Completeness: every even digit d (selected parity, variant reading of
+      R-SEL-3 "odd or even": even only) that occurs as a decimal digit of some
+      integer strictly between min(a, b) and max(a, b) appears in the result.
+      Variant reading of R-SEL-1 ("digits"): the digits occurring in those
+      integers, e.g. 0 is listed when 10 lies strictly between the arguments.
+      Variant reading of R-SEL-2 ("between a and b"): exclusive. Under these
+      readings generate_integers(2, 8) must contain 4 and 6 and
+      generate_integers(10, 14) must contain 2 (a digit of 12), which conflicts
+      with RV-EX-3. Per R-IN-1 / R-IN-2 (variant reading) this also applies when
+      a = 0 or b = 0.
+
+  - id: RV-SEL-5
+    req: R-SEL-5
+    expr: "all(i < len(result): all(j < len(result): i < j -> result[i] != result[j]))"
+    note: >-
+      No value occurs twice in the result (a digit occurring in several of the
+      integers between a and b, under the variant reading of R-SEL-1, is still
+      listed once). Per R-IN-1 / R-IN-2 (variant reading) this also applies when
+      a = 0 or b = 0.
+
+  - id: RV-ORD-1
+    req: R-ORD-1
+    expr: "all(i < len(result) - 1: result[i] <= result[i + 1])"
+    note: >-
+      Variant reading of R-ORD-1 ("in descending or ascending order"): always
+      ascending, the order every example shows, regardless of the argument
+      order; the descending option of the prose is not used. Per R-IN-1 /
+      R-IN-2 (variant reading) this also applies when a = 0 or b = 0.
+
+scenarios:
+  - id: RV-IN-1
+    req: R-IN-1
+    cover: "a == 0 && outcome == 0"
+    note: >-
+      Variant reading of R-IN-1 ("positive integers"): only a description of
+      typical inputs, not an environment obligation. No assumption a >= 1 is
+      made; a call with a = 0 is part of the behaviour and is answered with a
+      list that follows every other requirement (all properties are
+      unconditional on a).
+
+  - id: RV-IN-2
+    req: R-IN-2
+    cover: "b == 0 && outcome == 0"
+    note: >-
+      Variant reading of R-IN-2 ("positive integers"): only a description of
+      typical inputs, not an environment obligation. No assumption b >= 1 is
+      made; a call with b = 0 is part of the behaviour and is answered with a
+      list that follows every other requirement (all properties are
+      unconditional on b).
+
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: "a == 2 && b == 8 && result == [2, 4, 6, 8]"
+    note: >-
+      Variant reading of R-EX-1: illustrative, one admissible answer for an
+      implementation that chose even digits in ascending order, so it is a
+      scenario (this answer must be possible) rather than a binding property.
+      Even parity and ascending order are forced here anyway (variant readings
+      of R-SEL-3 and R-ORD-1). Under the variant exclusive reading of "between
+      a and b" (R-SEL-2) the integers strictly between 2 and 8 are 3..7, whose
+      even digits are 4 and 6, so RV-SEL-2 / RV-SEL-4 force [4, 6] and this
+      scenario is unreachable: the specification is contradictory under these
+      readings. Recorded as stated, not repaired.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: "a == 8 && b == 2 && result == [2, 4, 6, 8]"
+    note: >-
+      Variant reading of R-EX-2: illustrative, one admissible answer for an
+      implementation that chose even digits in ascending order, so it is a
+      scenario rather than a binding property. Even parity and ascending order
+      are forced here anyway (variant readings of R-SEL-3 and R-ORD-1). Under
+      the variant exclusive reading of "between a and b" (R-SEL-2) the
+      integers strictly between 2 and 8 are 3..7, so RV-SEL-2 / RV-SEL-4 force
+      [4, 6] and this scenario is unreachable: the specification is
+      contradictory under these readings. Recorded as stated, not repaired.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: "a == 10 && b == 14 && outcome == 0 && len(result) == 0"
+    note: >-
+      The example as stated: generate_integers(10, 14) returns the empty list.
+      Variant reading of R-EX-3: it contradicts "digits" read as the digits
+      occurring in the integers between a and b (the variant reading of
+      R-SEL-1). With that reading and the variant exclusive "between" (R-SEL-2)
+      the integers strictly between 10 and 14 are 11, 12, 13, whose even
+      digit 2 must be listed (RV-SEL-4), so this scenario is unreachable
+      (inclusively it would be 0, 2, 4). Kept as a scenario, the kind
+      requirements.yaml gives it; recorded as stated, not repaired.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: it concerns the deliverable (a Python function named
+      generate_integers with parameters a and b). The function adapter in
+      design.yaml fixes the name and the two arguments; it is not a property
+      of the call trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, already part of every formalization
+      set as F-EMPTY (frame.md: need not be restated).
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IN-1, phrase: "positive integers", reading: 2}
+  - {req: R-IN-2, phrase: "positive integers", reading: 2}
+  - {req: R-SEL-1, phrase: "digits", reading: 2}
+  - {req: R-SEL-2, phrase: "between a and b", reading: 2}
+  - {req: R-SEL-2, phrase: "between a and b", reading: 1}
+  - {req: R-SEL-3, phrase: "odd or even", reading: 1}
+  - {req: R-ORD-1, phrase: "in descending or ascending order", reading: 1}
+  - {req: R-EX-1, phrase: "generate_integers(2, 8) => [2, 4, 6, 8]", reading: 2}
+  - {req: R-EX-2, phrase: "generate_integers(8, 2) => [2, 4, 6, 8]", reading: 2}
+  - {req: R-EX-3, phrase: "generate_integers(10, 14) => []", reading: 2}

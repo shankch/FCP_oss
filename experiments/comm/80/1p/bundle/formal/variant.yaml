@@ -1,0 +1,151 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-DEF-1, reading 2 of "happy" (at least 3 characters, no two adjacent
+  # characters equal) and reading 2 of "the string" (letters compared ignoring case).
+  happy_ref: 'len(s) >= 3 && all(i < len(s) - 1: lower(s[i]) != lower(s[i + 1]))'
+
+assumptions:
+  - id: RV-IN-1-LOWER
+    req: R-IN-1
+    expr: 'all(i < len(s): islower(s[i]))'
+    note: >-
+      Reading 2 of "a string", as instructed (another reading may seem more natural):
+      only strings of lowercase letters (the only characters any example uses) are valid
+      arguments; the answer on other strings is a don't care, which this assumption
+      realizes (nothing is required of a call whose argument breaks it). "Lowercase
+      letter" is taken as the ASCII class islower ('a' to 'z'); Latin-1 lowercase letters
+      such as 'é' are therefore outside the valid arguments as well.
+  - id: RV-IN-1-NONEMPTY
+    req: R-IN-1
+    expr: 'len(s) >= 1'
+    note: >-
+      Reading 2 of "a string s", as instructed (another reading may seem more natural):
+      only non-empty strings are given; the answer on the empty string is a don't care,
+      which this assumption realizes.
+
+properties:
+  - id: RV-FN-1
+    req: R-FN-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'happy == happy_ref'
+    note: >-
+      When the call returns a bool, it is True exactly when s is happy (def happy_ref).
+      Readings taken as instructed (other readings may seem more natural):
+      R-DEF-1 "happy", reading 2: at least 3 characters and no two adjacent characters
+      equal ('aba' happy, 'abca' happy, 'ab' not happy).
+      R-DEF-1 "the string", reading 2: letters compared ignoring case ('aA' has a repeated
+      letter); under R-IN-1 reading 2 every valid argument is lowercase, so the case folding
+      makes no difference on the calls that are checked.
+      R-FN-2 "check", reading 2: any truthy or falsy return value counts as the answer, so
+      the answer may also be a non-bool (outcome 2). The trace does not record the
+      truthiness of such a value, so its correctness cannot be stated; only bool answers
+      (outcome 0) are constrained here.
+      R-IN-1 readings 2 ("a string", "a string s"): required only for non-empty strings of
+      lowercase letters (assumptions RV-IN-1-LOWER, RV-IN-1-NONEMPTY).
+      Not restated as happy == happy_ref unconditionally: with frame F-ZERO that would
+      silently forbid non-bool answers for happy strings.
+  - id: RV-FN-2
+    req: R-FN-2
+    expr: 'outcome == 0 || outcome == 2'
+    note: >-
+      The call finishes and raises no exception (outcome 1 excluded). Reading 2 of "check",
+      as instructed (another reading may seem more natural): any truthy or falsy return
+      value (1/0, a non-empty or empty value, None for not happy) counts as the answer, so
+      a non-bool return (outcome 2) is allowed, not only True/False. The trace cannot tell
+      a value whose truthiness is undefined (its __bool__ raises) from other non-bool
+      values; every outcome-2 return is accepted. R-IN-1 readings 2: required only for
+      non-empty strings of lowercase letters (assumptions RV-IN-1-LOWER, RV-IN-1-NONEMPTY).
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the deliverable is a complete implementation of the stub. It is not a
+      property of any call; it is met when the adapter can run the function at all.
+  - req: R-API-2
+    reason: >-
+      Non-functional: the name is_happy and the single parameter s are fixed by the adapter
+      (design.yaml function section calls is_happy(s)); they are not observable on the trace.
+  - req: R-DEF-1
+    reason: >-
+      A definition, not a behaviour. It is realized by def happy_ref, used in RV-FN-1, under
+      the instructed readings (other readings may seem more natural): "happy" reading 2 (at
+      least 3 characters, no two adjacent characters equal) and "the string" reading 2
+      (letters compared ignoring case). Under the instructed readings of R-EX-1 to R-EX-6 no
+      example is a string call, so nothing in the request pins the definition down.
+    covered_by: [RV-FN-1]
+  - req: R-EX-1
+    reason: >-
+      Reading 2 of "is_happy(a)", as instructed (another reading may seem more natural):
+      literal Python, a call with the value of a variable named a, which the request does not
+      give. That value is not a string, so the call is not part of the trace (s carries only
+      strings) and is outside the valid arguments of R-IN-1; no cycle corresponds to it, so
+      the example states nothing that can be formalized. The request contradicts itself here
+      (the example is at odds with R-IN-1).
+  - req: R-EX-2
+    reason: >-
+      Reading 2 of "is_happy(aa)", as instructed (another reading may seem more natural):
+      literal Python, a call with the value of a variable named aa, which the request does not
+      give. That value is not a string, so the call is not part of the trace (s carries only
+      strings) and is outside the valid arguments of R-IN-1; no cycle corresponds to it, so
+      the example states nothing that can be formalized. The request contradicts itself here
+      (the example is at odds with R-IN-1).
+  - req: R-EX-3
+    reason: >-
+      Reading 2 of "is_happy(abcd)", as instructed (another reading may seem more natural):
+      literal Python, a call with the value of a variable named abcd, which the request does
+      not give. That value is not a string, so the call is not part of the trace (s carries
+      only strings) and is outside the valid arguments of R-IN-1; no cycle corresponds to it,
+      so the example states nothing that can be formalized. The request contradicts itself
+      here (the example is at odds with R-IN-1).
+  - req: R-EX-4
+    reason: >-
+      Reading 2 of "is_happy(aabb)", as instructed (another reading may seem more natural):
+      literal Python, a call with the value of a variable named aabb, which the request does
+      not give. That value is not a string, so the call is not part of the trace (s carries
+      only strings) and is outside the valid arguments of R-IN-1; no cycle corresponds to it,
+      so the example states nothing that can be formalized. The request contradicts itself
+      here (the example is at odds with R-IN-1).
+  - req: R-EX-5
+    reason: >-
+      Reading 2 of "is_happy(adb)", as instructed (another reading may seem more natural):
+      literal Python, a call with the value of a variable named adb, which the request does
+      not give. That value is not a string, so the call is not part of the trace (s carries
+      only strings) and is outside the valid arguments of R-IN-1; no cycle corresponds to it,
+      so the example states nothing that can be formalized. The request contradicts itself
+      here (the example is at odds with R-IN-1).
+  - req: R-EX-6
+    reason: >-
+      Reading 2 of "is_happy(xyy)", as instructed (another reading may seem more natural):
+      literal Python, a call with the value of a variable named xyy, which the request does
+      not give. That value is not a string, so the call is not part of the trace (s carries
+      only strings) and is outside the valid arguments of R-IN-1; no cycle corresponds to it,
+      so the example states nothing that can be formalized. The request contradicts itself
+      here (the example is at odds with R-IN-1).
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml; frame items are part of every formalization set and
+      need not be restated (frame.md).
+    covered_by: [F-ZERO]
+  - req: R-FR-2
+    reason: >-
+      Frame rule F-CODE of design.yaml; frame items are part of every formalization set and
+      need not be restated (frame.md).
+    covered_by: [F-CODE]
+
+decisions:
+  - {req: R-IN-1, phrase: "a string", reading: 2}
+  - {req: R-IN-1, phrase: "a string s", reading: 2}
+  - {req: R-DEF-1, phrase: "happy", reading: 2}
+  - {req: R-DEF-1, phrase: "the string", reading: 2}
+  - {req: R-FN-2, phrase: "check", reading: 2}
+  - {req: R-EX-1, phrase: "is_happy(a)", reading: 2}
+  - {req: R-EX-2, phrase: "is_happy(aa)", reading: 2}
+  - {req: R-EX-3, phrase: "is_happy(abcd)", reading: 2}
+  - {req: R-EX-4, phrase: "is_happy(aabb)", reading: 2}
+  - {req: R-EX-5, phrase: "is_happy(adb)", reading: 2}
+  - {req: R-EX-6, phrase: "is_happy(xyy)", reading: 2}

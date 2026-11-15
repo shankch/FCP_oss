@@ -1,0 +1,58 @@
+[
+ {
+  "req": "R-FN-1",
+  "phrase": "K",
+  "taken": 1,
+  "variant": 2,
+  "text": "K stands for 'more than once', as in the usual remove-duplicates task: every value occurring 2 or more times is removed"
+ },
+ {
+  "req": "R-FN-1",
+  "phrase": "occur K time(s)",
+  "taken": 1,
+  "variant": 2,
+  "text": "at least K times: a value occurring K or more times is removed"
+ },
+ {
+  "req": "R-FN-1",
+  "phrase": "time(s)",
+  "taken": 2,
+  "variant": 1,
+  "text": "contradiction with the example R-EX-1: the singular 'time' admits K = 1, and removing values that occur once turns [1, 2, 3, 2, 4] into [2, 2], not [1, 3, 4]; likewise any K of 3 or more removes nothing and returns [1, 2, 3, 2, 4]"
+ },
+ {
+  "req": "R-FN-1",
+  "phrase": "remove",
+  "taken": 1,
+  "variant": 2,
+  "text": "delete those elements from the argument numbers in place (and return that list)"
+ },
+ {
+  "req": "R-FN-2",
+  "phrase": "K",
+  "taken": 1,
+  "variant": 2,
+  "text": "K stands for 'more than once', as in the usual remove-duplicates task: every value occurring 2 or more times is removed"
+ },
+ {
+  "req": "R-FN-2",
+  "phrase": "occur K time(s)",
+  "taken": 1,
+  "variant": 2,
+  "text": "at least K times: a value occurring more than K times is also removed, so only values occurring fewer than K times are kept"
+ },
+ {
+  "req": "R-FN-2",
+  "phrase": "remove all elements that occur K time(s)",
+  "taken": 1,
+  "variant": 2,
+  "text": "the request only obliges the removal of those elements and states nothing about keeping the others"
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "[1, 3, 4]",
+  "taken": 1,
+  "variant": 2,
+  "text": "contradiction with R-FN-1: for any other K the rule gives a different result, e.g. K = 1 (allowed by the singular 'time') gives [2, 2] and K of 3 or more gives [1, 2, 3, 2, 4]"
+ }
+]

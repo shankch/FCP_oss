@@ -1,0 +1,147 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FN-1
+  doc: SPEC
+  quote: 'def correct_bracketing(brackets: str):'
+  text: The function to implement is named correct_bracketing and takes exactly one argument, brackets, which is a Python str.
+  kind: definition
+  lines:
+  - 4
+- id: R-FN-2
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: For every input that satisfies R-IN-1, a call of correct_bracketing(brackets) finishes, raises no exception and returns a bool (True or False).
+  kind: guarantee
+  depends:
+  - R-FN-1
+  - R-IN-1
+  ambiguity:
+  - phrase: Complete this function
+    readings:
+    - The completed function must return a bool (True or False) for every valid input, including inputs on which the docstring gives no explicit rule.
+    - Only the behaviour the docstring and examples state is required; what the function returns (or whether it returns at all) where the docstring is silent is unconstrained.
+    - Any value with the right truthiness (e.g. 1/0 or a non-empty/empty object) is acceptable in place of True/False.
+  lines:
+  - 1
+- id: R-IN-1
+  doc: SPEC
+  quote: brackets is a string of "(" and ")".
+  text: The argument brackets consists only of the characters "(" and ")"; callers pass no other characters.
+  kind: assumption
+  ambiguity:
+  - phrase: '"(" and ")"'
+    readings:
+    - 'Precondition: only "(" and ")" are passed; the result for a string containing any other character is unconstrained (don''t care).'
+    - Other characters may occur and are to be ignored (skipped) when checking the bracketing.
+    - A string containing any other character is invalid bracketing and must be rejected (return False or raise an exception).
+  - phrase: a string of
+    readings:
+    - 'The empty string is a valid input (a string of zero brackets), and the return rule applies to it: with no opening brackets, every opening bracket is (vacuously) matched.'
+    - The prompt does not address the empty string; its result is unconstrained.
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: return True if every opening bracket has a corresponding closing bracket.
+  text: correct_bracketing(brackets) returns True when every opening bracket "(" in brackets has a corresponding closing bracket ")".
+  kind: guarantee
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: return True if
+    readings:
+    - 'Sufficient condition only: True is returned whenever every opening bracket has a corresponding closing bracket; nothing is said about when False is returned.'
+    - 'Biconditional: True is returned exactly when every opening bracket has a corresponding closing bracket, and False otherwise.'
+  - phrase: a corresponding closing bracket
+    readings:
+    - 'Nested matching: each "(" is paired with its own distinct ")" later in the string, pairs nesting properly (standard left-to-right bracket matching).'
+    - 'Counting: the number of ")" is at least the number of "(", wherever they are in the string (a ")" before a "(" may correspond to it).'
+    - 'Positional but not exclusive: for each "(" some ")" occurs later in the string; one ")" may serve several "(".'
+  - phrase: every opening bracket
+    readings:
+    - 'Only opening brackets are constrained: closing brackets with no opening bracket (as in ")" or "())") do not prevent a True result.'
+    - 'The whole string must be correctly bracketed, as the name correct_bracketing suggests: a ")" with no earlier unmatched "(" also makes the bracketing incorrect.'
+  - phrase: return True if every opening bracket has a corresponding closing bracket
+    readings:
+    - 'This sentence is authoritative: correctly matched strings such as "()" and "(()())" return True, so examples R-EX-2 and R-EX-3 (and, under the biconditional reading, R-EX-1 and R-EX-4) are wrong.
+      Contradicts R-EX-1, R-EX-2, R-EX-3 and R-EX-4.'
+    - 'The examples are authoritative: all four of them are the negation of standard bracket matching, so the function returns True exactly when the string is NOT correctly bracketed and this sentence (and
+      the name) is inverted.'
+  lines:
+  - 6
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> correct_bracketing("(") True'
+  text: correct_bracketing("(") returns True.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: correct_bracketing("(")
+    readings:
+    - 'This example holds: correct_bracketing("(") returns True. This contradicts R-RET-1 under its biconditional reading (the only opening bracket has no closing bracket, so False would be required) and
+      agrees with its sufficient-only reading, which leaves this call free.'
+    - 'R-RET-1 read as a biconditional holds and this example is wrong: correct_bracketing("(") returns False.'
+  lines:
+  - 8
+  - 9
+- id: R-EX-2
+  doc: SPEC
+  quote: '>>> correct_bracketing("()") False'
+  text: correct_bracketing("()") returns False.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: correct_bracketing("()")
+    readings:
+    - 'This example holds: correct_bracketing("()") returns False. This contradicts R-RET-1 under every reading, since the only opening bracket has a corresponding closing bracket and R-RET-1 then requires
+      True.'
+    - 'R-RET-1 holds and this example is wrong: correct_bracketing("()") returns True.'
+  lines:
+  - 10
+  - 11
+- id: R-EX-3
+  doc: SPEC
+  quote: '>>> correct_bracketing("(()())") False'
+  text: correct_bracketing("(()())") returns False.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: correct_bracketing("(()())")
+    readings:
+    - 'This example holds: correct_bracketing("(()())") returns False. This contradicts R-RET-1 under every reading, since every opening bracket has a corresponding closing bracket and R-RET-1 then requires
+      True.'
+    - 'R-RET-1 holds and this example is wrong: correct_bracketing("(()())") returns True.'
+  lines:
+  - 12
+  - 13
+- id: R-EX-4
+  doc: SPEC
+  quote: '>>> correct_bracketing(")(()") True'
+  text: correct_bracketing(")(()") returns True.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: correct_bracketing(")(()")
+    readings:
+    - 'This example holds: correct_bracketing(")(()") returns True. This contradicts R-RET-1 read as a biconditional with nested matching (the "(" at index 1 has no matching ")", so False would be required)
+      or with whole-string correctness (the leading ")" is unmatched); it agrees with the sufficient-only, counting or positional-but-not-exclusive readings.'
+    - 'R-RET-1 read as a biconditional with nested matching (or whole-string correctness) holds and this example is wrong: correct_bracketing(")(()") returns False.'
+  lines:
+  - 14
+  - 15
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, the result output is false whenever the outcome output is not 0 (the call did not return a bool).
+  kind: guarantee
+  lines:
+  - 50

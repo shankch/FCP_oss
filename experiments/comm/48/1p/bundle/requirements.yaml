@@ -1,0 +1,92 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-TASK-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is an implementation of the given function candidate that keeps the given name, parameter and docstring and supplies the body.
+  kind: non_functional
+  ambiguity:
+  - phrase: Complete this function
+    readings:
+    - write only the body of candidate below the given signature and docstring, leaving both as they are
+    - also finish the truncated docstring, i.e. choose what property the function checks
+  lines:
+  - 1
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def candidate(text: str):'
+  text: The function is named candidate and takes exactly one parameter, named text; the signature declares no return type.
+  kind: definition
+  lines:
+  - 4
+- id: R-IF-2
+  doc: SPEC
+  quote: 'text: str'
+  text: Every call passes a Python str as the argument text; arguments of other types are outside the request.
+  kind: assumption
+  ambiguity:
+  - phrase: 'text: str'
+    readings:
+    - 'a type hint only: callers always pass a str, and behaviour for other types is unconstrained'
+    - the function must itself reject an argument that is not a str (e.g. raise TypeError)
+  lines:
+  - 4
+- id: R-CHK-1
+  doc: SPEC
+  quote: Checks if given string is a
+  text: 'For every string text, candidate(text) finishes and returns a truth value, True or False: it raises no exception and returns no value of another type.'
+  kind: guarantee
+  ambiguity:
+  - phrase: Checks if
+    readings:
+    - returns the answer as a bool, True or False
+    - returns any truthy or falsy value (such as 1/0, the string itself, or None for no)
+    - reports a failed check by raising an exception or failing an assertion instead of returning False
+  lines:
+  - 6
+- id: R-CHK-2
+  doc: SPEC
+  quote: Checks if given string is a
+  text: candidate(text) returns True whenever text has the property the docstring names; the docstring is cut off after "is a", so the property itself is not stated.
+  kind: guarantee
+  ambiguity:
+  - phrase: is a
+    readings:
+    - 'a palindrome compared exactly: text equals its reverse character by character, with case, spaces and punctuation significant'
+    - 'a palindrome ignoring case and non-alphanumeric characters: only letters and digits are compared, case-insensitively'
+    - some other property the prompt does not state, so no particular answer is required for any string
+  - phrase: given string
+    readings:
+    - every string, including the empty string, is judged by the same rule (under a palindrome reading the empty string is one)
+    - only non-empty strings are meant; the answer for the empty string is unspecified
+  lines:
+  - 6
+- id: R-CHK-3
+  doc: SPEC
+  quote: Checks if given string is a
+  text: candidate(text) returns False whenever text does not have the property the docstring names; the docstring is cut off after "is a", so the property itself is not stated.
+  kind: guarantee
+  ambiguity:
+  - phrase: is a
+    readings:
+    - 'a palindrome compared exactly: text equals its reverse character by character, with case, spaces and punctuation significant'
+    - 'a palindrome ignoring case and non-alphanumeric characters: only letters and digits are compared, case-insensitively'
+    - some other property the prompt does not state, so no particular answer is required for any string
+  - phrase: given string
+    readings:
+    - every string, including the empty string, is judged by the same rule (under a palindrome reading the empty string is one)
+    - only non-empty strings are meant; the answer for the empty string is unspecified
+  lines:
+  - 6
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, result is 0 (false) unless outcome is 0, i.e. unless the call returned True or False.
+  kind: guarantee
+  lines:
+  - 52

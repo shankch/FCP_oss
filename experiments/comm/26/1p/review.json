@@ -1,0 +1,200 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 31,
+    "checked": 31,
+    "seconds": 1.66
+   },
+   "open": {
+    "open": {},
+    "checked": 20
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 246,
+    "checked": 246,
+    "seconds": 77.01
+   },
+   "open": {
+    "open": {},
+    "checked": 159
+   }
+  }
+ },
+ "readings": {
+  "R-RM-1": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RM-2": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RM-3": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RM-4": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SIG-2": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-SIG-2",
+   "phrase": "remove",
+   "taken": 1,
+   "variant": 2,
+   "text": "Delete the elements from the argument list numbers in place and return that same (mutated) list."
+  },
+  {
+   "req": "R-RM-1",
+   "phrase": "remove all elements that occur",
+   "taken": 1,
+   "variant": 2,
+   "text": "The sentence is cut short and means 'that occur more than once': every value that appears two or more times in numbers is removed entirely (all of its copies); values that appear exactly once remain."
+  },
+  {
+   "req": "R-RM-1",
+   "phrase": "all elements that occur",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradiction with R-RM-3: the restrictive clause 'that occur' presupposes that only some elements are removed and the others are kept, which requires a selecting condition the sentence does not state."
+  },
+  {
+   "req": "R-RM-3",
+   "phrase": "remove all elements that occur",
+   "taken": 1,
+   "variant": 2,
+   "text": "The sentence is cut short and means 'that occur more than once': every value that appears exactly once in numbers is kept; values that appear two or more times are not kept at all."
+  },
+  {
+   "req": "R-RM-3",
+   "phrase": "all elements that occur",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradiction with R-RM-1: the restrictive clause 'that occur' presupposes that only some elements are removed and the others are kept, which requires a selecting condition the sentence does not state."
+  },
+  {
+   "req": "R-RM-4",
+   "phrase": "remove",
+   "taken": 1,
+   "variant": 2,
+   "text": "The prompt states no order for the result: the remaining elements may be returned in any order."
+  }
+ ],
+ "depends": {
+  "R-RM-3": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate([0]) -> []"
+   ]
+  }
+ },
+ "certified": [
+  "R-RM-2"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RM-3"
+   ],
+   "calls": [
+    "candidate([0]) -> []"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SIG-2"
+   ],
+   "calls": [],
+   "question": "\"remove\" can mean: Build and return a new list without the removed elements; the argument numbers is left unchanged. / Delete the elements from the argument list numbers in place and return that same (mutated) list.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RM-1"
+   ],
+   "calls": [],
+   "question": "\"remove all elements that occur\" can mean: Literal: every element of a list occurs in it, so every element is removed and the returned list is always empty. / The sentence is cut short and means 'that occur more than once': every value that appears two or more times in numbers is removed entirely (all of its copies); values that appear exactly once remain. / Remove repeated occurrences (deduplicate): the first occurrence of each value is kept and every later occurrence of the same value is removed.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RM-1"
+   ],
+   "calls": [],
+   "question": "\"all elements that occur\" can mean: Contradiction with R-RM-3: 'all elements' read literally removes every element, since every element of numbers occurs in numbers, so nothing is kept. / Contradiction with R-RM-3: the restrictive clause 'that occur' presupposes that only some elements are removed and the others are kept, which requires a selecting condition the sentence does not state.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RM-3"
+   ],
+   "calls": [],
+   "question": "\"remove all elements that occur\" can mean: Literal: every element of a list occurs in it, so no element is kept and the returned list is always empty. / The sentence is cut short and means 'that occur more than once': every value that appears exactly once in numbers is kept; values that appear two or more times are not kept at all. / Remove repeated occurrences (deduplicate): the first occurrence of each distinct value is kept, so each distinct value of numbers appears exactly once in the returned list.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RM-3"
+   ],
+   "calls": [],
+   "question": "\"all elements that occur\" can mean: Contradiction with R-RM-1: 'all elements' read literally removes every element, since every element of numbers occurs in numbers, so nothing is kept. / Contradiction with R-RM-1: the restrictive clause 'that occur' presupposes that only some elements are removed and the others are kept, which requires a selecting condition the sentence does not state.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RM-4"
+   ],
+   "calls": [],
+   "question": "\"remove\" can mean: Removing elements leaves the remaining elements in their original relative order: the returned list is a subsequence of numbers. / The prompt states no order for the result: the remaining elements may be returned in any order.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the comparison of agent_a and agent_b"
+ ]
+}

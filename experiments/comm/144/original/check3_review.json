@@ -1,0 +1,520 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 501,
+    "checked": 501,
+    "seconds": 295.51
+   },
+   "open": {
+    "open": {},
+    "checked": 215,
+    "left_out": [
+     "RA-RET-1",
+     "RA-RET-2"
+    ],
+    "rejected": 16
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 438,
+    "checked": 438,
+    "seconds": 236.54
+   },
+   "open": {
+    "open": {},
+    "checked": 304,
+    "left_out": [
+     "RB-RET-1",
+     "RB-RET-2"
+    ],
+    "rejected": 0
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-2",
+    "req": "R-IN-2",
+    "says": "every call meets `fx && fn`",
+    "where": {
+     "fx": "count(i < len(x): x[i] == \"/\") == 1 && all(i < len(x): x[i] == \"/\" || isdigit(x[i])) && sx >= 1 && sx + 1 < len(x) && !(sx > 1 && x[0] == \"0\") && !(len(x) - sx > 2 && x[sx + 1] == \"0\")",
+     "fn": "count(i < len(n): n[i] == \"/\") == 1 && all(i < len(n): n[i] == \"/\" || isdigit(n[i])) && sn >= 1 && sn + 1 < len(n) && !(sn > 1 && n[0] == \"0\") && !(len(n) - sn > 2 && n[sn + 1] == \"0\")"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-3",
+    "req": "R-IN-3",
+    "says": "every call meets `all(i < sx: isdigit(x[i])) && nx >= 1 && all(i < sn: isdigit(n[i])) && nn >= 1`",
+    "where": {
+     "sx": "count(i < len(x): all(j < i + 1: x[j] != \"/\"))",
+     "nx": "sum(i < len(x): i < sx ? (x[i] - \"0\") * p10[sx - 1 - i] : 0)",
+     "sn": "count(i < len(n): all(j < i + 1: n[j] != \"/\"))",
+     "nn": "sum(i < len(n): i < sn ? (n[i] - \"0\") * p10[sn - 1 - i] : 0)"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-4",
+    "req": "R-IN-4",
+    "says": "every call meets `all(i < len(x): i > sx -> isdigit(x[i])) && dx >= 1 && all(i < len(n): i > sn -> isdigit(n[i])) && dn >= 1`",
+    "where": {
+     "sx": "count(i < len(x): all(j < i + 1: x[j] != \"/\"))",
+     "dx": "sum(i < len(x): i > sx ? (x[i] - \"0\") * p10[len(x) - 1 - i] : 0)",
+     "sn": "count(i < len(n): all(j < i + 1: n[j] != \"/\"))",
+     "dn": "sum(i < len(n): i > sn ? (n[i] - \"0\") * p10[len(n) - 1 - i] : 0)"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-5",
+    "req": "R-IN-5",
+    "says": "every call meets `vx && vn`",
+    "where": {
+     "vx": "fx && nx >= 1 && dx >= 1",
+     "vn": "fn && nn >= 1 && dn >= 1"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-6",
+    "req": "R-IN-6",
+    "says": "every call meets `dx != 0 && dn != 0`",
+    "where": {
+     "dx": "sum(i < len(x): i > sx ? (x[i] - \"0\") * p10[len(x) - 1 - i] : 0)",
+     "dn": "sum(i < len(n): i > sn ? (n[i] - \"0\") * p10[len(n) - 1 - i] : 0)"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-DC-RES",
+    "req": "R-IN-5",
+    "says": "`result` is free when `!(vx && vn)`",
+    "where": {
+     "vx": "fx && nx >= 1 && dx >= 1",
+     "vn": "fn && nn >= 1 && dn >= 1"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-DC-OUT",
+    "req": "R-IN-5",
+    "says": "`outcome` is free when `!(vx && vn)`",
+    "where": {
+     "vx": "fx && nx >= 1 && dx >= 1",
+     "vn": "fn && nn >= 1 && dn >= 1"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-2-X",
+    "req": "R-IN-2",
+    "says": "every call meets `xshape && xnlz`",
+    "where": {
+     "xshape": "xs >= 1 && xs + 2 <= len(x) && all(i < len(x): i == xs || isdigit(x[i]))",
+     "xnlz": "!(xs >= 2 && x[0] == \"0\") && !(len(x) - xs >= 3 && x[xs + 1] == \"0\")"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-2-N",
+    "req": "R-IN-2",
+    "says": "every call meets `nshape && nnlz`",
+    "where": {
+     "nshape": "ns >= 1 && ns + 2 <= len(n) && all(i < len(n): i == ns || isdigit(n[i]))",
+     "nnlz": "!(ns >= 2 && n[0] == \"0\") && !(len(n) - ns >= 3 && n[ns + 1] == \"0\")"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-3-X",
+    "req": "R-IN-3",
+    "says": "every call meets `xnum_pos`",
+    "where": {
+     "xnum_pos": "xs >= 1 && all(i < xs: isdigit(x[i])) && xa >= 1"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-3-N",
+    "req": "R-IN-3",
+    "says": "every call meets `nnum_pos`",
+    "where": {
+     "nnum_pos": "ns >= 1 && all(i < ns: isdigit(n[i])) && na >= 1"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-4-X",
+    "req": "R-IN-4",
+    "says": "every call meets `xden_pos`",
+    "where": {
+     "xden_pos": "xs + 2 <= len(x) && all(i < len(x): i > xs -> isdigit(x[i])) && xb >= 1"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-4-N",
+    "req": "R-IN-4",
+    "says": "every call meets `nden_pos`",
+    "where": {
+     "nden_pos": "ns + 2 <= len(n) && all(i < len(n): i > ns -> isdigit(n[i])) && nb >= 1"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-5",
+    "req": "R-IN-5",
+    "says": "every call meets `valid`",
+    "where": {
+     "valid": "xvalid && nvalid"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-6-X",
+    "req": "R-IN-6",
+    "says": "every call meets `xb != 0`",
+    "where": {
+     "xb": "sum(i < len(x): i > xs ? (x[i] - \"0\") * p10[len(x) - 1 - i] : 0)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-6-N",
+    "req": "R-IN-6",
+    "says": "every call meets `nb != 0`",
+    "where": {
+     "nb": "sum(i < len(n): i > ns ? (n[i] - \"0\") * p10[len(n) - 1 - i] : 0)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-5-DC-OUTCOME",
+    "req": "R-IN-5",
+    "says": "`outcome` is free when `!valid`",
+    "where": {
+     "valid": "xvalid && nvalid"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-5-DC-RESULT",
+    "req": "R-IN-5",
+    "says": "`result` is free when `!valid`",
+    "where": {
+     "valid": "xvalid && nvalid"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FN-1",
+   "phrase": "simplify the expression x * n",
+   "taken": 1,
+   "variant": 2,
+   "text": "The function must produce the simplified product (for example a reduced fraction), which contradicts the requirement that it returns True or False (R-RET-1, R-RET-2)."
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "x * n",
+   "taken": 1,
+   "variant": 2,
+   "text": "The Python expression x * n applied to the two string arguments (which raises TypeError)."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "whole number",
+   "taken": 1,
+   "variant": 2,
+   "text": "A positive integer (1, 2, 3, ...), so a product of 0 is not a whole number."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "evaluates to",
+   "taken": 1,
+   "variant": 2,
+   "text": "The product computed in floating point is integral, which can differ from the exact answer for large numerators and denominators."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "returns True",
+   "taken": 1,
+   "variant": 2,
+   "text": "Returns any truthy value (for example the integer 1)."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "returns True if x * n evaluates to a whole number",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradicts R-FN-1 if \"simplify the expression x * n\" requires the function to produce the simplified product rather than a bool."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "otherwise",
+   "taken": 1,
+   "variant": 2,
+   "text": "In every other case, including inputs that are not valid fractions, the function returns False (and does not raise)."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "False",
+   "taken": 1,
+   "variant": 2,
+   "text": "Returns any falsy value (for example 0 or None)."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "False otherwise",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradicts R-FN-1 if \"simplify the expression x * n\" requires the function to produce the simplified product rather than a bool."
+  },
+  {
+   "req": "R-IN-2",
+   "phrase": "<numerator>/<denominator>",
+   "taken": 1,
+   "variant": 2,
+   "text": "Leading zeros (such as \"05/1\") are allowed in the numerator and denominator."
+  },
+  {
+   "req": "R-IN-2",
+   "phrase": "have the following format",
+   "taken": 1,
+   "variant": 2,
+   "text": "An obligation on the function to reject (raise or return False for) strings of any other form."
+  },
+  {
+   "req": "R-IN-3",
+   "phrase": "positive whole numbers",
+   "taken": 1,
+   "variant": 2,
+   "text": "An integer of at least 1 in any notation Python int() accepts (for example \"+3\" or \" 3\")."
+  },
+  {
+   "req": "R-IN-4",
+   "phrase": "positive whole numbers",
+   "taken": 1,
+   "variant": 2,
+   "text": "An integer of at least 1 in any notation Python int() accepts (for example \"+3\" or \" 3\")."
+  },
+  {
+   "req": "R-IN-5",
+   "phrase": "valid fractions",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any well-formed fraction, which may include a zero numerator (not excluded by this sentence, unlike R-IN-3)."
+  },
+  {
+   "req": "R-IN-5",
+   "phrase": "You can assume",
+   "taken": 1,
+   "variant": 2,
+   "text": "The function must still behave sensibly on other arguments (for example return False rather than raise)."
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": null
+  },
+  "R-RET-2": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": null
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1",
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"whole number\" can mean: A non-negative integer (0, 1, 2, ...). / A positive integer (1, 2, 3, ...), so a product of 0 is not a whole number. / Any integer, including negative ones.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"evaluates to\" can mean: The exact rational value of the product is an integer. / The product computed in floating point is integral, which can differ from the exact answer for large numerators and denominators.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"returns True\" can mean: Returns the Python bool True. / Returns any truthy value (for example the integer 1).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"returns True if x * n evaluates to a whole number\" can mean: The function returns a bool answer; \"simplify the expression\" in R-FN-1 only states the purpose. / Contradicts R-FN-1 if \"simplify the expression x * n\" requires the function to produce the simplified product rather than a bool.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"otherwise\" can mean: Only for valid inputs whose product is not a whole number; behaviour on invalid inputs is not constrained. / In every other case, including inputs that are not valid fractions, the function returns False (and does not raise).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"False\" can mean: Returns the Python bool False. / Returns any falsy value (for example 0 or None).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"False otherwise\" can mean: The function returns a bool answer; \"simplify the expression\" in R-FN-1 only states the purpose. / Contradicts R-FN-1 if \"simplify the expression x * n\" requires the function to produce the simplified product rather than a bool.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the conflicts and open choices of agent_a: these searches leave out RA-RET-1, RA-RET-2 (rules stated for every value of a variable); 16 calls with two answers that break them are not reported",
+  "the conflicts and open choices of agent_b: these searches leave out RB-RET-1, RB-RET-2 (rules stated for every value of a variable)",
+  "request points of agent_a",
+  "request points of agent_a, agent_b",
+  "request points of agent_a, agent_b, variant",
+  "request points of agent_b, agent_a",
+  "the comparison of agent_a and agent_b",
+  "the comparison of agent_a and agent_b: it cannot assume RA-RET-1, RA-RET-2, RB-RET-1, RB-RET-2 (rules stated for every value of a variable), and requirements they bear on stay undecided",
+  "request points of agent_a, variant",
+  "request points of variant, agent_a",
+  "the comparison of agent_a and variant",
+  "the comparison of agent_a and variant: it cannot assume RA-RET-1, RA-RET-2 (rules stated for every value of a variable), and requirements they bear on stay undecided",
+  "request points of agent_b, variant",
+  "request points of variant, agent_b",
+  "the comparison of agent_b and variant",
+  "the comparison of agent_b and variant: it cannot assume RB-RET-1, RB-RET-2 (rules stated for every value of a variable), and requirements they bear on stay undecided"
+ ]
+}

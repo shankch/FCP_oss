@@ -1,0 +1,93 @@
+[
+ {
+  "req": "R-DEF-1",
+  "phrase": "palindromic list",
+  "taken": 1,
+  "variant": 2,
+  "text": "The empty list is not a balanced object, so it is not balanced (and does not fly)."
+ },
+ {
+  "req": "R-DEF-3",
+  "phrase": "will fly if",
+  "taken": 1,
+  "variant": 2,
+  "text": "Sufficient condition only: being balanced with sum at most w is enough to fly, but whether any other q flies (and so whether the call returns False for it) is not stated."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "returns True if the object q will fly",
+  "taken": 1,
+  "variant": 2,
+  "text": "As the examples show (contradiction): a balanced q with sum at most w makes the call return False, e.g. will_it_fly([3, 2, 3], 9) \u279e False and will_it_fly([3], 5) \u279e False; all four examples return the opposite of the stated rule."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "False otherwise",
+  "taken": 1,
+  "variant": 2,
+  "text": "As the example shows (contradiction): an unbalanced q with sum at most w makes the call return True, e.g. will_it_fly([1, 2], 5) \u279e True."
+ },
+ {
+  "req": "R-RET-3",
+  "phrase": "False otherwise",
+  "taken": 1,
+  "variant": 2,
+  "text": "As the example shows (contradiction): a balanced q whose sum exceeds w makes the call return True, e.g. will_it_fly([3, 2, 3], 1) \u279e True."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "\u279e True",
+  "taken": 1,
+  "variant": 2,
+  "text": "The expected value is an error: the call returns False, as the rule and the comment imply."
+ },
+ {
+  "req": "R-WHY-1",
+  "phrase": "but it's unbalanced",
+  "taken": 1,
+  "variant": 2,
+  "text": "The comment is consistent with the stated result True, i.e. the returned value is True when q does not fly (inverted output)."
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "\u279e True",
+  "taken": 1,
+  "variant": 2,
+  "text": "The expected value is an error: the call returns False, as the rule and the comment imply."
+ },
+ {
+  "req": "R-WHY-2",
+  "phrase": "but 3+2+3 is more than the maximum possible weight",
+  "taken": 1,
+  "variant": 2,
+  "text": "The comment is consistent with the stated result True, i.e. the returned value is True when q does not fly (inverted output)."
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "\u279e False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The expected value is an error: the call returns True, as the rule and the comment imply."
+ },
+ {
+  "req": "R-WHY-3",
+  "phrase": "and it's balanced",
+  "taken": 1,
+  "variant": 2,
+  "text": "The comment is consistent with the stated result False, i.e. the returned value is False when q flies (inverted output)."
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "\u279e False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The expected value is an error: the call returns True, as the rule and the comment imply."
+ },
+ {
+  "req": "R-WHY-4",
+  "phrase": "and it's balanced",
+  "taken": 1,
+  "variant": 2,
+  "text": "The comment is consistent with the stated result False, i.e. the returned value is False when q flies (inverted output)."
+ }
+]

@@ -1,0 +1,106 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-DEF-1, strict reading: text equals its reversal character by character
+  pal: 'all(i < len(text): text[i] == text[len(text) - 1 - i])'
+  ret_true: 'outcome == 0 && result'
+  ret_false: 'outcome == 0 && !result'
+
+properties:
+  - id: RA-PAL-1
+    req: R-PAL-1
+    pattern: implies
+    args: {trigger: 'pal', cond: 'ret_true'}
+    note: >-
+      "palindrome" is not defined in the prompt; the most literal reading is
+      taken: text equals its reversal code by code, so case, spaces,
+      punctuation and every other character count. "returns True" is read as
+      returning the bool True (outcome 0, result 1).
+  - id: RA-PAL-2
+    req: R-PAL-2
+    pattern: implies
+    args: {trigger: '!pal', cond: 'ret_false'}
+    note: >-
+      Same strict reading of "palindrome" as RA-PAL-1. "returns False" is
+      read as returning the bool False (outcome 0, result 0).
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      Every call returns normally and returns exactly True or False
+      (outcome 0): no exception, no hang (outcome 1) and no other returned
+      value such as 1, 0 or None (outcome 2). "Checks" is read as returning a
+      bool, as the doctest outputs True/False show; the prompt has no return
+      annotation.
+  - id: RA-EX-1-P
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'text == ""', cond: 'ret_true'}
+    note: >-
+      The doctest states what the call returns, and calls are independent, so
+      every call with the empty string must return True; the scenario
+      RA-EX-1-S additionally records that this call is possible.
+  - id: RA-EX-2-P
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'text == "aba"', cond: 'ret_true'}
+    note: Doctest is_palindrome('aba') -> True, as a guarantee for every such call.
+  - id: RA-EX-3-P
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'text == "aaaaa"', cond: 'ret_true'}
+    note: Doctest is_palindrome('aaaaa') -> True, as a guarantee for every such call.
+  - id: RA-EX-4-P
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'text == "zbcd"', cond: 'ret_false'}
+    note: Doctest is_palindrome('zbcd') -> False, as a guarantee for every such call.
+
+scenarios:
+  - {id: RA-EX-1-S, req: R-EX-1, cover: 'text == "" && ret_true'}
+  - {id: RA-EX-2-S, req: R-EX-2, cover: 'text == "aba" && ret_true'}
+  - {id: RA-EX-3-S, req: R-EX-3, cover: 'text == "aaaaa" && ret_true'}
+  - {id: RA-EX-4-S, req: R-EX-4, cover: 'text == "zbcd" && ret_false'}
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: it is about the source code delivered (complete the
+      given stub, keep its signature and docstring), not about the values of
+      any call, so it is not observable on the trace. Its observable part,
+      that the completed function works, is covered by the properties.
+    covered_by: [RA-PAL-1, RA-PAL-2, RA-RET-1]
+  - req: R-IF-2
+    reason: >-
+      Definition of the function's name and single parameter. It is realized
+      by the adapter's interface (function is_palindrome, one argument text
+      driving the input signal text) and is not a property of the trace.
+  - req: R-IF-3
+    reason: >-
+      Environment obligation that the argument is a str. It holds by
+      construction of the interface: the input signal text is a string of at
+      most 16 Latin-1 characters, and arguments of any other type cannot be
+      represented on the trace, so no assumption is needed and behaviour for
+      them stays unspecified as the requirement says.
+  - req: R-DEF-1
+    reason: >-
+      Definition of "palindrome"; it is captured by the def pal (strict
+      reading: text equals its reversal) and used by the properties that
+      formalize R-PAL-1 and R-PAL-2.
+    covered_by: [RA-PAL-1, RA-PAL-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; it is the frame item F-ZERO
+      (outcome != 0 -> !result), which is added to every formalization set
+      and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-1, phrase: Complete this function, reading: 1}
+  - {req: R-DEF-1, phrase: palindrome, reading: 1}
+  - {req: R-PAL-1, phrase: palindrome, reading: 1}
+  - {req: R-PAL-2, phrase: palindrome, reading: 1}
+  - {req: R-RET-1, phrase: Checks, reading: 1}

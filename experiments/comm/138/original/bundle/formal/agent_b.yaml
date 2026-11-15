@@ -1,0 +1,158 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md),
+# so the reference model is combinational: it is computed from the argument n
+# of the current call alone, and every output is checked against it. No ghost
+# state is needed: any ghost driven across calls would only record the order
+# the checker happened to choose, which no requirement constrains.
+defs:
+  # R-DEF-1 (reading 1): the least positive even number is 2.
+  # R-DEF-2 (reading 1): four terms that may repeat, so the least sum is 2+2+2+2.
+  least_sum4: "2 + 2 + 2 + 2"
+  # n = 2a + 2b + 2c + 2d with a, b, c, d >= 1  <=>  n is even and n >= 8
+  # (=> : a sum of even numbers is even and each term is at least 2;
+  #  <= : an even n >= 8 is 2 + 2 + 2 + (n - 6), and n - 6 is even and >= 2).
+  sum4: "n % 2 == 0 && n >= least_sum4"
+  # the call returned the bool True / the bool False
+  ret_true: "outcome == 0 && result"
+  ret_false: "outcome == 0 && !result"
+
+properties:
+  - id: RB-OUT-1
+    req: R-OUT-1
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Every call returns a bool: it neither raises nor fails to finish
+      (outcome 1) nor returns another type (outcome 2). "Evaluate whether"
+      read literally as returning True or False (reading 1); a return value
+      such as 1 or 0 is outcome 2 and is rejected. "The given number n" taken
+      as every non-negative integer (reading 1); the trace only carries
+      n in 0..65,535, so readings 2 and 3 (negative or non-integer n) would
+      add obligations on calls this set cannot see, and give the same item
+      on the trace.
+
+  - id: RB-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args: {trigger: "sum4", cond: "ret_true"}
+    note: >-
+      If n is the sum of exactly 4 positive even numbers, the call returns
+      True. The model sum4 (n even and n >= 2+2+2+2) is the closed form of
+      the definition under R-DEF-1 reading 1 (0 is not positive) and R-DEF-2
+      reading 1 (terms may repeat); see the derivation at the defs.
+
+  - id: RB-SUM-2
+    req: R-SUM-2
+    pattern: implies
+    args: {trigger: "!sum4", cond: "ret_false"}
+    note: >-
+      If n cannot be written as the sum of exactly 4 positive even numbers
+      (n odd, or n < 8), the call returns False. Same model and readings as
+      RB-SUM-1.
+
+  # The docstring examples are doctest-style assertions about a function that
+  # keeps no state, so they constrain every call with that argument, not just
+  # one possible run. They are stated on their own, independent of the model,
+  # so that a reading of R-DEF-1/R-DEF-2 that contradicts them shows up as a
+  # conflict rather than being absorbed by the model.
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 4", cond: "ret_false"}
+    note: >-
+      is_equal_to_sum_even(4) == False, read as: every call with n = 4
+      returns the bool False ("== False" reading 1). Literal Python equality
+      would also accept 0 (reading 2), but the trace cannot tell 0 from any
+      other non-bool value (all are outcome 2), and R-OUT-1 already requires
+      a bool.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 6", cond: "ret_false"}
+    note: >-
+      is_equal_to_sum_even(6) == False: every call with n = 6 returns the bool
+      False ("== False" reading 1, as in RB-EX-1).
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "n == 8", cond: "ret_true"}
+    note: >-
+      is_equal_to_sum_even(8) == True: every call with n = 8 returns the bool
+      True ("== True" reading 1, as in RB-EX-1).
+
+scenarios:
+  - id: RB-EX-1-COV
+    req: R-EX-1
+    cover: "n == 4 && ret_false"
+    note: The example call is_equal_to_sum_even(4) returning False is possible.
+
+  - id: RB-EX-2-COV
+    req: R-EX-2
+    cover: "n == 6 && ret_false"
+    note: The example call is_equal_to_sum_even(6) returning False is possible.
+
+  - id: RB-EX-3-COV
+    req: R-EX-3
+    cover: "n == 8 && ret_true"
+    note: The example call is_equal_to_sum_even(8) returning True is possible.
+
+  - id: RB-SUM-1-COV
+    req: R-SUM-1
+    cover: "sum4 && ret_true"
+    note: Some call is a sum of four positive even numbers and returns True.
+
+  - id: RB-SUM-2-COV
+    req: R-SUM-2
+    cover: "!sum4 && ret_false"
+    note: Some call is not such a sum and returns False.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: "complete this function" is a property of the delivered
+      source (a working body, not a stub), not of the call trace. Its
+      observable consequence is realized by the items listed: a stub that
+      returns None or raises is outcome 2 or 1 and violates RB-OUT-1, and a
+      body that answers wrongly violates RB-SUM-1 or RB-SUM-2.
+    covered_by: [RB-OUT-1, RB-SUM-1, RB-SUM-2]
+  - req: R-API-2
+    reason: >-
+      Non-functional: the function name and its single parameter n are the
+      binding that design.yaml (function section) uses to produce the trace;
+      a call with another name or signature cannot be represented as a cycle,
+      so there is nothing to state over the trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition (positive even number = 2k, k >= 1). Realized by the model
+      defs least_sum4 and sum4, which the listed items check every output
+      against. Reading 1 taken: 0 is not positive.
+    covered_by: [RB-SUM-1, RB-SUM-2]
+  - req: R-DEF-2
+    reason: >-
+      Definition (sum of exactly four positive even numbers, repeats allowed).
+      Realized by the model def sum4 (n even and n >= 2+2+2+2), which the
+      listed items check every output against. Reading 1 taken: terms need
+      not be distinct.
+    covered_by: [RB-SUM-1, RB-SUM-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md): it holds by construction of the
+      encoding and is added to every formalization set as frame item F-ZERO
+      (outcome != 0 -> !result), so it is not restated here.
+
+decisions:
+  - {req: R-OUT-1, phrase: "Evaluate whether", reading: 1}
+  - {req: R-OUT-1, phrase: "the given number n", reading: 1}
+  - {req: R-DEF-1, phrase: "positive", reading: 1}
+  - {req: R-DEF-2, phrase: "exactly 4 positive even numbers", reading: 1}
+  - {req: R-EX-1, phrase: "is_equal_to_sum_even(4) == False", reading: 1}
+  - {req: R-EX-1, phrase: "== False", reading: 1}
+  - {req: R-EX-2, phrase: "is_equal_to_sum_even(6) == False", reading: 1}
+  - {req: R-EX-2, phrase: "== False", reading: 1}
+  - {req: R-EX-3, phrase: "is_equal_to_sum_even(8) == True", reading: 1}
+  - {req: R-EX-3, phrase: "== True", reading: 1}

@@ -1,0 +1,149 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+assumptions:
+  - id: RV-IN-1
+    req: R-IN-1
+    expr: 'a <= b'
+    note: >-
+      Variant reading for "positive" (reading 2): used loosely for non-negative,
+      a >= 0 and b >= 0. The 7-bit unsigned encoding of a and b already gives
+      a >= 0 and b >= 0, so this part adds no constraint, and calls with a == 0
+      or b == 0 lie inside the precondition and must meet every other requirement
+      (the literal word "positive" would exclude 0). Variant reading for "a and b"
+      (reading 2): a <= b is implicitly assumed, so a call with a > b is outside
+      the precondition and its behaviour is unconstrained; the prompt states no
+      order between a and b.
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    expr: 'outcome != 1'
+    note: >-
+      Within the precondition the call finishes without raising an exception.
+      Variant reading for "return" (reading 2): any collection of the values is
+      acceptable (a list, tuple, set, generator, ...), not only a Python list.
+      The adapter reports a non-list return as outcome 2 and cannot tell an
+      acceptable collection from a value of another kind there, so outcome 2 is
+      permitted and only outcome 1 (exception or no answer) is ruled out. The
+      literal word "return" with the requirement's "a list" would demand
+      outcome == 0.
+
+  - id: RV-RET-2
+    req: R-RET-2
+    expr: 'all(i < len(result): result[i] % 2 == 0)'
+    note: >-
+      Variant reading for "even digits" (reading 2): "digits" is used loosely for
+      numbers, so every element is an even integer of any size (here 0 to 127,
+      the range of the encoding), as the function name generate_integers
+      suggests. This contradicts the docstring's literal "even digits" (one of
+      0, 2, 4, 6, 8); it goes with the variant reading of the name in R-IF-2
+      (reading 2). Holds trivially when the result is empty, which includes every
+      call whose outcome is not 0 (frame rule F-EMPTY).
+
+  - id: RV-RET-3
+    req: R-RET-3
+    expr: 'all(i < len(result): a < result[i] && result[i] < b)'
+    note: >-
+      The prompt's sentence ends at "between" with no object; like
+      requirements.yaml, a and b are taken to be its object. Variant reading for
+      "between" (reading 2): exclusive, so each element is strictly greater than
+      a and strictly less than b. Variant reading for "a and b" (reading 2):
+      ordered, the range runs from a up to b, so nothing lies between them when
+      a > b and the list must be empty (the formula is then unsatisfiable for any
+      element); such calls are however excluded by assumption RV-IN-1 (R-IN-1,
+      reading 2 of "a and b"). Variant reading for "even digits" (reading 2):
+      even integers of any size, each element itself lies between a and b.
+
+  - id: RV-RET-4
+    req: R-RET-4
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'all(k < 128: (k % 2 == 0 && a < k && k < b) -> k in result)'
+    note: >-
+      Every even integer strictly between a and b appears in the returned list.
+      Variant reading for "between" (reading 2): exclusive, a and b themselves
+      are never required. Variant reading for "a and b" (reading 2): ordered,
+      the values from a up to b; nothing is required when a > b (no k satisfies
+      a < k < b then). Variant reading for "even digits" (reading 2): every even
+      integer of any size between a and b must appear, as the function name
+      generate_integers suggests, in contradiction with the docstring's "digits"
+      (R-IF-2). k ranges over 0 to 127, the whole argument range. The obligation
+      applies only when the call returned a list (outcome 0): under the variant
+      reading of "return" in R-RET-1 (reading 2) another collection is
+      acceptable, the adapter reports it as outcome 2 with an empty result, and
+      its contents cannot be observed in the trace.
+
+  - id: RV-RET-6
+    req: R-RET-6
+    expr: 'all(i < len(result) - 1: result[i] <= result[i + 1])'
+    note: >-
+      Variant reading for "return the even digits" (reading 2): ascending order
+      is implied, as is conventional for a list of numbers in a range; the
+      requirement as decomposed (kind dont_care) leaves the order free, and the
+      prompt itself states no order. The order is non-decreasing rather than
+      strictly increasing because, under the variant reading of "the even
+      digits" in R-RET-5 (reading 2), duplicates are allowed.
+
+scenarios:
+  - id: RV-IN-1-ZERO
+    req: R-IN-1
+    cover: 'a == 0 && b >= 3 && outcome != 1'
+    note: >-
+      Variant reading for "positive" (reading 2): non-negative, so a call with
+      a == 0 (here with 2 strictly between a and b) lies inside the precondition
+      and is answered like any other. Under the literal reading (a >= 1) such a
+      call would be outside the precondition. The cover asks only that the call
+      finishes (outcome != 1), not that it returns a list, because of the
+      variant reading of "return" in R-RET-1 (reading 2).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is the Python body of the stub. It is not
+      a property of a trace; the adapter (design.yaml, function section) runs
+      the completed function, and every behavioural requirement is checked by
+      the other items.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name generate_integers and the parameters a then b are
+      fixed by the adapter (design.yaml, function section), which calls
+      generate_integers(a, b); a trace cannot observe the signature. Variant
+      reading for "generate_integers" (reading 2): the name is meant, the
+      function generates integers of any size (even integers between a and b),
+      which contradicts the docstring's "even digits"; this reading is carried
+      by RV-RET-2, RV-RET-3 and RV-RET-4, which take "even digits" as even
+      integers of any size.
+  - req: R-RET-5
+    reason: >-
+      Variant reading for "the even digits" (reading 2): one entry per
+      occurrence, so duplicates are allowed (or required); the requirement as
+      decomposed, "no value appears more than once", therefore does not hold.
+      Under reading 2 of "even digits" each even integer occurs once in the
+      range, so the reading only allows repeated entries and does not require
+      a particular count; this places no constraint on the result. No item
+      forbids repeated values: RV-RET-4 uses membership, and RV-RET-6 is
+      non-decreasing rather than strictly increasing.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter: F-EMPTY in design.yaml (outcome != 0 ->
+      len(result) == 0) holds by construction and is part of every
+      formalization set.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IF-2, phrase: generate_integers, reading: 2}
+  - {req: R-IN-1, phrase: positive, reading: 2}
+  - {req: R-IN-1, phrase: a and b, reading: 2}
+  - {req: R-RET-1, phrase: return, reading: 2}
+  - {req: R-RET-2, phrase: even digits, reading: 2}
+  - {req: R-RET-3, phrase: between, reading: 2}
+  - {req: R-RET-3, phrase: a and b, reading: 2}
+  - {req: R-RET-3, phrase: even digits, reading: 2}
+  - {req: R-RET-4, phrase: between, reading: 2}
+  - {req: R-RET-4, phrase: a and b, reading: 2}
+  - {req: R-RET-4, phrase: even digits, reading: 2}
+  - {req: R-RET-5, phrase: the even digits, reading: 2}
+  - {req: R-RET-6, phrase: return the even digits, reading: 2}

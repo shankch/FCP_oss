@@ -1,0 +1,234 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-DEF-1 (prescribed reading 2): a palindrome, and the empty list is not balanced
+  balanced: "len(q) > 0 && all(i < len(q): q[i] == q[len(q) - 1 - i])"
+  # R-DEF-2: sum of the elements at most w (equality is within the limit)
+  total: "sum(i < len(q): q[i])"
+  within: "total <= w"
+  # the call returned True / returned False
+  ret_true: "outcome == 0 && flies"
+  ret_false: "outcome == 0 && !flies"
+
+properties:
+  # ---- the rule (R-RET-*), under the prescribed readings ----
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "balanced && within", cond: "ret_false"}
+    note: >-
+      Prescribed reading of R-RET-1 "returns True if the object q will fly": as the
+      examples show (contradiction), a balanced q with sum at most w makes the call
+      return False, the opposite of the literal "returns True". Prescribed reading of
+      R-DEF-1 "palindromic list": the empty list is not balanced, so it is excluded from
+      the trigger. Prescribed reading of R-DEF-3 "will fly if": being balanced with sum
+      at most w is only sufficient to fly; the trigger is exactly that stated condition.
+      Under these readings this item contradicts RV-EX-3 and RV-EX-4 (which make
+      [3, 2, 3], 9 and [3], 5 return True) and agrees with RV-WHY-3 and RV-WHY-4.
+
+  - id: RV-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "!balanced && within", cond: "ret_true"}
+    note: >-
+      Prescribed reading of R-RET-2 "False otherwise": as the example shows
+      (contradiction), an unbalanced q with sum at most w makes the call return True,
+      the opposite of the literal "False", and limited to sums at most w although the
+      requirement text says "whatever w is". Prescribed reading of R-DEF-1 "palindromic
+      list": the empty list is not balanced and its sum 0 is always at most w, so under
+      this item the empty list returns True. Prescribed reading of R-DEF-3 "will fly
+      if" (sufficient only): "otherwise" is not derived from a "does not fly"
+      condition, and an unbalanced q with sum above w is left open (RV-DEF-3). Under
+      these readings this item contradicts RV-EX-1 ([1, 2], 5 returns False) and
+      agrees with RV-WHY-1.
+
+  - id: RV-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: "balanced && !within", cond: "ret_true"}
+    note: >-
+      Prescribed reading of R-RET-3 "False otherwise": as the example shows
+      (contradiction), a balanced q whose sum exceeds w makes the call return True,
+      the opposite of the literal "False", and limited to balanced q although the
+      requirement text says "whether or not q is a palindrome". Prescribed reading of
+      R-DEF-1 "palindromic list": the empty list is not balanced (its sum 0 never
+      exceeds w anyway, so it never triggers this item). Prescribed reading of R-DEF-3
+      "will fly if" (sufficient only): "otherwise" is not derived from a "does not
+      fly" condition, and an unbalanced q with sum above w is left open (RV-DEF-3).
+      Under these readings this item contradicts RV-EX-2 ([3, 2, 3], 1 returns False)
+      and agrees with RV-WHY-2.
+
+  # ---- example 1: will_it_fly([1, 2], 5) ----
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "q == [1, 2] && w == 5", cond: "ret_false"}
+    note: >-
+      Prescribed reading of R-EX-1 "➞ True": the expected value is an error and the
+      call returns False. The reading cites the rule and the comment as support, but
+      under their prescribed readings (R-RET-2 reading 2, R-WHY-1 reading 2) both make
+      this call return True. So this item contradicts RV-RET-2 and RV-WHY-1. It is
+      formalized as given, without repair.
+
+  - id: RV-WHY-1
+    req: R-WHY-1
+    pattern: implies
+    args: {trigger: "q == [1, 2] && w == 5", cond: "ret_true"}
+    note: >-
+      Prescribed reading of R-WHY-1 "but it's unbalanced": the comment is consistent
+      with the stated result True, i.e. the returned value is True when q does not fly
+      (inverted output). The comment's facts hold for these inputs by definition
+      (1+2 = 3 < 5; [1, 2] is not a palindrome), so they are not separate properties.
+      This item states only that this call, which the comment says does not fly,
+      returns True. Under the prescribed R-DEF-3 reading (sufficient only), not flying
+      cannot be derived from the definition, so it is taken from the comment's own
+      claim. The item covers only the commented call. Contradicts RV-EX-1 and agrees
+      with RV-RET-2.
+
+  # ---- example 2: will_it_fly([3, 2, 3], 1) ----
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "q == [3, 2, 3] && w == 1", cond: "ret_false"}
+    note: >-
+      Prescribed reading of R-EX-2 "➞ True": the expected value is an error and the
+      call returns False. The reading cites the rule and the comment as support, but
+      under their prescribed readings (R-RET-3 reading 2, R-WHY-2 reading 2) both make
+      this call return True. So this item contradicts RV-RET-3 and RV-WHY-2. It is
+      formalized as given, without repair.
+
+  - id: RV-WHY-2
+    req: R-WHY-2
+    pattern: implies
+    args: {trigger: "q == [3, 2, 3] && w == 1", cond: "ret_true"}
+    note: >-
+      Prescribed reading of R-WHY-2 "but 3+2+3 is more than the maximum possible
+      weight": the comment is consistent with the stated result True, i.e. the
+      returned value is True when q does not fly (inverted output). The comment's
+      facts hold for these inputs by definition ([3, 2, 3] is a palindrome;
+      3+2+3 = 8 > 1), so they are not separate properties. This item states only that
+      this call, which the comment says does not fly, returns True. Under the
+      prescribed R-DEF-3 reading (sufficient only), not flying cannot be derived from
+      the definition, so it is taken from the comment's own claim. The item covers
+      only the commented call. Contradicts RV-EX-2 and agrees with RV-RET-3.
+
+  # ---- example 3: will_it_fly([3, 2, 3], 9) ----
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "q == [3, 2, 3] && w == 9", cond: "ret_true"}
+    note: >-
+      Prescribed reading of R-EX-3 "➞ False": the expected value is an error and the
+      call returns True. The reading cites the rule and the comment as support, but
+      under their prescribed readings (R-RET-1 reading 2, R-WHY-3 reading 2) both make
+      this call return False. So this item contradicts RV-RET-1 and RV-WHY-3. It is
+      formalized as given, without repair.
+
+  - id: RV-WHY-3
+    req: R-WHY-3
+    pattern: implies
+    args: {trigger: "q == [3, 2, 3] && w == 9", cond: "ret_false"}
+    note: >-
+      Prescribed reading of R-WHY-3 "and it's balanced": the comment is consistent with
+      the stated result False, i.e. the returned value is False when q flies (inverted
+      output). The comment's facts hold for these inputs by definition
+      (3+2+3 = 8 < 9; [3, 2, 3] is a palindrome), so they are not separate properties.
+      Under the prescribed R-DEF-3 reading (sufficient only), these facts are enough
+      for q to fly, and this item states that the call returns False. The item covers
+      only the commented call. Contradicts RV-EX-3 and agrees with RV-RET-1.
+
+  # ---- example 4: will_it_fly([3], 5) ----
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "q == [3] && w == 5", cond: "ret_true"}
+    note: >-
+      Prescribed reading of R-EX-4 "➞ False": the expected value is an error and the
+      call returns True. The reading cites the rule and the comment as support, but
+      under their prescribed readings (R-RET-1 reading 2, R-WHY-4 reading 2) both make
+      this call return False. So this item contradicts RV-RET-1 and RV-WHY-4. It is
+      formalized as given, without repair.
+
+  - id: RV-WHY-4
+    req: R-WHY-4
+    pattern: implies
+    args: {trigger: "q == [3] && w == 5", cond: "ret_false"}
+    note: >-
+      Prescribed reading of R-WHY-4 "and it's balanced": the comment is consistent with
+      the stated result False, i.e. the returned value is False when q flies (inverted
+      output). The comment's facts hold for these inputs by definition (3 < 5; the
+      one-element list [3] is a palindrome), so they are not separate properties.
+      Under the prescribed R-DEF-3 reading (sufficient only), these facts are enough
+      for q to fly, and this item states that the call returns False. The item covers
+      only the commented call. Contradicts RV-EX-4 and agrees with RV-RET-1.
+
+dont_cares:
+  - id: RV-DEF-3
+    req: R-DEF-3
+    signal: flies
+    when: "!balanced && !within"
+    note: >-
+      Prescribed reading of R-DEF-3 "will fly if": sufficient condition only. Being
+      balanced with sum at most w is enough to fly, but whether any other q flies, and
+      so what the call returns for it, is not stated. Under the prescribed readings,
+      R-RET-1/2/3 give a result whenever q is balanced or within the limit. The only
+      case none of them covers is an unbalanced q whose sum exceeds w, so the returned
+      value is left free there. No item constrains outcome in that case either. The
+      positive part of R-DEF-3 (balanced with sum at most w flies) is used by RV-RET-1,
+      RV-WHY-3 and RV-WHY-4. Prescribed reading of R-DEF-1 "palindromic list": the empty
+      list is not balanced, but its sum 0 never exceeds w, so it never falls in this
+      case.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the function name and parameter order (will_it_fly(q, w)) are
+      fixed by the function section of design.yaml. The trace has no signal on which
+      they could be stated.
+  - req: R-IN-1
+    reason: >-
+      Environment obligation already met by the interface encoding: q is a sequence
+      signal of at most 8 integers from 0 to 255, and frame.md excludes every other
+      call from the trace, so every element can be summed. An assumption here would
+      be a tautology.
+  - req: R-IN-2
+    reason: >-
+      Environment obligation already met by the interface encoding: w is an 11-bit
+      integer (0 to 2,047), and frame.md excludes non-integer, negative or larger
+      values from the trace. An assumption here would be a tautology.
+  - req: R-DEF-1
+    reason: >-
+      Definition, captured by def balanced (len(q) > 0 and q[i] == q[len(q)-1-i] for
+      every i below len(q)) and used by the covering items. Prescribed reading of
+      "palindromic list": the empty list is not a balanced object, so it is not
+      balanced (and does not fly); hence the conjunct len(q) > 0. The definition itself
+      says nothing about the returned value. Under RV-RET-2 the empty list (unbalanced,
+      sum 0 <= w) returns True.
+    covered_by: [RV-RET-1, RV-RET-2, RV-RET-3, RV-DEF-3]
+  - req: R-DEF-2
+    reason: >-
+      Definition, captured by def within (sum of the elements of q <= w; equality is
+      within the limit) and used by the covering items.
+    covered_by: [RV-RET-1, RV-RET-2, RV-RET-3, RV-DEF-3]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (outcome != 0 -> !flies). It is added to every
+      formalization set by construction, and frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-DEF-1, phrase: "palindromic list", reading: 2}
+  - {req: R-DEF-3, phrase: "will fly if", reading: 2}
+  - {req: R-RET-1, phrase: "returns True if the object q will fly", reading: 2}
+  - {req: R-RET-2, phrase: "False otherwise", reading: 2}
+  - {req: R-RET-3, phrase: "False otherwise", reading: 2}
+  - {req: R-EX-1, phrase: "➞ True", reading: 2}
+  - {req: R-WHY-1, phrase: "but it's unbalanced", reading: 2}
+  - {req: R-EX-2, phrase: "➞ True", reading: 2}
+  - {req: R-WHY-2, phrase: "but 3+2+3 is more than the maximum possible weight", reading: 2}
+  - {req: R-EX-3, phrase: "➞ False", reading: 2}
+  - {req: R-WHY-3, phrase: "and it's balanced", reading: 2}
+  - {req: R-EX-4, phrase: "➞ False", reading: 2}
+  - {req: R-WHY-4, phrase: "and it's balanced", reading: 2}

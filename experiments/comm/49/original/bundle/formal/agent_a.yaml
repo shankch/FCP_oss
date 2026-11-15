@@ -1,0 +1,141 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # the call is inside the contract of R-RES-1 (p >= 1; p = 0 is R-RES-2)
+  defined: "p >= 1"
+  # the previous call was modp(n - 1, p): one doubling step behind this call
+  step_pair: "n >= 1 && prev(n) == n - 1 && prev(p) == p"
+  # 2 * r reduced modulo p, for 0 <= r < p (one subtraction suffices since 2r < 2p)
+  dbl_prev: "2 * prev(result) >= p ? 2 * prev(result) - p : 2 * prev(result)"
+
+properties:
+  # R-RES-1: 2^n modulo p for p >= 1. FCP-PL has no power operator and `%` needs a
+  # constant divisor, so the residue is pinned down inductively over calls:
+  # range + base case n = 0 + doubling step from (n-1, p) to (n, p). Since the
+  # function is stateless and the checker orders calls freely, these three
+  # together determine result = 2^n mod p for every n by induction on n.
+  - id: RA-RES-1-OK
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: "defined", cond: "outcome == 0"}
+    note: >-
+      "Return" read as returning a Python int (reading 1): for p >= 1 the call
+      returns normally with an integer that fits result (outcome 0), not an
+      exception/timeout (1) or another type such as a float (2). Any residue
+      in 0 .. p-1 fits the 16-bit result since p <= 65535.
+  - id: RA-RES-1-RANGE
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: "defined", cond: "result < p"}
+    note: >-
+      "modulo p" read as always reducing into 0 .. p-1 (reading 1); in
+      particular every call with p = 1 returns 0.
+  - id: RA-RES-1-BASE
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: "defined && n == 0", cond: "result == (p == 1 ? 0 : 1)"}
+    note: >-
+      2^0 = 1 reduced modulo p (reading 1 of "modulo p"): 1 for p >= 2 and 0
+      for p = 1. The generalization modp(0, p) = 1 for every p (reading 2) is
+      not taken; it contradicts this item at p = 1.
+  - id: RA-RES-1-STEP
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: "defined && step_pair", cond: "result == dbl_prev"}
+    note: >-
+      "2^n" read as 2 raised to the power n (reading 1): 2^n mod p is twice
+      2^(n-1) mod p, reduced modulo p. When the previous call was
+      modp(n - 1, p), this call's result is twice the previous result,
+      minus p if that reaches p. With RA-RES-1-BASE and RA-RES-1-RANGE this
+      determines the result for every n (induction on n with p fixed).
+      The XOR reading (2 ^ n in Python) is not taken; it contradicts the
+      examples R-EX-1..R-EX-4.
+
+  # Doctest examples: each is an assertion that the call returns the shown value.
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 3 && p == 5", cond: "outcome == 0 && result == 3"}
+    note: The doctest asserts the value returned by this call, so it is stated as an obligation as well as a scenario (RA-EX-1-S).
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 1101 && p == 101", cond: "outcome == 0 && result == 2"}
+    note: The doctest asserts the value returned by this call, so it is stated as an obligation as well as a scenario (RA-EX-2-S).
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "n == 0 && p == 101", cond: "outcome == 0 && result == 1"}
+    note: >-
+      Read as a single data point (reading 1): only modp(0, 101) = 1 is
+      required. It is not generalized to modp(0, p) = 1 for every p.
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "n == 3 && p == 11", cond: "outcome == 0 && result == 8"}
+    note: The doctest asserts the value returned by this call, so it is stated as an obligation as well as a scenario (RA-EX-4-S).
+  - id: RA-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: "n == 100 && p == 101", cond: "outcome == 0 && result == 1"}
+    note: The doctest asserts the value returned by this call, so it is stated as an obligation as well as a scenario (RA-EX-5-S).
+
+scenarios:
+  - {id: RA-EX-1-S, req: R-EX-1, cover: "n == 3 && p == 5 && outcome == 0 && result == 3"}
+  - {id: RA-EX-2-S, req: R-EX-2, cover: "n == 1101 && p == 101 && outcome == 0 && result == 2"}
+  - {id: RA-EX-3-S, req: R-EX-3, cover: "n == 0 && p == 101 && outcome == 0 && result == 1"}
+  - {id: RA-EX-4-S, req: R-EX-4, cover: "n == 3 && p == 11 && outcome == 0 && result == 8"}
+  - {id: RA-EX-5-S, req: R-EX-5, cover: "n == 100 && p == 101 && outcome == 0 && result == 1"}
+
+dont_cares:
+  - id: RA-RES-2-OUTCOME
+    req: R-RES-2
+    signal: outcome
+    when: "p == 0"
+    note: >-
+      p = 0 is outside the contract (reading 1 of "modulo p"): returning a
+      value, raising, or not finishing are all acceptable.
+  - id: RA-RES-2-RESULT
+    req: R-RES-2
+    signal: result
+    when: "p == 0"
+    note: >-
+      Any returned value is acceptable for p = 0 (reading 1). The frame rule
+      F-ZERO still forces result = 0 when outcome != 0.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Describes the deliverable (a function body), not a behaviour that can
+      be seen in the trace of calls. The behaviour the body must have is
+      formalized under R-RES-1, R-RES-2 and R-EX-1..R-EX-5.
+  - req: R-SIG-1
+    reason: >-
+      Defines the name and parameters (n, then p). The adapter realizes this
+      by binding the arguments to the input signals n and p (design.yaml
+      function section). It is not a property of the trace.
+  - req: R-NUM-1
+    reason: >-
+      Says how the residue should be computed (reduce modulo p at each step,
+      no floating point), which the trace of calls cannot see. Read as
+      efficiency (reading 1), its visible effect is that every call with
+      p >= 1, including large n up to 65,535, finishes and returns an int:
+      outcome 0, not 1 (no answer). RA-RES-1-OK states this. Any loss of
+      exactness is caught by RA-RES-1-RANGE, RA-RES-1-BASE and
+      RA-RES-1-STEP.
+    covered_by: [RA-RES-1-OK, RA-RES-1-RANGE, RA-RES-1-BASE, RA-RES-1-STEP]
+  - req: R-FR-1
+    reason: >-
+      Adapter frame rule. It is added to every formalization set as frame
+      item F-ZERO (design.yaml) and need not be restated (frame.md).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-RES-1, phrase: "2^n", reading: 1}
+  - {req: R-RES-1, phrase: "modulo p", reading: 1}
+  - {req: R-RES-1, phrase: "Return", reading: 1}
+  - {req: R-RES-2, phrase: "modulo p", reading: 1}
+  - {req: R-NUM-1, phrase: "be aware of numerics", reading: 1}
+  - {req: R-EX-3, phrase: "modp(0, 101)", reading: 1}

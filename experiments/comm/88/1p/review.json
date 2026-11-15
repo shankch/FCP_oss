@@ -1,0 +1,372 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 144,
+    "checked": 144,
+    "seconds": 7.34
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "sort_array([6, 0])",
+      "args": [
+       [
+        6,
+        0
+       ]
+      ],
+      "values": [
+       [
+        0,
+        6
+       ],
+       [
+        6,
+        0
+       ]
+      ],
+      "shown": [
+       "[0, 6]",
+       "[6, 0]"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 88
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 282,
+    "checked": 282,
+    "seconds": 36.37
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "sort_array([3, 1])",
+      "args": [
+       [
+        3,
+        1
+       ]
+      ],
+      "values": [
+       [
+        1,
+        3
+       ],
+       [
+        3,
+        1
+       ]
+      ],
+      "shown": [
+       "[1, 3]",
+       "[3, 1]"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 166
+   }
+  }
+ },
+ "readings": {
+  "R-ORD-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-ORD-2": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-3": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `all(i < len(array): array[i] >= 0)`",
+    "where": {}
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "an array of non-negative integers",
+   "taken": 1,
+   "variant": 2,
+   "text": "Only non-empty lists are valid arguments: the empty list has no first or last element, so it is outside the assumption and the behaviour on it is unconstrained."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "return a copy of the given array",
+   "taken": 1,
+   "variant": 2,
+   "text": "The empty list is not covered, because the sum of its first and last index values is undefined; the function may raise (for example an IndexError) or return anything on it."
+  },
+  {
+   "req": "R-RET-3",
+   "phrase": "after sorting",
+   "taken": 1,
+   "variant": 2,
+   "text": "Only the cases the condition names constrain the order; where the text is cut off (after \"or sort it\") the order of the returned list is unconstrained."
+  },
+  {
+   "req": "R-RET-5",
+   "phrase": "a copy",
+   "taken": 1,
+   "variant": 2,
+   "text": "Only the contents of the returned list matter; returning the argument object itself is acceptable as long as it holds the required elements."
+  },
+  {
+   "req": "R-KEY-1",
+   "phrase": "first index value, last index value",
+   "taken": 1,
+   "variant": 2,
+   "text": "The index numbers themselves: 0 + (len(array) - 1), so the parity depends only on the length of the array."
+  },
+  {
+   "req": "R-KEY-1",
+   "phrase": "the sum( first index value, last index value)",
+   "taken": 1,
+   "variant": 2,
+   "text": "The first and last elements of the array after sorting, that is its minimum plus its maximum."
+  },
+  {
+   "req": "R-KEY-1",
+   "phrase": "last index value",
+   "taken": 1,
+   "variant": 2,
+   "text": "For a one-element array the single element is counted once, so the sum is that element."
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "ascending order",
+   "taken": 1,
+   "variant": 2,
+   "text": "Strictly increasing order, so duplicate values are removed; this contradicts returning a copy of the given array."
+  },
+  {
+   "req": "R-ORD-2",
+   "phrase": "or sort it",
+   "taken": 2,
+   "variant": 1,
+   "text": "When the sum is even, the returned list is in descending (non-increasing) order, the usual counterpart of the ascending case."
+  }
+ ],
+ "depends": {
+  "R-ORD-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "sort_array([1, 1, 2, 5, 3, 5, 6, 5]) -> [1, 1, 2, 3, 5, 5, 5, 6]"
+   ]
+  },
+  "R-ORD-2": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "sort_array([4, 2, 0, 2, 4, 3, 0, 3]) -> [0, 0, 2, 2, 3, 3, 4, 4]"
+   ]
+  },
+  "R-RET-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "sort_array([]) -> raised another exception or did not finish"
+   ]
+  },
+  "R-RET-2": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_b"
+   ],
+   "witness": [
+    "sort_array([]) -> [1, 2, 3, 4, 5, 6, 7]"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "sort_array([6, 0])"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "[0, 6]",
+      "[6, 0]"
+     ],
+     "ending": false,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "result",
+   "reqs": [],
+   "question": "the request allows [0, 6] or [6, 0]: which is meant?"
+  },
+  {
+   "kind": "open",
+   "reading": "agent_b",
+   "calls": [
+    "sort_array([3, 1])"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_b",
+     "shown": [
+      "[1, 3]",
+      "[3, 1]"
+     ],
+     "ending": false,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "result",
+   "reqs": [],
+   "question": "the request allows [1, 3] or [3, 1]: which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-ORD-1",
+    "R-ORD-2",
+    "R-RET-1",
+    "R-RET-2"
+   ],
+   "calls": [
+    "sort_array([1, 1, 2, 5, 3, 5, 6, 5]) -> [1, 1, 2, 3, 5, 5, 5, 6]"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-ORD-2"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement disagree (no separating call was found within the budget): which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"return a copy of the given array\" can mean: The function returns for every list of non-negative integers, including the empty list, for which it returns an empty list. / The empty list is not covered, because the sum of its first and last index values is undefined; the function may raise (for example an IndexError) or return anything on it.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-3"
+   ],
+   "calls": [],
+   "question": "\"after sorting\" can mean: The returned list is always sorted in one of the two directions, whatever the sum of the first and last index values is. / Only the cases the condition names constrain the order; where the text is cut off (after \"or sort it\") the order of the returned list is unconstrained.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-4"
+   ],
+   "calls": [],
+   "question": "\"a copy of the given array after sorting\" can mean: A copy of the given array is made and the copy is sorted and returned; the given array is left unchanged. / The given array is sorted (in place) and then a copy of it is returned; the given array is modified. This is what \"you will sort the given array\" says, which contradicts leaving it unchanged.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-5"
+   ],
+   "calls": [],
+   "question": "\"a copy\" can mean: The returned list must be a different object from the argument, even when the argument is already in the required order (or is empty or has one element). / Only the contents of the returned list matter; returning the argument object itself is acceptable as long as it holds the required elements.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"ascending order\" can mean: Non-decreasing order, keeping duplicate values (each element appears as often as in the given array). / Strictly increasing order, so duplicate values are removed; this contradicts returning a copy of the given array.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"you will sort the given array\" can mean: A sorted copy is produced and returned; the given array is left unchanged, as \"return a copy of the given array\" says. / The given array itself is sorted in place (and a copy of it returned); this contradicts leaving the given array unchanged.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-2"
+   ],
+   "calls": [],
+   "question": "\"or sort it\" can mean: When the sum is even, the returned list is in descending (non-increasing) order, the usual counterpart of the ascending case. / When the sum is even, the returned list may be in either order: the direction is unspecified and any sorted permutation is acceptable. / When the sum is even, the returned list is in ascending order as well, the same as when the sum is odd. / The sentence is incomplete: neither the condition nor the order of this case is stated, so the order of the returned list is unconstrained when the sum is even.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the comparison of agent_a and agent_b"
+ ]
+}

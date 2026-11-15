@@ -1,0 +1,201 @@
+fcp: "0.1"
+set: variant1
+origin: {kind: agent, role: formalizer, id: variant1}
+
+defs:
+  # "digits" (R-ERR-1, reading 1): the ten characters 0 to 9, i.e. FCP-PL isdigit.
+  # "spaces" and "hyphens": the characters " " (code 32) and "-" (code 45) only.
+  sep_ok: 'all(i < len(number): isdigit(number[i]) || number[i] == " " || number[i] == "-")'
+  nd: 'count(i < len(number): isdigit(number[i]))'
+  # Luhn sum over the digits of number, ignoring every other character: the
+  # digit with k digits after it (k = 0 is the rightmost digit) counts as
+  # itself when k is even and doubled, minus 9 when the double exceeds 9,
+  # when k is odd.
+  luhn_sum: 'sum(i < len(number): isdigit(number[i]) ? (count(j < len(number): j > i && isdigit(number[j])) % 2 == 1 ? 2 * (number[i] - "0") - (number[i] - "0" >= 5 ? 9 : 0) : number[i] - "0") : 0)'
+  luhn_ok: 'luhn_sum % 10 == 0'
+  # A valid card number: none of the three ValueError conditions of rule 1.
+  # No condition on where spaces and hyphens stand (R-IN-2, reading 1).
+  valid: 'sep_ok && nd >= 12 && nd <= 19 && luhn_ok'
+  returned: 'outcome == 0'
+
+properties:
+  - id: V1-ERR-CHARS
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: '!sep_ok', cond: 'outcome == 1'}
+    note: >-
+      First condition of rule 1: number contains a character other than a
+      digit, a space or a hyphen, so the call raises ValueError. "digits" is
+      read as the ten characters 0 to 9 (R-ERR-1, reading 1, as instructed),
+      so a Latin-1 character such as a superscript two, which Python's
+      str.isdigit accepts, is "anything other than digits" and raises. "spaces"
+      is read literally as the space character (code 32) only; a tab or a
+      no-break space raises. Spaces and hyphens are accepted wherever they
+      stand (R-IN-2, reading 1, as instructed): rule 1 rejects only other
+      characters.
+  - id: V1-ERR-COUNT
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: 'nd < 12 || nd > 19', cond: 'outcome == 1'}
+    note: >-
+      Second condition of rule 1: fewer than 12 or more than 19 digits raise
+      ValueError, whatever the other characters are. Digits are counted as the
+      characters 0 to 9 (R-ERR-1, reading 1, as instructed); spaces and
+      hyphens are not counted wherever they stand (R-IN-2, reading 1, as
+      instructed).
+  - id: V1-ERR-LUHN
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: '!luhn_ok', cond: 'outcome == 1'}
+    note: >-
+      Third condition of rule 1: the digits fail the Luhn check, so the call
+      raises ValueError. The prompt does not define the Luhn check; it is read
+      as the standard Luhn (mod 10) algorithm on the digits 0 to 9 of number
+      (R-ERR-1, reading 1, as instructed), ignoring spaces and hyphens wherever
+      they stand (R-IN-2, reading 1, as instructed): from the rightmost digit,
+      every second digit is doubled (minus 9 if the double exceeds 9) and the
+      sum must be a multiple of 10. The condition is stated on its own, so it
+      also applies to a number that breaks another condition of rule 1.
+  - id: V1-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'valid', cond: 'returned'}
+    note: >-
+      A valid card number (only digits, spaces and hyphens; 12 to 19 digits;
+      Luhn check passed, i.e. none of the conditions of rule 1) makes the call
+      return a string (outcome 0) rather than raise. Rule 1 says "if", not
+      "only if"; that a valid number does not raise comes from this sentence
+      ("It returns the card number ..."). Digits are the characters 0 to 9
+      (R-ERR-1, reading 1, as instructed); spaces and hyphens may stand
+      anywhere, including at the start, at the end and next to each other
+      (R-IN-2, reading 1, as instructed). "with most of its digits hidden" is
+      realized by V1-MASK-1 and V1-QUARTER-1, not restated here. Note that for
+      a valid number with 12 to 15 digits this item, V1-LAST4-1 and
+      V1-QUARTER-1 cannot all hold (see V1-QUARTER-1).
+  - id: V1-MASK-1
+    req: R-MASK-1
+    pattern: implies
+    args:
+      trigger: 'returned'
+      cond: 'all(i < len(number): isdigit(number[i]) && count(j < len(number): j > i && isdigit(number[j])) >= 4 -> masked[i] == "*")'
+    note: >-
+      In a returned string, every digit of number that has at least four
+      digits after it (i.e. is not one of the last four digits) is replaced by
+      "*" at the same position. "Replace" is read as in-place, position by
+      position, as R-SEP-1 (same length, separators where they are) confirms.
+      Digits are the characters 0 to 9 (R-ERR-1, reading 1, as instructed);
+      spaces and hyphens anywhere in number are not digits and do not count
+      towards the last four (R-IN-2, reading 1, as instructed).
+  - id: V1-LAST4-1
+    req: R-LAST4-1
+    pattern: implies
+    args:
+      trigger: 'returned'
+      cond: 'all(i < len(number): isdigit(number[i]) && count(j < len(number): j > i && isdigit(number[j])) < 4 -> masked[i] == number[i])'
+    note: >-
+      In a returned string, each of the last four digits of number (a digit
+      with fewer than four digits after it) appears unchanged at the same
+      position. Digits are the characters 0 to 9 (R-ERR-1, reading 1, as
+      instructed); spaces and hyphens anywhere among them are skipped when
+      counting the last four (R-IN-2, reading 1, as instructed). This
+      contradicts V1-QUARTER-1 for numbers with 12 to 15 digits; it is stated
+      as written, not repaired.
+  - id: V1-SEP-POS
+    req: R-SEP-1
+    pattern: implies
+    args:
+      trigger: 'returned'
+      cond: 'all(i < len(number): number[i] == " " || number[i] == "-" -> masked[i] == number[i])'
+    note: >-
+      In a returned string, every space and every hyphen of number is kept at
+      the same position. Spaces and hyphens may stand anywhere in number,
+      including at the ends and next to each other, and each one is kept where
+      it is (R-IN-2, reading 1, as instructed). "space" is the character code
+      32 only.
+  - id: V1-SEP-LEN
+    req: R-SEP-1
+    pattern: implies
+    args: {trigger: 'returned', cond: 'len(masked) == len(number)'}
+    note: >-
+      "so the result has the same length as number": a returned string has
+      exactly as many characters as number. Stated separately from V1-SEP-POS
+      because the prompt states it as a property of the result, not only as a
+      consequence.
+  - id: V1-QUARTER-1
+    req: R-QUARTER-1
+    expr: '4 * count(i < len(masked): isdigit(masked[i])) <= nd'
+    note: >-
+      "never show more than a quarter of the digits": in every call, the
+      number of digit characters in the result is at most a quarter of the
+      number of digits of number (4 * shown <= nd, exact arithmetic, so 3 of
+      12 or of 15, 4 of 16). "show a digit" is read as "the result contains a
+      digit character"; digits are the characters 0 to 9 in both strings
+      (R-ERR-1, reading 1, as instructed). "never" is read as every call;
+      when the call does not return, the result is empty by the frame rule
+      and the property holds. SPECIFICATION CONFLICT, kept as written: a
+      valid card number with 12 to 15 digits must be returned (V1-RET-1) with
+      its last four digits visible (V1-LAST4-1), which shows 4 digits, more
+      than a quarter of 12 to 15 (at most 3). Only valid numbers with 16 to 19
+      digits can meet every rule.
+  - id: V1-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'number == "4111 1111 1111 1111"'
+      cond: 'returned && masked == "**** **** **** 1111"'
+    note: >-
+      The example says the call "returns" this string, a definite statement
+      about this input, so it is stated as a property (the function is
+      deterministic) in addition to the scenario V1-EX-COVER. Digits are the
+      characters 0 to 9 (R-ERR-1, reading 1, as instructed); the spaces are
+      kept where they are.
+
+scenarios:
+  - id: V1-EX-COVER
+    req: R-EX-1
+    cover: 'number == "4111 1111 1111 1111" && returned && masked == "**** **** **** 1111"'
+    note: >-
+      The worked example must be possible: mask_card("4111 1111 1111 1111")
+      returns "**** **** **** 1111" (16 digits, Luhn sum 30).
+  - id: V1-IN2-GROUPS
+    req: R-IN-2
+    cover: 'returned && valid && any(i < len(number): number[i] == " ") && any(i < len(number): number[i] == "-")'
+    note: >-
+      Customers type spaces or hyphens: a valid card number containing both
+      spaces and hyphens must be able to return a masked string.
+  - id: V1-IN2-ANYWHERE
+    req: R-IN-2
+    cover: 'returned && valid && (number[0] == " " || number[0] == "-") && any(i < len(number) - 1: (number[i] == " " || number[i] == "-") && (number[i + 1] == " " || number[i + 1] == "-"))'
+    note: >-
+      "between groups of digits" is read as: spaces and hyphens may appear
+      anywhere, and rule 1 rejects only other characters (R-IN-2, reading 1,
+      as instructed). So a number that starts with a separator and has two
+      separators next to each other is still a card number that must be able
+      to return. Under the other reading (only between two digits, one at a
+      time) this behaviour would be an error instead.
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Interface declaration: the function name, its one string argument and
+      its string result are realized by the function section of design.yaml
+      (number drives the input sequence number, the returned str drives masked
+      with outcome 0). That a valid number yields a returned string is V1-RET-1.
+    covered_by: [V1-RET-1]
+  - req: R-IN-1
+    reason: >-
+      Definition of a card number's digit count (12 to 19, digits read as the
+      characters 0 to 9, R-ERR-1 reading 1). It has no behaviour of its own; it
+      is used in the def valid and enforced by the ValueError rule for other
+      counts.
+    covered_by: [V1-ERR-COUNT, V1-RET-1]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter (F-EMPTY in design.yaml), true by
+      construction of the trace and added to every formalization set; not
+      restated here.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IN-2, phrase: between groups of digits, reading: 1}
+  - {req: R-ERR-1, phrase: digits, reading: 1}

@@ -1,0 +1,268 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# =============================================================================
+# agent_b formalization of RRA-4 (spec v0.9).
+#
+# Policy: every requirement is formalized in its most literal reading.  Where
+# the specification is ambiguous or self-contradictory the contradiction is
+# KEPT in the formal set (it is not repaired) and described in the `note` of
+# the items involved, so that the consistency analysis can report it.
+#
+# Specification model (driven only by the inputs req / rst_n):
+#   head     index of the requester that currently has the highest priority;
+#            the priority order is head, head+1, head+2, head+3 (mod 4).
+#            Reset value 0 gives the order 0,1,2,3 (R-PRI-1).  head moves by
+#            ONE position for every arbitration that grants (R-PRI-2).
+#   decq     the arbitration decision taken in the previous cycle, i.e. the
+#            grant mask that must be visible now (registered output, R-G-3).
+#   noreq_yet  1 until the first request after reset has been sampled.
+# The requester-3 override of R-PRI-3 is deliberately NOT part of the model:
+# it is a separate requirement that contradicts R-PRI-1, R-PRI-2 and R-FAIR-1.
+#
+# No requirement is left unformalized.  There is no requirement of kind
+# dont_care or scenario; the three scenarios below are existence witnesses
+# derived from the text of R-WC-1, R-PRI-1 and R-FAIR-1.
+# =============================================================================
+
+defs:
+  # Winner mask (bit k = requester k, 0 = nobody) of the current request vector
+  # when the priority order starts at requester 0, 1, 2 or 3 respectively.
+  dec0: "req[0] ? 1 : (req[1] ? 2 : (req[2] ? 4 : (req[3] ? 8 : 0)))"
+  dec1: "req[1] ? 2 : (req[2] ? 4 : (req[3] ? 8 : (req[0] ? 1 : 0)))"
+  dec2: "req[2] ? 4 : (req[3] ? 8 : (req[0] ? 1 : (req[1] ? 2 : 0)))"
+  dec3: "req[3] ? 8 : (req[0] ? 1 : (req[1] ? 2 : (req[2] ? 4 : 0)))"
+  # Arbitration decision taken in the current cycle under the current priority.
+  dec: "(head == 0) ? dec0 : ((head == 1) ? dec1 : ((head == 2) ? dec2 : dec3))"
+
+ghosts:
+  - {name: head, range: [0, 3], init: 0, next: "(dec != 0) ? ((head == 0) ? 1 : ((head == 1) ? 2 : ((head == 2) ? 3 : 0))) : head"}
+  - {name: decq, range: [0, 8], init: 0, next: "dec"}
+  - {name: noreq_yet, range: [0, 1], init: 1, next: "(noreq_yet == 1 && req == 0) ? 1 : 0"}
+
+rigids:
+  - {name: i, range: [0, N-1]}
+
+# -----------------------------------------------------------------------------
+assumptions:
+  - id: AB-ENV-1
+    req: R-ENV-1
+    pattern: hold_until
+    args: {trigger: "req[i] && !gnt[i]", hold: "req[i]", release: "gnt[i]"}
+    note: >-
+      A request that is asserted and not yet granted (req[i] && !gnt[i], i.e.
+      "raised its request" and "has not received a grant") must stay asserted in
+      every following cycle up to and including the first cycle in which gnt[i]
+      is visible (inclusive, because R-ENV-2 allows withdrawal only AFTER the
+      grant).  Interpretation: a request line that is still asserted in a cycle
+      without gnt[i] counts as a pending request, also when it stays asserted
+      after an earlier grant; the text does not say whether that is a new request
+      or the old one.  The environment can always comply (keep req[i] high), so
+      the assumption is receptive.  Consequence worth knowing: because req[i] is
+      still asserted in the grant cycle it is sampled again, so R-WC-1 and R-G-2
+      force another grant in the next cycle (for a lone requester to the same
+      requester).  That clashes with the Overview sentence "Grants last one
+      cycle", which has no requirement id and is therefore not formalized.
+
+  - id: AB-ENV-2
+    req: R-ENV-2
+    expr: "fell(req[i]) -> prev(since(req[i], gnt[i] && req[i]))"
+    note: >-
+      Withdrawal-centred reading of "may be withdrawn only after the grant":
+      whenever req[i] falls, a grant to i must have been visible earlier during
+      the continuous assertion that is ending (history operator since, cleared by
+      reset).  This is the literal (weakest) reading: withdrawal at any time after
+      the grant is allowed.  AB-ENV-1 is stricter (it forces the request to stay
+      up whenever gnt[i] is low), so AB-ENV-1 implies this assumption; the two
+      differ only for a request that stays asserted after its grant.  Both
+      require the request to still be asserted in the cycle in which gnt[i] is
+      visible (withdrawal strictly after the grant).
+
+# -----------------------------------------------------------------------------
+properties:
+  - id: AB-OV-1
+    req: R-OV-1
+    pattern: implies
+    args: {trigger: "rose(req[i])", cond: "gnt[i]"}
+    note: >-
+      AMBIGUOUS / CONTRADICTORY, formalized literally.  "The arbiter grants a
+      request in the same cycle in which it is raised" is read as a combinational
+      grant: in the cycle in which req[i] goes from 0 to 1, gnt[i] is asserted in
+      that same cycle.  This contradicts R-G-2 (gnt[i] needs req[i] in the
+      PREVIOUS cycle, but a rising request has none), R-G-3 and R-WC-1 (the grant
+      is registered and appears one cycle after the request) and, when two
+      requests rise together, R-G-1.  The other reading listed in
+      requirements.yaml (informal "single-cycle arbitration latency", i.e. the
+      grant in the next cycle) is not what the sentence says and is exactly what
+      R-G-3 already states, so it is not formalized here; reading "raised" as
+      merely "asserted" (req[i] -> gnt[i]) would make the conflict with R-G-1
+      even stronger.  Not repaired: the conflict is left to the consistency
+      analysis (expected minimal conflicting sets: {AB-OV-1, AB-G-2},
+      {AB-OV-1, AB-G-3} and, for two simultaneous rises, {AB-OV-1, AB-G-1}).
+      The IR evaluates rose() only when a previous cycle exists, so a request that
+      is already asserted in the first cycle after reset is not a trigger.
+
+  - id: AB-G-1
+    req: R-G-1
+    expr: "onehot0(gnt)"
+    note: >-
+      At most one grant line, in every operational cycle.  Reset cycles are
+      covered by AB-RST-1a (gnt == 0 there), so "any cycle" is fully covered.
+
+  - id: AB-G-2
+    req: R-G-2
+    expr: "gnt[i] -> prev(req[i])"
+    note: >-
+      Per requester i: a grant on line i needs req[i] asserted in the previous
+      cycle.  Not evaluated in the first cycle after reset (no previous cycle);
+      that cycle is covered by AB-RST-1b.
+
+  - id: AB-G-3
+    req: R-G-3
+    expr: "gnt == decq"
+    note: >-
+      Registered output.  The grant mask visible in cycle t+1 equals the
+      arbitration decision taken in cycle t on the request lines sampled in
+      cycle t (ghost decq, defs dec0..dec3/dec) under the priority state of
+      cycle t (ghost head).  The priority rules are R-PRI-1 and R-PRI-2 (R-G-3
+      depends on R-PRI-2 in requirements.yaml); reading and timing choices for
+      the rotation are explained in AB-PRI-2.  The decision does NOT contain the
+      requester-3 override of R-PRI-3 (see AB-PRI-3): the two requirements
+      contradict each other and the contradiction is kept visible instead of
+      being merged into one model.  This property determines gnt completely in
+      every operational cycle from the request history.
+
+  - id: AB-WC-1
+    req: R-WC-1
+    pattern: next
+    args: {trigger: "req != 0", cond: "onehot(gnt)"}
+    note: >-
+      Literal: one or more asserted request lines in cycle t give exactly one
+      asserted grant line in cycle t+1.  Boundary with R-RST-1: read without the
+      reset convention of the IR, a request in a reset cycle would demand a grant
+      in the first cycle after reset (R-RST-1: none), and a request in the cycle
+      before a reset cycle would demand a grant in that reset cycle (R-RST-1:
+      none).  Under the IR semantics a reset cycle neither triggers nor receives
+      an obligation, so no conflict is formalized; the spec text is silent on it.
+
+  - id: AB-PRI-1
+    req: R-PRI-1
+    pattern: next
+    args: {trigger: "noreq_yet == 1 && req != 0", cond: "gnt == prev(dec0)"}
+    note: >-
+      The first arbitration after reset (first cycle with a request since reset;
+      noreq_yet is 1 until then) uses the priority order 0,1,2,3, so the
+      lowest-numbered requesting requester is granted in the next cycle.  The
+      model's initial value head = 0 is the same statement.  Contradicted by
+      R-PRI-3 when requester 3 and a lower-numbered requester are the first
+      requests after reset (AB-PRI-3 demands requester 3).
+
+  - id: AB-PRI-2
+    req: R-PRI-2
+    pattern: next
+    args: {trigger: "head == i && req[i]", cond: "gnt[i]"}
+    note: >-
+      AMBIGUOUS, formalized literally.  Reading chosen: "rotates by one
+      position" is taken at its word: after each grant the priority order is
+      shifted by exactly one position, head -> head+1 (mod 4), regardless of
+      which requester was granted (ghost head).  The other listed reading, true
+      round robin (the granted requester becomes the lowest priority, head :=
+      granted+1), differs from this one whenever a requester other than the head
+      is granted; it is not formalized.  Timing choice: a grant is counted when
+      the arbitration decision is taken (a cycle with req != 0 yields exactly one
+      grant, R-WC-1), so the rotated order is already used by the next decision,
+      taken in the cycle in which that grant becomes visible.  The text does not
+      say whether the rotation takes effect at the decision or one cycle later,
+      at the visible grant; the later reading would let one requester win twice in
+      a row from a saturated start and would break the R-FAIR-1 bound of N cycles.
+      This property states the part of the rule that is visible in the winner:
+      the requester at the head of the current order wins when it requests.  The
+      complete order is checked in AB-G-3.
+
+  - id: AB-PRI-3
+    req: R-PRI-3
+    pattern: next
+    args: {trigger: "req[3]", cond: "gnt[3]"}
+    note: >-
+      CONTRADICTORY, formalized literally.  "Always wins arbitration when it
+      requests": whenever req[3] is asserted, requester 3 is granted in the next
+      cycle, whatever the other requests and the priority state.  This contradicts
+      R-PRI-1 (requester 0 has the highest priority after reset: with req[0] and
+      req[3] as first requests the two disagree on the winner), R-PRI-2 (rotating
+      priority, hence AB-G-3 and AB-PRI-2) and R-FAIR-1 (a requester 3 that keeps
+      req[3] asserted wins every arbitration, so no other requester is ever
+      granted).  Not repaired.  "Reserved for maintenance traffic" is descriptive
+      and has no formal content.
+
+  - id: AB-FAIR-1
+    req: R-FAIR-1
+    pattern: bounded_wait
+    args: {cond: "req[i] && !gnt[i]", max: N}
+    note: >-
+      AMBIGUOUS, formalized literally.  "Granted within N cycles" is read in the
+      ordinary sense of a latency bound: a requester that keeps its request
+      asserted is granted at most N cycles after raising it, i.e. it can be
+      pending (req[i] asserted and gnt[i] low) for at most N consecutive cycles
+      and gnt[i] is visible in the (N+1)-th cycle at the latest.  The other
+      listed reading ("no later than N-1 cycles after the request is raised",
+      at most N-1 pending cycles) is not formalized; it cannot be met by a
+      registered arbiter (grant visible at least one cycle after the request,
+      R-G-3) when the other three requesters can each be served first, because
+      the grant is then visible exactly N cycles after the request.  The property
+      is stated on the request that stays asserted, so a withdrawal ends the run;
+      the dependency on R-ENV-1 listed in requirements.yaml is therefore not
+      needed to state it.  Conflicts with R-PRI-3 (starvation behind requester 3).
+
+  - id: AB-RST-1a
+    req: R-RST-1
+    mode: always
+    pattern: implies
+    args: {trigger: "rst_active", cond: "gnt == 0"}
+    note: >-
+      Literal reading of "While rst_n is low ... no grant line is asserted":
+      gnt == 0 in every cycle in which reset is asserted, including the first
+      one, hence mode always.  Problem in the text: gnt is declared a registered
+      output and the reset is synchronous, so the grant register is cleared only
+      at the clock edge that ends the first reset cycle; in that first reset
+      cycle (and in cycle 0 if the register is not initialized) a plain registered
+      output still shows the previous grant.  The sentence, taken literally,
+      needs gnt to be additionally masked by rst_n, which R-G-3 does not say.
+      Not repaired.
+
+  - id: AB-RST-1b
+    req: R-RST-1
+    pattern: after_reset
+    args: {cond: "gnt == 0"}
+    note: >-
+      "... and in the cycle after it": in every cycle that follows a reset cycle
+      (the cycle after reset is released, and every later cycle of a multi-cycle
+      reset) no grant line is asserted.  A request in the last reset cycle would
+      otherwise demand a grant by R-WC-1; see the note of AB-WC-1.
+
+# -----------------------------------------------------------------------------
+scenarios:
+  - id: AB-SC-WC-1
+    req: R-WC-1
+    cover: "prev(req != 0) && onehot(gnt)"
+    note: >-
+      Non-vacuity witness for R-WC-1 and R-G-3: a request in one cycle is
+      followed by exactly one grant in the next, i.e. grants can occur at all.
+
+  - id: AB-SC-PRI-1
+    req: R-PRI-1
+    cover: "prev(noreq_yet == 1 && req[0] && req[3]) && gnt == 1"
+    note: >-
+      "After reset requester 0 has the highest priority": when requesters 0 and 3
+      are the first to request after reset, requester 0 is granted.  Must be
+      possible according to R-PRI-1; impossible together with AB-PRI-3.
+
+  - id: AB-SC-FAIR-1
+    req: R-FAIR-1
+    cover: "prev(req[3]) && gnt != 0 && !gnt[3]"
+    note: >-
+      A requester other than 3 is granted although requester 3 was requesting in
+      the cycle in which the decision was taken.  R-FAIR-1 requires this to be
+      possible: requester 3 may keep req[3] asserted and every other requester
+      that keeps its request asserted must still be granted within N cycles.
+      Impossible together with AB-PRI-3.

@@ -1,0 +1,156 @@
+fcp: "0.1"
+set: variant2
+origin: {kind: agent, role: formalizer, id: variant2}
+
+rigids:
+  # one arbitrary customer; every per-customer rule is stated for customer u
+  - {name: u, range: [0, 1000]}
+
+defs:
+  in_range: "user <= 1000"
+  # R-ERR-1 read as "the previous call that did not raise": last is the time of
+  # the most recent call that does not raise under rule 1 (0 before any call)
+  in_order: "now >= last"
+  valid: "in_range && in_order"
+  mine: "user == u"
+  denied: "outcome == 0 && !allowed"
+  # customer u already had 3 allowed attempts less than 60 seconds before now
+  # (R-MAX-1 read as: attempts at t and t + 60 are not within the same 60 seconds)
+  full: "cnt == 3 && now - t3 < 60"
+  # less than 10 seconds have passed since customer u's last attempt denied by the limit
+  penalty: "pen == 1 && now - d < 10"
+
+ghosts:
+  # time of the previous call that did not raise (reading 2 of R-ERR-1)
+  - {name: last, range: [0, 65535], init: 0, next: "valid ? now : last"}
+  # customer u's allowed attempts: how many (up to 3) and the times of the last three, t1 the latest
+  - {name: cnt, range: [0, 3], init: 0, next: "mine && allowed ? min(cnt + 1, 3) : cnt"}
+  - {name: t1, range: [0, 65535], init: 0, next: "mine && allowed ? now : t1"}
+  - {name: t2, range: [0, 65535], init: 0, next: "mine && allowed ? t1 : t2"}
+  - {name: t3, range: [0, 65535], init: 0, next: "mine && allowed ? t2 : t3"}
+  # customer u's latest attempt denied by the limit (reading 2 of "After a denied attempt")
+  - {name: pen, range: [0, 1], init: 0, next: "mine && denied && full ? 1 : pen"}
+  - {name: d, range: [0, 65535], init: 0, next: "mine && denied && full ? now : d"}
+
+properties:
+  - id: V2-ERR-USER
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "user > 1000", cond: "outcome == 1"}
+    note: >-
+      A user above 1,000 (out of the range 0 to 1,000 given by R-IN-1) raises
+      ValueError. The rule says "if", not "only if"; the converse for valid
+      calls is V2-RET.
+
+  - id: V2-ERR-TIME
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "now < last", cond: "outcome == 1"}
+    note: >-
+      "the previous call" is read, as instructed, as the previous call that did
+      not raise (reading 2), not the previous call of any customer. last is the
+      time of the latest call that rule 1 does not make raise (a specification
+      model driven by the inputs; on a conforming trace these are exactly the
+      calls that did not raise). "earlier" is strict: an equal time is not
+      earlier. The first call on an object has no previous call (last starts at 0).
+
+  - id: V2-RET
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "valid", cond: "outcome == 0"}
+    note: >-
+      A call that rule 1 does not make raise (user at most 1,000 and now not
+      earlier than in the previous call that did not raise, reading 2 of
+      R-ERR-1 as instructed) returns a bool. Which bool ("True if the attempt
+      may go ahead") is fixed by rules 2 to 5 (V2-MAX, V2-FAIR, V2-PEN).
+
+  - id: V2-MAX
+    req: R-MAX-1
+    pattern: implies
+    args: {trigger: "mine && full", cond: "!allowed"}
+    note: >-
+      "in any 60 seconds" is read, as instructed, as reading 2: attempts at t
+      and t + 60 are not within the same 60 seconds, so 4 allowed attempts are
+      forbidden only when the last is less than 60 seconds after the first.
+      Stated at each attempt of customer u: if u's three latest allowed
+      attempts are all less than 60 seconds before now, this attempt is not
+      allowed. This is equivalent to "no 4 allowed attempts within 59 seconds"
+      because the times of calls that do not raise never decrease. Only
+      allowed attempts are counted (R-COUNT-1); calls that raise or return
+      False are not.
+
+  - id: V2-FAIR
+    req: R-FAIR-1
+    pattern: implies
+    args: {trigger: "mine && valid && !full", cond: "allowed"}
+    note: >-
+      "the last 60 seconds" is not flagged; it is read the same way as
+      "in any 60 seconds" in R-MAX-1 (reading 2, as instructed): an allowed
+      attempt counts if it is less than 60 seconds before now, so one exactly
+      60 seconds earlier does not. Earlier attempts in the same second count.
+      Only allowed attempts count (R-COUNT-1). Restricted to calls that rule 1
+      does not make raise (valid, using reading 2 of R-ERR-1, "the previous
+      call that did not raise"), since a call cannot both raise and return True.
+      Stated literally, without an exception for the penalty of rule 5: this
+      contradicts V2-PEN (allowed at 0, 1, 2; denied by the limit at 59; an
+      attempt at 60 has 2 allowed attempts in the last 60 seconds but is within
+      10 seconds of the denial).
+
+  - id: V2-PEN
+    req: R-PEN-1
+    pattern: implies
+    args: {trigger: "mine && penalty", cond: "!allowed"}
+    note: >-
+      "After a denied attempt" is read, as instructed, as reading 2: only an
+      attempt denied by the limit starts the 10 seconds. An attempt is taken as
+      denied by the limit when it returned False while customer u already had
+      3 allowed attempts less than 60 seconds before it (the R-MAX-1 window,
+      reading 2), whether or not it was also within a penalty; an attempt
+      denied only by this rule does not start or extend the 10 seconds, and a
+      call that raises is not a denied attempt. "for the next 10 seconds" is
+      read, as instructed, as reading 2: an attempt exactly 10 seconds after
+      the denial is not denied, so the penalty covers later attempts less than
+      10 seconds after it, including later attempts in the same second. A
+      newer denial by the limit restarts the 10 seconds. Contradicts V2-FAIR
+      when the allowed attempts leave the 60-second window during the penalty.
+
+scenarios:
+  - id: V2-EX
+    req: R-EX-1
+    cover: >-
+      user == prev(user) && prev(user) == prev(user, 2) && prev(user, 2) == prev(user, 3) &&
+      prev(now, 3) == 0 && prev(now, 2) == 1 && prev(now) == 2 && now == 3 &&
+      prev(allowed, 3) && prev(allowed, 2) && prev(allowed) && outcome == 0 && !allowed
+    note: >-
+      Four consecutive calls by one customer at 0, 1, 2 and 3 seconds: the first
+      three return True and the fourth returns False. The text does not say the
+      object is new, so earlier calls are not excluded; the witness is free to
+      start from a new object.
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the class, the method, its arguments and result type; it is
+      the interface encoding of design.yaml (function section and signals), not
+      a behaviour.
+  - req: R-IN-1
+    reason: >-
+      Definition: the range 0 to 1,000 of user decides which calls raise and
+      which return; "now in whole seconds" is the unit of the now input. Both
+      are used by the items listed.
+    covered_by: [V2-ERR-USER, V2-RET, V2-FAIR]
+  - req: R-COUNT-1
+    reason: >-
+      Says what rules 2 and 4 count: the specification model records only the
+      allowed attempts of customer u (ghosts cnt, t1, t2, t3 advance only on
+      allowed), so denied attempts and calls that raise never count.
+    covered_by: [V2-MAX, V2-FAIR, V2-PEN]
+  - req: R-FR-1
+    reason: Frame rule of the adapter, already the frame item F-ZERO of design.yaml, added to every set.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ERR-1, phrase: "the previous call", reading: 2}
+  - {req: R-MAX-1, phrase: "in any 60 seconds", reading: 2}
+  - {req: R-PEN-1, phrase: "for the next 10 seconds", reading: 2}
+  - {req: R-PEN-1, phrase: "After a denied attempt", reading: 2}

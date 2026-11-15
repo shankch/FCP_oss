@@ -1,0 +1,120 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # collisions for each combination of set sizes left open by "2*n or n" (R-CAR-1, R-CAR-2)
+  col_n_n: "n * n"          # n cars each way
+  col_n_2n: "2 * n * n"     # n one way, 2*n the other (either order)
+  col_2n_2n: "4 * n * n"    # 2*n cars each way
+
+assumptions:
+  - id: RA-ENV-1
+    req: R-ENV-1
+    expr: "n >= 0"
+    note: >-
+      n counts cars, so only non-negative n is in scope (reading 1 of 'n: int').
+      The encoding already excludes negative arguments (frame.md: n is a 10-bit
+      unsigned signal), so this assumption holds on every trace and constrains
+      nothing; it is kept to carry the requirement link.
+
+properties:
+  - id: RA-OUT-1
+    req: R-OUT-1
+    expr: "outcome == 0"
+    note: >-
+      'outputs' is read as 'returns' (reading 1): every call returns an integer
+      that fits collisions; it never raises, hangs or returns another type
+      (outcome 1 or 2). The 24-bit encoding also rules out a returned value
+      above 16,777,215, which the prose does not mention; every value allowed by
+      RA-OUT-2 is at most 4*1023*1023 = 4,186,116, so this adds no constraint
+      beyond the prose for the values that matter.
+
+  - id: RA-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "collisions == col_n_n || collisions == col_n_2n || collisions == col_2n_2n"
+    note: >-
+      Literal reading of 'a set of 2*n or n cars' for both directions: each set
+      has n or 2*n cars, chosen independently (R-CAR-1/R-CAR-2 reading 3; 'a
+      different set' = a disjoint set whose size may or may not equal the first,
+      reading 1). Opposing sets approach (R-POS-1 reading 1), same-direction cars
+      never meet (R-SPD-1), and cars pass through each other while each meeting
+      still counts (R-COL-1/R-COL-2 reading 1), so every opposing pair collides
+      exactly once and the count is |L|*|R|, i.e. n*n, 2*n*n or 4*n*n
+      (reading 4 of 'the number of such collisions'). The text does not fix
+      which, so any of the three is accepted, and nothing ties the choice in one
+      call to the choice in another. This leaves the result undetermined for
+      n > 0, which conflicts with 'the number' (one value per n); the
+      contradiction is in the prompt and is not repaired here. Guarded by
+      outcome == 0 because the requirement constrains the returned value;
+      RA-OUT-1 requires that a value is returned.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: that the deliverable is a Python implementation of
+      car_race_collision(n) with its name and single parameter is fixed by the
+      adapter's function binding (design.yaml, function section), not by any
+      behaviour visible on the trace.
+  - req: R-RD-1
+    reason: >-
+      Definition of the scenario (an infinite straight road, so no car leaves
+      before meeting every oncoming car); it has no signal of its own and enters
+      only through the collision count.
+    covered_by: [RA-OUT-2]
+  - req: R-CAR-1
+    reason: >-
+      Definition: the left-to-right set has n or 2*n cars (count left open,
+      reading 3). It enters only through the set of admissible collision counts.
+    covered_by: [RA-OUT-2]
+  - req: R-CAR-2
+    reason: >-
+      Definition: a disjoint right-to-left set of n or 2*n cars, its size chosen
+      independently of the first set (readings 3 and 1). It enters only through
+      the set of admissible collision counts.
+    covered_by: [RA-OUT-2]
+  - req: R-POS-1
+    reason: >-
+      Definition: the left-to-right set starts to the left of the right-to-left
+      set, so the sets approach and every opposing pair meets (reading 1). It
+      enters only through the collision count.
+    covered_by: [RA-OUT-2]
+  - req: R-SPD-1
+    reason: >-
+      Definition: equal speeds, so same-direction cars never meet and contribute
+      no collisions. It enters only through the collision count.
+    covered_by: [RA-OUT-2]
+  - req: R-COL-1
+    reason: >-
+      Definition of a collision (a meeting of opposite-direction cars, counted
+      even though the cars continue; reading 1). It enters only through the
+      collision count.
+    covered_by: [RA-OUT-2]
+  - req: R-COL-2
+    reason: >-
+      Definition: collisions do not alter trajectories, so each car meets every
+      oncoming car; the collisions are still counted (reading 1). It enters only
+      through the collision count.
+    covered_by: [RA-OUT-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md: part of every formalization set and
+      need not be restated); realized by frame item F-ZERO in design.yaml.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-1, phrase: "n: int", reading: 1}
+  - {req: R-CAR-1, phrase: "2*n or n cars", reading: 3}
+  - {req: R-CAR-1, phrase: "2*n or n", reading: 2}
+  - {req: R-CAR-2, phrase: "2*n or n cars", reading: 3}
+  - {req: R-CAR-2, phrase: "a different set", reading: 1}
+  - {req: R-CAR-2, phrase: "2*n or n", reading: 2}
+  - {req: R-POS-1, phrase: "start out being very far from each other", reading: 1}
+  - {req: R-COL-1, phrase: "said to collide", reading: 1}
+  - {req: R-COL-2, phrase: "as if they did not collide", reading: 1}
+  - {req: R-OUT-1, phrase: "outputs", reading: 1}
+  - {req: R-OUT-2, phrase: "the number of such collisions", reading: 4}
+  - {req: R-OUT-2, phrase: "the number", reading: 2}

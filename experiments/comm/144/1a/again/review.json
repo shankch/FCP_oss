@@ -1,0 +1,431 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 429,
+    "checked": 177,
+    "seconds": 310.03
+   },
+   "open": {
+    "open": {},
+    "checked": 307,
+    "left_out": [
+     "RA-RES-1-PROD",
+     "RA-RES-1-SUM",
+     "RA-RES-2"
+    ],
+    "rejected": 6
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 0,
+    "checked": 0
+   },
+   "open": {
+    "open": {},
+    "checked": 0
+   }
+  }
+ },
+ "readings": {},
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `fmt_a && fmt_b`",
+    "where": {
+     "fmt_a": "count(i < len(a): a[i] == \"/\") == 1 && all(i < len(a): a[i] == \"/\" || isdigit(a[i])) && pa >= 1 && pa <= len(a) - 2 && (a[0] == \"0\" -> pa == 1) && (a[pa + 1] == \"0\" -> pa + 2 == len(a))",
+     "fmt_b": "count(i < len(b): b[i] == \"/\") == 1 && all(i < len(b): b[i] == \"/\" || isdigit(b[i])) && pb >= 1 && pb <= len(b) - 2 && (b[0] == \"0\" -> pb == 1) && (b[pb + 1] == \"0\" -> pb + 2 == len(b))"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-2",
+    "req": "R-IN-2",
+    "says": "every call meets `pos_a && pos_b`",
+    "where": {
+     "pos_a": "na >= 1 && da >= 1",
+     "pos_b": "nb >= 1 && db >= 1"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-3",
+    "req": "R-IN-3",
+    "says": "every call meets `fmt_a && fmt_b && pos_a && pos_b`",
+    "where": {
+     "fmt_a": "count(i < len(a): a[i] == \"/\") == 1 && all(i < len(a): a[i] == \"/\" || isdigit(a[i])) && pa >= 1 && pa <= len(a) - 2 && (a[0] == \"0\" -> pa == 1) && (a[pa + 1] == \"0\" -> pa + 2 == len(a))",
+     "fmt_b": "count(i < len(b): b[i] == \"/\") == 1 && all(i < len(b): b[i] == \"/\" || isdigit(b[i])) && pb >= 1 && pb <= len(b) - 2 && (b[0] == \"0\" -> pb == 1) && (b[pb + 1] == \"0\" -> pb + 2 == len(b))",
+     "pos_a": "na >= 1 && da >= 1",
+     "pos_b": "nb >= 1 && db >= 1"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-4",
+    "req": "R-IN-4",
+    "says": "every call meets `da != 0 && db != 0`",
+    "where": {
+     "da": "sum(i < len(a): i > pa ? (a[i] - \"0\") * p10[len(a) - 1 - i] : 0)",
+     "db": "sum(i < len(b): i > pb ? (b[i] - \"0\") * p10[len(b) - 1 - i] : 0)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-IN-1-A",
+    "req": "R-IN-1",
+    "says": "every call meets `fmt_a`",
+    "where": {
+     "fmt_a": "sl_a == 1 && pa >= 1 && pa + 2 <= len(a) && all(i < len(a): a[i] == \"/\" || isdigit(a[i])) && a[0] != \"0\" && a[pa + 1] != \"0\""
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-IN-1-B",
+    "req": "R-IN-1",
+    "says": "every call meets `fmt_b`",
+    "where": {
+     "fmt_b": "sl_b == 1 && pb >= 1 && pb + 2 <= len(b) && all(i < len(b): b[i] == \"/\" || isdigit(b[i])) && b[0] != \"0\" && b[pb + 1] != \"0\""
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-IN-2",
+    "req": "R-IN-2",
+    "says": "every call meets `num_a >= 1 && den_a >= 1 && num_b >= 1 && den_b >= 1`",
+    "where": {
+     "num_a": "sum(k < 16: k < pa ? (a[pa - 1 - k] - \"0\") * (k == 0 ? 1 : k == 1 ? 10 : k == 2 ? 100 : k == 3 ? 1000 : k == 4 ? 10000 : k == 5 ? 100000 : k == 6 ? 1000000 : k == 7 ? 10000000 : k == 8 ? 100000000 : k == 9 ? 1000000000 : k == 10 ? 10000000000 : k == 11 ? 100000000000 : k == 12 ? 1000000000000 : k == 13 ? 10000000000000 : k == 14 ? 100000000000000 : 1000000000000000) : 0)",
+     "den_a": "sum(k < 16: k < len(a) - 1 - pa ? (a[len(a) - 1 - k] - \"0\") * (k == 0 ? 1 : k == 1 ? 10 : k == 2 ? 100 : k == 3 ? 1000 : k == 4 ? 10000 : k == 5 ? 100000 : k == 6 ? 1000000 : k == 7 ? 10000000 : k == 8 ? 100000000 : k == 9 ? 1000000000 : k == 10 ? 10000000000 : k == 11 ? 100000000000 : k == 12 ? 1000000000000 : k == 13 ? 10000000000000 : k == 14 ? 100000000000000 : 1000000000000000) : 0)",
+     "num_b": "sum(k < 16: k < pb ? (b[pb - 1 - k] - \"0\") * (k == 0 ? 1 : k == 1 ? 10 : k == 2 ? 100 : k == 3 ? 1000 : k == 4 ? 10000 : k == 5 ? 100000 : k == 6 ? 1000000 : k == 7 ? 10000000 : k == 8 ? 100000000 : k == 9 ? 1000000000 : k == 10 ? 10000000000 : k == 11 ? 100000000000 : k == 12 ? 1000000000000 : k == 13 ? 10000000000000 : k == 14 ? 100000000000000 : 1000000000000000) : 0)",
+     "den_b": "sum(k < 16: k < len(b) - 1 - pb ? (b[len(b) - 1 - k] - \"0\") * (k == 0 ? 1 : k == 1 ? 10 : k == 2 ? 100 : k == 3 ? 1000 : k == 4 ? 10000 : k == 5 ? 100000 : k == 6 ? 1000000 : k == 7 ? 10000000 : k == 8 ? 100000000 : k == 9 ? 1000000000 : k == 10 ? 10000000000 : k == 11 ? 100000000000 : k == 12 ? 1000000000000 : k == 13 ? 10000000000000 : k == 14 ? 100000000000000 : 1000000000000000) : 0)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-IN-3",
+    "req": "R-IN-3",
+    "says": "every call meets `valid_a && valid_b`",
+    "where": {
+     "valid_a": "fmt_a && num_a >= 1 && den_a >= 1",
+     "valid_b": "fmt_b && num_b >= 1 && den_b >= 1"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-IN-4",
+    "req": "R-IN-4",
+    "says": "every call meets `den_a != 0 && den_b != 0`",
+    "where": {
+     "den_a": "sum(k < 16: k < len(a) - 1 - pa ? (a[len(a) - 1 - k] - \"0\") * (k == 0 ? 1 : k == 1 ? 10 : k == 2 ? 100 : k == 3 ? 1000 : k == 4 ? 10000 : k == 5 ? 100000 : k == 6 ? 1000000 : k == 7 ? 10000000 : k == 8 ? 100000000 : k == 9 ? 1000000000 : k == 10 ? 10000000000 : k == 11 ? 100000000000 : k == 12 ? 1000000000000 : k == 13 ? 10000000000000 : k == 14 ? 100000000000000 : 1000000000000000) : 0)",
+     "den_b": "sum(k < 16: k < len(b) - 1 - pb ? (b[len(b) - 1 - k] - \"0\") * (k == 0 ? 1 : k == 1 ? 10 : k == 2 ? 100 : k == 3 ? 1000 : k == 4 ? 10000 : k == 5 ? 100000 : k == 6 ? 1000000 : k == 7 ? 10000000 : k == 8 ? 100000000 : k == 9 ? 1000000000 : k == 10 ? 10000000000 : k == 11 ? 100000000000 : k == 12 ? 1000000000000 : k == 13 ? 10000000000000 : k == 14 ? 100000000000000 : 1000000000000000) : 0)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-IN-3-OUTCOME",
+    "req": "R-IN-3",
+    "says": "`outcome` is free when `!valid`",
+    "where": {
+     "valid": "valid_a && valid_b"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-IN-3-RESULT",
+    "req": "R-IN-3",
+    "says": "`result` is free when `!valid`",
+    "where": {
+     "valid": "valid_a && valid_b"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": [
+    "RB-S-EX-1",
+    "RB-S-EX-2",
+    "RB-S-EX-3",
+    "RB-S-RES-1-SUM"
+   ]
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FN-2",
+   "phrase": "a, b",
+   "taken": 1,
+   "variant": 2,
+   "text": "The docstring never ties x and n to a and b; the mapping is unspecified (the result is the same either way, because * and + are commutative)."
+  },
+  {
+   "req": "R-FN-3",
+   "phrase": "simplify the expression",
+   "taken": 1,
+   "variant": 2,
+   "text": "The function must produce the simplified expression (e.g. a reduced fraction); this contradicts R-RES-1 and R-RES-2, which say it returns True or False."
+  },
+  {
+   "req": "R-FN-3",
+   "phrase": "x * n, or x + n",
+   "taken": 3,
+   "variant": 1,
+   "text": "The expression is the product x * n only."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "<numerator>/<denominator>",
+   "taken": 1,
+   "variant": 2,
+   "text": "Numerator and denominator may be written with leading zeros (e.g. '05/1'); only their values matter."
+  },
+  {
+   "req": "R-IN-2",
+   "phrase": "positive whole numbers",
+   "taken": 1,
+   "variant": 2,
+   "text": "Whole numbers in the sense of non-negative integers: the separate statement that the denominator is not zero (R-IN-4) would be needed only if zero could occur, which suggests a numerator of 0 may be passed."
+  },
+  {
+   "req": "R-IN-3",
+   "phrase": "valid fractions",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any string that denotes a fraction, possibly in other forms (e.g. '3', or with spaces)."
+  },
+  {
+   "req": "R-IN-4",
+   "phrase": "do not have zero as denominator",
+   "taken": 1,
+   "variant": 2,
+   "text": "Zero is excluded only for the denominator, implying 'whole numbers' in R-IN-2 includes zero and a numerator of 0 may occur (in tension with 'positive' in R-IN-2)."
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "x * n or x + n evaluates to a whole number",
+   "taken": 1,
+   "variant": 2,
+   "text": "True when the product x * n is a whole number; the sum is not considered (matches all three examples)."
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "evaluates",
+   "taken": 1,
+   "variant": 2,
+   "text": "Floating-point evaluation (e.g. float division) whose result has an integral value, which can differ from exact arithmetic through rounding."
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "whole number",
+   "taken": 1,
+   "variant": 2,
+   "text": "A non-negative integer (0 counts as whole)."
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "returns True",
+   "taken": 1,
+   "variant": 2,
+   "text": "R-FN-3 says the function simplifies the expression, suggesting it returns the simplified expression; this contradicts returning True or False."
+  },
+  {
+   "req": "R-RES-2",
+   "phrase": "otherwise",
+   "taken": 1,
+   "variant": 2,
+   "text": "False when the product x * n is not a whole number, whatever the sum."
+  },
+  {
+   "req": "R-RES-2",
+   "phrase": "False",
+   "taken": 1,
+   "variant": 2,
+   "text": "R-FN-3 says the function simplifies the expression, suggesting it returns the simplified expression; this contradicts returning True or False."
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "simplify(\"1/5\", \"5/1\") = True",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradicts R-RES-1 if the sum must be whole (alone or together with the product): 1/5 + 5/1 = 26/5 is not a whole number."
+  }
+ ],
+ "depends": {},
+ "steps": [
+  {
+   "step": "the scenarios of agent_a",
+   "seconds": 30.5,
+   "peak_gb": 3.21
+  },
+  {
+   "step": "the conflicts of agent_a",
+   "seconds": 310.7,
+   "peak_gb": 1.33
+  },
+  {
+   "step": "the open choices of agent_a",
+   "seconds": 195.8,
+   "peak_gb": 3.38
+  },
+  {
+   "step": "the scenarios of agent_b",
+   "seconds": 725.1,
+   "peak_gb": 6.85
+  },
+  {
+   "step": "the conflicts of agent_b",
+   "seconds": 900.3,
+   "failed": "did not end in 900 s",
+   "peak_gb": 5.65
+  },
+  {
+   "step": "the open choices of agent_b",
+   "seconds": 149.6,
+   "failed": "was stopped: the check reached its time limit of 2340 s",
+   "peak_gb": 5.63
+  },
+  {
+   "step": "the comparison of agent_a and agent_b",
+   "seconds": null,
+   "failed": "not run: the check reached its time limit of 2340 s"
+  },
+  {
+   "step": "the comparison of agent_a and agent_b, in context",
+   "seconds": null,
+   "failed": "not run: the check reached its time limit of 2340 s"
+  },
+  {
+   "step": "the comparison of agent_a and variant",
+   "seconds": null,
+   "failed": "not run: the check reached its time limit of 2340 s"
+  },
+  {
+   "step": "the comparison of agent_b and variant",
+   "seconds": null,
+   "failed": "not run: the check reached its time limit of 2340 s"
+  }
+ ],
+ "failed": [
+  {
+   "step": "the conflicts of agent_b",
+   "why": "did not end in 900 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the open choices of agent_b",
+   "why": "was stopped: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_a and agent_b",
+   "why": "not run: the check reached its time limit of 2340 s",
+   "rests": "none",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_a and agent_b, in context",
+   "why": "not run: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_a and variant",
+   "why": "not run: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the comparison of agent_b and variant",
+   "why": "not run: the check reached its time limit of 2340 s",
+   "rests": "all",
+   "reading": null
+  }
+ ],
+ "limits": [
+  "the conflicts and open choices of agent_a: these searches leave out RA-RES-1-PROD, RA-RES-1-SUM, RA-RES-2 (rules stated for every value of a variable); 6 calls with two answers that break them are not reported",
+  "the scenarios of agent_b: RB-S-EX-1, RB-S-EX-2, RB-S-EX-3, RB-S-RES-1-SUM",
+  "request points of agent_a",
+  "conflict search of agent_a"
+ ],
+ "certified": [],
+ "queue": [
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"x * n or x + n evaluates to a whole number\" can mean: True when at least one of the product x * n and the sum x + n is a whole number. / True when the product x * n is a whole number; the sum is not considered (matches all three examples). / True when the sum x + n is a whole number; contradicts R-EX-1, since 1/5 + 5/1 = 26/5 is not whole yet the expected answer is True. / True only when both x * n and x + n are whole numbers; contradicts R-EX-1 for the same reason.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"evaluates\" can mean: Exact rational arithmetic: the value is a whole number exactly. / Floating-point evaluation (e.g. float division) whose result has an integral value, which can differ from exact arithmetic through rounding.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"whole number\" can mean: Any integer value. / A non-negative integer (0 counts as whole). / A positive integer (0 does not count); differs from the other readings only if a numerator of 0 can occur.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"returns True\" can mean: The function returns a bool. / R-FN-3 says the function simplifies the expression, suggesting it returns the simplified expression; this contradicts returning True or False.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "calls": [],
+   "question": "\"otherwise\" can mean: False when neither the product x * n nor the sum x + n is a whole number. / False when the product x * n is not a whole number, whatever the sum. / False when the sum x + n is not a whole number; contradicts R-EX-1 (1/5 + 5/1 = 26/5, expected True). / False when at least one of x * n and x + n is not a whole number; contradicts R-EX-1.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "calls": [],
+   "question": "\"False\" can mean: The function returns a bool. / R-FN-3 says the function simplifies the expression, suggesting it returns the simplified expression; this contradicts returning True or False.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"simplify(\"1/5\", \"5/1\") = True\" can mean: Consistent with R-RES-1 if the product decides (1/5 * 5/1 = 1) or if either expression being whole suffices. / Contradicts R-RES-1 if the sum must be whole (alone or together with the product): 1/5 + 5/1 = 26/5 is not a whole number.. Which is meant?"
+  }
+ ]
+}

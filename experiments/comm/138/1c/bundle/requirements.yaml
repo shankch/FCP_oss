@@ -1,0 +1,104 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def is_equal_to_sum_even(n):'
+  text: The deliverable is a completed Python function named is_equal_to_sum_even that takes a single argument n.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-RET-1
+  doc: SPEC
+  quote: Evaluate whether the given number n can be written as the sum of exactly 4 positive even numbers
+  text: For every argument n, a call of is_equal_to_sum_even(n) finishes and returns a boolean (True or False); it does not raise an exception or return a value of another type.
+  kind: guarantee
+  ambiguity:
+  - phrase: Evaluate whether
+    readings:
+    - the function must return a Python bool, True or False
+    - any value that compares equal to True or False (such as 1 or 0) is acceptable, since the examples only check `== True` / `== False`
+  lines:
+  - 5
+- id: R-SUM-1
+  doc: SPEC
+  quote: Evaluate whether the given number n can be written as the sum of exactly 4 positive even numbers
+  text: If n can be written as the sum of exactly 4 positive even integers, is_equal_to_sum_even(n) returns True.
+  kind: guarantee
+  ambiguity:
+  - phrase: exactly 4 positive even numbers
+    readings:
+    - the four summands may repeat (e.g. 2+2+2+2), so the representable n are exactly the even n >= 8
+    - the four summands must be distinct, so the representable n are exactly the even n >= 20
+  - phrase: can be written as the sum of exactly 4 positive even numbers
+    readings:
+    - 'the description is authoritative: 8 = 2+2+2+2 is representable, so is_equal_to_sum_even(8) returns True, which contradicts the example is_equal_to_sum_even(8) == False (R-EX-3)'
+    - 'the examples are authoritative and the description is inverted: the function returns True exactly when n can NOT be written as such a sum, so is_equal_to_sum_even(8) returns False'
+  lines:
+  - 5
+- id: R-SUM-2
+  doc: SPEC
+  quote: Evaluate whether the given number n can be written as the sum of exactly 4 positive even numbers
+  text: If n cannot be written as the sum of exactly 4 positive even integers, is_equal_to_sum_even(n) returns False.
+  kind: guarantee
+  ambiguity:
+  - phrase: exactly 4 positive even numbers
+    readings:
+    - the four summands may repeat (e.g. 2+2+2+2), so the representable n are exactly the even n >= 8
+    - the four summands must be distinct, so the representable n are exactly the even n >= 20
+  - phrase: can be written as the sum of exactly 4 positive even numbers
+    readings:
+    - 'the description is authoritative: 4 and 6 are below the minimum sum 2+2+2+2 = 8, so is_equal_to_sum_even(4) and is_equal_to_sum_even(6) return False, which contradicts the examples is_equal_to_sum_even(4)
+      == True (R-EX-1) and is_equal_to_sum_even(6) == True (R-EX-2)'
+    - 'the examples are authoritative and the description is inverted: the function returns True exactly when n can NOT be written as such a sum, so is_equal_to_sum_even(4) and is_equal_to_sum_even(6) return
+      True'
+  lines:
+  - 5
+- id: R-EX-1
+  doc: SPEC
+  quote: is_equal_to_sum_even(4) == True
+  text: A call is_equal_to_sum_even(4) returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: is_equal_to_sum_even(4) == True
+    readings:
+    - 'the example is authoritative: is_equal_to_sum_even(4) returns True, although 4 is less than the minimum sum of 4 positive even numbers (2+2+2+2 = 8), contradicting R-SUM-2'
+    - 'the description is authoritative: 4 is not a sum of 4 positive even numbers, so is_equal_to_sum_even(4) returns False and this example is wrong'
+  lines:
+  - 7
+- id: R-EX-2
+  doc: SPEC
+  quote: is_equal_to_sum_even(6) == True
+  text: A call is_equal_to_sum_even(6) returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: is_equal_to_sum_even(6) == True
+    readings:
+    - 'the example is authoritative: is_equal_to_sum_even(6) returns True, although 6 is less than the minimum sum of 4 positive even numbers (2+2+2+2 = 8), contradicting R-SUM-2'
+    - 'the description is authoritative: 6 is not a sum of 4 positive even numbers, so is_equal_to_sum_even(6) returns False and this example is wrong'
+  lines:
+  - 8
+- id: R-EX-3
+  doc: SPEC
+  quote: is_equal_to_sum_even(8) == False
+  text: A call is_equal_to_sum_even(8) returns False.
+  kind: scenario
+  ambiguity:
+  - phrase: is_equal_to_sum_even(8) == False
+    readings:
+    - 'the example is authoritative: is_equal_to_sum_even(8) returns False, although 8 = 2+2+2+2 is a sum of 4 positive even numbers, contradicting R-SUM-1 (consistent with R-SUM-1 only under the distinct-summands
+      reading)'
+    - 'the description is authoritative: 8 = 2+2+2+2, so is_equal_to_sum_even(8) returns True and this example is wrong'
+  lines:
+  - 9
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, the result output is 0 (false) unless the outcome output is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 36

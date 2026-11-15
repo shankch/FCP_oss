@@ -1,0 +1,177 @@
+{
+ "task": "invoice",
+ "conflict": "For a member with two items of 5 cents, neither on sale, each line's 10% (half a cent) rounds down to nothing, so the lines are 5 and 5 and rule 5 makes the total 10. Rule 4 rounds 10% of the summed 10 cents down to 1 cent, and rule 6 makes the total 10 minus 1. Whenever the lines' lost fractions add up to a cent or more, no result meets rules 3 to 6; it takes two lines or more.",
+ "replies": {
+  "b0": [
+   {
+    "reply": "# Fernwood Outfitters invoice function\n\n**The rules conflict when a member has two or more non-sale lines.** Rule 3 rounds each line's discount down. Rule 4 sums the discounts first and then rounds down. These give different results, so rules 5 and 6 produce different totals. The example in the prompt has only one line, so it doesn't show the problem.\n\nFor example, take a member buying two non-sale items at 1999\u00a2, quantity 1 each:\n\n| | Rules 2, 3, 5 (per line) | Rules 4, 6 (summed) |\n|---|---|---|\n| Discount | 199 + 199 = **398** | \u230a399.8\u230b = **399** |\n| Total | 1800 + 1800 = **3600** | 3998 \u2212 399 = **3599** |\n\nNo single output satisfies all six rules here. I followed the per-line rules: `discount` is the sum of each line's rounded-down discount. With that choice, `total` equals the sum of `lines`, and it also equals the full price minus `discount`. Rules 2, 3, 5 and 6 all hold. The one difference from rule 4 is that `discount` can be a few cents smaller, by less than 1\u00a2 per line.\n\n```python\ndef invoice(items: list[dict], member: bool) -> dict:\n    \"\"\"Build invoice lines, member discount and total, all in integer cents.\n\n    Members get 10% off each non-sale line, rounded down to the cent per line.\n    `discount` is the sum of those per-line discounts, so that\n    total == sum(lines) == sum(price * qty) - discount.\n    \"\"\"\n    if not items:\n        raise ValueError(\"items must not be empty\")\n\n    lines = []\n    discount = 0\n    for i, item in enumerate(items):\n        price, qty, sale = item[\"price\"], item[\"qty\"], item[\"sale\"]\n        if qty == 0:\n            raise ValueError(f\"item {i} has quantity 0\")\n\n        gross = price * qty\n        line_discount = gross // 10 if member and not sale else 0  # 10%, floored, integer math\n        lines.append(gross - line_discount)\n        discount += line_discount\n\n    return {\"lines\": lines, \"discount\": discount, \"total\": sum(lines)}\n```\n\nChecks (worked by hand, not executed):\n- `invoice([{\"price\": 1999, \"qty\": 2, \"sale\": False}], True)` gives 3998 // 10 = 399, so the result is `{\"lines\": [3599], \"discount\": 399, \"total\": 3599}`. This matches the example.\n- Two 1999\u00a2 items, member: `{\"lines\": [1800, 1800], \"discount\": 398, \"total\": 3600}`.\n\n**If rule 4 is the one you want**, set `discount = sum(gross for non-sale lines) // 10` and `total = sum(all gross) - discount`. In that case the `lines` will no longer add up to `total` unless you spread the extra cent(s) across some lines. That would break rule 3's \"round down per line\" for those lines. Tell me which rule takes priority and I'll adjust the code.\n\n**One more gap:** rule 1 rejects only a quantity of 0, so negative quantities and prices are accepted. With negative values, `//` rounds toward negative infinity. If negative quantities aren't valid input (as opposed to returns), changing the check to `qty <= 0` would be safer.",
+    "seconds": 23.5,
+    "cost_usd": 0.057406900000000004,
+    "models": [
+     "claude-haiku-5-5",
+     "claude-opus-5-5"
+    ],
+    "error": false,
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.020867999999999998
+    }
+   },
+   {
+    "reply": "Rules 3 and 4 round at different points, so they can disagree. That makes rules 5 and 6 disagree too. I followed rule 3 (round each line) so the invoice always adds up; see the note below the code.\n\n```python\ndef invoice(items: list[dict], member: bool) -> dict:\n    if not items:\n        raise ValueError(\"items must not be empty\")\n\n    lines = []\n    discount = 0\n    for i, item in enumerate(items):\n        if item[\"qty\"] == 0:\n            raise ValueError(f\"item {i} has quantity 0\")\n\n        gross = item[\"price\"] * item[\"qty\"]\n        # 10% off non-sale lines for members, rounded down to the cent.\n        # Integer division avoids float rounding errors.\n        line_discount = gross // 10 if member and not item[\"sale\"] else 0\n\n        lines.append(gross - line_discount)\n        discount += line_discount\n\n    return {\"lines\": lines, \"discount\": discount, \"total\": sum(lines)}\n```\n\nYour example works: 1999 \u00d7 2 = 3998, the discount is 3998 // 10 = 399, and the line and total are 3599.\n\n**The conflict.** Take a member buying two non-sale items at 1999 each, quantity 1:\n\n- **Rule 3** (round each line): each line gets 199 off, so the lines are 1800 and 1800. Rule 5 then gives a total of **3600**.\n- **Rule 4** (sum, then round): 3998 // 10 = 399 off. Rule 6 then gives a total of **3599**.\n\nWith one item the two methods always agree. With several non-sale items, rounding per line can give a discount up to (number of non-sale lines \u2212 1) cents smaller than rounding the sum.\n\n**What I chose:** `discount` is the sum of the per-line discounts. That way the lines add up to `total`, and `total` equals the gross minus `discount`, on every invoice. The only rule this bends is the \"sum, then round\" wording in rule 4.\n\n**The alternative**, if you want rule 4's figure (which is slightly better for the customer): compute the discount on the sum, then spread the leftover cents across the non-sale lines. The lines would still add up to the total, but some lines would get 1\u00a2 more off than rule 3 gives. Let me know if you'd like that version.\n\n**One gap:** rule 1 only rejects a quantity of 0. Negative quantities (returns?) pass through, and `//` rounds them toward negative infinity. For example, \u22123998 // 10 = \u2212400, so a return would credit 1\u00a2 more than you might expect. If negative quantities aren't valid, change the check to `item[\"qty\"] <= 0`.",
+    "seconds": 25.8,
+    "cost_usd": 0.047994100000000005,
+    "models": [
+     "claude-haiku-5-5",
+     "claude-opus-5-5"
+    ],
+    "error": false,
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.021216
+    }
+   },
+   {
+    "reply": "The rules conflict, so the function below follows rules 3 and 5 and sets `discount` to the sum of the per-line discounts. Rule 4, read literally, is applied differently. Which rounding you want needs a decision from you.\n\n```python\ndef invoice(items: list[dict], member: bool) -> dict:\n    \"\"\"Build invoice lines for an order.\n\n    Each item is {\"price\": unit price in cents, \"qty\": quantity, \"sale\": bool}.\n    Members get 10% off each non-sale line, rounded down to the cent per line.\n    Returns {\"lines\": [cents, ...], \"discount\": cents, \"total\": cents}.\n    \"\"\"\n    if not items:\n        raise ValueError(\"items must not be empty\")\n\n    lines = []\n    discount = 0\n    for i, item in enumerate(items):\n        price, qty, sale = item[\"price\"], item[\"qty\"], item[\"sale\"]\n        if qty == 0:\n            raise ValueError(f\"item {i} has quantity 0\")\n\n        gross = price * qty\n        # 10% rounded down, using integer math to avoid float error.\n        line_discount = gross // 10 if member and not sale else 0\n\n        lines.append(gross - line_discount)\n        discount += line_discount\n\n    return {\"lines\": lines, \"discount\": discount, \"total\": sum(lines)}\n```\n\nYour example works: 1999 \u00d7 2 = 3998, the discount is 3998 // 10 = 399, and the result is `{\"lines\": [3599], \"discount\": 399, \"total\": 3599}`.\n\n**The conflict between the rules**\n\nRule 3 rounds down on each line. Rule 4 adds up first and rounds down once. These two methods can give different discounts, so rules 5 and 6 can't both be true.\n\nFor example, a member buys three non-sale items at 1999 cents each:\n\n| | Discount | Total |\n|---|---|---|\n| Rules 3 and 5 (round each line) | 199 + 199 + 199 = **597** | 1800 + 1800 + 1800 = **5400** |\n| Rules 4 and 6 (sum, then round) | \u230a599.7\u230b = **599** | 5997 \u2212 599 = **5398** |\n\n**What I chose:** rounding per line. This makes the invoice add up: the lines sum to `total`, and `total` equals the full price minus `discount`. Rules 1, 2, 3, 5 and 6 all hold. Rule 4 also holds if you read it as \"round each line, then sum.\"\n\n**If you want rule 4 literally** (one rounding over the whole order, so the customer gets the slightly bigger discount), someone has to decide which line gets the extra cents. Otherwise the lines won't add up to the total. I can change it if that's what you need.\n\n**Not covered by the spec:** negative quantities and non-integer prices or quantities are not rejected. With a negative amount, `//` rounds toward negative infinity, which is \"down\" in the literal sense. Let me know if you want any of these checked.",
+    "seconds": 23.1,
+    "cost_usd": 0.051475099999999996,
+    "models": [
+     "claude-haiku-5-5",
+     "claude-opus-5-5"
+    ],
+    "error": false,
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.022661999999999998
+    }
+   }
+  ],
+  "b1": [
+   {
+    "reply": "I need one clarification before writing this, because the rules contradict each other in some cases.\n\n**Per-line rounding vs. total rounding**\n\nRules 3 and 5 round each line's discount down, then add up the lines. Rules 4 and 6 add up the undiscounted amounts first, then round the discount down once. These give different results. For a member with two non-sale items at 5\u00a2 each, qty 1:\n\n- **Rules 3 + 5 (per line):** each line's discount is floor(0.5\u00a2) = 0, so `lines = [5, 5]` and `total = 10`, with `discount = 0`.\n- **Rules 4 + 6 (on the sum):** `discount` is floor(1.0\u00a2) = 1, so `total = 9`. But then the lines add up to 10, not 9.\n\nYour example (one line) can't tell these apart. Which should I use?\n\n- **(A) Per line:** each line's discount is rounded down on its own, `discount` is the sum of those line discounts, and `total = sum(lines)`. The output is always self-consistent, but the customer can get slightly less than 10% off overall. This is my suggested default.\n- **(B) On the sum:** `discount` is rounded down once on the combined amount and `total = gross - discount`. To keep `total == sum(lines)`, I'd have to spread the leftover cents across lines using some rule (e.g., largest fractional remainder first, ties to the earlier line).\n- **(C)** Something else, e.g., (B) but accept that `lines` may not add up to `total`.\n\n**Smaller questions** (I'll use the defaults in brackets unless you say otherwise):\n\n1. **Negative quantities** (such as returns): should they raise `ValueError` like 0 does, or be allowed? [raise `ValueError`]\n2. **Bad input** such as missing keys, non-integer or negative prices, or non-bool `sale`: should I validate it? [raise `ValueError`]",
+    "seconds": 12.4,
+    "cost_usd": 0.0315944,
+    "models": [
+     "claude-haiku-5-5",
+     "claude-opus-5-5"
+    ],
+    "error": false,
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.017155999999999998
+    }
+   },
+   {
+    "reply": "**Question before I write this:** rules 3\u20136 contradict each other when an invoice has more than one non-sale item.\n\n**Example:** a member buys two non-sale items at `1999` cents, qty 1 each.\n\n- **Rules 2, 3 and 5 (round per line):** each line discount is `floor(199.9) = 199`, so the lines are `[1800, 1800]` and `total = 3600`.\n- **Rules 4 and 6 (round the sum):** `discount = floor(10% \u00d7 3998) = 399`, so `total = 3998 \u2212 399 = 3599`.\n\nThe total can't be both 3600 and 3599. Per-line rounding loses up to a cent per line compared with rounding the sum. Your single-item example doesn't show the problem.\n\n**Which behavior do you want?**\n\n1. **Round per line.** Each line's discount is floored on its own. `discount` is the sum of the line discounts, and `total` is the sum of `lines`. Everything stays consistent, but the customer may get slightly less discount than 10% of the subtotal.\n2. **Round the sum.** `discount = floor(10% \u00d7 non-sale subtotal)`, and `total = gross \u2212 discount`. The line amounts are adjusted so they still add up to `total`, which means the leftover cent(s) go to some line. If you pick this, which line(s) should absorb them? For example, the first non-sale line, or the lines with the largest fractional remainders.\n3. **Something else**, such as allowing `sum(lines) != total`.\n\n**Smaller points:**\n\n- **Negative values:** should a negative `qty` (or `price`) also raise ValueError, or is it allowed, for example for returns? If it's allowed, \"rounded down\" needs a definition for negatives: floor or toward zero.\n- **Malformed items:** should missing keys or non-integer values be validated, or can I assume the input is well-formed?",
+    "seconds": 16.0,
+    "cost_usd": 0.025559600000000002,
+    "models": [
+     "claude-haiku-5-5",
+     "claude-opus-5-5"
+    ],
+    "error": false,
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.017075999999999997
+    }
+   },
+   {
+    "reply": "I have one question before writing this. Rules 3\u20136 contradict each other when a member buys more than one non-sale item:\n\n- **Rules 3 and 5** round each line's discount down separately, then total the lines.\n- **Rules 4 and 6** add up the unrounded 10% amounts, round once, then subtract from the gross.\n\n**Example:** a member buys two non-sale items at 5\u00a2 each, qty 1.\n\n| Approach | Line discounts | `lines` | `discount` | `total` |\n|---|---|---|---|---|\n| Per-line rounding (rules 3, 5) | 0 + 0 | `[5, 5]` | 0 | **10** |\n| Rounding once (rules 4, 6) | \u2014 | ? | 1 | **9** |\n\nThe gap can grow by up to about 1\u00a2 per non-sale line. Your single-item example matches both approaches, so it doesn't settle which one is right.\n\n**Which should win?**\n\n- **A. Per-line rounding (my recommendation).** Each line's discount is rounded down. `discount` is the sum of those line discounts, and `total = sum(lines) = gross \u2212 discount`. The lines always add up to the total, which is what most invoicing does. Rule 4's \"summed, then rounded\" wording would no longer hold.\n- **B. Round once.** `discount = floor(10% of non-sale gross)`. For rule 5 to still hold, the extra cents need to go to specific lines. Which lines should get them: the first non-sale line, the largest, or split by size?\n\n**A smaller question:** rule 1 only rejects a quantity of 0. Should negative quantities or prices also raise `ValueError`, or are negatives allowed, for example for returns?",
+    "seconds": 17.4,
+    "cost_usd": 0.029246100000000004,
+    "models": [
+     "claude-haiku-5-5",
+     "claude-opus-5-5"
+    ],
+    "error": false,
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.0169476
+    }
+   }
+  ],
+  "b2": [
+   {
+    "reply": "**Clarifying questions:**\n\n1. **Rules 3 and 4 round at different points.** Rule 3 rounds each line's discount down. Rule 4 sums the unrounded discounts and rounds once at the end. With several non-sale items, these can differ. For example, two lines at 1005\u00a2 each give 100 + 100 = 200 when rounded per line, but floor(201.0) = 201 when summed first. Which should `discount` be?\n   - (a) The sum of the per-line rounded discounts, so it matches what `lines` subtracted.\n   - (b) floor(10% of the summed non-sale subtotal), as rule 4 says.\n\n2. **Rules 5 and 6 can give different totals for the same reason.** Rule 5 sums `lines`, which use per-line rounding. Rule 6 subtracts `discount` from the gross subtotal. If the two disagree, which one decides `total`? Or should I assume `lines`, `discount` and `total` must always be consistent, meaning gross \u2212 discount = sum(lines)?\n\n3. **Is any other validation needed?** Should negative quantities or negative prices also raise ValueError, or only `qty == 0` and an empty list? Should missing keys or non-integer values be checked?",
+    "seconds": 6.6,
+    "cost_usd": 0.0214331,
+    "models": [
+     "claude-haiku-5-5",
+     "claude-opus-5-5"
+    ],
+    "error": false,
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.018088800000000002
+    }
+   },
+   {
+    "reply": "**Clarifying questions:**\n\n1. **Rules 3\u20136 conflict when a member has more than one non-sale item.** Rule 3 rounds the discount down on each line. Rule 4 sums the unrounded 10% amounts and rounds down once. These can give different results.\n\n   Example: a member buys two non-sale items, each `{\"price\": 5, \"qty\": 1}`.\n   - **Rules 3 and 5:** each line's discount is floor(0.5) = 0. So `lines = [5, 5]` and `total = 10`.\n   - **Rules 4 and 6:** `discount` is floor(0.5 + 0.5) = 1, so `total = 10 \u2212 1 = 9`.\n\n   Which should we use?\n   - **(a) Round each line.** Round down per line, `discount` is the sum of the line discounts, and `total` is `sum(lines)`.\n   - **(b) Round once on the total.** `discount` and `total` follow Rules 4 and 6. If so, how should `lines` be computed so they add up to `total`? For example, should the leftover cent(s) go to a particular line?\n   - **(c) Something else.** For example, keep `discount` from Rule 4 and `total` from Rule 5 even though `total \u2260 gross \u2212 discount`.\n\n2. **Should other invalid inputs raise `ValueError`?** Rule 1 only covers an empty list and a quantity of exactly 0. What about:\n   - a negative quantity or negative price\n   - a non-integer quantity or price\n   - missing keys\n\n   Or should these be treated as valid, or left undefined?",
+    "seconds": 14.2,
+    "cost_usd": 0.024306700000000004,
+    "models": [
+     "claude-haiku-5-5",
+     "claude-opus-5-5"
+    ],
+    "error": false,
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.016347999999999998
+    }
+   },
+   {
+    "reply": "The rules conflict once there is more than one non-sale item, so I need a few clarifications:\n\n1. **Per-line vs. aggregate rounding (rules 3 and 4 against rules 5 and 6):** Rule 3 rounds each line's 10% discount down separately. Rule 4 sums first and then rounds down once. These can give different results. For example, a member with two non-sale items `{\"price\": 5, \"qty\": 1}`:\n   - Per-line: each line discount is floor(0.5) = 0, so `lines = [5, 5]` and rule 5 gives `total = 10`.\n   - Aggregate: `discount` is floor(1.0) = 1, so rule 6 gives `total = 9`.\n\n   Which rounding is correct?\n   - (a) Per-line rounding, with `discount` equal to the sum of the per-line discounts, so `total` = sum(lines).\n   - (b) Aggregate rounding for `discount` and `total`, even if `total` then differs from sum(lines). If so, should `lines` still use per-line rounding?\n   - (c) Something else, such as giving the leftover rounding cent to a particular line.\n\n2. **Other invalid input:** Should a negative quantity (or a negative price) also raise ValueError, or is only `qty == 0` invalid? Should missing keys or non-integer values be validated?\n\n3. **Non-members:** Can I confirm that non-members get no line discounts at all? Then `lines` is just price \u00d7 qty, `discount` is 0, and `total` is the plain sum.",
+    "seconds": 11.3,
+    "cost_usd": 0.0210152,
+    "models": [
+     "claude-haiku-5-5",
+     "claude-opus-5-5"
+    ],
+    "error": false,
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.016163999999999998
+    }
+   }
+  ],
+  "coder_haiku": [
+   {
+    "reply": "Implemented `invoice(items, member)` in `invoice.py` and wrote 19 pytest tests. All 19 pass under `<fcp>/.venv/bin/python -m pytest -q`.\n\n- `/work/ws_invoice_impl_haiku/invoice.py`\n- `/work/ws_invoice_impl_haiku/test_invoice.py`\n\nAll amounts are integer cents. The member discount is `gross // 10`, which rounds down, and each line is its gross minus that discount. The tests cover the request's example, non-members, sale lines, line order, rounding, the error cases, and 500 seeded random orders checked against a reference calculation.\n\nDecisions where the request was unclear:\n\n1. **Rules 3 and 4 round differently.** Rule 3 rounds each line's discount down. Rule 4 sums the 10% amounts and rounds once. Rules 5 and 6 both define `total`, and they only agree when the invoice discount equals the sum of the line discounts. I used the per-line sum. For example, two member lines of 15 cents each, neither on sale, give lines `[14, 14]`, discount `2`, total `28`. The aggregate reading gives discount `3`, and then rule 5 (total 28) and rule 6 (total 27) disagree. The team should confirm this. If they want the aggregate, rules 5 and 6 need to change.\n2. **Quantities below 1 raise ValueError.** The request only names 0. I also reject negatives, because floor division would turn a negative quantity into a negative discount, which is a surcharge.\n3. **Negative prices raise ValueError.** The request is silent.\n4. **Non-integer prices or quantities raise TypeError.** This covers floats, strings and bools, so money stays in whole cents. The request is silent.\n5. **Zero-price items are allowed** and produce zero amounts. The request is silent.\n",
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.017987999999999997
+    }
+   }
+  ],
+  "coder_sonnet": [
+   {
+    "reply": "I wrote `invoice.py` and `test_invoice.py` in the directory, and all 35 tests pass.\n\n`invoice(items, member)` works in integer cents with no floats. For each item it takes the gross amount, `price * qty`. A member gets `gross // 10` off that line unless the item is on sale. Each line is gross minus its discount, `discount` is the sum of the line discounts, and `total` is the sum of the lines. The example from the request returns `{\"lines\": [3599], \"discount\": 399, \"total\": 3599}`.\n\nThe tests cover the example, member vs non-member, sale items, line order and rounding. They also check the request's rules 2\u20136 on 2000 random orders, plus the error cases and edge cases (free items, very large amounts, input not mutated).\n\nDecisions where the request was unclear:\n\n1. **Rules 3\u20136 contradict each other on rounding.** Rule 3 rounds each line's discount down. Rule 4 can be read as rounding the combined discount once. These give different answers with two or more non-sale lines. For example, two lines of 1999 give 199 + 199 = 398 per line, but floor(399.8) = 399 combined. With the combined reading, rules 5 and 6 (`total` equals the sum of the lines and also gross minus `discount`) could not both hold.\n   - **What I did:** I rounded per line and summed the rounded discounts. For that example the output is `lines [1800, 1800], discount 398, total 3600`. Rules 2, 3, 5 and 6 and the example all hold, and the invoice adds up exactly.\n   - **Where it differs:** A reading of rule 4 as \"sum first, then round\" would give 399 in cases like that. It's worth confirming with the store team that per-line rounding is what they want. If not, I'd need to know whether the lines or the total should be the one that doesn't add up.\n2. **Extra rejections beyond rule 1.** The request only names empty `items` and `qty == 0`. I also raise `ValueError` for negative `qty` or `price`, non-integer `price` or `qty` (floats, strings, `None`, `True`/`False`), a missing `price`, `qty` or `sale` key, and an item that isn't a dict. Floats are likely dollars passed by mistake. A missing `sale` could silently give members a discount on a sale item. Negative values would make \"rounded down\" ambiguous. A price of 0 is allowed.\n3. **Rounding applies to the whole line, not the unit price.** The discount is 10% of `price * qty`, rounded once. Price 5 with qty 2 gives 1 cent off, not 0.\n4. **`sale` and `member` truthiness.** Both are treated as plain truthy/falsy values.\n5. **Input type.** `items` can be any iterable of dicts, not just a list. It is copied first, so the caller's input is never changed.\n\nFiles are in `/work/ws_invoice_impl_sonnet/`:\n- `invoice.py`\n- `test_invoice.py`\n",
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.02242
+    }
+   }
+  ],
+  "coder_opus": [
+   {
+    "reply": "I wrote `invoice()` and its tests. All 23 tests pass on the first run, with nothing to fix.\n\n**Implementation** (`invoice.py`): it uses only whole-number arithmetic, so there is no float rounding. Each line's amount is price \u00d7 quantity. A member's line that is not on sale loses `amount // 10`, which is 10% rounded down to the cent. `discount` is the sum of those line discounts, and `total` is the sum of the lines. The request's example gives `{\"lines\": [3599], \"discount\": 399, \"total\": 3599}` as expected.\n\n**Tests** (`test_invoice.py`) cover:\n- the request's example;\n- each error case;\n- line order;\n- non-members, sale items, rounding down and mixed orders;\n- the one case where the rules disagree;\n- a check over 2,000 random orders that `total == sum(lines) == gross - discount` always holds.\n\n**Decisions where the request was unclear:**\n\n1. **The rules contradict each other, and the team should confirm my choice.**\n   - **The conflict:** rule 3 rounds the discount down on each line. Rule 4 adds up the full-price amounts and rounds down once. With more than one discounted line these give different numbers. For two non-sale items at 15 cents each, the line discounts are 1 + 1 = 2 cents, but rule 4 gives 3 cents. Then rules 5 and 6 can't both be true: the sum of the lines is 28, while gross minus the rule 4 discount is 27.\n   - **What I did:** I round each line, as rule 3 says, and report `discount` as the sum of the line discounts. That keeps rules 2, 3, 5 and 6 exact and departs from rule 4 only in where the rounding happens.\n   - **What it costs:** compared with the literal rule 4, a member can get up to one cent less discount for each discounted line beyond the first. The two methods agree whenever at most one line is discounted, as in the example.\n   - **The alternative:** compute the discount the rule 4 way and spread the leftover cents across lines. That would round some lines up instead of down, against rule 3.\n2. **Extra input checks:** the request only says to reject an empty list and a quantity of 0. I also raise `ValueError` for:\n   - a negative quantity or a negative price;\n   - a missing key or an item that isn't a dict;\n   - a price or quantity that isn't a whole number (a float or a `True`/`False` value);\n   - a `sale` or `member` value that isn't a real `True`/`False`.\n3. **A price of 0 is allowed**, since a free item is a plausible order line.\n4. **The input list is never changed**, and the tests check this.\n\nFiles are in /work/ws_invoice_impl_opus:\n- invoice.py\n- test_invoice.py\n",
+    "grade": 2,
+    "judge": {
+     "reply": "2",
+     "cost_usd": 0.019868
+    }
+   }
+  ]
+ }
+}

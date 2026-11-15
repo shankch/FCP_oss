@@ -1,0 +1,168 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate(a, b) is memoryless (frame.md: "Calls are
+# independent: the function keeps no state between them"), so the reference
+# model is a combinational function of the current call's arguments: there is
+# no ghost state to carry between cycles. Every output is checked against it.
+#
+# A rotation of b by r (0 <= r < len(b)) is b[r..] + b[..r-1]; its character k
+# is b[r + k] if r + k < len(b), else b[r + k - len(b)] (the `%` operator needs
+# a constant divisor, so the wrap-around is written as a conditional). A string
+# of length n occurs in a at position p for p in 0 .. len(a) - n; when b is
+# longer than a that range is empty and nothing occurs.
+defs:
+  # b itself is a contiguous substring of a (true for an empty b: the empty
+  # string occurs at position 0 of every a, including the empty one)
+  b_sub: 'any(p < len(a) - len(b) + 1: all(k < len(b): a[p + k] == b[k]))'
+  # some rotation of b is a contiguous substring of a (r = 0 is b itself)
+  rot_sub: 'any(r < len(b): any(p < len(a) - len(b) + 1: all(k < len(b): a[p + k] == (r + k < len(b) ? b[r + k] : b[r + k - len(b)]))))'
+  # the reference answer: b, or some rotation of b, occurs in a
+  match: 'b_sub || rot_sub'
+  # the call returned the bool True / the bool False (outcome 0 = returned a bool)
+  ret_true: 'outcome == 0 && result'
+  ret_false: 'outcome == 0 && !result'
+  # the six example calls of the docstring
+  ex1: 'a == "abcd" && b == "abd"'
+  ex2: 'a == "hello" && b == "ell"'
+  ex3: 'a == "whassup" && b == "psus"'
+  ex4: 'a == "abab" && b == "baa"'
+  ex5: 'a == "efef" && b == "eeff"'
+  ex6: 'a == "himenss" && b == "simen"'
+
+properties:
+  # --- R-RET-1: every call returns a bool ---------------------------------
+  - id: RB-RET-1
+    req: R-RET-1
+    expr: 'outcome == 0'
+    note: >-
+      Reading 1 of "Complete this function": every call on any two strings
+      (within the 16-character trace domain, including empty strings) returns
+      True or False, never raising, hanging or returning another type.
+      Reading 1 of the "=> True / => False" notation: only the bools count, so
+      a truthy/falsy value of another type (outcome 2) violates this.
+
+  # --- R-RULE-1: match -> True ---------------------------------------------
+  - id: RB-RULE-1
+    req: R-RULE-1
+    pattern: implies
+    args: {trigger: 'match', cond: 'ret_true'}
+    note: >-
+      Whenever b or some rotation of b occurs as a contiguous substring of a,
+      the call returns the bool True. Reading 1 of "the prompt states no rule":
+      the rotation rule as the requirement states it. The prompt alone
+      constrains only the six example calls (reading 3 is the most literal
+      reading of the prompt text), but the requirement explicitly states the
+      rotation rule and "Complete this function" asks for a function defined on
+      every call; this is a decision, not something the prompt says. Empty b:
+      reading 1, the empty string occurs in every a, so the call returns True.
+      Case: reading 1, characters are compared by exact code.
+      "returns True" is read as outcome 0 and result 1 (result 1 already
+      implies outcome 0 by frame rule F-ZERO).
+
+  # --- R-RULE-2: no match -> False -----------------------------------------
+  - id: RB-RULE-2
+    req: R-RULE-2
+    pattern: implies
+    args: {trigger: '!match', cond: 'ret_false'}
+    note: >-
+      Whenever neither b nor any rotation of b occurs as a contiguous substring
+      of a, the call returns the bool False. "returns False" is read literally
+      as outcome 0 and result 0: an exception (outcome 1, result forced to 0)
+      does not count as returning False. Readings: rotation rule (1), an empty
+      b always matches so this rule never applies to it (1), exact character
+      codes (1).
+  - id: RB-RULE-2-LONG
+    req: R-RULE-2
+    pattern: implies
+    args: {trigger: 'len(b) > len(a)', cond: 'ret_false'}
+    note: >-
+      The stated special case "when b is longer than a the call returns
+      False". It follows from RB-RULE-2 (no string longer than a occurs in a)
+      and is kept as its own item because the requirement states it.
+
+  # --- R-EX-1 .. R-EX-6: the six example calls ------------------------------
+  # Each example fixes the answer of one call, so it is formalized as a
+  # property (that call must return exactly that bool) and as a scenario (the
+  # call with that answer must be possible), keeping the decomposer's kind.
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'ex1', cond: 'ret_false'}
+    note: 'candidate("abcd","abd") => False, read as the bool False (outcome 0).'
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'ex2', cond: 'ret_true'}
+    note: 'candidate("hello","ell") => True, read as the bool True (outcome 0).'
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'ex3', cond: 'ret_false'}
+    note: 'candidate("whassup","psus") => False, read as the bool False (outcome 0).'
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'ex4', cond: 'ret_true'}
+    note: 'candidate("abab","baa") => True, read as the bool True (outcome 0).'
+  - id: RB-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 'ex5', cond: 'ret_false'}
+    note: 'candidate("efef","eeff") => False, read as the bool False (outcome 0).'
+  - id: RB-EX-6
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 'ex6', cond: 'ret_true'}
+    note: 'candidate("himenss","simen") => True, read as the bool True (outcome 0).'
+
+scenarios:
+  - {id: RB-EX-1-COV, req: R-EX-1, cover: 'ex1 && ret_false'}
+  - {id: RB-EX-2-COV, req: R-EX-2, cover: 'ex2 && ret_true'}
+  - {id: RB-EX-3-COV, req: R-EX-3, cover: 'ex3 && ret_false'}
+  - {id: RB-EX-4-COV, req: R-EX-4, cover: 'ex4 && ret_true'}
+  - {id: RB-EX-5-COV, req: R-EX-5, cover: 'ex5 && ret_false'}
+  - {id: RB-EX-6-COV, req: R-EX-6, cover: 'ex6 && ret_true'}
+  # non-vacuity of the rule: each branch of the model is reachable
+  - id: RB-RULE-1-ROT
+    req: R-RULE-1
+    cover: 'rot_sub && !b_sub && ret_true'
+    note: 'A call where only a proper rotation of b (not b itself) occurs in a, answered True.'
+  - id: RB-RULE-1-EMPTY
+    req: R-RULE-1
+    cover: 'len(b) == 0 && ret_true'
+    note: 'A call with an empty b, answered True (empty-b reading 1).'
+  - id: RB-RULE-2-NOMATCH
+    req: R-RULE-2
+    cover: 'len(b) > 0 && len(b) <= len(a) && !match && ret_false'
+    note: 'A call where b fits in a but no rotation occurs, answered False.'
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the function's name and argument order. It is part of the
+      interface encoding (design.yaml `function`, frame.md "Calls": a is the
+      first argument, b the second), not a property of the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the function adapter; design.yaml lists it in
+      `frame`, which is added to every formalization set, and frame.md says it
+      need not be restated.
+    covered_by: [F-ZERO]
+  - req: R-FR-2
+    reason: >-
+      Frame rule F-CODE of the function adapter; design.yaml lists it in
+      `frame`, which is added to every formalization set, and frame.md says it
+      need not be restated.
+    covered_by: [F-CODE]
+
+decisions:
+  - {req: R-RET-1, phrase: 'Complete this function', reading: 1}
+  - {req: R-RET-1, phrase: '=> True / => False (the result notation of the examples)', reading: 1}
+  - {req: R-RULE-1, phrase: 'the prompt states no rule, only six examples', reading: 1}
+  - {req: R-RULE-1, phrase: 'an empty b (no example has one)', reading: 1}
+  - {req: R-RULE-1, phrase: 'upper and lower case (every example is lower case)', reading: 1}
+  - {req: R-RULE-2, phrase: 'the prompt states no rule, only six examples', reading: 1}
+  - {req: R-RULE-2, phrase: 'an empty b (no example has one)', reading: 1}
+  - {req: R-RULE-2, phrase: 'upper and lower case (every example is lower case)', reading: 1}

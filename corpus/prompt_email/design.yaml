@@ -1,0 +1,84 @@
+fcp: '0.1'
+design: prompt_email
+summary: A prompt treated as a chip specification. The response under test is a text email; the FCP text adapter (frame.md) encodes it as a trace with one unit per cycle, and every RTL variant is a response
+  replayed as a chip.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt P-EMAIL-1: Aurora X2 launch email'}
+- {id: FRAME, path: frame.md, title: 'FCP text adapter, version 0.1'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: subject, dir: out, width: 1, desc: unit is the subject line}
+  - {name: greet, dir: out, width: 1, desc: unit greets the reader by first name}
+  - {name: feature, dir: out, width: 1, desc: unit describes a product feature}
+  - {name: benefit, dir: out, width: 1, desc: unit states a benefit to the customer}
+  - {name: price, dir: out, width: 1, desc: 'unit states the regular price, $249'}
+  - {name: offer, dir: out, width: 1, desc: unit mentions the launch offer}
+  - {name: ends, dir: out, width: 1, desc: unit states when the launch offer ends}
+  - {name: rival, dir: out, width: 1, desc: unit mentions a competitor}
+  - {name: cta, dir: out, width: 1, desc: unit asks the reader to act}
+  - {name: signoff, dir: out, width: 1, desc: unit belongs to the closing}
+  - {name: eos, dir: out, width: 1, desc: the response has ended}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 24, cover_depth: 24}
+frame:
+- {id: F-EOS, req: R-FR-1, expr: prev(eos) -> eos}
+- {id: F-NUL, req: R-FR-2, expr: eos -> !(subject || greet || feature || benefit || price || offer || ends || rival || cta || signoff)}
+- {id: F-SIG, req: R-FR-4, expr: signoff -> !(subject || greet || feature || benefit || price || offer || ends || rival || cta)}
+- id: F-LEN
+  req: R-FR-3
+  pattern: bounded_wait
+  args: {cond: '!eos', max: 14}
+rtl:
+  empty:
+    top: response
+    files: [rtl/empty.v]
+    desc: Anti-response, the empty response (eos from the first unit).
+    origin: fcp-text-adapter
+  haiku_la:
+    top: response
+    files: [rtl/haiku_la.v]
+    origin: fcp-text-adapter
+    desc: response haiku, labels by rules + labeler A
+  haiku_lb:
+    top: response
+    files: [rtl/haiku_lb.v]
+    origin: fcp-text-adapter
+    desc: response haiku, labels by rules + labeler B
+  haiku_lh:
+    top: response
+    files: [rtl/haiku_lh.v]
+    origin: fcp-text-adapter
+    desc: response haiku, labels by rules + the adjudicator
+  opus_la:
+    top: response
+    files: [rtl/opus_la.v]
+    origin: fcp-text-adapter
+    desc: response opus, labels by rules + labeler A
+  opus_lb:
+    top: response
+    files: [rtl/opus_lb.v]
+    origin: fcp-text-adapter
+    desc: response opus, labels by rules + labeler B
+  opus_lh:
+    top: response
+    files: [rtl/opus_lh.v]
+    origin: fcp-text-adapter
+    desc: response opus, labels by rules + the adjudicator
+  sonnet_la:
+    top: response
+    files: [rtl/sonnet_la.v]
+    origin: fcp-text-adapter
+    desc: response sonnet, labels by rules + labeler A
+  sonnet_lb:
+    top: response
+    files: [rtl/sonnet_lb.v]
+    origin: fcp-text-adapter
+    desc: response sonnet, labels by rules + labeler B
+  sonnet_lh:
+    top: response
+    files: [rtl/sonnet_lh.v]
+    origin: fcp-text-adapter
+    desc: response sonnet, labels by rules + the adjudicator

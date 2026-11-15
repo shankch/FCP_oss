@@ -1,0 +1,3 @@
+16 items (2 assumptions, 11 properties, 3 scenarios); ghost model driven by req (priority pointer, registered decision, no-request-since-reset flag); every requirement formalized.
+Readings: R-OV-1 literal (rose(req[i]) -> gnt[i]); R-PRI-2 literal "head moves by one regardless of the winner" (true round robin listed as the alternative, not formalized); R-FAIR-1 as bounded_wait max N; R-RST-1 as always-mode gnt==0 plus after_reset.
+Spec problems: R-OV-1 vs R-G-2/R-G-3/R-WC-1/R-G-1; R-PRI-3 vs R-PRI-1/R-PRI-2/R-FAIR-1 (starvation); first reset cycle vs registered output; grants last one cycle vs hold-until-grant re-grant; rotation timing unstated.

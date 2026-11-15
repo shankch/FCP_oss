@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\nFIX = \"\"\"\nAdd more test cases.\n\"\"\"\n\n\ndef vowels_count(s):\n    \"\"\"Write a function vowels_count which takes a string representing\n    a word as input and returns the number of vowels in the string.\n    Vowels in this case are 'a', 'e', 'i', 'o', 'u'. Here, 'y' is also a\n    vowel, but only when it is at the end of the given word.\n\n    Example:\n    >>> vowels_count(\"abcde\")\n    2\n    >>> vowels_count(\"ACEDY\")\n    3\n    >>> vowels_count(\"\")\n    0\n    >>> vowels_count(\"y\")\n    1\n    >>> vowels_count(\"Y\")\n    1\n    >>> vowels_count(\"yellow\")\n    2\n    >>> vowels_count(\"key\")\n    2\n    >>> vowels_count(\"rhythm\")\n    0\n    >>> vowels_count(\"bcdfg\")\n    0\n    >>> vowels_count(\"AEIOU\")\n    5\n    >>> vowels_count(\"aeiouy\")\n    6\n    >>> vowels_count(\"yay\")\n    2\n    >>> vowels_count(\"Queue\")\n    4\n    \"\"\"\n    if not s:\n        return 0\n    lowered = s.lower()\n    count = sum(1 for ch in lowered if ch in \"aeiou\")\n    if lowered[-1] == \"y\":\n        count += 1\n    return count\n\n\nif __name__ == \"__main__\":\n    import doctest\n\n    doctest.testmod()\n\n    # Additional assertion-based tests\n    assert vowels_count(\"abcde\") == 2\n    assert vowels_count(\"ACEDY\") == 3\n    assert vowels_count(\"\") == 0\n    assert vowels_count(\"y\") == 1\n    assert vowels_count(\"Y\") == 1\n    assert vowels_count(\"yellow\") == 2\n    assert vowels_count(\"key\") == 2\n    assert vowels_count(\"KEY\") == 2\n    assert vowels_count(\"rhythm\") == 0\n    assert vowels_count(\"bcdfg\") == 0\n    assert vowels_count(\"AEIOU\") == 5\n    assert vowels_count(\"aeiouy\") == 6\n    assert vowels_count(\"yay\") == 2\n    assert vowels_count(\"Queue\") == 4\n    assert vowels_count(\"bye\") == 1\n    assert vowels_count(\"syzygy\") == 1\n    assert vowels_count(\"a\") == 1\n    assert vowels_count(\"b\") == 0\n    print(\"All tests passed.\")\n```",
+  "seconds": 8.3,
+  "cost_usd": 0.0250559,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "NO_QUESTIONS",
+  "seconds": 3.3,
+  "cost_usd": 0.0110051,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "```python\nFIX = \"\"\"\nAdd more test cases.\n\"\"\"\n\ndef vowels_count(s):\n    \"\"\"Write a function vowels_count which takes a string representing\n    a word as input and returns the number of vowels in the string.\n    Vowels in this case are 'a', 'e', 'i', 'o', 'u'. Here, 'y' is also a\n    vowel, but only when it is at the end of the given word.\n\n    Example:\n    >>> vowels_count(\"abcde\")\n    2\n    >>> vowels_count(\"ACEDY\")\n    3\n    >>> vowels_count(\"\")\n    0\n    >>> vowels_count(\"y\")\n    1\n    >>> vowels_count(\"Y\")\n    1\n    >>> vowels_count(\"rhythm\")\n    0\n    >>> vowels_count(\"yellow\")\n    2\n    >>> vowels_count(\"key\")\n    2\n    >>> vowels_count(\"AEIOU\")\n    5\n    >>> vowels_count(\"bcdfg\")\n    0\n    >>> vowels_count(\"yay\")\n    2\n    \"\"\"\n    vowels = set(\"aeiouAEIOU\")\n    count = sum(1 for ch in s if ch in vowels)\n    if s and s[-1] in \"yY\":\n        count += 1\n    return count\n\n\nif __name__ == \"__main__\":\n    import doctest\n    doctest.testmod()\n```\n\n**How it works:**\n- It counts every character in the set `aeiouAEIOU`, so the check ignores case.\n- It adds one more if the last character is `y` or `Y`. The `if s` guard keeps an empty string from raising an `IndexError`.\n\n**Extra test cases (for the `FIX` note):**\n- The empty string returns `0`.\n- A lone `y` or `Y` counts, since it is the last character.\n- `\"rhythm\"` returns `0`, because its `y` is not at the end.\n- `\"yellow\"` returns `2`, because a leading `y` does not count.\n- `\"key\"` returns `2`, because a trailing `y` counts.\n- `\"yay\"` returns `2`: the first `y` is skipped, and the `a` and the final `y` count.\n\nRun the file directly to check all the examples with `doctest`.",
+  "seconds": 7.9,
+  "cost_usd": 0.0219801,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

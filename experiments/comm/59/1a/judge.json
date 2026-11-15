@@ -1,0 +1,16 @@
+{
+ "b2": {
+  "questions": "1. The description says \"smallest **or** largest prime factor.\" Which should it return? The example `candidate(13195) \u2192 29` suggests the largest, since 13195 = 5 \u00d7 7 \u00d7 13 \u00d7 29. The `2048 \u2192 2` example doesn't settle it, because 2 is the only prime factor. Should it always return the largest prime factor?\n2. If it depends on some condition, what decides between smallest and largest?",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.010196,
+  "seconds": 2.5
+ },
+ "b0": {
+  "questions": "The two examples settle the ambiguity in the docstring. For `13195 = 5 \u00d7 7 \u00d7 13 \u00d7 29`, the expected answer is 29, which is the **largest** prime factor. For `2048 = 2\u00b9\u00b9`, the only prime factor is 2. So the function should return the largest prime factor.\n\n```python\ndef candidate(n: int):\n    \"\"\"Return the smallest or largest prime factor of n. Assume n > 1 and is not a prime.\n    >>> candidate(13195)\n    29\n    >>> candidate(2048)\n    2\n    \"\"\"\n    largest = None\n    factor = 2\n    while factor * factor <= n:\n        while n % factor == 0:\n            largest = factor\n            n //= factor\n        factor += 1 if factor == 2 else 2\n    if n > 1:\n        largest = n\n    return largest\n```\n\n**How it works:**\n- It divides out each factor fully, starting at 2, so every factor that divides `n` must be prime.\n- After 2, it only tries odd numbers.\n- It stops once `factor\u00b2 > n`. Any leftover `n > 1` must be a prime, and it is larger than all factors found so far.\n- This takes O(\u221an) time.\n\n**Checking the examples:**\n- `candidate(13195)`: it removes 5, 7 and 13, leaving 29. Since 29 > 1, it returns **29**.\n- `candidate(2048)`: it divides out 2 eleven times, leaving 1. It returns **2**.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.016326800000000002,
+  "seconds": 3.4
+ }
+}

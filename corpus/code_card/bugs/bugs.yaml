@@ -1,0 +1,41 @@
+# Planted bugs: one textual patch of impl/ref.py each (the target text must
+# occur exactly once).  `violates` is the gold requirement each one breaks.
+design: code_card
+bugs:
+- id: C1
+  desc: the bonus needs more than $100.00
+  violates: [R-BONUS-1]
+  patch: {from: 'if amount >= 10_000 else 0', to: 'if amount > 10_000 else 0'}
+- id: C2
+  desc: a load that reaches exactly $500.00 is rejected
+  violates: [R-LOAD-1]
+  patch: {from: 'if self._balance + amount > self.CAP:', to: 'if self._balance + amount >= self.CAP:'}
+- id: C3
+  desc: spend lets the balance go below zero
+  violates: [R-SPEND-1]
+  patch: {from: "        if amount > self._balance:\n            return False\n", to: ""}
+- id: C4
+  desc: a spend of exactly the balance is refused
+  violates: [R-SPEND-1]
+  patch: {from: 'if amount > self._balance:', to: 'if amount >= self._balance:'}
+- id: C5
+  desc: an amount of 0 is accepted
+  violates: [R-RANGE-1]
+  patch: {from: 'if not 1 <= amount <= 50_000:', to: 'if not 0 <= amount <= 50_000:'}
+- id: C6
+  desc: a refused spend empties the card
+  violates: [R-SPEND-1]
+  patch: {from: "        if amount > self._balance:\n            return False\n", to: "        if amount > self._balance:\n            self._balance = 0\n            return False\n"}
+- id: C7
+  desc: the bonus is returned but never put on the card
+  violates: [R-BAL-1]
+  patch: {from: "        self._balance += bonus\n", to: ""}
+- id: C8
+  desc: balance is returned in dollars, as a float
+  violates: [R-BAL-1]
+  patch: {from: "        return self._balance\n", to: "        return self._balance / 100\n"}
+- id: C9
+  desc: the amount check is written inline in each method; the same behaviour, written differently
+  violates: []
+  note: a refactoring, not a bug, which FCP must not flag
+  patch: {from: "    def spend(self, amount):\n        self._check(amount)\n", to: "    def spend(self, amount):\n        if amount < 1 or amount > 50_000:\n            raise ValueError(\"an amount is 1 to 50,000 cents\")\n"}

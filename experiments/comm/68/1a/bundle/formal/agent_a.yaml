@@ -1,0 +1,219 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # the returned pair [value, index] names a node of arr (0-based index)
+  is_node: "plucked[1] < len(arr) && arr[plucked[1]] == plucked[0]"
+  # no node of arr before the returned index has the returned value
+  first_of_value: "all(j < len(arr): j < plucked[1] -> arr[j] != plucked[0])"
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: "all(i < len(arr): arr[i] >= 0)"
+    note: >-
+      Every element of arr is a non-negative integer. The interface already
+      encodes arr as unsigned 16-bit slots and frame.md excludes negative
+      numbers from the trace, so this assumption holds on every trace; it is
+      stated to record the obligation.
+  - id: RA-IN-3
+    req: R-IN-3
+    expr: "len(arr) <= 10000"
+    note: >-
+      Upper bound of '1 <= nodes.length <= 10000', with nodes.length read as
+      the length of arr. The interface bounds arr to 8 elements, so this
+      always holds on the trace.
+  - id: RA-IN-4
+    req: R-IN-4
+    expr: "all(i < len(arr): arr[i] >= 0)"
+    note: >-
+      '0 <= node.value', with node.value read as the integer element of arr
+      itself (the interface carries integers, not node objects). Restates
+      RA-IN-1.
+
+properties:
+  - id: RA-SEL-1
+    req: R-SEL-1
+    pattern: implies
+    args:
+      trigger: "len(arr) > 0"
+      cond: "outcome == 0 && len(plucked) == 2 && is_node"
+    note: >-
+      'pluck one of the nodes and return it'. Read as: a node is plucked
+      whenever one qualifies; R-EMP-1 says an empty arr returns [], so this
+      cannot hold for every input. Under the reading taken for R-SEL-2
+      (no criterion is stated) every node qualifies, so a node is plucked
+      exactly when arr is non-empty. 'return it' is read as returning it in
+      the form R-OUT-1 gives, [value, index]. Whether 'pluck' also removes
+      the node from arr is not observable on this interface (arr is an
+      input), so it does not affect this item.
+  - id: RA-SEL-2
+    req: R-SEL-2
+    pattern: implies
+    args:
+      trigger: "len(plucked) != 0"
+      cond: "plucked[0] in arr"
+    note: >-
+      'The plucked node should be the node with the value.' The sentence
+      names no criterion: a qualifier such as 'smallest even' appears to be
+      missing (the examples fit 'smallest even value', and also 'the node at
+      index 1'). Taking the literal text without adding a criterion, the
+      only constraint left is that the plucked value is the value of a node
+      of arr. Which node is plucked is constrained only by R-SEL-3 and the
+      examples, so outputs on other inputs are not determined.
+  - id: RA-SEL-3
+    req: R-SEL-3
+    pattern: implies
+    args:
+      trigger: "len(plucked) >= 2 && count(j < len(arr): arr[j] == plucked[0]) > 1"
+      cond: "is_node && first_of_value"
+    note: >-
+      'If multiple nodes with the value are found return the node that has
+      smallest index.' 'the value' is read as the value of the plucked node,
+      since R-SEL-2 names no criterion (see RA-SEL-2). When several nodes of
+      arr carry the returned value, the returned index is the smallest index
+      at which that value occurs. 'return the node' is read as returning
+      [value, index] as R-OUT-1 says.
+  - id: RA-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args:
+      trigger: "len(plucked) != 0"
+      cond: "len(plucked) == 2"
+    note: >-
+      'The plucked node should be returned in a list, [ value, its index ]':
+      whenever the call returns a non-empty list (a node was plucked), that
+      list has exactly two elements. That the first element is the node's
+      value is checked together with the index in RA-OUT-2.
+  - id: RA-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args:
+      trigger: "len(plucked) >= 2"
+      cond: "is_node"
+    note: >-
+      'its index' is read as the 0-based position of the plucked node in arr,
+      as Examples 1, 2 and 4 show: the second element is an index of arr and
+      the first element is the element of arr at that index.
+  - id: RA-EMP-1
+    req: R-EMP-1
+    pattern: implies
+    args:
+      trigger: "len(arr) == 0"
+      cond: "outcome == 0 && len(plucked) == 0"
+    note: >-
+      'If ... the given array is empty, return [].' The empty arr is taken as
+      a legal input, although the constraint '1 <= nodes.length' (R-IN-2)
+      excludes it: this clause and Example 3 both state the result for it.
+      'return []' overrides 'pluck one of the nodes' (R-SEL-1) for this
+      input. Returning [] means the call returns normally (outcome 0) with
+      the empty list.
+  - id: RA-EMP-2
+    req: R-EMP-2
+    pattern: implies
+    args:
+      trigger: "len(arr) == 0"
+      cond: "outcome == 0 && len(plucked) == 0"
+    note: >-
+      'If there are no values ... return [].' Read literally, 'there are no
+      values' means arr holds no values, the same case as the empty array of
+      R-EMP-1, so this item equals RA-EMP-1. The original likely read 'no
+      even values'; that qualifier is absent. Under the reading taken for
+      R-SEL-2 every node qualifies, so 'no node with the value' would give
+      the same condition anyway.
+  - id: RA-EX-1-P
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "arr == [4, 2, 3]"
+      cond: "outcome == 0 && plucked == [2, 1]"
+    note: Example 1 as an input/output requirement of the function.
+  - id: RA-EX-2-P
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: "arr == [1, 2, 3]"
+      cond: "outcome == 0 && plucked == [2, 1]"
+    note: >-
+      Example 2 is taken as authoritative. It rules out 'smallest value'
+      (which would give [1, 0]) and is consistent with the literal
+      no-criterion reading of R-SEL-2.
+  - id: RA-EX-3-P
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: "len(arr) == 0"
+      cond: "outcome == 0 && len(plucked) == 0"
+    note: >-
+      Example 3: the empty list is a legal input and returns [], although
+      '1 <= nodes.length' (R-IN-2) excludes it.
+  - id: RA-EX-4-P
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: "arr == [5, 0, 3, 0, 4, 2]"
+      cond: "outcome == 0 && plucked == [0, 1]"
+    note: Example 4 as an input/output requirement of the function.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "arr == [4, 2, 3] && outcome == 0 && plucked == [2, 1]"
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: "arr == [1, 2, 3] && outcome == 0 && plucked == [2, 1]"
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: "len(arr) == 0 && outcome == 0 && len(plucked) == 0"
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: "arr == [5, 0, 3, 0, 4, 2] && outcome == 0 && plucked == [0, 1]"
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a Python implementation of pluck(arr).
+      The function section of design.yaml realizes it; it is not a property
+      of the trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition: arr is a flat list of nodes, a node's value is the element
+      and its index is its 0-based position. No tree structure is encoded in
+      arr, so it plays no role in the result. Used by the items that relate
+      plucked to arr.
+    covered_by: [RA-SEL-1, RA-SEL-2, RA-SEL-3, RA-OUT-2]
+  - req: R-IN-2
+    reason: >-
+      The lower bound '1 <= nodes.length' (arr never empty) contradicts
+      R-EMP-1 and Example 3 (R-EX-3), which both state the result for an
+      empty arr. Assuming len(arr) >= 1 would make RA-EMP-1 vacuous and the
+      scenario RA-EX-3 unreachable. The two explicit statements of behaviour
+      are taken over the constraint: the bound is treated as stale, no
+      assumption is made, and the empty arr stays a legal input.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the list adapter, part of every formalization set by
+      construction (design.yaml frame item F-EMPTY); frame.md says it need
+      not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-DEF-1, phrase: "a branch of a tree", reading: 1}
+  - {req: R-IN-2, phrase: "1 <= nodes.length", reading: 2}
+  - {req: R-IN-2, phrase: "nodes.length", reading: 1}
+  - {req: R-IN-3, phrase: "nodes.length", reading: 1}
+  - {req: R-IN-4, phrase: "node.value", reading: 1}
+  - {req: R-SEL-1, phrase: "pluck one of the nodes", reading: 2}
+  - {req: R-SEL-1, phrase: "return it", reading: 2}
+  - {req: R-SEL-1, phrase: "pluck", reading: 1}
+  - {req: R-SEL-2, phrase: "the node with the value", reading: 3}
+  - {req: R-SEL-3, phrase: "the value", reading: 3}
+  - {req: R-SEL-3, phrase: "return the node", reading: 2}
+  - {req: R-OUT-1, phrase: "returned in a list, [ value, its index ]", reading: 1}
+  - {req: R-OUT-2, phrase: "its index", reading: 1}
+  - {req: R-EMP-1, phrase: "the given array is empty", reading: 1}
+  - {req: R-EMP-1, phrase: "return []", reading: 1}
+  - {req: R-EMP-2, phrase: "no values", reading: 2}
+  - {req: R-EX-2, phrase: "Output: [2, 1]", reading: 1}
+  - {req: R-EX-3, phrase: "Input: []", reading: 1}

@@ -1,0 +1,16 @@
+{
+ "b2": {
+  "questions": "The docstring and the first example contradict each other.\n\n- 13195 = 5 \u00d7 7 \u00d7 13 \u00d7 29, so its largest prime factor is **29**. The example expects **5**, which is the smallest prime factor.\n- 2048 = 2\u00b9\u00b9 has only one prime factor, 2, so it fits either reading.\n\n**Clarifying questions:**\n\n1. Should the function return the **largest** prime factor, as the name and docstring say? If so, `largest_prime_factor(13195)` should return 29. Or should it return the **smallest** prime factor, as the example `largest_prime_factor(13195) == 5` suggests?\n2. If the example is a typo and the largest factor is intended, will the tests use the corrected value (29)?\n3. The docstring says to assume n > 1 and n is not prime. Should the function handle a prime input, for example by returning n, or can that case be ignored?",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0116521,
+  "seconds": 2.8
+ },
+ "b0": {
+  "questions": "```python\ndef largest_prime_factor(n: int):\n    \"\"\"Return the largest prime factor of n. Assume n > 1 and is not a prime.\n    >>> largest_prime_factor(13195)\n    29\n    >>> largest_prime_factor(2048)\n    2\n    \"\"\"\n    largest = None\n    # Remove all factors of 2\n    while n % 2 == 0:\n        largest = 2\n        n //= 2\n    # Check odd factors up to sqrt(n)\n    factor = 3\n    while factor * factor <= n:\n        while n % factor == 0:\n            largest = factor\n            n //= factor\n        factor += 2\n    # Whatever remains above 1 is a prime factor larger than any found so far\n    if n > 1:\n        largest = n\n    return largest\n```\n\n**How it works:**\n1. Divide out all factors of 2. After that, `n` is odd, so only odd candidates need checking.\n2. Try odd factors from 3 upward. Each one is divided out completely before moving on. Because smaller factors are always removed first, every divisor found this way is prime.\n3. The loop stops once `factor * factor > n`. Any `n > 1` left at that point must be prime, and it is the largest factor.\n\nThe worst case is O(\u221an) time, and the algorithm usually finishes faster because `n` shrinks as factors are removed.\n\n**Note on the docstring:** The example `largest_prime_factor(13195)` showed `5`, which is wrong. 13195 = 5 \u00d7 7 \u00d7 13 \u00d7 29, so the largest prime factor is **29**. I fixed the doctest to match.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.014336,
+  "seconds": 2.8
+ }
+}

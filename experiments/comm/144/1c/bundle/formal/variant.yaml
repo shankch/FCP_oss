@@ -1,0 +1,311 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+# Every reading flagged in requirements.yaml is taken as prescribed by the
+# request for this variant set (see `decisions`), even where it contradicts
+# other requirements. The contradictions are left in place and named in the
+# notes; nothing is repaired.
+
+defs:
+  # ---- x -------------------------------------------------------------
+  # position of the first "/" in x (len(x) if there is none)
+  xbar: 'count(i < len(x): !any(j < len(x): j <= i && x[j] == "/"))'
+  # R-IN-2 reading 2: [spaces] [sign] digits [spaces] "/" [spaces] [sign] digits [spaces]
+  xform: >-
+    count(i < len(x): x[i] == "/") == 1
+    && all(i < len(x): isdigit(x[i]) || isspace(x[i]) || x[i] == "+" || x[i] == "-" || x[i] == "/")
+    && any(i < len(x): i < xbar && isdigit(x[i]))
+    && any(i < len(x): i > xbar && isdigit(x[i]))
+    && all(i < len(x): (x[i] == "+" || x[i] == "-") -> isdigit(x[i + 1]))
+    && all(i < len(x): all(j < len(x): (i + 1 < j && isdigit(x[i]) && !isdigit(x[i + 1]) && isdigit(x[j])) -> (i < xbar && xbar < j)))
+  # the denominator of x is not zero: it has a digit other than 0
+  xnz: 'any(i < len(x): i > xbar && isdigit(x[i]) && x[i] != "0")'
+  # R-IN-4 reading 2: a fraction with optional sign and spaces, any numerator, non-zero denominator
+  xvalid: 'xform && xnz'
+  # R-IN-3 reading 2: numerals are digits only (no sign) and have no leading zero
+  xcanon: >-
+    all(i < len(x): isdigit(x[i]) || isspace(x[i]) || x[i] == "/")
+    && all(i < len(x): (x[i] == "0" && isdigit(x[i + 1])) -> isdigit(x[i - 1]))
+  # magnitude of the numerator of x: its digits before the "/", read in decimal
+  xnum: >-
+    sum(i < len(x): (i < xbar && isdigit(x[i])) ? (x[i] - "0") *
+      (count(j < len(x): i < j && j < xbar && isdigit(x[j])) == 0 ? 1 :
+       count(j < len(x): i < j && j < xbar && isdigit(x[j])) == 1 ? 10 :
+       count(j < len(x): i < j && j < xbar && isdigit(x[j])) == 2 ? 100 :
+       count(j < len(x): i < j && j < xbar && isdigit(x[j])) == 3 ? 1000 :
+       count(j < len(x): i < j && j < xbar && isdigit(x[j])) == 4 ? 10000 :
+       count(j < len(x): i < j && j < xbar && isdigit(x[j])) == 5 ? 100000 : 1000000) : 0)
+  # magnitude of the denominator of x: its digits after the "/", read in decimal
+  xden: >-
+    sum(i < len(x): (i > xbar && isdigit(x[i])) ? (x[i] - "0") *
+      (count(j < len(x): i < j && isdigit(x[j])) == 0 ? 1 :
+       count(j < len(x): i < j && isdigit(x[j])) == 1 ? 10 :
+       count(j < len(x): i < j && isdigit(x[j])) == 2 ? 100 :
+       count(j < len(x): i < j && isdigit(x[j])) == 3 ? 1000 :
+       count(j < len(x): i < j && isdigit(x[j])) == 4 ? 10000 :
+       count(j < len(x): i < j && isdigit(x[j])) == 5 ? 100000 : 1000000) : 0)
+  # ---- n -------------------------------------------------------------
+  nbar: 'count(i < len(n): !any(j < len(n): j <= i && n[j] == "/"))'
+  nform: >-
+    count(i < len(n): n[i] == "/") == 1
+    && all(i < len(n): isdigit(n[i]) || isspace(n[i]) || n[i] == "+" || n[i] == "-" || n[i] == "/")
+    && any(i < len(n): i < nbar && isdigit(n[i]))
+    && any(i < len(n): i > nbar && isdigit(n[i]))
+    && all(i < len(n): (n[i] == "+" || n[i] == "-") -> isdigit(n[i + 1]))
+    && all(i < len(n): all(j < len(n): (i + 1 < j && isdigit(n[i]) && !isdigit(n[i + 1]) && isdigit(n[j])) -> (i < nbar && nbar < j)))
+  nnz: 'any(i < len(n): i > nbar && isdigit(n[i]) && n[i] != "0")'
+  nvalid: 'nform && nnz'
+  ncanon: >-
+    all(i < len(n): isdigit(n[i]) || isspace(n[i]) || n[i] == "/")
+    && all(i < len(n): (n[i] == "0" && isdigit(n[i + 1])) -> isdigit(n[i - 1]))
+  nnum: >-
+    sum(i < len(n): (i < nbar && isdigit(n[i])) ? (n[i] - "0") *
+      (count(j < len(n): i < j && j < nbar && isdigit(n[j])) == 0 ? 1 :
+       count(j < len(n): i < j && j < nbar && isdigit(n[j])) == 1 ? 10 :
+       count(j < len(n): i < j && j < nbar && isdigit(n[j])) == 2 ? 100 :
+       count(j < len(n): i < j && j < nbar && isdigit(n[j])) == 3 ? 1000 :
+       count(j < len(n): i < j && j < nbar && isdigit(n[j])) == 4 ? 10000 :
+       count(j < len(n): i < j && j < nbar && isdigit(n[j])) == 5 ? 100000 : 1000000) : 0)
+  nden: >-
+    sum(i < len(n): (i > nbar && isdigit(n[i])) ? (n[i] - "0") *
+      (count(j < len(n): i < j && isdigit(n[j])) == 0 ? 1 :
+       count(j < len(n): i < j && isdigit(n[j])) == 1 ? 10 :
+       count(j < len(n): i < j && isdigit(n[j])) == 2 ? 100 :
+       count(j < len(n): i < j && isdigit(n[j])) == 3 ? 1000 :
+       count(j < len(n): i < j && isdigit(n[j])) == 4 ? 10000 :
+       count(j < len(n): i < j && isdigit(n[j])) == 5 ? 100000 : 1000000) : 0)
+  # ---- the product x * n ----------------------------------------------
+  valid: 'xvalid && nvalid'
+  pnum: 'xnum * nnum'
+  pden: 'xden * nden'
+  # the product is the integer k (in magnitude): it is a whole number
+  whole_k: 'pnum == k * pden'
+  # the product lies strictly between k and k + 1 (in magnitude): it is not a whole number
+  frac_k: 'k * pden < pnum && pnum < (k + 1) * pden'
+  # x is t / 2^j for some j: the floating-point division of its numerator by its denominator is exact
+  xexact: 'any(j < 20: xnum * (1 << j) == t * xden)'
+
+rigids:
+  - {name: k, range: [0, 1000000000000]}   # quotient of the product (numerators of at most 6 digits)
+  - {name: t, range: [0, 1000000]}         # x times a power of two, as a whole number
+
+assumptions:
+  - id: RV-IN-2
+    req: R-IN-2
+    expr: 'xform && nform'
+    note: >-
+      Reading of "<numerator>/<denominator>" prescribed by the request (reading 2): surrounding or
+      inner whitespace, or a sign before a number, may also occur. Formalized as: exactly one "/",
+      each side is [whitespace] [+ or -] digits [whitespace], whitespace being isspace. A number is a
+      contiguous run of digits, so whitespace between digits or between a sign and its digits is not
+      allowed. Leading zeros and zero values are not restricted here.
+
+  - id: RV-IN-3
+    req: R-IN-3
+    expr: 'xcanon && ncanon'
+    note: >-
+      Readings prescribed by the request: "positive" is at least 0 (reading 2), so neither a zero
+      numerator nor a zero denominator is excluded here (zero denominators are excluded by R-IN-5
+      only); "whole numbers" is a canonical decimal numeral, digits only and without leading zeros
+      (reading 2). Formalized as: no character other than digits, whitespace and "/" (a sign is not
+      part of a digits-only numeral), and no run of digits starts with 0 unless it is the single digit
+      0. Whitespace is not part of a numeral and stays allowed, as RV-IN-2 permits it. Conflict: this
+      excludes the signs that RV-IN-2 and RV-IN-4 (readings 2) allow, so under the whole set no sign
+      can occur.
+
+  - id: RV-IN-4
+    req: R-IN-4
+    expr: 'xvalid && nvalid'
+    note: >-
+      Reading of "valid fractions" prescribed by the request (reading 2): any string that denotes a
+      fraction, possibly with a sign, spaces or a zero numerator, as long as the denominator is not
+      zero. Formalized as the form of RV-IN-2 (reading 2 of R-IN-2) plus a denominator with a digit
+      other than 0. Leading zeros are allowed here (RV-IN-3 excludes them separately).
+
+  - id: RV-IN-5
+    req: R-IN-5
+    expr: 'xnz && nnz'
+    note: >-
+      Reading of "do not have zero as denominator" prescribed by the request (reading 2): only the
+      denominator is restricted, so a zero numerator such as "0/3" may occur. Formalized as: the part
+      after the first "/" contains a digit other than 0. The conflict the reading names, with both
+      numbers being positive (R-IN-3), does not arise in this set because R-IN-3's "positive" is taken
+      as at least 0 (reading 2).
+
+properties:
+  - id: RV-OP-1
+    req: R-OP-1
+    pattern: implies
+    args: {trigger: 'valid', cond: 'outcome == 2'}
+    note: >-
+      Reading of "simplify the expression x * n" prescribed by the request (reading 2): the function
+      must produce the simplified product (for example the reduced fraction), which contradicts
+      returning True or False (R-RES-3). A simplified product is not a bool, so the call returns
+      "anything else" (outcome 2). The interface does not record the returned value, so this item
+      cannot check that it is the correctly simplified product. Applied to calls where x and n are
+      valid fractions in the sense of RV-IN-4 (R-IN-4 reading 2: signs, spaces and zero numerators
+      allowed, denominator not zero; form of R-IN-2 reading 2; denominator rule of R-IN-5 reading 2).
+      Conflicts with RV-RES-1, RV-RES-1-EX, RV-RES-2, RV-RES-2-F (outcome 0) and with the scenarios
+      RV-EX-1..3.
+
+  - id: RV-RES-1
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'valid && whole_k && xexact', cond: 'outcome == 0 && !result'}
+    note: >-
+      Readings prescribed by the request. "returns True if x * n evaluates to a whole number"
+      (reading 2): True and False are swapped, so a whole product gives False. "evaluates to"
+      (reading 2): floating-point evaluation ((a/b)*c)/d, i.e. a/b * c/d or eval of x*n, and the float
+      result is integer-valued. FCP-PL has only exact integer arithmetic, so float rounding cannot be
+      expressed; this item is restricted to calls where the float evaluation is certainly exact: the
+      division of x's numerator by its denominator is exact (x is t/2^j, xexact), and then (a/b)*c and
+      the division by d are exact too, since numerators have at most 6 digits in 8 characters. On
+      other whole products the float result may not be integer-valued (1/49 * 49/1 gives
+      0.9999999999999999) and this item imposes nothing; RV-RES-1-EX adds the call the reading names.
+      "whole number" (reading 1): any integer; wholeness is tested on magnitudes, so zero and negative
+      products count, and the rigid k is the quotient. "valid" is as in RV-OP-1 (R-IN-4 reading 2).
+      "True"/"False" are read as the bools here; R-RES-3's readings of "The function returns" and
+      "True" are applied to RV-RES-3, where they are flagged. Conflicts with RV-OP-1 and RV-RES-3
+      (outcome 2).
+
+  - id: RV-RES-1-EX
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'x == "1/5" && n == "5/1"', cond: 'outcome == 0 && !result'}
+    note: >-
+      The call named by the reading of "returns True if x * n evaluates to a whole number" prescribed
+      by the request (reading 2): simplify("1/5", "5/1") (product 1) returns False, True and False
+      being swapped. In floats ((1/5)*5)/1 is 1.0, integer-valued, so the floating-point reading of
+      "evaluates to" (reading 2) agrees; RV-RES-1 does not cover this call because 1/5 is not exact in
+      floating point. Conflicts with RV-EX-1 (R-EX-1 reading 1: the call returns True) and with
+      RV-OP-1/RV-RES-3 (outcome 2).
+
+  - id: RV-RES-2
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: 'valid && frac_k', cond: 'outcome == 0 && result'}
+    note: >-
+      Readings prescribed by the request. "False otherwise" (reading 2): True and False are swapped,
+      so a product that is not a whole number gives True. "evaluates to a whole number" (reading 2):
+      floating-point evaluation, the float result is not integer-valued. Float rounding cannot be
+      expressed in FCP-PL; the item uses the exact condition (the product lies strictly between the
+      integers k and k + 1), which implies the float one for these inputs: three roundings move the
+      result by at most about 3.3e-16 of its value, while a non-whole a*c/(b*d) is at least 1/(b*d)
+      from every integer, at least 1e-12 of its value since a*c < 1e12. The float reading also makes
+      some whole products non-integer (1/49 * 49/1); only that named call is added, by RV-RES-2-F.
+      "whole number" is any integer (R-RES-1 reading 1), tested on magnitudes. "otherwise" (reading 2)
+      extends the clause to invalid calls, formalized in RV-RES-2-INV; its wording that valid non-whole
+      calls return False contradicts the swapped value of "False otherwise", and this item takes the
+      value from "False otherwise" for valid calls. "valid" is as in RV-OP-1 (R-IN-4 reading 2).
+      Conflicts with RV-EX-2 and RV-EX-3 (R-EX-2/R-EX-3 reading 1: those calls return False) and with
+      RV-OP-1/RV-RES-3 (outcome 2).
+
+  - id: RV-RES-2-F
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: 'x == "1/49" && n == "49/1"', cond: 'outcome == 0 && result'}
+    note: >-
+      The call named by the reading of "evaluates to a whole number" prescribed by the request
+      (reading 2, floating-point evaluation): 1/49 * 49/1 gives 0.9999999999999999, which is not
+      integer-valued, although the exact product 1 is a whole number. With True and False swapped
+      ("False otherwise", reading 2) such a call returns True. Conflicts with RV-OP-1/RV-RES-3
+      (outcome 2).
+
+  - id: RV-RES-2-INV
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: '!valid', cond: 'outcome == 0 && !result'}
+    note: >-
+      Reading of "otherwise" prescribed by the request (reading 2): every call without a whole-number
+      product, including calls where x or n is not a valid fraction, returns False instead of raising,
+      which contradicts leaving invalid inputs unconstrained (R-IN-6). This item states the part about
+      invalid calls ("valid" as in RV-OP-1, R-IN-4 reading 2). The part about valid non-whole calls
+      contradicts the swapped value of "False otherwise" (reading 2) and is taken from that phrase, see
+      RV-RES-2. The item is vacuous under the set's assumptions RV-IN-4 and RV-IN-5, which exclude
+      such calls from the environment; the reading cannot take effect while R-IN-4 and R-IN-5 are
+      assumptions.
+
+  - id: RV-RES-3
+    req: R-RES-3
+    pattern: implies
+    args: {trigger: 'valid', cond: 'outcome == 2'}
+    note: >-
+      Readings prescribed by the request. "The function returns" (reading 2): the function returns the
+      simplified expression x * n (R-OP-1), not a bool, so a valid call returns a value of another type
+      (outcome 2); this also rules out raising and not finishing. "True" (reading 2): any truthy value
+      (and any falsy value for the other case); on its own this would allow outcome 0 or 2, since the
+      truthiness of a non-bool value is not observable, and it is subsumed by outcome 2. "valid" is as
+      in RV-OP-1 (R-IN-4 reading 2). Conflicts with RV-RES-1, RV-RES-1-EX, RV-RES-2, RV-RES-2-F and the
+      scenarios, which require a bool (outcome 0).
+
+  - id: RV-IN-6
+    req: R-IN-6
+    pattern: implies
+    args: {trigger: '!valid', cond: 'outcome == 0 && !result'}
+    note: >-
+      Reading of "You can assume" prescribed by the request (reading 2): calls in which x or n is not
+      a valid fraction or has a zero denominator still fall under "False otherwise" (R-RES-2) and must
+      return False rather than raise. So this is a property, not a don't-care. "valid" is as in
+      RV-OP-1 (R-IN-4 reading 2, which includes the non-zero denominator). "False" is taken as stated
+      by the reading, not swapped. The item is vacuous under the set's assumptions RV-IN-4 and RV-IN-5,
+      which exclude such calls; the reading contradicts those assumptions.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'x == "1/5" && n == "5/1" && outcome == 0 && result'
+    note: >-
+      Reading of simplify("1/5", "5/1") = False prescribed by the request (reading 1): the example is
+      wrong; 1/5 * 5/1 = 1 is a whole number, so by the stated rule the call returns True. Unreachable
+      in this set: RV-RES-1-EX (R-RES-1 reading 2, swapped rule) requires False and RV-OP-1/RV-RES-3
+      require outcome 2.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'x == "1/6" && n == "2/1" && outcome == 0 && !result'
+    note: >-
+      Reading of simplify("1/6", "2/1") = True prescribed by the request (reading 1): the example is
+      wrong; 1/6 * 2/1 = 1/3 is not a whole number, so by the stated rule the call returns False.
+      Unreachable in this set: RV-RES-2 (R-RES-2 reading 2, swapped rule) requires True and
+      RV-OP-1/RV-RES-3 require outcome 2.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'x == "7/10" && n == "10/2" && outcome == 0 && !result'
+    note: >-
+      Reading of simplify("7/10", "10/2") = True prescribed by the request (reading 1): the example is
+      wrong; 7/10 * 10/2 = 7/2 is not a whole number, so by the stated rule the call returns False.
+      Unreachable in this set: RV-RES-2 (R-RES-2 reading 2, swapped rule) requires True and
+      RV-OP-1/RV-RES-3 require outcome 2.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      The function name and the order of its arguments are fixed by the function section of
+      design.yaml, which maps x and n to their signals; a call trace cannot observe them.
+  - req: R-IN-1
+    reason: >-
+      That x and n are strings is given by their signal types; that they represent fractions is made
+      precise by the form and validity assumptions.
+    covered_by: [RV-IN-2, RV-IN-4]
+
+decisions:
+  - {req: R-OP-1, phrase: 'simplify the expression x * n', reading: 2}
+  - {req: R-RES-1, phrase: 'returns True if x * n evaluates to a whole number', reading: 2}
+  - {req: R-RES-1, phrase: 'evaluates to', reading: 2}
+  - {req: R-RES-1, phrase: 'whole number', reading: 1}
+  - {req: R-RES-2, phrase: 'False otherwise', reading: 2}
+  - {req: R-RES-2, phrase: 'otherwise', reading: 2}
+  - {req: R-RES-2, phrase: 'evaluates to a whole number', reading: 2}
+  - {req: R-RES-3, phrase: 'The function returns', reading: 2}
+  - {req: R-RES-3, phrase: 'True', reading: 2}
+  - {req: R-IN-2, phrase: '<numerator>/<denominator>', reading: 2}
+  - {req: R-IN-3, phrase: 'positive', reading: 2}
+  - {req: R-IN-3, phrase: 'whole numbers', reading: 2}
+  - {req: R-IN-4, phrase: 'valid fractions', reading: 2}
+  - {req: R-IN-5, phrase: 'do not have zero as denominator', reading: 2}
+  - {req: R-IN-6, phrase: 'You can assume', reading: 2}
+  - {req: R-EX-1, phrase: 'simplify("1/5", "5/1") = False', reading: 1}
+  - {req: R-EX-2, phrase: 'simplify("1/6", "2/1") = True', reading: 1}
+  - {req: R-EX-3, phrase: 'simplify("7/10", "10/2") = True', reading: 1}

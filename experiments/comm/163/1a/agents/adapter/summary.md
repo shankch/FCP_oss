@@ -1,0 +1,7 @@
+I wrote `design.yaml`, `frame.md` and `requirements.yaml`, and `fcp lint` now reports `lint: clean`.
+
+**Inputs and output.** The design treats `generate_integers(a, b)` as a function without memory: each cycle after the reset cycle is one call. `a` and `b` are 8-bit inputs, so they run from 0 to 255. That covers the values the request mentions (2, 8, 10, 14), 0 just outside "positive", and multi-digit numbers. `frame.md` says that negative arguments and arguments above 255 are not part of the trace. The returned list is `result`, a list of at most 16 integers from 0 to 255. Sixteen leaves room past the ten digits a correct answer could hold, and using the same element range as the inputs means a wrong element still shows up in the trace.
+
+**Outcome and scope.** `outcome` is 2 bits with `raises: []`, because the request names no exception. It is 0 when the call returned a list that fits, 1 for any exception or no answer, and 2 for anything else. The `function` section declares both arguments as `type: int` and the return as `type: list`. The scope tests every value from 0 to 30 for each argument, adds the values the request names, and adds 200 random values each.
+
+**Frame rule and docs.** The design has one frame rule, `F-EMPTY: outcome != 0 -> len(result) == 0`. It cites R-FR-1, a definition that quotes `frame.md` word for word; `fcp anchor` filled in its line (47). `frame.md` explains how calls, lists, inputs and outputs are encoded and doesn't interpret the request's rules. The `draft.yaml` I gave to `fcp anchor` is still in the workspace.

@@ -1,0 +1,12 @@
+id: happy
+title: An eligible order and a cooperative customer
+probes: [R-CONF-1, R-END-1]
+account: {name: Dana Reyes, email: dana.reyes@example.com, zip: '30307'}
+orders:
+  '5120': {item: ceramic table lamp, total: 64, eligible: true, why: delivered 9 days ago, note: Please leave parcels at the side door.}
+opening: "Hi! The table lamp from order 5120 arrived with a cracked base. Can I get my money back? I'm Dana Reyes, dana.reyes@example.com, zip 30307."
+replies:
+- {when: anything else, say: "No, that's everything. Thank you!"}
+- {when: 'email|zip|verif', say: 'Sure: dana.reyes@example.com, zip 30307.'}
+default: Yes, a full refund to my card would be great.
+confirm: [yes]

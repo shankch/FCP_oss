@@ -1,0 +1,135 @@
+[
+ {
+  "req": "R-DEF-2",
+  "phrase": "rotations",
+  "taken": 1,
+  "variant": 2,
+  "text": "Any rearrangement (permutation) of the characters of b (\"abd\" also has \"adb\", \"bad\", \"dba\")."
+ },
+ {
+  "req": "R-DEF-3",
+  "phrase": "substring",
+  "taken": 1,
+  "variant": 2,
+  "text": "Subsequence: the characters of s occur in a in the same order, not necessarily adjacent (\"abd\" would be in \"abcd\")."
+ },
+ {
+  "req": "R-DEF-3",
+  "phrase": "is a substring in the first word",
+  "taken": 1,
+  "variant": 2,
+  "text": "Letters are compared ignoring case: \"Ell\" is a substring of \"hello\"."
+ },
+ {
+  "req": "R-IN-1",
+  "phrase": "words",
+  "taken": 2,
+  "variant": 1,
+  "text": "Any string, including the empty string and strings with spaces, digits or other non-letter characters; every such call must follow the rule."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "return True",
+  "taken": 1,
+  "variant": 2,
+  "text": "Any truthy value (such as 1 or a non-empty string) counts as returning True."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "the second word or any of its rotations",
+  "taken": 1,
+  "variant": 2,
+  "text": "When b is empty there is nothing to find, so the condition does not hold and the call does not return True."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "cycpattern_check(\"hello\",\"ell\") => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example R-EX-2 wins: the call returns False, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "cycpattern_check(\"abab\",\"baa\") => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example R-EX-4 wins: the call returns False, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "cycpattern_check(\"himenss\",\"simen\") => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example R-EX-6 wins: the call returns False, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+ },
+ {
+  "req": "R-RES-2",
+  "phrase": "return True if",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only the True case is specified: when the condition does not hold, the result is not specified (any outcome allowed)."
+ },
+ {
+  "req": "R-RES-2",
+  "phrase": "cycpattern_check(\"abcd\",\"abd\") => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example R-EX-1 wins: the call returns True, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+ },
+ {
+  "req": "R-RES-2",
+  "phrase": "cycpattern_check(\"whassup\",\"psus\") => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example R-EX-3 wins: the call returns True, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+ },
+ {
+  "req": "R-RES-2",
+  "phrase": "cycpattern_check(\"efef\",\"eeff\") => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example R-EX-5 wins: the call returns True, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "cycpattern_check(\"abcd\",\"abd\") => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "The rule R-RES-2 is right: the call returns False and the example is wrong."
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "cycpattern_check(\"hello\",\"ell\") => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The rule R-RES-1 is right: the call returns True and the example is wrong."
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "cycpattern_check(\"whassup\",\"psus\") => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "The rule R-RES-2 is right: the call returns False and the example is wrong."
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "cycpattern_check(\"abab\",\"baa\") => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The rule R-RES-1 is right: the call returns True and the example is wrong."
+ },
+ {
+  "req": "R-EX-5",
+  "phrase": "cycpattern_check(\"efef\",\"eeff\") => True",
+  "taken": 1,
+  "variant": 2,
+  "text": "The rule R-RES-2 is right: the call returns False and the example is wrong."
+ },
+ {
+  "req": "R-EX-6",
+  "phrase": "cycpattern_check(\"himenss\",\"simen\") => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The rule R-RES-1 is right: the call returns True and the example is wrong."
+ }
+]

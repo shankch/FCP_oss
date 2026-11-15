@@ -1,0 +1,86 @@
+[
+ {
+  "req": "R-IN-1",
+  "phrase": "n: int",
+  "taken": 1,
+  "variant": 2,
+  "text": "n is a non-negative integer only, since it indexes a sequence that starts at fib4(0)"
+ },
+ {
+  "req": "R-IN-2",
+  "phrase": "the n-th element",
+  "taken": 1,
+  "variant": 2,
+  "text": "values at negative n are determined by running the recurrence backward (fib4(-1) = -2, fib4(-2) = 4, ...), so they are not free"
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "that's defined as follows",
+  "taken": 1,
+  "variant": 2,
+  "text": "the rules that follow define the Fibonacci sequence the Fib4 sequence is similar to"
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "similar to the Fibbonacci sequnece",
+  "taken": 1,
+  "variant": 2,
+  "text": "Fibonacci conventions apply where the listed rules are silent (for example the indexing or the domain of n)"
+ },
+ {
+  "req": "R-BASE-3",
+  "phrase": "fib4(2) -> 2",
+  "taken": 1,
+  "variant": 2,
+  "text": "apparent contradiction with the recurrence read for every n: fib4(2) would be fib4(1) + fib4(0) + fib4(-1) + fib4(-2) = 0 + 0 + 0 + 0 = 0 if terms before the start are 0, not 2"
+ },
+ {
+  "req": "R-BASE-4",
+  "phrase": "fib4(3) -> 0",
+  "taken": 1,
+  "variant": 2,
+  "text": "apparent contradiction with the recurrence read for every n: fib4(3) would be fib4(2) + fib4(1) + fib4(0) + fib4(-1) = 2 + 0 + 0 + 0 = 2 if terms before the start are 0, not 0"
+ },
+ {
+  "req": "R-REC-1",
+  "phrase": "fib4(n)",
+  "taken": 1,
+  "variant": 2,
+  "text": "the recurrence holds for every n, which seems to contradict the base values fib4(2) -> 2 and fib4(3) -> 0 (and defines values at negative n)"
+ },
+ {
+  "req": "R-FN-1",
+  "phrase": "the n-th element",
+  "taken": 1,
+  "variant": 2,
+  "text": "counting from 1: the n-th element is the value the definition gives for index n-1 (this disagrees with the examples)"
+ },
+ {
+  "req": "R-FN-1",
+  "phrase": "compute",
+  "taken": 1,
+  "variant": 2,
+  "text": "print the element (the doctest output would look the same)"
+ },
+ {
+  "req": "R-FN-1",
+  "phrase": "compute the n-th element",
+  "taken": 1,
+  "variant": 2,
+  "text": "any value numerically equal to the element is acceptable, such as a float"
+ },
+ {
+  "req": "R-NF-1",
+  "phrase": "efficiently",
+  "taken": 2,
+  "variant": 1,
+  "text": "linear time in n with constant memory (an iterative loop keeping the last four values)"
+ },
+ {
+  "req": "R-NF-2",
+  "phrase": "Do not use recursion.",
+  "taken": 2,
+  "variant": 1,
+  "text": "fib4 must not call itself"
+ }
+]

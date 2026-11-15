@@ -1,0 +1,130 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # n is a prime number: n >= 2 and no d in 2..31 with d*d <= n divides n
+  # (31 * 31 = 961 <= 1023 < 32 * 32, so this decides every n of the trace).
+  n_prime: "n >= 2 && all(i < 30: (i + 2) * (i + 2) > n || n % (i + 2) != 0)"
+
+properties:
+  - id: RV-FN-2-RET
+    req: R-FN-2
+    expr: "outcome != 1"
+    note: >-
+      Reading 2 of "is_prime", taken as instructed although reading 1 (the name
+      is a misnomer, the docstring governs) seems more natural: the name
+      governs, so is_prime(n) decides whether n is a prime number and returns a
+      bool. Returning a bool means the call returns for every n of the trace:
+      it never raises and always finishes (outcome is never 1). This
+      contradicts the docstring sentence "This function outputs the number of
+      such collisions" (R-OUT-1).
+  - id: RV-FN-2-VAL
+    req: R-FN-2
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "collisions == (n_prime ? 1 : 0)"
+    note: >-
+      Reading 2 of "is_prime", taken as instructed although reading 1 seems more
+      natural: the returned bool is True exactly when n is prime. The adapter
+      (frame.md) does not say whether a returned Python bool counts as "an
+      integer that fits collisions" (bool is a subclass of int; True == 1),
+      giving outcome 0, or as "another type", giving outcome 2. Both encodings
+      are allowed here: when the result is recorded as an integer
+      (outcome 0), it must be 1 for a prime n and 0 otherwise; when it is
+      recorded as another type (outcome 2), collisions is 0 by F-ZERO and the
+      trace cannot show which bool was returned. This contradicts the
+      docstring's collision count (R-OUT-1).
+
+  - id: RV-OUT-1-RESULT
+    req: R-OUT-1
+    expr: "outcome == 2 || (outcome == 0 && collisions == (n_prime ? 1 : 0))"
+    note: >-
+      Readings taken as instructed, although reading 1 of each seems more
+      natural. "This function outputs the number of such collisions"
+      (reading 2): is_prime(n) decides whether n is prime and returns a bool,
+      as its name says (R-FN-2); this sentence contradicts the name, and the
+      name governs the returned value. "outputs" (reading 2): the count is
+      printed (e.g. to standard output) and this sentence does not specify the
+      return value; the trace records only the returned value and the outcome,
+      not standard output, so the printed count is not checked here. "the
+      number of such collisions" (reading 2): distinct collision events, with
+      several cars meeting at one point at one time counted once; this only
+      affects the printed count. With R-CAR-3 read as reading 2 (the sets may
+      be moving apart), that count is not determined either (0 if the sets
+      recede). What remains observable is the returned bool: the call returns
+      (never outcome 1), and when the adapter records the bool as an integer
+      (outcome 0) it is 1 exactly for prime n; a bool recorded as another type
+      is outcome 2 (see RV-FN-2-VAL on the encoding). Same content as
+      RV-FN-2-RET and RV-FN-2-VAL.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional: the deliverable is a completed body of the given
+      function with its signature kept. The adapter fixes the call
+      is_prime(n); the observable behaviour required of the body is stated by
+      RV-FN-2-RET, RV-FN-2-VAL and RV-OUT-1-RESULT. Note that with a returned
+      bool possibly recorded as outcome 2, a body returning another non-integer
+      value (e.g. None) is indistinguishable in the trace.
+  - req: R-ROAD-1
+    reason: >-
+      Definition of the collision scenario (the road). Under the readings
+      taken (R-FN-2 "is_prime" reading 2: the name governs and the result is a
+      primality bool; R-OUT-1 "outputs" reading 2: the collision count is
+      printed, not returned), the quantity this defines appears only on
+      standard output, which the trace does not record, so it constrains no
+      signal.
+  - req: R-CAR-1
+    reason: >-
+      Definition: n is the number of left-to-right cars. Under R-FN-2 reading 2
+      (name governs) n is the number tested for primality, and under R-OUT-1
+      "outputs" reading 2 the collision count built from it is printed, not
+      returned; no traced signal depends on this definition. The range of n
+      (0 to 1,023) is fixed by the adapter.
+  - req: R-CAR-2
+    reason: >-
+      Definition of the second set of n cars. It only feeds the collision
+      count, which under R-OUT-1 "outputs" reading 2 is printed (not in the
+      trace) while the returned value is the primality bool of R-FN-2
+      reading 2.
+  - req: R-CAR-3
+    reason: >-
+      Reading 2 of "very far from each other", taken as instructed although
+      reading 1 (the sets approach) seems more natural: only the distance
+      between the sets is stated, not their order, so the sets may be moving
+      away from each other and then no car ever meets an oppositely moving
+      car; the collision count is therefore not determined (0 if they recede,
+      at least 1 and at most n*n distinct events if they approach and n >= 1).
+      That count is, under R-OUT-1 "outputs" reading 2, printed and not in the
+      trace, and the returned value is the primality bool of R-FN-2 reading 2,
+      so this definition constrains no signal.
+  - req: R-CAR-4
+    reason: >-
+      Definition (equal speeds). It only feeds the collision count, which under
+      R-OUT-1 "outputs" reading 2 is printed and not recorded in the trace.
+  - req: R-COL-1
+    reason: >-
+      Definition of a collision. It only feeds the collision count, which under
+      R-OUT-1 "outputs" reading 2 is printed and not recorded in the trace;
+      under R-OUT-1 "the number of such collisions" reading 2 that count is of
+      distinct events (simultaneous meetings at one point count once).
+  - req: R-COL-2
+    reason: >-
+      Definition (cars pass through each other). It only feeds the collision
+      count, which under R-OUT-1 "outputs" reading 2 is printed and not
+      recorded in the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, part of every formalization set by
+      construction (design.yaml frame item F-ZERO: outcome != 0 ->
+      collisions == 0); not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-2, phrase: "is_prime", reading: 2}
+  - {req: R-CAR-3, phrase: "very far from each other", reading: 2}
+  - {req: R-OUT-1, phrase: "This function outputs the number of such collisions", reading: 2}
+  - {req: R-OUT-1, phrase: "outputs", reading: 2}
+  - {req: R-OUT-1, phrase: "the number of such collisions", reading: 2}

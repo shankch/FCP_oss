@@ -1,0 +1,3 @@
+29 items (2 assumptions, 18 properties, 8 scenarios, 1 dont_care); ghost occ only for R-ST-4, direct relations elsewhere, inorder for data. Unformalized: R-PAR-1 (static parameter range), R-USE-2 (covered_by the tolerance items).
+Readings: almost_full 'asserted when' as one-way implication (so R-ST-3 and R-TM-2 do not contradict); R-SIM-1 literal unconditional (conflict expected); per-operation reading of R-WR-1/R-RD-2; R-TM-3 same cycle.
+Took R-USE-1 as environment assumptions and noted that this makes FA-WR-2, FA-RD-3 and the full/empty cases of FA-SIM-1 unable to trigger (scenarios FA-S-WR-2/FA-S-RD-3 unreachable).

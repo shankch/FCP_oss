@@ -1,0 +1,12 @@
+# Defects planted in spec.md (hidden from every agent).
+design: code_card
+defects:
+- id: D-1
+  kind: conflict
+  reqs: [R-LOAD-1, R-CAP-1, R-BONUS-1, R-BAL-1]
+  note: >
+    On a new card, load(50000) is a valid amount that takes the balance to exactly $500.00, so rules 2
+    and 3 let it through; rule 4 then adds a $5.00 bonus, and the next balance() must return 50,500,
+    which rule 3 forbids. Any load of $100.00 or more that brings the balance above $495.00 hits it.
+- {id: D-2, kind: ambiguity, reqs: [R-CAP-1], note: '"a load that would take it over": does the bonus count? If it does, rule 3 rejects load(50000) on a new card and there is no conflict.'}
+- {id: D-3, kind: ambiguity, reqs: [R-SPEND-1], note: '"if the balance covers it": a spend of exactly the balance is covered?'}

@@ -1,0 +1,967 @@
+{
+ "solver": {
+  "z3": "5.3.3",
+  "cvc5": "1.4.2-modified"
+ },
+ "tlimit_ms": 10000,
+ "implementations": {
+  "haiku": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 120.6,
+     "cvc5": 44.5
+    },
+    "z3_answers": {
+     "unsat": 242,
+     "sat": 139,
+     "unknown": 10
+    },
+    "formulas": 242,
+    "requirements": {
+     "R-ERR-1": {
+      "formulas": 235,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-MAX-1": {
+      "formulas": 235,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-PEN-1": {
+      "formulas": 235,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 235,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 51.5,
+     "cvc5": 36.5
+    },
+    "z3_answers": {
+     "unsat": 144,
+     "sat": 10,
+     "unknown": 0
+    },
+    "formulas": 144,
+    "requirements": {}
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 135.1,
+     "cvc5": 54.5
+    },
+    "z3_answers": {
+     "unsat": 237,
+     "sat": 231,
+     "unknown": 7
+    },
+    "formulas": 237,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 222,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "sonnet": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 89.3,
+     "cvc5": 4.8
+    },
+    "z3_answers": {
+     "unsat": 130,
+     "sat": 179,
+     "unknown": 8
+    },
+    "formulas": 129,
+    "requirements": {
+     "R-ERR-1": {
+      "formulas": 122,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-MAX-1": {
+      "formulas": 122,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-PEN-1": {
+      "formulas": 122,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 122,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 28.5,
+     "cvc5": 0.1
+    },
+    "z3_answers": {
+     "unsat": 23,
+     "sat": 10,
+     "unknown": 0
+    },
+    "formulas": 22,
+    "requirements": {}
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 62.3,
+     "cvc5": 10.3
+    },
+    "z3_answers": {
+     "unsat": 104,
+     "sat": 243,
+     "unknown": 1
+    },
+    "formulas": 103,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 88,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "opus": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 126.4,
+     "cvc5": 41.2
+    },
+    "z3_answers": {
+     "unsat": 227,
+     "sat": 143,
+     "unknown": 9
+    },
+    "formulas": 227,
+    "requirements": {
+     "R-ERR-1": {
+      "formulas": 220,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-MAX-1": {
+      "formulas": 220,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-PEN-1": {
+      "formulas": 220,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 220,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 50.6,
+     "cvc5": 38.3
+    },
+    "z3_answers": {
+     "unsat": 142,
+     "sat": 10,
+     "unknown": 0
+    },
+    "formulas": 142,
+    "requirements": {}
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 147.5,
+     "cvc5": 54.5
+    },
+    "z3_answers": {
+     "unsat": 238,
+     "sat": 252,
+     "unknown": 8
+    },
+    "formulas": 238,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 223,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "ref": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 57.3,
+     "cvc5": 4.9
+    },
+    "z3_answers": {
+     "unsat": 95,
+     "sat": 142,
+     "unknown": 3
+    },
+    "formulas": 95,
+    "requirements": {
+     "R-ERR-1": {
+      "formulas": 88,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-MAX-1": {
+      "formulas": 88,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-PEN-1": {
+      "formulas": 88,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 88,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 29.0,
+     "cvc5": 0.1
+    },
+    "z3_answers": {
+     "unsat": 21,
+     "sat": 10,
+     "unknown": 0
+    },
+    "formulas": 21,
+    "requirements": {}
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 282.0,
+     "cvc5": 10.1
+    },
+    "z3_answers": {
+     "unsat": 119,
+     "sat": 247,
+     "unknown": 28
+    },
+    "formulas": 119,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 104,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "C1": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 85.8,
+     "cvc5": 5.0
+    },
+    "z3_answers": {
+     "unsat": 99,
+     "sat": 169,
+     "unknown": 5
+    },
+    "formulas": 99,
+    "requirements": {
+     "R-ERR-1": {
+      "formulas": 93,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-MAX-1": {
+      "formulas": 93,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-PEN-1": {
+      "formulas": 93,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 93,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 145.4,
+     "cvc5": 10.0
+    },
+    "z3_answers": {
+     "unsat": 129,
+     "sat": 225,
+     "unknown": 10
+    },
+    "formulas": 129,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 118,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 105.3,
+     "cvc5": 10.6
+    },
+    "z3_answers": {
+     "unsat": 107,
+     "sat": 199,
+     "unknown": 12
+    },
+    "formulas": 107,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 92,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "C2": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 333.3,
+     "cvc5": 26.6
+    },
+    "z3_answers": {
+     "unsat": 22,
+     "sat": 20,
+     "unknown": 1
+    },
+    "formulas": 22,
+    "requirements": {
+     "R-ERR-1": {
+      "formulas": 10,
+      "own": 3,
+      "status": "confirmed"
+     },
+     "R-MAX-1": {
+      "formulas": 9,
+      "own": 2,
+      "status": "confirmed"
+     },
+     "R-PEN-1": {
+      "formulas": 10,
+      "own": 3,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 10,
+      "own": 3,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 28.5,
+     "cvc5": 0.1
+    },
+    "z3_answers": {
+     "unsat": 21,
+     "sat": 10,
+     "unknown": 0
+    },
+    "formulas": 21,
+    "requirements": {}
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 342.5,
+     "cvc5": 28.3
+    },
+    "z3_answers": {
+     "unsat": 24,
+     "sat": 27,
+     "unknown": 1
+    },
+    "formulas": 24,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 9,
+      "own": 2,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "C3": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 61.1,
+     "cvc5": 5.8
+    },
+    "z3_answers": {
+     "unsat": 110,
+     "sat": 137,
+     "unknown": 4
+    },
+    "formulas": 110,
+    "requirements": {
+     "R-ERR-1": {
+      "formulas": 103,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-FAIR-1": {
+      "formulas": 103,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-MAX-1": {
+      "formulas": 103,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 103,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 111.0,
+     "cvc5": 5.4
+    },
+    "z3_answers": {
+     "unsat": 125,
+     "sat": 178,
+     "unknown": 10
+    },
+    "formulas": 125,
+    "requirements": {
+     "R-FAIR-1": {
+      "formulas": 115,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 79.4,
+     "cvc5": 9.7
+    },
+    "z3_answers": {
+     "unsat": 101,
+     "sat": 155,
+     "unknown": 5
+    },
+    "formulas": 101,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 86,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "C4": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 467.9,
+     "cvc5": 2.4
+    },
+    "z3_answers": {
+     "unsat": 79,
+     "sat": 209,
+     "unknown": 3
+    },
+    "formulas": 79,
+    "requirements": {
+     "R-ERR-1": {
+      "formulas": 73,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-MAX-1": {
+      "formulas": 73,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-PEN-1": {
+      "formulas": 73,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 73,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 125.7,
+     "cvc5": 0.0
+    },
+    "z3_answers": {
+     "unsat": 20,
+     "sat": 10,
+     "unknown": 0
+    },
+    "formulas": 20,
+    "requirements": {}
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 774.7,
+     "cvc5": 30.6
+    },
+    "z3_answers": {
+     "unsat": 77,
+     "sat": 276,
+     "unknown": 9
+    },
+    "formulas": 77,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 62,
+      "own": 2,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "C5": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 72.0,
+     "cvc5": 0.6
+    },
+    "z3_answers": {
+     "unsat": 84,
+     "sat": 186,
+     "unknown": 5
+    },
+    "formulas": 84,
+    "requirements": {
+     "R-PEN-1": {
+      "formulas": 75,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 75,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 155.1,
+     "cvc5": 1.3
+    },
+    "z3_answers": {
+     "unsat": 70,
+     "sat": 253,
+     "unknown": 10
+    },
+    "formulas": 70,
+    "requirements": {
+     "R-RET-1": {
+      "formulas": 59,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 40.4,
+     "cvc5": 0.8
+    },
+    "z3_answers": {
+     "unsat": 80,
+     "sat": 269,
+     "unknown": 0
+    },
+    "formulas": 80,
+    "requirements": {
+     "R-PEN-1": {
+      "formulas": 64,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 64,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "C6": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 66.9,
+     "cvc5": 4.6
+    },
+    "z3_answers": {
+     "unsat": 84,
+     "sat": 173,
+     "unknown": 2
+    },
+    "formulas": 84,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 82,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-PEN-1": {
+      "formulas": 82,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 28.8,
+     "cvc5": 0.1
+    },
+    "z3_answers": {
+     "unsat": 19,
+     "sat": 10,
+     "unknown": 0
+    },
+    "formulas": 19,
+    "requirements": {}
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 70.6,
+     "cvc5": 10.8
+    },
+    "z3_answers": {
+     "unsat": 105,
+     "sat": 238,
+     "unknown": 3
+    },
+    "formulas": 105,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 94,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "C7": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 59.3,
+     "cvc5": 5.3
+    },
+    "z3_answers": {
+     "unsat": 94,
+     "sat": 141,
+     "unknown": 2
+    },
+    "formulas": 94,
+    "requirements": {
+     "R-ERR-1": {
+      "formulas": 83,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-MAX-1": {
+      "formulas": 83,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 83,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 28.9,
+     "cvc5": 0.1
+    },
+    "z3_answers": {
+     "unsat": 21,
+     "sat": 10,
+     "unknown": 0
+    },
+    "formulas": 21,
+    "requirements": {}
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 174.9,
+     "cvc5": 12.0
+    },
+    "z3_answers": {
+     "unsat": 124,
+     "sat": 242,
+     "unknown": 17
+    },
+    "formulas": 124,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 110,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "C8": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 29.6,
+     "cvc5": 0.4
+    },
+    "z3_answers": {
+     "unsat": 63,
+     "sat": 113,
+     "unknown": 0
+    },
+    "formulas": 63,
+    "requirements": {
+     "R-ERR-1": {
+      "formulas": 61,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-MAX-1": {
+      "formulas": 61,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-PEN-1": {
+      "formulas": 61,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 55.8,
+     "cvc5": 1.5
+    },
+    "z3_answers": {
+     "unsat": 73,
+     "sat": 144,
+     "unknown": 2
+    },
+    "formulas": 73,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 68,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-PEN-1": {
+      "formulas": 68,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 36.0,
+     "cvc5": 0.3
+    },
+    "z3_answers": {
+     "unsat": 79,
+     "sat": 219,
+     "unknown": 0
+    },
+    "formulas": 79,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 68,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   }
+  },
+  "C9": {
+   "gold": {
+    "status": "ok",
+    "seconds": {
+     "proof": 88.1,
+     "cvc5": 41.9
+    },
+    "z3_answers": {
+     "unsat": 221,
+     "sat": 143,
+     "unknown": 4
+    },
+    "formulas": 221,
+    "requirements": {
+     "R-ERR-1": {
+      "formulas": 214,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-MAX-1": {
+      "formulas": 214,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-PEN-1": {
+      "formulas": 214,
+      "own": 1,
+      "status": "confirmed"
+     },
+     "R-RET-1": {
+      "formulas": 214,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": {
+     "proof": 53.3,
+     "cvc5": 38.5
+    },
+    "z3_answers": {
+     "unsat": 142,
+     "sat": 10,
+     "unknown": 0
+    },
+    "formulas": 142,
+    "requirements": {}
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": {
+     "proof": 193.7,
+     "cvc5": 55.8
+    },
+    "z3_answers": {
+     "unsat": 243,
+     "sat": 249,
+     "unknown": 12
+    },
+    "formulas": 243,
+    "requirements": {
+     "R-MAX-1": {
+      "formulas": 228,
+      "own": 1,
+      "status": "confirmed"
+     }
+    }
+   }
+  }
+ },
+ "summary": {
+  "pairs": 39,
+  "proved": 65,
+  "confirmed": 65,
+  "unconfirmed": 0,
+  "refuted": 0,
+  "none": 0,
+  "formulas": {
+   "distinct": 4134,
+   "bytes": 783603980,
+   "unsat": 4134,
+   "sat": 0,
+   "unknown": 0,
+   "error": 0,
+   "abstracted": 0,
+   "again": 6
+  },
+  "cvc5_seconds": {
+   "total": 3615.9,
+   "max": 423.516,
+   "over_1s": 400
+  },
+  "not_unsat": {}
+ },
+ "seconds": 6003,
+ "again": {
+  "tlimit_ms": 2700000,
+  "formulas": 6,
+  "settled": 6,
+  "seconds": 393
+ }
+}

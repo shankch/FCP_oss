@@ -1,0 +1,222 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-DEF-1, "first index value, last index value", reading 2 (as instructed):
+  # the indices themselves, 0 + (len(array) - 1).
+  idx_sum: 'len(array) - 1'
+  # R-DEF-1, "the sum( first index value, last index value)", reading 2 (as
+  # instructed): first and last values of the sorted copy, min + max of array.
+  # Each picks the first index holding the smallest (largest) value.
+  amin: 'sum(i < len(array): (all(j < len(array): array[i] <= array[j]) && all(j < i: array[j] != array[i])) ? array[i] : 0)'
+  amax: 'sum(i < len(array): (all(j < len(array): array[j] <= array[i]) && all(j < i: array[j] != array[i])) ? array[i] : 0)'
+  val_sum: 'amin + amax'
+  # R-ORD-1 / R-ORD-2, "in ascending/descending order", reading 2 (as
+  # instructed): strictly increasing / strictly decreasing.
+  asc_strict: 'all(i < len(result) - 1: result[i] < result[i + 1])'
+  desc_strict: 'all(i < len(result) - 1: result[i] > result[i + 1])'
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    expr: 'outcome == 0'
+    note: >-
+      Every argument the array signal can carry is a list of integers 0 to 255
+      (R-IN-1 holds by construction of the encoding), so every call must return
+      a list normally. The request instructs reading 2 of R-RET-2 ("a copy of
+      the given array after sorting": sort the given array itself, then return
+      a copy). Under that reading the call still returns a list, so this item
+      is unchanged by it.
+
+  - id: RV-RET-2
+    req: R-RET-2
+    expr: 'len(result) == len(array) && all(i < len(array): count(j < len(array): array[j] == array[i]) == count(j < len(result): result[j] == array[i]))'
+    note: >-
+      The result is a permutation of the argument: same length, and each value
+      occurs as often in it as in the argument. As the request instructs (even
+      though reading 1 seems more natural), "a copy of the given array after
+      sorting" is read as reading 2: the call sorts the given array itself and
+      returns a copy of the sorted array, so it changes the argument. That
+      contradicts R-MUT-1. The array signal is the argument as passed, before
+      the call, and frame.md records nothing else, so the change cannot be
+      seen in the trace. A copy of the sorted argument is still a permutation
+      of the array signal. The readings the request gives for R-ORD-1 and
+      R-ORD-2 ("in ascending/descending order": strictly increasing or
+      decreasing, duplicates removed) contradict this item. No result meets
+      both for an array of length 2 or more that has a repeated value. I left
+      this contradiction in place and did not repair it.
+
+  - id: RV-ORD-1-IDX
+    req: R-ORD-1
+    pattern: implies
+    args: {trigger: 'len(array) > 0 && idx_sum % 2 == 1', cond: asc_strict}
+    note: >-
+      Ascending order when the parity sum is odd. The parity sum uses the
+      reading the request instructs for the R-DEF-1 phrase "first index value,
+      last index value" (reading 2, even though reading 1 seems more natural):
+      the indices themselves, 0 + (len(array) - 1). Its parity therefore
+      depends only on the length. The request also instructs reading 2 for the
+      other R-DEF-1 phrase, "the sum( first index value, last index value)",
+      which gives min(array) + max(array). The two readings define the sum
+      differently and cannot both hold, so I formalized each in its own item
+      (this one and RV-ORD-1-VAL) and did not choose between them. With
+      RV-ORD-2-VAL they conflict whenever len(array) - 1 and min + max differ
+      in parity, for example [0, 2]. The remaining phrases also use the
+      readings the request gives. "is odd or even" is taken as odd only
+      (reading 1). "in ascending order" is taken as strictly increasing with
+      duplicates removed (reading 2), which contradicts R-RET-2 (RV-RET-2)
+      for arrays with a repeated value. "you will sort the given array" is
+      taken as sorting the argument itself in place (reading 2), which
+      contradicts R-MUT-1. The in-place change is not recorded (the array
+      signal is the argument as passed), so the order is stated on the
+      returned copy, result.
+
+  - id: RV-ORD-1-VAL
+    req: R-ORD-1
+    pattern: implies
+    args: {trigger: 'len(array) > 0 && val_sum % 2 == 1', cond: asc_strict}
+    note: >-
+      Ascending order when the parity sum is odd. The parity sum uses the
+      reading the request instructs for the R-DEF-1 phrase "the sum( first
+      index value, last index value)" (reading 2, even though reading 1 seems
+      more natural): the first and last values of the sorted copy, that is
+      min(array) + max(array), which is the same for either sort order. The
+      request also instructs reading 2 for the R-DEF-1 phrase "first index
+      value, last index value" (the indices, sum len(array) - 1), which is
+      formalized separately in RV-ORD-1-IDX. The two conflict (with
+      RV-ORD-2-IDX) whenever their parities differ, for example [0, 1, 3]. The
+      remaining phrases also use the readings the request gives. "is odd or
+      even" is taken as odd only (reading 1). "in ascending order" is taken
+      as strictly increasing with duplicates removed (reading 2), which
+      contradicts R-RET-2 (RV-RET-2) for arrays with a repeated value. "you
+      will sort the given array" is taken as sorting the argument in place
+      (reading 2), which contradicts R-MUT-1 and is not visible in the trace.
+      The order is stated on result.
+
+  - id: RV-ORD-2-IDX
+    req: R-ORD-2
+    pattern: implies
+    args: {trigger: 'len(array) > 0 && idx_sum % 2 == 0', cond: desc_strict}
+    note: >-
+      Descending order when the parity sum is even. The parity sum uses the
+      reading the request instructs for the R-DEF-1 phrase "first index value,
+      last index value" (reading 2, even though reading 1 seems more natural):
+      the indices themselves, so the sum is len(array) - 1 and its parity
+      depends only on the length. The other instructed R-DEF-1 reading ("the
+      sum( first index value, last index value)" = min(array) + max(array)) is
+      formalized separately in RV-ORD-2-VAL. With RV-ORD-1-VAL this item
+      conflicts whenever the two parities differ, for example [0, 1, 3]. The
+      remaining phrases also use the readings the request gives. "is even or
+      odd" is taken as even only (reading 1). "in descending order" is taken
+      as strictly decreasing with duplicates removed (reading 2), which
+      contradicts R-RET-2 (RV-RET-2) for arrays with a repeated value. "sort
+      it" is taken as sorting the given array itself in place (reading 2),
+      which contradicts R-MUT-1 and is not visible in the trace (the array
+      signal is the argument as passed). The order is stated on the returned
+      copy, result.
+
+  - id: RV-ORD-2-VAL
+    req: R-ORD-2
+    pattern: implies
+    args: {trigger: 'len(array) > 0 && val_sum % 2 == 0', cond: desc_strict}
+    note: >-
+      Descending order when the parity sum is even. The parity sum uses the
+      reading the request instructs for the R-DEF-1 phrase "the sum( first
+      index value, last index value)" (reading 2, even though reading 1 seems
+      more natural): the first and last values of the sorted copy, that is
+      min(array) + max(array). The other instructed R-DEF-1 reading ("first
+      index value, last index value" = the indices, sum len(array) - 1) is
+      formalized separately in RV-ORD-2-IDX. With RV-ORD-1-IDX this item
+      conflicts whenever the parities differ, for example [0, 2]. The
+      remaining phrases also use the readings the request gives. "is even or
+      odd" is taken as even only (reading 1). "in descending order" is taken
+      as strictly decreasing with duplicates removed (reading 2), which
+      contradicts R-RET-2 (RV-RET-2) for arrays with a repeated value. "sort
+      it" is taken as sorting the given array in place (reading 2), which
+      contradicts R-MUT-1 and is not visible in the trace. The order is
+      stated on result.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'array == [] && outcome == 0 && result == []'
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'array == [5] && outcome == 0 && result == [5]'
+    note: >-
+      Under the readings the request gives for R-DEF-1, both parity sums are
+      even (index sum 0; min + max = 10). The rule is then descending order,
+      which a single element meets trivially.
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'array == [2, 4, 3, 0, 1, 5] && outcome == 0 && result == [0, 1, 2, 3, 4, 5]'
+    note: >-
+      Taken as the intended result (reading 1). Under the readings the request
+      gives for R-DEF-1, both parity sums are odd (index sum 5; min + max = 5),
+      and the result is strictly increasing with no repeated value. The example
+      is therefore consistent with RV-ORD-1-IDX, RV-ORD-1-VAL and RV-RET-2.
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'array == [2, 4, 3, 0, 1, 5, 6] && outcome == 0 && result == [6, 5, 4, 3, 2, 1, 0]'
+    note: >-
+      Taken as the intended result (reading 1). Under the readings the request
+      gives for R-DEF-1, both parity sums are even (index sum 6; min + max =
+      6), and the result is strictly decreasing with no repeated value. The
+      example is therefore consistent with RV-ORD-2-IDX, RV-ORD-2-VAL and
+      RV-RET-2.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-EMPTY in design.yaml states this requirement. The frame
+      adds it to every formalization set, so it is not restated here.
+    covered_by: [F-EMPTY]
+  - req: R-API-1
+    reason: >-
+      The name and signature come from the function section of design.yaml,
+      not from the trace. The adapter calls sort_array(array). A function with
+      another name, or one that does not take a single argument, cannot be
+      called that way, so the call ends with outcome 1, which RV-RET-1 rejects.
+    covered_by: [RV-RET-1]
+  - req: R-IN-1
+    reason: >-
+      The encoding already guarantees this. The array signal only carries
+      lists of integers from 0 to 255, and frame.md (Inputs) excludes calls
+      with negative or non-integer elements from the trace. An assumption
+      would hold by construction and constrain nothing.
+  - req: R-DEF-1
+    reason: >-
+      This is a definition, realized as defs. idx_sum = len(array) - 1 follows
+      the request's reading 2 of "first index value, last index value".
+      val_sum = min(array) + max(array) follows its reading 2 of "the sum(
+      first index value, last index value)". The two instructed readings
+      define the parity sum in incompatible ways. I did not choose between
+      them: each is used in its own order item, and the order items conflict
+      wherever the two parities differ.
+    covered_by: [RV-ORD-1-IDX, RV-ORD-1-VAL, RV-ORD-2-IDX, RV-ORD-2-VAL]
+  - req: R-MUT-1
+    reason: >-
+      This cannot be observed. frame.md records only the argument as passed
+      and the returned list ("nothing else about the call is recorded"), so
+      the argument's value after the call is not in the trace. Following the
+      request, "don't change the given array" is read as reading 2: it is
+      contradicted by the in-place readings of "you will sort the given
+      array" (R-ORD-1), "sort it" (R-ORD-2) and "a copy of the given array
+      after sorting" (R-RET-2). Under those readings the call does change the
+      argument, so this requirement conflicts with them. That conflict is
+      outside what the trace can show.
+
+decisions:
+  - {req: R-RET-2, phrase: 'a copy of the given array after sorting', reading: 2}
+  - {req: R-DEF-1, phrase: 'first index value, last index value', reading: 2}
+  - {req: R-DEF-1, phrase: 'the sum( first index value, last index value)', reading: 2}
+  - {req: R-ORD-1, phrase: 'is odd or even', reading: 1}
+  - {req: R-ORD-1, phrase: 'in ascending order', reading: 2}
+  - {req: R-ORD-1, phrase: 'you will sort the given array', reading: 2}
+  - {req: R-ORD-2, phrase: 'is even or odd', reading: 1}
+  - {req: R-ORD-2, phrase: 'in descending order', reading: 2}
+  - {req: R-ORD-2, phrase: 'sort it', reading: 2}
+  - {req: R-MUT-1, phrase: "don't change the given array", reading: 2}
+  - {req: R-EX-3, phrase: '[0, 1, 2, 3, 4, 5]', reading: 1}
+  - {req: R-EX-4, phrase: '[6, 5, 4, 3, 2, 1, 0]', reading: 1}

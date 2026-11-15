@@ -1,0 +1,139 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete implementation (a body) of the given Python function correct_bracketing, keeping the given signature.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def correct_bracketing(brackets: str):'
+  text: The function is named correct_bracketing and takes exactly one parameter, brackets, which is a str.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: brackets is a string of "(" and ")".
+  text: The argument brackets is a string whose characters are all "(" or ")".
+  kind: assumption
+  ambiguity:
+  - phrase: a string of "(" and ")"
+    readings:
+    - 'A precondition on the caller: only "(" and ")" are ever passed; the outcome and result for a string containing any other character are unconstrained (don''t care).'
+    - 'A description of the characters that matter: other characters may occur and are ignored, so the result depends only on the "(" and ")" characters, in order.'
+    - 'A validity condition the function must enforce: a string containing any other character is invalid and must be rejected (return False or raise an exception).'
+  - phrase: a string of
+    readings:
+    - Any length, including the empty string (which then has no opening bracket, so it is correctly bracketed).
+    - A non-empty string; the result for the empty string is unconstrained.
+  lines:
+  - 5
+- id: R-RES-1
+  doc: SPEC
+  quote: return True if every opening bracket has a corresponding closing bracket.
+  text: If every opening bracket "(" in brackets has a corresponding closing bracket ")", the call returns True (a bool, without raising).
+  kind: guarantee
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: corresponding closing bracket
+    readings:
+    - 'Order-sensitive matching: each "(" is paired one-to-one with a ")" that comes after it, matched with nesting (the usual left-to-right stack/counter matching).'
+    - 'Order-insensitive matching: each "(" is paired one-to-one with some ")" anywhere in the string, so only the counts matter. CONTRADICTION with R-EX-4: under this reading ")(()" (two "(", two ")")
+      would return True, but the example says False.'
+  - phrase: every opening bracket has
+    readings:
+    - 'Full balance: the condition also requires that no ")" is left without a matching earlier "(" (a running count of "(" minus ")" never goes negative and ends at 0), so "())" and ")(" are not correctly
+      bracketed.'
+    - 'Only opening brackets are constrained: surplus closing brackets that close nothing are allowed, so "())" is correctly bracketed (True) as long as every "(" is matched by a later ")".'
+  - phrase: return True
+    readings:
+    - The function returns the bool True.
+    - The function returns any truthy value.
+  lines:
+  - 6
+- id: R-RES-2
+  doc: SPEC
+  quote: return True if every opening bracket has a corresponding closing bracket.
+  text: If it is not the case that every opening bracket "(" in brackets has a corresponding closing bracket ")", the call returns False (a bool, without raising).
+  kind: guarantee
+  depends:
+  - R-IN-1
+  - R-RES-1
+  ambiguity:
+  - phrase: return True if
+    readings:
+    - 'If and only if: the function returns False whenever the condition fails (as the examples "(" and ")(()" show), so the result is exactly whether the string is correctly bracketed.'
+    - 'One direction only: the sentence constrains only the case where the condition holds; for other strings the result is not specified by this sentence (only the examples pin some of them to False).'
+  - phrase: corresponding closing bracket
+    readings:
+    - 'Order-sensitive matching: each "(" is paired one-to-one with a ")" that comes after it, matched with nesting.'
+    - 'Order-insensitive matching: each "(" is paired one-to-one with some ")" anywhere in the string, so only the counts matter.'
+  - phrase: every opening bracket has
+    readings:
+    - 'Full balance: a ")" with no matching earlier "(" also makes the condition fail, so the call returns False for "())" and ")(".'
+    - 'Only opening brackets are constrained: surplus closing brackets do not make the condition fail, so "())" does not have to return False.'
+  lines:
+  - 6
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> correct_bracketing("(") False'
+  text: Calling correct_bracketing("(") returns False.
+  kind: scenario
+  depends:
+  - R-RES-2
+  lines:
+  - 8
+  - 9
+- id: R-EX-2
+  doc: SPEC
+  quote: '>>> correct_bracketing("()") True'
+  text: Calling correct_bracketing("()") returns True.
+  kind: scenario
+  depends:
+  - R-RES-1
+  lines:
+  - 10
+  - 11
+- id: R-EX-3
+  doc: SPEC
+  quote: '>>> correct_bracketing("(()())") True'
+  text: Calling correct_bracketing("(()())") returns True.
+  kind: scenario
+  depends:
+  - R-RES-1
+  lines:
+  - 12
+  - 13
+- id: R-EX-4
+  doc: SPEC
+  quote: '>>> correct_bracketing(")(()") False'
+  text: Calling correct_bracketing(")(()") returns False.
+  kind: scenario
+  depends:
+  - R-RES-1
+  - R-RES-2
+  ambiguity:
+  - phrase: correct_bracketing(")(()") False
+    readings:
+    - 'Consistent with R-RES-1 under order-sensitive matching: the ")" at position 0 closes nothing and the "(" at position 1 is never closed, so the string is not correctly bracketed.'
+    - 'CONTRADICTION with R-RES-1 under order-insensitive matching ("corresponding closing bracket" = any ")" anywhere): both "(" can be paired with the two ")", so R-RES-1 would require True, while this
+      example requires False.'
+  lines:
+  - 14
+  - 15
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, the result signal is 0 (false) whenever outcome is not 0, that is, whenever the call did not return a bool.
+  kind: guarantee
+  lines:
+  - 48

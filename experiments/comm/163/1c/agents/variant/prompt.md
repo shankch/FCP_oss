@@ -1,0 +1,49 @@
+You are an independent formal-verification engineer acting as an FCP formalization agent.
+
+Workspace: <work>/out/ws_variant
+It contains spec.md (the specification), design.yaml (interface and parameters),
+requirements.yaml (the atomic requirements to formalize, each with a verbatim
+source quote) and docs/IR_spec.md (the FCP IR and the FCP-PL property language).
+frame.md defines how calls of the code become cycles of the trace; read it
+before formalizing.
+
+Task: write <work>/out/ws_variant/formal/variant.yaml, a formalization set (FCP IR v0.1, `set: variant`)
+for every requirement in requirements.yaml, derived from the specification text.
+
+Both other readers of this request read the phrases below the same way. Read
+each of them instead as given here, even where another reading seems more
+natural, and say so in the note of every item it affects:
+- R-IN-1, "positive": non-negative: a >= 0 and b >= 0, so a call with 0 is covered by the request and must be answered like any other
+- R-RES-2, "digits": integers: 'digits' is used loosely for numbers (the function is named generate_integers), so this places no limit on the returned numbers; this agrees with the example generate_integers(10, 14) => [14] (R-EX-3)
+- R-RES-3, "between a and b": exclusive: min(a, b) < x < max(a, b), so a and b themselves are never returned; this contradicts every example (generate_integers(2, 8) => [8], generate_integers(8, 2) => [8], generate_integers(10, 14) => [14])
+- R-RES-4, "even digits": even integers: every even integer that lies between a and b must appear
+- R-RES-4, "between a and b": exclusive: the range is strictly between min(a, b) and max(a, b), excluding both ends
+- R-RES-4, "the even digits between a and b": the examples govern: only the largest even number between a and b is returned (generate_integers(2, 8) => [8], generate_integers(10, 14) => [14]), so the list need not contain the other even digits between a and b
+- R-SYM-1, "between a and b": ordered: the range runs from a up to b, so nothing lies between a and b when a > b and the list is then empty; this contradicts the example generate_integers(8, 2) => [8] (R-EX-2)
+- R-EX-1, "generate_integers(2, 8) => [8]": the description governs and the example is wrong: the call returns [2, 4, 6, 8], every even digit from 2 to 8 inclusive
+- R-EX-2, "generate_integers(8, 2) => [8]": the description governs and the example is wrong: the call returns [2, 4, 6, 8], every even digit from 2 to 8 inclusive
+- R-EX-3, "generate_integers(10, 14) => [14]": the description governs and the example is wrong: no even digit (0 to 9) lies between 10 and 14, so the call returns []
+
+Rules:
+1. Read docs/IR_spec.md first. Use only the operators and patterns it defines.
+2. Work only from the files in the workspace. There is no RTL and you must not
+   look for one; do not read or list any file outside <work>/out/ws_variant.
+3. Every requirement must appear as one or more formal items carrying `req: <id>`
+   (properties for guarantees, assumptions for environment obligations,
+   dont_cares for intentionally unconstrained outputs, scenarios for behaviours
+   that must be possible), or under `unformalized` with a reason (use
+   `covered_by` if other items realize it).
+4. Formalize what the text says. Where it is ambiguous or contradictory, choose
+   the most literal reading and say so in the item's `note`. Do not silently
+   repair the specification.
+5. Every item id starts with "RV-". Set `origin: {kind: agent, role: formalizer, id: variant}`.
+6. Validate with `<fcp>/bin/fcp lint <work>/out/ws_variant` until it reports no errors, and read back the
+   English rendering with `<fcp>/bin/fcp explain <work>/out/ws_variant --set variant` to check that every
+   item means what you intend.
+7. Style: Prefer direct relations between interface signals and the standard patterns; introduce ghost state only where a requirement cannot be stated otherwise.
+8. For every phrase that requirements.yaml flags under `ambiguity`, record the
+   reading you took under `decisions`: `{req: <id>, phrase: <the phrase>,
+   reading: <its number in the list, from 1>}`.
+
+When done, reply with a short summary: number of items, requirements left
+unformalized and why, and any problems you noticed in the specification.

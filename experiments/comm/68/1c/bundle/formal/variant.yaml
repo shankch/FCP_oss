@@ -1,0 +1,240 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # arr holds a nonzero even element. Variant reading of "even" (R-PL-2) and of
+  # "no even values" (R-EMP-1): 0 is not counted as an even value.
+  has_even: 'any(i < len(arr): arr[i] % 2 == 0 && arr[i] != 0)'
+
+assumptions:
+  - id: RV-IN-1
+    req: R-IN-1
+    expr: 'all(i < len(arr): arr[i] >= 0)'
+    note: >-
+      Every node is a non-negative integer. The frame carries only elements
+      0 to 255, so this always holds on the trace.
+  - id: RV-IN-2
+    req: R-IN-2
+    expr: 'len(arr) >= 1'
+    note: >-
+      Literal reading of "1 <= nodes.length" (reading 1): the empty array is
+      outside the input domain and pluck([]) is not specified. This contradicts
+      the plain text of R-EMP-2 and Example 3 (R-EX-3), which this set reads,
+      as instructed, as clauses that never apply (see RV-EMP-2a/b).
+  - id: RV-IN-3
+    req: R-IN-3
+    expr: 'len(arr) <= 10000'
+    note: >-
+      The frame carries at most 16 elements, so this always holds on the trace.
+  - id: RV-IN-4
+    req: R-IN-4
+    expr: 'all(i < len(arr): arr[i] >= 0)'
+    note: >-
+      Same content as RV-IN-1 (stated separately in the Constraints). Always
+      holds on the trace.
+
+properties:
+  - id: RV-PL-1
+    req: R-PL-1
+    pattern: implies
+    args:
+      trigger: 'has_even'
+      cond: 'outcome == 2'
+    note: >-
+      Variant readings, as instructed for this set. "pluck" is read as reading 2:
+      remove the node from arr (mutating the argument) and report it. "return
+      it" is read as reading 2: return the node's value alone. The value alone
+      is a bare integer, not a list. The frame records a return that is not a
+      list of at most 3 numbers as outcome 2, with plucked empty. So all the
+      property can say is that the call returns normally (it does not raise)
+      with such a result. Which value comes back is not visible on the
+      interface, and neither is the fact that it designates exactly one node.
+      The removal from arr changes the argument only after the call, and the
+      frame does not record that (arr is the argument as passed), so the
+      mutation is not formalized. The "has_even" trigger counts 0 as not even,
+      following the variant readings of "even" (R-PL-2) and "no even values"
+      (R-EMP-1). Under R-DEF-1 reading 2, positions also carry tree structure;
+      this formula does not use it. On every call with a nonzero even element
+      this contradicts RV-OUT-1, which requires a returned two-element list
+      (outcome 0). It also contradicts RV-PL-3 and Examples 1, 2 and 4.
+  - id: RV-PL-2
+    req: R-PL-2
+    pattern: implies
+    args:
+      trigger: 'has_even && len(plucked) > 0'
+      cond: 'plucked[0] in arr && all(j < len(arr): arr[j] <= plucked[0])'
+    note: >-
+      Variant readings, as instructed for this set. "the smallest even value" is
+      read as reading 2: the plucked node is the largest element of arr of any
+      parity, which is what Examples 1, 2 and 4 show. So no parity is required
+      of the plucked value. "even" (in the trigger "arr contains at least one
+      even value") is read as reading 2: 0 is not counted as an even value. The
+      value of the plucked node is taken as the first element of a returned
+      list, because that is where the examples cited by the reading show it.
+      The property is guarded on a non-empty result; R-PL-1 and R-OUT-1 decide
+      whether a result is returned. The reading text in requirements.yaml says
+      it "contradicts R-EX-1, R-EX-2 and R-EX-4", although the same examples
+      are cited as support for it. Its first element agrees with all three
+      examples. Together with RV-OUT-1 (first element = the smallest element),
+      this leaves a result only when every element of arr is equal. Under
+      R-DEF-1 reading 2, positions also carry tree structure; this formula does
+      not use it.
+  - id: RV-PL-3
+    req: R-PL-3
+    pattern: implies
+    args:
+      trigger: 'arr == [5, 0, 3, 0, 4, 2]'
+      cond: 'outcome == 0 && plucked == [5, 0]'
+    note: >-
+      Variant reading, as instructed for this set: "return the node that has
+      smallest index" is read as reading 2. Example 4 (R-EX-4) is right and
+      pluck([5, 0, 3, 0, 4, 2]) returns [5, 0], so the tie on 0 does not decide
+      the result. That contradicts this sentence. The tie-breaking rule is
+      therefore not formalized as a general rule, and the index among tied
+      nodes is left free. What the reading asserts is the result of this one
+      call, stated here as a guarantee. It contradicts RV-PL-1 (outcome 2),
+      RV-OUT-1 (first element = the smallest element, 0) and RV-OUT-2 (1-based
+      position, so 0 is no position).
+  - id: RV-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args:
+      trigger: 'has_even'
+      cond: 'outcome == 0 && len(plucked) == 2 && plucked[0] in arr && all(j < len(arr): plucked[0] <= arr[j])'
+    note: >-
+      Variant reading, as instructed for this set: "smalest_value" is read as
+      reading 2, the smallest value of arr of any parity. So the first element
+      of the two-element list is the minimum of arr, not necessarily the value
+      of the plucked node. The second element ("its index") is constrained by
+      RV-OUT-2. "When a node is plucked" is taken as "arr has a nonzero even
+      element" (has_even), because R-PL-1 and R-EMP-1 say a node is plucked
+      exactly then and 0 is not counted as even (variant readings of R-PL-2
+      "even" and R-EMP-1). This contradicts RV-PL-1 (the value alone, outcome
+      2) on every such call. Together with RV-PL-2 (first element = the largest
+      element), it leaves a result only when all elements are equal. It also
+      contradicts Examples 1, 2 and 4.
+  - id: RV-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args:
+      trigger: 'len(plucked) == 2'
+      cond: 'any(i < len(arr): plucked[1] == i + 1 && arr[i] == plucked[0])'
+    note: >-
+      Variant reading, as instructed for this set: "its index" is read as
+      reading 2, the 1-based position of the node in arr. So a second element p
+      names arr[p - 1], and p ranges over 1 .. len(arr). As in the requirement
+      text, the node at that position holds the first element of the result.
+      Under R-DEF-1 reading 2, positions also carry parent/child meaning in a
+      tree encoding. The index of a node is still its position, so the formula
+      is unchanged by that. This contradicts every example that returns a pair
+      (Examples 1, 2 and 4 use 0-based indices, and [4, 0] and [5, 0] name
+      position 0) and RV-PL-3.
+  - id: RV-EMP-1
+    req: R-EMP-1
+    pattern: implies
+    args:
+      trigger: 'len(arr) >= 1 && !has_even'
+      cond: 'outcome == 0 && len(plucked) == 0'
+    note: >-
+      Variant reading, as instructed for this set: "no even values" is read as
+      reading 2. 0 is not counted, so an array whose only even elements are 0
+      has no even values, and the call returns []. For example, pluck([0, 1])
+      returns [].
+
+dont_cares:
+  - id: RV-EMP-2a
+    req: R-EMP-2
+    signal: plucked
+    when: 'len(arr) == 0'
+    note: >-
+      Variant reading, as instructed for this set: "the given array is empty" is
+      read as reading 2. The empty array is excluded by the Constraints
+      (1 <= nodes.length, R-IN-2), so this clause never applies, which
+      contradicts R-IN-2. No requirement then fixes the result of pluck([]): it
+      is left free. RV-IN-2 already excludes such calls, so this item only
+      records that the clause imposes nothing.
+  - id: RV-EMP-2b
+    req: R-EMP-2
+    signal: outcome
+    when: 'len(arr) == 0'
+    note: >-
+      Variant reading, as instructed for this set: "the given array is empty" is
+      read as reading 2 (excluded by the Constraints, R-IN-2, so the clause
+      never applies; contradicts R-IN-2). How pluck([]) ends is left free, as
+      with RV-EMP-2a.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'arr == [4, 2, 3] && outcome == 0 && plucked == [4, 0]'
+    note: >-
+      Literal reading of "Output: [4, 0]" (reading 1): [4, 0] is the intended
+      output, the largest value 4 at index 0. Consistent with the variant
+      reading of R-PL-2 (RV-PL-2). Contradicts RV-PL-1 (outcome 2), RV-OUT-1
+      (first element = the smallest element, 2) and RV-OUT-2 (1-based, so 0 is
+      no position). The scenario is therefore unreachable in this set.
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'arr == [1, 2, 3] && outcome == 0 && plucked == [3, 2]'
+    note: >-
+      Literal reading of "Output: [3, 2]" (reading 1): [3, 2] is the intended
+      output, the largest value 3 at index 2. Consistent with RV-PL-2.
+      Contradicts RV-PL-1 (outcome 2), RV-OUT-1 (first element = the smallest
+      element, 1) and RV-OUT-2 (1-based position 2 holds 2, not 3). The
+      scenario is therefore unreachable in this set.
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'arr == [5, 0, 3, 0, 4, 2] && outcome == 0 && plucked == [5, 0]'
+    note: >-
+      Literal reading of "Output: [5, 0]" (reading 1): [5, 0] is the intended
+      output, the largest value 5 at index 0. Consistent with RV-PL-2 and with
+      the variant reading of R-PL-3 (RV-PL-3). Contradicts RV-PL-1 (outcome 2),
+      RV-OUT-1 (first element = the smallest element, 0) and RV-OUT-2 (1-based,
+      so 0 is no position). The scenario is therefore unreachable in this set.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-EMPTY of the list adapter (design.yaml). It holds by
+      construction and is part of every formalization set, so it is not
+      restated.
+    covered_by: [F-EMPTY]
+  - req: R-DEF-1
+    reason: >-
+      Definition: the nodes of the branch are the elements of arr, a node's
+      value is its element and its index is its position. Variant reading, as
+      instructed for this set: "representing a branch of a tree" is read as
+      reading 2. arr encodes tree structure (for example level order), so
+      positions also carry parent/child meaning. No sentence of the
+      specification uses the parent/child relation, and every list is a valid
+      level-order encoding, so the reading adds no constraint on inputs or
+      results. The value/position part is used directly by the items that
+      cite it.
+    covered_by: [RV-PL-1, RV-PL-2, RV-OUT-2]
+  - req: R-EX-3
+    reason: >-
+      Variant reading, as instructed for this set: "Input: []" is read as
+      reading 2. The empty array violates the Constraints (1 <= nodes.length,
+      R-IN-2), so this example lies outside the input domain, which
+      contradicts R-IN-2. It is not a behaviour that must be possible, so it
+      is not a scenario: under RV-IN-2 such a cover would be unreachable by
+      construction. The result of pluck([]) is left free by RV-EMP-2a/b.
+    covered_by: [RV-IN-2, RV-EMP-2a, RV-EMP-2b]
+
+decisions:
+  - {req: R-DEF-1, phrase: "representing a branch of a tree", reading: 2}
+  - {req: R-IN-2, phrase: "1 <= nodes.length", reading: 1}
+  - {req: R-PL-1, phrase: "pluck", reading: 2}
+  - {req: R-PL-1, phrase: "return it", reading: 2}
+  - {req: R-PL-2, phrase: "the smallest even value", reading: 2}
+  - {req: R-PL-2, phrase: "even", reading: 2}
+  - {req: R-PL-3, phrase: "return the node that has smallest index", reading: 2}
+  - {req: R-OUT-1, phrase: "smalest_value", reading: 2}
+  - {req: R-OUT-2, phrase: "its index", reading: 2}
+  - {req: R-EMP-1, phrase: "no even values", reading: 2}
+  - {req: R-EMP-2, phrase: "the given array is empty", reading: 2}
+  - {req: R-EX-1, phrase: "Output: [4, 0]", reading: 1}
+  - {req: R-EX-2, phrase: "Output: [3, 2]", reading: 1}
+  - {req: R-EX-3, phrase: "Input: []", reading: 2}
+  - {req: R-EX-4, phrase: "Output: [5, 0]", reading: 1}

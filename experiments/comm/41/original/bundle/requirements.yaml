@@ -1,0 +1,139 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-TASK-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete implementation (body) of the given Python function car_race_collision.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def car_race_collision(n: int):'
+  text: The function is named car_race_collision and takes exactly one argument, n, an integer.
+  kind: definition
+  lines:
+  - 4
+- id: R-ROAD-1
+  doc: SPEC
+  quote: Imagine a road that's a perfectly straight infinitely long line.
+  text: All cars move on one road that is a single, perfectly straight line, infinitely long in both directions.
+  kind: definition
+  lines:
+  - 6
+- id: R-CARS-1
+  doc: SPEC
+  quote: n cars are driving left to right;
+  text: The argument n is the number of cars driving left to right (a count of cars, so a non-negative integer).
+  kind: definition
+  lines:
+  - 7
+- id: R-CARS-2
+  doc: SPEC
+  quote: simultaneously, a different set of n cars are driving right to left.
+  text: At the same time, a second set of cars, disjoint from the first and also of size n, drives right to left.
+  kind: definition
+  ambiguity:
+  - phrase: simultaneously
+    readings:
+    - both sets of cars are on the road and moving during the same period of time
+    - both sets of cars start moving at the same instant
+  lines:
+  - 7
+  - 8
+- id: R-CARS-3
+  doc: SPEC
+  quote: The two sets of cars start out being very far from each other.
+  text: Initially the left-to-right set and the right-to-left set are far apart, so that no collision has happened yet at the start.
+  kind: definition
+  ambiguity:
+  - phrase: start out being very far from each other
+    readings:
+    - every left-to-right car starts to the left of every right-to-left car, so the two sets approach each other and every left-to-right car eventually meets every right-to-left car
+    - the sets are only said to be far apart; their relative order is not stated, so they may be moving away from each other and never meet
+  - phrase: very far
+    readings:
+    - far enough that no collision has happened before the start, but at a finite distance, so all meetings happen in finite time
+    - infinitely far apart, so that meetings may never actually happen
+  lines:
+  - 8
+  - 9
+- id: R-CARS-4
+  doc: SPEC
+  quote: All cars move in the same speed.
+  text: Every car moves at the same speed, so two cars driving in the same direction never catch up with each other.
+  kind: definition
+  ambiguity:
+  - phrase: the same speed
+    readings:
+    - one constant speed shared by all cars for all time
+    - all cars have equal speed at every instant, but that common speed may vary over time
+  lines:
+  - 9
+- id: R-COL-1
+  doc: SPEC
+  quote: Two cars are said to collide when a car that's moving left to right hits a car that's moving right to left.
+  text: A collision is an event in which a car moving left to right meets (hits) a car moving right to left; meetings of two cars moving in the same direction are not collisions.
+  kind: definition
+  ambiguity:
+  - phrase: Two cars are said to collide when a car that's moving left to right hits a car that's moving right to left
+    readings:
+    - every meeting of a left-to-right car with a right-to-left car counts as a collision, even though neither car is affected by it
+    - 'seemingly contradicted by ''as if they did not collide'' (R-COL-2): if the cars pass through each other unaffected, a meeting may not count as a collision at all'
+  - phrase: collide
+    readings:
+    - each pair of one left-to-right car and one right-to-left car collides at most once
+    - a collision is counted per meeting event, and the same pair could be counted more than once
+  lines:
+  - 9
+  - 10
+- id: R-COL-2
+  doc: SPEC
+  quote: However, the cars are infinitely sturdy and strong; as a result, they continue moving in their trajectory as if they did not collide.
+  text: 'Collisions do not stop, destroy or deflect any car: after a collision both cars continue along their original trajectories at their original speed and direction.'
+  kind: definition
+  ambiguity:
+  - phrase: as if they did not collide
+    readings:
+    - the cars pass through each other unchanged, and the meeting is still counted as a collision (R-COL-1)
+    - 'seemingly contradicts ''Two cars are said to collide'' (R-COL-1): the cars behave as if no collision happened, which could be read as the meeting not being a collision'
+  lines:
+  - 11
+  - 12
+- id: R-OUT-1
+  doc: SPEC
+  quote: This function outputs the number of such collisions.
+  text: car_race_collision(n) returns the total number of collisions, as defined in R-COL-1, that occur over the whole (infinite) motion of the two sets of n cars.
+  kind: guarantee
+  depends:
+  - R-SIG-1
+  - R-ROAD-1
+  - R-CARS-1
+  - R-CARS-2
+  - R-CARS-3
+  - R-CARS-4
+  - R-COL-1
+  - R-COL-2
+  ambiguity:
+  - phrase: outputs
+    readings:
+    - returns the number as the function's return value
+    - prints the number (to standard output)
+  - phrase: the number of such collisions
+    readings:
+    - the total count of collision events between pairs of one left-to-right car and one right-to-left car over all time (each such pair meets once, so n * n)
+    - the number of collisions under a different count of meetings (for example none, if the sets never approach each other, or one per car, n), depending on how R-CARS-3 and R-COL-1 are read
+  lines:
+  - 14
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `collisions` is 0 unless `outcome` is 0.'
+  text: In every call, the collisions output is 0 whenever the outcome output is not 0 (the call did not return an integer that fits).
+  kind: guarantee
+  lines:
+  - 36

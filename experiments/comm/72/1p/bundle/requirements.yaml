@@ -1,0 +1,133 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a body for the given Python function stub, not a different program.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def will_it_fly(q,w):'
+  text: 'The function is named will_it_fly and takes two positional parameters: q (a list of integers) first, then w (an integer).'
+  kind: definition
+  lines:
+  - 4
+- id: R-FLY-1
+  doc: SPEC
+  quote: Write a function that returns True if the object q will fly
+  text: When the object q will fly with w, will_it_fly(q, w) returns True.
+  kind: guarantee
+  ambiguity:
+  - phrase: will fly
+    readings:
+    - q flies exactly when it is balanced (R-BAL-1) and its weight, the sum of its elements, is within the maximum possible weight w (R-WT-3); there is no other condition
+    - the prompt never defines flying, so only the necessary conditions in the example comment (R-BAL-1, R-WT-3) and the four examples are fixed; a balanced list within the weight limit may or may not fly
+  - phrase: returns True
+    readings:
+    - returns the bool True itself
+    - returns any truthy value (for example 1 or a non-empty list)
+  - phrase: the object q
+    readings:
+    - q may be the empty list; it is balanced and weighs 0, so it flies whenever 0 is within the maximum weight w
+    - an empty q is no object and does not fly, so the function returns False for it
+    - the result for an empty q is left open
+  lines:
+  - 6
+- id: R-FLY-2
+  doc: SPEC
+  quote: and False otherwise
+  text: When the object q will not fly with w, will_it_fly(q, w) returns False.
+  kind: guarantee
+  ambiguity:
+  - phrase: 'False'
+    readings:
+    - returns the bool False itself
+    - returns any falsy value (for example 0, None or an empty list)
+  lines:
+  - 6
+- id: R-WT-1
+  doc: SPEC
+  quote: 1+2 is less than
+  text: The weight of the object q is the sum of the elements of q (for [1, 2] it is 1+2).
+  kind: definition
+  lines:
+  - 10
+- id: R-WT-2
+  doc: SPEC
+  quote: the maximum possible weight
+  text: The argument w is the maximum possible weight that the object q may have and still fly.
+  kind: definition
+  lines:
+  - 10
+- id: R-WT-3
+  doc: SPEC
+  quote: 1+2 is less than the maximum possible weight
+  text: If the weight of q (the sum of its elements) is above the maximum possible weight w, will_it_fly(q, w) returns False, whether or not q is balanced.
+  kind: guarantee
+  depends:
+  - R-WT-1
+  - R-WT-2
+  ambiguity:
+  - phrase: less than the maximum possible weight
+    readings:
+    - 'a weight equal to w is allowed: q can fly when sum(q) <= w, since w is the maximum possible weight'
+    - 'the weight must be strictly less than w, as the comment phrases it: q does not fly when sum(q) >= w'
+  lines:
+  - 10
+- id: R-BAL-1
+  doc: SPEC
+  quote: but it's unbalanced
+  text: If q is unbalanced, will_it_fly(q, w) returns False, however light q is compared with w.
+  kind: guarantee
+  ambiguity:
+  - phrase: unbalanced
+    readings:
+    - 'q is not a palindrome: q[i] != q[len(q)-1-i] for some i'
+    - the first and last elements of q differ
+    - the sum of the first half of q differs from the sum of the second half (the middle element of an odd-length list belongs to neither)
+  lines:
+  - 10
+- id: R-EX-1
+  doc: SPEC
+  quote: "will_it_fly([1, 2], 5) \u279E False"
+  text: 'The call will_it_fly([1, 2], 5) returns False: its weight 3 is below 5 but [1, 2] is unbalanced.'
+  kind: scenario
+  depends:
+  - R-BAL-1
+  lines:
+  - 9
+- id: R-EX-2
+  doc: SPEC
+  quote: "will_it_fly([3, 2, 3], 1) \u279E False"
+  text: The call will_it_fly([3, 2, 3], 1) returns False.
+  kind: scenario
+  lines:
+  - 12
+- id: R-EX-3
+  doc: SPEC
+  quote: "will_it_fly([3, 2, 3], 9) \u279E True"
+  text: The call will_it_fly([3, 2, 3], 9) returns True.
+  kind: scenario
+  lines:
+  - 14
+- id: R-EX-4
+  doc: SPEC
+  quote: "will_it_fly([3], 5) \u279E True"
+  text: The call will_it_fly([3], 5) returns True.
+  kind: scenario
+  lines:
+  - 16
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `flies` is false unless `outcome` is 0.'
+  text: In every call, the output flies is false unless outcome is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 47

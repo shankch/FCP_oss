@@ -1,0 +1,199 @@
+fcp: '0.1'
+set: variant2
+origin: {kind: agent, role: formalizer, id: variant2}
+
+defs:
+  # R-IN-1, R-IN-2: the valid ranges of the arguments
+  in_range: 'subtotal <= 1000000 && coupon <= 50'
+  # R-STACK-1 (reading 2): the price factor, in units of 1/10000, when the member
+  # discount (10%) and the coupon (coupon %) apply one after the other
+  stacked: '(member ? 90 : 100) * (100 - coupon)'
+  # R-STACK-1: the total discount is never more than 30%, so the factor is at least 70%
+  factor: 'max(7000, stacked)'
+  # the discounted price before rounding, times 10000 (exact)
+  disc: 'subtotal * factor'
+
+properties:
+  - id: V2-RET-1
+    req: R-RET-1
+    expr: 'in_range -> outcome == 0'
+    note: >-
+      A call with both arguments in range returns a pair of integers (outcome 0).
+      The pair always fits the signals: the price is at most the subtotal
+      (1,000,000 cents) and shipping at most 499 cents. What the two elements
+      are is stated by the price items (V2-MEM-1, V2-COUP-1, V2-STACK-1,
+      V2-STACK-2, V2-ROUND-1) and the shipping items (V2-SHIP-1, V2-SHIP-2).
+
+  - id: V2-ERR-1
+    req: R-ERR-1
+    expr: '!in_range -> outcome == 1'
+    note: >-
+      Out of range means subtotal above 1,000,000 or coupon above 50 (negative
+      arguments are not part of the trace, see frame.md). member has no range.
+
+  - id: V2-MEM-1
+    req: R-MEM-1
+    pattern: implies
+    args:
+      trigger: 'in_range && member && coupon == 0'
+      cond: '10000 * price - 5000 <= 9000 * subtotal && 9000 * subtotal < 10000 * price + 5000'
+    note: >-
+      A member without a coupon pays 90% of the subtotal, rounded to the nearest
+      cent. The 30% cap of rule 4 does not bind here. Rounding follows the reading
+      chosen for R-ROUND-1, "the nearest cent": at exactly half a cent, round up
+      (reading 2). The member discount combined with a coupon is covered by
+      V2-STACK-1 and V2-STACK-2.
+
+  - id: V2-COUP-1
+    req: R-COUP-1
+    pattern: implies
+    args:
+      trigger: 'in_range && !member && coupon <= 30'
+      cond: '10000 * price - 5000 <= 100 * (100 - coupon) * subtotal && 100 * (100 - coupon) * subtotal < 10000 * price + 5000'
+    note: >-
+      A non-member with a coupon of c percent pays (100 - c)% of the subtotal,
+      rounded to the nearest cent. Coupon 0 ("no coupon", R-IN-2) gives the full
+      subtotal. This is limited to coupons up to 30: rule 3 read alone would take
+      the full c percent off for c from 31 to 50 too, but rule 4 says the total
+      discount is never more than 30%, so for those coupons the cap governs
+      (V2-STACK-2). That is a tension in the spec: coupons above 30% are allowed
+      but never deliver their full percentage. Rounding follows the reading chosen
+      for R-ROUND-1, "the nearest cent": at exactly half a cent, round up (reading 2).
+      A coupon combined with membership is covered by V2-STACK-1 and V2-STACK-2.
+
+  - id: V2-STACK-1
+    req: R-STACK-1
+    pattern: implies
+    args:
+      trigger: 'in_range && member && coupon != 0 && stacked >= 7000'
+      cond: '10000 * price - 5000 <= 90 * (100 - coupon) * subtotal && 90 * (100 - coupon) * subtotal < 10000 * price + 5000'
+    note: >-
+      "Discounts stack" read as given for R-STACK-1: the discounts apply one after
+      the other (reading 2), so a member with a coupon of c percent pays
+      90% x (100 - c)% of the subtotal, rounded once to the nearest cent at the
+      end (no rounding between the two steps; rule 5 rounds only the discounted
+      price). This holds while the combined discount, 1 - 0.9 x (1 - c/100), is at
+      most 30%, which is coupons 1 to 22. Rounding follows the reading chosen for
+      R-ROUND-1, "the nearest cent": at exactly half a cent, round up (reading 2).
+
+  - id: V2-STACK-2
+    req: R-STACK-1
+    pattern: implies
+    args:
+      trigger: 'in_range && stacked < 7000'
+      cond: '10000 * price - 5000 <= 7000 * subtotal && 7000 * subtotal < 10000 * price + 5000'
+    note: >-
+      The total discount is never more than 30%: when the discounts applied one
+      after the other (the reading given for R-STACK-1, "Discounts stack",
+      reading 2) would take more than 30% off (members with a coupon of 23 or
+      more, non-members with a coupon of 31 or more), the price is 70% of the
+      subtotal, rounded to the nearest cent. The cap is taken to apply to the
+      discount before rounding (rule 4 defines the discounted price, rule 5 then
+      rounds it). Read on the returned price, the cap would contradict rule 5:
+      for a subtotal of 19 cents the capped amount is 13.3 cents, the nearest
+      cent is 13, a discount of 31.6%. Rounding follows the reading chosen for
+      R-ROUND-1, "the nearest cent": at exactly half a cent, round up (reading 2).
+
+  - id: V2-ROUND-1
+    req: R-ROUND-1
+    pattern: implies
+    args:
+      trigger: 'in_range'
+      cond: '10000 * price - 5000 <= disc && disc < 10000 * price + 5000'
+    note: >-
+      The price is the discounted price rounded to the nearest whole cent, where
+      disc / 10000 is the exact discounted price of rules 2 to 4 (the discounts
+      apply one after the other, the reading given for R-STACK-1, then capped at
+      a 30% total discount). "The nearest cent" read as given for R-ROUND-1: at
+      exactly half a cent, round up (reading 2); the window
+      [price - 0.5, price + 0.5) puts a half-cent amount on the higher cent.
+      That the price is a whole number is outcome 0 (V2-RET-1).
+
+  - id: V2-SHIP-1
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: 'in_range && price < 5000'
+      cond: 'ship == 499'
+    note: >-
+      "Orders under $50" read as given for R-SHIP-1: the discounted price is under
+      $50 (reading 2). The discounted price is taken to be the returned, rounded
+      price, which line 7 calls "the discounted price of the cart" (so a member's
+      5555-cent cart, 4999.5 cents before rounding and 5000 after, ships free).
+      An empty cart (subtotal 0) also pays 499, as the text literally says.
+
+  - id: V2-SHIP-2
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: 'in_range && price >= 5000'
+      cond: 'ship == 0'
+    note: >-
+      "Orders of $50 or more ship free", with "Orders under $50" read as given for
+      R-SHIP-1: the discounted price (the returned price) decides (reading 2).
+
+  - id: V2-MONO-1
+    req: R-MONO-1
+    pattern: implies
+    args:
+      trigger: 'in_range && prev(in_range) && member == prev(member) && coupon == prev(coupon) && subtotal > prev(subtotal)'
+      cond: 'price + ship >= prev(price) + prev(ship)'
+    note: >-
+      The previous call can be any call (frame.md), so this compares every pair of
+      calls with the same coupon and membership. Restricted to calls in range,
+      where an amount is charged; otherwise rule 1 (ValueError, price and shipping
+      0) would contradict it for a subtotal above 1,000,000. Formalized
+      literally: it contradicts rule 6 together with the price rules. Where the
+      price steps from 4999 to 5000 cents the amount charged drops from 5498 to
+      5000 (under either reading of "Orders under $50"; the reading given here is
+      that the discounted price decides, reading 2 of R-SHIP-1).
+
+  - id: V2-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'member && subtotal == 10000 && coupon == 0'
+      cond: 'outcome == 0 && price == 9000 && ship == 0'
+    note: >-
+      The example states the result of this call, so it is a guarantee as well as
+      a scenario (V2-EX-2). It agrees with rules 2, 5 and 6: 90% of 10,000 is 9000,
+      and 9000 cents is not under $50.
+
+scenarios:
+  - id: V2-EX-2
+    req: R-EX-1
+    cover: 'member && subtotal == 10000 && coupon == 0 && outcome == 0 && price == 9000 && ship == 0'
+    note: The call of the example, with its stated answer, must be possible.
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      The function's name and arguments are part of the adapter (design.yaml
+      function section and frame.md), not a property of a trace. The result type
+      (a pair of ints) is outcome 0, required for calls in range by V2-RET-1.
+    covered_by: [V2-RET-1]
+  - req: R-IN-1
+    reason: >-
+      Definition of the valid range of subtotal (0 to 1,000,000); it is the
+      subtotal part of the in_range def used by the items that cite it.
+    covered_by: [V2-RET-1, V2-ERR-1]
+  - req: R-IN-2
+    reason: >-
+      Definition of the valid range of coupon (0 to 50) and of coupon 0 as no
+      coupon; the range is the coupon part of in_range, and coupon 0 taking
+      nothing off is part of V2-COUP-1 and V2-MEM-1.
+    covered_by: [V2-RET-1, V2-ERR-1, V2-COUP-1, V2-MEM-1]
+  - req: R-IN-3
+    reason: >-
+      Definition of member; it gives the member discount where the items that
+      cite it apply it.
+    covered_by: [V2-MEM-1, V2-STACK-1, V2-STACK-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (price and ship are 0 unless outcome is 0);
+      it holds by construction and is part of every formalization set.
+
+decisions:
+  - {req: R-STACK-1, phrase: Discounts stack, reading: 2}
+  - {req: R-ROUND-1, phrase: the nearest cent, reading: 2}
+  - {req: R-SHIP-1, phrase: Orders under $50, reading: 2}

@@ -1,0 +1,140 @@
+fcp: '0.1'
+design: prompt_email
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-FACT-1
+  doc: SPEC
+  quote: 'Product facts: 40-hour battery life; adaptive noise cancelling; a 5-minute quick charge gives 4 hours of playback; memory-foam ear cushions. Price: $249. Launch offer: 20% off until 30 November.'
+  text: The facts the email may use.
+  kind: definition
+  lines:
+  - 3
+  - 5
+- id: R-SUBJ-1
+  doc: SPEC
+  quote: Start with a subject line.
+  text: The email starts with a subject line.
+  kind: guarantee
+  lines:
+  - 7
+- id: R-GREET-1
+  doc: SPEC
+  quote: Then greet the reader by their first name.
+  text: After the subject line, the email greets the reader by first name.
+  kind: guarantee
+  depends:
+  - R-SUBJ-1
+  lines:
+  - 7
+- id: R-FEAT-1
+  doc: SPEC
+  quote: Describe exactly three features of the X2.
+  text: The email describes exactly three features of the X2.
+  kind: guarantee
+  lines:
+  - 9
+- id: R-FEAT-2
+  doc: SPEC
+  quote: Give each feature its own sentence,
+  text: Each feature is described in a sentence of its own.
+  kind: guarantee
+  ambiguity:
+  - phrase: its own sentence
+    readings:
+    - the feature sentence states only the feature (its benefit comes in the next sentence)
+    - one feature per sentence; the same sentence may also state the benefit
+  lines:
+  - 9
+- id: R-FEAT-3
+  doc: SPEC
+  quote: and follow it with a sentence about the benefit to the customer.
+  text: Each feature sentence is followed by a sentence about the benefit to the customer.
+  kind: guarantee
+  depends:
+  - R-FEAT-2
+  lines:
+  - 10
+- id: R-PRICE-1
+  doc: SPEC
+  quote: Mention the price, $249, once.
+  text: The price, $249, is mentioned once.
+  kind: guarantee
+  ambiguity:
+  - phrase: once
+    readings:
+    - exactly once
+    - at least once
+  lines:
+  - 12
+- id: R-OFFER-1
+  doc: SPEC
+  quote: If you mention the launch offer, say when it ends in the same sentence.
+  text: A sentence that mentions the launch offer also says when the offer ends.
+  kind: guarantee
+  lines:
+  - 12
+  - 13
+- id: R-RIVAL-1
+  doc: SPEC
+  quote: Do not mention competitors.
+  text: The email does not mention competitors.
+  kind: guarantee
+  lines:
+  - 15
+- id: R-LEN-1
+  doc: SPEC
+  quote: Keep the body under 7 sentences.
+  text: The body has fewer than 7 sentences.
+  kind: guarantee
+  ambiguity:
+  - phrase: the body
+    readings:
+    - every unit except the subject line and the closing (the greeting counts)
+    - the greeting is a salutation, not a body sentence
+  lines:
+  - 17
+- id: R-END-1
+  doc: SPEC
+  quote: End with a call to action, followed by the sign-off "The Aurora Team".
+  text: The email ends with a call to action followed by the sign-off "The Aurora Team".
+  kind: guarantee
+  lines:
+  - 19
+- id: R-TONE-1
+  doc: SPEC
+  quote: Use a warm, confident tone.
+  text: The whole email reads warm and confident.
+  kind: non_functional
+  lines:
+  - 21
+- id: R-FR-1
+  doc: FRAME
+  quote: The output eos is false while the response lasts, rises in the cycle after the last unit, and stays true from then on.
+  text: eos marks the end of the response and is absorbing.
+  kind: definition
+  lines:
+  - 40
+- id: R-FR-2
+  doc: FRAME
+  quote: While eos is true, every label is false.
+  text: No label holds after the response has ended.
+  kind: definition
+  lines:
+  - 42
+- id: R-FR-3
+  doc: FRAME
+  quote: A response has at most 14 units.
+  text: eos rises within 14 units.
+  kind: definition
+  lines:
+  - 46
+- id: R-FR-4
+  doc: FRAME
+  quote: A unit that belongs to the closing carries no other label.
+  text: Closing units are exclusive.
+  kind: definition
+  lines:
+  - 44

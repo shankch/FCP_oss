@@ -1,0 +1,116 @@
+fcp: '0.1'
+set: variant2
+origin: {kind: agent, role: formalizer, id: variant2}
+
+defs:
+  # total discount in percent for the changed function: coupon, 10% for members,
+  # 15% for students, added up and capped at 30%
+  disc: 'min(coupon + 10*member + 15*student, 30)'
+  # 100 times the exact discounted price, in cents
+  due: 'subtotal * (100 - disc)'
+
+properties:
+  - id: V2-STU-1
+    req: R-STU-1
+    pattern: implies
+    args:
+      trigger: 'student && coupon == 0 && !member && outcome == 0'
+      cond: '100*price - 50 <= 85*subtotal && 85*subtotal < 100*price + 50'
+    note: >-
+      A student with no other discount pays 85% of the subtotal. The spec does
+      not restate the rounding; it is kept from the code before the change
+      (R-KEEP-1, impl/old.py: nearest cent, half a cent up), i.e.
+      price == (85*subtotal + 50) // 100. With other discounts the 15% is
+      qualified by R-CAP-1 (V2-CAP-1), so this item states it only where it
+      is the sole discount.
+
+  - id: V2-CAP-1
+    req: R-CAP-1
+    pattern: implies
+    args:
+      trigger: 'student && outcome == 0'
+      cond: '100*price - 50 <= due && due < 100*price + 50'
+    note: >-
+      "Adds to the other discounts" read literally as adding percentages: the
+      student's 15 is summed with the coupon percent and the 10% member
+      discount of the code before the change (no compounding), and the sum is
+      capped at 30 (def disc). Rounding as before (R-KEEP-1): nearest cent,
+      half a cent up, i.e. price == (due + 50) // 100. Stated for students
+      only; for other customers the 30% cap is kept through R-SAME-1.
+
+  - id: V2-SHIP-1
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: 'student && outcome == 0 && subtotal >= 7500'
+      cond: 'ship == 0'
+    note: >-
+      Ambiguity "Free shipping now starts at $75" taken as reading 2, as the
+      task instructs: the $75 threshold is for students only (reading 1, every
+      customer, would contradict R-SAME-1 for non-students with a subtotal of
+      $50 to $74.99). The threshold is compared with the subtotal (the cart
+      total before discounts), as the code before the change does for $50;
+      the spec does not say which amount "starts at $75" refers to.
+
+  - id: V2-SHIP-2
+    req: R-SHIP-1
+    pattern: implies
+    args:
+      trigger: 'student && outcome == 0 && subtotal < 7500'
+      cond: 'ship == 499'
+    note: >-
+      Ambiguity "Free shipping now starts at $75" taken as reading 2, as the
+      task instructs: for students only, so a student below $75 (subtotal)
+      pays the shipping fee, including from $50 to $74.99 where they shipped
+      free before. The fee amount, $4.99, is not in the spec; it is kept from
+      the code before the change (R-KEEP-1: "the shipping fee").
+
+  - id: V2-SAME-1
+    req: R-SAME-1
+    pattern: implies
+    args:
+      trigger: '!student'
+      cond: 'outcome == old_outcome && price == old_price && ship == old_ship'
+    note: >-
+      Every call with student false ends as the call of the code before the
+      change with the same subtotal, coupon and member: same outcome and,
+      when it returns, the same price and shipping fee. Under reading 2 of
+      "Free shipping now starts at $75" (for students only, as the task
+      instructs) this keeps the $50 free-shipping threshold for non-students;
+      under reading 1 the spec would contradict itself here.
+
+  - id: V2-KEEP-1
+    req: R-KEEP-1
+    pattern: implies
+    args:
+      trigger: 'student'
+      cond: 'outcome == old_outcome'
+    note: >-
+      Ranges and errors as before: being a student never changes whether a
+      call returns, raises ValueError or fails otherwise. The other parts of
+      R-KEEP-1 are realized where rules 1 and 2 are stated: rounding in
+      V2-STU-1 and V2-CAP-1, the shipping fee in V2-SHIP-2.
+
+scenarios:
+  - id: V2-EX-1
+    req: R-EX-1
+    cover: 'student && subtotal == 10000 && coupon == 0 && !member && outcome == 0 && price == 8500 && ship == 0'
+    note: >-
+      The example: a student with a $100.00 cart (10000 cents), no coupon and
+      no membership gets (8500, 0). Not affected by the shipping ambiguity
+      ($100 is above both thresholds).
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      The signature is the interface itself (design.yaml function args:
+      student is the fourth argument). The default False is not observable:
+      the adapter passes student explicitly in every call, so a call that
+      leaves it out never appears in the trace.
+  - req: R-TEST-1
+    reason: >-
+      Updating test_checkout.py is about the repository, not about the
+      behaviour of checkout; no call of the function can show it.
+
+decisions:
+  - {req: R-SHIP-1, phrase: 'Free shipping now starts at $75', reading: 2}

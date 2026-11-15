@@ -1,0 +1,35 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+defs:
+  body: 'k >= 1 && !signoff && !eos'   # every unit after the subject line, except the closing
+ghosts:
+- {name: k, range: [0, 15], init: 0, next: 'min(k + 1, 15)'}
+- {name: nf, range: [0, 15], init: 0, next: 'min(nf + feature, 15)'}
+- {name: np, range: [0, 15], init: 0, next: 'min(np + price, 15)'}
+- {name: nb, range: [0, 15], init: 0, next: 'min(nb + body, 15)'}
+properties:
+- {id: G-SUBJ, req: R-SUBJ-1, pattern: after_reset, args: {cond: subject}}
+- {id: G-GREET, req: R-GREET-1, pattern: implies, args: {trigger: 'k == 1', cond: greet}}
+- {id: G-FEAT-N, req: R-FEAT-1, pattern: implies, args: {trigger: eos, cond: 'nf == 3'}}
+- id: G-FEAT-OWN
+  req: R-FEAT-2
+  pattern: implies
+  args: {trigger: feature, cond: '!(subject || signoff || greet || benefit || cta)'}
+  note: '"its own sentence": a body sentence that states the feature and nothing else; its benefit comes next (R-FEAT-3)'
+- {id: G-FEAT-BEN, req: R-FEAT-3, pattern: next, args: {trigger: feature, cond: benefit}}
+- {id: G-PRICE, req: R-PRICE-1, pattern: implies, args: {trigger: eos, cond: 'np == 1'}, note: '"once" read as exactly once'}
+- {id: G-OFFER, req: R-OFFER-1, pattern: implies, args: {trigger: offer, cond: ends}}
+- {id: G-RIVAL, req: R-RIVAL-1, pattern: invariant, args: {cond: '!rival'}}
+- id: G-LEN
+  req: R-LEN-1
+  pattern: implies
+  args: {trigger: eos, cond: 'nb < 7'}
+  note: the body is every unit except the subject line and the closing; the greeting counts
+- id: G-END
+  req: R-END-1
+  pattern: implies
+  args: {trigger: 'rose(eos)', cond: 'prev(signoff) && prev(since(signoff, cta))'}
+  note: the last unit is part of the closing, and every unit after the last call to action is part of the closing
+unformalized:
+- {req: R-TONE-1, reason: 'a quality of the whole text that no unit label decides; it stays a judged requirement'}

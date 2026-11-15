@@ -1,0 +1,94 @@
+fcp: '0.1'
+design: code_mask
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def mask_card(number: str) -> str:'
+  text: The function's name, argument and result type.
+  kind: definition
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: It returns the card number with most of its digits hidden.
+  text: For a valid card number, the function returns a string.
+  kind: guarantee
+  lines:
+  - 7
+- id: R-IN-1
+  doc: SPEC
+  quote: A card number has 12 to 19 digits.
+  text: The number of digits of a card number.
+  kind: definition
+  lines:
+  - 9
+- id: R-IN-2
+  doc: SPEC
+  quote: Customers often type spaces or hyphens between groups of digits.
+  text: Spaces and hyphens may appear in a card number.
+  kind: definition
+  ambiguity:
+  - phrase: between groups of digits
+    readings:
+    - spaces and hyphens may appear anywhere (rule 1 rejects only other characters)
+    - spaces and hyphens may appear only between two digits, one at a time
+  lines:
+  - 9
+- id: R-ERR-1
+  doc: SPEC
+  quote: Raise ValueError if `number` contains anything other than digits, spaces and hyphens, has fewer than 12 or more than 19 digits, or fails the Luhn check.
+  text: A call with a character other than a digit, a space or a hyphen, with fewer than 12 or more than 19 digits, or whose digits fail the Luhn check raises ValueError.
+  kind: guarantee
+  ambiguity:
+  - phrase: digits
+    readings:
+    - the ten characters 0 to 9
+    - any character Python counts as a digit (str.isdigit), such as a superscript two
+  lines:
+  - 13
+- id: R-MASK-1
+  doc: SPEC
+  quote: Replace every digit with `*`, except the last four digits
+  text: Every digit of the number except its last four digits is replaced by `*`.
+  kind: guarantee
+  lines:
+  - 14
+- id: R-LAST4-1
+  doc: SPEC
+  quote: the last four digits, which stay as they are so that the customer can recognize the card.
+  text: The last four digits of the number appear unchanged in the result.
+  kind: guarantee
+  lines:
+  - 14
+- id: R-SEP-1
+  doc: SPEC
+  quote: Keep every space and hyphen where it is, so the result has the same length as `number`.
+  text: The result has the same length as the number, with every space and hyphen at the same position.
+  kind: guarantee
+  lines:
+  - 15
+- id: R-QUARTER-1
+  doc: SPEC
+  quote: For security, never show more than a quarter of the digits.
+  text: At most a quarter of the digits of the number appear in the result.
+  kind: guarantee
+  lines:
+  - 16
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: `mask_card("4111 1111 1111 1111")` returns `"**** **** **** 1111"`.'
+  text: mask_card("4111 1111 1111 1111") returns "**** **** **** 1111".
+  kind: scenario
+  lines:
+  - 18
+- id: R-FR-1
+  doc: FRAME
+  quote: '`masked` is the empty string unless `outcome` is 0.'
+  text: The result is empty unless the call returned a string that fits.
+  kind: definition
+  lines:
+  - 45

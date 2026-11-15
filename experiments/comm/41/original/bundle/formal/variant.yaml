@@ -1,0 +1,130 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+dont_cares:
+  - id: RV-OUT-1-VAL
+    req: R-OUT-1
+    signal: collisions
+    when: 'outcome == 0'
+    note: >-
+      Reading 2 of "outputs" was taken as instructed, although "returns" seems
+      more natural: the function prints the number of collisions to standard
+      output. The text then says nothing about the value the function returns,
+      and only the returned value is on the interface (collisions); standard
+      output is not observed. So a returned integer is left free. It is also
+      not fixed by the count itself: reading 2 of "the number of such
+      collisions" was taken as instructed (a count other than n * n, such as 0
+      or n), and under the instructed readings of R-CARS-2 (both sets start at
+      the same instant), R-CARS-3 (order not stated, so the sets may move
+      apart; infinitely far apart, so meetings may never happen), R-CARS-4
+      (equal speed at every instant, possibly varying over time), R-COL-1
+      (a meeting may not count as a collision at all; counted per meeting
+      event) and R-COL-2 (the cars behave as if no collision happened, so the
+      meeting may not be a collision) the text does not determine one count
+      for a given n. When outcome is not 0, collisions is already 0 by frame
+      rule F-ZERO.
+  - id: RV-OUT-1-END
+    req: R-OUT-1
+    signal: outcome
+    when: 'true'
+    note: >-
+      Reading 2 of "outputs" was taken as instructed, although "returns" seems
+      more natural: the function prints the number. The text does not say what
+      the function returns (an integer, None or anything else), so how the
+      call ends is left free; a function that prints and returns None ends
+      with outcome 2, which this reading does not rule out. Not repaired into
+      "returns the count". Reading 2 of "the number of such collisions" and
+      the instructed readings of R-CARS-2, R-CARS-3, R-CARS-4, R-COL-1 and
+      R-COL-2 only affect the printed count, which is not on the interface.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: the deliverable is a complete body for the function. It
+      places no constraint on the values of a call beyond those of R-OUT-1;
+      in particular it does not say the call returns a value (under the
+      instructed reading 2 of "outputs" the number is printed), so no
+      obligation on outcome is derived from it.
+  - req: R-SIG-1
+    reason: >-
+      Structural: the name car_race_collision and the single integer argument
+      n are fixed by the function section of design.yaml (one argument, driven
+      on signal n). There is no behaviour of a call to state.
+  - req: R-ROAD-1
+    reason: >-
+      Definition of the physical model (one straight, infinitely long road).
+      It is not on the interface; it only bears on the count of collisions in
+      R-OUT-1, which under the instructed reading 2 of "outputs" is printed,
+      not returned, and so is not observable (see RV-OUT-1-VAL, RV-OUT-1-END).
+  - req: R-CARS-1
+    reason: >-
+      Definition: n is the number of left-to-right cars, a non-negative count.
+      The input encoding already makes n a count (10-bit unsigned, 0 to 1,023;
+      frame.md excludes negative arguments from the trace), so an assumption
+      would be a tautology. Its role in the count belongs to R-OUT-1, whose
+      number is printed under the instructed reading and not observable.
+  - req: R-CARS-2
+    reason: >-
+      Definition of the physical model. Reading 2 of "simultaneously" was
+      taken as instructed, although reading 1 seems more natural: both sets
+      start moving at the same instant. It only bears on the count of
+      collisions in R-OUT-1, which under the instructed reading 2 of "outputs"
+      is printed and not observable on the interface (see RV-OUT-1-VAL).
+  - req: R-CARS-3
+    reason: >-
+      Definition of the physical model. Reading 2 of "start out being very far
+      from each other" was taken as instructed, although reading 1 seems more
+      natural: the relative order of the sets is not stated, so they may be
+      moving away from each other and never meet. Reading 2 of "very far" was
+      taken as instructed: the sets are infinitely far apart, so meetings may
+      never happen. Under these readings the text does not determine the
+      count for a given n (0 if they never meet), and the count is in any case
+      printed, not returned (instructed reading 2 of "outputs" in R-OUT-1), so
+      nothing on the interface follows (see RV-OUT-1-VAL).
+  - req: R-CARS-4
+    reason: >-
+      Definition of the physical model. Reading 2 of "the same speed" was
+      taken as instructed, although reading 1 seems more natural: all cars
+      have equal speed at every instant, but the common speed may vary over
+      time. Cars in the same direction still never meet; it only bears on the
+      count of collisions in R-OUT-1, which under the instructed reading 2 of
+      "outputs" is printed and not observable (see RV-OUT-1-VAL).
+  - req: R-COL-1
+    reason: >-
+      Definition of a collision. Reading 2 of "Two cars are said to collide
+      when a car that's moving left to right hits a car that's moving right to
+      left" was taken as instructed, although reading 1 seems more natural:
+      in view of 'as if they did not collide' (R-COL-2), a meeting may not
+      count as a collision at all. Reading 2 of "collide" was taken as
+      instructed: collisions are counted per meeting event, so the same pair
+      could be counted more than once. The text then does not determine the
+      count for a given n, and the count is printed, not returned (instructed
+      reading 2 of "outputs" in R-OUT-1), so nothing on the interface follows
+      (see RV-OUT-1-VAL). The contradiction with R-COL-2 is reported, not
+      repaired.
+  - req: R-COL-2
+    reason: >-
+      Definition of the physical model (cars continue unaffected). Reading 2
+      of "as if they did not collide" was taken as instructed, although
+      reading 1 seems more natural: the cars behave as if no collision
+      happened, which could mean the meeting is not a collision, contradicting
+      R-COL-1. The contradiction is reported, not repaired. It only bears on
+      the count in R-OUT-1, which under the instructed reading 2 of "outputs"
+      is printed and not observable (see RV-OUT-1-VAL).
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the function adapter; it holds by construction and
+      is added to every formalization set from design.yaml, so it is not
+      restated here.
+
+decisions:
+  - {req: R-CARS-2, phrase: simultaneously, reading: 2}
+  - {req: R-CARS-3, phrase: start out being very far from each other, reading: 2}
+  - {req: R-CARS-3, phrase: very far, reading: 2}
+  - {req: R-CARS-4, phrase: the same speed, reading: 2}
+  - {req: R-COL-1, phrase: "Two cars are said to collide when a car that's moving left to right hits a car that's moving right to left", reading: 2}
+  - {req: R-COL-1, phrase: collide, reading: 2}
+  - {req: R-COL-2, phrase: as if they did not collide, reading: 2}
+  - {req: R-OUT-1, phrase: outputs, reading: 2}
+  - {req: R-OUT-1, phrase: the number of such collisions, reading: 2}

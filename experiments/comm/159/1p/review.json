@@ -1,0 +1,369 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 22,
+    "checked": 22,
+    "seconds": 0.05
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "eat(0, 1, 0)",
+      "args": [
+       0,
+       1,
+       0
+      ],
+      "values": [
+       [],
+       [
+        0
+       ]
+      ],
+      "shown": [
+       "[]",
+       "[0]"
+      ],
+      "ending": false,
+      "declared": [
+       "RA-D-RESULT"
+      ]
+     },
+     "outcome": {
+      "call": "eat(0, 1, 0)",
+      "args": [
+       0,
+       1,
+       0
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": [
+       "RA-D-OUTCOME"
+      ]
+     }
+    },
+    "checked": 3
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 29,
+    "checked": 29,
+    "seconds": 0.05
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "eat(0, 1, 0)",
+      "args": [
+       0,
+       1,
+       0
+      ],
+      "values": [
+       [],
+       [
+        0
+       ]
+      ],
+      "shown": [
+       "[]",
+       "[0]"
+      ],
+      "ending": false,
+      "declared": [
+       "RB-OUT-1"
+      ]
+     },
+     "outcome": {
+      "call": "eat(0, 1, 0)",
+      "args": [
+       0,
+       1,
+       0
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": []
+     }
+    },
+    "checked": 3
+   }
+  }
+ },
+ "readings": {
+  "R-API-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-1",
+    "req": "R-ENV-1",
+    "says": "every call meets `number >= 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-2",
+    "req": "R-ENV-2",
+    "says": "every call meets `need >= 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-3",
+    "req": "R-ENV-3",
+    "says": "every call meets `remaining >= 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-1",
+    "req": "R-ENV-1",
+    "says": "every call meets `already_eaten >= 0`",
+    "where": {
+     "already_eaten": "number"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-2",
+    "req": "R-ENV-2",
+    "says": "every call meets `more_needed >= 1`",
+    "where": {
+     "more_needed": "need"
+    }
+   }
+  ],
+  "free": [
+   {
+    "reading": "agent_a",
+    "id": "RA-D-RESULT",
+    "req": "R-OUT-1",
+    "says": "`result` is free when `true`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-D-OUTCOME",
+    "req": "R-OUT-1",
+    "says": "`outcome` is free when `true`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-OUT-1",
+    "req": "R-OUT-1",
+    "says": "`result` is free when `outcome == 0`",
+    "where": {}
+   }
+  ]
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-TASK-1",
+   "phrase": "Complete this function",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any implementation of a function eat with this signature is acceptable, and the docstring may be changed or dropped."
+  },
+  {
+   "req": "R-API-1",
+   "phrase": "eat(number, need, remaining)",
+   "taken": 1,
+   "variant": 2,
+   "text": "The arguments may be any numbers, including non-integers."
+  },
+  {
+   "req": "R-CTX-1",
+   "phrase": "hungry rabbit",
+   "taken": 1,
+   "variant": 2,
+   "text": "The rabbit eats as many carrots as it can, up to what it needs (it never declines carrots it needs while some are available)."
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "a certain number of carrots",
+   "taken": 1,
+   "variant": 2,
+   "text": "This count is narrative only and is not tied to any argument."
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "already have eaten",
+   "taken": 1,
+   "variant": 2,
+   "text": "Carrots eaten in total, not only toward today's meals."
+  },
+  {
+   "req": "R-DEF-2",
+   "phrase": "need to eat more carrots",
+   "taken": 1,
+   "variant": 2,
+   "text": "need is the total number of carrots for the day's meals, of which number are already eaten, so need - number are still to be eaten."
+  },
+  {
+   "req": "R-DEF-3",
+   "phrase": "remaining",
+   "taken": 3,
+   "variant": 1,
+   "text": "The carrots left in stock that the rabbit can still eat."
+  },
+  {
+   "req": "R-DEF-3",
+   "phrase": "need, remaining",
+   "taken": 2,
+   "variant": 1,
+   "text": "Contradiction with R-EAT-2: if remaining is the stock available, the rabbit cannot complete the day's meals when remaining is less than need, yet the prompt says it eats to complete them."
+  },
+  {
+   "req": "R-ENV-1",
+   "phrase": "a certain number",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any integer; no bound is placed on number at all."
+  },
+  {
+   "req": "R-ENV-2",
+   "phrase": "need to eat more carrots",
+   "taken": 1,
+   "variant": 2,
+   "text": "need is at least 0; a need of 0 is a valid call."
+  },
+  {
+   "req": "R-EAT-2",
+   "phrase": "complete the day's meals",
+   "taken": 2,
+   "variant": 1,
+   "text": "Contradiction with R-DEF-3: if remaining is the stock available, the meals cannot be completed when remaining is less than need, yet this says the rabbit eats to complete them."
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "complete the day's meals.",
+   "taken": 1,
+   "variant": 2,
+   "text": "eat returns a list [total carrots eaten after the meal, carrots left after the meal], that is [number + min(need, remaining), max(remaining - need, 0)]."
+  }
+ ],
+ "depends": {},
+ "certified": [],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "eat(0, 1, 0)"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "[]",
+      "[0]"
+     ],
+     "ending": false,
+     "declared": [
+      "RA-D-RESULT"
+     ],
+     "reqs": [
+      "R-OUT-1"
+     ]
+    },
+    "outcome": {
+     "reading": "agent_a",
+     "shown": [
+      "returned",
+      "returned something else"
+     ],
+     "ending": true,
+     "declared": [
+      "RA-D-OUTCOME"
+     ],
+     "reqs": [
+      "R-OUT-1"
+     ]
+    }
+   },
+   "signal": "result, outcome",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "question": "the request allows `result` to be [] or [0] (the reading leaves this free on purpose: RA-D-RESULT) and lets this call end in two ways, \"returned\" or \"returned something else\" (the reading leaves this free on purpose: RA-D-OUTCOME): is any answer acceptable, or which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-API-1"
+   ],
+   "calls": [],
+   "question": "\"eat(number, need, remaining)\" can mean: The three arguments are integers (counts of carrots). / The arguments may be any numbers, including non-integers.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EAT-1"
+   ],
+   "calls": [],
+   "question": "\"eat more carrots\" can mean: The rabbit eats exactly need more carrots. / The rabbit eats up to need more carrots, limited by the carrots that remain (min(need, remaining)). / The rabbit eats at least need more carrots (a hungry rabbit may eat beyond its need). / Context only: the sentence describes the situation and places no obligation on the result.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EAT-2"
+   ],
+   "calls": [],
+   "question": "\"to complete\" can mean: After the call the day's meals are always complete: the rabbit has eaten all it needed. / This is only the purpose of eating; the meals are complete only when enough carrots are available.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EAT-2"
+   ],
+   "calls": [],
+   "question": "\"complete the day's meals\" can mean: Contradiction with R-DEF-3: if remaining is the stock available, the meals cannot be completed when remaining is less than need, yet this says the rabbit eats to complete them. / No contradiction: remaining does not limit what the rabbit eats, so the meals can always be completed.. Which is meant?"
+  }
+ ],
+ "limits": []
+}

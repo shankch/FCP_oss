@@ -1,0 +1,65 @@
+[
+ {
+  "req": "R-IN-1",
+  "phrase": "an array of non-negative integers",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only non-empty lists are valid arguments: the empty list has no first or last element, so it is outside the assumption and the behaviour on it is unconstrained."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "return a copy of the given array",
+  "taken": 1,
+  "variant": 2,
+  "text": "The empty list is not covered, because the sum of its first and last index values is undefined; the function may raise (for example an IndexError) or return anything on it."
+ },
+ {
+  "req": "R-RET-3",
+  "phrase": "after sorting",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only the cases the condition names constrain the order; where the text is cut off (after \"or sort it\") the order of the returned list is unconstrained."
+ },
+ {
+  "req": "R-RET-5",
+  "phrase": "a copy",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only the contents of the returned list matter; returning the argument object itself is acceptable as long as it holds the required elements."
+ },
+ {
+  "req": "R-KEY-1",
+  "phrase": "first index value, last index value",
+  "taken": 1,
+  "variant": 2,
+  "text": "The index numbers themselves: 0 + (len(array) - 1), so the parity depends only on the length of the array."
+ },
+ {
+  "req": "R-KEY-1",
+  "phrase": "the sum( first index value, last index value)",
+  "taken": 1,
+  "variant": 2,
+  "text": "The first and last elements of the array after sorting, that is its minimum plus its maximum."
+ },
+ {
+  "req": "R-KEY-1",
+  "phrase": "last index value",
+  "taken": 1,
+  "variant": 2,
+  "text": "For a one-element array the single element is counted once, so the sum is that element."
+ },
+ {
+  "req": "R-ORD-1",
+  "phrase": "ascending order",
+  "taken": 1,
+  "variant": 2,
+  "text": "Strictly increasing order, so duplicate values are removed; this contradicts returning a copy of the given array."
+ },
+ {
+  "req": "R-ORD-2",
+  "phrase": "or sort it",
+  "taken": 2,
+  "variant": 1,
+  "text": "When the sum is even, the returned list is in descending (non-increasing) order, the usual counterpart of the ascending case."
+ }
+]

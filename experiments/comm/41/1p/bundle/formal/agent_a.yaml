@@ -1,0 +1,110 @@
+fcp: '0.1'
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+properties:
+  - id: RA-FN-1-RET
+    req: R-FN-1
+    expr: 'outcome != 1'
+    note: >-
+      Reading 2 of "Complete this function", the most literal one. The request
+      asks for a complete body, but the docstring stops mid-sentence ("Two cars
+      are said to collide") and never says what the function returns. What is
+      left is that a complete function produces an answer for every valid n:
+      every call with n from 0 to 1,023 (0 included, R-CAR-1 reading 1)
+      finishes and returns, with no exception and no hang (outcome 1). Any
+      returned value is accepted, including a non-integer, a negative or an
+      oversized one (outcome 2). The probable intent, the number of
+      left-to-right/right-to-left collisions (n*n, at most 1,046,529, if every
+      left-to-right car starts left of every right-to-left car and cars pass
+      through each other), is not stated and is not formalized: it needs
+      reading 1 here plus R-COL-1 reading 1, R-CAR-3 reading 1 and "collide"
+      reading 1, none of which the text supports.
+
+dont_cares:
+  - id: RA-FN-1-VAL
+    req: R-FN-1
+    signal: result
+    when: 'outcome == 0'
+    note: >-
+      Reading 2 of "Complete this function": the request never states the
+      returned value, so the returned integer is intentionally unconstrained.
+      When the call does not return an integer that fits, result is already 0
+      by the frame rule F-ZERO.
+
+scenarios:
+  - id: RA-CAR-1-ZERO
+    req: R-CAR-1
+    cover: 'n == 0 && outcome != 1'
+    note: >-
+      Reading 1 of "n cars": n is any non-negative count and n = 0 (a road
+      with no cars in either set) is inside the request. So a call
+      candidate(0) is part of the domain and must be able to return. No
+      assumption restricts n.
+
+unformalized:
+  - req: R-FN-2
+    reason: >-
+      Definition of the signature (name candidate, one argument n annotated
+      int, no return type). It is realized by the design's function and
+      interface sections (function.name, args, signal n), not by a property of
+      the trace. With no return type declared, the adapter reads the returned
+      value as one integer; that is how outcome 0/2 are separated.
+  - req: R-RD-1
+    reason: >-
+      Definition of the physical model (an infinite straight road). No
+      interface signal refers to the road, and under the readings taken (R-FN-1
+      reading 2, R-COL-1 reading 3) it does not determine the returned value.
+  - req: R-CAR-2
+    reason: >-
+      Definition of the second set of cars (n cars, disjoint from the first
+      set, driving right to left during the same period). No interface signal
+      refers to cars or their motion beyond n, and under R-FN-1 reading 2 and
+      R-COL-1 reading 3 it does not determine the returned value. Readings:
+      "simultaneously" 1 (both sets move during the same period; nothing says
+      they start at the same instant), "driving right to left" 1 (opposite
+      direction to the first set, as the text says literally).
+  - req: R-CAR-3
+    reason: >-
+      Classified as an assumption, but it constrains the starting positions of
+      the cars, which are not inputs: the only input is n. There is no
+      environment signal to put an assumption on. Reading 2 of "very far from
+      each other": the text states a large distance only; it does not say
+      which set is on which side, so it does not by itself imply that every
+      left-to-right car approaches every right-to-left car.
+  - req: R-CAR-4
+    reason: >-
+      Definition of the cars' common speed. No interface signal refers to
+      speed, and under R-FN-1 reading 2 and R-COL-1 reading 3 it does not
+      determine the returned value. Readings: "the same speed" 1 (speed is a
+      magnitude, so it is consistent with the two sets driving in opposite
+      directions, which R-CAR-1 and R-CAR-2 state), "move in the same speed" 2
+      (the sentence states only that the cars share one speed; it says nothing
+      about that speed being constant over time).
+  - req: R-COL-1
+    reason: >-
+      Reading 3 of "Two cars are said to collide": the sentence ends before
+      the condition, so collision is undefined and nothing about it can be
+      checked. Neither which pairs collide (reading 1, opposite directions
+      only; reading 2, any meeting) nor what happens after a collision is
+      stated. For "collide" reading 2 is taken (the ordinary sense of the word
+      is a crash; nothing in the text says the cars pass through each other
+      unharmed), which would change any collision count (for example n
+      instead of n*n if colliding cars are removed); no item depends on it.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter (result is 0 unless outcome is 0). It
+      holds by construction of the trace and is added to every formalization
+      set as F-ZERO; frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: Complete this function, reading: 2}
+  - {req: R-CAR-1, phrase: n cars, reading: 1}
+  - {req: R-CAR-2, phrase: simultaneously, reading: 1}
+  - {req: R-CAR-2, phrase: driving right to left, reading: 1}
+  - {req: R-CAR-3, phrase: very far from each other, reading: 2}
+  - {req: R-CAR-4, phrase: the same speed, reading: 1}
+  - {req: R-CAR-4, phrase: move in the same speed, reading: 2}
+  - {req: R-COL-1, phrase: Two cars are said to collide, reading: 3}
+  - {req: R-COL-1, phrase: collide, reading: 2}

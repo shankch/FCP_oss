@@ -1,0 +1,132 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # every character of the argument is "(" or ")" (true for the empty string)
+  only_brackets: 'all(i < len(brackets): brackets[i] == "(" || brackets[i] == ")")'
+  # no prefix has more ")" than "("
+  no_excess_close: 'all(k < len(brackets): count(i < k + 1: brackets[i] == ")") <= count(i < k + 1: brackets[i] == "("))'
+  # as many "(" as ")" in the whole string
+  equal_totals: 'count(i < len(brackets): brackets[i] == "(") == count(i < len(brackets): brackets[i] == ")")'
+  # every bracket has a corresponding bracket (proper nesting)
+  matched: 'no_excess_close && equal_totals'
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: 'only_brackets'
+    note: >-
+      "brackets is a string of "(" and ")"" read as a precondition on the caller
+      (reading 1): calls with any other character are outside the contract. The
+      empty string is admitted (reading 1 of "brackets is a string"): all of its
+      zero characters are brackets, and RA-RET-1 then requires True for it.
+
+dont_cares:
+  - id: RA-IN-1-D-RESULT
+    req: R-IN-1
+    signal: result
+    when: '!only_brackets'
+    note: Under the precondition reading, the returned value is unconstrained for strings with other characters.
+  - id: RA-IN-1-D-OUTCOME
+    req: R-IN-1
+    signal: outcome
+    when: '!only_brackets'
+    note: Under the precondition reading, how the call ends is unconstrained for strings with other characters.
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: 'only_brackets && matched'
+      cond: 'outcome == 0 && result'
+    note: >-
+      "has a corresponding closing or opening bracket" read as proper nesting
+      (reading 1): no prefix has more ")" than "(" and the totals are equal.
+      "Corresponding" in bracket matching names a unique partner, which rules out
+      reading 3 (one bracket partnering several), although reading 3 also fits
+      all four examples. Reading 2 (equal counts) contradicts candidate(")(()")
+      == False, and the literal same-kind reading 4 contradicts candidate("()")
+      == True and candidate("(()())") == True. The trigger is guarded by the
+      R-IN-1 precondition so that each call is judged on its own.
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: 'only_brackets && !matched'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      "return True if" read as if-and-only-if (reading 1): the text alone states
+      only a sufficient condition and names no other answer, but the examples
+      candidate("(") and candidate(")(()") show False as the answer for
+      unmatched strings, so every unmatched string must return the bool False.
+      "Corresponding" is read as proper nesting, as in RA-RET-1.
+  - id: RA-SC-1-P
+    req: R-SC-1
+    pattern: implies
+    args:
+      trigger: 'brackets == "("'
+      cond: 'outcome == 0 && !result'
+    note: The doctest asserts the answer of this call, so it is also stated as an obligation, not only as a possibility.
+  - id: RA-SC-2-P
+    req: R-SC-2
+    pattern: implies
+    args:
+      trigger: 'brackets == "()"'
+      cond: 'outcome == 0 && result'
+    note: The doctest asserts the answer of this call, so it is also stated as an obligation, not only as a possibility.
+  - id: RA-SC-3-P
+    req: R-SC-3
+    pattern: implies
+    args:
+      trigger: 'brackets == "(()())"'
+      cond: 'outcome == 0 && result'
+    note: The doctest asserts the answer of this call, so it is also stated as an obligation, not only as a possibility.
+  - id: RA-SC-4-P
+    req: R-SC-4
+    pattern: implies
+    args:
+      trigger: 'brackets == ")(()"'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      The doctest asserts the answer of this call, so it is also stated as an
+      obligation. It holds with RA-RET-2 under the nesting reading and would
+      contradict the equal-count reading.
+
+scenarios:
+  - id: RA-SC-1
+    req: R-SC-1
+    cover: 'brackets == "(" && outcome == 0 && !result'
+  - id: RA-SC-2
+    req: R-SC-2
+    cover: 'brackets == "()" && outcome == 0 && result'
+  - id: RA-SC-3
+    req: R-SC-3
+    cover: 'brackets == "(()())" && outcome == 0 && result'
+  - id: RA-SC-4
+    req: R-SC-4
+    cover: 'brackets == ")(()" && outcome == 0 && !result'
+
+unformalized:
+  - req: R-NF-1
+    reason: >-
+      Names the deliverable (a Python function candidate with one string
+      argument brackets). This is not a property of the trace; it is realized by
+      the function binding in design.yaml, which calls candidate(brackets) once
+      per cycle.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, added to every formalization set by
+      design.yaml as F-ZERO; frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: 'a string of "(" and ")"', reading: 1}
+  - {req: R-IN-1, phrase: 'brackets is a string', reading: 1}
+  - {req: R-RET-1, phrase: 'has a corresponding closing or opening bracket', reading: 1}
+  - {req: R-RET-2, phrase: 'return True if', reading: 1}
+  - {req: R-RET-2, phrase: 'has a corresponding closing or opening bracket', reading: 1}
+  - {req: R-SC-2, phrase: 'candidate("()")', reading: 1}
+  - {req: R-SC-3, phrase: 'candidate("(()())")', reading: 1}
+  - {req: R-SC-4, phrase: 'candidate(")(()")', reading: 1}

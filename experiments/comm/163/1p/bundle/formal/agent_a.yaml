@@ -1,0 +1,109 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # "between a and b" read symmetrically (either order) and inclusively.
+  lo: "min(a, b)"
+  hi: "max(a, b)"
+  # how many even digits lie between a and b
+  ndig: "count(d < 10: d % 2 == 0 && lo <= d && d <= hi)"
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: "a >= 1 && b >= 1"
+    note: >-
+      "Given two positive integers a and b": the caller passes a >= 1 and b >= 1
+      ("positive" read as strictly positive). No order between a and b is assumed,
+      so calls with a > b are inside the precondition and must be answered.
+      Integrality and the upper bound 127 are given by the adapter (7-bit inputs).
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    expr: "outcome == 0"
+    note: >-
+      "return the even digits between": every call (under RA-IN-1) finishes
+      without an exception and returns a Python list (outcome 0). "return" is read
+      as returning a list, so a tuple, set or generator (outcome 2) violates it.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    expr: "all(i < len(result): result[i] <= 9 && result[i] % 2 == 0)"
+    note: >-
+      "even digits" read as even decimal digits: every element is one of
+      0, 2, 4, 6, 8. This conflicts with the function name generate_integers
+      (R-IF-2), which suggests integers of any size; the docstring is taken
+      literally.
+
+  - id: RA-RET-3
+    req: R-RET-3
+    expr: "all(i < len(result): lo <= result[i] && result[i] <= hi)"
+    note: >-
+      The prompt's sentence ends at "between" with no object; the object is
+      taken to be a and b, as requirements.yaml states. "between" is read
+      inclusively, and symmetrically in a and b (from min(a, b) to max(a, b)).
+      Each element itself must lie in that range.
+
+  - id: RA-RET-4
+    req: R-RET-4
+    expr: "all(d < 10: d % 2 == 0 && lo <= d && d <= hi -> (d in result))"
+    note: >-
+      Every even single digit d (0, 2, 4, 6, 8) with min(a, b) <= d <= max(a, b)
+      occurs in the result. Inclusive and symmetric reading of "between a and b"
+      as in RA-RET-3. Nothing is required when the range lies above 9; under
+      RA-IN-1 the digit 0 is never in range.
+
+  - id: RA-RET-5
+    req: R-RET-5
+    expr: "all(i < len(result): all(j < len(result): i < j -> result[i] != result[j]))"
+    note: >-
+      "the even digits" read as the set of qualifying values: no value occurs
+      twice in the result.
+
+dont_cares:
+  - id: RA-RET-6
+    req: R-RET-6
+    signal: result
+    when: "ndig >= 2"
+    note: >-
+      Only the order of the elements of result is left free: the prompt states
+      no order ("return the even digits"), so any order of the required elements
+      is acceptable. Which elements occur, and how often, is fixed by RA-RET-2 to
+      RA-RET-5; no property constrains the order. The order can only vary when at
+      least two even digits lie between a and b, hence the condition; the
+      don't-care does not release the element constraints.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a completed body for the stub. It is
+      not a property of a call trace; the adapter runs the completed function,
+      and its observable behaviour is constrained by RA-RET-1 to RA-RET-5.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name generate_integers and the parameters (a, b) are
+      fixed by the adapter's function section in design.yaml, which calls
+      generate_integers(a, b) in every cycle. The name is taken as a label only;
+      the returned values follow the docstring (even digits, RA-RET-2).
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md): F-EMPTY in design.yaml states it and
+      is added to every formalization set, so it is not restated here.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-IF-2, phrase: "generate_integers", reading: 1}
+  - {req: R-IN-1, phrase: "positive", reading: 1}
+  - {req: R-IN-1, phrase: "a and b", reading: 1}
+  - {req: R-RET-1, phrase: "return", reading: 1}
+  - {req: R-RET-2, phrase: "even digits", reading: 1}
+  - {req: R-RET-3, phrase: "between", reading: 1}
+  - {req: R-RET-3, phrase: "a and b", reading: 1}
+  - {req: R-RET-3, phrase: "even digits", reading: 1}
+  - {req: R-RET-4, phrase: "between", reading: 1}
+  - {req: R-RET-4, phrase: "a and b", reading: 1}
+  - {req: R-RET-4, phrase: "even digits", reading: 1}
+  - {req: R-RET-5, phrase: "the even digits", reading: 1}
+  - {req: R-RET-6, phrase: "return the even digits", reading: 1}

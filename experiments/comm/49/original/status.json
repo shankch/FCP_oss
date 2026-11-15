@@ -1,0 +1,25 @@
+{
+ "lint": "clean",
+ "agents": "ok",
+ "agents_seconds": 1454,
+ "attempts": 1,
+ "earlier": [
+  {
+   "check": "RuntimeError: yosys failed:\n\ninput buffer overflow, can't enlarge buffer because scanner uses REJECT\n",
+   "seconds": 7,
+   "why": "a constant wider than 32 bits was written in a form yosys does not read (fixed: fcp/lang.py, vconst)"
+  },
+  {
+   "check": "ok",
+   "seconds": 31,
+   "why": "the bit-level comparison left out rules over more than 64 values of a rigid variable (fixed: fcp/software.py)"
+  },
+  {
+   "check": "ok",
+   "seconds": 32,
+   "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+  }
+ ],
+ "check": "ok",
+ "check_seconds": 35
+}

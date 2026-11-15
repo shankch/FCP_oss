@@ -1,0 +1,151 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate(txt) keeps no state between calls (frame.md),
+# so the model is combinational: these defs compute, from the input txt alone,
+# the value the prompt prescribes, and both outputs (outcome, result) are
+# checked against it in every call.
+defs:
+  # "the character with given position": the last character of txt (txt[-1]).
+  has_last: "len(txt) >= 1"
+  last: "txt[len(txt) - 1]"
+  # "word" (R-DEF-1): a maximal group of characters separated by the space
+  # character (code 32) only; any non-space character belongs to a group.
+  # last_group_len is the length of the group the last character belongs to:
+  # the number of start positions i from which every character up to the end
+  # of txt is a non-space. It is 0 when txt is empty or ends with a space.
+  last_group_len: 'count(i < len(txt): all(j < len(txt): j < i || txt[j] != " "))'
+  # A group is a word only if it has at least two characters (R-DEF-1,
+  # reading 2 of '"word" is a group of characters').
+  last_in_word: "last_group_len >= 2"
+  # "an alphabetical character": an ASCII letter A-Z or a-z (FCP-PL isalpha).
+  last_is_alpha: "has_last && isalpha(last)"
+  # The value candidate(txt) must return.
+  expected: "last_is_alpha && !last_in_word"
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "expected", cond: "outcome == 0 && result"}
+    note: >-
+      When the last character of txt exists, is an ASCII letter and is not
+      part of a word, the call returns the bool True. Readings taken: "the
+      character with given position" is the last character (reading 1; the
+      signature has no position parameter and only the last character fits
+      all four examples, so the docstring's "given position" is not taken
+      literally as a caller-supplied position, which the signature makes
+      impossible); "an alphabetical character" is an ASCII letter (reading 1);
+      "is not a part of a word" means the character stands alone, i.e. txt
+      has length 1 or the character before it is a space (reading 1). This
+      follows from the definition of word taken for R-DEF-1: a space-separated
+      group of at least two characters (a lone character is not a word). The
+      literal reading 3 (no character is ever outside a group, so True is
+      never returned) is not taken, as it contradicts candidate("apple pi e")
+      returning True.
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "!expected", cond: "outcome == 0 && !result"}
+    note: >-
+      In every other case the call returns the bool False: txt is empty, its
+      last character is not an ASCII letter (a space, digit, punctuation,
+      control character or a non-ASCII Latin-1 letter such as code 233), or
+      the last character belongs to a space-separated group of two or more
+      characters (e.g. "1e", "a\te", "pie"). Same readings as RB-RET-1.
+      Together with RB-RET-1 this requires every call to end by returning a
+      bool (outcome 0).
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'txt == "apple pie"', cond: "outcome == 0 && !result"}
+    note: >-
+      The example candidate("apple pie") -> False is read as a required
+      input/output pair of the function, not only as a possible behaviour.
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e"', cond: "outcome == 0 && result"}
+    note: >-
+      The example is taken as authoritative (reading 1): the final lone 'e' is
+      not part of a word. Under the alternative reading of the word definition
+      (a single character is a word) this example would contradict the
+      definition.
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e "', cond: "outcome == 0 && !result"}
+    note: >-
+      With the trailing space the last character is a space, which is not
+      alphabetical, so False.
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "len(txt) == 0", cond: "outcome == 0 && !result"}
+    note: >-
+      The empty string has no character at any position, so False.
+
+scenarios:
+  - id: RB-RET-1-COV
+    req: R-RET-1
+    cover: "expected && outcome == 0 && result"
+    note: Returning True must be possible.
+  - id: RB-EX-1-COV
+    req: R-EX-1
+    cover: 'txt == "apple pie" && outcome == 0 && !result'
+  - id: RB-EX-2-COV
+    req: R-EX-2
+    cover: 'txt == "apple pi e" && outcome == 0 && result'
+  - id: RB-EX-3-COV
+    req: R-EX-3
+    cover: 'txt == "apple pi e " && outcome == 0 && !result'
+  - id: RB-EX-4-COV
+    req: R-EX-4
+    cover: "len(txt) == 0 && outcome == 0 && !result"
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional (the deliverable is a complete implementation). Its
+      observable part, that every call ends by returning a bool, is required
+      by RB-RET-1 and RB-RET-2 (outcome 0 in every call).
+    covered_by: [RB-RET-1, RB-RET-2]
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name and the single parameter are fixed by the
+      adapter, which calls candidate(txt) with one string argument
+      (design.yaml function.args). Reading 1 is taken: the signature is
+      authoritative, so the position of the checked character is fixed by
+      the function itself; the examples fix it to the last character, which
+      the defs `has_last` and `last` model.
+  - req: R-IF-3
+    reason: >-
+      Assumption enforced by the interface encoding: txt is a string signal
+      (at most 32 Latin-1 characters) and calls with any other argument are
+      not part of the trace (frame.md), so no assumption formula is needed.
+  - req: R-DEF-1
+    reason: >-
+      Definition. Realized by the defs `last_group_len` and `last_in_word`
+      (groups are maximal runs of non-space characters, separated by the
+      space character only; a group is a word only if it has at least two
+      characters), used by the return-value properties.
+    covered_by: [RB-RET-1, RB-RET-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter; F-ZERO is part of every formalization set and
+      need not be restated (frame.md).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-2, phrase: "def candidate(txt):", reading: 1}
+  - {req: R-DEF-1, phrase: "separated by space", reading: 1}
+  - {req: R-DEF-1, phrase: "a group of characters", reading: 1}
+  - {req: R-DEF-1, phrase: '"word" is a group of characters', reading: 2}
+  - {req: R-RET-1, phrase: "the character with given position", reading: 1}
+  - {req: R-RET-1, phrase: "an alphabetical character", reading: 1}
+  - {req: R-RET-1, phrase: "is not a part of a word", reading: 1}
+  - {req: R-RET-2, phrase: "the character with given position", reading: 1}
+  - {req: R-RET-2, phrase: "an alphabetical character", reading: 1}
+  - {req: R-RET-2, phrase: "is not a part of a word", reading: 1}
+  - {req: R-EX-2, phrase: "candidate(\"apple pi e\") ➞ True", reading: 1}

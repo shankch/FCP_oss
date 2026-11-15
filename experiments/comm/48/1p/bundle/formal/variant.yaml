@@ -1,0 +1,123 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # text equals its reverse, code by code: case, spaces and punctuation count
+  pal: 'all(i < len(text): text[i] == text[len(text) - 1 - i])'
+  nonempty: 'len(text) > 0'
+  returned: 'outcome == 0 || outcome == 2'
+
+properties:
+  - id: RV-CHK-1
+    req: R-CHK-1
+    expr: 'returned'
+    note: >-
+      Variant reading of "Checks if" (R-CHK-1): the function may return any
+      truthy or falsy value (1/0, the string itself, None for no), not only a
+      bool. So the property only demands that every call, for every string
+      including the empty one, finishes and returns some value without raising:
+      outcome 0 (returned True/False) or 2 (returned another value). Outcome 1
+      (exception or no answer) is a violation; outcome 3 is no code of the
+      adapter and is excluded as well. Whether a non-bool return is truthy or
+      falsy is not visible in the trace (result is 0 for outcome 2).
+
+  - id: RV-CHK-2
+    req: R-CHK-2
+    pattern: implies
+    args:
+      trigger: 'nonempty && pal'
+      cond: 'outcome == 0 && result'
+    note: >-
+      Variant reading of "is a" (R-CHK-2): the cut-off property is taken to be
+      an exact palindrome, text equal to its reverse character by character with
+      case, spaces and punctuation significant (def pal). Variant reading of
+      "given string" (R-CHK-2): only non-empty strings are meant, so the trigger
+      requires len(text) > 0 and the empty string is left to RV-DC-2. The
+      requirement text says "returns True", so the answer must be the bool True
+      (outcome 0, result 1); the truthy/falsy reading of "Checks if" was given
+      for R-CHK-1 only and is not carried over here.
+
+  - id: RV-CHK-3
+    req: R-CHK-3
+    pattern: implies
+    args:
+      trigger: 'nonempty && !pal'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      Variant reading of "is a" (R-CHK-3): the cut-off property is taken to be
+      an exact palindrome, text equal to its reverse character by character with
+      case, spaces and punctuation significant (def pal), so any non-empty text
+      that differs from its reverse in some code, even only in case, a space or
+      punctuation, must give False. Variant reading of "given string" (R-CHK-3):
+      only non-empty strings are meant, so the trigger requires len(text) > 0
+      and the empty string is left to RV-DC-3. The requirement text says
+      "returns False", so the answer must be the bool False (outcome 0,
+      result 0); the truthy/falsy reading of "Checks if" was given for R-CHK-1
+      only and is not carried over here.
+
+dont_cares:
+  - id: RV-DC-2
+    req: R-CHK-2
+    signal: result
+    when: 'len(text) == 0'
+    note: >-
+      Variant reading of "given string" (R-CHK-2): only non-empty strings are
+      meant, so the answer for the empty string is unspecified. It is still a
+      call of R-CHK-1, so RV-CHK-1 keeps requiring that it returns.
+
+  - id: RV-DC-3
+    req: R-CHK-3
+    signal: result
+    when: 'len(text) == 0'
+    note: >-
+      Variant reading of "given string" (R-CHK-3): only non-empty strings are
+      meant, so the answer for the empty string is unspecified. It is still a
+      call of R-CHK-1, so RV-CHK-1 keeps requiring that it returns.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: it is about the form of the deliverable (the source text,
+      signature and docstring), which the trace of calls does not show. Variant
+      reading of "Complete this function" (R-TASK-1): completing also means
+      finishing the truncated docstring, i.e. the implementer chooses which
+      property the function checks. That choice is not a trace property; the
+      behaviour checked here is the one fixed by the readings of R-CHK-2 and
+      R-CHK-3 (exact palindrome), so an implementation that finishes the
+      docstring with another property is held to those readings regardless.
+
+  - req: R-IF-1
+    reason: >-
+      Definition of the interface: the name candidate and the single parameter
+      text are realized by the function section of design.yaml (name candidate,
+      one str argument text driving the signal text). That the signature
+      declares no return type is a property of the source text, not of any
+      call, and is not visible in the trace.
+
+  - req: R-IF-2
+    reason: >-
+      Variant reading of "text: str" (R-IF-2): not an environment assumption
+      but an obligation on the function to reject a non-str argument itself
+      (e.g. raise TypeError). Non-str arguments are not part of the trace (the
+      signal text carries only strings of at most 32 Latin-1 characters), so
+      the obligation cannot be stated over it; and since the outcome declares
+      no exception of its own, a TypeError would be indistinguishable from any
+      other exception (outcome 1) anyway. No assumption is added: under this
+      reading the requirement places nothing on the caller, and every call in
+      the trace already passes a str.
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, already part of every formalization set as
+      F-ZERO ('outcome != 0 -> !result'); frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-TASK-1, phrase: "Complete this function", reading: 2}
+  - {req: R-IF-2, phrase: "text: str", reading: 2}
+  - {req: R-CHK-1, phrase: "Checks if", reading: 2}
+  - {req: R-CHK-2, phrase: "is a", reading: 1}
+  - {req: R-CHK-2, phrase: "given string", reading: 2}
+  - {req: R-CHK-3, phrase: "is a", reading: 1}
+  - {req: R-CHK-3, phrase: "given string", reading: 2}

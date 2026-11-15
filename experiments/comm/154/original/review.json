@@ -1,0 +1,243 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 645,
+    "checked": 645,
+    "seconds": 144.3
+   },
+   "open": {
+    "open": {},
+    "checked": 434
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 512,
+    "checked": 512,
+    "seconds": 183.87
+   },
+   "open": {
+    "open": {},
+    "checked": 424
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-5": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-6": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-RES-1": {
+   "plain": "UNKNOWN",
+   "context": "A-WEAKER",
+   "witness": [
+    "cycpattern_check(\"\", \"\") -> False"
+   ]
+  },
+  "R-RES-2": {
+   "plain": "UNKNOWN",
+   "context": "A-WEAKER",
+   "witness": [
+    "cycpattern_check(\"\", \" \") -> True"
+   ]
+  },
+  "R-RES-3": {
+   "plain": "UNKNOWN",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1-LETTERS",
+    "req": "R-IN-1",
+    "says": "every call meets `a_letters && b_letters`",
+    "where": {
+     "a_letters": "all(i < len(a): isalpha(a[i]))",
+     "b_letters": "all(i < len(b): isalpha(b[i]))"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1-NONEMPTY",
+    "req": "R-IN-1",
+    "says": "every call meets `len(a) > 0 && len(b) > 0`",
+    "where": {}
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-DEF-1",
+   "phrase": "rotations",
+   "taken": 1,
+   "variant": 2,
+   "text": "any rearrangement (permutation, anagram) of the characters of b; note the example efef/eeff => False rules this out, since efef is a permutation of eeff and a substring of efef"
+  },
+  {
+   "req": "R-DEF-2",
+   "phrase": "a substring",
+   "taken": 1,
+   "variant": 2,
+   "text": "a contiguous run of characters of a that is strictly shorter than a (a proper substring), so a second word equal to the first word does not count"
+  },
+  {
+   "req": "R-DEF-2",
+   "phrase": "substring in the first word",
+   "taken": 1,
+   "variant": 2,
+   "text": "letters are compared ignoring case: 'A' and 'a' match"
+  },
+  {
+   "req": "R-RES-2",
+   "phrase": "return True if",
+   "taken": 1,
+   "variant": 2,
+   "text": "a sufficient condition only: the text states when True is returned and says nothing about the other calls, whose result is unconstrained"
+  },
+  {
+   "req": "R-RES-3",
+   "phrase": "return True",
+   "taken": 1,
+   "variant": 2,
+   "text": "any value Python treats as true or false; returning 1 or 0 (or None for false) is acceptable"
+  }
+ ],
+ "depends": {
+  "R-RES-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "cycpattern_check(\" \", \"\") -> False"
+   ]
+  },
+  "R-RES-3": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a"
+   ],
+   "witness": null
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-2",
+  "R-EX-3",
+  "R-EX-4",
+  "R-EX-5",
+  "R-EX-6"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RES-1",
+    "R-RES-3"
+   ],
+   "calls": [
+    "cycpattern_check(\" \", \"\") -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "relation": "A-WEAKER",
+   "calls": [
+    "cycpattern_check(\"\", \"\") -> False"
+   ],
+   "question": "the two readings of this requirement disagree on these calls: which is meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "relation": "A-WEAKER",
+   "calls": [
+    "cycpattern_check(\"\", \" \") -> True"
+   ],
+   "question": "the two readings of this requirement disagree on these calls: which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "calls": [],
+   "question": "\"return True if\" can mean: if and only if: the function returns False whenever no rotation of b (b included) is a substring of a, as the examples returning False suggest / a sufficient condition only: the text states when True is returned and says nothing about the other calls, whose result is unconstrained. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-3"
+   ],
+   "calls": [],
+   "question": "\"return True\" can mean: the bool values True and False exactly; returning another type (such as 1, 0 or None) breaks the requirement / any value Python treats as true or false; returning 1 or 0 (or None for false) is acceptable. Which is meant?"
+  }
+ ],
+ "limits": [
+  "request points of agent_b",
+  "request points of agent_a, agent_b",
+  "request points of agent_a, agent_b, variant",
+  "the comparison of agent_a and agent_b",
+  "request points of agent_a, variant",
+  "the comparison of agent_a and variant"
+ ]
+}

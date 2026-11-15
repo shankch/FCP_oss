@@ -1,0 +1,174 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# i and j range over requester indices; every item that mentions them holds for all values.
+rigids:
+  - {name: i, range: [0, 3]}
+  - {name: j, range: [0, 3]}
+
+defs:
+  # Rotating-priority model used by R-G-3 / R-PRI-2 (N = 4).
+  # rot (ghost) = number of grants seen on gnt in earlier cycles since reset, modulo N. A grant visible in the
+  # current cycle is the outcome of the arbitration on the previous cycle's req, and that arbitration used the
+  # priority order whose top is requester rot: rot, rot+1, ..., N-1, 0, ..., rot-1.
+  # rK_ahead_of_i / j_ahead_of_i: requester K (resp. j) comes before requester i in that order.
+  # The order is expressed with comparisons only (no modular subtraction of two variable terms).
+  r0_ahead_of_i: "(rot <= 0 && 0 < i) || (0 < i && i < rot) || (i < rot && rot <= 0)"
+  r1_ahead_of_i: "(rot <= 1 && 1 < i) || (1 < i && i < rot) || (i < rot && rot <= 1)"
+  r2_ahead_of_i: "(rot <= 2 && 2 < i) || (2 < i && i < rot) || (i < rot && rot <= 2)"
+  r3_ahead_of_i: "(rot <= 3 && 3 < i) || (3 < i && i < rot) || (i < rot && rot <= 3)"
+  j_ahead_of_i: "(rot <= j && j < i) || (j < i && i < rot) || (i < rot && rot <= j)"
+  # requester i won the arbitration on the previous cycle's req: it requested and no requester ahead of it did.
+  i_won_last_arbitration: "prev(req[i]) && !((prev(req[0]) && r0_ahead_of_i) || (prev(req[1]) && r1_ahead_of_i) || (prev(req[2]) && r2_ahead_of_i) || (prev(req[3]) && r3_ahead_of_i))"
+
+ghosts:
+  # Rotation by exactly one position per grant seen on gnt, whoever received it (rot := rot + 1 mod N).
+  - {name: rot, range: [0, 3], init: 0, next: "gnt != 0 ? (rot == 0 ? 1 : (rot == 1 ? 2 : (rot == 2 ? 3 : 0))) : rot"}
+
+assumptions:
+  - id: AA-ENV-1
+    req: R-ENV-1
+    pattern: hold_until
+    args: {trigger: "req[i] && !gnt[i]", hold: "req[i]", release: "gnt[i]"}
+    note: >-
+      Literal reading: a request that is asserted and not yet granted must still be asserted in the next cycle
+      and in every following cycle up to and including the cycle in which gnt[i] is first seen (hold_until includes the release cycle).
+      The obligation re-arms whenever req[i] is high in a cycle without gnt[i]. Because the registered grant is
+      visible one cycle after the decision, req[i] is therefore still high in the grant cycle and the arbiter samples it once more,
+      so a lone requester is granted again in the next cycle (AA-WC-1). That is at odds with the Overview sentence "Grants last one
+      cycle", which has no requirement of its own.
+
+  - id: AA-ENV-2
+    req: R-ENV-2
+    pattern: implies
+    args: {trigger: "fell(req[i])", cond: "prev(since(req[i], req[i] && gnt[i]))"}
+    note: >-
+      Withdrawal = req[i] falling. "After the grant" is read as: in the assertion that ends with the withdrawal there was an
+      earlier cycle with gnt[i], and req[i] stayed high from then until the cycle before the withdrawal. It is not required that the
+      grant is in the cycle immediately before the withdrawal. Given AA-ENV-1 (inclusive hold) this is implied, so it adds
+      no further restriction.
+
+properties:
+  - id: AA-OV-1
+    req: R-OV-1
+    pattern: implies
+    args: {trigger: "rose(req[i])", cond: "gnt[i]"}
+    note: >-
+      Most literal reading: a request raised (req[i] rises) in cycle t is granted in the same cycle t (combinational grant).
+      This contradicts R-G-3 (gnt is registered and shows the decision one cycle after the sample), R-G-2 (gnt[i] needs
+      req[i] in the PREVIOUS cycle, but req[i] was low there), R-WC-1 (grant in the next cycle) and R-G-1 (two requests rising together would
+      need two grants). The other reading, an informal statement of single-cycle arbitration latency, is what AA-G-3 formalizes;
+      it was not substituted here. "Raised" is taken as the rising edge; the level reading req[i] -> gnt[i] would be stronger.
+      A request raised in the first cycle after reset is not covered (no previous request value to compare with).
+
+  - id: AA-G-1
+    req: R-G-1
+    pattern: invariant
+    args: {cond: "onehot0(gnt)"}
+    note: >-
+      At most one bit of gnt in every operational cycle. In reset cycles gnt == 0 by R-RST-1 (AA-RST-1a), so the statement
+      also holds in "any cycle" there.
+
+  - id: AA-G-2
+    req: R-G-2
+    pattern: implies
+    args: {trigger: "gnt[i]", cond: "prev(req[i])"}
+    note: "Literal reading: gnt[i] in cycle t only if req[i] was asserted in cycle t-1."
+
+  - id: AA-G-3
+    req: R-G-3
+    expr: "gnt[i] == i_won_last_arbitration"
+    note: >-
+      The gnt visible in cycle t is exactly the arbitration decision taken on the req sampled in cycle t-1: gnt[i] is set
+      if and only if requester i won that arbitration (defined from the previous cycle's req). The decision rule is the rotating
+      priority of R-PRI-1 / R-PRI-2 (ghost rot and the *_ahead_of_i defs), as the dependency R-G-3 -> R-PRI-2 says, so this item inherits
+      the ambiguity of R-PRI-2. gnt does not depend on the current req. The structural word "registered" is not observable at the interface;
+      it is formalized as this one-cycle decision latency. Whenever a request rises after the first cycle following reset, or requester 3
+      requests together with a requester that is ahead of it in the order, this item contradicts AA-OV-1 or AA-PRI-3 respectively.
+
+  - id: AA-WC-1
+    req: R-WC-1
+    pattern: next
+    args: {trigger: "req != 0", cond: "onehot(gnt)"}
+    note: >-
+      Literal reading: any request in cycle t gives exactly one grant in cycle t+1. The default operational mode excludes reset cycles
+      (obligations are cancelled by reset), which is what keeps this compatible with R-RST-1 (no grant in the cycle after a reset cycle,
+      even when a request was present in that reset cycle).
+
+  - id: AA-PRI-1
+    req: R-PRI-1
+    pattern: implies
+    args: {trigger: "gnt[i] && j < i && prev(hist(gnt == 0))", cond: "!prev(req[j])"}
+    note: >-
+      Initial order 0 > 1 > 2 > 3: the first grant after reset (no earlier gnt != 0 since reset) goes to the lowest-numbered
+      requester among those requesting in the previous cycle. The priority only rotates after a grant (R-PRI-2), so the first grant is always
+      decided with the reset order. Not evaluated in the first cycle after reset.
+
+  - id: AA-PRI-2
+    req: R-PRI-2
+    pattern: implies
+    args: {trigger: "gnt[i] && prev(req[j])", cond: "!j_ahead_of_i"}
+    note: >-
+      Ambiguous (see requirements.yaml). Most literal reading: after each grant the priority order is rotated by exactly ONE position
+      (rot := rot + 1 mod N for every grant seen on gnt, whoever received it), so the n-th grant after reset is decided with the order
+      starting at requester (n-1) mod N; n = 1 gives 0,1,2,3. The granted requester does not in general become the lowest
+      priority (that is the other, true round-robin, reading: rot := index of the granted requester + 1). The direction of the rotation is not
+      stated; it is taken as moving the top of the order from requester k to k+1. The text also does not say which arbitration first uses the
+      rotated order; here the arbitration taken while the previous grant is visible already uses it (a grant "after" the previous grant).
+      Property: a granted requester is never behind a requester that was requesting in the cycle of the decision.
+      Together with AA-WC-1 and AA-G-2 this fixes the winner.
+
+  - id: AA-PRI-3
+    req: R-PRI-3
+    pattern: next
+    args: {trigger: "req[3]", cond: "gnt[3]"}
+    note: >-
+      Literal reading: "always wins arbitration when it requests" means req[3] in cycle t gives gnt[3] in cycle t+1, whatever the other
+      requests and whatever the rotating priority. This contradicts AA-PRI-1 / AA-PRI-2 / AA-G-3 (e.g. just after reset with req = 4'b1001
+      requester 0 must win by the order 0>1>2>3 but requester 3 must win here, and gnt is one-hot by AA-G-1) and, through starvation of the other
+      requesters while req[3] is repeatedly asserted, R-FAIR-1 (AA-FAIR-1). Not repaired.
+
+  - id: AA-FAIR-1
+    req: R-FAIR-1
+    pattern: bounded_wait
+    args: {cond: "req[i] && !gnt[i]", max: N}
+    note: >-
+      "Keeps its request asserted" is built into the condition: a requester that withdraws ends the wait, so no assumption is needed.
+      "Within N cycles" is ambiguous; the most literal reading is taken: at most N consecutive cycles with the request asserted and not
+      yet granted, counted from the cycle in which it is raised, so gnt[i] arrives no later than N cycles after the raising cycle. The tighter reading
+      (granted no later than N-1 cycles after raising) would be max N-1. With a registered grant and four competing requesters the last-ranked
+      requester needs N pending cycles, so the tighter reading cannot hold together with AA-G-3.
+
+  - id: AA-RST-1a
+    req: R-RST-1
+    pattern: implies
+    mode: always
+    args: {trigger: "rst_active", cond: "gnt == 0"}
+    note: >-
+      "While rst_n is low ... no grant line is asserted", read literally for every cycle in which reset is asserted, including the first
+      reset cycle (cycle 0 and the first cycle of a mid-operation reset). With a synchronous reset and a registered gnt, the value seen in the first
+      reset cycle is still the pre-reset register, so this reading can only hold if gnt is also forced low combinationally by reset or the
+      register is already clear. Evaluated in reset cycles (mode: always).
+
+  - id: AA-RST-1b
+    req: R-RST-1
+    pattern: after_reset
+    args: {cond: "gnt == 0"}
+    note: >-
+      "... and in the cycle after it": the cycle after each reset cycle (after_reset), hence also after every cycle of a multi-cycle reset.
+
+scenarios:
+  - id: AA-WC-S1
+    req: R-WC-1
+    cover: "prev(req != 0) && onehot(gnt)"
+    note: A request is followed by a grant in the next cycle (non-vacuity witness for the grant rules).
+
+  - id: AA-PRI-2-S1
+    req: R-PRI-2
+    cover: "gnt[1] && prev(req[0] && req[1]) && prev(gnt[0])"
+    note: >-
+      The priority has moved on: requester 0 was granted, and in the next arbitration, with requester 0 still showing its request (held through
+      its grant cycle, AA-ENV-1), requester 1 wins. Possible under both readings of R-PRI-2.
+
+unformalized: []

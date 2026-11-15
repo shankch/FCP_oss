@@ -1,0 +1,167 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `result` is the empty list unless `outcome` is 0.'
+  text: Whenever outcome is not 0 (the call raised, did not finish, or returned something that is not a list of at most 8 integers from 0 to 255), result is the empty list.
+  kind: guarantee
+  lines:
+  - 51
+- id: R-API-1
+  doc: SPEC
+  quote: 'def sort_array(array):'
+  text: The implementation is a Python function named sort_array that takes a single argument, array.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: Given an array of non-negative integers
+  text: The argument array is a list whose elements are all non-negative integers.
+  kind: assumption
+  lines:
+  - 6
+- id: R-RET-1
+  doc: SPEC
+  quote: return a copy of the given array
+  text: For every argument that is a list of non-negative integers, the call returns a list normally (outcome is 0); it does not raise an exception or fail to finish.
+  kind: guarantee
+  depends:
+  - R-IN-1
+  lines:
+  - 6
+- id: R-RET-2
+  doc: SPEC
+  quote: a copy of the given array after sorting
+  text: 'The returned list contains exactly the elements of the given array, each with the same multiplicity: it has the same length as array and is a permutation of it.'
+  kind: guarantee
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: a copy of the given array after sorting
+    readings:
+    - copy the given array, then sort the copy and return it; the given array is left unchanged (consistent with R-MUT-1)
+    - sort the given array itself, then return a copy of the sorted array; the given array is changed by the call, which contradicts R-MUT-1 (don't change the given array)
+  lines:
+  - 6
+- id: R-DEF-1
+  doc: SPEC
+  quote: if the sum( first index value, last index value) is odd or even
+  text: For a non-empty array, the parity sum is the sum of the value at the first index (array[0]) and the value at the last index (array[len(array) - 1]) of the given array; its parity (odd or even) selects
+    the sort order of the result.
+  kind: definition
+  ambiguity:
+  - phrase: first index value, last index value
+    readings:
+    - 'the values stored at the first and last positions: array[0] + array[len(array) - 1]'
+    - 'the indices themselves: 0 + (len(array) - 1), so the sum is len(array) - 1 and its parity depends only on the length (both examples are also consistent with this reading)'
+  - phrase: the sum( first index value, last index value)
+    readings:
+    - the first and last values of the given array as passed (unsorted)
+    - the first and last values of the sorted copy, i.e. min(array) + max(array), which is the same for either sort order (both examples are also consistent with this reading)
+  lines:
+  - 7
+- id: R-ORD-1
+  doc: SPEC
+  quote: you will sort the given array in ascending order if the sum( first index value, last index value) is odd or even
+  text: 'For a non-empty array whose parity sum (array[0] + array[len(array) - 1], see R-DEF-1) is odd, the returned list is in ascending order: each element is less than or equal to the next.'
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-RET-2
+  ambiguity:
+  - phrase: is odd or even
+    readings:
+    - 'odd only: ascending exactly when the parity sum is odd; ''or even'' is a slip (matches examples R-EX-3 and R-EX-4 and makes the rule complementary to the even case of R-ORD-2)'
+    - literally odd or even, i.e. every non-empty array is sorted ascending; this contradicts R-ORD-2 (read literally, descending for every non-empty array) and example R-EX-4 (sum 2 + 6 = 8, result descending)
+    - 'even only: ascending exactly when the parity sum is even (the second disjunct taken as the condition); contradicts examples R-EX-3 and R-EX-4'
+  - phrase: in ascending order
+    readings:
+    - 'non-decreasing: each element is less than or equal to the next, duplicates kept'
+    - 'strictly increasing: duplicates removed, which contradicts R-RET-2 (the result is a copy with the same elements)'
+  - phrase: you will sort the given array
+    readings:
+    - sort a copy of the given array and return it, leaving the argument unchanged (consistent with R-RET-2 and R-MUT-1)
+    - sort the given array itself, in place; this contradicts R-MUT-1 (don't change the given array)
+  lines:
+  - 7
+- id: R-ORD-2
+  doc: SPEC
+  quote: or sort it in descending order if the sum( first index value, last index value) is even or odd.
+  text: 'For a non-empty array whose parity sum (array[0] + array[len(array) - 1], see R-DEF-1) is even, the returned list is in descending order: each element is greater than or equal to the next.'
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-RET-2
+  ambiguity:
+  - phrase: is even or odd
+    readings:
+    - 'even only: descending exactly when the parity sum is even; ''or odd'' is a slip (matches examples R-EX-3 and R-EX-4 and makes the rule complementary to the odd case of R-ORD-1)'
+    - literally even or odd, i.e. every non-empty array is sorted descending; this contradicts R-ORD-1 (read literally, ascending for every non-empty array) and example R-EX-3 (sum 2 + 5 = 7, result ascending)
+    - 'odd only: descending exactly when the parity sum is odd (the second disjunct taken as the condition); contradicts examples R-EX-3 and R-EX-4'
+  - phrase: in descending order
+    readings:
+    - 'non-increasing: each element is greater than or equal to the next, duplicates kept'
+    - 'strictly decreasing: duplicates removed, which contradicts R-RET-2 (the result is a copy with the same elements)'
+  - phrase: sort it
+    readings:
+    - '''it'' is the copy that is returned: sort the copy, leaving the argument unchanged (consistent with R-RET-2 and R-MUT-1)'
+    - '''it'' is the given array itself, sorted in place; this contradicts R-MUT-1 (don''t change the given array)'
+  lines:
+  - 8
+- id: R-MUT-1
+  doc: SPEC
+  quote: don't change the given array.
+  text: 'The call does not modify the list passed as array: after the call it has the same length and the same elements in the same order as before.'
+  kind: guarantee
+  ambiguity:
+  - phrase: don't change the given array
+    readings:
+    - the argument list is left unmodified; the sorting described in the docstring is applied to a copy
+    - contradicted by 'you will sort the given array' (R-ORD-1), 'sort it' (R-ORD-2) and 'a copy of the given array after sorting' (R-RET-2) read as sorting the argument itself, under which the argument
+      is changed
+  lines:
+  - 11
+- id: R-EX-1
+  doc: SPEC
+  quote: sort_array([]) => []
+  text: Calling sort_array with the empty list returns the empty list.
+  kind: scenario
+  lines:
+  - 14
+- id: R-EX-2
+  doc: SPEC
+  quote: sort_array([5]) => [5]
+  text: Calling sort_array with [5] returns [5].
+  kind: scenario
+  lines:
+  - 15
+- id: R-EX-3
+  doc: SPEC
+  quote: sort_array([2, 4, 3, 0, 1, 5]) => [0, 1, 2, 3, 4, 5]
+  text: Calling sort_array with [2, 4, 3, 0, 1, 5] (first value 2, last value 5, sum 7, odd) returns [0, 1, 2, 3, 4, 5], sorted ascending.
+  kind: scenario
+  ambiguity:
+  - phrase: '[0, 1, 2, 3, 4, 5]'
+    readings:
+    - 'the intended result: the sum 2 + 5 = 7 is odd, so the result is ascending, consistent with the odd-only reading of R-ORD-1'
+    - contradicts R-ORD-2 read literally ('even or odd', i.e. descending for every non-empty array), under which the result would be [5, 4, 3, 2, 1, 0]
+  lines:
+  - 16
+- id: R-EX-4
+  doc: SPEC
+  quote: sort_array([2, 4, 3, 0, 1, 5, 6]) => [6, 5, 4, 3, 2, 1, 0]
+  text: Calling sort_array with [2, 4, 3, 0, 1, 5, 6] (first value 2, last value 6, sum 8, even) returns [6, 5, 4, 3, 2, 1, 0], sorted descending.
+  kind: scenario
+  ambiguity:
+  - phrase: '[6, 5, 4, 3, 2, 1, 0]'
+    readings:
+    - 'the intended result: the sum 2 + 6 = 8 is even, so the result is descending, consistent with the even-only reading of R-ORD-2'
+    - contradicts R-ORD-1 read literally ('odd or even', i.e. ascending for every non-empty array), under which the result would be [0, 1, 2, 3, 4, 5, 6]
+  lines:
+  - 17

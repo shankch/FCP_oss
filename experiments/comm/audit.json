@@ -1,0 +1,1697 @@
+{
+ "reviews": 84,
+ "sessions": 409,
+ "tool_calls": {
+  "Bash": {
+   "ran": 2074,
+   "refused": 566,
+   "error": 46
+  },
+  "Edit": {
+   "ran": 129
+  },
+  "Read": {
+   "ran": 1295,
+   "error": 5,
+   "refused": 1
+  },
+  "Write": {
+   "ran": 732
+  }
+ },
+ "programs_run": {
+  "cat": 1047,
+  "head": 650,
+  "echo": 642,
+  "fcp --help": 544,
+  "ls": 512,
+  "fcp lint": 460,
+  "fcp explain": 287,
+  "tail": 194,
+  "grep": 190,
+  "fcp anchor": 169,
+  "find": 131,
+  "wc": 109,
+  "sort": 87,
+  "cd": 85,
+  "cp": 21,
+  "sed": 18,
+  "date": 11,
+  "rm": 9,
+  "cut": 9,
+  "paste": 8,
+  "seq": 7,
+  "mkdir": 6,
+  "tr": 4,
+  "n": 3,
+  "-": 3,
+  "printf": 3,
+  "test": 3,
+  "lines": 1,
+  "result": 1,
+  "expr": 1,
+  "not": 1,
+  "which": 1,
+  "python3": 1,
+  "fcp check": 1,
+  "check": 1,
+  "diff": 1,
+  "rp": 1,
+  "sa": 1
+ },
+ "own_session_directories": {
+  "refused": 192,
+  "ran": 167,
+  "error": 40
+ },
+ "outside": {
+  "calls": 95,
+  "refused": 94,
+  "ran": 1,
+  "list": [
+   {
+    "task": "HumanEval/46",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && grep -rl \"raises: \\[\\]\" --include=design.yaml . 2>/dev/null | head; ls; ls corpus 2>/dev/null | head -50",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && grep -rl \"raises: \\[\\]\" --include=design.yaml ."
+   },
+   {
+    "task": "HumanEval/46",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "agent_b",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && for c in check monitor code review; do echo \"== $c\"; ./bin/fcp $c --help; done",
+    "result": "A variable in this command can't be checked before it runs"
+   },
+   {
+    "task": "HumanEval/46",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "variant",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [],
+    "call": "python3 -I -c \"\nf=[0,0,2,0]\nfor i in range(4,128): f.append(f[-1]+f[-2]+f[-3]+f[-4])\nprint(f[:10]); print(f[127], f[127] < 2**128, (2**128-1)//f[127])\nb=[0,0,2,0]  # backward from fib4(3..0)\ng={0:0,1:0,2:2,3:0}\nfor k in range(-1,-5,-1): g[k]=g[k+4]-g[k+3]-g[k+2]-g[k+1]\nprint({k:g[k] for k in range(-1,-5,-1)})\n\"",
+    "result": "This command requires approval"
+   },
+   {
+    "task": "HumanEval/46",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus",
+     "/repo/docs"
+    ],
+    "call": "ls /repo/ /repo/docs /repo/corpus 2>/dev/null | head -100",
+    "result": "This Bash command contains multiple operations. The following part requires approval: ls /repo/ /repo/docs /repo/corpus"
+   },
+   {
+    "task": "HumanEval/46",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus"
+    ],
+    "call": "ls /repo/ /repo/corpus 2>/dev/null | head -80; grep -rl \"fib\" /repo/corpus --include=design.yaml 2>/dev/null | head",
+    "result": "This Bash command contains multiple operations. The following parts require approval: ls /repo/ /repo/corpus, head -80; grep -rl \"fib\" /repo/corpus --include=design.yaml"
+   },
+   {
+    "task": "HumanEval/46",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls; grep -rn \"maximum\" fcp/schema/fcp-ir.schema.json | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls; grep -rn \"maximum\" fcp/schema/fcp-ir.schema.json"
+   },
+   {
+    "task": "HumanEval/138",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && cat bin/fcp | head -30 && ls fcp | head -80",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && cat bin/fcp"
+   },
+   {
+    "task": "HumanEval/138",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "agent_b",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/bin"
+    ],
+    "call": "ls /repo/bin/ && /repo/bin/fcp --help 2>&1 | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: ls /repo/bin/ && /repo/bin/fcp --help 2>&1"
+   },
+   {
+    "task": "HumanEval/138",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls corpus | head -50 && bin/fcp lint --help 2>&1 | head -30; bin/fcp anchor --help 2>&1 | head -30",
+    "result": "This Bash command contains multiple operations. The following parts require approval: cd /repo && ls && ls corpus, head -50 && bin/fcp lint --help 2>&1, head -30; bin/fcp anchor --help 2>&1"
+   },
+   {
+    "task": "HumanEval/138",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/bin"
+    ],
+    "call": "sed -n 40,80p code_invoice/frame.md && echo ---- && cat code_pay/design.yaml | head -30; ls /repo/bin/; /repo/bin/fcp lint --help 2>&1 | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: head -30; ls /repo/bin/; /repo/bin/fcp lint --help 2>&1"
+   },
+   {
+    "task": "HumanEval/138",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus"
+    ],
+    "call": "cd /cache/comm-work/8a8949830b8d/out/ws_adapter/examples && grep -n \"raises\\|outcome\\|scope\\|dense\\|values\" */design.yaml; ls /repo/ 2>/dev/null; ls /repo/corpus 2>/dev/null | head -50",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /cache/comm-work/8a8949830b8d/out/ws_adapter/examples && grep -n \"raises\\|outcome\\|scope\\|dense\\|values\" */design.yaml; ls /repo/ ; ls /home/user/project"
+   },
+   {
+    "task": "HumanEval/73",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus"
+    ],
+    "call": "cd /cache/comm-work/49fa1b859a16/out/ws_adapter/examples && grep -rn \"list\\|outcome\\|scope\" */design.yaml; ls /repo/; ls /repo/corpus 2>/dev/null | head -50",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /cache/comm-work/49fa1b859a16/out/ws_adapter/examples && grep -rn \"list\\|outcome\\|scope\" */design.yaml; ls /repo/; ls /repo/corpus"
+   },
+   {
+    "task": "HumanEval/73",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/corpus"
+    ],
+    "call": "tail -n +1 code_limit/design.yaml code_change/design.yaml code_pay/design.yaml; grep -rn \"raises: \\[\\]\\|type: list\\|elements\" . ; ls /repo/corpus 2>/dev/null | head -50",
+    "result": "This Bash command contains multiple operations. The following part requires approval: tail -n +1 code_limit/design.yaml code_change/design.yaml code_pay/design.yaml; grep -rn \"raises: \\[\\]\\|type: list\\|elements\" . ; ls /repo/corpus"
+   },
+   {
+    "task": "HumanEval/73",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/fcp/schema/fcp-ir.schema.json"
+    ],
+    "call": "grep -n \"elements\\|alphabet\\|\\\"list\\\"\\|raises\\|element\" /repo/fcp/schema/fcp-ir.schema.json | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: grep -n \"elements\\|alphabet\\|\\\"list\\\"\\|raises\\|element\" /repo/fcp/schema/fcp-ir.schema.json"
+   },
+   {
+    "task": "HumanEval/73",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls corpus | head -100 && grep -rl \"type: list\" corpus --include=design.yaml | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && ls corpus"
+   },
+   {
+    "task": "HumanEval/73",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls; grep -rn \"elements\" --include=*.py fcp | grep -i scope | head -20; grep -rn \"\\\"elements\\\"\\|'elements'\" --include=*.py fcp | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls; grep -rn \"elements\" --include=*.py fcp"
+   },
+   {
+    "task": "HumanEval/163",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls; ls fcp/schema; grep -n \"scope\" -A40 fcp/schema/fcp-ir.schema.json | head -120",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls; ls fcp/schema; grep -n \"scope\" -A40 fcp/schema/fcp-ir.schema.json"
+   },
+   {
+    "task": "HumanEval/163",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/corpus"
+    ],
+    "call": "cat code_change/design.yaml | head -50; ls /repo/corpus 2>/dev/null | head -80",
+    "result": "This Bash command contains multiple operations. The following part requires approval: head -50; ls /repo/corpus"
+   },
+   {
+    "task": "HumanEval/163",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && grep -n '\"list\"\\|\"records\"\\|\"str\"' fcp/schema/fcp-ir.schema.json | head -30",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && grep -n '\"list\"\\|\"records\"\\|\"str\"' fcp/schema/fcp-ir.schema.json"
+   },
+   {
+    "task": "HumanEval/163",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "agent_a",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [],
+    "call": "mkdir -p /work && cat > /work/check.py <<'EOF'\n# Per call (a,b) with a,b>=1: does some list satisfy RES-1..4, ORD-1 and the examples?\nimport itertoo",
+    "result": "Parser skipped input between top-level statements"
+   },
+   {
+    "task": "HumanEval/163",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls fcp | head -80 && grep -rn \"dense\" --include=*.py fcp | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && ls fcp"
+   },
+   {
+    "task": "HumanEval/124",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/corpus"
+    ],
+    "call": "cat code_change/design.yaml && echo ==== && cat code_pay/design.yaml | head -60 && echo ==== && grep -rl \"R-FR-1\" /repo/corpus 2>/dev/null | grep requirements | head",
+    "result": "This Bash command contains multiple operations. The following part requires approval: head -60 && echo ==== && grep -rl \"R-FR-1\" /repo/corpus"
+   },
+   {
+    "task": "HumanEval/124",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/bin",
+     "/repo/fcp"
+    ],
+    "call": "ls /repo/ /repo/bin; grep -rn \"design\\b.*!=\\|design.*mismatch\" /repo/fcp --include=*.py | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: ls /repo/ /repo/bin; grep -rn \"design\\b.*!=\\|design.*mismatch\" /repo/fcp --include=*.py"
+   },
+   {
+    "task": "HumanEval/124",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && cat bin/fcp | head -30 && grep -rn \"def.*anchor\" --include=*.py . | head",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && cat bin/fcp"
+   },
+   {
+    "task": "HumanEval/124",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/bin"
+    ],
+    "call": "cat code_invoice/design.yaml | sed -n 1,12p; cat code_invoice/frame.md | sed -n '/## Inputs/,$p'; ls /repo/bin/; head -30 /repo/bin/fcp",
+    "result": "This Bash command contains multiple operations. The following part requires approval: sed -n '/## Inputs/,$p'; ls /repo/bin/; head -30 /repo/bin/fcp"
+   },
+   {
+    "task": "HumanEval/49",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/bin"
+    ],
+    "call": "cat code_pay/design.yaml; head -30 code_pay/frame.md; ls /repo/bin/; /repo/bin/fcp --help 2>&1 | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cat code_pay/design.yaml; head -30 code_pay/frame.md; ls /repo/bin/; /repo/bin/fcp --help 2>&1"
+   },
+   {
+    "task": "HumanEval/49",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/bin",
+     "/repo/fcp/schema"
+    ],
+    "call": "ls /repo/ /repo/bin/ /repo/fcp/schema/ 2>&1",
+    "result": "ls in '/repo' was blocked. For security, Claude Code may only list files in the allowed working directories for this session: '/cache/comm-work/8d539fbca98d/out/ws_adapter'."
+   },
+   {
+    "task": "HumanEval/49",
+    "variant": "original",
+    "attempt": "out_try0",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls; ls corpus 2>/dev/null | head -50; grep -rl \"raises: \\[\\]\" --include=design.yaml . 2>/dev/null | head",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls; ls corpus"
+   },
+   {
+    "task": "HumanEval/49",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "agent_a",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [],
+    "call": "python3 -I - <<'EOF'\ntable = \" : \".join(\"y == %d ? p2 %% %d\" % (k, k) for k in range(1, 128)) + \" : 0\"\ndoc = '''fcp: \"0.1\"\nset: agent_a\norigin: {kind: agent, role: formalizer, id: agent_a}\n\n# Reading taken throughout (see decisions): the docstring's n is the first\n# argument x and its p is the second argument y, as the five examples show.\ndefs:\n  # 2^x as an exact integer (FCP-PL arithmetic is exa",
+    "result": "Contains brace with quote character (expansion obfuscation)"
+   },
+   {
+    "task": "HumanEval/49",
+    "variant": "1a",
+    "attempt": "out_try0",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/bin"
+    ],
+    "call": "ls /repo/bin/ /repo/ && /repo/bin/fcp --help 2>&1 | head -50",
+    "result": "This Bash command contains multiple operations. The following part requires approval: ls /repo/bin/ /repo/ && /repo/bin/fcp --help 2>&1"
+   },
+   {
+    "task": "HumanEval/49",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && find . -name \"fcp-ir.schema.json\" -not -path \"*/node_modules/*\" | head",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && find . -name \"fcp-ir.schema.json\" -not -path \"*/node_modules/*\""
+   },
+   {
+    "task": "HumanEval/49",
+    "variant": "1c",
+    "attempt": "out_try0",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls fcp | head -80 && grep -rn \"def .*scope\" fcp/*.py | head -30",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && ls fcp"
+   },
+   {
+    "task": "HumanEval/49",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls corpus 2>/dev/null | head -50 && grep -rl \"modp\\|HumanEval\\|humaneval\" --include=*.yaml --include=*.md . 2>/dev/null | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && ls corpus"
+   },
+   {
+    "task": "HumanEval/88",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls; grep -rn \"elements\" --include=*.py fcp | head -40; grep -n \"elements\\|alphabet\\|lengths\\|\\\"length\\\"\" fcp/schema/fcp-ir.schema.json | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls; grep -rn \"elements\" --include=*.py fcp"
+   },
+   {
+    "task": "HumanEval/88",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/docs",
+     "/repo/fcp"
+    ],
+    "call": "grep -rln \"mutated\\|in place\\|in-place\" /repo/docs /repo/fcp 2>/dev/null | head",
+    "result": "This Bash command contains multiple operations. The following part requires approval: grep -rln \"mutated\\|in place\\|in-place\" /repo/docs /repo/fcp"
+   },
+   {
+    "task": "HumanEval/88",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/corpus"
+    ],
+    "call": "cat code_checkout/design.yaml code_checkout/frame.md && ls /repo/corpus 2>/dev/null | head -50",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cat code_checkout/design.yaml code_checkout/frame.md && ls /repo/corpus"
+   },
+   {
+    "task": "HumanEval/88",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/fcp",
+     "/repo/fcp/schema"
+    ],
+    "call": "ls /repo/ /repo/fcp /repo/fcp/schema",
+    "result": "ls in '/repo' was blocked. For security, Claude Code may only list files in the allowed working directories for this session: '/cache/comm-work/77875ab5aa76/out/ws_adapter'."
+   },
+   {
+    "task": "HumanEval/88",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus"
+    ],
+    "call": "tail -n +1 code_limit/design.yaml code_pay/design.yaml; ls /repo; ls /repo/corpus | head -100",
+    "result": "This Bash command contains multiple operations. The following part requires approval: tail -n +1 code_limit/design.yaml code_pay/design.yaml; ls /repo; ls /repo/corpus"
+   },
+   {
+    "task": "HumanEval/88",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls; ls corpus 2>/dev/null | head -50; grep -rl \"type: list\" --include=design.yaml . 2>/dev/null | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls; ls corpus"
+   },
+   {
+    "task": "HumanEval/88",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "variant",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/bin"
+    ],
+    "call": "ls /repo/bin/ && /repo/bin/fcp --help 2>&1 | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: ls /repo/bin/ && /repo/bin/fcp --help 2>&1"
+   },
+   {
+    "task": "HumanEval/26",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && grep -rn \"elements\" --include=*.py fcp | grep -iv \"^.*#\" | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && grep -rn \"elements\" --include=*.py fcp"
+   },
+   {
+    "task": "HumanEval/26",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "variant",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/bin"
+    ],
+    "call": "ls /repo/bin/; /repo/bin/fcp --help 2>&1 | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: ls /repo/bin/; /repo/bin/fcp --help 2>&1"
+   },
+   {
+    "task": "HumanEval/26",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && grep -n -i \"elements\\|\\\"scope\\\"\\|alphabet\" fcp/schema/fcp-ir.schema.json | head -50",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && grep -n -i \"elements\\|\\\"scope\\\"\\|alphabet\" fcp/schema/fcp-ir.schema.json"
+   },
+   {
+    "task": "HumanEval/26",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/fcp/schema/fcp-ir.schema.json"
+    ],
+    "call": "grep -n -i \"elements\\|alphabet\\|\\\"values\\\"\" /repo/fcp/schema/fcp-ir.schema.json | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: grep -n -i \"elements\\|alphabet\\|\\\"values\\\"\" /repo/fcp/schema/fcp-ir.schema.json"
+   },
+   {
+    "task": "HumanEval/26",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "ran",
+    "paths": [
+     "~/.claude/projects/-home-user--cache-fcp-comm-work-16a7b2fe5d6d-out-ws-adapter/memory"
+    ],
+    "call": "find . -type f | sort && echo ---- && cat spec.md && echo ---- && cat signature.txt && echo ---- && ls ~/.claude/projects/-home-user--cache-fcp-comm-work-16a7b2fe5d6d-out-ws-adapter/memory/ 2>/dev/null",
+    "result": "./docs/IR_spec.md\n./examples/code_change/design.yaml\n./examples/code_change/frame.md\n./examples/code_checkout/design.yaml\n./examples/code_checkout/frame.md\n./examples/code_invoice/design.yaml\n./examples/code_invoice/frame.md\n./examples/code_limit/design.yaml\n./examples/code_limit/frame.md\n./examples"
+   },
+   {
+    "task": "HumanEval/26",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && /repo/bin/fcp --help 2>&1 | head -50; ls corpus | head -100",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && /repo/bin/fcp --help 2>&1"
+   },
+   {
+    "task": "HumanEval/26",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/corpus"
+    ],
+    "call": "grep -rl \"type: list\" /repo/corpus --include=design.yaml 2>/dev/null | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: grep -rl \"type: list\" /repo/corpus --include=design.yaml"
+   },
+   {
+    "task": "HumanEval/26",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls corpus 2>/dev/null | head -50 && grep -rln \"type: list\" --include=design.yaml . 2>/dev/null | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && ls corpus"
+   },
+   {
+    "task": "HumanEval/159",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && grep -rn \"signals\" --include=*.py fcp/software* fcp/*.py 2>/dev/null | grep -i \"return\" | head -30",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && grep -rn \"signals\" --include=*.py fcp/software* fcp/*.py"
+   },
+   {
+    "task": "HumanEval/159",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/fcp"
+    ],
+    "call": "grep -rln \"returns\" /repo/fcp --include=*.py | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: grep -rln \"returns\" /repo/fcp --include=*.py"
+   },
+   {
+    "task": "HumanEval/159",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/fcp"
+    ],
+    "call": "cat code_limit/design.yaml code_change/design.yaml; ls /repo/ /repo/fcp",
+    "result": "ls in '/repo' was blocked. For security, Claude Code may only list files in the allowed working directories for this session: '/cache/comm-work/c5889d92794f/out/ws_adapter'."
+   },
+   {
+    "task": "HumanEval/159",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && grep -rn \"signals\" --include=*.py fcp/software* fcp/code* 2>/dev/null | head -50; ls fcp | head -80",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && grep -rn \"signals\" --include=*.py fcp/software* fcp/code*"
+   },
+   {
+    "task": "HumanEval/159",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/docs/FCP_code.md",
+     "/repo/fcp/schema/fcp-ir.schema.json"
+    ],
+    "call": "grep -rn -i \"tuple\" /repo/fcp/schema/fcp-ir.schema.json /repo/docs/FCP_code.md 2>/dev/null | head -30",
+    "result": "This Bash command contains multiple operations. The following part requires approval: grep -rn -i \"tuple\" /repo/fcp/schema/fcp-ir.schema.json /repo/docs/FCP_code.md"
+   },
+   {
+    "task": "HumanEval/159",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls fcp | head -50 && grep -rn \"signals\" fcp/software*.py 2>/dev/null | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && ls fcp"
+   },
+   {
+    "task": "HumanEval/159",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/fcp"
+    ],
+    "call": "grep -rln \"tuple\" /repo/fcp --include=*.py",
+    "result": "grep in '/repo/fcp' was blocked. For security, Claude Code may only search for patterns in files from the allowed working directories for this session: '/cache/comm-work/a530614bf6b3/out/ws_adapter'."
+   },
+   {
+    "task": "HumanEval/64",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && head -30 bin/fcp; ls; grep -rln \"def.*lint\" --include=*.py . | head",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && head -30 bin/fcp; ls; grep -rln \"def.*lint\" --include=*.py ."
+   },
+   {
+    "task": "HumanEval/64",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/fcp",
+     "/repo/fcp/lint"
+    ],
+    "call": "grep -rn \"design\\b\\|'design'\" /repo/fcp/lint*.py 2>/dev/null | head -20; ls /repo/fcp 2>/dev/null | head -50",
+    "result": "This Bash command contains multiple operations. The following parts require approval: grep -rn \"design\\b\\|'design'\" /repo/fcp/lint*.py, head -20; ls /repo/fcp"
+   },
+   {
+    "task": "HumanEval/64",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls docs | head -50 && grep -rn \"isinstance(.*bool\" --include=*.py fcp | grep -i -E \"int|ret\" | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && ls docs"
+   },
+   {
+    "task": "HumanEval/59",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && cat bin/fcp | head -30 && ls fcp | head -80",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && cat bin/fcp"
+   },
+   {
+    "task": "HumanEval/59",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "variant",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [],
+    "call": "mkdir -p /work && cd /work && cat > check.py <<'EOF'\nimport numpy as np, random\nN = 65536\n# ground truth\nspf = np.zeros(N, dtype=np.int64); lpf = np",
+    "result": "Parser skipped input between top-level statements"
+   },
+   {
+    "task": "HumanEval/59",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls; ls fcp | head -50; grep -n '\"required\"' -A3 fcp/schema/*.json | head -60",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls; ls fcp"
+   },
+   {
+    "task": "HumanEval/59",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus",
+     "/repo/docs"
+    ],
+    "call": "ls /repo/ /repo/corpus 2>/dev/null | head -100; ls /repo/docs",
+    "result": "This Bash command contains multiple operations. The following parts require approval: ls /repo/ /repo/corpus, head -100; ls /repo/docs"
+   },
+   {
+    "task": "HumanEval/41",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus"
+    ],
+    "call": "cat -n code_invoice/frame.md | sed -n 1,200p; echo ====; sed -n '/^function/,$p' code_pay/design.yaml; ls /repo/ /repo/corpus 2>/dev/null | head -80",
+    "result": "This Bash command contains multiple operations. The following part requires approval: sed -n 1,200p; echo ====; sed -n '/^function/,$p' code_pay/design.yaml; ls /repo/ /repo/corpus"
+   },
+   {
+    "task": "HumanEval/41",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus"
+    ],
+    "call": "ls /repo/ /repo/corpus",
+    "result": "ls in '/repo' was blocked. For security, Claude Code may only list files in the allowed working directories for this session: '/cache/comm-work/fb43c9908360/out/ws_adapter'."
+   },
+   {
+    "task": "HumanEval/41",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/fcp"
+    ],
+    "call": "cat /repo/bin/fcp | head -30; ls /repo/fcp | head -80",
+    "result": "This Bash command contains multiple operations. The following parts require approval: cat /repo/bin/fcp, head -30; ls /repo/fcp"
+   },
+   {
+    "task": "HumanEval/41",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/fcp/schema",
+     "/repo/fcp/schema/fcp-ir.schema.json"
+    ],
+    "call": "ls /repo/ /repo/fcp/schema/ 2>&1; grep -n \"raises\\|\\\"returns\\\"\\|scope\" /repo/fcp/schema/fcp-ir.schema.json | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: ls /repo/ /repo/fcp/schema/ 2>&1; grep -n \"raises\\|\\\"returns\\\"\\|scope\" /repo/fcp/schema/fcp-ir.schema.json"
+   },
+   {
+    "task": "HumanEval/68",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls fcp | head -80 && ls corpus 2>/dev/null | head -80",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && ls fcp"
+   },
+   {
+    "task": "HumanEval/68",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && grep -rl \"type: list\" --include=design.yaml . | head -20; ls corpus | head -80",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && grep -rl \"type: list\" --include=design.yaml ."
+   },
+   {
+    "task": "HumanEval/68",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && cat bin/fcp | head -30 && ls fcp | head -80",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && cat bin/fcp"
+   },
+   {
+    "task": "HumanEval/68",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls fcp | head -50 && grep -rn \"elements\" --include=*.py fcp | head -30",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && ls fcp"
+   },
+   {
+    "task": "HumanEval/68",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/fcp"
+    ],
+    "call": "grep -rn \"'elements'\\|\\\"elements\\\"\" --include=*.py /repo/fcp | head -30",
+    "result": "This Bash command contains multiple operations. The following part requires approval: grep -rn \"'elements'\\|\\\"elements\\\"\" --include=*.py /repo/fcp"
+   },
+   {
+    "task": "HumanEval/80",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus"
+    ],
+    "call": "grep -rn \"raises\\|outcome\" */design.yaml | grep -v \"^code_mask\\|^code_checkout\\|^code_limit\\|^code_invoice\"; echo; cat code_change/design.yaml | head -30; ls /repo/ 2>/dev/null; ls /repo/corpus 2>/dev/null | head -50",
+    "result": "This Bash command contains multiple operations. The following part requires approval: head -30; ls /repo/ ; ls /repo/corpus"
+   },
+   {
+    "task": "HumanEval/154",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls; grep -rn \"alphabet\" --include=*.py . | grep -v test | head -30",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls; grep -rn \"alphabet\" --include=*.py ."
+   },
+   {
+    "task": "HumanEval/154",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls; grep -n '\"scope\"' -A40 fcp/schema/fcp-ir.schema.json | head -80",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls; grep -n '\"scope\"' -A40 fcp/schema/fcp-ir.schema.json"
+   },
+   {
+    "task": "HumanEval/154",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/corpus"
+    ],
+    "call": "cd /cache/comm-work/a96703c146c7/out/ws_adapter/examples && for d in code_limit code_change code_pay; do echo \"==== $d/design.yaml\"; cat $d/design.yaml; echo \"==== $d/frame.md\"; cat -n $d/frame.md; done; ls /repo/corpus 2>/dev/null | head -50",
+    "result": "A variable in this command can't be checked before it runs"
+   },
+   {
+    "task": "HumanEval/154",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls docs corpus 2>/dev/null | head -80",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && ls docs corpus"
+   },
+   {
+    "task": "HumanEval/154",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus"
+    ],
+    "call": "cat code_change/design.yaml code_pay/design.yaml; grep -rn \"raises: \\[\\]\" . ; ls /repo/; ls /repo/corpus 2>/dev/null | head -50",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cat code_change/design.yaml code_pay/design.yaml; grep -rn \"raises: \\[\\]\" . ; ls /repo/; ls /repo/corpus"
+   },
+   {
+    "task": "HumanEval/48",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && grep -rl \"raises: \\[\\]\" --include=design.yaml . 2>/dev/null | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && grep -rl \"raises: \\[\\]\" --include=design.yaml ."
+   },
+   {
+    "task": "HumanEval/48",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && cat bin/fcp | head -30 && ls && ls fcp | head -80",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && cat bin/fcp"
+   },
+   {
+    "task": "HumanEval/48",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/bin",
+     "/repo/fcp"
+    ],
+    "call": "ls /repo/ /repo/bin; cat /repo/bin/fcp | head -30; ls /repo/fcp | head -80",
+    "result": "This Bash command contains multiple operations. The following parts require approval: ls /repo/ /repo/bin; cat /repo/bin/fcp, head -30; ls /repo/fcp"
+   },
+   {
+    "task": "HumanEval/72",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && grep -rn \"'list'\" --include=*.py fcp | head -30",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && grep -rn \"'list'\" --include=*.py fcp"
+   },
+   {
+    "task": "HumanEval/72",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && grep -rl \"type: list\" --include=design.yaml . 2>/dev/null | head -20; echo ----; grep -rl \"raises: \\[\\]\" --include=design.yaml . 2>/dev/null | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && grep -rl \"type: list\" --include=design.yaml ."
+   },
+   {
+    "task": "HumanEval/72",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && grep -rln \"type: list\" --include=design.yaml . 2>/dev/null | head -20; grep -n \"elements\\|'list'\\|\\\"list\\\"\" fcp/software*.py fcp/*.py 2>/dev/null | head -40",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && grep -rln \"type: list\" --include=design.yaml ."
+   },
+   {
+    "task": "HumanEval/72",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "grep -rln \"type: list\" --include=design.yaml /repo 2>/dev/null | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: grep -rln \"type: list\" --include=design.yaml /repo"
+   },
+   {
+    "task": "HumanEval/72",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls; ls fcp/schema; grep -n \"scope\" -A40 fcp/schema/fcp-ir.schema.json | head -120",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls; ls fcp/schema; grep -n \"scope\" -A40 fcp/schema/fcp-ir.schema.json"
+   },
+   {
+    "task": "HumanEval/72",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/fcp/schema/fcp-ir.schema.json"
+    ],
+    "call": "grep -n '\"scope\"' -A40 /repo/fcp/schema/fcp-ir.schema.json | head -100",
+    "result": "This Bash command contains multiple operations. The following part requires approval: grep -n '\"scope\"' -A40 /repo/fcp/schema/fcp-ir.schema.json"
+   },
+   {
+    "task": "HumanEval/144",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus",
+     "/repo/docs"
+    ],
+    "call": "ls /repo/ /repo/docs 2>&1 | head -50; grep -rl \"length:\" /repo/corpus/*/design.yaml 2>/dev/null | head -20",
+    "result": "This Bash command contains multiple operations. The following parts require approval: ls /repo/ /repo/docs 2>&1, head -50; grep -rl \"length:\" /repo/corpus/*/design.yaml"
+   },
+   {
+    "task": "HumanEval/144",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cat examples/code_change/design.yaml examples/code_pay/design.yaml; grep -rn \"raises\" examples/*/design.yaml; ls /repo/ 2>/dev/null | head",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cat examples/code_change/design.yaml examples/code_pay/design.yaml; grep -rn \"raises\" examples/*/design.yaml; ls /repo/"
+   },
+   {
+    "task": "HumanEval/144",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cat /repo/bin/fcp; ls /repo/",
+    "result": "This Bash command contains multiple operations. The following parts require approval: cat /repo/bin/fcp, ls /repo/"
+   },
+   {
+    "task": "HumanEval/144",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && ls bin docs 2>/dev/null | head -50 && grep -rl \"simplify\" --include=*.yaml --include=*.md . 2>/dev/null | head -20",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && ls bin docs"
+   },
+   {
+    "task": "HumanEval/134",
+    "variant": "original",
+    "attempt": "out",
+    "agent": "variant",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/bin"
+    ],
+    "call": "python3 -I -c \"\na=[c for c in range(256) if chr(c).isalpha()]\nprint(len(a)); print([c for c in a if c>=128])\nprint([c for c in range(192,256) if not chr(c).isalpha()])\nprint([c for c in range(256) if chr(c).isspace()])\n\"; ls /repo/bin/",
+    "result": "This Bash command contains multiple operations. The following parts require approval: python3 -I -c '\na=[c for c in range(256) if chr(c).isalpha()]\nprint(len(a)); print([c for c in a if c>=128])\nprint([c for c in range(192,256) if not chr(c).isalpha()])\nprint([c for c in range(256) if chr(c).isspace"
+   },
+   {
+    "task": "HumanEval/134",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo/bin",
+     "/repo/fcp",
+     "/repo/fcp/lint"
+    ],
+    "call": "ls /repo/bin/ /repo/fcp/ 2>/dev/null | head -50; grep -rn \"design\" /repo/fcp/lint*.py 2>/dev/null | head -30",
+    "result": "This Bash command contains multiple operations. The following parts require approval: ls /repo/bin/ /repo/fcp/, head -50; grep -rn \"design\" /repo/fcp/lint*.py"
+   },
+   {
+    "task": "HumanEval/134",
+    "variant": "1a",
+    "attempt": "out",
+    "agent": "variant",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/tmp"
+    ],
+    "call": "cd /tmp && python3 -I -c \"\na=[i for i in range(256) if chr(i).isalpha()]\nimport itertools\ndef rng(l):\n    out=[];s=l[0];p=l[0]\n    for x in l[1:]:\n        if x==p+1: p=x; continue\n        out.append((s,p)); s=p=x\n    out.append((s,p)); return out\nprint('alpha',rng(a))\nprint('space',[i for i in range(256) if chr(i).isspace()])\nprint('split', [i for i in range(256) if len(('a'+chr(i)+'b').split())==",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /tmp && python3 -I -c \"\na=[i for i in range(256) if chr(i).isalpha()]\nimport itertools\ndef rng(l):\n    out=[];s=l[0];p=l[0]\n    for x in l[1:]:\n        if x==p+1: p=x; continue\n        out.append((s,p)); s=p=x\n "
+   },
+   {
+    "task": "HumanEval/134",
+    "variant": "1c",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo"
+    ],
+    "call": "cd /repo && ls && cat bin/fcp | head -30 && /repo/bin/fcp anchor --help 2>&1 | head -30",
+    "result": "This Bash command contains multiple operations. The following part requires approval: cd /repo && ls && cat bin/fcp"
+   },
+   {
+    "task": "HumanEval/134",
+    "variant": "1p",
+    "attempt": "out",
+    "agent": "adapter",
+    "tool": "Bash",
+    "outcome": "refused",
+    "paths": [
+     "/repo",
+     "/repo/corpus"
+    ],
+    "call": "grep -rn \"raises\\|bool\" */design.yaml; ls /repo/ ; ls /repo/corpus 2>/dev/null | head -50",
+    "result": "This Bash command contains multiple operations. The following part requires approval: grep -rn \"raises\\|bool\" */design.yaml; ls /repo/ ; ls /repo/corpus"
+   }
+  ]
+ },
+ "launcher_refusals": [
+  {
+   "task": "HumanEval/46",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "timeout 120 /repo/bin/fcp monitor . --set agent_b 2>&1 | head -60; ls -la . formal",
+   "result": "fcp: `fcp monitor` is not available to an agent (it has lint, explain, anchor)\n.:\ntotal 36\ndrwxrwxr-x 5 user user 4096 Nov 12 03:06 .\ndrwx------ 3 user user   60 Nov 12 03:04 ..\n-rw-rw-r-- 1 user user 1331 Nov 12 03:04 design.yaml\ndrwxrwxr-x 2 user sh"
+  },
+  {
+   "task": "HumanEval/46",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "time timeout 120 /repo/bin/fcp lint /work/tw",
+   "result": "Exit code 2\nfcp: /work/tw is outside the workspace /cache/comm-work/9b7fc9a31469/out/ws_agent_b: an agent works on the files of its own workspace\n\nreal\t"
+  },
+  {
+   "task": "HumanEval/46",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "variant",
+   "call": "/repo/bin/fcp check /cache/comm-work/9b7fc9a31469/out/ws_variant --set variant --only nosuch --out /work/chk 2>&1 | tail -20",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/46",
+   "variant": "1c",
+   "attempt": "out",
+   "agent": "variant",
+   "call": "/repo/bin/fcp monitor /cache/comm-work/be9546c88f56/out/ws_variant --set variant 2>&1 | head -60",
+   "result": "fcp: `fcp monitor` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/46",
+   "variant": "1p",
+   "attempt": "out",
+   "agent": "variant",
+   "call": "/repo/bin/fcp check /cache/comm-work/f7c11c2591b2/out/ws_variant --set tmpcheck --only nonexistent --out /work/chk --cache /tmp/work/-home-user--cache-fcp-comm-work-f7c11c2591b2-out-ws-variant/680db605-1477-48",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/138",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "variant",
+   "call": "timeout 300 /repo/bin/fcp check . --set variant --no-mutation --out /work/check 2>&1 | tail -40",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/163",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "timeout 300 /repo/bin/fcp check . --set agent_b --no-mutation --out /work/check --cache /work/cache 2>&1 | tail -60",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/61",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "cd /work && timeout 300 /repo/bin/fcp check /cache/comm-work/6823786fff65/out/ws_agent_b --set agent_b --no-mutation --out ./chk --cache ./cache 2>&1 | tail -60",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)\nShell cwd was reset to /cache/comm-work/6823786fff65/out/ws_agent_b"
+  },
+  {
+   "task": "HumanEval/61",
+   "variant": "1c",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "cd /work && timeout 500 /repo/bin/fcp check /cache/comm-work/598de130691c/out/ws_agent_a --set agent_a --out /tmp/work/-home-user--cache-fcp-comm-work-598de130691c-out-ws-agent-a/43dd1cc9-26ca-42e4-bf1a-0bcaa6",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)\nShell cwd was reset to /cache/comm-work/598de130691c/out/ws_agent_a"
+  },
+  {
+   "task": "HumanEval/61",
+   "variant": "1p",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "cd /work && timeout 300 /repo/bin/fcp check /cache/comm-work/46b20069f7c9/out/ws_agent_b --set agent_b --no-mutation --out ./check_out --cache ./cache 2>&1 | tail -40",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)\nShell cwd was reset to /cache/comm-work/46b20069f7c9/out/ws_agent_b"
+  },
+  {
+   "task": "HumanEval/124",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "variant",
+   "call": "S=/work && timeout 580 /repo/bin/fcp check . --set variant --no-mutation --out $S/check --cache $S/cache 2>&1 | tail -60",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/124",
+   "variant": "1c",
+   "attempt": "out",
+   "agent": "adapter",
+   "call": "/repo/bin/fcp anchor /cache/comm-work/992f15da0614/out/ws_adapter /work/draft.yaml --out /cache/comm-work/992f15da0614/out/ws_adapter/requirements.yaml && cat /cache/comm-work/992",
+   "result": "Exit code 2\nfcp: /work/draft.yaml is outside the workspace /cache/comm-work/992f15da0614/out/ws_adapter: an agent works on the files of its own workspac"
+  },
+  {
+   "task": "HumanEval/124",
+   "variant": "1c",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "cd /work && timeout 500 /repo/bin/fcp check /cache/comm-work/992f15da0614/out/ws_agent_a --set agent_a --no-mutation --out ./check_out --cache ./cache 2>&1 | tail -80",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)\nShell cwd was reset to /cache/comm-work/992f15da0614/out/ws_agent_a"
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "timeout 300 /repo/bin/fcp check . --set agent_a --only consistency --no-mutation --out /work/chk 2>&1 | tail -40",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "cd /work && timeout 600 /repo/bin/fcp code /cache/comm-work/e5b8de0b7247/out/ws_agent_b ref_impl/candidate.py --set agent_b --small 2>&1 | tail -40",
+   "result": "fcp: `fcp code` is not available to an agent (it has lint, explain, anchor)\nShell cwd was reset to /cache/comm-work/e5b8de0b7247/out/ws_agent_b"
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "1a",
+   "attempt": "out_try0",
+   "agent": "agent_a",
+   "call": "/repo/bin/fcp lint /work/bundle 2>&1 | grep -v uncovered",
+   "result": "fcp: /work/bundle is outside the workspace /cache/comm-work/e5b8de0b7247/out/ws_agent_a: an agent works on the files of its own workspace"
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "1p",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "cd /work/b && /repo/bin/fcp lint . 2>&1 | tail; /repo/bin/fcp explain . --set t 2>&1 | tail -20",
+   "result": "fcp: . is outside the workspace /cache/comm-work/8d44bc1ce828/out/ws_agent_a: an agent works on the files of its own workspace\nfcp: . is outside the workspace /cache/comm-work/8d44bc1ce828/out/ws_agent_a: an agent works on the files of its own workspace\nSh"
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "1p",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "timeout 300 /repo/bin/fcp monitor . --set agent_a > /work/mon.txt 2>&1 ; wc -c /work/mon.txt; head -c 1200 /tmp/claude-",
+   "result": "79 /work/mon.txt\nfcp: `fcp monitor` is not available to an agent (it has lint, explain, anchor)\ntotal 32\ndrwxrwxr-x 5 user user 4096 Nov 12 14:37 .\ndrwx------ 3"
+  },
+  {
+   "task": "HumanEval/49",
+   "variant": "1p",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "/repo/bin/fcp monitor /cache/comm-work/8d44bc1ce828/out/ws_agent_b --set agent_b 2>&1 | head -c 4000",
+   "result": "fcp: `fcp monitor` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/26",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "cd /work && /repo/bin/fcp code --set agent_b --small /cache/comm-work/e979a6870783/out/ws_agent_b impls/good.py 2>&1 | tail -15; echo \"=== dedup\"; /repo/bin/fcp code --set agent_b --small /home/",
+   "result": "fcp: `fcp code` is not available to an agent (it has lint, explain, anchor)\n=== dedup\nfcp: `fcp code` is not available to an agent (it has lint, explain, anchor)\n=== reversed\nfcp: `fcp code` is not available to an agent (it has lint, explain, anchor)\nShell cwd was reset to /home/user/.cache/f"
+  },
+  {
+   "task": "HumanEval/26",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "variant",
+   "call": "timeout 300 /repo/bin/fcp code --set variant --small /cache/comm-work/9a9c508831d6/out/ws_variant /work/impl/good.py 2>&1 | tail -20",
+   "result": "fcp: `fcp code` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/26",
+   "variant": "1p",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "/repo/bin/fcp monitor /cache/comm-work/56020d91c587/out/ws_agent_a --set agent_a 2>&1 | head -c 3000; echo; echo \"---bytes:\"; /repo/bin/fcp monitor /cache/comm-work/56020d91c587/out/ws_agent_a --set agent_a 2>&1 | wc -c",
+   "result": "fcp: `fcp monitor` is not available to an agent (it has lint, explain, anchor)\n\n---bytes:\n79"
+  },
+  {
+   "task": "HumanEval/26",
+   "variant": "1p",
+   "attempt": "out",
+   "agent": "variant",
+   "call": "timeout 500 /repo/bin/fcp check . --set variant --no-mutation --out /work/check --cache /work/cache 2>&1 | tail -40",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/64",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "timeout 500 /repo/bin/fcp check . --set agent_a --no-mutation --out ./.chk_out --cache ./.chk_cache 2>&1 | tail -80",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/64",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "cd /work && timeout 300 /repo/bin/fcp check /cache/comm-work/9a1445b821ee/out/ws_agent_b --set agent_b --no-mutation --out ./chk --cache ./cache 2>&1 | tail -40; ls /cache/comm-work/9a1445b821ee/out/ws",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)\n/cache/comm-work/9a1445b821ee/out/ws_agent_b:\ndesign.yaml\ndocs\nformal\nframe.md\nrequirements.yaml\nspec.md\n\n/cache/comm-work/9a1445b821ee/out/ws_agent_b/formal:\nagent_b.yaml\nShell c"
+  },
+  {
+   "task": "HumanEval/64",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "variant",
+   "call": "SP=/work && timeout 500 /repo/bin/fcp check /cache/comm-work/9a1445b821ee/out/ws_variant --set variant --no-mutation --out $SP/check --cache $SP/cache 2>&1 | tail -60",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/64",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "variant",
+   "call": "cd /work && timeout 60 /repo/bin/fcp check /cache/comm-work/f6e52ef2f7d0/out/ws_variant --set variant --only __list__ --out ./out --cache ./cache 2>&1 | tail -15",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)\nShell cwd was reset to /cache/comm-work/f6e52ef2f7d0/out/ws_variant"
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "timeout 60 /repo/bin/fcp check . --set agent_a --only nonexistent_analysis --out /work/chk 2>&1 | tail -20",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "/repo/bin/fcp lint . 2>&1 | grep -v uncovered | head; /repo/bin/fcp monitor . --set agent_b 2>&1 | head -30",
+   "result": "error    ill-formed             set agent_b: % needs a constant positive divisor in n % factor\nlint: errors found\nfcp: `fcp monitor` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "cd /cache/comm-work/75a8091bdb6e/out/ws_agent_a; timeout 60 /repo/bin/fcp check . --set agent_a --only nonexistent_analysis 2>&1 | tail -15",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/59",
+   "variant": "1c",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "cd /work && timeout 120 /repo/bin/fcp check /cache/comm-work/f6e09092fcae/out/ws_agent_b --set agent_b --only nosuchanalysis --out /tmp/work/-home-user--cache-fcp-comm-work-f6e09092fcae-out-ws-agent-b/1d82bf85",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)\nShell cwd was reset to /cache/comm-work/f6e09092fcae/out/ws_agent_b"
+  },
+  {
+   "task": "HumanEval/80",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "adapter",
+   "call": "cd /cache/comm-work/7b95c329cc30/out/ws_adapter && /repo/bin/fcp anchor . /work/draft.yaml --out requirements.yaml && cat requirements.yaml && /repo/bin/fcp lint .",
+   "result": "Exit code 2\nfcp: /work/draft.yaml is outside the workspace /cache/comm-work/7b95c329cc30/out/ws_adapter: an agent works on the files of its own workspac"
+  },
+  {
+   "task": "HumanEval/80",
+   "variant": "1c",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "timeout 600 /repo/bin/fcp code /cache/comm-work/2ddb62206a79/out/ws_agent_b /work/impl_def/is_happy.py --set agent_b --small 2>&1 | tail -60",
+   "result": "fcp: `fcp code` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/80",
+   "variant": "1p",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "cd /work && timeout 500 /repo/bin/fcp check /cache/comm-work/138620991e36/out/ws_agent_b --set agent_b --no-mutation --out ./check_out --cache ./cache 2>&1 | tail -60",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)\nShell cwd was reset to /cache/comm-work/138620991e36/out/ws_agent_b"
+  },
+  {
+   "task": "HumanEval/154",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "S=/work; timeout 500 /repo/bin/fcp check /cache/comm-work/204ea321af59/out/ws_agent_a --set agent_a --no-mutation --out $S/check_out --cache $S/check_cache 2>&1 | tail -60",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/154",
+   "variant": "original",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "cd /work && timeout 60 /repo/bin/fcp check /cache/comm-work/204ea321af59/out/ws_agent_b --set agent_b --only nonexistent --out ./chk --cache ./cache --no-mutation 2>&1 | tail -20",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)\nShell cwd was reset to /cache/comm-work/204ea321af59/out/ws_agent_b"
+  },
+  {
+   "task": "HumanEval/154",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "timeout 60 /repo/bin/fcp check . --set agent_b --only __list__ --no-mutation --out /work/chk 2>&1 | tail -15",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/154",
+   "variant": "1c",
+   "attempt": "out",
+   "agent": "adapter",
+   "call": "/repo/bin/fcp anchor /cache/comm-work/a96703c146c7/out/ws_adapter /work/draft.yaml --out /cache/comm-work/a96703c146c7/out/ws_adapter/requirements.yaml",
+   "result": "Exit code 2\nfcp: /work/draft.yaml is outside the workspace /cache/comm-work/a96703c146c7/out/ws_adapter: an agent works on the files of its own workspac"
+  },
+  {
+   "task": "HumanEval/154",
+   "variant": "1p",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "timeout 500 /repo/bin/fcp check . --set agent_b --only consistency --no-mutation --out /work/check_out 2>&1 | tail -40",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/154",
+   "variant": "1p",
+   "attempt": "out",
+   "agent": "variant",
+   "call": "timeout 600 /repo/bin/fcp code . /work/ref/candidate.py --set variant --small 2>&1 | tail -40",
+   "result": "fcp: `fcp code` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/48",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "/repo/bin/fcp check /cache/comm-work/e4e8c1a2b4e3/out/ws_agent_a --set agent_a --no-mutation --out /work/check --cache /tmp/work/-home-user--cache-fcp-comm-work-e4e8c1a2b4e3-out-ws-agent-a/216caa8b-2bb9-4f04-8",
+   "result": "fcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/72",
+   "variant": "1c",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "timeout 500 /repo/bin/fcp check /cache/comm-work/8b2b41ae49fa/out/ws_agent_b --set agent_b --out /work/check --cache /tmp/work/-home-user--cache-fcp-comm-work-8b2b41ae49fa-out-ws-agent-b/a9fe7020-417b-4c0f-b9a",
+   "result": "Exit code 2\nfcp: `fcp check` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/144",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "agent_a",
+   "call": "timeout 500 /repo/bin/fcp code . /work/impl_ok/simplify.py --set agent_a --small 2>&1 | tail -40",
+   "result": "fcp: `fcp code` is not available to an agent (it has lint, explain, anchor)"
+  },
+  {
+   "task": "HumanEval/144",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "cd /work && timeout 120 /repo/bin/fcp lint b 2>&1 | tail -30; timeout 120 /repo/bin/fcp explain b --set agent_b 2>&1 | tail -30",
+   "result": "fcp: b is outside the workspace /cache/comm-work/53b296a53252/out/ws_agent_b: an agent works on the files of its own workspace\nfcp: b is outside the workspace /cache/comm-work/53b296a53252/out/ws_agent_b: an agent works on the files of its own workspace\nSh"
+  },
+  {
+   "task": "HumanEval/144",
+   "variant": "1a",
+   "attempt": "out",
+   "agent": "agent_b",
+   "call": "ls -la formal; timeout 300 /repo/bin/fcp monitor . --set agent_b 2>&1 | head -60; ls -laR . | head -40",
+   "result": "total 12\ndrwxrwxr-x 2 user user 4096 Nov 12 17:04 .\ndrwxrwxr-x 5 user user 4096 Nov 12 17:04 ..\n-rw-rw-r-- 1 user user  864 Nov 12 17:04 agent_b.yaml\nfcp: `fcp monitor` is not available to an agent (it has lint, explain, anchor)\n.:\ntotal 36\ndrwxrwxr-x 5 shas"
+  }
+ ],
+ "not_sandboxed": [],
+ "no_transcript": []
+}

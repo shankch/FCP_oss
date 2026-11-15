@@ -1,0 +1,154 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # sum of the values stored at the first and the last index of the argument
+  ends_sum: 'array[0] + array[len(array) - 1]'
+  sum_odd: 'len(array) > 0 && ends_sum % 2 == 1'
+  sum_even: 'len(array) > 0 && ends_sum % 2 == 0'
+  ascending: 'all(i < len(result) - 1: result[i] <= result[i + 1])'
+  descending: 'all(i < len(result) - 1: result[i] >= result[i + 1])'
+  # result holds exactly the values of array, each as many times as array does
+  same_values: >-
+    len(result) == len(array) &&
+    all(i < len(array): count(j < len(array): array[j] == array[i])
+                        == count(j < len(result): result[j] == array[i]))
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    expr: 'outcome == 0'
+    note: >-
+      "returns a list" read as outcome 0. Outcome 2 also covers returning a list
+      that does not fit the result signal (longer than 8, element above 255),
+      but such a list cannot be a copy of the argument, which always fits, so
+      every call ends with outcome 0.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'same_values'
+    note: >-
+      Stated for the returned list, so only when the call returns one (outcome
+      0); that it always returns is RA-RET-1. Same length plus equal counts of
+      every value of array implies result has no other values.
+
+  - id: RA-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args:
+      trigger: 'sum_odd'
+      cond: 'ascending'
+    note: >-
+      "first index value, last index value" read as the values at index 0 and
+      at index len(array) - 1 (the examples also fit the index-number reading).
+      "ascending" read as non-decreasing, since equal values must be kept
+      (R-RET-2). The parity condition is taken as defined only for a non-empty
+      array; the empty array falls under neither rule. When the call does not
+      return, result is empty (F-EMPTY) and the condition holds trivially.
+
+  - id: RA-ORD-2
+    req: R-ORD-2
+    pattern: implies
+    args:
+      trigger: 'sum_even'
+      cond: 'descending'
+    note: >-
+      Same readings as RA-ORD-1: values at the first and last index,
+      non-increasing order (equal values kept), non-empty array only. A
+      one-element array always has an even sum (2 * array[0]).
+
+  - id: RA-EX-1-P
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'len(array) == 0'
+      cond: 'outcome == 0 && len(result) == 0'
+    note: >-
+      The example "sort_array([]) => []" states what this call returns, so it
+      is also stated as a property. outcome 0 is required because an empty
+      result alone also holds when the call raises (F-EMPTY).
+
+  - id: RA-EX-2-P
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'array == [5]'
+      cond: 'outcome == 0 && result == [5]'
+
+  - id: RA-EX-3-P
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'array == [2, 4, 3, 0, 1, 5]'
+      cond: 'outcome == 0 && result == [0, 1, 2, 3, 4, 5]'
+
+  - id: RA-EX-4-P
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: 'array == [2, 4, 3, 0, 1, 5, 6]'
+      cond: 'outcome == 0 && result == [6, 5, 4, 3, 2, 1, 0]'
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: 'len(array) == 0 && outcome == 0 && len(result) == 0'
+
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: 'array == [5] && outcome == 0 && result == [5]'
+
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: 'array == [2, 4, 3, 0, 1, 5] && outcome == 0 && result == [0, 1, 2, 3, 4, 5]'
+
+  - id: RA-EX-4-S
+    req: R-EX-4
+    cover: 'array == [2, 4, 3, 0, 1, 5, 6] && outcome == 0 && result == [6, 5, 4, 3, 2, 1, 0]'
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: that a complete implementation is delivered is not a
+      property of a trace of calls. Its observable consequence, that every call
+      returns, is RA-RET-1.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the function name and parameter are fixed by the adapter
+      binding (design.yaml function section), not by any trace property.
+  - req: R-IN-1
+    reason: >-
+      Satisfied by construction of the interface: array is a list of unsigned
+      8-bit slots, so negative integers and non-integers are not part of the
+      trace (frame.md, Inputs). An assumption would be a tautology.
+  - req: R-RET-3
+    reason: >-
+      Not observable: frame.md states that whether the returned list is the same
+      object as array is not recorded in the trace. Its value content is
+      RA-RET-2.
+  - req: R-NC-1
+    reason: >-
+      Not observable: frame.md states that what the list passed as array holds
+      after the call is not recorded in the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, stated as F-EMPTY in design.yaml and added to
+      every formalization set; frame.md says it need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-RET-3, phrase: "a copy of the given array after sorting", reading: 1}
+  - {req: R-RET-3, phrase: "a copy", reading: 1}
+  - {req: R-ORD-1, phrase: "first index value, last index value", reading: 1}
+  - {req: R-ORD-1, phrase: "ascending order", reading: 1}
+  - {req: R-ORD-1, phrase: "you will sort the given array", reading: 1}
+  - {req: R-ORD-1, phrase: "the sum( first index value, last index value) is odd", reading: 1}
+  - {req: R-ORD-2, phrase: "first index value, last index value", reading: 1}
+  - {req: R-ORD-2, phrase: "descending order", reading: 1}
+  - {req: R-ORD-2, phrase: "sort it", reading: 1}
+  - {req: R-ORD-2, phrase: "the sum( first index value, last index value) is even", reading: 1}
+  - {req: R-NC-1, phrase: "don't change the given array", reading: 1}

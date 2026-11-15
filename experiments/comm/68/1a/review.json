@@ -1,0 +1,507 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 214,
+    "checked": 214,
+    "seconds": 4.75
+   },
+   "open": {
+    "open": {
+     "plucked": {
+      "call": "pluck([1, 0])",
+      "args": [
+       [
+        1,
+        0
+       ]
+      ],
+      "values": [
+       [
+        0,
+        1
+       ],
+       [
+        1,
+        0
+       ]
+      ],
+      "shown": [
+       "[0, 1]",
+       "[1, 0]"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 123
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 270,
+    "checked": 270,
+    "seconds": 6.21
+   },
+   "open": {
+    "open": {
+     "plucked": {
+      "call": "pluck([0, 1])",
+      "args": [
+       [
+        0,
+        1
+       ]
+      ],
+      "values": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        1
+       ]
+      ],
+      "shown": [
+       "[0, 0]",
+       "[1, 1]"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 152
+   }
+  }
+ },
+ "readings": {
+  "R-EMP-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EMP-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-1": {
+   "plain": "INCOMPARABLE",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-2": {
+   "plain": "INCOMPARABLE",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SEL-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SEL-2": {
+   "plain": "INCOMPARABLE",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SEL-3": {
+   "plain": "A-STRONGER",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `all(i < len(arr): arr[i] >= 0)`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-3",
+    "req": "R-IN-3",
+    "says": "every call meets `len(arr) <= 10000`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-4",
+    "req": "R-IN-4",
+    "says": "every call meets `all(i < len(arr): arr[i] >= 0)`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-IN1",
+    "req": "R-IN-1",
+    "says": "every call meets `all(i < len(arr): arr[i] >= 0)`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-IN3",
+    "req": "R-IN-3",
+    "says": "every call meets `len(arr) <= 10000`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-IN4",
+    "req": "R-IN-4",
+    "says": "every call meets `all(i < len(arr): arr[i] >= 0)`",
+    "where": {}
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-DEF-1",
+   "phrase": "a branch of a tree",
+   "taken": 1,
+   "variant": 2,
+   "text": "arr encodes tree structure (e.g. parent/child positions) that affects which node may be plucked"
+  },
+  {
+   "req": "R-IN-2",
+   "phrase": "1 <= nodes.length",
+   "taken": 2,
+   "variant": 1,
+   "text": "arr is never empty, so the empty-array behaviour of R-EMP-1 and Example 3 (R-EX-3) is outside the input domain (don't care); contradicts R-EMP-1 and R-EX-3"
+  },
+  {
+   "req": "R-IN-2",
+   "phrase": "nodes.length",
+   "taken": 1,
+   "variant": 2,
+   "text": "the number of nodes of the whole tree, of which arr is only one branch"
+  },
+  {
+   "req": "R-IN-3",
+   "phrase": "nodes.length",
+   "taken": 1,
+   "variant": 2,
+   "text": "the number of nodes of the whole tree, of which arr is only one branch"
+  },
+  {
+   "req": "R-IN-4",
+   "phrase": "node.value",
+   "taken": 1,
+   "variant": 2,
+   "text": "a value attribute of a node object, i.e. arr holds node objects rather than integers"
+  },
+  {
+   "req": "R-SEL-1",
+   "phrase": "pluck one of the nodes",
+   "taken": 2,
+   "variant": 1,
+   "text": "a node is plucked and returned for every input; contradicts R-EMP-1 and R-EMP-2, which return [] for some inputs"
+  },
+  {
+   "req": "R-SEL-1",
+   "phrase": "return it",
+   "taken": 2,
+   "variant": 1,
+   "text": "return the plucked node itself, i.e. its value alone; contradicts R-OUT-1, which returns the list [value, index]"
+  },
+  {
+   "req": "R-SEL-1",
+   "phrase": "pluck",
+   "taken": 1,
+   "variant": 2,
+   "text": "remove the node from arr (mutate the argument) and return it"
+  },
+  {
+   "req": "R-SEL-2",
+   "phrase": "the node with the value",
+   "taken": 3,
+   "variant": 1,
+   "text": "the node with the smallest even value (a qualifier seems to have been dropped; this is the only stated-style rule consistent with all four examples)"
+  },
+  {
+   "req": "R-SEL-3",
+   "phrase": "the value",
+   "taken": 3,
+   "variant": 1,
+   "text": "the smallest even value of arr (as in R-SEL-2 reading 1)"
+  },
+  {
+   "req": "R-SEL-3",
+   "phrase": "return the node",
+   "taken": 2,
+   "variant": 1,
+   "text": "return the node's value alone"
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "returned in a list, [ value, its index ]",
+   "taken": 1,
+   "variant": 2,
+   "text": "the result is the node itself as R-SEL-1 says ('return it'); the list form contradicts R-SEL-1"
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "its index",
+   "taken": 1,
+   "variant": 2,
+   "text": "the 1-based position of the plucked node in arr"
+  },
+  {
+   "req": "R-EMP-1",
+   "phrase": "the given array is empty",
+   "taken": 1,
+   "variant": 2,
+   "text": "an empty arr is excluded by the constraint 1 <= nodes.length (R-IN-2), so this clause is vacuous; contradicts R-IN-2"
+  },
+  {
+   "req": "R-EMP-1",
+   "phrase": "return []",
+   "taken": 1,
+   "variant": 2,
+   "text": "R-SEL-1 requires a node to be plucked for every input, contradicting this clause"
+  },
+  {
+   "req": "R-EMP-2",
+   "phrase": "no values",
+   "taken": 2,
+   "variant": 1,
+   "text": "no node of arr has the value R-SEL-2 selects (e.g. no even value), so a non-empty arr can return []; seemingly contradicts R-SEL-1 ('pluck one of the nodes')"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "Output: [2, 1]",
+   "taken": 1,
+   "variant": 2,
+   "text": "the example is in error: under the smallest-value reading of R-SEL-2 the answer is [1, 0]; contradicts R-SEL-2 reading 2"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "Input: []",
+   "taken": 1,
+   "variant": 2,
+   "text": "the empty list is excluded by the constraint 1 <= nodes.length (R-IN-2); contradicts R-IN-2"
+  }
+ ],
+ "depends": {
+  "R-SEL-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a"
+   ],
+   "witness": [
+    "pluck([0, 4, 4, 0, 0, 0, 0, 0]) -> returned something else"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-4"
+ ],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "pluck([1, 0])"
+   ],
+   "outputs": {
+    "plucked": {
+     "reading": "agent_a",
+     "shown": [
+      "[0, 1]",
+      "[1, 0]"
+     ],
+     "ending": false,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "plucked",
+   "reqs": [],
+   "question": "the request allows [0, 1] or [1, 0]: which is meant?"
+  },
+  {
+   "kind": "open",
+   "reading": "agent_b",
+   "calls": [
+    "pluck([0, 1])"
+   ],
+   "outputs": {
+    "plucked": {
+     "reading": "agent_b",
+     "shown": [
+      "[0, 0]",
+      "[1, 1]"
+     ],
+     "ending": false,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "plucked",
+   "reqs": [],
+   "question": "the request allows [0, 0] or [1, 1]: which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-SEL-1"
+   ],
+   "calls": [
+    "pluck([0, 4, 4, 0, 0, 0, 0, 0]) -> returned something else"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SEL-1"
+   ],
+   "calls": [],
+   "question": "\"pluck one of the nodes\" can mean: a node is plucked and returned for every input; contradicts R-EMP-1 and R-EMP-2, which return [] for some inputs / a node is plucked only when arr is non-empty and some node qualifies (R-SEL-2); otherwise [] is returned (R-EMP-1, R-EMP-2). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SEL-1"
+   ],
+   "calls": [],
+   "question": "\"return it\" can mean: return the plucked node itself, i.e. its value alone; contradicts R-OUT-1, which returns the list [value, index] / return the plucked node in the form R-OUT-1 gives, the list [value, index]. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SEL-1"
+   ],
+   "calls": [],
+   "question": "\"pluck\" can mean: select a node and leave arr unchanged / remove the node from arr (mutate the argument) and return it. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SEL-2"
+   ],
+   "calls": [],
+   "question": "\"the node with the value\" can mean: the node with the smallest even value (a qualifier seems to have been dropped; this is the only stated-style rule consistent with all four examples) / the node with the smallest value; contradicts Example 2 (R-EX-2), where [1,2,3] would give [1, 0] instead of [2, 1] / no criterion is given, so any node of arr may be plucked (only the examples constrain the choice) / the node at index 1 (every example output is [arr[1], 1]). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SEL-3"
+   ],
+   "calls": [],
+   "question": "\"the value\" can mean: the smallest even value of arr (as in R-SEL-2 reading 1) / the smallest value of arr (as in R-SEL-2 reading 2) / whatever value the plucked node has, under an unconstrained choice (as in R-SEL-2 reading 3). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SEL-3"
+   ],
+   "calls": [],
+   "question": "\"return the node\" can mean: return the node's value alone / return the node as the list [value, index] of R-OUT-1. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"returned in a list, [ value, its index ]\" can mean: the result is the two-element list [value, index] / the result is the node itself as R-SEL-1 says ('return it'); the list form contradicts R-SEL-1. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"its index\" can mean: the 0-based position of the plucked node in arr (as Examples 1, 2 and 4 show) / the 1-based position of the plucked node in arr. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EMP-1"
+   ],
+   "calls": [],
+   "question": "\"the given array is empty\" can mean: an empty arr is a legal input and must return [] / an empty arr is excluded by the constraint 1 <= nodes.length (R-IN-2), so this clause is vacuous; contradicts R-IN-2. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EMP-1"
+   ],
+   "calls": [],
+   "question": "\"return []\" can mean: return [] even though R-SEL-1 says a node is always plucked (this clause overrides R-SEL-1) / R-SEL-1 requires a node to be plucked for every input, contradicting this clause. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EMP-2"
+   ],
+   "calls": [],
+   "question": "\"no values\" can mean: no node of arr has the value R-SEL-2 selects (e.g. no even value), so a non-empty arr can return []; seemingly contradicts R-SEL-1 ('pluck one of the nodes') / arr contains no elements, the same case as an empty array (R-EMP-1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"Output: [2, 1]\" can mean: the example is authoritative: the selection rule must give [2, 1] here (e.g. smallest even value, R-SEL-2 reading 1) / the example is in error: under the smallest-value reading of R-SEL-2 the answer is [1, 0]; contradicts R-SEL-2 reading 2. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"Input: []\" can mean: the empty list is a legal input and the call must return [] / the empty list is excluded by the constraint 1 <= nodes.length (R-IN-2); contradicts R-IN-2. Which is meant?"
+  }
+ ],
+ "limits": []
+}

@@ -1,0 +1,689 @@
+{
+ "task": "checkout",
+ "readers": {
+  "variant1": {
+   "k": 1,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-STACK-1",
+     "phrase": "Discounts stack",
+     "reading": 1,
+     "text": "the percentages add up"
+    },
+    {
+     "req": "R-ROUND-1",
+     "phrase": "the nearest cent",
+     "reading": 1,
+     "text": "at exactly half a cent, either neighbour"
+    },
+    {
+     "req": "R-SHIP-1",
+     "phrase": "Orders under $50",
+     "reading": 1,
+     "text": "the subtotal before discounts is under $50"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-STACK-1",
+     "phrase": "Discounts stack",
+     "reading": 1
+    },
+    {
+     "req": "R-ROUND-1",
+     "phrase": "the nearest cent",
+     "reading": 1
+    },
+    {
+     "req": "R-SHIP-1",
+     "phrase": "Orders under $50",
+     "reading": 1
+    }
+   ],
+   "pairs": {
+    "agent_a|variant1": {
+     "seconds": 5,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-COUP-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-MEM-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-MONO-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-ROUND-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-SHIP-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-STACK-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      }
+     }
+    },
+    "agent_b|variant1": {
+     "seconds": 2,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-COUP-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-MEM-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-MONO-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-ROUND-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-SHIP-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-STACK-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "variant2": {
+   "k": 2,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-STACK-1",
+     "phrase": "Discounts stack",
+     "reading": 2,
+     "text": "the discounts apply one after the other"
+    },
+    {
+     "req": "R-ROUND-1",
+     "phrase": "the nearest cent",
+     "reading": 2,
+     "text": "at exactly half a cent, round up"
+    },
+    {
+     "req": "R-SHIP-1",
+     "phrase": "Orders under $50",
+     "reading": 2,
+     "text": "the discounted price is under $50"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-STACK-1",
+     "phrase": "Discounts stack",
+     "reading": 2
+    },
+    {
+     "req": "R-ROUND-1",
+     "phrase": "the nearest cent",
+     "reading": 2
+    },
+    {
+     "req": "R-SHIP-1",
+     "phrase": "Orders under $50",
+     "reading": 2
+    }
+   ],
+   "pairs": {
+    "agent_a|variant2": {
+     "seconds": 31,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-COUP-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-MEM-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-MONO-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-ROUND-1": {
+       "plain": "INCOMPARABLE",
+       "k": 2,
+       "exact": true,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "calls": [
+         [
+          3,
+          7,
+          1
+         ]
+        ],
+        "lines": [
+         "checkout(3, 7, True) -> (3, 499)"
+        ]
+       }
+      },
+      "R-SHIP-1": {
+       "plain": "INCOMPARABLE",
+       "k": 2,
+       "exact": true,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "calls": [
+         [
+          5001,
+          10,
+          0
+         ],
+         [
+          5001,
+          24,
+          1
+         ]
+        ],
+        "lines": [
+         "checkout(5001, 10, False) -> (4501, 0)",
+         "checkout(5001, 24, True) -> (3501, 0)"
+        ]
+       },
+       "b_not_a": {
+        "calls": [
+         [
+          7143,
+          30,
+          0
+         ],
+         [
+          5001,
+          24,
+          1
+         ]
+        ],
+        "lines": [
+         "checkout(7143, 30, False) -> (5000, 0)",
+         "checkout(5001, 24, True) -> (3501, 499)"
+        ]
+       }
+      },
+      "R-STACK-1": {
+       "plain": "INCOMPARABLE",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      }
+     }
+    },
+    "agent_b|variant2": {
+     "seconds": 23,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-COUP-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-MEM-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-MONO-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-ROUND-1": {
+       "plain": "INCOMPARABLE",
+       "k": 2,
+       "exact": true,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "calls": [
+         [
+          3,
+          7,
+          1
+         ]
+        ],
+        "lines": [
+         "checkout(3, 7, True) -> (3, 499)"
+        ]
+       }
+      },
+      "R-SHIP-1": {
+       "plain": "INCOMPARABLE",
+       "k": 2,
+       "exact": true,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "calls": [
+         [
+          4995,
+          31,
+          0
+         ],
+         [
+          5000,
+          23,
+          1
+         ]
+        ],
+        "lines": [
+         "checkout(4995, 31, False) -> (3497, 499)",
+         "checkout(5000, 23, True) -> (3500, 0)"
+        ]
+       },
+       "b_not_a": {
+        "calls": [
+         [
+          5201,
+          30,
+          0
+         ],
+         [
+          2097151,
+          29,
+          1
+         ]
+        ],
+        "lines": [
+         "checkout(5201, 30, False) -> (3641, 499)",
+         "checkout(2097151, 29, True) -> raised ValueError"
+        ]
+       }
+      },
+      "R-STACK-1": {
+       "plain": "INCOMPARABLE",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "variant3": {
+   "k": 3,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-ROUND-1",
+     "phrase": "the nearest cent",
+     "reading": 3,
+     "text": "at exactly half a cent, round to even"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-STACK-1",
+     "phrase": "Discounts stack",
+     "reading": 1
+    },
+    {
+     "req": "R-ROUND-1",
+     "phrase": "the nearest cent",
+     "reading": 3
+    },
+    {
+     "req": "R-SHIP-1",
+     "phrase": "Orders under $50",
+     "reading": 1
+    }
+   ],
+   "pairs": {
+    "agent_a|variant3": {
+     "seconds": 4,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-IN-2": {
+       "plain": "ONLY-B",
+       "k": 2,
+       "exact": true
+      },
+      "R-COUP-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-MEM-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-MONO-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-ROUND-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "calls": [
+         [
+          5,
+          0,
+          1
+         ]
+        ],
+        "lines": [
+         "checkout(5, 0, True) -> (5, 499)"
+        ]
+       }
+      },
+      "R-SHIP-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-STACK-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      }
+     }
+    },
+    "agent_b|variant3": {
+     "seconds": 2,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-IN-2": {
+       "plain": "ONLY-B",
+       "k": 2,
+       "exact": true
+      },
+      "R-COUP-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-MEM-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-MONO-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-ROUND-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "calls": [
+         [
+          5,
+          0,
+          1
+         ]
+        ],
+        "lines": [
+         "checkout(5, 0, True) -> (5, 499)"
+        ]
+       }
+      },
+      "R-SHIP-1": {
+       "plain": "EQUIVALENT",
+       "k": 2,
+       "exact": true
+      },
+      "R-STACK-1": {
+       "plain": "A-WEAKER",
+       "k": 2,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "settings": {
+  "jobs": 2,
+  "bit_jobs": 1
+ }
+}

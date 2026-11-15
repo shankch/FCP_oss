@@ -1,0 +1,177 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def will_it_fly(q,w):'
+  text: The implementation is a Python function named will_it_fly that takes two positional parameters, q (the list) and w (the maximum possible weight).
+  kind: non_functional
+  lines:
+  - 4
+- id: R-OUT-1
+  doc: SPEC
+  quote: Write a function that returns True if the object q will fly, and False otherwise.
+  text: 'Every call will_it_fly(q, w) returns either True or False: it does not raise an exception, fail to finish, or return a value of any other kind.'
+  kind: guarantee
+  ambiguity:
+  - phrase: returns True if the object q will fly, and False otherwise
+    readings:
+    - the returned value must be the Python bool True or False
+    - any truthy or falsy value (such as 1 or 0, or a non-empty or empty list) is acceptable as the answer
+  lines:
+  - 6
+- id: R-FLY-1
+  doc: SPEC
+  quote: returns True if the object q will fly
+  text: If q is a palindrome (q[i] equals q[len(q)-1-i] for every index i) and the sum of the elements of q is less than or equal to w, then will_it_fly(q, w) returns True.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-DEF-2
+  - R-DEF-3
+  ambiguity:
+  - phrase: less than or equal the maximum possible weight w
+    readings:
+    - 'sum(q) <= w, as the rule states: a balanced q whose sum equals w flies (True)'
+    - 'sum(q) < w, as the example comments phrase it ("is less than the maximum possible weight"): a balanced q whose sum equals w does not fly'
+  - phrase: palindromic list
+    readings:
+    - the empty list is palindromic (it equals its reverse), so will_it_fly([], w) returns True for every w >= 0
+    - the empty list is not a balanced object, so will_it_fly([], w) returns False
+  lines:
+  - 6
+- id: R-FLY-2
+  doc: SPEC
+  quote: and False otherwise
+  text: If q is not a palindrome (some index i has q[i] different from q[len(q)-1-i]), then will_it_fly(q, w) returns False, whatever w is.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-DEF-2
+  ambiguity:
+  - phrase: The object q will fly if
+    readings:
+    - '''if'' means ''if and only if'': q flies exactly when it is balanced and light enough, so an unbalanced q must return False'
+    - '''if'' gives only a sufficient condition: the prompt does not say when q does not fly, so the answer for an unbalanced q is not determined by ''False otherwise'''
+  - phrase: palindromic list
+    readings:
+    - the empty list is palindromic, so it is never covered by this requirement
+    - the empty list is not a balanced object, so will_it_fly([], w) returns False
+  lines:
+  - 6
+- id: R-FLY-3
+  doc: SPEC
+  quote: and False otherwise
+  text: If the sum of the elements of q is greater than w, then will_it_fly(q, w) returns False, whether or not q is a palindrome.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-DEF-3
+  ambiguity:
+  - phrase: The object q will fly if
+    readings:
+    - '''if'' means ''if and only if'': q flies exactly when it is balanced and light enough, so a q heavier than w must return False'
+    - '''if'' gives only a sufficient condition: the prompt does not say when q does not fly, so the answer for a q heavier than w is not determined by ''False otherwise'''
+  - phrase: less than or equal the maximum possible weight w
+    readings:
+    - 'sum(q) <= w flies: False is required only when sum(q) > w'
+    - 'sum(q) < w flies, as the example comments phrase it: False is also required when sum(q) == w'
+  lines:
+  - 6
+- id: R-DEF-1
+  doc: SPEC
+  quote: The object q will fly if it's balanced (it is a palindromic list) and the sum of its elements is less than or equal the maximum possible weight w.
+  text: 'The object q "will fly" for weight w when both hold: q is balanced, and the sum of the elements of q is less than or equal to w.'
+  kind: definition
+  ambiguity:
+  - phrase: The object q will fly if
+    readings:
+    - '''if'' means ''if and only if'': q flies exactly when it is balanced and the sum of its elements is at most w'
+    - '''if'' gives only a sufficient condition: q flies at least in that case, and the prompt does not say whether it can fly otherwise'
+  lines:
+  - 7
+- id: R-DEF-2
+  doc: SPEC
+  quote: it's balanced (it is a palindromic list)
+  text: 'q is balanced exactly when q is a palindromic list: it reads the same forwards and backwards, i.e. q[i] equals q[len(q)-1-i] for every index i.'
+  kind: definition
+  ambiguity:
+  - phrase: palindromic list
+    readings:
+    - the empty list is palindromic (it equals its reverse), hence balanced
+    - the empty list is not a balanced object, hence never flies
+  lines:
+  - 7
+- id: R-DEF-3
+  doc: SPEC
+  quote: the sum of its elements is less than or equal the maximum possible weight w
+  text: The weight condition holds when the sum of the elements of q (0 for the empty list) is less than or equal to w.
+  kind: definition
+  ambiguity:
+  - phrase: less than or equal the maximum possible weight w
+    readings:
+    - 'sum(q) <= w, as the rule states: a sum equal to w meets the condition'
+    - 'sum(q) < w, as the example comments phrase it ("is less than the maximum possible weight"): a sum equal to w does not meet the condition'
+  lines:
+  - 7
+- id: R-EX-1
+  doc: SPEC
+  quote: "will_it_fly([1, 2], 5) \u279E False # 1+2 is less than the maximum possible weight, but it's unbalanced."
+  text: 'will_it_fly([1, 2], 5) returns False: the sum 3 is within the weight 5, but [1, 2] is not a palindrome.'
+  kind: scenario
+  depends:
+  - R-FLY-2
+  lines:
+  - 10
+  - 11
+- id: R-EX-2
+  doc: SPEC
+  quote: "will_it_fly([3, 2, 3], 1) \u279E False # it's balanced, but 3+2+3 is more than the maximum possible weight."
+  text: 'will_it_fly([3, 2, 3], 1) returns False: [3, 2, 3] is a palindrome, but its sum 8 is greater than the weight 1.'
+  kind: scenario
+  depends:
+  - R-FLY-3
+  lines:
+  - 13
+  - 14
+- id: R-EX-3
+  doc: SPEC
+  quote: "will_it_fly([3, 2, 3], 9) \u279E True # 3+2+3 is less than the maximum possible weight, and it's balanced."
+  text: 'will_it_fly([3, 2, 3], 9) returns True: [3, 2, 3] is a palindrome and its sum 8 is not greater than the weight 9.'
+  kind: scenario
+  depends:
+  - R-FLY-1
+  ambiguity:
+  - phrase: is less than the maximum possible weight
+    readings:
+    - the comment only describes this call (8 < 9); the rule 'less than or equal' still decides a sum equal to w, which flies
+    - 'the comment states the rule: the sum must be strictly less than w, contradicting ''less than or equal'' for a sum equal to w'
+  lines:
+  - 16
+  - 17
+- id: R-EX-4
+  doc: SPEC
+  quote: "will_it_fly([3], 5) \u279E True # 3 is less than the maximum possible weight, and it's balanced."
+  text: 'will_it_fly([3], 5) returns True: a one-element list is a palindrome and its sum 3 is not greater than the weight 5.'
+  kind: scenario
+  depends:
+  - R-FLY-1
+  ambiguity:
+  - phrase: is less than the maximum possible weight
+    readings:
+    - the comment only describes this call (3 < 5); the rule 'less than or equal' still decides a sum equal to w, which flies
+    - 'the comment states the rule: the sum must be strictly less than w, contradicting ''less than or equal'' for a sum equal to w'
+  lines:
+  - 19
+  - 20
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `flies` is false unless `outcome` is 0.'
+  text: Whenever a call does not end by returning True or False (outcome is not 0), the flies output is false.
+  kind: guarantee
+  lines:
+  - 46

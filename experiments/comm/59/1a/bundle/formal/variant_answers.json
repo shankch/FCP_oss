@@ -1,0 +1,30 @@
+[
+ {
+  "req": "R-ENV-1",
+  "phrase": "Assume n > 1",
+  "taken": 1,
+  "variant": 2,
+  "text": "For n <= 1 the function should still end in a defined way (for example raise an exception); only the returned value is left free."
+ },
+ {
+  "req": "R-ENV-2",
+  "phrase": "is not a prime",
+  "taken": 1,
+  "variant": 2,
+  "text": "The assumption is only a promise about typical inputs: a prime n still has a well-defined smallest and largest prime factor (n itself), so for a prime n the function must still return n."
+ },
+ {
+  "req": "R-FAC-3",
+  "phrase": "the smallest or largest prime factor",
+  "taken": 1,
+  "variant": 2,
+  "text": "The implementation picks one convention and keeps it: either every call returns the smallest prime factor, or every call returns the largest."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "candidate(13195) returns 29 (contradiction with 'the smallest or largest prime factor')",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction: under the reading that the smallest prime factor is required (or allowed and chosen), the answer for 13195 is 5, not 29."
+ }
+]

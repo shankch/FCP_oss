@@ -1,0 +1,30 @@
+design: rr_arbiter
+bugs:
+- id: B1
+  file: bugs/B1.v
+  desc: 'priority never rotates (fixed priority): starvation'
+  class: state-update
+- id: B2
+  file: bugs/B2.v
+  desc: grants the last granted requester even when it is not requesting
+  class: masking
+- id: B3
+  file: bugs/B3.v
+  desc: priority pointer advances by one position instead of to the granted requester (other reading of R-PRI-2)
+  class: spec-ambiguity-choice
+- id: B4
+  file: bugs/B4.v
+  desc: double grant when requester 0 wins while requester N-1 is also requesting
+  class: mutual-exclusion
+- id: B5
+  file: bugs/B5.v
+  desc: grant not masked during the first reset cycle
+  class: reset
+- id: B6
+  file: bugs/B6.v
+  desc: 'the most recently granted requester is never considered: lone repeated requester is never granted again'
+  class: work-conservation
+- id: B7
+  file: bugs/B7.v
+  desc: after reset requester 1 (not 0) has the highest priority
+  class: reset

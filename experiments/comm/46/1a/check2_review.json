@@ -1,0 +1,363 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 46,
+    "checked": 46,
+    "seconds": 0.27
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "fib4(4)",
+      "args": [
+       4
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": []
+     },
+     "outcome": {
+      "call": "fib4(4)",
+      "args": [
+       4
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": []
+     }
+    },
+    "checked": 5
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 254,
+    "checked": 254,
+    "seconds": 29.06
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "fib4(4)",
+      "args": [
+       4
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "0",
+       "2"
+      ],
+      "ending": false,
+      "declared": []
+     },
+     "outcome": {
+      "call": "fib4(4)",
+      "args": [
+       4
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": []
+     }
+    },
+    "checked": 5
+   }
+  }
+ },
+ "readings": {
+  "R-NF-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-BASE-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FUN-1": {
+   "plain": "A-STRONGER",
+   "context": "A-STRONGER",
+   "witness": [
+    "fib4(8) -> returned something else"
+   ]
+  },
+  "R-REC-1": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": [
+    "fib4(4) -> 0"
+   ]
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [
+    "RB-EX-1"
+   ],
+   "blocked": [],
+   "undecided": [
+    "RB-EX-2",
+    "RB-EX-3"
+   ]
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IF-1",
+   "phrase": "n: int",
+   "taken": 1,
+   "variant": 2,
+   "text": "n is a non-negative index into the sequence (the sequence starts at fib4(0)); a negative n is never passed."
+  },
+  {
+   "req": "R-REC-1",
+   "phrase": "+/-",
+   "taken": 4,
+   "variant": 1,
+   "text": "Every '+/-' is '+': fib4(n) = fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4), as 'similar to the Fibonacci sequence' suggests (0, 0, 2, 0, 2, 4, 8, 14, ...)."
+  },
+  {
+   "req": "R-REC-1",
+   "phrase": "fib4(n) -> fib4(n-1) +/- fib4(n-2) +/- fib4(n-3) +/- fib4(n-4)",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradiction with the examples fib4(5) = 2, fib4(6) = 4, fib4(7) = 6: the examples are right and the definition is wrong as stated. The examples fit the all-'+' recurrence only if fib4(4) = 0, which no choice of signs gives from the base values."
+  },
+  {
+   "req": "R-FUN-1",
+   "phrase": "n-th element",
+   "taken": 1,
+   "variant": 2,
+   "text": "The n-th element counting from 1: fib4(n) returns the value the definition gives for index n-1 (with all '+' this matches fib4(5) = 2 and fib4(6) = 4 but not fib4(7) = 6, and leaves fib4(0) undefined)."
+  },
+  {
+   "req": "R-NF-1",
+   "phrase": "efficiently",
+   "taken": 4,
+   "variant": 1,
+   "text": "In time linear in n with constant extra memory (an iterative loop that keeps the last four elements)."
+  },
+  {
+   "req": "R-NF-2",
+   "phrase": "recursion",
+   "taken": 2,
+   "variant": 1,
+   "text": "fib4 must not call itself, directly or through other functions; a recursive helper that does not call fib4 is allowed."
+  }
+ ],
+ "depends": {
+  "R-FUN-1": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "fib4(2) -> 2"
+   ]
+  },
+  "R-REC-1": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "fib4(8) -> 14"
+   ]
+  }
+ },
+ "certified": [
+  "R-BASE-1",
+  "R-BASE-2",
+  "R-BASE-3",
+  "R-BASE-4"
+ ],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "fib4(4)"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "0",
+      "1"
+     ],
+     "ending": false,
+     "declared": [],
+     "reqs": []
+    },
+    "outcome": {
+     "reading": "agent_a",
+     "shown": [
+      "returned",
+      "returned something else"
+     ],
+     "ending": true,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "result, outcome",
+   "reqs": [],
+   "question": "the request allows `result` to be 0 or 1 and lets this call end in two ways, \"returned\" or \"returned something else\": which is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-1 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-FUN-1",
+    "R-REC-1"
+   ],
+   "calls": [
+    "fib4(2) -> 2"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-FUN-1"
+   ],
+   "relation": "A-STRONGER",
+   "calls": [
+    "fib4(8) -> returned something else"
+   ],
+   "question": "the two readings of this requirement disagree on these calls: which is meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-REC-1"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [
+    "fib4(4) -> 0"
+   ],
+   "question": "the two readings of this requirement disagree on these calls: which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-REC-1"
+   ],
+   "calls": [],
+   "question": "\"+/-\" can mean: Every '+/-' is '+': fib4(n) = fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4), as 'similar to the Fibonacci sequence' suggests (0, 0, 2, 0, 2, 4, 8, 14, ...). / The signs alternate: fib4(n) = fib4(n-1) - fib4(n-2) + fib4(n-3) - fib4(n-4) (0, 0, 2, 0, -2, 0, 0, -2, ...; some elements are negative). / Each '+/-' is a fixed sign, + or -, that the prompt leaves to the implementation; any one fixed combination of the three signs is acceptable. / Each '+/-' may be + or - independently for every n; any value obtained by some choice of signs is acceptable.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-REC-1"
+   ],
+   "calls": [],
+   "question": "\"fib4(n) -> fib4(n-1) +/- fib4(n-2) +/- fib4(n-3) +/- fib4(n-4)\" can mean: Contradiction with the examples fib4(5) = 2, fib4(6) = 4, fib4(7) = 6: the base values and this recurrence define the sequence and the examples are wrong. From the base values the recurrence gives fib4(4) = 2 or -2 and fib4(5) = -4, 0 or 4 under every choice of signs, never 2; with all '+' it gives fib4(5) = 4, fib4(6) = 8, fib4(7) = 14. / Contradiction with the examples fib4(5) = 2, fib4(6) = 4, fib4(7) = 6: the examples are right and the definition is wrong as stated. The examples fit the all-'+' recurrence only if fib4(4) = 0, which no choice of signs gives from the base values.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FUN-1"
+   ],
+   "calls": [],
+   "question": "\"n-th element\" can mean: The element with index n, counting fib4(0) as element 0: fib4(n) returns the value the definition gives for fib4(n). / The n-th element counting from 1: fib4(n) returns the value the definition gives for index n-1 (with all '+' this matches fib4(5) = 2 and fib4(6) = 4 but not fib4(7) = 6, and leaves fib4(0) undefined).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\">>> fib4(5)\" can mean: Contradiction with the recurrence and base values: fib4(5) must return 2 as the example shows, although the base values and the recurrence give -4, 0 or 4 under every choice of signs (4 with all '+'). / Contradiction with the recurrence and base values: the example is wrong, and fib4(5) returns the value the base values and the recurrence give, not 2.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\">>> fib4(6)\" can mean: Contradiction with the recurrence and base values: fib4(6) must return 4 as the example shows, although the recurrence gives 8 with all '+' and 0 with alternating signs, and no fixed choice of signs gives both fib4(6) = 4 and fib4(7) = 6. / Contradiction with the recurrence and base values: the example is wrong, and fib4(6) returns the value the base values and the recurrence give.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\">>> fib4(7)\" can mean: Contradiction with the recurrence and base values: fib4(7) must return 6 as the example shows, although the recurrence gives 14 with all '+' and -2 with alternating signs; the only fixed signs that give 6 (fib4(n-1) - fib4(n-2) - fib4(n-3) + fib4(n-4)) give fib4(5) = -4 and fib4(6) = 0. / Contradiction with the recurrence and base values: the example is wrong, and fib4(7) returns the value the base values and the recurrence give.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the scenarios of agent_b: RB-EX-2, RB-EX-3",
+  "the comparison of agent_a and agent_b"
+ ]
+}

@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\nimport re\n\n_DATE_PATTERN = re.compile(r\"([0-9]{2})-([0-9]{2})-([0-9]{4})\")\n\n_MONTHS_WITH_31_DAYS = {1, 3, 5, 7, 8, 10, 12}\n_MONTHS_WITH_30_DAYS = {4, 6, 9, 11}\n_FEBRUARY = 2\n\n\ndef valid_date(date):\n    \"\"\"Validate a date string and return True if it is valid, otherwise False.\n\n    Rule 4 lists both \"dd-mm-yyyy\" and \"mm-dd-yyyy\", which contradict each\n    other. The examples settle it: '15-01-2012' is invalid, which only holds\n    if the first field is the month. So the format used here is mm-dd-yyyy,\n    with '-' as the separator and zero-padded numeric fields.\n\n    Rules enforced:\n      1. The string is not empty.\n      2. Days are 1-31 for months 1,3,5,7,8,10,12; 1-30 for months 4,6,9,11;\n         and 1-29 for month 2. Leap years are not checked, per the spec.\n      3. Months are 1-12.\n      4. The format is mm-dd-yyyy.\n    \"\"\"\n    if not isinstance(date, str):\n        return False\n\n    date = date.strip()\n    if not date:\n        return False\n\n    match = _DATE_PATTERN.fullmatch(date)\n    if match is None:\n        return False\n\n    month, day, _year = (int(part) for part in match.groups())\n\n    if month in _MONTHS_WITH_31_DAYS:\n        max_day = 31\n    elif month in _MONTHS_WITH_30_DAYS:\n        max_day = 30\n    elif month == _FEBRUARY:\n        max_day = 29\n    else:\n        return False  # Month is outside 1-12.\n\n    return 1 <= day <= max_day\n```",
+  "seconds": 16.0,
+  "cost_usd": 0.04003280000000001,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "The spec contradicts its own examples, so I need clarification before solving:\n\n1. **Which format is valid?** The spec allows both `dd-mm-yyyy` and `mm-dd-yyyy`, but `valid_date('15-01-2012')` returns `False`. That string is a valid `dd-mm-yyyy` date (15 January 2012). Should only `mm-dd-yyyy` be accepted, so the first field is always the month?\n\n2. **If both formats are allowed, how should ambiguous strings be handled?** For example, `'03-11-2000'` reads as either March 11 or November 3. Is it valid if either reading is valid?\n\n3. **Must fields have exact digit counts?** Should the month and day be exactly two digits and the year exactly four? Would `'4-5-2020'`, `'04-5-2020'` or `'04-05-20'` be valid? For `'04-0-2040'`, is it rejected because the day/month is 0 or because the field has only one digit?\n\n4. **How strict is the format otherwise?** Should leading/trailing whitespace, non-numeric characters, or extra or missing `-` separators return `False`, not raise an error?\n\n5. **Are leap years checked?** Is February 29 valid for any year (such as `'02-29-2021'`), or only for leap years?",
+  "seconds": 10.1,
+  "cost_usd": 0.020988,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "The examples show the format is effectively `mm-dd-yyyy`: `'15-01-2012'` is invalid because 15 isn't a valid month, and `'04-0-2040'` is invalid because day 0 is out of range.\n\n```python\ndef valid_date(date):\n    \"\"\"You have to write a function which validates a given date string and\n    returns True if the date is valid otherwise False.\n    The date is valid if all of the following rules are satisfied:\n    1. The date string is not empty.\n    2. The number of days is not less than 1 or higher than 31 days for months 1,3,5,7,8,10,12. And the number of days is not less than 1 or higher than 30 days for months 4,6,9,11. And, the number of days is not less than 1 or higher than 29 for the month 2.\n    3. The months should not be less than 1 or higher than 12.\n    4. The date should be in the format: dd-mm-yyyy or mm-dd-yyyy\n\n    for example: \n    valid_date('03-11-2000') => True\n\n    valid_date('15-01-2012') => False\n\n    valid_date('04-0-2040') => False\n\n    valid_date('06-04-2020') => True\n\n    valid_date('06/04/2020') => False\n    \"\"\"\n    if not isinstance(date, str):\n        return False\n\n    date = date.strip()\n    if not date:\n        return False\n\n    parts = date.split('-')\n    if len(parts) != 3:\n        return False\n\n    month_str, day_str, year_str = parts\n    if not (month_str.isdigit() and day_str.isdigit() and year_str.isdigit()):\n        return False\n\n    month, day = int(month_str), int(day_str)\n\n    if month < 1 or month > 12:\n        return False\n\n    if month in (1, 3, 5, 7, 8, 10, 12):\n        max_day = 31\n    elif month in (4, 6, 9, 11):\n        max_day = 30\n    else:  # February\n        max_day = 29\n\n    return 1 <= day <= max_day\n```\n\nHow it works:\n1. **Empty check:** Returns `False` for an empty or whitespace-only string.\n2. **Format check:** The string must split on `-` into exactly three parts, and each part must be all digits. This rejects `'06/04/2020'` and inputs like `'1-2'` or `'a-b-c'`.\n3. **Month check:** The first part is the month and must be between 1 and 12.\n4. **Day check:** The second part is the day, and it must fall within the limit for that month (31, 30, or 29 for February).\n\nResults for the examples:\n- `'03-11-2000'` \u2192 March 11 \u2192 `True`\n- `'15-01-2012'` \u2192 month 15 \u2192 `False`\n- `'04-0-2040'` \u2192 day 0 \u2192 `False`\n- `'06-04-2020'` \u2192 June 4 \u2192 `True`\n- `'06/04/2020'` \u2192 wrong separator \u2192 `False`",
+  "seconds": 8.6,
+  "cost_usd": 0.028240500000000005,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

@@ -1,0 +1,158 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-IN-1 (readings 2 and 2): the caller passes a non-empty string; characters
+  # other than '(' and ')' are not excluded but ignored when judging the bracketing.
+  valid: 'len(brackets) > 0'
+  nopen: 'count(i < len(brackets): brackets[i] == "(")'
+  nclose: 'count(i < len(brackets): brackets[i] == ")")'
+  # R-DEF-1 (readings 2 and 2): equal numbers of '(' and ')', in any order, and at
+  # least one bracket (the empty bracket string is not correctly bracketed).
+  correct: 'nopen == nclose && nopen + nclose > 0'
+
+assumptions:
+  - id: RV-IN-1
+    req: R-IN-1
+    expr: 'valid'
+    note: >-
+      Readings taken as instructed by the requester, not the most natural ones.
+      'a string of "(" and ")"' (reading 2): every character is '(' or ')' and the
+      string is non-empty. 'brackets is a string of "(" and ")"' (reading 2):
+      characters other than '(' and ')' are ignored when judging the bracketing,
+      so they are not a caller obligation and arguments containing them stay in
+      the contract. Combined, the only obligation left on the caller is that the
+      argument string is non-empty (len(brackets) > 0, counting every character).
+      The empty string is the only argument outside the contract.
+
+properties:
+  - id: RV-RET-1a
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'valid', cond: 'outcome != 1'}
+    note: >-
+      Reading of 'False' taken as instructed by the requester (reading 2, not the
+      most natural one): the function may return any value whose truthiness gives
+      the answer (e.g. 0/1), not only a bool. So for an argument allowed by R-IN-1
+      (non-empty, as instructed for R-IN-1) the call must return some value
+      (outcome 0, a bool, or outcome 2, anything else) and must not raise or fail
+      to finish. The truthiness of a non-bool returned value is not visible on the
+      interface and is not constrained here.
+  - id: RV-RET-1b
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'valid', cond: 'outcome == 2'}
+    note: >-
+      Reading of 'correct_bracketing' taken as instructed by the requester
+      (reading 2, not the most natural one): 'correct' is a verb, the function
+      corrects the bracketing and returns a fixed string. A string is not a bool,
+      so every call with an argument allowed by R-IN-1 (non-empty, as instructed
+      for R-IN-1) ends with outcome 2; the contents of the returned string are not
+      on the interface. As the reading itself states, this contradicts the example
+      R-EX-1 (RV-EX-1, RV-EX-1-S), which returns False on "(", an argument inside
+      the contract; the contradiction is kept, not repaired.
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'brackets == "("', cond: 'outcome == 0 && !result'}
+    note: >-
+      The doctest call correct_bracketing("(") returns the bool False (outcome 0,
+      result 0); a doctest printing False is not met by 0, so the truthiness
+      reading taken for R-RET-1 is not applied here. Readings taken as instructed
+      by the requester (not the most natural ones): 'correct_bracketing("(")'
+      (reading 2) says "(" lies outside the input contract under the reading of
+      R-IN-1 that the string holds both '(' and ')'; this set took the non-empty
+      reading of R-IN-1 instead, so "(" satisfies RV-IN-1 and the contradiction
+      with R-IN-1 the reading describes does not arise here. The example is stated
+      without a guard on the contract. 'False' (reading 2): under the verb reading
+      of correct_bracketing a bool answer contradicts R-RET-1; this property
+      conflicts with RV-RET-1b on "(" and the conflict is left in place.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'brackets == "(" && outcome == 0 && !result'
+    note: >-
+      The example call correct_bracketing("(") returning False must be possible.
+      Readings taken as instructed by the requester (not the most natural ones):
+      'correct_bracketing("(")' reading 2 ("(" is outside the contract only under
+      the 'both' reading of R-IN-1, which this set did not take, so the call is
+      allowed by RV-IN-1) and 'False' reading 2 (a bool answer contradicts R-RET-1
+      under the verb reading). With RV-RET-1b this scenario is unreachable; the
+      contradiction is reported, not repaired.
+
+dont_cares:
+  - id: RV-RES-1
+    req: R-RES-1
+    signal: result
+    when: 'valid && correct && brackets != "("'
+    note: >-
+      Reading taken as instructed by the requester (reading 2, not the most
+      natural one): the function's meaning is fixed only by the example, and any
+      answer is acceptable on other arguments. So on correctly bracketed arguments
+      allowed by R-IN-1 the returned value is free (the example "(" is excluded,
+      although it is not correctly bracketed anyway). 'correctly bracketed' uses
+      the readings instructed for R-DEF-1 (equal numbers of '(' and ')' in any
+      order, so ")(" is correct; the empty bracket string is not correct) and for
+      R-IN-1 (non-empty argument; characters other than '(' and ')' ignored when
+      counting). How the call ends is governed by R-RET-1, not by this item.
+  - id: RV-RES-2
+    req: R-RES-2
+    signal: result
+    when: 'valid && !correct && brackets != "("'
+    note: >-
+      Reading taken as instructed by the requester (reading 2, not the most
+      natural one): the function's meaning is fixed only by the example, and any
+      answer is acceptable on other arguments. So on arguments allowed by R-IN-1
+      that are not correctly bracketed the returned value is free, except on the
+      example "(" whose answer RV-EX-1 fixes to False. 'correctly bracketed' uses
+      the readings instructed for R-DEF-1 (equal counts in any order; the empty
+      bracket string is not correct, so e.g. "ab" is not correct) and for R-IN-1
+      (non-empty argument; other characters ignored when counting). How the call
+      ends is governed by R-RET-1, not by this item.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional statement about the deliverable, not a property of calls.
+      Reading taken as instructed by the requester (reading 2, not the most
+      natural one): any implementation with the same name and parameter is
+      acceptable, even if the signature (e.g. a return annotation) or docstring
+      is changed. Name and parameter are fixed by the function section of
+      design.yaml.
+  - req: R-IF-1
+    reason: >-
+      Interface definition (name correct_bracketing, one parameter brackets of
+      type str), realized by the function section of design.yaml that drives the
+      brackets signal; not a property of the trace. Under the reading instructed
+      for R-TASK-1 the annotations may change as long as name and parameter stay.
+  - req: R-DEF-1
+    covered_by: [RV-RES-1, RV-RES-2]
+    reason: >-
+      Definition, captured as the def 'correct' used by the R-RES items. Readings
+      taken as instructed by the requester (not the most natural ones):
+      'correct_bracketing' reading 2 (equal numbers of '(' and ')' regardless of
+      order, ")(" is correct) and 'correct_bracketing(brackets: str)' reading 2
+      (the empty string is not correctly bracketed; with the R-IN-1 reading that
+      other characters are ignored, a string with no brackets counts as empty).
+      Because R-RES-1 and R-RES-2 were read as leaving every answer but the
+      example's free, this definition does not change any guarantee.
+  - req: R-FR-1
+    covered_by: [F-ZERO]
+    reason: >-
+      Frame rule of the function adapter (F-ZERO in design.yaml), part of every
+      formalization set by construction; not restated.
+
+decisions:
+  - {req: R-TASK-1, phrase: 'Complete this function', reading: 2}
+  - {req: R-IN-1, phrase: 'a string of "(" and ")"', reading: 2}
+  - {req: R-IN-1, phrase: 'brackets is a string of "(" and ")"', reading: 2}
+  - {req: R-RET-1, phrase: 'False', reading: 2}
+  - {req: R-RET-1, phrase: 'correct_bracketing', reading: 2}
+  - {req: R-DEF-1, phrase: 'correct_bracketing', reading: 2}
+  - {req: R-DEF-1, phrase: 'correct_bracketing(brackets: str)', reading: 2}
+  - {req: R-RES-1, phrase: 'correct_bracketing', reading: 2}
+  - {req: R-RES-2, phrase: 'correct_bracketing', reading: 2}
+  - {req: R-EX-1, phrase: 'correct_bracketing("(")', reading: 2}
+  - {req: R-EX-1, phrase: 'False', reading: 2}

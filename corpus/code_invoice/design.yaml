@@ -1,0 +1,40 @@
+fcp: '0.1'
+design: code_invoice
+summary: A Python function of records treated as a chip without memory. Each cycle is one call of invoice(items, member); the list of item dicts is carried as three sequence signals of one length (price, qty, sale), member as a bit, and the returned dict as one signal per key, with the way the call ended. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt P-INVOICE-1: Fernwood Outfitters invoice lines'}
+- {id: FRAME, path: frame.md, title: 'FCP records adapter, version 0.6'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: price, dir: in, width: 12, length: 5, group: items, desc: 'the price of every item, in cents, 0 to 4,095'}
+  - {name: qty, dir: in, width: 4, length: 5, group: items, desc: 'the qty of every item, 0 to 15'}
+  - {name: sale, dir: in, width: 1, length: 5, group: items, desc: 'the sale flag of every item (1: True)'}
+  - {name: member, dir: in, width: 1, desc: 'the member argument'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a dict of the declared form, 1 raised ValueError, 2 other exception or no answer, 3 returned anything else'}
+  - {name: lines, dir: out, width: 16, length: 5, desc: 'lines of the returned dict (outcome 0)'}
+  - {name: discount, dir: out, width: 16, desc: 'discount of the returned dict (outcome 0)'}
+  - {name: total, dir: out, width: 19, desc: 'total of the returned dict (outcome 0)'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> len(lines) == 0 && discount == 0 && total == 0'}
+function:
+  name: invoice
+  args:
+  - name: items
+    type: records
+    fields:
+    - {key: price, signal: price}
+    - {key: qty, signal: qty}
+    - {key: sale, signal: sale, type: bool}
+  - {name: member, signal: member, type: bool}
+  returns:
+    type: record
+    fields:
+    - {key: lines, signal: lines, type: list}
+    - {key: discount, signal: discount}
+    - {key: total, signal: total}
+  outcome: {signal: outcome, raises: [ValueError]}

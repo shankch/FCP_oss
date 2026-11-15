@@ -1,0 +1,339 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 0,
+    "checked": 0
+   },
+   "open": {
+    "open": {},
+    "checked": 0
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 0,
+    "checked": 0
+   },
+   "open": {
+    "open": {},
+    "checked": 0
+   }
+  }
+ },
+ "readings": {
+  "R-RET-1": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": [
+   {
+    "reading": "agent_a",
+    "id": "RA-RET-3",
+    "req": "R-RET-1",
+    "says": "`result` is free when `p == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-RET-4",
+    "req": "R-RET-1",
+    "says": "`outcome` is free when `p == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-RET-1-P0-OUT",
+    "req": "R-RET-1",
+    "says": "`outcome` is free when `p == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-RET-1-P0-RES",
+    "req": "R-RET-1",
+    "says": "`result` is free when `p == 0`",
+    "where": {}
+   }
+  ]
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": [
+    "RA-EX-1",
+    "RA-EX-2",
+    "RA-EX-3",
+    "RA-EX-4",
+    "RA-EX-5"
+   ]
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": [
+    "RB-EX-1",
+    "RB-EX-2",
+    "RB-EX-3",
+    "RB-EX-4",
+    "RB-EX-5"
+   ]
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-RET-1",
+   "phrase": "2^n",
+   "taken": 1,
+   "variant": 2,
+   "text": "the Python expression 2 ^ n, i.e. bitwise XOR of 2 and n"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "modulo p",
+   "taken": 1,
+   "variant": 2,
+   "text": "for p = 0 the call fails with an exception, as Python's 2 ** n % 0 raises ZeroDivisionError"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "Return 2^n modulo p",
+   "taken": 1,
+   "variant": 2,
+   "text": "the docstring examples govern: modp(3, 5) is 5, modp(1101, 101) is 101, modp(0, 101) is 101, modp(3, 11) is 11 and modp(100, 101) is 101, so the formula does not describe the intended result (at least on those calls)"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": ">>> modp(3, 5) 5",
+   "taken": 1,
+   "variant": 2,
+   "text": "the example is erroneous and R-RET-1 governs: modp(3, 5) returns 3"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": ">>> modp(1101, 101) 101",
+   "taken": 1,
+   "variant": 2,
+   "text": "the example is erroneous and R-RET-1 governs: modp(1101, 101) returns 2"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": ">>> modp(0, 101) 101",
+   "taken": 1,
+   "variant": 2,
+   "text": "the example is erroneous and R-RET-1 governs: modp(0, 101) returns 1"
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": ">>> modp(3, 11) 11",
+   "taken": 1,
+   "variant": 2,
+   "text": "the example is erroneous and R-RET-1 governs: modp(3, 11) returns 8"
+  },
+  {
+   "req": "R-EX-5",
+   "phrase": ">>> modp(100, 101) 101",
+   "taken": 1,
+   "variant": 2,
+   "text": "the example is erroneous and R-RET-1 governs: modp(100, 101) returns 1"
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": null
+  }
+ },
+ "steps": [
+  {
+   "step": "the scenarios of agent_a",
+   "seconds": 362.6,
+   "peak_gb": 2.22
+  },
+  {
+   "step": "the conflicts of agent_a",
+   "seconds": 300.1,
+   "failed": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "peak_gb": 1.18
+  },
+  {
+   "step": "the open choices of agent_a",
+   "seconds": 0.0,
+   "failed": "the translation of the monitors for the solver (yosys) did not end in 300 s"
+  },
+  {
+   "step": "the scenarios of agent_b",
+   "seconds": 362.6,
+   "peak_gb": 2.49
+  },
+  {
+   "step": "the conflicts of agent_b",
+   "seconds": 300.1,
+   "failed": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "peak_gb": 1.08
+  },
+  {
+   "step": "the open choices of agent_b",
+   "seconds": 0.0,
+   "failed": "the translation of the monitors for the solver (yosys) did not end in 300 s"
+  },
+  {
+   "step": "the comparison of agent_a and agent_b",
+   "seconds": 300.1,
+   "peak_gb": 1.21
+  },
+  {
+   "step": "the comparison of agent_a and agent_b, in context",
+   "seconds": 0.0
+  },
+  {
+   "step": "the comparison of agent_a and variant",
+   "seconds": 300.1,
+   "peak_gb": 1.21
+  },
+  {
+   "step": "the comparison of agent_b and variant",
+   "seconds": 300.1,
+   "peak_gb": 1.1
+  }
+ ],
+ "failed": [
+  {
+   "step": "the conflicts of agent_a",
+   "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the open choices of agent_a",
+   "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the conflicts of agent_b",
+   "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "rests": "all",
+   "reading": null
+  },
+  {
+   "step": "the open choices of agent_b",
+   "why": "the translation of the monitors for the solver (yosys) did not end in 300 s",
+   "rests": "all",
+   "reading": null
+  }
+ ],
+ "limits": [
+  "the scenarios of agent_a: RA-EX-1, RA-EX-2, RA-EX-3, RA-EX-4, RA-EX-5",
+  "the scenarios of agent_b: RB-EX-1, RB-EX-2, RB-EX-3, RB-EX-4, RB-EX-5",
+  "the comparison of agent_a and agent_b: the translation of the monitors for the solver (yosys) did not end in 300 s; what the integer encoding left open stays undecided",
+  "the comparison of agent_a and agent_b",
+  "the comparison of agent_a and variant: the translation of the monitors for the solver (yosys) did not end in 300 s; what the integer encoding left open stays undecided",
+  "the comparison of agent_a and variant",
+  "the comparison of agent_b and variant: the translation of the monitors for the solver (yosys) did not end in 300 s; what the integer encoding left open stays undecided",
+  "the comparison of agent_b and variant"
+ ],
+ "certified": [],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement were not shown to agree, and no call that separates them was found: do they mean the same?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"2^n\" can mean: 2 raised to the power n (Python 2 ** n) / the Python expression 2 ^ n, i.e. bitwise XOR of 2 and n. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"modulo p\" can mean: p = 0 is outside the intended domain; the result for p = 0 is unconstrained (don't care) / for p = 0 the call fails with an exception, as Python's 2 ** n % 0 raises ZeroDivisionError / for p = 0 the call returns some integer (for example 2 ** n unreduced, or 0). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"Return 2^n modulo p\" can mean: the formula governs: the result is (2 ** n) % p, which is always below p and therefore contradicts every docstring example (each shows the result p) / the docstring examples govern: modp(3, 5) is 5, modp(1101, 101) is 101, modp(0, 101) is 101, modp(3, 11) is 11 and modp(100, 101) is 101, so the formula does not describe the intended result (at least on those calls). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\">>> modp(3, 5) 5\" can mean: the example is authoritative: modp(3, 5) returns 5 (contradicts R-RET-1, since 2^3 modulo 5 is 3) / the example is erroneous and R-RET-1 governs: modp(3, 5) returns 3. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\">>> modp(1101, 101) 101\" can mean: the example is authoritative: modp(1101, 101) returns 101 (contradicts R-RET-1, since 2^1101 modulo 101 is 2) / the example is erroneous and R-RET-1 governs: modp(1101, 101) returns 2. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\">>> modp(0, 101) 101\" can mean: the example is authoritative: modp(0, 101) returns 101 (contradicts R-RET-1, since 2^0 modulo 101 is 1) / the example is erroneous and R-RET-1 governs: modp(0, 101) returns 1. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\">>> modp(3, 11) 11\" can mean: the example is authoritative: modp(3, 11) returns 11 (contradicts R-RET-1, since 2^3 modulo 11 is 8) / the example is erroneous and R-RET-1 governs: modp(3, 11) returns 8. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-5"
+   ],
+   "calls": [],
+   "question": "\">>> modp(100, 101) 101\" can mean: the example is authoritative: modp(100, 101) returns 101 (contradicts R-RET-1, since 2^100 modulo 101 is 1) / the example is erroneous and R-RET-1 governs: modp(100, 101) returns 1. Which is meant?"
+  }
+ ],
+ "trace": "check_errors.txt"
+}

@@ -1,0 +1,112 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-FLY-2: q[i] equals q[len(q) - 1 - i] at every position; [] is balanced (vacuous all).
+  balanced: 'all(i < len(q): q[i] == q[len(q) - 1 - i])'
+  # R-FLY-3: the sum of the elements of q (0 for []).
+  total: 'sum(i < len(q): q[i])'
+  # R-FLY-3, literal reading: "more than or less than or equal" w.
+  weight_ok: 'total > w || total <= w'
+  # R-FLY-1: q will fly exactly when it is balanced and meets the weight condition.
+  flies: 'balanced && weight_ok'
+  ex1: 'q == [1, 2] && w == 5'
+  ex3: 'q == [3, 2, 3] && w == 9'
+  ex4: 'q == [3] && w == 5'
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'flies', cond: 'outcome == 0 && fly'}
+    note: >-
+      "returns True" is read as: the call returns a bool (outcome 0) and that bool is
+      True. flies follows R-FLY-1 read as a definition (iff), R-FLY-2 with [] balanced and
+      R-FLY-3 read literally ("more than or less than or equal" w holds for every sum),
+      so flies reduces to balanced. This contradicts the example R-EX-2
+      (will_it_fly([3, 2, 3], 1) -> False), which this set does not formalize.
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: '!flies', cond: 'outcome == 0 && !fly'}
+    note: >-
+      "False otherwise" is read as: whenever q does not fly the call returns the bool
+      False (outcome 0). With the literal weight condition, !flies reduces to !balanced.
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'ex1', cond: 'outcome == 0 && !fly'}
+    note: The example's expected value is a guarantee on that call; consistent with RA-RET-2 ([1, 2] is not balanced).
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'ex3', cond: 'outcome == 0 && fly'}
+    note: The example's expected value is a guarantee on that call; consistent with RA-RET-1.
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'ex4', cond: 'outcome == 0 && fly'}
+    note: The example's expected value is a guarantee on that call; consistent with RA-RET-1.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: 'ex1 && outcome == 0 && !fly'
+    note: The example call returning False must be possible.
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: 'ex3 && outcome == 0 && fly'
+    note: The example call returning True must be possible.
+  - id: RA-EX-4-S
+    req: R-EX-4
+    cover: 'ex4 && outcome == 0 && fly'
+    note: The example call returning True must be possible.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function name and its two arguments are fixed by the function
+      section of design.yaml (will_it_fly(q, w), q -> signal q, w -> signal w); there is no
+      trace property to state.
+  - req: R-FLY-1
+    reason: >-
+      Definition of "will fly", realized by the def flies = balanced && weight_ok used in
+      RA-RET-1 and RA-RET-2. "will fly if" is read as the definition (if and only if):
+      reading 2 (sufficient only) would leave "will not fly" undefined, so "False otherwise"
+      (R-RET-2) could never apply, and example R-EX-1 shows an unbalanced q does not fly.
+    covered_by: [RA-RET-1, RA-RET-2]
+  - req: R-FLY-2
+    reason: >-
+      Definition of "balanced", realized by the def balanced (q[i] == q[len(q) - 1 - i] at
+      every position) used in RA-RET-1 and RA-RET-2. The empty list equals its own reverse,
+      so [] is balanced (the quantifier over no positions is true).
+    covered_by: [RA-RET-1, RA-RET-2]
+  - req: R-FLY-3
+    reason: >-
+      Definition of the weight condition, realized by the def weight_ok used (through flies)
+      in RA-RET-1 and RA-RET-2. Taken literally, "the sum of its elements is more than or
+      less than or equal the maximum possible weight w" is total > w || total <= w, which
+      holds for every sum, so the weight condition never matters. The text is not repaired
+      to total <= w, although "maximum possible weight" and the examples R-EX-2 to R-EX-4
+      suggest that was intended; the rule therefore governs over example R-EX-2.
+    covered_by: [RA-RET-1, RA-RET-2]
+  - req: R-EX-2
+    reason: >-
+      Contradicts the rule R-FLY-3 read literally. [3, 2, 3] is balanced and, under the
+      literal weight condition, every sum meets it, so the rule says will_it_fly([3, 2, 3], 1)
+      returns True (required by RA-RET-1), while the example says False and its comment
+      reads "more than the maximum possible weight" as failing. This set lets the rule govern,
+      so the example's expected False is not formalized. Formalizing it as well would make
+      the set unsatisfiable on that call. If the example governed instead, the weight
+      condition would be total <= w (reading 1 of R-FLY-3).
+  - req: R-FR-1
+    reason: Frame rule of the function adapter; it is part of every formalization set as F-ZERO (outcome != 0 -> !fly) and is not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FLY-1, phrase: "will fly if", reading: 1}
+  - {req: R-FLY-2, phrase: "palindromic list", reading: 1}
+  - {req: R-FLY-3, phrase: "more than or less than or equal", reading: 3}
+  - {req: R-FLY-3, phrase: "the sum of its elements is more than", reading: 2}
+  - {req: R-EX-2, phrase: "3+2+3 is more than the maximum possible weight", reading: 2}

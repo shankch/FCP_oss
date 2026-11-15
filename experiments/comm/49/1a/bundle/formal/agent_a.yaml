@@ -1,0 +1,252 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# Reading taken throughout (see decisions): the docstring's n is the first
+# argument x and its p is the second argument y, as the five examples show.
+defs:
+  # 2^x as an exact integer (FCP-PL arithmetic is exact, no overflow).
+  p2: "1 << x"
+  # 2^x modulo y, the least non-negative residue, for y = 1 .. 127. FCP-PL's %
+  # only takes a constant divisor, so the residue is tabulated per value of y.
+  # The final 0 is never used: every item reading `want` requires y != 0.
+  want: >-
+    y == 1 ? p2 % 1 :
+    y == 2 ? p2 % 2 :
+    y == 3 ? p2 % 3 :
+    y == 4 ? p2 % 4 :
+    y == 5 ? p2 % 5 :
+    y == 6 ? p2 % 6 :
+    y == 7 ? p2 % 7 :
+    y == 8 ? p2 % 8 :
+    y == 9 ? p2 % 9 :
+    y == 10 ? p2 % 10 :
+    y == 11 ? p2 % 11 :
+    y == 12 ? p2 % 12 :
+    y == 13 ? p2 % 13 :
+    y == 14 ? p2 % 14 :
+    y == 15 ? p2 % 15 :
+    y == 16 ? p2 % 16 :
+    y == 17 ? p2 % 17 :
+    y == 18 ? p2 % 18 :
+    y == 19 ? p2 % 19 :
+    y == 20 ? p2 % 20 :
+    y == 21 ? p2 % 21 :
+    y == 22 ? p2 % 22 :
+    y == 23 ? p2 % 23 :
+    y == 24 ? p2 % 24 :
+    y == 25 ? p2 % 25 :
+    y == 26 ? p2 % 26 :
+    y == 27 ? p2 % 27 :
+    y == 28 ? p2 % 28 :
+    y == 29 ? p2 % 29 :
+    y == 30 ? p2 % 30 :
+    y == 31 ? p2 % 31 :
+    y == 32 ? p2 % 32 :
+    y == 33 ? p2 % 33 :
+    y == 34 ? p2 % 34 :
+    y == 35 ? p2 % 35 :
+    y == 36 ? p2 % 36 :
+    y == 37 ? p2 % 37 :
+    y == 38 ? p2 % 38 :
+    y == 39 ? p2 % 39 :
+    y == 40 ? p2 % 40 :
+    y == 41 ? p2 % 41 :
+    y == 42 ? p2 % 42 :
+    y == 43 ? p2 % 43 :
+    y == 44 ? p2 % 44 :
+    y == 45 ? p2 % 45 :
+    y == 46 ? p2 % 46 :
+    y == 47 ? p2 % 47 :
+    y == 48 ? p2 % 48 :
+    y == 49 ? p2 % 49 :
+    y == 50 ? p2 % 50 :
+    y == 51 ? p2 % 51 :
+    y == 52 ? p2 % 52 :
+    y == 53 ? p2 % 53 :
+    y == 54 ? p2 % 54 :
+    y == 55 ? p2 % 55 :
+    y == 56 ? p2 % 56 :
+    y == 57 ? p2 % 57 :
+    y == 58 ? p2 % 58 :
+    y == 59 ? p2 % 59 :
+    y == 60 ? p2 % 60 :
+    y == 61 ? p2 % 61 :
+    y == 62 ? p2 % 62 :
+    y == 63 ? p2 % 63 :
+    y == 64 ? p2 % 64 :
+    y == 65 ? p2 % 65 :
+    y == 66 ? p2 % 66 :
+    y == 67 ? p2 % 67 :
+    y == 68 ? p2 % 68 :
+    y == 69 ? p2 % 69 :
+    y == 70 ? p2 % 70 :
+    y == 71 ? p2 % 71 :
+    y == 72 ? p2 % 72 :
+    y == 73 ? p2 % 73 :
+    y == 74 ? p2 % 74 :
+    y == 75 ? p2 % 75 :
+    y == 76 ? p2 % 76 :
+    y == 77 ? p2 % 77 :
+    y == 78 ? p2 % 78 :
+    y == 79 ? p2 % 79 :
+    y == 80 ? p2 % 80 :
+    y == 81 ? p2 % 81 :
+    y == 82 ? p2 % 82 :
+    y == 83 ? p2 % 83 :
+    y == 84 ? p2 % 84 :
+    y == 85 ? p2 % 85 :
+    y == 86 ? p2 % 86 :
+    y == 87 ? p2 % 87 :
+    y == 88 ? p2 % 88 :
+    y == 89 ? p2 % 89 :
+    y == 90 ? p2 % 90 :
+    y == 91 ? p2 % 91 :
+    y == 92 ? p2 % 92 :
+    y == 93 ? p2 % 93 :
+    y == 94 ? p2 % 94 :
+    y == 95 ? p2 % 95 :
+    y == 96 ? p2 % 96 :
+    y == 97 ? p2 % 97 :
+    y == 98 ? p2 % 98 :
+    y == 99 ? p2 % 99 :
+    y == 100 ? p2 % 100 :
+    y == 101 ? p2 % 101 :
+    y == 102 ? p2 % 102 :
+    y == 103 ? p2 % 103 :
+    y == 104 ? p2 % 104 :
+    y == 105 ? p2 % 105 :
+    y == 106 ? p2 % 106 :
+    y == 107 ? p2 % 107 :
+    y == 108 ? p2 % 108 :
+    y == 109 ? p2 % 109 :
+    y == 110 ? p2 % 110 :
+    y == 111 ? p2 % 111 :
+    y == 112 ? p2 % 112 :
+    y == 113 ? p2 % 113 :
+    y == 114 ? p2 % 114 :
+    y == 115 ? p2 % 115 :
+    y == 116 ? p2 % 116 :
+    y == 117 ? p2 % 117 :
+    y == 118 ? p2 % 118 :
+    y == 119 ? p2 % 119 :
+    y == 120 ? p2 % 120 :
+    y == 121 ? p2 % 121 :
+    y == 122 ? p2 % 122 :
+    y == 123 ? p2 % 123 :
+    y == 124 ? p2 % 124 :
+    y == 125 ? p2 % 125 :
+    y == 126 ? p2 % 126 :
+    y == 127 ? p2 % 127 :
+    0
+
+properties:
+  - id: RA-MOD-1
+    req: R-MOD-1
+    pattern: implies
+    args: {trigger: "y != 0", cond: "outcome == 0"}
+    note: >-
+      "Return" read as returning a Python int (reading 1), so for every
+      positive modulus the call ends normally with an integer that fits
+      `result` (outcome 0). "p" read as any positive integer (reading 1),
+      not only primes, so every y in 1..127 is covered. y = 0 is left free
+      (RA-MOD-Z1, RA-MOD-Z2).
+  - id: RA-MOD-2
+    req: R-MOD-1
+    pattern: implies
+    args: {trigger: "y != 0", cond: "result == want"}
+    note: >-
+      For y in 1..127 the returned integer is 2^x mod y in 0..y-1: x is n,
+      y is p (reading 1), ^ is exponentiation (reading 1; the XOR reading
+      contradicts the examples, e.g. 2 XOR 3 = 1 but candidate(3, 5) is 3),
+      and "modulo p" is the least non-negative residue (reading 1), so
+      candidate(x, 1) returns 0. The residue is exact for every x up to
+      2047, which is also what R-NUM-1 asks.
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "x == 3 && y == 5", cond: "outcome == 0 && result == 3"}
+    note: >-
+      The docstring example states what the call returns, not only that it
+      may return it, so it is also stated as a property (implied by
+      RA-MOD-1 and RA-MOD-2). The scenario RA-EX-1C states that the call
+      is possible.
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "x == 1101 && y == 101", cond: "outcome == 0 && result == 2"}
+    note: Docstring example stated as a property; RA-EX-2C is its scenario.
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "x == 0 && y == 101", cond: "outcome == 0 && result == 1"}
+    note: Docstring example stated as a property; RA-EX-3C is its scenario.
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "x == 3 && y == 11", cond: "outcome == 0 && result == 8"}
+    note: Docstring example stated as a property; RA-EX-4C is its scenario.
+  - id: RA-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: "x == 100 && y == 101", cond: "outcome == 0 && result == 1"}
+    note: Docstring example stated as a property; RA-EX-5C is its scenario.
+
+scenarios:
+  - {id: RA-EX-1C, req: R-EX-1, cover: "x == 3 && y == 5 && outcome == 0 && result == 3"}
+  - {id: RA-EX-2C, req: R-EX-2, cover: "x == 1101 && y == 101 && outcome == 0 && result == 2"}
+  - {id: RA-EX-3C, req: R-EX-3, cover: "x == 0 && y == 101 && outcome == 0 && result == 1"}
+  - {id: RA-EX-4C, req: R-EX-4, cover: "x == 3 && y == 11 && outcome == 0 && result == 8"}
+  - {id: RA-EX-5C, req: R-EX-5, cover: "x == 100 && y == 101 && outcome == 0 && result == 1"}
+
+dont_cares:
+  - id: RA-MOD-Z1
+    req: R-MOD-1
+    signal: outcome
+    when: "y == 0"
+    note: >-
+      The prompt does not say what modulo 0 means. Most literal reading
+      (reading 1 of "modulo p, when p is 0"): it is undefined, so the call
+      may end in any way, including raising an exception.
+  - id: RA-MOD-Z2
+    req: R-MOD-1
+    signal: result
+    when: "y == 0"
+    note: >-
+      With y = 0 the returned value is unconstrained (beyond the frame rule
+      F-ZERO), as for RA-MOD-Z1.
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Concerns the form of the deliverable (a complete implementation that
+      keeps the given signature and docstring), which is not observable in a
+      call. That every call with y != 0 returns an integer is required by
+      RA-MOD-1.
+  - req: R-SIG-2
+    reason: >-
+      A definition: it fixes that the inputs x and y are the first and second
+      arguments, which the frame already encodes. Its reading (x is n, y is p)
+      is used by the items that realize R-MOD-1 and the examples.
+    covered_by: [RA-MOD-1, RA-MOD-2]
+  - req: R-NUM-1
+    reason: >-
+      A hint to the implementer. Its observable content (reading 1: the result
+      is exact, with no loss of precision for large exponents) is that every
+      call in range returns the exact residue, which RA-MOD-2 states for all
+      x up to 2047. How the residue is computed (floating point or not,
+      modular exponentiation or not) cannot be seen in a call.
+    covered_by: [RA-MOD-2]
+  - req: R-FR-1
+    reason: Frame rule of the adapter, included in every set as F-ZERO.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-SIG-2, phrase: "x: int, y: int", reading: 1}
+  - {req: R-MOD-1, phrase: "2^n modulo p", reading: 1}
+  - {req: R-MOD-1, phrase: "2^n", reading: 1}
+  - {req: R-MOD-1, phrase: "modulo p", reading: 1}
+  - {req: R-MOD-1, phrase: "modulo p, when p is 0", reading: 1}
+  - {req: R-MOD-1, phrase: "p", reading: 1}
+  - {req: R-MOD-1, phrase: "Return", reading: 1}
+  - {req: R-NUM-1, phrase: "be aware of numerics", reading: 1}

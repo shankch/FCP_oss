@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\ndef largest_prime_factor(n: int):\n    \"\"\"Return the largest prime factor of n. Assume n > 1 and is not a prime.\n    >>> largest_prime_factor(13195)\n    29\n    >>> largest_prime_factor(2048)\n    2\n    \"\"\"\n    largest = None\n\n    while n % 2 == 0:\n        largest = 2\n        n //= 2\n\n    factor = 3\n    while factor * factor <= n:\n        while n % factor == 0:\n            largest = factor\n            n //= factor\n        factor += 2\n\n    if n > 1:\n        largest = n\n\n    return largest\n```",
+  "seconds": 3.1,
+  "cost_usd": 0.0108431,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "NO_QUESTIONS",
+  "seconds": 2.2,
+  "cost_usd": 0.0077538,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "```python\ndef largest_prime_factor(n: int):\n    \"\"\"Return the largest prime factor of n. Assume n > 1 and is not a prime.\n    >>> largest_prime_factor(13195)\n    29\n    >>> largest_prime_factor(2048)\n    2\n    \"\"\"\n    largest = None\n    factor = 2\n    while factor * factor <= n:\n        while n % factor == 0:\n            largest = factor\n            n //= factor\n        factor += 1 if factor == 2 else 2\n    if n > 1:\n        largest = n\n    return largest\n```\n\n**How it works:**\n\n- Divide out each factor completely before moving on. This means every factor that divides `n` is prime: its smaller prime factors were already removed.\n- Only test factors up to `\u221an`. After that, whatever remains of `n` (if greater than 1) must be a prime, and it is larger than every factor found so far.\n- After 2, skip the even numbers.\n\n**Tracing the examples:**\n\n- `13195`: dividing out 5, 7, and 13 leaves `29`. Since 6\u00b2 > 29, the loop ends and `29` is returned.\n- `2048`: this is 2\u00b9\u00b9, so dividing out 2 reduces `n` to `1`, and `2` is returned.\n\nRuntime is O(\u221an) in the worst case.",
+  "seconds": 5.2,
+  "cost_usd": 0.0150313,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

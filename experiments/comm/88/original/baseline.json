@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\ndef sort_array(array):\n    \"\"\"\n    Given an array of non-negative integers, return a copy of the given array after sorting,\n    you will sort the given array in ascending order if the sum( first index value, last index value) is odd,\n    or sort it in descending order if the sum( first index value, last index value) is even.\n\n    Note:\n    * don't change the given array.\n\n    Examples:\n    * sort_array([]) => []\n    * sort_array([5]) => [5]\n    * sort_array([2, 4, 3, 0, 1, 5]) => [0, 1, 2, 3, 4, 5]\n    * sort_array([2, 4, 3, 0, 1, 5, 6]) => [6, 5, 4, 3, 2, 1, 0]\n    \"\"\"\n    if not array:\n        return []\n    descending = (array[0] + array[-1]) % 2 == 0\n    return sorted(array, reverse=descending)\n```",
+  "seconds": 3.8,
+  "cost_usd": 0.0141766,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "NO_QUESTIONS",
+  "seconds": 3.0,
+  "cost_usd": 0.011562300000000001,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "```python\ndef sort_array(array):\n    \"\"\"\n    Given an array of non-negative integers, return a copy of the given array after sorting,\n    you will sort the given array in ascending order if the sum( first index value, last index value) is odd,\n    or sort it in descending order if the sum( first index value, last index value) is even.\n\n    Note:\n    * don't change the given array.\n\n    Examples:\n    * sort_array([]) => []\n    * sort_array([5]) => [5]\n    * sort_array([2, 4, 3, 0, 1, 5]) => [0, 1, 2, 3, 4, 5]\n    * sort_array([2, 4, 3, 0, 1, 5, 6]) => [6, 5, 4, 3, 2, 1, 0]\n    \"\"\"\n    if not array:\n        return []\n    return sorted(array, reverse=(array[0] + array[-1]) % 2 == 0)\n```\n\n**How it works:**\n- **Empty array:** returns a new empty list right away, since there are no first or last values to add.\n- **Choosing the order:** it adds the first and last values. An even sum sets `reverse=True`, so the result is descending. An odd sum gives ascending order.\n- **Leaving the input alone:** `sorted()` always builds a new list, so the original array is never changed. `list.sort()` would have changed it in place.\n- **Single element:** `[5]` gives `5 + 5 = 10`, which is even, so the order is descending. With one element that still returns `[5]`.\n\n**Checking the examples:**\n- `[2, 4, 3, 0, 1, 5]` \u2192 `2 + 5 = 7` (odd) \u2192 ascending \u2192 `[0, 1, 2, 3, 4, 5]` \u2713\n- `[2, 4, 3, 0, 1, 5, 6]` \u2192 `2 + 6 = 8` (even) \u2192 descending \u2192 `[6, 5, 4, 3, 2, 1, 0]` \u2713",
+  "seconds": 6.0,
+  "cost_usd": 0.0204338,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

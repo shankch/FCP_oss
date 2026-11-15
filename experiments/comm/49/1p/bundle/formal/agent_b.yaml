@@ -1,0 +1,107 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. modp keeps no state between calls (frame.md), so the
+# model is combinational: the reference answer is computed from the inputs of
+# the call, and both outputs are checked against it.
+defs:
+  # 2^n as an exact integer (n is 0 to 1,023 in the trace).
+  pow2n: '1 << n'
+  # (2^n) % p for p in 1 .. 1,023, written as one term per constant modulus
+  # q = 256*h + l + 1 (q in 1 .. 1,024), since % takes a constant divisor.
+  # It is 0 when p == 0, where no term matches; it is only used under p >= 1.
+  expected: 'sum(h < 4: sum(l < 256: (p == 256 * h + l + 1) * (pow2n % (256 * h + l + 1))))'
+
+properties:
+  - id: RB-RES-1-ret
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'p >= 1', cond: 'outcome == 0'}
+    note: >-
+      "Return" taken as returning a Python int (reading 1). For p >= 1 the
+      value (2^n) % p lies in 0 .. p - 1, inside 0 .. 1,023, so the call must
+      return an integer that fits result: outcome 0. A float, an exception or
+      a hang all break this. The trigger is p >= 1 because p = 0 is handled
+      by R-RES-2.
+  - id: RB-RES-1-val
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'p >= 1', cond: 'result == expected'}
+    note: >-
+      The docstring sentence "Return 2^n modulo." is cut off before the
+      modulus. I took p as the modulus (reading 1 of "modulo."), because the
+      function is named modp and p has no other role. This fills a gap in the
+      text. The literal alternative, that the value is unconstrained, would
+      leave the declared parameter p without any role. "2^n" is read as 2 to
+      the power n (prose notation, not Python XOR). "2^n modulo p" is read as
+      the least non-negative remainder (Python's 2**n % p), so the value is
+      in 0 .. p - 1, not just any integer congruent to 2^n. With
+      RB-RES-1-ret, the call returns exactly (2**n) % p.
+
+scenarios:
+  - id: RB-SIG-2-p0
+    req: R-SIG-2
+    cover: 'p == 0'
+    note: >-
+      Callers must pass ints. That obligation holds by construction of the
+      trace (both inputs are integers 0 .. 1,023), so no assumption is
+      needed. "p: int" is read literally as any int (reading 1), so a call
+      with p = 0 is legal: no assumption excludes it, and this scenario
+      requires it to be possible. "n: int" is also read as any int (reading
+      1). Negative n is not part of the trace, so that choice does not change
+      any check here.
+
+dont_cares:
+  - id: RB-RES-2-outcome
+    req: R-RES-2
+    signal: outcome
+    when: 'p == 0'
+    note: >-
+      For p = 0 the request asks for "2^n modulo 0", which it never defines.
+      Python's 2**n % 0 raises an exception (outcome 1). Under Knuth's
+      convention x mod 0 = x, so the call would return 2^n. The text supports
+      neither, so how the call ends is left free (reading 3) rather than
+      inventing a behaviour. This is in tension with R-SIG-2 reading 1: p = 0
+      is a legal call (RB-SIG-2-p0), but the text says nothing about its
+      answer.
+  - id: RB-RES-2-result
+    req: R-RES-2
+    signal: result
+    when: 'p == 0'
+    note: >-
+      For p = 0 the returned value is free for the same reason as
+      RB-RES-2-outcome (reading 3). Frame rule F-ZERO still forces result to
+      0 whenever outcome is not 0.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      This is frame rule F-ZERO (outcome != 0 -> result == 0). It holds by
+      construction of the trace and is added to every formalization set from
+      design.yaml, so it is not restated here.
+    covered_by: [F-ZERO]
+  - req: R-TASK-1
+    reason: >-
+      This is a non-functional statement about the deliverable (complete the
+      function, keep its signature), not about any call. The adapter fixes
+      the signature. "Complete" in the sense of returning an answer for every
+      legal call with p >= 1 is realized by RB-RES-1-ret.
+  - req: R-SIG-1
+    reason: >-
+      This is a definition of the interface. The name modp and the positional
+      order (n, p) are fixed by the function adapter (design.yaml function
+      section, frame.md), not checked on the trace. For the flagged phrase
+      "p: int" I took reading 1: p is the modulus of "modulo". That is
+      realized by RB-RES-1-val.
+    covered_by: [RB-RES-1-val]
+
+decisions:
+  - {req: R-SIG-1, phrase: 'p: int', reading: 1}
+  - {req: R-SIG-2, phrase: 'n: int', reading: 1}
+  - {req: R-SIG-2, phrase: 'p: int', reading: 1}
+  - {req: R-RES-1, phrase: '2^n', reading: 1}
+  - {req: R-RES-1, phrase: 'modulo.', reading: 1}
+  - {req: R-RES-1, phrase: '2^n modulo', reading: 1}
+  - {req: R-RES-1, phrase: 'Return', reading: 1}
+  - {req: R-RES-2, phrase: 'modulo', reading: 3}

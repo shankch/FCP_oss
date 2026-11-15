@@ -1,0 +1,181 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-DEF-1: the parity sum is the value of the first element plus the value
+  # of the last element (for one element, that element counted twice).
+  psum: "array[0] + array[len(array) - 1]"
+  # R-DEF-1, empty array: there is no first or last value, so neither order
+  # rule applies (both triggers require a non-empty argument).
+  odd_sum: "len(array) > 0 && psum % 2 == 1"
+  even_sum: "len(array) > 0 && psum % 2 == 0"
+  ascending: "all(i < len(result) - 1: result[i] <= result[i + 1])"
+  descending: "all(i < len(result) - 1: result[i] >= result[i + 1])"
+
+properties:
+  - id: RA-RES-1
+    req: R-RES-1
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Every call returns a list that fits (outcome 0). Every argument in the
+      trace is allowed: the encoding only carries lists of at most 8 integers
+      from 0 to 255, which meets R-IN-1, and a rearrangement of such a list
+      always fits the result signal.
+
+  - id: RA-RES-2
+    req: R-RES-2
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "len(result) == len(array) && all(i < len(array): count(j < len(array): array[j] == array[i]) == count(j < len(result): result[j] == array[i]))"
+    note: >-
+      When the call returns a list, it has the length of the argument and holds
+      every value of the argument as often as the argument does (with equal
+      lengths this rules out any other value), i.e. the same multiset. The
+      property speaks only of a returned list; that a list is returned at all is
+      RA-RES-1. "a copy": reading 1 (a new list object) is taken, but object
+      identity is not visible in the trace, so only the contents are
+      constrained. "a copy of the given array after sorting": reading 1 (sort a
+      copy, leave the argument as passed); the argument after the call is not
+      visible in the trace (see R-MUT-1).
+
+  - id: RA-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args: {trigger: odd_sum, cond: ascending}
+    note: >-
+      The rule is taken as written: an odd parity sum gives ascending order.
+      Ascending is read as non-decreasing (each element at most the next one,
+      duplicates kept). The parity sum follows R-DEF-1 (values of the first and
+      last element; one element counted twice; no rule for the empty array).
+      This rule contradicts example R-EX-3 (2 + 5 = 7 is odd, yet the example
+      result is descending); the rule is kept and the example is read as wrong.
+      "you will sort the given array" is read as sorting a copy (consistent with
+      R-MUT-1); in-place sorting is not visible in the trace either way.
+
+  - id: RA-ORD-2
+    req: R-ORD-2
+    pattern: implies
+    args: {trigger: even_sum, cond: descending}
+    note: >-
+      The rule is taken as written: an even parity sum gives descending order.
+      Descending is read as non-increasing (each element at least the next one,
+      duplicates kept). The parity sum follows R-DEF-1; a one-element argument
+      always has an even sum and its one-element result is trivially
+      descending; the empty argument is not covered by this rule. This rule
+      contradicts example R-EX-4 (2 + 6 = 8 is even, yet the example result is
+      ascending); the rule is kept and the example is read as wrong. "sort it"
+      is read as sorting a copy (consistent with R-MUT-1).
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "len(array) == 0", cond: "outcome == 0 && len(result) == 0"}
+    note: >-
+      sort_array([]) returns the empty list. "returns" is taken to require
+      outcome 0, since the frame makes result empty on every other outcome too.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "array == [5]", cond: "outcome == 0 && result == [5]"}
+    note: >-
+      sort_array([5]) returns [5]. This agrees with the rules under either
+      order, since a one-element list is both ascending and descending.
+
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "array == [2, 4, 3, 0, 1, 5]", cond: "outcome == 0 && result == [0, 1, 2, 3, 4, 5]"}
+    note: >-
+      SPECIFICATION CONFLICT. The text says sort_array([2, 4, 3, 0, 1, 5]) =>
+      [5, 4, 3, 2, 1, 0], but its parity sum 2 + 5 = 7 is odd (0 + 5 = 5 under
+      the index reading too), so the rule R-ORD-1 requires ascending order.
+      Formalizing the example as written would contradict RA-ORD-1. Reading 2
+      is taken (the rule is right, the example is wrong), so this item states
+      the result the rule gives, [0, 1, 2, 3, 4, 5], and NOT the result the
+      text prints.
+
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "array == [2, 4, 3, 0, 1, 5, 6]", cond: "outcome == 0 && result == [6, 5, 4, 3, 2, 1, 0]"}
+    note: >-
+      SPECIFICATION CONFLICT. The text says sort_array([2, 4, 3, 0, 1, 5, 6])
+      => [0, 1, 2, 3, 4, 5, 6], but its parity sum 2 + 6 = 8 is even (0 + 6 = 6
+      under the index reading too), so the rule R-ORD-2 requires descending
+      order. Formalizing the example as written would contradict RA-ORD-2.
+      Reading 2 is taken (the rule is right, the example is wrong), so this
+      item states the result the rule gives, [6, 5, 4, 3, 2, 1, 0], and NOT the
+      result the text prints.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: "len(array) == 0 && outcome == 0 && len(result) == 0"
+    note: The call sort_array([]) returning [] must be possible.
+
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: "array == [5] && outcome == 0 && result == [5]"
+    note: The call sort_array([5]) returning [5] must be possible.
+
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: "array == [2, 4, 3, 0, 1, 5] && outcome == 0 && result == [0, 1, 2, 3, 4, 5]"
+    note: >-
+      Reading 2 of R-EX-3 (see RA-EX-3): the call returns the ascending result
+      the rule R-ORD-1 gives, not the printed [5, 4, 3, 2, 1, 0].
+
+  - id: RA-EX-4-S
+    req: R-EX-4
+    cover: "array == [2, 4, 3, 0, 1, 5, 6] && outcome == 0 && result == [6, 5, 4, 3, 2, 1, 0]"
+    note: >-
+      Reading 2 of R-EX-4 (see RA-EX-4): the call returns the descending result
+      the rule R-ORD-2 gives, not the printed [0, 1, 2, 3, 4, 5, 6].
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function name and its single parameter are fixed by
+      the adapter (design.yaml, function section), which only calls
+      sort_array(array); it is not a property of the trace.
+  - req: R-IN-1
+    reason: >-
+      Holds by construction of the interface encoding: array elements are
+      unsigned 8-bit values (0 to 255) and frame.md excludes calls with negative
+      elements from the trace, so an assumption would constrain nothing.
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized as the defs psum, odd_sum and even_sum (values of the
+      first and last element; one element counted twice; empty array: no sum,
+      neither order rule applies) and used by the order properties.
+    covered_by: [RA-ORD-1, RA-ORD-2]
+  - req: R-MUT-1
+    reason: >-
+      Not observable: frame.md states that the trace has no signal for the
+      contents of the argument list after the call, so no property over the
+      trace can tell whether the argument was changed.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter; design.yaml adds it to every formalization set
+      as F-EMPTY ("outcome != 0 -> len(result) == 0"), so it is not restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-RES-2, phrase: "a copy", reading: 1}
+  - {req: R-RES-2, phrase: "a copy of the given array after sorting", reading: 1}
+  - {req: R-DEF-1, phrase: "first index value", reading: 1}
+  - {req: R-DEF-1, phrase: "sum( first index value, last index value)", reading: 1}
+  - {req: R-DEF-1, phrase: "last index value", reading: 1}
+  - {req: R-ORD-1, phrase: "ascending order", reading: 1}
+  - {req: R-ORD-1, phrase: "you will sort the given array", reading: 1}
+  - {req: R-ORD-1, phrase: "in ascending order if the sum( first index value, last index value) is odd", reading: 1}
+  - {req: R-ORD-2, phrase: "descending order", reading: 1}
+  - {req: R-ORD-2, phrase: "sort it", reading: 1}
+  - {req: R-ORD-2, phrase: "in descending order if the sum( first index value, last index value) is even", reading: 1}
+  - {req: R-MUT-1, phrase: "don't change the given array", reading: 1}
+  - {req: R-EX-3, phrase: "[5, 4, 3, 2, 1, 0]", reading: 2}
+  - {req: R-EX-4, phrase: "[0, 1, 2, 3, 4, 5, 6]", reading: 2}

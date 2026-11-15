@@ -1,0 +1,208 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def simplify(x, n):'
+  text: The implementation provides a Python function named simplify that takes two parameters, x first and n second.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-FN-1
+  doc: SPEC
+  quote: Your task is to implement a function that will simplify the expression x * n.
+  text: The purpose of the function is to simplify the expression x * n, the product of the two fractions.
+  kind: non_functional
+  ambiguity:
+  - phrase: simplify the expression x * n
+    readings:
+    - 'A statement of purpose only: the observable obligation is the True/False answer of R-RET-1 and R-RET-2.'
+    - The function must produce the simplified product (for example a reduced fraction), which contradicts the requirement that it returns True or False (R-RET-1, R-RET-2).
+  lines:
+  - 5
+  - 6
+- id: R-DEF-1
+  doc: SPEC
+  quote: the expression x * n
+  text: x * n denotes the product of the two rational numbers that the strings x and n represent.
+  kind: definition
+  ambiguity:
+  - phrase: x * n
+    readings:
+    - The arithmetic product of the fraction values represented by x and n.
+    - The Python expression x * n applied to the two string arguments (which raises TypeError).
+  lines:
+  - 5
+  - 6
+- id: R-RET-1
+  doc: SPEC
+  quote: The function returns True if x * n evaluates to a whole number
+  text: When x and n are valid inputs and the product of the fractions they represent is a whole number, the function returns True.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: whole number
+    readings:
+    - A non-negative integer (0, 1, 2, ...).
+    - A positive integer (1, 2, 3, ...), so a product of 0 is not a whole number.
+    - Any integer, including negative ones.
+  - phrase: evaluates to
+    readings:
+    - The exact rational value of the product is an integer.
+    - The product computed in floating point is integral, which can differ from the exact answer for large numerators and denominators.
+  - phrase: returns True
+    readings:
+    - Returns the Python bool True.
+    - Returns any truthy value (for example the integer 1).
+  - phrase: returns True if x * n evaluates to a whole number
+    readings:
+    - The function returns a bool answer; "simplify the expression" in R-FN-1 only states the purpose.
+    - Contradicts R-FN-1 if "simplify the expression x * n" requires the function to produce the simplified product rather than a bool.
+  lines:
+  - 6
+- id: R-RET-2
+  doc: SPEC
+  quote: and False otherwise
+  text: When x and n are valid inputs and the product of the fractions they represent is not a whole number, the function returns False.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-RET-1
+  ambiguity:
+  - phrase: otherwise
+    readings:
+    - Only for valid inputs whose product is not a whole number; behaviour on invalid inputs is not constrained.
+    - In every other case, including inputs that are not valid fractions, the function returns False (and does not raise).
+  - phrase: 'False'
+    readings:
+    - Returns the Python bool False.
+    - Returns any falsy value (for example 0 or None).
+  - phrase: False otherwise
+    readings:
+    - The function returns a bool answer; "simplify the expression" in R-FN-1 only states the purpose.
+    - Contradicts R-FN-1 if "simplify the expression x * n" requires the function to produce the simplified product rather than a bool.
+  lines:
+  - 6
+  - 7
+- id: R-IN-1
+  doc: SPEC
+  quote: Both x and n, are string representation of a fraction
+  text: Each of the arguments x and n is a string that represents a fraction.
+  kind: assumption
+  lines:
+  - 7
+- id: R-IN-2
+  doc: SPEC
+  quote: have the following format, <numerator>/<denominator>
+  text: Each of x and n consists of a numerator, followed by the character "/", followed by a denominator, with no other characters.
+  kind: assumption
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: <numerator>/<denominator>
+    readings:
+    - Exactly two decimal digit strings separated by a single "/", with no spaces, signs or leading zeros.
+    - Leading zeros (such as "05/1") are allowed in the numerator and denominator.
+    - Surrounding or embedded whitespace (such as " 1 / 5") is tolerated.
+  - phrase: have the following format
+    readings:
+    - 'A promise by the caller: inputs of any other form need not be handled.'
+    - An obligation on the function to reject (raise or return False for) strings of any other form.
+  lines:
+  - 7
+  - 8
+- id: R-IN-3
+  doc: SPEC
+  quote: where both numerator and denominator are positive whole numbers
+  text: The numerator of each of x and n is a positive whole number (at least 1).
+  kind: assumption
+  depends:
+  - R-IN-2
+  ambiguity:
+  - phrase: positive whole numbers
+    readings:
+    - An integer of at least 1, written in decimal digits.
+    - An integer of at least 1 in any notation Python int() accepts (for example "+3" or " 3").
+  lines:
+  - 8
+- id: R-IN-4
+  doc: SPEC
+  quote: where both numerator and denominator are positive whole numbers
+  text: The denominator of each of x and n is a positive whole number (at least 1).
+  kind: assumption
+  depends:
+  - R-IN-2
+  ambiguity:
+  - phrase: positive whole numbers
+    readings:
+    - An integer of at least 1, written in decimal digits.
+    - An integer of at least 1 in any notation Python int() accepts (for example "+3" or " 3").
+  lines:
+  - 8
+- id: R-IN-5
+  doc: SPEC
+  quote: You can assume that x, and n are valid fractions
+  text: The arguments x and n are valid fractions.
+  kind: assumption
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: valid fractions
+    readings:
+    - Strings of the format <numerator>/<denominator> with positive whole numerator and denominator (R-IN-2, R-IN-3, R-IN-4).
+    - Any well-formed fraction, which may include a zero numerator (not excluded by this sentence, unlike R-IN-3).
+    - Fractions in lowest terms only (a reading the example "10/2" in R-EX-3 argues against).
+  - phrase: You can assume
+    readings:
+    - The behaviour on arguments that are not valid fractions is unconstrained (any result or exception).
+    - The function must still behave sensibly on other arguments (for example return False rather than raise).
+  lines:
+  - 10
+- id: R-IN-6
+  doc: SPEC
+  quote: do not have zero as denominator
+  text: The denominator of each of x and n is not zero.
+  kind: assumption
+  depends:
+  - R-IN-2
+  lines:
+  - 10
+- id: R-EX-1
+  doc: SPEC
+  quote: simplify("1/5", "5/1") = True
+  text: simplify("1/5", "5/1") returns True (1/5 * 5/1 = 1).
+  kind: scenario
+  depends:
+  - R-RET-1
+  lines:
+  - 12
+- id: R-EX-2
+  doc: SPEC
+  quote: simplify("1/6", "2/1") = False
+  text: simplify("1/6", "2/1") returns False (1/6 * 2/1 = 1/3).
+  kind: scenario
+  depends:
+  - R-RET-2
+  lines:
+  - 13
+- id: R-EX-3
+  doc: SPEC
+  quote: simplify("7/10", "10/2") = False
+  text: simplify("7/10", "10/2") returns False (7/10 * 10/2 = 7/2).
+  kind: scenario
+  depends:
+  - R-RET-2
+  lines:
+  - 14
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, the result signal is false unless outcome is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 49

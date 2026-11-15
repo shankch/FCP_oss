@@ -1,0 +1,79 @@
+[
+ {
+  "req": "R-RET-3",
+  "phrase": "a copy of the given array after sorting",
+  "taken": 1,
+  "variant": 2,
+  "text": "the given array is sorted (in place) and then a copy of it is returned; this contradicts \"don't change the given array\" (R-NC-1)"
+ },
+ {
+  "req": "R-RET-3",
+  "phrase": "a copy",
+  "taken": 1,
+  "variant": 2,
+  "text": "only the values matter; returning the given list object itself is acceptable when its order already matches"
+ },
+ {
+  "req": "R-ORD-1",
+  "phrase": "first index value, last index value",
+  "taken": 1,
+  "variant": 2,
+  "text": "the first and the last index numbers themselves: 0 + (len(array) - 1), i.e. the parity of len(array) - 1 (the examples agree with both readings)"
+ },
+ {
+  "req": "R-ORD-1",
+  "phrase": "ascending order",
+  "taken": 1,
+  "variant": 2,
+  "text": "strictly increasing order: result[i] < result[i + 1] (impossible together with R-RET-2 when the array has repeated values)"
+ },
+ {
+  "req": "R-ORD-1",
+  "phrase": "you will sort the given array",
+  "taken": 1,
+  "variant": 2,
+  "text": "the given list itself is sorted in place; this contradicts \"don't change the given array\" (R-NC-1)"
+ },
+ {
+  "req": "R-ORD-1",
+  "phrase": "the sum( first index value, last index value) is odd",
+  "taken": 1,
+  "variant": 2,
+  "text": "for the empty array the sum is taken over the missing values as 0 (even), so the descending rule applies instead"
+ },
+ {
+  "req": "R-ORD-2",
+  "phrase": "first index value, last index value",
+  "taken": 1,
+  "variant": 2,
+  "text": "the first and the last index numbers themselves: 0 + (len(array) - 1), i.e. the parity of len(array) - 1 (the examples agree with both readings)"
+ },
+ {
+  "req": "R-ORD-2",
+  "phrase": "descending order",
+  "taken": 1,
+  "variant": 2,
+  "text": "strictly decreasing order: result[i] > result[i + 1] (impossible together with R-RET-2 when the array has repeated values)"
+ },
+ {
+  "req": "R-ORD-2",
+  "phrase": "sort it",
+  "taken": 1,
+  "variant": 2,
+  "text": "\"it\" is the given array, sorted in place; this contradicts \"don't change the given array\" (R-NC-1)"
+ },
+ {
+  "req": "R-ORD-2",
+  "phrase": "the sum( first index value, last index value) is even",
+  "taken": 1,
+  "variant": 2,
+  "text": "for the empty array the sum is taken over the missing values as 0, which is even, so this descending rule applies"
+ },
+ {
+  "req": "R-NC-1",
+  "phrase": "don't change the given array",
+  "taken": 1,
+  "variant": 2,
+  "text": "contradicted by \"you will sort the given array\" and \"sort it\" (R-ORD-1, R-ORD-2) and by \"a copy of the given array after sorting\" (R-RET-3), which read as sorting the given list itself"
+ }
+]

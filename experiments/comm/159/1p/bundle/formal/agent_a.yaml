@@ -1,0 +1,148 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+assumptions:
+  - id: RA-ENV-1
+    req: R-ENV-1
+    expr: "number >= 0"
+    note: >-
+      "a certain number of carrots": number is a count, so a non-negative
+      integer with no upper bound (reading 1). The 11-bit unsigned encoding of
+      the frame already excludes negative values, so this assumption holds on
+      every trace; it is kept to record the obligation the text places on the
+      caller.
+
+  - id: RA-ENV-2
+    req: R-ENV-2
+    expr: "need >= 1"
+    note: >-
+      "now you need to eat more carrots" states that more carrots are needed,
+      so need is at least 1 (reading 1, the literal reading of the phrase).
+      The requirement text says "non-negative", which is reading 2; the
+      literal phrase was taken instead, so calls with need == 0 are outside
+      the environment and are not checked.
+
+  - id: RA-ENV-3
+    req: R-ENV-3
+    expr: "remaining >= 0"
+    note: >-
+      remaining is a count of carrots, so a non-negative integer with no upper
+      bound (reading 1). As for number, the unsigned encoding already
+      guarantees it on every trace.
+
+properties:
+  - id: RA-API-1
+    req: R-API-1
+    expr: "outcome != 1"
+    note: >-
+      A call eat(number, need, remaining) is accepted. In the trace a call
+      that is not accepted (no function eat, or a signature that does not take
+      the three arguments in this order) ends with an exception, outcome 1,
+      and the trace cannot tell a rejected call from any other exception. The
+      item therefore reads "accepted" as "the call is answered": every call
+      with arguments that meet the assumptions ends without an exception and
+      without hanging. This is stronger than the bare signature requirement;
+      it relies on a completed function (R-TASK-1) returning when called,
+      which R-OUT-1 also presupposes ("what eat returns"). It does not require
+      the returned value to be a list (outcome 2 is allowed, see RA-D-OUTCOME).
+      The arguments are integers (reading 1); the trace carries only integers
+      0 to 2,047, so reading 2 makes no observable difference here.
+
+dont_cares:
+  - id: RA-D-RESULT
+    req: R-OUT-1
+    signal: result
+    when: "true"
+    note: >-
+      The docstring names no result, so the returned value is unconstrained
+      (reading 1). Its relation to number, need and remaining is left free,
+      which also covers the undescribed effect of remaining (R-DEF-3).
+
+  - id: RA-D-OUTCOME
+    req: R-OUT-1
+    signal: outcome
+    when: "true"
+    note: >-
+      The prompt does not say in what form eat returns, so whether the
+      returned value is a list that fits (outcome 0) or anything else
+      (outcome 2) is left free. RA-API-1 still excludes outcome 1 (exception
+      or no answer).
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: it concerns the shape of the response (only the body is
+      written; name, signature and docstring stay as given, reading 1), which
+      a trace of calls cannot observe. Its only observable consequence, that
+      eat can be called with the three arguments and answers, is RA-API-1.
+
+  - req: R-CTX-1
+    reason: >-
+      Definition. "You're a hungry rabbit" is narrative framing (reading 1)
+      and places no obligation on the arguments or the result.
+
+  - req: R-DEF-1
+    reason: >-
+      Definition: number is the count of carrots already eaten (reading 1),
+      eaten so far toward today's meals (reading 1). It constrains nothing by
+      itself: the prompt never relates the result to number (R-OUT-1), and
+      the non-negativity it implies is RA-ENV-1.
+
+  - req: R-DEF-2
+    reason: >-
+      Definition: need is the number of additional carrots still to be eaten,
+      on top of number (reading 1, from "more"). It constrains nothing by
+      itself; the bound it implies is RA-ENV-2.
+
+  - req: R-DEF-3
+    reason: >-
+      Definition. The prompt names remaining only in the signature and never
+      describes it, so its meaning and its effect on the result are left free
+      (reading 3 of "remaining"); RA-D-RESULT records that freedom. Since the
+      text never says remaining limits what the rabbit eats, no contradiction
+      with "to complete the day's meals" arises from the text itself
+      (reading 2 of "need, remaining"). The contradiction of reading 1 only
+      appears once remaining is read as the stock available, which the prompt
+      does not say.
+
+  - req: R-EAT-1
+    reason: >-
+      "but now you need to eat more carrots" states the rabbit's situation,
+      not what the call does or returns (reading 4, context only), so it
+      places no obligation on the result. Even under readings 1 to 3 nothing
+      could be stated: the prompt never says whether or how the returned
+      value encodes the carrots eaten (R-OUT-1, RA-D-RESULT).
+
+  - req: R-EAT-2
+    reason: >-
+      "to complete the day's meals" is the purpose of eating (reading 2), not
+      a stated outcome of the call. Since the prompt never says how the
+      returned value shows that the meals are complete (R-OUT-1), there is no
+      signal to constrain. With remaining left undescribed (R-DEF-3, reading
+      3), the text does not make remaining limit the meal, so no
+      contradiction is taken (reading 2 of "complete the day's meals").
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, added to every formalization set by
+      design.yaml as F-EMPTY (outcome != 0 -> len(result) == 0); frame.md says
+      it need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-TASK-1, phrase: "Complete this function", reading: 1}
+  - {req: R-API-1, phrase: "eat(number, need, remaining)", reading: 1}
+  - {req: R-CTX-1, phrase: "hungry rabbit", reading: 1}
+  - {req: R-DEF-1, phrase: "a certain number of carrots", reading: 1}
+  - {req: R-DEF-1, phrase: "already have eaten", reading: 1}
+  - {req: R-DEF-2, phrase: "need to eat more carrots", reading: 1}
+  - {req: R-DEF-3, phrase: "remaining", reading: 3}
+  - {req: R-DEF-3, phrase: "need, remaining", reading: 2}
+  - {req: R-ENV-3, phrase: "remaining", reading: 1}
+  - {req: R-ENV-1, phrase: "a certain number", reading: 1}
+  - {req: R-ENV-2, phrase: "need to eat more carrots", reading: 1}
+  - {req: R-EAT-1, phrase: "eat more carrots", reading: 4}
+  - {req: R-EAT-2, phrase: "to complete", reading: 2}
+  - {req: R-EAT-2, phrase: "complete the day's meals", reading: 2}
+  - {req: R-OUT-1, phrase: "complete the day's meals.", reading: 1}

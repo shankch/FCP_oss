@@ -1,0 +1,153 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-DEF-1, reading 2 (case-insensitive): text equals its reversal once every
+  # letter is mapped to lower case, character by character; every other
+  # character counts. The case mapping is Python's str.lower on one Latin-1
+  # character: 'A'-'Z' (isupper) and the Latin-1 capitals 192-214, 216-222
+  # map to code + 32, every other code to itself.
+  pal: >-
+    all(i < len(text):
+      ((isupper(text[i]) || (text[i] >= 192 && text[i] <= 222 && text[i] != 215)) ? text[i] + 32 : text[i])
+      ==
+      ((isupper(text[len(text) - 1 - i]) || (text[len(text) - 1 - i] >= 192 && text[len(text) - 1 - i] <= 222 && text[len(text) - 1 - i] != 215))
+        ? text[len(text) - 1 - i] + 32 : text[len(text) - 1 - i]))
+
+properties:
+  - id: RV-PAL-1
+    req: R-PAL-1
+    pattern: implies
+    args:
+      trigger: 'pal'
+      cond: 'outcome == 0 -> result'
+    note: >-
+      "palindrome" read as instructed (reading 2, case-insensitive): pal compares
+      text with its reversal after mapping letters to lower case; all other
+      characters count (so 'Aba' is a palindrome, 'a ba' is not). This reading
+      was imposed on this reader and differs from what the other readers take.
+      The quote contains "Checks", which is read as instructed for R-RET-1
+      (reading 2): any value whose truthiness gives the answer is acceptable. So
+      "returns True" is formalized as "returns a truthy value". The interface
+      can only observe that when the value is a bool (outcome 0). Then result
+      must be 1. A non-bool return (outcome 2) is accepted unchecked, because
+      the adapter does not record its truthiness. Normal return is required
+      separately by RV-RET-1.
+  - id: RV-PAL-2
+    req: R-PAL-2
+    pattern: implies
+    args:
+      trigger: '!pal'
+      cond: 'outcome == 0 -> !result'
+    note: >-
+      "palindrome" read as instructed (reading 2, case-insensitive), via def pal.
+      This reading was imposed on this reader and differs from what the other
+      readers take. "Checks" in the quote is read as instructed for R-RET-1
+      (reading 2): "returns False" is formalized as "returns a falsy value". It
+      is observable only for a bool return (outcome 0), where result must be 0.
+      A non-bool return (outcome 2) is not checked. Given frame rule F-ZERO the
+      condition is equivalent to plain !result.
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args:
+      cond: 'outcome == 0 || outcome == 2'
+    note: >-
+      "Checks" read as instructed (reading 2): the function may return any value
+      whose truthiness gives the answer (e.g. 1/0 or a non-empty/empty object).
+      This reading was imposed on this reader and differs from what the other
+      readers take. So the returned value need not be a bool: outcome 2 (returned
+      a value of another type) is allowed as well as outcome 0 (returned True or
+      False). What remains of the requirement is that every call returns
+      normally. It must not raise and must not hang (outcome 1). Outcome 3 has
+      no meaning in the adapter and is excluded. Under this reading the
+      truthiness of a non-bool return cannot be checked through this interface
+      (see RV-PAL-1, RV-PAL-2).
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'text == "" && outcome == 0 && result'
+    note: >-
+      Literal reading of the doctest: is_palindrome('') returns the bool True.
+      The doctest output is "True", so the scenario requires a bool return
+      (outcome 0), not merely a truthy one. Its quote does not contain "Checks",
+      so the R-RET-1 reading is not applied here. Under that reading an
+      implementation returning 1/0 would meet RV-RET-1, RV-PAL-1 and RV-PAL-2
+      but not show this behaviour. Under the R-IF-1 reading the docstring need
+      not be kept, so this doctest need not be present in the code.
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'text == "aba" && outcome == 0 && result'
+    note: >-
+      Literal reading of the doctest: is_palindrome('aba') returns the bool True.
+      It is a palindrome under the case-insensitive reading of R-DEF-1 as well
+      as the strict one. As for RV-EX-1, the doctest's "True" is taken as the
+      bool, and the R-RET-1 reading ("Checks") is not applied. Under the R-IF-1
+      reading the doctest need not be kept in the code.
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'text == "aaaaa" && outcome == 0 && result'
+    note: >-
+      Literal reading of the doctest: is_palindrome('aaaaa') returns the bool
+      True. As for RV-EX-1, the doctest's "True" is taken as the bool, and the
+      R-RET-1 reading ("Checks") is not applied. Under the R-IF-1 reading the
+      doctest need not be kept in the code.
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'text == "zbcd" && outcome == 0 && !result'
+    note: >-
+      Literal reading of the doctest: is_palindrome('zbcd') returns the bool
+      False. It is not a palindrome under the case-insensitive reading of R-DEF-1
+      either. As for RV-EX-1, the doctest's "False" is taken as the bool, and the
+      R-RET-1 reading ("Checks") is not applied. Under the R-IF-1 reading the
+      doctest need not be kept in the code.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional (what the deliverable is), with no trace content. "Complete
+      this function" read as instructed (reading 2): the whole function may be
+      rewritten as long as its name and behaviour match. The docstring and its
+      doctests need not be kept. This reading was imposed on this reader and
+      differs from what the other readers take. The name is fixed by the adapter
+      (design.yaml function.name). The behaviour is realized by the items listed.
+    covered_by: [RV-PAL-1, RV-PAL-2, RV-RET-1]
+  - req: R-IF-2
+    reason: >-
+      The function's name and its single parameter text belong to the calling
+      convention. They are fixed by the adapter (design.yaml function: name
+      is_palindrome, one argument text) and cannot be stated in FCP-PL over the
+      trace signals.
+  - req: R-IF-3
+    reason: >-
+      Every argument in the trace is a str by construction: text is a sequence
+      signal of characters, and calls with non-str arguments are not part of the
+      trace. Behaviour for other types is left unspecified, as stated. There is
+      no environment constraint on the text signal left to assume.
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized as def pal and used by RV-PAL-1 and RV-PAL-2.
+      "palindrome" read as instructed (reading 2, case-insensitive): text equals
+      its reversal after letters are mapped to one case, and all other characters
+      count ('Aba' is a palindrome, 'a ba' is not). This reading was imposed on
+      this reader and differs from what the other readers take. "Letters" is
+      taken literally over the adapter's Latin-1 alphabet: the capitals A-Z and
+      Latin-1 codes 192-214, 216-222 are mapped to lower case, as Python's
+      str.lower does one character at a time. Mapping to upper case gives the
+      same comparison for every character except 'ß' (223), whose upper case is
+      the two characters 'SS'. The mapping is taken per character, so 'ß' stays
+      one character.
+    covered_by: [RV-PAL-1, RV-PAL-2]
+  - req: R-FR-1
+    reason: >-
+      This is the adapter's frame rule F-ZERO (design.yaml frame). It is added to
+      every formalization set and need not be restated (frame.md).
+
+decisions:
+  - {req: R-IF-1, phrase: Complete this function, reading: 2}
+  - {req: R-DEF-1, phrase: palindrome, reading: 2}
+  - {req: R-PAL-1, phrase: palindrome, reading: 2}
+  - {req: R-PAL-2, phrase: palindrome, reading: 2}
+  - {req: R-RET-1, phrase: Checks, reading: 2}

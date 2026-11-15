@@ -1,0 +1,431 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 40,
+    "checked": 40,
+    "seconds": 16.51
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "generate_integers(25, 6)",
+      "args": [
+       25,
+       6
+      ],
+      "values": [
+       [
+        6,
+        8
+       ],
+       [
+        8,
+        6
+       ]
+      ],
+      "shown": [
+       "[6, 8]",
+       "[8, 6]"
+      ],
+      "ending": false,
+      "declared": [
+       "RA-RET-6"
+      ]
+     }
+    },
+    "checked": 27
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 106,
+    "checked": 106,
+    "seconds": 32.36
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "generate_integers(9, 6)",
+      "args": [
+       9,
+       6
+      ],
+      "values": [
+       [
+        6,
+        8
+       ],
+       [
+        8,
+        6
+       ]
+      ],
+      "shown": [
+       "[6, 8]",
+       "[8, 6]"
+      ],
+      "ending": false,
+      "declared": [
+       "RB-D-ORDER"
+      ]
+     }
+    },
+    "checked": 63
+   }
+  }
+ },
+ "readings": {
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-4": {
+   "plain": "A-STRONGER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-5": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `a >= 1 && b >= 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-POS",
+    "req": "R-IN-1",
+    "says": "every call meets `a >= 1 && b >= 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-OUTSIDE-RESULT",
+    "req": "R-IN-1",
+    "says": "`result` is free when `!pre`",
+    "where": {
+     "pre": "a >= 1 && b >= 1"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-OUTSIDE-OUTCOME",
+    "req": "R-IN-1",
+    "says": "`outcome` is free when `!pre`",
+    "where": {
+     "pre": "a >= 1 && b >= 1"
+    }
+   }
+  ],
+  "free": [
+   {
+    "reading": "agent_a",
+    "id": "RA-RET-6",
+    "req": "R-RET-6",
+    "says": "`result` is free when `ndig >= 2`",
+    "where": {
+     "ndig": "count(d < 10: d % 2 == 0 && lo <= d && d <= hi)"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-ORDER",
+    "req": "R-RET-6",
+    "says": "`result` is free when `pre && nexp >= 2`",
+    "where": {
+     "pre": "a >= 1 && b >= 1",
+     "nexp": "count(d < 10: d % 2 == 0 && lo <= d && d <= hi)"
+    }
+   }
+  ]
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IF-2",
+   "phrase": "generate_integers",
+   "taken": 1,
+   "variant": 2,
+   "text": "The name is meant: the function generates integers of any size (even integers between a and b), which contradicts the docstring's 'even digits' (contradiction with R-RET-2)."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "positive",
+   "taken": 1,
+   "variant": 2,
+   "text": "Used loosely for non-negative: a >= 0 and b >= 0; calls with 0 must also satisfy every other requirement."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "a and b",
+   "taken": 1,
+   "variant": 2,
+   "text": "a <= b is implicitly assumed: a call with a > b is outside the precondition and its behaviour is unconstrained."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "return",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any collection of the values is acceptable (a list, tuple, set, generator, ...)."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "even digits",
+   "taken": 1,
+   "variant": 2,
+   "text": "'Digits' is used loosely for numbers: every element is an even integer of any size, as the function name generate_integers suggests (contradiction with R-IF-2)."
+  },
+  {
+   "req": "R-RET-3",
+   "phrase": "between",
+   "taken": 1,
+   "variant": 2,
+   "text": "Exclusive: only values strictly greater than the lower bound and strictly less than the upper bound lie between a and b."
+  },
+  {
+   "req": "R-RET-3",
+   "phrase": "a and b",
+   "taken": 1,
+   "variant": 2,
+   "text": "Ordered: the range runs from a up to b, so nothing lies between them when a > b and the list is empty."
+  },
+  {
+   "req": "R-RET-3",
+   "phrase": "even digits",
+   "taken": 1,
+   "variant": 2,
+   "text": "Even integers of any size, as the function name generate_integers suggests: each element itself lies between a and b."
+  },
+  {
+   "req": "R-RET-4",
+   "phrase": "between",
+   "taken": 1,
+   "variant": 2,
+   "text": "Exclusive: a and b themselves never appear; only values strictly between them are required."
+  },
+  {
+   "req": "R-RET-4",
+   "phrase": "a and b",
+   "taken": 1,
+   "variant": 2,
+   "text": "Ordered: the even digits from a up to b must appear; nothing is required when a > b."
+  },
+  {
+   "req": "R-RET-4",
+   "phrase": "even digits",
+   "taken": 1,
+   "variant": 2,
+   "text": "Every even integer of any size between a and b must appear, as the function name generate_integers suggests (contradiction with R-IF-2)."
+  },
+  {
+   "req": "R-RET-5",
+   "phrase": "the even digits",
+   "taken": 1,
+   "variant": 2,
+   "text": "One entry per occurrence (for instance per occurrence of a digit in the decimal writing of the numbers between a and b): duplicates are allowed or required."
+  },
+  {
+   "req": "R-RET-6",
+   "phrase": "return the even digits",
+   "taken": 1,
+   "variant": 2,
+   "text": "Ascending order is implied, as is conventional for a list of numbers in a range."
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "generate_integers(0, 0) -> raised another exception or did not finish"
+   ]
+  },
+  "R-RET-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "generate_integers(0, 9) -> [2, 2, 3, 3, 3, 4, 6, 8, 8, 8]"
+   ]
+  },
+  "R-RET-3": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "generate_integers(0, 0) -> [8, 8, 8, 8]"
+   ]
+  },
+  "R-RET-4": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": null
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "generate_integers(25, 6)"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "[6, 8]",
+      "[8, 6]"
+     ],
+     "ending": false,
+     "declared": [
+      "RA-RET-6"
+     ],
+     "reqs": [
+      "R-RET-6"
+     ]
+    }
+   },
+   "signal": "result",
+   "reqs": [
+    "R-RET-6"
+   ],
+   "question": "the request allows [6, 8] or [8, 6] (the reading leaves this free on purpose: RA-RET-6): is any answer acceptable, or which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1",
+    "R-RET-2",
+    "R-RET-3",
+    "R-RET-4"
+   ],
+   "calls": [
+    "generate_integers(0, 0) -> raised another exception or did not finish"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"return\" can mean: The function returns a Python list. / Any collection of the values is acceptable (a list, tuple, set, generator, ...).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"even digits\" can mean: Even decimal digits: every element is a single-digit even number, one of 0, 2, 4, 6, 8 (the docstring wins over the function name). / 'Digits' is used loosely for numbers: every element is an even integer of any size, as the function name generate_integers suggests (contradiction with R-IF-2). / Even digits that occur in the decimal writing of the numbers between a and b: every element is one of 0, 2, 4, 6, 8, taken from those numbers' digits.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-3"
+   ],
+   "calls": [],
+   "question": "\"between\" can mean: Inclusive: a and b themselves count as lying between a and b. / Exclusive: only values strictly greater than the lower bound and strictly less than the upper bound lie between a and b.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-3"
+   ],
+   "calls": [],
+   "question": "\"a and b\" can mean: Either order: the range runs from min(a, b) to max(a, b), so swapping a and b does not change which values lie between them. / Ordered: the range runs from a up to b, so nothing lies between them when a > b and the list is empty.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-3"
+   ],
+   "calls": [],
+   "question": "\"even digits\" can mean: Even single digits (0, 2, 4, 6, 8): each element itself lies between a and b. / Even integers of any size, as the function name generate_integers suggests: each element itself lies between a and b. / Even digits occurring in the decimal writing of the numbers between a and b: each element is a digit of some number between a and b, and need not itself lie between a and b.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-4"
+   ],
+   "calls": [],
+   "question": "\"between\" can mean: Inclusive: a or b itself must appear when it is an even digit. / Exclusive: a and b themselves never appear; only values strictly between them are required.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-4"
+   ],
+   "calls": [],
+   "question": "\"a and b\" can mean: Either order: the even digits from min(a, b) to max(a, b) must appear, whichever of a and b is larger. / Ordered: the even digits from a up to b must appear; nothing is required when a > b.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-4"
+   ],
+   "calls": [],
+   "question": "\"even digits\" can mean: Every even single digit (0, 2, 4, 6, 8) between a and b must appear; nothing is required when the range lies above 9. / Every even integer of any size between a and b must appear, as the function name generate_integers suggests (contradiction with R-IF-2). / Every even digit occurring in the decimal writing of some number between a and b must appear.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-5"
+   ],
+   "calls": [],
+   "question": "\"the even digits\" can mean: The set of qualifying values: each appears exactly once, without duplicates. / One entry per occurrence (for instance per occurrence of a digit in the decimal writing of the numbers between a and b): duplicates are allowed or required.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the comparison of agent_a and variant"
+ ]
+}

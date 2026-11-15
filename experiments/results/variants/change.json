@@ -1,0 +1,305 @@
+{
+ "task": "change",
+ "readers": {
+  "variant1": {
+   "k": 1,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-SHIP-1",
+     "phrase": "Free shipping now starts at $75",
+     "reading": 1,
+     "text": "for every customer"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-SHIP-1",
+     "phrase": "Free shipping now starts at $75",
+     "reading": 1
+    }
+   ],
+   "pairs": {
+    "agent_a|variant1": {
+     "seconds": 5,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-CAP-1": {
+       "plain": "A-STRONGER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-KEEP-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-SAME-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-SHIP-1": {
+       "plain": "A-WEAKER",
+       "k": 1,
+       "exact": true,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "calls": [
+         [
+          3424,
+          0,
+          0,
+          0
+         ]
+        ],
+        "lines": [
+         "checkout(3424, 0, False, False) -> (0, 1)"
+        ]
+       }
+      },
+      "R-STU-1": {
+       "plain": "A-STRONGER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      }
+     }
+    },
+    "agent_b|variant1": {
+     "seconds": 7,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-CAP-1": {
+       "plain": "A-WEAKER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-KEEP-1": {
+       "plain": "A-STRONGER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-SAME-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-SHIP-1": {
+       "plain": "A-WEAKER",
+       "k": 1,
+       "exact": true,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "calls": [
+         [
+          3424,
+          0,
+          0,
+          0
+         ]
+        ],
+        "lines": [
+         "checkout(3424, 0, False, False) -> (0, 1)"
+        ]
+       }
+      },
+      "R-STU-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      }
+     }
+    }
+   }
+  },
+  "variant2": {
+   "k": 2,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-SHIP-1",
+     "phrase": "Free shipping now starts at $75",
+     "reading": 2,
+     "text": "for students only"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-SHIP-1",
+     "phrase": "Free shipping now starts at $75",
+     "reading": 2
+    }
+   ],
+   "pairs": {
+    "agent_a|variant2": {
+     "seconds": 5,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-EX-1": {
+       "plain": "ONLY-A",
+       "k": 1,
+       "exact": true
+      },
+      "R-CAP-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-KEEP-1": {
+       "plain": "A-STRONGER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-SAME-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-SHIP-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "calls": [
+         [
+          7864,
+          21,
+          1,
+          0
+         ]
+        ],
+        "lines": [
+         "checkout(7864, 21, True, False) -> (4077, 674)"
+        ]
+       }
+      },
+      "R-STU-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      }
+     }
+    },
+    "agent_b|variant2": {
+     "seconds": 8,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-EX-1": {
+       "plain": "ONLY-A",
+       "k": 1,
+       "exact": true
+      },
+      "R-CAP-1": {
+       "plain": "A-WEAKER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-KEEP-1": {
+       "plain": "A-STRONGER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-SAME-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-SHIP-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "calls": [
+         [
+          2097151,
+          19,
+          0,
+          0
+         ]
+        ],
+        "lines": [
+         "checkout(2097151, 19, False, False) -> (1216348, 498)"
+        ]
+       }
+      },
+      "R-STU-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "settings": {
+  "jobs": 2,
+  "bit_jobs": 1
+ }
+}

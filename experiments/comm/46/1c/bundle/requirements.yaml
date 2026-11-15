@@ -1,0 +1,199 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-TASK-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is an implementation of the given Python function stub fib4, with its body completed and its name and signature kept.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def fib4(n: int):'
+  text: The function is named fib4 and takes exactly one argument, n.
+  kind: definition
+  lines:
+  - 4
+- id: R-ENV-1
+  doc: SPEC
+  quote: 'n: int'
+  text: The caller passes an integer as the argument n.
+  kind: assumption
+  ambiguity:
+  - phrase: 'n: int'
+    readings:
+    - n may be any Python int, including negative values; the prompt leaves the result for negative n unstated.
+    - n is a non-negative integer, an index into the sequence; negative n is never passed.
+  lines:
+  - 4
+- id: R-DEF-1
+  doc: SPEC
+  quote: 'The Fib4 number sequence is a sequence similar to the Fibbonacci sequnece that''s defined as follows:'
+  text: The Fib4 number sequence is the integer sequence fully defined by the four base values fib4(0) to fib4(3) and the four-term recurrence that follow it (R-BASE-1 to R-BASE-4 and R-REC-1); it resembles,
+    but is not, the Fibonacci sequence.
+  kind: definition
+  lines:
+  - 5
+- id: R-BASE-1
+  doc: SPEC
+  quote: fib4(0) -> 0
+  text: fib4(0) returns 0.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  lines:
+  - 6
+- id: R-BASE-2
+  doc: SPEC
+  quote: fib4(1) -> 0
+  text: fib4(1) returns 0.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  lines:
+  - 7
+- id: R-BASE-3
+  doc: SPEC
+  quote: fib4(2) -> 2
+  text: fib4(2) returns 2.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  lines:
+  - 8
+- id: R-BASE-4
+  doc: SPEC
+  quote: fib4(3) -> 0
+  text: fib4(3) returns 0.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  lines:
+  - 9
+- id: R-REC-1
+  doc: SPEC
+  quote: fib4(n) -> fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4).
+  text: For every n of at least 4, fib4(n) returns the sum fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4) of the four preceding elements (with the base values this gives fib4(4) = 2, fib4(5) = 4, fib4(6)
+    = 8, fib4(7) = 14).
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-BASE-1
+  - R-BASE-2
+  - R-BASE-3
+  - R-BASE-4
+  ambiguity:
+  - phrase: fib4(n)
+    readings:
+    - The recurrence applies to every n >= 4 only; the base values cover 0 to 3.
+    - The recurrence applies to every integer n not listed as a base value, including negative n, where it extends the sequence backwards.
+  - phrase: fib4(n) -> fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4)
+    readings:
+    - 'Contradiction with the docstring examples (R-EX-1, R-EX-2, R-EX-3): the recurrence and base values are authoritative, so fib4(5) = 4, fib4(6) = 8 and fib4(7) = 14, and the examples fib4(5) -> 0,
+      fib4(6) -> 0, fib4(7) -> 2 are wrong.'
+    - 'Contradiction with the docstring examples (R-EX-1, R-EX-2, R-EX-3): the examples are authoritative, so fib4(5) = 0, fib4(6) = 0 and fib4(7) = 2, and the recurrence does not hold at n = 5 and n =
+      6 (its meaning for larger n is then unclear).'
+  lines:
+  - 10
+- id: R-FN-1
+  doc: SPEC
+  quote: compute the n-th element of the fib4 number sequence
+  text: For an argument n, fib4(n) returns, as an integer, the element of the Fib4 number sequence at index n, counting from 0 as the base values fib4(0) to fib4(3) do.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: the n-th element
+    readings:
+    - The element at index n counting from 0, so fib4(n) is the sequence value labelled fib4(n) in the definition.
+    - The n-th element counting from 1, so fib4(n) is the value at index n - 1 (and fib4(0) has no meaning).
+  - phrase: compute
+    readings:
+    - fib4 returns the element as a Python int.
+    - fib4 only has to produce the value somehow (for instance print it, or return it as a float); the form of the answer is not fixed.
+  lines:
+  - 11
+- id: R-NF-1
+  doc: SPEC
+  quote: efficiently compute
+  text: 'fib4 computes its result efficiently: it avoids the exponential cost of the naive recursive evaluation of the recurrence.'
+  kind: non_functional
+  ambiguity:
+  - phrase: efficiently
+    readings:
+    - Time linear in n (an iterative loop over the sequence), with constant extra memory.
+    - Time linear in n with any amount of memory (for instance a table of all elements up to n).
+    - Better than linear time, for instance O(log n) by matrix exponentiation.
+    - Only that every call in the range that is checked finishes within the checker's time limit.
+  lines:
+  - 11
+- id: R-NF-2
+  doc: SPEC
+  quote: Do not use recursion.
+  text: The implementation of fib4 does not use recursion.
+  kind: non_functional
+  ambiguity:
+  - phrase: recursion
+    readings:
+    - Only fib4 calling itself directly is forbidden; recursive helper functions are allowed.
+    - Any recursion is forbidden, including recursive helpers, mutual recursion and memoized recursion (such as functools.lru_cache on a recursive function).
+  lines:
+  - 11
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> fib4(5) 0'
+  text: A call fib4(5) returns 0.
+  kind: scenario
+  depends:
+  - R-FN-1
+  ambiguity:
+  - phrase: '>>> fib4(5) 0'
+    readings:
+    - 'Contradiction with the recurrence (R-REC-1) and base values: these give fib4(5) = fib4(4) + fib4(3) + fib4(2) + fib4(1) = 2 + 0 + 2 + 0 = 4, so the example is wrong and fib4(5) returns 4.'
+    - 'Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(5) returns 0, and the recurrence does not hold at n = 5.'
+  lines:
+  - 12
+  - 13
+- id: R-EX-2
+  doc: SPEC
+  quote: '>>> fib4(6) 0'
+  text: A call fib4(6) returns 0.
+  kind: scenario
+  depends:
+  - R-FN-1
+  ambiguity:
+  - phrase: '>>> fib4(6) 0'
+    readings:
+    - 'Contradiction with the recurrence (R-REC-1) and base values: these give fib4(6) = fib4(5) + fib4(4) + fib4(3) + fib4(2) = 4 + 2 + 0 + 2 = 8, so the example is wrong and fib4(6) returns 8.'
+    - 'Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(6) returns 0, and the recurrence does not hold at n = 6.'
+  lines:
+  - 14
+  - 15
+- id: R-EX-3
+  doc: SPEC
+  quote: '>>> fib4(7) 2'
+  text: A call fib4(7) returns 2.
+  kind: scenario
+  depends:
+  - R-FN-1
+  ambiguity:
+  - phrase: '>>> fib4(7) 2'
+    readings:
+    - 'Contradiction with the recurrence (R-REC-1) and base values: these give fib4(7) = fib4(6) + fib4(5) + fib4(4) + fib4(3) = 8 + 4 + 2 + 0 = 14, so the example is wrong and fib4(7) returns 14.'
+    - 'Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(7) returns 2 (which is what the recurrence gives at n = 7 if fib4(5) = fib4(6) = 0 as R-EX-1 and R-EX-2
+      say), and the recurrence''s value 14 is wrong.'
+  lines:
+  - 16
+  - 17
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is 0 unless `outcome` is 0.'
+  text: In every call, the result signal is 0 unless outcome is 0, that is unless the call returned an integer that fits result.
+  kind: guarantee
+  lines:
+  - 38

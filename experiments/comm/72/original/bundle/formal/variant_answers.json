@@ -1,0 +1,86 @@
+[
+ {
+  "req": "R-OUT-1",
+  "phrase": "returns True if the object q will fly, and False otherwise",
+  "taken": 1,
+  "variant": 2,
+  "text": "any truthy or falsy value (such as 1 or 0, or a non-empty or empty list) is acceptable as the answer"
+ },
+ {
+  "req": "R-FLY-1",
+  "phrase": "less than or equal the maximum possible weight w",
+  "taken": 1,
+  "variant": 2,
+  "text": "sum(q) < w, as the example comments phrase it (\"is less than the maximum possible weight\"): a balanced q whose sum equals w does not fly"
+ },
+ {
+  "req": "R-FLY-1",
+  "phrase": "palindromic list",
+  "taken": 1,
+  "variant": 2,
+  "text": "the empty list is not a balanced object, so will_it_fly([], w) returns False"
+ },
+ {
+  "req": "R-FLY-2",
+  "phrase": "The object q will fly if",
+  "taken": 1,
+  "variant": 2,
+  "text": "'if' gives only a sufficient condition: the prompt does not say when q does not fly, so the answer for an unbalanced q is not determined by 'False otherwise'"
+ },
+ {
+  "req": "R-FLY-2",
+  "phrase": "palindromic list",
+  "taken": 1,
+  "variant": 2,
+  "text": "the empty list is not a balanced object, so will_it_fly([], w) returns False"
+ },
+ {
+  "req": "R-FLY-3",
+  "phrase": "The object q will fly if",
+  "taken": 1,
+  "variant": 2,
+  "text": "'if' gives only a sufficient condition: the prompt does not say when q does not fly, so the answer for a q heavier than w is not determined by 'False otherwise'"
+ },
+ {
+  "req": "R-FLY-3",
+  "phrase": "less than or equal the maximum possible weight w",
+  "taken": 1,
+  "variant": 2,
+  "text": "sum(q) < w flies, as the example comments phrase it: False is also required when sum(q) == w"
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "The object q will fly if",
+  "taken": 1,
+  "variant": 2,
+  "text": "'if' gives only a sufficient condition: q flies at least in that case, and the prompt does not say whether it can fly otherwise"
+ },
+ {
+  "req": "R-DEF-2",
+  "phrase": "palindromic list",
+  "taken": 1,
+  "variant": 2,
+  "text": "the empty list is not a balanced object, hence never flies"
+ },
+ {
+  "req": "R-DEF-3",
+  "phrase": "less than or equal the maximum possible weight w",
+  "taken": 1,
+  "variant": 2,
+  "text": "sum(q) < w, as the example comments phrase it (\"is less than the maximum possible weight\"): a sum equal to w does not meet the condition"
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "is less than the maximum possible weight",
+  "taken": 1,
+  "variant": 2,
+  "text": "the comment states the rule: the sum must be strictly less than w, contradicting 'less than or equal' for a sum equal to w"
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "is less than the maximum possible weight",
+  "taken": 1,
+  "variant": 2,
+  "text": "the comment states the rule: the sum must be strictly less than w, contradicting 'less than or equal' for a sum equal to w"
+ }
+]

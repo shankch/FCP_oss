@@ -1,0 +1,44 @@
+{
+ "b1": {
+  "questions": "The docstring is ambiguous about how many cars are in each set. It says \"2*n or n cars\" for both directions, so I need to know which applies before writing the function:\n\n1. **How many cars drive in each direction?**\n   - (a) `n` cars in each direction. Every pair collides once, giving `n * n = n\u00b2` collisions.\n   - (b) `2*n` cars in each direction, giving `(2n)\u00b2 = 4n\u00b2` collisions.\n   - (c) `n` in one direction and `2*n` in the other, giving `2n\u00b2` collisions.\n   - (d) Something else, such as an extra parameter that chooses between `n` and `2*n`.\n\n2. **Should invalid input be handled?** For example, should negative `n` raise a `ValueError` or return `0`?",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.013092000000000001,
+  "seconds": 2.3
+ },
+ "b2": {
+  "questions": "The number of cars in each set is ambiguous. The description says \"2*n or n cars\" for each direction, which gives different answers:\n\n1. Does each direction have exactly `n` cars, giving `n * n = n\u00b2` collisions?\n2. Or does each direction have `2*n` cars, giving `4n\u00b2` collisions?\n3. Or can the two directions have different counts (one with `n`, the other with `2*n`, giving `2n\u00b2`)? If so, how is that chosen?\n\nAlso, should the function handle `n = 0` (returning 0) or negative `n`?",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0133335,
+  "seconds": 2.9
+ },
+ "b0": {
+  "questions": "Every left-to-right car eventually meets every right-to-left car exactly once. They start fully separated, move toward each other, and pass through each other unchanged. So the number of collisions is simply:\n\n**collisions = (# cars moving right) \u00d7 (# cars moving left)**\n\n```python\ndef car_race_collision(n: int):\n    \"\"\"\n    Imagine a road that's a perfectly straight infinitely long line.\n    n cars are driving left to right; simultaneously, a different set of n cars\n    are driving right to left. The two sets of cars start out being very far from\n    each other. All cars move in the same speed. Two cars are said to collide\n    when a car that's moving left to right hits a car that's moving right to left.\n    However, the cars are infinitely sturdy and strong; as a result, they continue moving\n    in their trajectory as if they did not collide.\n\n    This function outputs the number of such collisions.\n    \"\"\"\n    return n * n\n```\n\n**Note on the ambiguity:** The docstring says \"2\\*n or n cars\" for each group, so the counts aren't uniquely specified. I assumed **n cars in each direction**, which gives `n * n`. That matches the standard version of this problem. The answer for the other readings follows from the same formula:\n\n| Left-to-right | Right-to-left | Collisions |\n|---|---|---|\n| n | n | `n * n` |\n| 2n | 2n | `4 * n * n` |\n| 2n | n (or n and 2n) | `2 * n * n` |\n\nIf you meant one of the other cases, swap in the matching expression. Or, if the counts can vary, generalize the function to `car_race_collision(left: int, right: int) -> int` and have it return `left * right`.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.015714600000000002,
+  "seconds": 2.4
+ },
+ "fcp": {
+  "questions": "1. the request allows 2 or 4: which is meant?\n   - on: car_race_collision(1)\n2. \"outputs\" can mean: returns the number of collisions as an int / prints the number of collisions; the return value is unspecified. Which is meant?\n   - R-OUT-1: For every valid n, car_race_collision(n) returns a non-negative integer: it does not raise, fail to finish, or return a value of another type.\n3. \"the number of such collisions\" can mean: n*n (n cars in each direction) / 4*n*n (2*n cars in each direction) / 2*n*n (2*n cars in one direction and n in the other) / any of n*n, 2*n*n or 4*n*n is acceptable, since the car counts are given as alternatives. Which is meant?\n   - R-OUT-2: The returned value equals the total number of collisions between a left-to-right car and a right-to-left car; because the sets approach, same-direction cars never meet, and cars pass through each other, every opposing pair collides exactly once, so the value is the size of the left-to-right set times the size of the right-to-left set.\n4. \"the number\" can mean: a single number determined by n, so one fixed car count must be meant (R-CAR-1, R-CAR-2) / the car counts are left open (R-CAR-1, R-CAR-2), which contradicts there being one number of collisions for each n. Which is meant?\n   - R-OUT-2: The returned value equals the total number of collisions between a left-to-right car and a right-to-left car; because the sets approach, same-direction cars never meet, and cars pass through each other, every opposing pair collides exactly once, so the value is the size of the left-to-right set times the size of the right-to-left set.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0190571,
+  "seconds": 3.7
+ },
+ "fcp_formal": {
+  "questions": "1. the request allows 2 or 4: which is meant?\n   - on: car_race_collision(1)",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0144926,
+  "seconds": 3.8
+ },
+ "fcp_hard": {
+  "questions": "1. the request allows 2 or 4: which is meant?\n   - on: car_race_collision(1)",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.006192199999999999,
+  "seconds": 2.9
+ }
+}

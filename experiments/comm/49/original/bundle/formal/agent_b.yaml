@@ -1,0 +1,163 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model of modp(n, p) = 2^n mod p (R-RES-1, readings: power, always
+# reduced into 0 .. p-1, a Python int).
+#
+# FCP-PL has no variable modulus (% needs a constant divisor) and expands defs
+# inline, so 2^n mod p cannot be computed in one cycle for every n up to 65,535
+# (16 modular squarings already exceed what can be checked). The model therefore
+# knows the expected value in two ways:
+#   direct: 2^n < 1024 * p, so the quotient 2^n div p has at most 10 bits and the
+#           residue is obtained by restoring division (r9 .. r0) of pw = 2^n by p;
+#   chain:  the previous call was modp(n - 1, p) with the same p and the model knew
+#           its value e (ghosts m_known, m_val, m_n, m_p); then 2^n mod p = 2e mod p.
+# The ghosts are driven by the inputs only, never by result, so a wrong earlier
+# answer cannot change what a later call is checked against.
+defs:
+  pw: "1 << min(n, 28)"
+  direct: "p >= 1 && pw < 1024 * p"
+  r9: "pw - (pw >= p * 512 ? p * 512 : 0)"
+  r8: "r9 - (r9 >= p * 256 ? p * 256 : 0)"
+  r7: "r8 - (r8 >= p * 128 ? p * 128 : 0)"
+  r6: "r7 - (r7 >= p * 64 ? p * 64 : 0)"
+  r5: "r6 - (r6 >= p * 32 ? p * 32 : 0)"
+  r4: "r5 - (r5 >= p * 16 ? p * 16 : 0)"
+  r3: "r4 - (r4 >= p * 8 ? p * 8 : 0)"
+  r2: "r3 - (r3 >= p * 4 ? p * 4 : 0)"
+  r1: "r2 - (r2 >= p * 2 ? p * 2 : 0)"
+  r0: "r1 - (r1 >= p ? p : 0)"
+  chain: "p >= 1 && m_known == 1 && p == m_p && n == m_n + 1"
+  dbl: "2 * m_val - (2 * m_val >= p ? p : 0)"
+  known: "direct || chain"
+  expect: "direct ? r0 : dbl"
+
+ghosts:
+  - {name: m_known, range: [0, 1], init: 0, next: "known"}
+  - {name: m_val, range: [0, 65535], init: 0, next: "known ? expect : 0"}
+  - {name: m_n, range: [0, 65535], init: 0, next: "n"}
+  - {name: m_p, range: [0, 65535], init: 0, next: "p"}
+
+properties:
+  - id: RB-RES-1-RET
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: "p >= 1", cond: "outcome == 0"}
+    note: >-
+      "Return" read as returning a Python int (reading 1): for every p >= 1 the call
+      returns normally with an integer that fits result. The residue is below
+      p <= 65,535, so it always fits; a float such as 3.0 is outcome 2 and violates this.
+      A call that raises or does not finish (outcome 1) also violates it.
+  - id: RB-RES-1-RNG
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: "p >= 1", cond: "result < p"}
+    note: >-
+      "modulo p" read as always reducing into 0 .. p-1 (reading 1), so for p = 1 the
+      result is 0 for every n, including modp(0, 1) = 0. This holds for every call
+      with p >= 1, whether or not the model knows the exact value.
+  - id: RB-RES-1-VAL
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: "known", cond: "result == expect"}
+    note: >-
+      "2^n" read as 2 to the power n (reading 2, XOR, contradicts every example and is
+      not taken). result is checked against the specification model (see the header
+      comment): exact when 2^n < 1024 * p (every n <= 9 for any p >= 1, n <= 16 for
+      p = 101, n <= 25 for p = 65,535), and along any run of calls
+      modp(n, p), modp(n + 1, p), ... that starts at such a call. PARTIAL: for a call
+      outside both cases (large n, not preceded by modp(n - 1, p) with a known value)
+      only RB-RES-1-RET and RB-RES-1-RNG apply, so the per-call value of R-RES-1 is
+      not fully captured. FCP-PL cannot state it within the size limit, because it has
+      no variable-modulus operator and defs are expanded inline.
+  - id: RB-EX-1-P
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 3 && p == 5", cond: "outcome == 0 && result == 3"}
+    note: The doctest states the value the call returns, so it is also a guarantee for this call.
+  - id: RB-EX-2-P
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 1101 && p == 101", cond: "outcome == 0 && result == 2"}
+    note: >-
+      The doctest states the value the call returns. This is outside the model's direct
+      window, so this property is the only per-call check of this value.
+  - id: RB-EX-3-P
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "n == 0 && p == 101", cond: "outcome == 0 && result == 1"}
+    note: >-
+      Read as a single data point (reading 1). It is not generalized to modp(0, p) = 1
+      for every p, which would contradict RB-RES-1-RNG at p = 1.
+  - id: RB-EX-4-P
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "n == 3 && p == 11", cond: "outcome == 0 && result == 8"}
+    note: The doctest states the value the call returns, so it is also a guarantee for this call.
+  - id: RB-EX-5-P
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: "n == 100 && p == 101", cond: "outcome == 0 && result == 1"}
+    note: >-
+      The doctest states the value the call returns. This is outside the model's direct
+      window, so this property is the only per-call check of this value.
+
+scenarios:
+  - {id: RB-EX-1-S, req: R-EX-1, cover: "n == 3 && p == 5 && outcome == 0 && result == 3"}
+  - {id: RB-EX-2-S, req: R-EX-2, cover: "n == 1101 && p == 101 && outcome == 0 && result == 2"}
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "n == 0 && p == 101 && outcome == 0 && result == 1"
+    note: Single data point (reading 1 of "modp(0, 101)").
+  - {id: RB-EX-4-S, req: R-EX-4, cover: "n == 3 && p == 11 && outcome == 0 && result == 8"}
+  - {id: RB-EX-5-S, req: R-EX-5, cover: "n == 100 && p == 101 && outcome == 0 && result == 1"}
+
+dont_cares:
+  - id: RB-RES-2-RES
+    req: R-RES-2
+    signal: result
+    when: "p == 0"
+    note: >-
+      "modulo p" for p = 0 read as outside the contract (reading 1): any result. The
+      prompt gives no value for 2^n modulo 0. The frame rule F-ZERO still forces
+      result to 0 when outcome is not 0.
+  - id: RB-RES-2-OUT
+    req: R-RES-2
+    signal: outcome
+    when: "p == 0"
+    note: >-
+      Reading 1 of "modulo p" for p = 0: any way of ending the call (a value, an
+      exception, no answer) is acceptable. Readings 2 (must raise) and 3 (return 2^n
+      unreduced) are not taken; the prompt states neither.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Says what the deliverable is (a complete body for modp), not a property of
+      calls. Its observable consequence, that every call with p >= 1 returns, is
+      RB-RES-1-RET.
+    covered_by: [RB-RES-1-RET]
+  - req: R-SIG-1
+    reason: >-
+      Interface definition: the function name and the order and type of its two
+      parameters. These are realized by the `function` binding in design.yaml
+      (n -> signal n, p -> signal p) and are not a property of the trace.
+  - req: R-NUM-1
+    reason: >-
+      Non-functional advice on how to compute. Read as exactness (reading 2: integer
+      arithmetic, no floating point). Its observable effect is an exact residue,
+      returned as an int; for reading 1, it is that every call finishes. Both are
+      already required for p >= 1 by the R-RES-1 items.
+    covered_by: [RB-RES-1-RET, RB-RES-1-RNG, RB-RES-1-VAL]
+  - req: R-FR-1
+    reason: Adapter frame rule, already in every set as F-ZERO (outcome != 0 -> result == 0); not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-RES-1, phrase: "2^n", reading: 1}
+  - {req: R-RES-1, phrase: "modulo p", reading: 1}
+  - {req: R-RES-1, phrase: "Return", reading: 1}
+  - {req: R-RES-2, phrase: "modulo p", reading: 1}
+  - {req: R-NUM-1, phrase: "be aware of numerics", reading: 2}
+  - {req: R-EX-3, phrase: "modp(0, 101)", reading: 1}

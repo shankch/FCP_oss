@@ -1,0 +1,125 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # n = a + b + c + d with a, b, c, d positive even integers (repeats allowed):
+  # a + b + c + d = 2 * (a' + b' + c' + d') with a', b', c', d' >= 1, and
+  # a' + b' + c' + d' takes every integer value >= 4, so the representable n
+  # are exactly the even n >= 8.
+  representable: "n % 2 == 0 && n >= 8"
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Every call finishes and returns True or False (outcome 0); raising, not
+      finishing (outcome 1) and returning a value of another type such as 1, 0
+      or None (outcome 2) are all violations. Reading 1 of "Evaluate whether":
+      the function must return a Python bool, as the returned "True"/"False" of
+      the examples and the adapter's bool return type say.
+
+  - id: RA-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args: {trigger: "representable", cond: "outcome == 0 && result"}
+    note: >-
+      If n is a sum of exactly 4 positive even numbers, the call returns True.
+      Summands may repeat (the text does not say distinct), so this covers
+      every even n >= 8 (see def representable). The description is taken as
+      authoritative, literally and without inversion. This contradicts the
+      example is_equal_to_sum_even(8) == False (R-EX-3, RA-EX-3): at n == 8
+      the two properties cannot both hold. The contradiction is in the
+      specification and is deliberately left unrepaired.
+
+  - id: RA-SUM-2
+    req: R-SUM-2
+    pattern: implies
+    args: {trigger: "!representable", cond: "outcome == 0 && !result"}
+    note: >-
+      If n is not a sum of exactly 4 positive even numbers (n odd, or n < 8,
+      including n == 0), the call returns False. Summands may repeat, and the
+      description is taken as authoritative. This contradicts the examples
+      is_equal_to_sum_even(4) == True and is_equal_to_sum_even(6) == True
+      (R-EX-1, R-EX-2; RA-EX-1, RA-EX-2): at n == 4 and n == 6 the
+      properties cannot both hold. The contradiction is in the specification
+      and is deliberately left unrepaired.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 4", cond: "outcome == 0 && result"}
+    note: >-
+      The docstring example is_equal_to_sum_even(4) == True, read literally:
+      every call with n == 4 returns True. The function is stateless and its
+      calls are independent, so the example is stated as a guarantee for
+      every such call (RA-EX-1-S says it is possible). Contradicts RA-SUM-2,
+      because 4 < 2+2+2+2 = 8 is not a sum of 4 positive even numbers.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 6", cond: "outcome == 0 && result"}
+    note: >-
+      The docstring example is_equal_to_sum_even(6) == True, read literally:
+      every call with n == 6 returns True (RA-EX-2-S says it is possible).
+      Contradicts RA-SUM-2, because 6 < 8 is not a sum of 4 positive even
+      numbers.
+
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "n == 8", cond: "outcome == 0 && !result"}
+    note: >-
+      The docstring example is_equal_to_sum_even(8) == False, read literally:
+      every call with n == 8 returns False (RA-EX-3-S says it is possible).
+      Contradicts RA-SUM-1, because 8 = 2+2+2+2. It would agree with R-SUM-1
+      only under the distinct-summands reading, which this set does not take.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: "n == 4 && outcome == 0 && result"
+    note: >-
+      A call with n == 4 that returns True must be possible. Unreachable
+      together with RA-SUM-2 (the specification's contradiction).
+
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: "n == 6 && outcome == 0 && result"
+    note: >-
+      A call with n == 6 that returns True must be possible. Unreachable
+      together with RA-SUM-2 (the specification's contradiction).
+
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: "n == 8 && outcome == 0 && !result"
+    note: >-
+      A call with n == 8 that returns False must be possible. Unreachable
+      together with RA-SUM-1 (the specification's contradiction).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function's name and its single parameter n are
+      fixed by the adapter (design.yaml function section). They are not a
+      property of the call trace, which only exists once the adapter can call
+      is_equal_to_sum_even(n).
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter (frame.md). It holds by construction
+      and is added to every formalization set as F-ZERO, so it is not restated
+      here.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-RET-1, phrase: "Evaluate whether", reading: 1}
+  - {req: R-SUM-1, phrase: "exactly 4 positive even numbers", reading: 1}
+  - {req: R-SUM-1, phrase: "can be written as the sum of exactly 4 positive even numbers", reading: 1}
+  - {req: R-SUM-2, phrase: "exactly 4 positive even numbers", reading: 1}
+  - {req: R-SUM-2, phrase: "can be written as the sum of exactly 4 positive even numbers", reading: 1}
+  - {req: R-EX-1, phrase: "is_equal_to_sum_even(4) == True", reading: 1}
+  - {req: R-EX-2, phrase: "is_equal_to_sum_even(6) == True", reading: 1}
+  - {req: R-EX-3, phrase: "is_equal_to_sum_even(8) == False", reading: 1}

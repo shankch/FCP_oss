@@ -1,0 +1,153 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # the price times quantity of all items, summed (rule 6)
+  gross: "sum(i < len(price): price[i] * qty[i])"
+  # the price times quantity of the items not on sale, summed (rule 4)
+  gross_not_on_sale: "sum(i < len(price): sale[i] == 0 ? price[i] * qty[i] : 0)"
+
+properties:
+  # ---- R-RET-1: a call that rule 1 does not reject returns the dict --------
+  - id: IA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: "len(price) > 0 && !(0 in qty)"
+      cond: "outcome == 0"
+    note: >-
+      The quote says unconditionally that the function returns the dict, which
+      contradicts rule 1 if read alone. Read together with rule 1: every call
+      that rule 1 does not reject (at least one item, no quantity of 0) returns
+      a dict with exactly the keys lines, discount and total (outcome 0).
+
+  # ---- R-ERR-1: empty items or a quantity of 0 raise ValueError -------------
+  - id: IA-ERR-1
+    req: R-ERR-1
+    pattern: implies
+    args:
+      trigger: "len(price) == 0 || 0 in qty"
+      cond: "outcome == 1"
+    note: >-
+      "If", not "only if": the converse comes from R-RET-1 (IA-RET-1).
+
+  # ---- R-LINES-1: one amount per item, in order ------------------------------
+  - id: IA-LINES-1
+    req: R-LINES-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "len(lines) == len(price)"
+    note: >-
+      One amount per item. Rules 2 to 6 describe the returned dict, so they are
+      stated for calls that return it (outcome 0); whether a call must return
+      is R-RET-1.
+  - id: IA-LINES-2
+    req: R-LINES-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "all(i < len(price): !(member && sale[i] == 0) -> lines[i] == price[i] * qty[i])"
+    note: >-
+      Line i belongs to item i (same order) and is price times quantity minus
+      that line's discount. The only rule that gives a line a discount is rule 3
+      (members, lines not on sale), so every other line has no discount and is
+      exactly price times quantity. The discounted lines are stated in IA-MEM-1.
+
+  # ---- R-MEM-1: members get 10% off every line not on sale, rounded down ----
+  - id: IA-MEM-1
+    req: R-MEM-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && member"
+      cond: "all(i < len(price): sale[i] == 0 -> 10 * (price[i] * qty[i] - lines[i]) == price[i] * qty[i] - (price[i] * qty[i]) % 10)"
+    note: >-
+      With rule 2 (line = price times quantity minus the line's discount), the
+      line's discount price[i]*qty[i] - lines[i] is 10% of price[i]*qty[i]
+      rounded down to the cent, i.e. floor(price[i]*qty[i] / 10), written
+      without division as 10 * d == x - x % 10. Ambiguity: "rounded down" could
+      apply to the discounted line instead (line = floor(90% of x)). I chose
+      the reading where the discount is rounded down, because rule 2 builds the
+      line by subtracting the line's discount and the example (3998 -> line
+      3599, discount 399) agrees with it; the other reading gives 3598.
+
+  # ---- R-DISC-1: discount, members vs everyone else ---------------------------
+  - id: IA-DISC-1
+    req: R-DISC-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && member"
+      cond: "10 * discount == gross_not_on_sale - gross_not_on_sale % 10"
+    note: >-
+      Literal word order "summed and rounded down": the price times quantity of
+      the items not on sale is summed first and 10% of the sum is rounded down
+      once, discount == floor(gross_not_on_sale / 10). The other reading
+      (round each item's 10% down, then sum) is not chosen. This reading
+      contradicts rules 2, 3, 5 and 6 taken together: those force discount ==
+      the sum of the per-line rounded-down discounts, which is smaller whenever
+      the dropped fractions add up to a cent or more (member, two items not on
+      sale of price 5, quantity 1: lines [5, 5], sum 10, but floor(10/10) = 1,
+      so rule 6 gives total 9 while rule 5 gives 10). Not repaired here.
+  - id: IA-DISC-2
+    req: R-DISC-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && !member"
+      cond: "discount == 0"
+    note: "\"0 for everyone else\": every call with member False."
+
+  # ---- R-SUM-1: total is the sum of lines -------------------------------------
+  - id: IA-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "total == sum(i < len(lines): lines[i])"
+
+  # ---- R-TOT-1: total is the gross minus discount -----------------------------
+  - id: IA-TOT-1
+    req: R-TOT-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "total == gross - discount"
+    note: >-
+      With IA-SUM-1 this makes discount equal the sum of the line discounts,
+      which conflicts with the literal reading of R-DISC-1 (see IA-DISC-1).
+
+  # ---- R-EX-1: the worked example, as a guarantee on that call -----------------
+  - id: IA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "member && price == [1999] && qty == [2] && sale == [0]"
+      cond: "outcome == 0 && lines == [3599] && discount == 399 && total == 3599"
+    note: >-
+      The example says the call "returns" this dict, which is a statement about
+      every run of that call, so it is also stated as a property (IA-EX-2 states
+      that the behaviour is possible).
+
+scenarios:
+  - id: IA-EX-2
+    req: R-EX-1
+    cover: "member && price == [1999] && qty == [2] && sale == [0] && outcome == 0 && lines == [3599] && discount == 399 && total == 3599"
+    note: "The example call with its stated result must be a possible behaviour."
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the function's name, arguments and result type. It is
+      realized by the function section and the signals of design.yaml and by
+      the adapter (frame.md); there is no behaviour to state.
+  - req: R-IN-1
+    reason: >-
+      Definition of an item. It is realized by the interface encoding (the
+      price, qty and sale sequences of group items); its meaning, price as the
+      unit price that is multiplied by the quantity, is used in IA-LINES-2,
+      IA-MEM-1, IA-DISC-1 and IA-TOT-1.
+  - req: R-FR-1
+    reason: >-
+      Encoding rule of the adapter. It is the frame item F-ZERO of design.yaml,
+      which is added to every formalization set.
+    covered_by: [F-ZERO]

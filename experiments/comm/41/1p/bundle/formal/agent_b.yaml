@@ -1,0 +1,126 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate(n) keeps no state between calls (frame.md),
+# so the model is combinational: what one call of n has to do. The request is
+# cut off in the middle of its docstring ("Two cars are said to collide") and
+# never says what the function returns, so the model constrains only how a
+# call ends, not the value it returns.
+defs:
+  # the call ended by returning a value of any kind: outcome 0 (an integer that
+  # fits result) or outcome 2 (None, another type, a negative or too large
+  # number); outcome 1 is an exception or a call that did not finish
+  returned: "outcome != 1"
+  # R-CAR-1 / R-CAR-2 with n == 0: neither set has any car
+  no_cars: "n == 0"
+
+properties:
+  - id: RB-FN-1
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: "!no_cars", cond: "returned"}
+    note: >-
+      "Complete this function" with a body that produces its answer for every
+      valid n: for every n of at least 1 (valid under either reading of "n
+      cars") the call returns instead of raising or not finishing. Reading 2
+      of "Complete this function", the most literal one: the docstring stops
+      mid-sentence and the request never states what the function returns, so
+      any returned value is accepted (outcome 0 or 2, result free, see
+      RB-FN-1-D). Reading 1 (return the number of collisions) would fill in
+      the missing sentence, which the text does not contain; it is not
+      formalized. Reading 3 (also finish the docstring) is not observable in
+      the trace. The case n == 0 is RB-CAR-1.
+
+  - id: RB-CAR-1
+    req: R-CAR-1
+    pattern: implies
+    args: {trigger: "no_cars", cond: "returned"}
+    note: >-
+      Reading 1 of "n cars", the most literal one: n is a count of cars and 0
+      is a count, so n == 0 (no cars in either set) is a valid argument, and
+      by R-FN-1 the function must produce an answer for it as well, i.e.
+      return instead of raising or not finishing. What it returns is as free
+      as for any other n (RB-FN-1-D). Under reading 2 (n is at least 1) this
+      item would be dropped and n == 0 left unconstrained.
+
+dont_cares:
+  - id: RB-FN-1-D
+    req: R-FN-1
+    signal: result
+    when: "outcome == 0"
+    note: >-
+      Reading 2 of "Complete this function": the request never states what
+      candidate returns (the sentence that would define a collision, and
+      whatever the function was to compute from it, is missing), so the
+      returned integer is intentionally unconstrained for every n. When
+      outcome is not 0, result is 0 by the frame rule F-ZERO.
+
+unformalized:
+  - req: R-FN-2
+    reason: >-
+      Definition of the interface (name candidate, one argument n annotated
+      int, no return type). It is realized by the adapter itself
+      (design.yaml function section: argument n drives input signal n, the
+      returned value is read as one integer on result and outcome) and
+      constrains no signal of a call.
+  - req: R-RD-1
+    reason: >-
+      Definition of the physical model (a straight road of infinite length).
+      No signal carries positions on the road, and since the request never
+      states what the function returns (R-FN-1, reading 2) no output depends
+      on the model.
+  - req: R-CAR-2
+    reason: >-
+      Definition of the physical model: a second, disjoint set of n cars
+      driving right to left during the same period (readings: "simultaneously"
+      1, "driving right to left" 1, the opposite direction at the same speed
+      magnitude). The only observable consequence, that n == 0 also means no
+      right-to-left cars, is part of RB-CAR-1; directions and timing are not
+      signals, and no output depends on them because the return value is
+      unspecified (R-FN-1, reading 2).
+    covered_by: [RB-CAR-1]
+  - req: R-CAR-3
+    reason: >-
+      An assumption about the initial positions of the cars in the physical
+      model, not about the argument n, which is the only input; there is no
+      signal it could constrain. Reading 2 of "very far from each other", the
+      most literal one: a large distance, with no ordering of the two sets
+      implied (the text does not say which set starts on which side). No
+      output depends on it because the return value is unspecified (R-FN-1,
+      reading 2).
+  - req: R-CAR-4
+    reason: >-
+      Definition of the physical model: all cars share one speed. Readings:
+      "the same speed" 1 (the same magnitude; "speed" is not velocity, so this
+      agrees with the two sets moving in opposite directions), "move in the
+      same speed" 2 (the text states a common speed, not that it is constant
+      over time). Speeds are not signals, and no output depends on them
+      because the return value is unspecified (R-FN-1, reading 2).
+  - req: R-COL-1
+    reason: >-
+      The sentence "Two cars are said to collide" ends before its condition,
+      so the request never defines a collision (reading 3 of that phrase, the
+      most literal one: collision is undefined and nothing about it can be
+      checked). For "collide" the everyday meaning is taken (reading 2: cars
+      that collide stop), which the text does not contradict but which no
+      item uses. Readings 1 and 2 of the first phrase, and the collision count
+      the missing text presumably asked for, would complete the specification
+      rather than formalize it.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (result is 0 unless outcome is 0). It is the
+      frame item F-ZERO of design.yaml, which is added to every formalization
+      set and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: "Complete this function", reading: 2}
+  - {req: R-CAR-1, phrase: "n cars", reading: 1}
+  - {req: R-CAR-2, phrase: "simultaneously", reading: 1}
+  - {req: R-CAR-2, phrase: "driving right to left", reading: 1}
+  - {req: R-CAR-3, phrase: "very far from each other", reading: 2}
+  - {req: R-CAR-4, phrase: "the same speed", reading: 1}
+  - {req: R-CAR-4, phrase: "move in the same speed", reading: 2}
+  - {req: R-COL-1, phrase: "Two cars are said to collide", reading: 3}
+  - {req: R-COL-1, phrase: "collide", reading: 2}

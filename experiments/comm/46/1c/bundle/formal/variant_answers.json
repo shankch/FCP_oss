@@ -1,0 +1,72 @@
+[
+ {
+  "req": "R-ENV-1",
+  "phrase": "n: int",
+  "taken": 1,
+  "variant": 2,
+  "text": "n is a non-negative integer, an index into the sequence; negative n is never passed."
+ },
+ {
+  "req": "R-REC-1",
+  "phrase": "fib4(n)",
+  "taken": 1,
+  "variant": 2,
+  "text": "The recurrence applies to every integer n not listed as a base value, including negative n, where it extends the sequence backwards."
+ },
+ {
+  "req": "R-REC-1",
+  "phrase": "fib4(n) -> fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4)",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with the docstring examples (R-EX-1, R-EX-2, R-EX-3): the examples are authoritative, so fib4(5) = 0, fib4(6) = 0 and fib4(7) = 2, and the recurrence does not hold at n = 5 and n = 6 (its meaning for larger n is then unclear)."
+ },
+ {
+  "req": "R-FN-1",
+  "phrase": "the n-th element",
+  "taken": 1,
+  "variant": 2,
+  "text": "The n-th element counting from 1, so fib4(n) is the value at index n - 1 (and fib4(0) has no meaning)."
+ },
+ {
+  "req": "R-FN-1",
+  "phrase": "compute",
+  "taken": 1,
+  "variant": 2,
+  "text": "fib4 only has to produce the value somehow (for instance print it, or return it as a float); the form of the answer is not fixed."
+ },
+ {
+  "req": "R-NF-1",
+  "phrase": "efficiently",
+  "taken": 2,
+  "variant": 1,
+  "text": "Time linear in n (an iterative loop over the sequence), with constant extra memory."
+ },
+ {
+  "req": "R-NF-2",
+  "phrase": "recursion",
+  "taken": 2,
+  "variant": 1,
+  "text": "Only fib4 calling itself directly is forbidden; recursive helper functions are allowed."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": ">>> fib4(5) 0",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(5) returns 0, and the recurrence does not hold at n = 5."
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": ">>> fib4(6) 0",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(6) returns 0, and the recurrence does not hold at n = 6."
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": ">>> fib4(7) 2",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradiction with the recurrence (R-REC-1) and base values: the example is authoritative, fib4(7) returns 2 (which is what the recurrence gives at n = 7 if fib4(5) = fib4(6) = 0 as R-EX-1 and R-EX-2 say), and the recurrence's value 14 is wrong."
+ }
+]

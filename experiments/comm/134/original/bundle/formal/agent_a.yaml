@@ -1,0 +1,128 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # the string has a last character and it is one of the 52 ASCII letters
+  last_alpha: 'len(txt) >= 1 && isalpha(txt[len(txt) - 1])'
+  # the last character stands alone: it is the first character, or the character
+  # before it is a space, so the last space-separated group is that one character
+  last_alone: 'len(txt) == 1 || txt[len(txt) - 2] == " "'
+  # the True condition of the prompt
+  lone_letter: 'last_alpha && last_alone'
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      Every call, including one on the empty string, returns a Python bool:
+      no exception, no hang, no value of another type. "returns True ... and
+      False otherwise" is read as the bool values exactly (reading 1); a
+      truthy non-bool such as 1 is outcome 2 and violates this.
+
+  - id: RA-LAST-1
+    req: R-LAST-1
+    pattern: implies
+    args: {trigger: 'lone_letter', cond: 'outcome == 0 && result'}
+    note: >-
+      "the last character" is the final character even if it is a space
+      (reading 1). "an alphabetical character" is one of the 52 ASCII letters
+      (reading 1, FCP-PL isalpha), so Latin-1 letters such as \xE9 do not
+      qualify. "is not a part of a word" is read as: the last space-separated
+      group is that one character, i.e. the string has length 1 or the
+      character before the last is a space (reading 1). This rests on reading
+      "a group of characters" in the Note as at least two characters; read as
+      allowing one-character groups, the Note would make every letter part of
+      a word and the condition never true, contradicting the example
+      "apple pi e" -> True. Only the space (code 32) separates words, and any
+      non-space character (digit, punctuation) belongs to a word, so "1e" and
+      "x.e" end inside a word.
+
+  - id: RA-LAST-2
+    req: R-LAST-2
+    pattern: implies
+    args: {trigger: '!lone_letter', cond: 'outcome == 0 && !result'}
+    note: >-
+      "otherwise" is the negation of the True condition of RA-LAST-1 over
+      every string, including the empty string, which has no last character
+      and so gives False (reading 1, matches the example "" -> False). This
+      also covers a last character that is not an ASCII letter (including a
+      trailing space) and a last letter preceded by a non-space character.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'txt == "apple pie"', cond: 'outcome == 0 && !result'}
+    note: The example as a guarantee on that one call.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e"', cond: 'outcome == 0 && result'}
+    note: >-
+      The example is taken as correct (reading 1): a lone letter between
+      spaces is not part of a word. Under the Note read with one-character
+      words it would contradict the definition of "word".
+
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e "', cond: 'outcome == 0 && !result'}
+    note: The example as a guarantee on that one call; the trailing space is the last character.
+
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'len(txt) == 0', cond: 'outcome == 0 && !result'}
+    note: The example as a guarantee on the empty string.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: 'txt == "apple pie" && outcome == 0 && !result'
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: 'txt == "apple pi e" && outcome == 0 && result'
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: 'txt == "apple pi e " && outcome == 0 && !result'
+  - id: RA-EX-4-S
+    req: R-EX-4
+    cover: 'len(txt) == 0 && outcome == 0 && !result'
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Name and signature of the Python function: realized by the function
+      binding in design.yaml (one argument txt driving the txt signal), not a
+      property of the trace.
+  - req: R-IN-1
+    reason: >-
+      The argument is a string by construction of the interface: txt is a
+      sequence signal of at most 32 characters, and calls with other
+      arguments are not part of the trace (frame.md, Inputs). There is
+      nothing left for an assumption to constrain.
+  - req: R-WORD-1
+    reason: >-
+      Definition of "word"; it is used through the def last_alone in the
+      True condition and has no behaviour of its own.
+    covered_by: [RA-LAST-1, RA-LAST-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (F-ZERO in design.yaml), added to every
+      formalization set by construction; frame.md says it need not be
+      restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-RET-1, phrase: "returns True", reading: 1}
+  - {req: R-LAST-1, phrase: "an alphabetical character", reading: 1}
+  - {req: R-LAST-1, phrase: "is not a part of a word", reading: 1}
+  - {req: R-LAST-1, phrase: "the last character", reading: 1}
+  - {req: R-LAST-2, phrase: "otherwise", reading: 1}
+  - {req: R-WORD-1, phrase: "a group of characters", reading: 2}
+  - {req: R-WORD-1, phrase: "separated by space", reading: 1}
+  - {req: R-WORD-1, phrase: "group of characters", reading: 1}
+  - {req: R-EX-2, phrase: "(\"apple pi e\") ➞ True", reading: 1}

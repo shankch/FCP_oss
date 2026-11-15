@@ -1,0 +1,58 @@
+[
+ {
+  "req": "R-IN-1",
+  "phrase": "a string of \"(\" and \")\"",
+  "taken": 1,
+  "variant": 2,
+  "text": "A description of typical input only: the function must still answer for strings with other characters, judging only the '(' and ')' characters and ignoring the rest."
+ },
+ {
+  "req": "R-IN-1",
+  "phrase": "brackets is a string",
+  "taken": 1,
+  "variant": 2,
+  "text": "The empty string is not a string of brackets, so it is outside the contract and its result is unconstrained."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "has a corresponding closing or opening bracket",
+  "taken": 1,
+  "variant": 2,
+  "text": "Equal counts: the number of '(' equals the number of ')', in any order (each '(' paired one-to-one with any ')'). This contradicts the example candidate(\")(()\") == False, which has two of each."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "return True if",
+  "taken": 1,
+  "variant": 2,
+  "text": "A sufficient condition only: the text says nothing about strings with an unmatched bracket, so any result (including None or an exception) is allowed for them."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "has a corresponding closing or opening bracket",
+  "taken": 1,
+  "variant": 2,
+  "text": "Equal counts: the number of '(' equals the number of ')', in any order (each '(' paired one-to-one with any ')'). This contradicts the example candidate(\")(()\") == False, which has two of each."
+ },
+ {
+  "req": "R-SC-2",
+  "phrase": "candidate(\"()\")",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradicts the literal respective reading of R-RET-1 (a closing bracket corresponds to a closing one, an opening to an opening), under which the lone '(' and ')' are unmatched and the result would not be True."
+ },
+ {
+  "req": "R-SC-3",
+  "phrase": "candidate(\"(()())\")",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradicts the literal respective reading of R-RET-1 (same-kind partners), under which three '(' and three ')' cannot all be paired and the result would not be True."
+ },
+ {
+  "req": "R-SC-4",
+  "phrase": "candidate(\")(()\")",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradicts R-RET-1 under the equal-count reading: \")(()\" has two '(' and two ')', so every bracket can be given a partner and the result would be True."
+ }
+]

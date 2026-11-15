@@ -1,0 +1,79 @@
+[
+ {
+  "req": "R-IF-2",
+  "phrase": "def candidate(txt):",
+  "taken": 1,
+  "variant": 2,
+  "text": "The docstring's 'given position' is authoritative: the position should be supplied by the caller, but the signature has no parameter for it, so the signature and the docstring contradict each other and the position is unspecified."
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "separated by space",
+  "taken": 1,
+  "variant": 2,
+  "text": "Any whitespace character (space, tab, newline, carriage return, form feed, vertical tab, ...) separates words, as Python's str.split() with no argument does."
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "a group of characters",
+  "taken": 1,
+  "variant": 2,
+  "text": "A word is a run of alphabetical characters only: digits and punctuation do not belong to words, so in 'pi 1e' the 'e' is not part of a longer word."
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "\"word\" is a group of characters",
+  "taken": 2,
+  "variant": 1,
+  "text": "A group may consist of a single character, so a lone letter between spaces (the final 'e' of 'apple pi e') is itself a word; this contradicts the example candidate(\"apple pi e\") \u279e True, which requires that 'e' not be part of a word."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "the character with given position",
+  "taken": 1,
+  "variant": 2,
+  "text": "The first character of txt (txt[0]); the example candidate(\"apple pi e\") \u279e True contradicts this reading, since 'a' starts the word 'apple'."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "an alphabetical character",
+  "taken": 1,
+  "variant": 2,
+  "text": "Any character for which Python's str.isalpha() is true, which in Latin-1 also includes letters such as '\u00e9' (233), '\u00df' (223), '\u00aa' (170) and '\u00b5' (181)."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "is not a part of a word",
+  "taken": 1,
+  "variant": 2,
+  "text": "The character is preceded by a space: a character at the very start of txt (e.g. txt == 'e') does not qualify, because there is no space before it."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "the character with given position",
+  "taken": 1,
+  "variant": 2,
+  "text": "The first character of txt (txt[0]); the example candidate(\"apple pi e\") \u279e True contradicts this reading, since 'a' starts the word 'apple'."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "an alphabetical character",
+  "taken": 1,
+  "variant": 2,
+  "text": "Any character for which Python's str.isalpha() is true, which in Latin-1 also includes letters such as '\u00e9' (233), '\u00df' (223), '\u00aa' (170) and '\u00b5' (181)."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "is not a part of a word",
+  "taken": 1,
+  "variant": 2,
+  "text": "The character is preceded by a space: a character at the very start of txt (e.g. txt == 'e') does not qualify, because there is no space before it."
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "candidate(\"apple pi e\") \u279e True",
+  "taken": 1,
+  "variant": 2,
+  "text": "The definition of 'word' (a group of characters separated by space) is authoritative: the final 'e' is a one-character word, so it is part of a word and the expected value would be False; the example contradicts the definition."
+ }
+]

@@ -1,0 +1,65 @@
+[
+ {
+  "req": "R-DEF-1",
+  "phrase": "palindrome",
+  "taken": 1,
+  "variant": 2,
+  "text": "Case-insensitive: letters are compared ignoring case but every character counts, so 'Aa' is a palindrome and 'ab, a' is not."
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "given string",
+  "taken": 1,
+  "variant": 2,
+  "text": "The empty string is not considered a palindrome (as the example is_palindrome('') False suggests); non-empty strings are judged by reversal."
+ },
+ {
+  "req": "R-FN-1",
+  "phrase": "Checks if given string is a palindrome",
+  "taken": 1,
+  "variant": 2,
+  "text": "The examples govern: the answer is inverted, and is_palindrome returns False for every palindrome (True exactly when text is not a palindrome), consistent with R-EX-1, R-EX-2, R-EX-3 and R-EX-4."
+ },
+ {
+  "req": "R-FN-2",
+  "phrase": "Checks if given string is a palindrome",
+  "taken": 1,
+  "variant": 2,
+  "text": "The examples govern: the answer is inverted, and is_palindrome returns True for every string that is not a palindrome, as R-EX-4 (is_palindrome('zbcd') True) shows."
+ },
+ {
+  "req": "R-FN-3",
+  "phrase": "Checks",
+  "taken": 1,
+  "variant": 2,
+  "text": "The signature has no return annotation, so any value whose truth value gives the answer (such as 1/0, None, or a non-empty/empty value) is acceptable."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example is correct because the empty string is not considered a palindrome (R-DEF-1, second reading of 'given string'); it is then consistent with R-FN-2."
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example is wrong: the description (R-FN-1) governs and is_palindrome('aba') returns True."
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example is wrong: the description (R-FN-1) governs and is_palindrome('aaaaa') returns True."
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "True",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example is wrong: the description (R-FN-2) governs and is_palindrome('zbcd') returns False."
+ }
+]

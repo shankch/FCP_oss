@@ -1,0 +1,65 @@
+[
+ {
+  "req": "R-RET-1",
+  "phrase": "returns True",
+  "taken": 1,
+  "variant": 2,
+  "text": "any truthy value (e.g. 1) counts as True and any falsy value (e.g. 0 or None) counts as False"
+ },
+ {
+  "req": "R-LAST-1",
+  "phrase": "an alphabetical character",
+  "taken": 1,
+  "variant": 2,
+  "text": "any character Python str.isalpha() accepts, including Latin-1 letters such as \u00e9, \u00df, \u00aa, \u00b5 and \u00ba (codes 128-255)"
+ },
+ {
+  "req": "R-LAST-1",
+  "phrase": "is not a part of a word",
+  "taken": 1,
+  "variant": 2,
+  "text": "the character immediately before the last character is a space, so a one-character string such as \"e\" gives False"
+ },
+ {
+  "req": "R-LAST-1",
+  "phrase": "the last character",
+  "taken": 1,
+  "variant": 2,
+  "text": "the last non-space character, ignoring trailing spaces (so \"apple pi e \" would give True, contradicting its example)"
+ },
+ {
+  "req": "R-LAST-2",
+  "phrase": "otherwise",
+  "taken": 1,
+  "variant": 2,
+  "text": "covers only non-empty strings, since the condition presupposes a last character; the result for the empty string is left unspecified"
+ },
+ {
+  "req": "R-WORD-1",
+  "phrase": "a group of characters",
+  "taken": 2,
+  "variant": 1,
+  "text": "a group can be a single character, so the lone final \"e\" in \"apple pi e\" is itself a word and its last character is part of a word, giving False; this contradicts the example \"apple pi e\" \u279e True"
+ },
+ {
+  "req": "R-WORD-1",
+  "phrase": "separated by space",
+  "taken": 1,
+  "variant": 2,
+  "text": "any whitespace character (space, tab, newline, ...) separates words, so the \"e\" in \"apple\\te\" is a separate group"
+ },
+ {
+  "req": "R-WORD-1",
+  "phrase": "group of characters",
+  "taken": 1,
+  "variant": 2,
+  "text": "only letters make up a word and any non-letter ends it, so in \"1e\" or \"x.e\" the final \"e\" stands alone"
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "(\"apple pi e\") \u279e True",
+  "taken": 1,
+  "variant": 2,
+  "text": "the Note is correct and the lone final \"e\" is a one-character word, so the example contradicts the definition of \"word\" and the result should be False"
+ }
+]

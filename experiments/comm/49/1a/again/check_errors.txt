@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "<fcp>/fcp/review.py", line 592, in _run
+    rec = {'result': f()}
+                     ^^^
+  File "<fcp>/fcp/review.py", line 654, in <lambda>
+    out['prompt'][s] = {'conflicts': st.run(f'the conflicts of {s}', lambda: SW.conflicts(S, s, fn), none),
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^
+  File "<fcp>/fcp/software.py", line 2881, in conflicts
+    spec = _Spec(S, s, fn, 2)
+           ^^^^^^^^^^^^^^^^^^
+  File "<fcp>/fcp/software.py", line 1331, in __init__
+    model = smtmod.SmtModel(gen, [], hb.name)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<fcp>/fcp/smt.py", line 73, in __init__
+    raise TranslationFailed(_FAILED[key]) from None
+fcp.smt.TranslationFailed: the translation of the monitors for the solver (yosys) did not end in 300 s
+Traceback (most recent call last):
+  File "<fcp>/fcp/review.py", line 592, in _run
+    rec = {'result': f()}
+                     ^^^
+  File "<fcp>/fcp/review.py", line 656, in <lambda>
+    lambda: SW.choices(S, s, fn, fn.rets + [fn.outcome]),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<fcp>/fcp/software.py", line 2772, in choices
+    spec = _Spec(S, s, fn, 1)
+           ^^^^^^^^^^^^^^^^^^
+  File "<fcp>/fcp/software.py", line 1331, in __init__
+    model = smtmod.SmtModel(gen, [], hb.name)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<fcp>/fcp/smt.py", line 55, in __init__
+    raise TranslationFailed(_FAILED[key])
+fcp.smt.TranslationFailed: the translation of the monitors for the solver (yosys) did not end in 300 s

@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\ndef car_race_collision(n: int) -> int:\n    \"\"\"\n    Imagine a road that's a perfectly straight infinitely long line.\n    n cars are driving left to right;  simultaneously, a different set of n cars\n    are driving right to left.   The two sets of cars start out being very far from\n    each other.  All cars move in the same speed.  Two cars are said to collide\n    when a car that's moving left to right hits a car that's moving right to left.\n    However, the cars are infinitely sturdy and strong; as a result, they continue moving\n    in their trajectory as if they did not collide.\n\n    This function outputs the number of such collisions.\n\n    Since cars pass through each other unaffected, every left-to-right car\n    eventually meets every right-to-left car exactly once, giving n * n collisions.\n    \"\"\"\n    return n * n\n```",
+  "seconds": 3.8,
+  "cost_usd": 0.013233499999999999,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "NO_QUESTIONS",
+  "seconds": 2.8,
+  "cost_usd": 0.010032699999999999,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "Each of the n left-to-right cars passes through every one of the n right-to-left cars exactly once. The cars don't stop or bounce, so every pair collides once, giving n \u00d7 n collisions.\n\n```python\ndef car_race_collision(n: int):\n    \"\"\"\n    Imagine a road that's a perfectly straight infinitely long line.\n    n cars are driving left to right;  simultaneously, a different set of n cars\n    are driving right to left.   The two sets of cars start out being very far from\n    each other.  All cars move in the same speed.  Two cars are said to collide\n    when a car that's moving left to right hits a car that's moving right to left.\n    However, the cars are infinitely sturdy and strong; as a result, they continue moving\n    in their trajectory as if they did not collide.\n\n    This function outputs the number of such collisions.\n    \"\"\"\n    return n * n\n```\n\nFor example, `car_race_collision(3)` returns `9`.",
+  "seconds": 4.4,
+  "cost_usd": 0.013574700000000002,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

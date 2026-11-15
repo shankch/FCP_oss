@@ -1,0 +1,112 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def smallest_change(arr):'
+  text: The deliverable is a complete Python function named smallest_change that takes a single parameter named arr.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: Given an array arr of integers
+  text: The argument arr passed to smallest_change is an array (list) whose elements are integers.
+  kind: assumption
+  ambiguity:
+  - phrase: an array arr
+    readings:
+    - arr is a Python list of integers.
+    - arr may be any sequence of integers (list, tuple, array.array, ...), and the function must accept all of them.
+  - phrase: an array arr of integers
+    readings:
+    - The empty array is a valid input; it is already palindromic, so the answer for [] is 0.
+    - Only non-empty arrays are covered; the behaviour for [] is unspecified (don't care).
+  lines:
+  - 6
+- id: R-RES-1
+  doc: SPEC
+  quote: find the minimum number of elements that need to be changed to make the array palindromic.
+  text: For every valid arr, smallest_change(arr) returns the smallest number of elements of arr whose values must be changed (each change as defined in R-DEF-2) so that the resulting array is palindromic
+    (as defined in R-DEF-1).
+  kind: guarantee
+  depends:
+  - R-IN-1
+  - R-DEF-1
+  - R-DEF-2
+  ambiguity:
+  - phrase: find
+    readings:
+    - The function returns the minimum number as its result (the examples compare the call's value with ==).
+    - The function computes and outputs (e.g. prints) the minimum number; its return value is not constrained.
+  - phrase: the minimum number
+    readings:
+    - The result is a Python int equal to the minimum count.
+    - The result is any numeric value equal to the minimum count (e.g. the float 4.0 also satisfies `== 4`).
+  lines:
+  - 6
+  - 7
+- id: R-DEF-1
+  doc: SPEC
+  quote: A palindromic array is an array that is read the same backwards and forwards.
+  text: An array is palindromic exactly when it equals its own reversal, i.e. for every index i, element i equals element len(arr)-1-i.
+  kind: definition
+  ambiguity:
+  - phrase: read the same backwards and forwards
+    readings:
+    - 'Element-wise: the sequence of elements equals the reversed sequence of elements (so [10, 1] is not palindromic).'
+    - 'Textually: the written form of the array (e.g. the concatenated decimal digits) reads the same reversed (so [10, 1], written 101, is palindromic).'
+  lines:
+  - 7
+  - 8
+- id: R-DEF-2
+  doc: SPEC
+  quote: In one change, you can change one element to any other element.
+  text: A single change replaces the value of exactly one element (one position) of the array with a different value; changing k elements costs k changes.
+  kind: definition
+  ambiguity:
+  - phrase: any other element
+    readings:
+    - An element may be changed to any integer value.
+    - An element may only be changed to a value that already occurs as another element of arr (both readings yield the same minimum, since a mismatched pair can always be fixed by copying one side to the
+      other).
+  lines:
+  - 8
+- id: R-EX-1
+  doc: SPEC
+  quote: smallest_change([1,2,3,5,4,7,9,6]) == 4
+  text: smallest_change([1, 2, 3, 5, 4, 7, 9, 6]) returns 4.
+  kind: scenario
+  depends:
+  - R-RES-1
+  lines:
+  - 11
+- id: R-EX-2
+  doc: SPEC
+  quote: smallest_change([1, 2, 3, 4, 3, 2, 2]) == 1
+  text: smallest_change([1, 2, 3, 4, 3, 2, 2]) returns 1.
+  kind: scenario
+  depends:
+  - R-RES-1
+  lines:
+  - 12
+- id: R-EX-3
+  doc: SPEC
+  quote: smallest_change([1, 2, 3, 2, 1]) == 0
+  text: smallest_change([1, 2, 3, 2, 1]) returns 0 (the array is already palindromic).
+  kind: scenario
+  depends:
+  - R-RES-1
+  lines:
+  - 13
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `changes` is 0 unless `outcome` is 0.'
+  text: Whenever a call does not end by returning an integer from 0 to 15 (outcome is not 0), the changes output is 0.
+  kind: guarantee
+  lines:
+  - 48

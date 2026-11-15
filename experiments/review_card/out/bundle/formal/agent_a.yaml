@@ -1,0 +1,292 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# Specification model of the card. The balance is internal to the object, so
+# it is tracked by the ghost `bal`; every observable check goes through the
+# outputs (outcome, bonus, spent, balance).
+#
+# Reading taken for "Raise ValueError" (R-VAL-*, R-CAP-2): the prompt does not
+# say what a rejected call does to the balance. A load that rules 1 or 3
+# reject therefore makes the model lose track of the balance (`known` falls
+# to 0) and the balance-dependent items are suspended, until a later call of
+# balance() returns normally and shows the balance again (R-BAL-1), from
+# which point the model resumes from that value.
+defs:
+  ld: "op == 1"
+  sp: "op == 2"
+  bq: "op == 3"
+  kn: "known == 1"
+  bad: "amount < 1 || amount > 50000"                  # rule 1
+  bon: "amount >= 10000 ? 500 : 0"                     # rule 4: flat $5.00 on a load of $100.00 or more
+  over: "bal + amount + bon > 50000"                   # rule 3: the load, bonus included, would take the balance over $500.00
+  acc: "ld && !bad && !over"                           # a load that neither rule 1 nor rule 3 rejects
+  cov: "bal >= amount"                                 # rule 5: the balance covers the amount
+
+ghosts:
+  - name: bal
+    range: [0, 65535]
+    init: 0
+    next: "!kn ? (bq && outcome == 0 ? balance : bal) : (acc ? bal + amount + bon : (sp && cov ? bal - amount : bal))"
+  - name: known
+    range: [0, 1]
+    init: 1
+    next: "kn ? (ld && (bad || over) ? 0 : 1) : (bq && outcome == 0 ? 1 : 0)"
+  - name: calls
+    range: [0, 3]
+    init: 0
+    next: "min(calls + 1, 3)"
+
+properties:
+  # ---- method signatures -------------------------------------------------
+  - id: RA-IF-2
+    req: R-IF-2
+    pattern: implies
+    args: {trigger: "ld && outcome != 1", cond: "outcome == 0"}
+    note: >-
+      load either raises ValueError or returns an int. Outcome 3 also covers
+      ints outside 0..65535; every value the rules let load return (0, 500)
+      fits, so requiring outcome 0 loses nothing.
+
+  - id: RA-IF-3
+    req: R-IF-3
+    pattern: implies
+    args: {trigger: "sp && outcome != 1", cond: "outcome == 0"}
+    note: spend either raises ValueError or returns a bool.
+
+  - id: RA-IF-4
+    req: R-IF-4
+    pattern: implies
+    args: {trigger: "bq", cond: "outcome == 0"}
+    note: >-
+      balance() always returns an int (no rule lets it raise). Outcome 3 also
+      covers ints outside 0..65535; the balance is at most 50,000 (R-CAP-1).
+
+  # ---- new card ------------------------------------------------------------
+  - id: RA-INIT-1
+    req: R-INIT-1
+    pattern: after_reset
+    args: {cond: "(!rst_active && bq && outcome == 0) -> balance == 0"}
+    note: >-
+      The first call on a new card, if it is balance(), returns 0. The same
+      requirement is the init value 0 of ghost bal, through which every later
+      balance-dependent item (RA-BAL-1, RA-SPD-*, RA-CAP-2) also starts from 0.
+
+  # ---- rule 1: amount range ----------------------------------------------
+  - id: RA-VAL-1
+    req: R-VAL-1
+    pattern: implies
+    args: {trigger: "ld && amount < 1", cond: "outcome == 1"}
+    note: >-
+      Reading 2 of "Raise ValueError": nothing is said about the balance after
+      the call, so the model forgets the balance (ghost known := 0).
+
+  - id: RA-VAL-2
+    req: R-VAL-2
+    pattern: implies
+    args: {trigger: "ld && amount > 50000", cond: "outcome == 1"}
+    note: >-
+      Reading 2 of "Raise ValueError": nothing is said about the balance after
+      the call, so the model forgets the balance (ghost known := 0).
+
+  - id: RA-VAL-3
+    req: R-VAL-3
+    pattern: implies
+    args: {trigger: "sp && amount < 1", cond: "outcome == 1"}
+    note: >-
+      Literal reading: rule 1 speaks of `amount`, which is an argument of
+      spend as well as load, so it covers spend. This CONTRADICTS the literal
+      rule 5 (RA-SPD-2): any balance covers 0, so spend(0) must also return
+      True. The contradiction is kept, not repaired: no implementation can
+      meet both RA-VAL-3 and RA-SPD-2 on spend(0) while the balance is known.
+      The balance after spend(0) is still fixed by rule 5 (0 taken off), so
+      the model keeps track of it.
+
+  - id: RA-VAL-4
+    req: R-VAL-4
+    pattern: implies
+    args: {trigger: "sp && amount > 50000", cond: "outcome == 1"}
+    note: >-
+      Literal reading: rule 1 covers spend too. This CONTRADICTS the literal
+      rule 5 (RA-SPD-3): a balance of at most 50,000 never covers more than
+      50,000, so spend(50001) must also return False. Kept, not repaired. The
+      balance after the call is still fixed by rule 5 (it stays as it was).
+
+  # ---- rule 2: load adds amount --------------------------------------------
+  - id: RA-LOAD-1
+    req: R-LOAD-1
+    pattern: implies
+    args: {trigger: "kn && acc", cond: "outcome == 0"}
+    note: >-
+      Rule 2 states what every load does apart from the cases rules 1 and 3
+      reject, so a load that neither rejects completes normally (rule 4 adds
+      that it returns its bonus: RA-BON-2, RA-BON-3). Only checked while the
+      model knows the balance, since rule 3 depends on it.
+
+  - id: RA-LOAD-2
+    req: R-LOAD-1
+    pattern: next
+    args:
+      trigger: "kn && acc"
+      cond: "(bq && outcome == 0 -> balance == prev(bal + amount + bon))"
+    note: >-
+      Reading 1 of "adds `amount` to the balance": the balance grows by amount
+      plus the bonus the load earns (R-BON-1, bonus on the card). Shown here
+      for a balance() call right after the load; ghost bal carries the same
+      update to every later balance() call (RA-BAL-1).
+
+  # ---- rule 3: cap ---------------------------------------------------------
+  - id: RA-CAP-1
+    req: R-CAP-1
+    pattern: implies
+    args: {trigger: "bq && outcome == 0", cond: "balance <= 50000"}
+    note: >-
+      Reading 1: the cap is absolute and includes bonuses. Checked on what
+      balance() returns, which holds even while the model has lost track of
+      the balance after a rejected load.
+
+  - id: RA-CAP-2
+    req: R-CAP-2
+    pattern: implies
+    args: {trigger: "ld && kn && over", cond: "outcome == 1"}
+    note: >-
+      Reading 2 of "a load that would take it over": the bonus the load would
+      earn is counted (balance + amount + bonus > 50,000), the only reading
+      under which "never more than $500.00" holds; so load(50000) on a new
+      card raises. Reading 2 of "raise ValueError for a load": the balance
+      after the rejected load is not specified, so the model forgets it.
+
+  # ---- rule 4: bonus -------------------------------------------------------
+  - id: RA-BON-1
+    req: R-BON-1
+    pattern: next
+    args:
+      trigger: "kn && acc && amount >= 10000"
+      cond: "(bq && outcome == 0 -> balance == prev(bal + amount) + 500)"
+    note: >-
+      Readings: a flat 500 cents per qualifying load ("a $5.00 bonus"),
+      credited to the balance ("on the card"), and a qualifying load whose
+      amount plus bonus would exceed 50,000 raises instead (RA-CAP-2), so
+      every load that succeeds earns the full 500. Shown for a balance() call
+      right after the load; ghost bal carries it to every later call.
+
+  - id: RA-BON-2
+    req: R-BON-2
+    pattern: implies
+    args: {trigger: "ld && outcome == 0 && amount >= 10000", cond: "bonus == 500"}
+    note: >-
+      Reading 1 of "the bonus it earned": 500 for every load of at least
+      10,000 that returns. That such a load returns when the rules accept it
+      is RA-LOAD-1.
+
+  - id: RA-BON-3
+    req: R-BON-3
+    pattern: implies
+    args: {trigger: "ld && outcome == 0 && amount < 10000", cond: "bonus == 0"}
+    note: >-
+      A load that returns earns no bonus exactly when its amount is below
+      10,000 (a returning load of 10,000 or more always earns it: RA-BON-2).
+
+  # ---- rule 5: spend -------------------------------------------------------
+  - id: RA-SPD-1
+    req: R-SPD-1
+    pattern: next
+    args:
+      trigger: "sp && kn && cov"
+      cond: "(bq && outcome == 0 -> balance == prev(bal - amount))"
+    note: >-
+      Reading 1 of "covers it": balance >= amount, so the whole balance may be
+      spent. Literal: for every amount (spend(0) takes 0 off). Shown for a
+      balance() call right after the spend; ghost bal carries it further.
+
+  - id: RA-SPD-2
+    req: R-SPD-2
+    pattern: implies
+    args: {trigger: "sp && kn && cov", cond: "outcome == 0 && spent"}
+    note: >-
+      Reading 1 of "covers it" (balance >= amount) and reading 1 of "returns
+      True if the balance covers it" (for every amount, as written). This
+      CONTRADICTS RA-VAL-3 on spend(0), which every balance covers. Kept, not
+      repaired.
+
+  - id: RA-SPD-3
+    req: R-SPD-3
+    pattern: implies
+    args: {trigger: "sp && kn && !cov", cond: "outcome == 0 && !spent"}
+    note: >-
+      Reading 1 of "otherwise" (balance < amount) and reading 1 of "otherwise
+      it returns False" (for every amount, as written). This CONTRADICTS
+      RA-VAL-4 on every amount above 50,000, which no balance allowed by the
+      cap covers. Kept, not repaired.
+
+  - id: RA-SPD-4
+    req: R-SPD-4
+    pattern: next
+    args:
+      trigger: "sp && kn && !cov"
+      cond: "(bq && outcome == 0 -> balance == prev(bal))"
+    note: >-
+      Reading 1 of "otherwise": balance < amount. Shown for a balance() call
+      right after the spend; ghost bal keeps the balance for later calls.
+
+  # ---- rule 6: balance -----------------------------------------------------
+  - id: RA-BAL-1
+    req: R-BAL-1
+    pattern: implies
+    args: {trigger: "bq && kn", cond: "outcome == 0 && balance == bal"}
+    note: >-
+      balance() returns the balance of the specification model (ghost bal:
+      0 on a new card, + amount + bonus per accepted load, - amount per
+      covered spend). Suspended while the model has lost track of the balance
+      after a rejected load (reading 2 of "Raise ValueError").
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "bq && outcome == 0 && balance == 1500 && prev(sp && amount == 500) && prev(ld && amount == 2000 && calls == 0, 2)"
+    note: >-
+      On a new card (ghost calls counts the calls since the reset; 0 at the
+      first call), load(2000), spend(500), balance() returning 1500.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Structural requirement on the code (a class GiftCard with methods load,
+      spend and balance). The methods adapter fixes these names, so it is
+      not a property of the trace; a missing method shows as outcome 2, which
+      the signature items exclude.
+    covered_by: [RA-IF-2, RA-IF-3, RA-IF-4]
+  - req: R-UNIT-1
+    reason: >-
+      Definition of the unit. Every amount signal carries cents (frame.md)
+      and every constant of this set is in cents: $500.00 = 50000, $100.00 =
+      10000, $5.00 = 500.
+    covered_by: [RA-CAP-1, RA-CAP-2, RA-BON-1, RA-BON-2]
+  - req: R-FR-1
+    reason: Frame rule of the methods adapter, part of every set by construction.
+    covered_by: [F-ZERO]
+  - req: R-FR-2
+    reason: Frame rule of the methods adapter, part of every set by construction.
+    covered_by: [F-OTHER]
+
+decisions:
+  - {req: R-VAL-1, phrase: "Raise ValueError", reading: 2}
+  - {req: R-VAL-2, phrase: "Raise ValueError", reading: 2}
+  - {req: R-VAL-3, phrase: "Raise ValueError if `amount` is less than 1", reading: 1}
+  - {req: R-VAL-3, phrase: "Raise ValueError", reading: 2}
+  - {req: R-VAL-4, phrase: "or more than 50,000", reading: 1}
+  - {req: R-VAL-4, phrase: "Raise ValueError", reading: 2}
+  - {req: R-LOAD-1, phrase: "adds `amount` to the balance", reading: 1}
+  - {req: R-CAP-1, phrase: "The balance is never more than $500.00", reading: 1}
+  - {req: R-CAP-2, phrase: "a load that would take it over", reading: 2}
+  - {req: R-CAP-2, phrase: "raise ValueError for a load", reading: 2}
+  - {req: R-BON-1, phrase: "a $5.00 bonus", reading: 1}
+  - {req: R-BON-1, phrase: "on the card", reading: 1}
+  - {req: R-BON-1, phrase: "Every load of $100.00 or more earns a $5.00 bonus", reading: 2}
+  - {req: R-BON-2, phrase: "the bonus it earned", reading: 1}
+  - {req: R-SPD-1, phrase: "covers it", reading: 1}
+  - {req: R-SPD-2, phrase: "covers it", reading: 1}
+  - {req: R-SPD-2, phrase: "returns True if the balance covers it", reading: 1}
+  - {req: R-SPD-3, phrase: "otherwise", reading: 1}
+  - {req: R-SPD-3, phrase: "otherwise it returns False", reading: 1}
+  - {req: R-SPD-4, phrase: "otherwise", reading: 1}

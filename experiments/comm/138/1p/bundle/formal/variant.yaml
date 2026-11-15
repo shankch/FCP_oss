@@ -1,0 +1,113 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # n is the sum of exactly 4 pairwise distinct positive even numbers
+  # (smallest such sum: 2 + 4 + 6 + 8 = 20; every larger even n is 2 + 4 + 6 + (n - 12)).
+  sum4: 'n % 2 == 0 && n >= 20'
+
+assumptions:
+  - id: RV-DOM-1
+    req: R-DOM-1
+    expr: 'n >= 0'
+    note: >-
+      Reading 1 of "the given number n", as the request instructs: n is a
+      non-negative integer (not any integer, not a float). The frame already
+      carries n as a 16-bit unsigned integer (0 to 65,535), so the assumption
+      holds by construction of the trace; it is stated to record the reading.
+      Arguments above 65,535 are not part of the trace.
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    expr: 'outcome != 1'
+    note: >-
+      Every call terminates and returns normally: no exception and no hang
+      (outcome 1). A return of a non-bool value (outcome 2) is a normal return;
+      under reading 2 of "Evaluate whether" in R-RET-2, taken as the request
+      instructs, such a value is even an acceptable answer.
+
+  - id: RV-RET-2
+    req: R-RET-2
+    expr: 'outcome == 0 || outcome == 2'
+    note: >-
+      Reading 2 of "Evaluate whether", as the request instructs instead of the
+      more natural "return the bool True or False": the function may return any
+      truthy or falsy value (for example 1 or 0) that encodes the answer. So
+      both a bool (outcome 0) and any other returned value (outcome 2) are
+      allowed; only "no value returned" (outcome 1, or the unused code 3) is
+      excluded. The trace records the value only for a bool, so the
+      truthiness of a non-bool return cannot be observed.
+
+  - id: RV-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args:
+      trigger: 'sum4'
+      cond: '(outcome == 0 && result) || outcome == 2'
+    note: >-
+      Readings taken as the request instructs. "the sum of exactly 4", reading
+      1: the summands are positive even numbers. "exactly 4", reading 2: the
+      four summands are pairwise distinct, so n qualifies exactly when n is even
+      and n >= 20 = 2 + 4 + 6 + 8 (this replaces the threshold 8 of reading 1,
+      which assumes repeated summands). "is_equal_to_sum_even", reading 2: the
+      function name adds no constraint; the summand kind comes from the reading
+      of "the sum of exactly 4", not from the name (that reading's own text
+      cites the name, which is in tension with this one). Through R-RET-2
+      (reading 2, any truthy value), "returns True" is checked as: a bool
+      True, or some non-bool value whose truthiness the trace does not record.
+      The docstring is truncated after "exactly 4"; the summand kind is not in
+      the text at all.
+
+  - id: RV-SUM-2
+    req: R-SUM-2
+    pattern: implies
+    args:
+      trigger: '!sum4'
+      cond: '(outcome == 0 && !result) || outcome == 2'
+    note: >-
+      Readings taken as the request instructs. "the sum of exactly 4", reading
+      1: the summands are positive even numbers. "exactly 4", reading 2: the
+      four summands are pairwise distinct, so n does not qualify exactly when n
+      is odd or n < 20 = 2 + 4 + 6 + 8 (so 8 to 18 even give False, unlike the
+      threshold 8 of reading 1, which assumes repeated summands).
+      "is_equal_to_sum_even", reading 2: the function name adds no constraint;
+      the summand kind comes from the reading of "the sum of exactly 4", not
+      from the name (that reading's own text cites the name, which is in
+      tension with this one). Through R-RET-2 (reading 2, any falsy value),
+      "returns False" is checked as: a bool False, or some non-bool value whose
+      truthiness the trace does not record. The docstring is truncated after
+      "exactly 4"; the summand kind is not in the text at all.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: that the deliverable is a complete implementation keeping
+      the stub's signature is a property of the source, not of a call. The
+      adapter calls is_equal_to_sum_even(n) on every cycle, so an incomplete
+      body shows up through the functional items (RV-RET-1, RV-RET-2,
+      RV-SUM-1, RV-SUM-2).
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name and the single parameter n are fixed by the
+      adapter (design.yaml function section), not by a trace property. Reading
+      2 of "is_equal_to_sum_even", as the request instructs: the name is only
+      an identifier and adds no constraint on the summands, so it contributes
+      nothing to RV-SUM-1 or RV-SUM-2.
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the adapter (result is false unless outcome is 0);
+      design.yaml adds it to every formalization set, so it is not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-2, phrase: is_equal_to_sum_even, reading: 2}
+  - {req: R-DOM-1, phrase: the given number n, reading: 1}
+  - {req: R-RET-2, phrase: Evaluate whether, reading: 2}
+  - {req: R-SUM-1, phrase: the sum of exactly 4, reading: 1}
+  - {req: R-SUM-1, phrase: exactly 4, reading: 2}
+  - {req: R-SUM-1, phrase: is_equal_to_sum_even, reading: 2}
+  - {req: R-SUM-2, phrase: the sum of exactly 4, reading: 1}
+  - {req: R-SUM-2, phrase: exactly 4, reading: 2}
+  - {req: R-SUM-2, phrase: is_equal_to_sum_even, reading: 2}

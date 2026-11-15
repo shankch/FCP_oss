@@ -1,0 +1,126 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # b itself occurs as a contiguous substring of a (at some start p with
+  # p + len(b) <= len(a)). An empty b occurs in every a, including the empty one.
+  sub_b: 'any(p < len(a) - len(b) + 1: all(j < len(b): a[p + j] == b[j]))'
+  # some rotation of b (b with its first k characters moved to its end,
+  # 0 <= k < len(b)) occurs as a contiguous substring of a. Character j of the
+  # rotation by k is b[(j + k) mod len(b)], written without a variable modulus.
+  rot_sub: 'any(k < len(b): any(p < len(a) - len(b) + 1: all(j < len(b): a[p + j] == (j + k < len(b) ? b[j + k] : b[j + k - len(b)]))))'
+  # b, or some rotation of b, occurs as a contiguous substring of a
+  cyc: 'sub_b || rot_sub'
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      Every call returns True or False: no exception, no non-termination, no
+      value of another type (outcome 1 and 2 are both excluded). Readings taken:
+      "Complete this function" applies to every call on any two strings in the
+      trace domain (reading 1), and "=> True / => False" means exactly the
+      bool (reading 1). Under reading 2 (truthy values) outcome 2 would have to
+      be allowed, and the trace does not record which value it carried.
+
+  - id: RA-RULE-1
+    req: R-RULE-1
+    pattern: implies
+    args: {trigger: 'cyc', cond: 'outcome == 0 && result'}
+    note: >-
+      The prompt states no rule, only six examples. This formalizes the rule
+      the requirement states (reading 1): b or a rotation of b occurring as a
+      contiguous substring of a forces True. The examples alone do not
+      determine it (reading 2, which also allows rotations of the reversed b,
+      agrees with all six). Empty b: b occurs in every a, so the call must
+      return True (reading 1); this follows from sub_b, not from a special case.
+      Characters are compared by exact code, so "A" differs from "a" (reading 1).
+      "Returns True" is written as outcome == 0 && result. Under the frame rule
+      F-ZERO this is the same as result alone.
+
+  - id: RA-RULE-2
+    req: R-RULE-2
+    pattern: implies
+    args: {trigger: '!cyc', cond: 'outcome == 0 && !result'}
+    note: >-
+      If neither b nor any rotation of b occurs as a contiguous substring of a,
+      the call returns the bool False. outcome == 0 is part of the condition
+      because "returns False" means the bool, not a failed call. The case the
+      requirement singles out (b longer than a) is covered: then no start
+      position exists, cyc is false and False is required. Readings as in
+      RA-RULE-1: the stated rotation rule (1); an empty b always matches, so
+      this rule never applies to it (1); exact character codes (1).
+
+  # The six docstring examples. Each is stated twice: as a guarantee on that
+  # exact call (the prompt's "=>" asserts the returned value, and these are the
+  # only parts of the prompt that are not open to interpretation) and as a
+  # scenario (the call returning that value must be possible together with
+  # every other requirement).
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'a == "abcd" && b == "abd"', cond: 'outcome == 0 && !result'}
+    note: 'candidate("abcd","abd") => False. Requirement kind is scenario, but the example asserts the result, so it is also stated as a guarantee on this call.'
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'a == "hello" && b == "ell"', cond: 'outcome == 0 && result'}
+    note: 'candidate("hello","ell") => True. Also stated as a guarantee on this call (see RA-EX-1).'
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'a == "whassup" && b == "psus"', cond: 'outcome == 0 && !result'}
+    note: 'candidate("whassup","psus") => False. Also stated as a guarantee on this call (see RA-EX-1).'
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'a == "abab" && b == "baa"', cond: 'outcome == 0 && result'}
+    note: 'candidate("abab","baa") => True. Also stated as a guarantee on this call (see RA-EX-1).'
+  - id: RA-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 'a == "efef" && b == "eeff"', cond: 'outcome == 0 && !result'}
+    note: 'candidate("efef","eeff") => False. Also stated as a guarantee on this call (see RA-EX-1).'
+  - id: RA-EX-6
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 'a == "himenss" && b == "simen"', cond: 'outcome == 0 && result'}
+    note: 'candidate("himenss","simen") => True. Also stated as a guarantee on this call (see RA-EX-1).'
+
+scenarios:
+  - {id: RA-EX-1-S, req: R-EX-1, cover: 'a == "abcd" && b == "abd" && outcome == 0 && !result'}
+  - {id: RA-EX-2-S, req: R-EX-2, cover: 'a == "hello" && b == "ell" && outcome == 0 && result'}
+  - {id: RA-EX-3-S, req: R-EX-3, cover: 'a == "whassup" && b == "psus" && outcome == 0 && !result'}
+  - {id: RA-EX-4-S, req: R-EX-4, cover: 'a == "abab" && b == "baa" && outcome == 0 && result'}
+  - {id: RA-EX-5-S, req: R-EX-5, cover: 'a == "efef" && b == "eeff" && outcome == 0 && !result'}
+  - {id: RA-EX-6-S, req: R-EX-6, cover: 'a == "himenss" && b == "simen" && outcome == 0 && result'}
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the function name and argument order. It is realized by the
+      interface binding in design.yaml (function candidate; first argument on
+      signal a, second on signal b), not by a property of the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, F-ZERO in design.yaml. Frame items are
+      part of every formalization set and frame.md says they need not be restated.
+    covered_by: [F-ZERO]
+  - req: R-FR-2
+    reason: >-
+      Frame rule of the function adapter, F-CODE in design.yaml. Frame items are
+      part of every formalization set and frame.md says they need not be restated.
+    covered_by: [F-CODE]
+
+decisions:
+  - {req: R-RET-1, phrase: 'Complete this function', reading: 1}
+  - {req: R-RET-1, phrase: '=> True / => False (the result notation of the examples)', reading: 1}
+  - {req: R-RULE-1, phrase: 'the prompt states no rule, only six examples', reading: 1}
+  - {req: R-RULE-1, phrase: 'an empty b (no example has one)', reading: 1}
+  - {req: R-RULE-1, phrase: 'upper and lower case (every example is lower case)', reading: 1}
+  - {req: R-RULE-2, phrase: 'the prompt states no rule, only six examples', reading: 1}
+  - {req: R-RULE-2, phrase: 'an empty b (no example has one)', reading: 1}
+  - {req: R-RULE-2, phrase: 'upper and lower case (every example is lower case)', reading: 1}

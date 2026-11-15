@@ -1,0 +1,179 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. Each cycle is one independent call (frame.md), so the
+# model is combinational: the reference answer is computed from the arguments
+# q and w of the same call, and every output is checked against it. A ghost
+# register would lag by one call and the function keeps no state, so no
+# ghosts are declared.
+defs:
+  # q is balanced: a palindromic list (R-DEF-2). The empty list is balanced:
+  # the quantifier over no indices holds.
+  bal: "all(i < len(q): q[i] == q[len(q) - 1 - i])"
+  # the sum of the elements of q, 0 for the empty list (R-DEF-3)
+  wsum: "sum(i < len(q): q[i])"
+  # the weight condition: the sum is less than or equal to w (R-DEF-3)
+  light: "wsum <= w"
+  # q will fly for weight w (R-DEF-1)
+  fly: "bal && light"
+  # the call returned the Python bool True / False (R-OUT-1)
+  ret_true: "outcome == 0 && flies"
+  ret_false: "outcome == 0 && !flies"
+
+properties:
+  - id: RB-OUT-1
+    req: R-OUT-1
+    expr: "outcome == 0"
+    note: >-
+      Every call returns a bool: it does not raise, fail to finish or return a
+      value of another kind (outcome 1 or 2). "returns True ... and False
+      otherwise" is read literally as the Python values True and False
+      (reading 1), so a truthy or falsy non-bool such as 1, 0 or a list is
+      outcome 2 and violates this property.
+
+  - id: RB-FLY-1
+    req: R-FLY-1
+    pattern: implies
+    args: {trigger: "fly", cond: "ret_true"}
+    note: >-
+      A balanced q whose element sum is at most w returns True. The rule's
+      "less than or equal" is taken as written (sum <= w, reading 1); the
+      example comments' "is less than" describe their own calls only. The
+      empty list equals its reverse and so is palindromic (reading 1); its sum
+      is 0 <= w, so will_it_fly([], w) returns True for every w.
+
+  - id: RB-FLY-2
+    req: R-FLY-2
+    pattern: implies
+    args: {trigger: "!bal", cond: "ret_false"}
+    note: >-
+      An unbalanced q returns False for every w. "The object q will fly if" is
+      read as a definition (if and only if, reading 1): the prompt says the
+      function returns "False otherwise", and example 1 explains its False
+      result by the list being unbalanced. The empty list is palindromic
+      (reading 1), so it never triggers this property.
+
+  - id: RB-FLY-3
+    req: R-FLY-3
+    pattern: implies
+    args: {trigger: "!light", cond: "ret_false"}
+    note: >-
+      A q whose element sum is greater than w returns False, balanced or not.
+      "will fly if" is read as if and only if (reading 1); example 2 explains
+      its False result by the sum exceeding w. With "less than or equal" read
+      as written (reading 1), False is required only for sum > w; a sum equal
+      to w is decided by RB-FLY-1 (True when balanced).
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "q == [1, 2] && w == 5", cond: "ret_false"}
+    note: "will_it_fly([1, 2], 5) returns False: the sum 3 is within 5 but [1, 2] is unbalanced."
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "q == [3, 2, 3] && w == 1", cond: "ret_false"}
+    note: "will_it_fly([3, 2, 3], 1) returns False: [3, 2, 3] is balanced but its sum 8 exceeds 1."
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "q == [3, 2, 3] && w == 9", cond: "ret_true"}
+    note: >-
+      will_it_fly([3, 2, 3], 9) returns True. The comment "is less than the
+      maximum possible weight" is true of this call (8 < 9) and is read as a
+      description of it, not as a strict-inequality rule (reading 1).
+
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "q == [3] && w == 5", cond: "ret_true"}
+    note: >-
+      will_it_fly([3], 5) returns True. The comment "is less than the maximum
+      possible weight" describes this call (3 < 5), not a strict-inequality
+      rule (reading 1).
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "q == [1, 2] && w == 5 && ret_false"
+    note: "The documented call and its documented answer are consistent with every other requirement."
+
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: "q == [3, 2, 3] && w == 1 && ret_false"
+    note: "The documented call and its documented answer are consistent with every other requirement."
+
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "q == [3, 2, 3] && w == 9 && ret_true"
+    note: "The documented call and its documented answer are consistent with every other requirement."
+
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: "q == [3] && w == 5 && ret_true"
+    note: "The documented call and its documented answer are consistent with every other requirement."
+
+  - id: RB-FLY-1-EQ
+    req: R-FLY-1
+    cover: "bal && len(q) > 0 && wsum == w && ret_true"
+    note: >-
+      Boundary of "less than or equal": a non-empty balanced q whose sum is
+      exactly w flies (reading 1). Under the strict reading this would be
+      unreachable.
+
+  - id: RB-FLY-1-EMPTY
+    req: R-FLY-1
+    cover: "len(q) == 0 && ret_true"
+    note: >-
+      The empty list is palindromic (reading 1), so will_it_fly([], w) can
+      return True. Under the reading that the empty list is not balanced this
+      would be unreachable.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the Python function name will_it_fly and its two
+      positional parameters q and w are not trace behaviour and cannot be
+      stated in FCP-PL. They are fixed by the function section of design.yaml
+      (name will_it_fly, args q then w), which the adapter uses to make every
+      call.
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized as the def fly = bal && light ("will fly" exactly
+      when both hold, if and only if, reading 1). Its behavioural content is
+      carried by the properties that use it.
+    covered_by: [RB-FLY-1, RB-FLY-2, RB-FLY-3]
+  - req: R-DEF-2
+    reason: >-
+      Definition, realized as the def bal: q[i] == q[len(q)-1-i] for every
+      index i of q. The empty list satisfies it vacuously and is balanced
+      (reading 1).
+    covered_by: [RB-FLY-1, RB-FLY-2, RB-FLY-1-EMPTY]
+  - req: R-DEF-3
+    reason: >-
+      Definition, realized as the defs wsum (sum of the elements, 0 for the
+      empty list) and light = wsum <= w (less than or equal, reading 1).
+    covered_by: [RB-FLY-1, RB-FLY-3, RB-FLY-1-EQ]
+  - req: R-FR-1
+    reason: >-
+      Adapter frame rule (frame.md: "need not be restated"). It is the frame
+      item F-ZERO of design.yaml, outcome != 0 -> !flies, which is added to
+      every formalization set.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-OUT-1, phrase: "returns True if the object q will fly, and False otherwise", reading: 1}
+  - {req: R-FLY-1, phrase: "less than or equal the maximum possible weight w", reading: 1}
+  - {req: R-FLY-1, phrase: "palindromic list", reading: 1}
+  - {req: R-FLY-2, phrase: "The object q will fly if", reading: 1}
+  - {req: R-FLY-2, phrase: "palindromic list", reading: 1}
+  - {req: R-FLY-3, phrase: "The object q will fly if", reading: 1}
+  - {req: R-FLY-3, phrase: "less than or equal the maximum possible weight w", reading: 1}
+  - {req: R-DEF-1, phrase: "The object q will fly if", reading: 1}
+  - {req: R-DEF-2, phrase: "palindromic list", reading: 1}
+  - {req: R-DEF-3, phrase: "less than or equal the maximum possible weight w", reading: 1}
+  - {req: R-EX-3, phrase: "is less than the maximum possible weight", reading: 1}
+  - {req: R-EX-4, phrase: "is less than the maximum possible weight", reading: 1}

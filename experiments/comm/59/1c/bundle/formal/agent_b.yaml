@@ -1,0 +1,214 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function is memoryless (frame.md: calls are
+# independent), so the model is combinational: defs computed from the
+# argument n alone, and the outputs of the same call are checked against them.
+# `%` needs a constant divisor, so divisibility is only tested against
+# literals and entries of the constant list `primes`. n < 65536 < 257 * 257,
+# so n has at most one prime factor above 255 (with multiplicity 1), and trial
+# division by the primes below 256 decides primality.
+defs:
+  # The 54 primes below 256.
+  primes: "[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251]"
+  # n is a prime number: n >= 2 and no prime p with p * p <= n divides n.
+  n_is_prime: "n >= 2 && all(j < 54: primes[j] * primes[j] <= n -> n % primes[j] != 0)"
+  # The caller's precondition (R-ENV-1 and R-ENV-2): n > 1 and n is not prime.
+  precondition: "n > 1 && !n_is_prime"
+  # The largest prime below 256 that divides n (0 if there is none).
+  largest_small_prime: "sum(j < 54: n % primes[j] == 0 && all(k < 54: k > j -> n % primes[k] != 0) ? primes[j] : 0)"
+  # smooth_a_b: the product, over the primes p from a to b, of the largest
+  # power of p that divides n (each factor written as a chain of literal
+  # divisibility tests, highest power first). For n >= 1 every partial product
+  # divides n, so the min(_, 65535) never changes a value; it only bounds the
+  # static range of the products.
+  smooth_2_13: >-
+    min(min(min(min(min(
+    (n % 32768 == 0 ? 32768 : n % 16384 == 0 ? 16384 : n % 8192 == 0 ? 8192 : n % 4096 == 0 ? 4096 : n % 2048 == 0 ? 2048 : n % 1024 == 0 ? 1024 : n % 512 == 0 ? 512 : n % 256 == 0 ? 256 : n % 128 == 0 ? 128 : n % 64 == 0 ? 64 : n % 32 == 0 ? 32 : n % 16 == 0 ? 16 : n % 8 == 0 ? 8 : n % 4 == 0 ? 4 : n % 2 == 0 ? 2 : 1)
+    * (n % 59049 == 0 ? 59049 : n % 19683 == 0 ? 19683 : n % 6561 == 0 ? 6561 : n % 2187 == 0 ? 2187 : n % 729 == 0 ? 729 : n % 243 == 0 ? 243 : n % 81 == 0 ? 81 : n % 27 == 0 ? 27 : n % 9 == 0 ? 9 : n % 3 == 0 ? 3 : 1), 65535)
+    * (n % 15625 == 0 ? 15625 : n % 3125 == 0 ? 3125 : n % 625 == 0 ? 625 : n % 125 == 0 ? 125 : n % 25 == 0 ? 25 : n % 5 == 0 ? 5 : 1), 65535)
+    * (n % 16807 == 0 ? 16807 : n % 2401 == 0 ? 2401 : n % 343 == 0 ? 343 : n % 49 == 0 ? 49 : n % 7 == 0 ? 7 : 1), 65535)
+    * (n % 14641 == 0 ? 14641 : n % 1331 == 0 ? 1331 : n % 121 == 0 ? 121 : n % 11 == 0 ? 11 : 1), 65535)
+    * (n % 28561 == 0 ? 28561 : n % 2197 == 0 ? 2197 : n % 169 == 0 ? 169 : n % 13 == 0 ? 13 : 1), 65535)
+  smooth_17_37: >-
+    min(min(min(min(min(
+    (n % 4913 == 0 ? 4913 : n % 289 == 0 ? 289 : n % 17 == 0 ? 17 : 1)
+    * (n % 6859 == 0 ? 6859 : n % 361 == 0 ? 361 : n % 19 == 0 ? 19 : 1), 65535)
+    * (n % 12167 == 0 ? 12167 : n % 529 == 0 ? 529 : n % 23 == 0 ? 23 : 1), 65535)
+    * (n % 24389 == 0 ? 24389 : n % 841 == 0 ? 841 : n % 29 == 0 ? 29 : 1), 65535)
+    * (n % 29791 == 0 ? 29791 : n % 961 == 0 ? 961 : n % 31 == 0 ? 31 : 1), 65535)
+    * (n % 50653 == 0 ? 50653 : n % 1369 == 0 ? 1369 : n % 37 == 0 ? 37 : 1), 65535)
+  smooth_41_97: >-
+    min(min(min(min(min(min(min(min(min(min(min(min(
+    (n % 1681 == 0 ? 1681 : n % 41 == 0 ? 41 : 1)
+    * (n % 1849 == 0 ? 1849 : n % 43 == 0 ? 43 : 1), 65535)
+    * (n % 2209 == 0 ? 2209 : n % 47 == 0 ? 47 : 1), 65535)
+    * (n % 2809 == 0 ? 2809 : n % 53 == 0 ? 53 : 1), 65535)
+    * (n % 3481 == 0 ? 3481 : n % 59 == 0 ? 59 : 1), 65535)
+    * (n % 3721 == 0 ? 3721 : n % 61 == 0 ? 61 : 1), 65535)
+    * (n % 4489 == 0 ? 4489 : n % 67 == 0 ? 67 : 1), 65535)
+    * (n % 5041 == 0 ? 5041 : n % 71 == 0 ? 71 : 1), 65535)
+    * (n % 5329 == 0 ? 5329 : n % 73 == 0 ? 73 : 1), 65535)
+    * (n % 6241 == 0 ? 6241 : n % 79 == 0 ? 79 : 1), 65535)
+    * (n % 6889 == 0 ? 6889 : n % 83 == 0 ? 83 : 1), 65535)
+    * (n % 7921 == 0 ? 7921 : n % 89 == 0 ? 89 : 1), 65535)
+    * (n % 9409 == 0 ? 9409 : n % 97 == 0 ? 97 : 1), 65535)
+  smooth_101_149: >-
+    min(min(min(min(min(min(min(min(min(
+    (n % 10201 == 0 ? 10201 : n % 101 == 0 ? 101 : 1)
+    * (n % 10609 == 0 ? 10609 : n % 103 == 0 ? 103 : 1), 65535)
+    * (n % 11449 == 0 ? 11449 : n % 107 == 0 ? 107 : 1), 65535)
+    * (n % 11881 == 0 ? 11881 : n % 109 == 0 ? 109 : 1), 65535)
+    * (n % 12769 == 0 ? 12769 : n % 113 == 0 ? 113 : 1), 65535)
+    * (n % 16129 == 0 ? 16129 : n % 127 == 0 ? 127 : 1), 65535)
+    * (n % 17161 == 0 ? 17161 : n % 131 == 0 ? 131 : 1), 65535)
+    * (n % 18769 == 0 ? 18769 : n % 137 == 0 ? 137 : 1), 65535)
+    * (n % 19321 == 0 ? 19321 : n % 139 == 0 ? 139 : 1), 65535)
+    * (n % 22201 == 0 ? 22201 : n % 149 == 0 ? 149 : 1), 65535)
+  smooth_151_197: >-
+    min(min(min(min(min(min(min(min(min(
+    (n % 22801 == 0 ? 22801 : n % 151 == 0 ? 151 : 1)
+    * (n % 24649 == 0 ? 24649 : n % 157 == 0 ? 157 : 1), 65535)
+    * (n % 26569 == 0 ? 26569 : n % 163 == 0 ? 163 : 1), 65535)
+    * (n % 27889 == 0 ? 27889 : n % 167 == 0 ? 167 : 1), 65535)
+    * (n % 29929 == 0 ? 29929 : n % 173 == 0 ? 173 : 1), 65535)
+    * (n % 32041 == 0 ? 32041 : n % 179 == 0 ? 179 : 1), 65535)
+    * (n % 32761 == 0 ? 32761 : n % 181 == 0 ? 181 : 1), 65535)
+    * (n % 36481 == 0 ? 36481 : n % 191 == 0 ? 191 : 1), 65535)
+    * (n % 37249 == 0 ? 37249 : n % 193 == 0 ? 193 : 1), 65535)
+    * (n % 38809 == 0 ? 38809 : n % 197 == 0 ? 197 : 1), 65535)
+  smooth_199_251: >-
+    min(min(min(min(min(min(min(min(
+    (n % 39601 == 0 ? 39601 : n % 199 == 0 ? 199 : 1)
+    * (n % 44521 == 0 ? 44521 : n % 211 == 0 ? 211 : 1), 65535)
+    * (n % 49729 == 0 ? 49729 : n % 223 == 0 ? 223 : 1), 65535)
+    * (n % 51529 == 0 ? 51529 : n % 227 == 0 ? 227 : 1), 65535)
+    * (n % 52441 == 0 ? 52441 : n % 229 == 0 ? 229 : 1), 65535)
+    * (n % 54289 == 0 ? 54289 : n % 233 == 0 ? 233 : 1), 65535)
+    * (n % 57121 == 0 ? 57121 : n % 239 == 0 ? 239 : 1), 65535)
+    * (n % 58081 == 0 ? 58081 : n % 241 == 0 ? 241 : 1), 65535)
+    * (n % 63001 == 0 ? 63001 : n % 251 == 0 ? 251 : 1), 65535)
+  # The part of n made of primes below 256: the largest divisor of n with no
+  # prime factor above 255 (n itself when n has no such prime factor).
+  smooth: >-
+    min(min(min(min(min(smooth_2_13 * smooth_17_37, 65535) * smooth_41_97, 65535)
+    * smooth_101_149, 65535) * smooth_151_197, 65535) * smooth_199_251, 65535)
+  # n has a prime factor above 255. It is then the only one, n / smooth: a
+  # number free of primes below 256 and below 257 * 257, hence prime, and the
+  # largest prime factor of n.
+  has_big_prime: "smooth < n"
+  # factor is the largest prime factor of n: n / smooth if n has a prime
+  # factor above 255 (stated as factor * smooth == n, as there is no
+  # division), otherwise the largest prime below 256 that divides n.
+  factor_is_largest_prime_factor: "(has_big_prime ? factor * smooth == n : factor == largest_small_prime)"
+
+assumptions:
+  - id: RB-ENV-1
+    req: R-ENV-1
+    expr: "n > 1"
+    note: >-
+      "Assume n > 1" read literally as a precondition on the caller (reading
+      1): the caller only passes n > 1. The function is not required to
+      reject n <= 1; see the dont_cares RB-ENV-1-D-*.
+  - id: RB-ENV-2
+    req: R-ENV-2
+    expr: "!n_is_prime"
+    note: >-
+      "Assume n > 1 and is not a prime": "Assume" governs both clauses, so
+      this is read as a precondition on the caller (reading 1): the caller
+      never passes a prime n. Nothing is required for a prime n; see the
+      dont_cares RB-ENV-2-D-*.
+
+properties:
+  - id: RB-FN-1
+    req: R-FN-1
+    pattern: implies
+    args:
+      trigger: "precondition"
+      cond: "outcome == 0 && factor_is_largest_prime_factor"
+    note: >-
+      "Return the largest prime factor of n" read as the words say (reading
+      1): the call returns an integer (outcome 0) equal to the greatest prime
+      that divides n, so 29 for 13195 = 5 * 7 * 13 * 29. This contradicts the
+      example R-EX-1 (13195 -> 5), which is formalized literally as RB-EX-1;
+      the contradiction is left in the set, not repaired. The trigger repeats
+      the precondition of RB-ENV-1 and RB-ENV-2 so that the guarantee is
+      checked call by call; under those assumptions it always holds. The
+      largest prime factor of any n below 65536 fits the 16-bit factor output.
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: "n == 13195 && outcome == 0 && factor == 5"
+    note: >-
+      The doctest taken literally (reading 2, "the example is
+      authoritative"): a call with 13195 returns the integer 5. Only the
+      example's own content is formalized; it is not used to reinterpret
+      "largest" in R-FN-1. Since 5 is the smallest, not the largest, prime
+      factor of 13195, this scenario is unreachable together with RB-FN-1:
+      the specification contradicts itself and the set records that as is.
+      The function is deterministic, so reaching this call means every call
+      with 13195 returns 5.
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: "n == 2048 && outcome == 0 && factor == 2"
+    note: >-
+      The doctest: a call with 2048 = 2^11 returns the integer 2. This agrees
+      with RB-FN-1 (2 is the only prime factor of 2048).
+
+dont_cares:
+  - id: RB-ENV-1-D-OUT
+    req: R-ENV-1
+    signal: outcome
+    when: "n <= 1"
+    note: >-
+      Reading 1 of "Assume n > 1": for n <= 1 any outcome (a value, an
+      exception, no answer) is acceptable.
+  - id: RB-ENV-1-D-FAC
+    req: R-ENV-1
+    signal: factor
+    when: "n <= 1"
+    note: >-
+      Reading 1 of "Assume n > 1": for n <= 1 any returned value is
+      acceptable (the frame rule F-ZERO still applies).
+  - id: RB-ENV-2-D-OUT
+    req: R-ENV-2
+    signal: outcome
+    when: "n_is_prime"
+    note: >-
+      Reading 1 of "and is not a prime": for a prime n any outcome is
+      acceptable; returning n is not required.
+  - id: RB-ENV-2-D-FAC
+    req: R-ENV-2
+    signal: factor
+    when: "n_is_prime"
+    note: >-
+      Reading 1 of "and is not a prime": for a prime n any returned value is
+      acceptable (the frame rule F-ZERO still applies).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: it asks for a complete implementation in place of the
+      stub. That is the form of the deliverable, not a property of any call;
+      the behaviour of the completed function is formalized by RB-FN-1,
+      RB-EX-1 and RB-EX-2.
+  - req: R-IF-2
+    reason: >-
+      Definition of the interface: the function name and its single integer
+      argument n are fixed by design.yaml (function largest_prime_factor, arg
+      n on the input signal n) and by the adapter, so there is nothing left
+      to check on the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md): it holds by construction of the
+      trace and is added to every formalization set as F-ZERO in design.yaml,
+      so it is not restated here.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: "the largest prime factor of n", reading: 1}
+  - {req: R-ENV-1, phrase: "Assume n > 1", reading: 1}
+  - {req: R-ENV-2, phrase: "and is not a prime", reading: 1}
+  - {req: R-EX-1, phrase: "largest_prime_factor(13195) 5", reading: 2}

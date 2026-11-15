@@ -1,0 +1,162 @@
+fcp: "0.1"
+set: variant1
+origin: {kind: agent, role: formalizer, id: variant1}
+
+rigids:
+  - {name: u, range: [0, 1000]}       # a customer (R-IN-1: ids 0 to 1,000)
+  - {name: e, range: [0, 65535]}      # end of a 60-second window [e - 60, e]
+  - {name: d, range: [0, 65535]}      # the time of a denied attempt
+
+ghosts:
+  # time of the previous call on this object, whatever its outcome; 0 before the
+  # first call, so "earlier than the previous call" is false on the first call
+  - {name: last, range: [0, 65535], init: 0, next: "now"}
+
+defs:
+  # the call is one that rule 1 does not make raise
+  valid: "user <= 1000 && now >= last"
+  # the call's time lies in the window [e - 60, e]: both ends included, so
+  # attempts at t and t + 60 lie in one window of 60 seconds
+  inwin: "e - 60 <= now && now <= e"
+  # an allowed attempt of customer u with its time in the window
+  hit: "user == u && allowed && inwin"
+  # at least 3 earlier calls (before this one) were allowed attempts of u in the window
+  three: "once(prev(hit && once(prev(hit && once(prev(hit))))))"
+  # an earlier-or-current call was a denied attempt (returned False) of u at time d
+  denied_d: "user == u && outcome == 0 && !allowed && now == d"
+
+properties:
+  - id: V1-ERR-USER
+    req: R-ERR-1
+    expr: "user > 1000 -> outcome == 1"
+    note: >-
+      A user outside 0 to 1,000 (R-IN-1) raises ValueError.
+
+  - id: V1-ERR-TIME
+    req: R-ERR-1
+    expr: "now < prev(now) -> outcome == 1"
+    note: >-
+      Ambiguity "the previous call" read as given (reading 1): the previous call
+      of any customer, including a call that itself raised. prev(now) is the time
+      of the previous call on the same object. Consequence of this reading: after
+      a call that raised, a valid call may carry a time earlier than an earlier
+      valid call (e.g. 100 ok, 0 raises, 50 ok), so the times of valid attempts
+      are not monotonic. Not evaluated on the first call, which has no previous call.
+
+  - id: V1-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "valid", cond: "outcome == 0"}
+    note: >-
+      A call that rule 1 does not make raise returns True or False. "valid" uses
+      the time of the previous call of any customer (R-ERR-1 "the previous call",
+      reading 1, as given); the ghost `last` is that time, 0 before the first
+      call, so on the first call only the user range matters.
+
+  - id: V1-MAX-1
+    req: R-MAX-1
+    pattern: implies
+    args: {trigger: "user == u && inwin && three", cond: "!allowed"}
+    note: >-
+      For every customer u and every window [e - 60, e] containing the time of
+      this call: if 3 earlier calls were allowed attempts of u with times in the
+      window, this call is not allowed. So no window holds more than 3 allowed
+      attempts of one customer. Ambiguity "in any 60 seconds" read as given
+      (reading 1): attempts at t and t + 60 are within 60 seconds of each other,
+      so the window includes both ends. Windows are over the `now` values, not
+      call order, because under R-ERR-1 "the previous call" reading 1 (as given)
+      the times of valid attempts need not be monotonic (see V1-ERR-TIME), so a
+      window may also hold earlier calls with later times. Only allowed attempts
+      are counted (R-COUNT-1).
+
+  - id: V1-FAIR-1
+    req: R-FAIR-1
+    pattern: implies
+    args: {trigger: "valid && user == u && now == e && !three", cond: "allowed"}
+    note: >-
+      If fewer than 3 earlier calls were allowed attempts of the same customer
+      with times in [now - 60, now], the attempt is allowed (returns True). "The
+      last 60 seconds" is not flagged; it is read with the same convention as
+      R-MAX-1 reading 1 (an attempt exactly 60 seconds ago is in it), and earlier
+      calls carrying a later time (possible under R-ERR-1 reading 1) are not in
+      the last 60 seconds. Read as applying to calls that rule 1 does not make
+      raise ("valid", with the previous call of any customer, R-ERR-1 reading 1),
+      since a call that must raise cannot return True. Only allowed attempts are
+      counted (R-COUNT-1). CONTRADICTION in the text, not repaired: rule 4 also
+      applies inside the 10-second penalty of rule 5. E.g. one customer allowed
+      at 0, 50, 55 (forced by this item), denied at 58 (forced by V1-MAX-1); at 61
+      only 50 and 55 lie in [1, 61], so this item requires True while V1-PEN-1
+      requires that the attempt is not allowed. This holds under every reading of
+      the flagged phrases (the denial is by the limit, 3 seconds earlier). A
+      second conflict follows from R-ERR-1 reading 1: u allowed at 100, 110, 120,
+      then a raising call at time 0, then u at 90 (valid, since 90 >= 0): [30, 90]
+      holds no allowed attempt, so this item requires True, while [90, 150] holds
+      4 attempts, so V1-MAX-1 requires that it is not allowed.
+
+  - id: V1-PEN-1
+    req: R-PEN-1
+    pattern: implies
+    args: {trigger: "user == u && d <= now && now <= d + 10 && once(prev(denied_d))", cond: "!allowed"}
+    note: >-
+      If an earlier call was a denied attempt (returned False) of customer u at
+      time d, every later attempt of u with a time from d to d + 10 is not
+      allowed. Ambiguity "for the next 10 seconds" read as given (reading 1): an
+      attempt exactly 10 seconds after the denial (now == d + 10) is denied; a
+      later attempt in the same second as the denial is also within the next 10
+      seconds. Ambiguity "After a denied attempt" read as given (reading 1): every
+      denied attempt starts the 10 seconds, including one denied by this rule, so
+      a customer who keeps trying at most 10 seconds apart is denied
+      indefinitely. A call that raised is an error, not a denied attempt. The
+      10 seconds are over `now` values; under R-ERR-1 "the previous call" reading
+      1 (as given) a later valid attempt may carry a time before d, which is not
+      in the next 10 seconds.
+      "Deny" is formalized as not returning True; for valid calls V1-RET-1 makes
+      that a False result. CONTRADICTION with R-FAIR-1, not repaired: see the
+      note of V1-FAIR-1.
+
+scenarios:
+  - id: V1-EX-1
+    req: R-EX-1
+    cover: >-
+      user == prev(user) && user == prev(user, 2) && user == prev(user, 3)
+      && prev(now, 3) == 0 && prev(allowed, 3)
+      && prev(now, 2) == 1 && prev(allowed, 2)
+      && prev(now) == 2 && prev(allowed)
+      && now == 3 && outcome == 0 && !allowed
+    note: >-
+      Four consecutive calls of one customer at 0, 1, 2 and 3 seconds: the first
+      three return True and the fourth returns False. The cover does not require
+      them to be the first calls of the object; the shortest witness starts right
+      after reset.
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      The class, method and argument names and types are fixed by the interface
+      (design.yaml function section) and the object adapter; there is nothing to
+      state over the trace. That a valid call returns a bool is V1-RET-1.
+    covered_by: [V1-RET-1]
+  - req: R-IN-1
+    reason: >-
+      Definition of the customer range 0 to 1,000 and of now in whole seconds
+      (the 16-bit now signal). The range is used by V1-ERR-USER (out of range
+      raises), by the "valid" definition of V1-RET-1 and V1-FAIR-1, and by the
+      range of the rigid customer u.
+    covered_by: [V1-ERR-USER, V1-RET-1, V1-FAIR-1]
+  - req: R-COUNT-1
+    reason: >-
+      A statement about what the limit counts, not a separate behaviour: V1-MAX-1
+      and V1-FAIR-1 count only calls that returned True (allowed), so denied
+      attempts and calls that raised never count toward the limit.
+    covered_by: [V1-MAX-1, V1-FAIR-1]
+  - req: R-FR-1
+    reason: >-
+      Interface encoding, realized by frame rule F-ZERO of design.yaml, which is
+      part of every formalization set.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ERR-1, phrase: "the previous call", reading: 1}
+  - {req: R-MAX-1, phrase: "in any 60 seconds", reading: 1}
+  - {req: R-PEN-1, phrase: "for the next 10 seconds", reading: 1}
+  - {req: R-PEN-1, phrase: "After a denied attempt", reading: 1}

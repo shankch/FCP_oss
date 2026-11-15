@@ -1,0 +1,395 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model.
+#
+# '+/-' is read literally (reading 4): each sign may be + or - independently
+# for every n, so fib4(n) is defined relative to the function's own values at
+# n-1 .. n-4. Calls are independent (frame.md), so the model remembers, for
+# every index k >= 4, the value the last call fib4(k) returned: ghost fk, or -1
+# when there was no such call or its value could not be carried by `result`
+# (outcome 2). Indices 0 .. 3 take the base values 0, 0, 2, 0.
+# f_n1 .. f_n4 select the model value of fib4(n-1) .. fib4(n-4) for the
+# current call (-1 = unknown). c_xyz is fib4(n-1) x fib4(n-2) y fib4(n-3)
+# z fib4(n-4) for the signs x, y, z (p = +, m = -); ok_xyz says the call
+# returned that value: outcome 0 and result equal to it when it is in
+# 0 .. 2^118-1, outcome 2 (a negative or too large integer) otherwise.
+
+defs:
+  RMAX: "332306998946228968225951765070086143"   # 2^118 - 1, the largest value `result` carries
+  f_n1: >-
+    n == 4 ? 0 :
+    n == 5 ? f4 : n == 6 ? f5 : n == 7 ? f6 : n == 8 ? f7 : n == 9 ? f8 : n == 10 ? f9 : n == 11 ? f10 : n == 12 ? f11 :
+    n == 13 ? f12 : n == 14 ? f13 : n == 15 ? f14 : n == 16 ? f15 : n == 17 ? f16 : n == 18 ? f17 : n == 19 ? f18 : n == 20 ? f19 :
+    n == 21 ? f20 : n == 22 ? f21 : n == 23 ? f22 : n == 24 ? f23 : n == 25 ? f24 : n == 26 ? f25 : n == 27 ? f26 : n == 28 ? f27 :
+    n == 29 ? f28 : n == 30 ? f29 : n == 31 ? f30 : n == 32 ? f31 : n == 33 ? f32 : n == 34 ? f33 : n == 35 ? f34 : n == 36 ? f35 :
+    n == 37 ? f36 : n == 38 ? f37 : n == 39 ? f38 : n == 40 ? f39 : n == 41 ? f40 : n == 42 ? f41 : n == 43 ? f42 : n == 44 ? f43 :
+    n == 45 ? f44 : n == 46 ? f45 : n == 47 ? f46 : n == 48 ? f47 : n == 49 ? f48 : n == 50 ? f49 : n == 51 ? f50 : n == 52 ? f51 :
+    n == 53 ? f52 : n == 54 ? f53 : n == 55 ? f54 : n == 56 ? f55 : n == 57 ? f56 : n == 58 ? f57 : n == 59 ? f58 : n == 60 ? f59 :
+    n == 61 ? f60 : n == 62 ? f61 : n == 63 ? f62 : n == 64 ? f63 : n == 65 ? f64 : n == 66 ? f65 : n == 67 ? f66 : n == 68 ? f67 :
+    n == 69 ? f68 : n == 70 ? f69 : n == 71 ? f70 : n == 72 ? f71 : n == 73 ? f72 : n == 74 ? f73 : n == 75 ? f74 : n == 76 ? f75 :
+    n == 77 ? f76 : n == 78 ? f77 : n == 79 ? f78 : n == 80 ? f79 : n == 81 ? f80 : n == 82 ? f81 : n == 83 ? f82 : n == 84 ? f83 :
+    n == 85 ? f84 : n == 86 ? f85 : n == 87 ? f86 : n == 88 ? f87 : n == 89 ? f88 : n == 90 ? f89 : n == 91 ? f90 : n == 92 ? f91 :
+    n == 93 ? f92 : n == 94 ? f93 : n == 95 ? f94 : n == 96 ? f95 : n == 97 ? f96 : n == 98 ? f97 : n == 99 ? f98 : n == 100 ? f99 :
+    n == 101 ? f100 : n == 102 ? f101 : n == 103 ? f102 : n == 104 ? f103 : n == 105 ? f104 : n == 106 ? f105 : n == 107 ? f106 : n == 108 ? f107 :
+    n == 109 ? f108 : n == 110 ? f109 : n == 111 ? f110 : n == 112 ? f111 : n == 113 ? f112 : n == 114 ? f113 : n == 115 ? f114 : n == 116 ? f115 :
+    n == 117 ? f116 : n == 118 ? f117 : n == 119 ? f118 : n == 120 ? f119 : n == 121 ? f120 : n == 122 ? f121 : n == 123 ? f122 : n == 124 ? f123 :
+    n == 125 ? f124 : n == 126 ? f125 : n == 127 ? f126 : -1
+  f_n2: >-
+    n == 4 ? 2 : n == 5 ? 0 :
+    n == 6 ? f4 : n == 7 ? f5 : n == 8 ? f6 : n == 9 ? f7 : n == 10 ? f8 : n == 11 ? f9 : n == 12 ? f10 : n == 13 ? f11 :
+    n == 14 ? f12 : n == 15 ? f13 : n == 16 ? f14 : n == 17 ? f15 : n == 18 ? f16 : n == 19 ? f17 : n == 20 ? f18 : n == 21 ? f19 :
+    n == 22 ? f20 : n == 23 ? f21 : n == 24 ? f22 : n == 25 ? f23 : n == 26 ? f24 : n == 27 ? f25 : n == 28 ? f26 : n == 29 ? f27 :
+    n == 30 ? f28 : n == 31 ? f29 : n == 32 ? f30 : n == 33 ? f31 : n == 34 ? f32 : n == 35 ? f33 : n == 36 ? f34 : n == 37 ? f35 :
+    n == 38 ? f36 : n == 39 ? f37 : n == 40 ? f38 : n == 41 ? f39 : n == 42 ? f40 : n == 43 ? f41 : n == 44 ? f42 : n == 45 ? f43 :
+    n == 46 ? f44 : n == 47 ? f45 : n == 48 ? f46 : n == 49 ? f47 : n == 50 ? f48 : n == 51 ? f49 : n == 52 ? f50 : n == 53 ? f51 :
+    n == 54 ? f52 : n == 55 ? f53 : n == 56 ? f54 : n == 57 ? f55 : n == 58 ? f56 : n == 59 ? f57 : n == 60 ? f58 : n == 61 ? f59 :
+    n == 62 ? f60 : n == 63 ? f61 : n == 64 ? f62 : n == 65 ? f63 : n == 66 ? f64 : n == 67 ? f65 : n == 68 ? f66 : n == 69 ? f67 :
+    n == 70 ? f68 : n == 71 ? f69 : n == 72 ? f70 : n == 73 ? f71 : n == 74 ? f72 : n == 75 ? f73 : n == 76 ? f74 : n == 77 ? f75 :
+    n == 78 ? f76 : n == 79 ? f77 : n == 80 ? f78 : n == 81 ? f79 : n == 82 ? f80 : n == 83 ? f81 : n == 84 ? f82 : n == 85 ? f83 :
+    n == 86 ? f84 : n == 87 ? f85 : n == 88 ? f86 : n == 89 ? f87 : n == 90 ? f88 : n == 91 ? f89 : n == 92 ? f90 : n == 93 ? f91 :
+    n == 94 ? f92 : n == 95 ? f93 : n == 96 ? f94 : n == 97 ? f95 : n == 98 ? f96 : n == 99 ? f97 : n == 100 ? f98 : n == 101 ? f99 :
+    n == 102 ? f100 : n == 103 ? f101 : n == 104 ? f102 : n == 105 ? f103 : n == 106 ? f104 : n == 107 ? f105 : n == 108 ? f106 : n == 109 ? f107 :
+    n == 110 ? f108 : n == 111 ? f109 : n == 112 ? f110 : n == 113 ? f111 : n == 114 ? f112 : n == 115 ? f113 : n == 116 ? f114 : n == 117 ? f115 :
+    n == 118 ? f116 : n == 119 ? f117 : n == 120 ? f118 : n == 121 ? f119 : n == 122 ? f120 : n == 123 ? f121 : n == 124 ? f122 : n == 125 ? f123 :
+    n == 126 ? f124 : n == 127 ? f125 : -1
+  f_n3: >-
+    n == 4 ? 0 : n == 5 ? 2 : n == 6 ? 0 :
+    n == 7 ? f4 : n == 8 ? f5 : n == 9 ? f6 : n == 10 ? f7 : n == 11 ? f8 : n == 12 ? f9 : n == 13 ? f10 : n == 14 ? f11 :
+    n == 15 ? f12 : n == 16 ? f13 : n == 17 ? f14 : n == 18 ? f15 : n == 19 ? f16 : n == 20 ? f17 : n == 21 ? f18 : n == 22 ? f19 :
+    n == 23 ? f20 : n == 24 ? f21 : n == 25 ? f22 : n == 26 ? f23 : n == 27 ? f24 : n == 28 ? f25 : n == 29 ? f26 : n == 30 ? f27 :
+    n == 31 ? f28 : n == 32 ? f29 : n == 33 ? f30 : n == 34 ? f31 : n == 35 ? f32 : n == 36 ? f33 : n == 37 ? f34 : n == 38 ? f35 :
+    n == 39 ? f36 : n == 40 ? f37 : n == 41 ? f38 : n == 42 ? f39 : n == 43 ? f40 : n == 44 ? f41 : n == 45 ? f42 : n == 46 ? f43 :
+    n == 47 ? f44 : n == 48 ? f45 : n == 49 ? f46 : n == 50 ? f47 : n == 51 ? f48 : n == 52 ? f49 : n == 53 ? f50 : n == 54 ? f51 :
+    n == 55 ? f52 : n == 56 ? f53 : n == 57 ? f54 : n == 58 ? f55 : n == 59 ? f56 : n == 60 ? f57 : n == 61 ? f58 : n == 62 ? f59 :
+    n == 63 ? f60 : n == 64 ? f61 : n == 65 ? f62 : n == 66 ? f63 : n == 67 ? f64 : n == 68 ? f65 : n == 69 ? f66 : n == 70 ? f67 :
+    n == 71 ? f68 : n == 72 ? f69 : n == 73 ? f70 : n == 74 ? f71 : n == 75 ? f72 : n == 76 ? f73 : n == 77 ? f74 : n == 78 ? f75 :
+    n == 79 ? f76 : n == 80 ? f77 : n == 81 ? f78 : n == 82 ? f79 : n == 83 ? f80 : n == 84 ? f81 : n == 85 ? f82 : n == 86 ? f83 :
+    n == 87 ? f84 : n == 88 ? f85 : n == 89 ? f86 : n == 90 ? f87 : n == 91 ? f88 : n == 92 ? f89 : n == 93 ? f90 : n == 94 ? f91 :
+    n == 95 ? f92 : n == 96 ? f93 : n == 97 ? f94 : n == 98 ? f95 : n == 99 ? f96 : n == 100 ? f97 : n == 101 ? f98 : n == 102 ? f99 :
+    n == 103 ? f100 : n == 104 ? f101 : n == 105 ? f102 : n == 106 ? f103 : n == 107 ? f104 : n == 108 ? f105 : n == 109 ? f106 : n == 110 ? f107 :
+    n == 111 ? f108 : n == 112 ? f109 : n == 113 ? f110 : n == 114 ? f111 : n == 115 ? f112 : n == 116 ? f113 : n == 117 ? f114 : n == 118 ? f115 :
+    n == 119 ? f116 : n == 120 ? f117 : n == 121 ? f118 : n == 122 ? f119 : n == 123 ? f120 : n == 124 ? f121 : n == 125 ? f122 : n == 126 ? f123 :
+    n == 127 ? f124 : -1
+  f_n4: >-
+    n == 4 ? 0 : n == 5 ? 0 : n == 6 ? 2 : n == 7 ? 0 :
+    n == 8 ? f4 : n == 9 ? f5 : n == 10 ? f6 : n == 11 ? f7 : n == 12 ? f8 : n == 13 ? f9 : n == 14 ? f10 : n == 15 ? f11 :
+    n == 16 ? f12 : n == 17 ? f13 : n == 18 ? f14 : n == 19 ? f15 : n == 20 ? f16 : n == 21 ? f17 : n == 22 ? f18 : n == 23 ? f19 :
+    n == 24 ? f20 : n == 25 ? f21 : n == 26 ? f22 : n == 27 ? f23 : n == 28 ? f24 : n == 29 ? f25 : n == 30 ? f26 : n == 31 ? f27 :
+    n == 32 ? f28 : n == 33 ? f29 : n == 34 ? f30 : n == 35 ? f31 : n == 36 ? f32 : n == 37 ? f33 : n == 38 ? f34 : n == 39 ? f35 :
+    n == 40 ? f36 : n == 41 ? f37 : n == 42 ? f38 : n == 43 ? f39 : n == 44 ? f40 : n == 45 ? f41 : n == 46 ? f42 : n == 47 ? f43 :
+    n == 48 ? f44 : n == 49 ? f45 : n == 50 ? f46 : n == 51 ? f47 : n == 52 ? f48 : n == 53 ? f49 : n == 54 ? f50 : n == 55 ? f51 :
+    n == 56 ? f52 : n == 57 ? f53 : n == 58 ? f54 : n == 59 ? f55 : n == 60 ? f56 : n == 61 ? f57 : n == 62 ? f58 : n == 63 ? f59 :
+    n == 64 ? f60 : n == 65 ? f61 : n == 66 ? f62 : n == 67 ? f63 : n == 68 ? f64 : n == 69 ? f65 : n == 70 ? f66 : n == 71 ? f67 :
+    n == 72 ? f68 : n == 73 ? f69 : n == 74 ? f70 : n == 75 ? f71 : n == 76 ? f72 : n == 77 ? f73 : n == 78 ? f74 : n == 79 ? f75 :
+    n == 80 ? f76 : n == 81 ? f77 : n == 82 ? f78 : n == 83 ? f79 : n == 84 ? f80 : n == 85 ? f81 : n == 86 ? f82 : n == 87 ? f83 :
+    n == 88 ? f84 : n == 89 ? f85 : n == 90 ? f86 : n == 91 ? f87 : n == 92 ? f88 : n == 93 ? f89 : n == 94 ? f90 : n == 95 ? f91 :
+    n == 96 ? f92 : n == 97 ? f93 : n == 98 ? f94 : n == 99 ? f95 : n == 100 ? f96 : n == 101 ? f97 : n == 102 ? f98 : n == 103 ? f99 :
+    n == 104 ? f100 : n == 105 ? f101 : n == 106 ? f102 : n == 107 ? f103 : n == 108 ? f104 : n == 109 ? f105 : n == 110 ? f106 : n == 111 ? f107 :
+    n == 112 ? f108 : n == 113 ? f109 : n == 114 ? f110 : n == 115 ? f111 : n == 116 ? f112 : n == 117 ? f113 : n == 118 ? f114 : n == 119 ? f115 :
+    n == 120 ? f116 : n == 121 ? f117 : n == 122 ? f118 : n == 123 ? f119 : n == 124 ? f120 : n == 125 ? f121 : n == 126 ? f122 : n == 127 ? f123 :
+    -1
+  known: "n >= 4 && f_n1 >= 0 && f_n2 >= 0 && f_n3 >= 0 && f_n4 >= 0"
+  c_ppp: "f_n1 + f_n2 + f_n3 + f_n4"
+  c_ppm: "f_n1 + f_n2 + f_n3 - f_n4"
+  c_pmp: "f_n1 + f_n2 - f_n3 + f_n4"
+  c_pmm: "f_n1 + f_n2 - f_n3 - f_n4"
+  c_mpp: "f_n1 - f_n2 + f_n3 + f_n4"
+  c_mpm: "f_n1 - f_n2 + f_n3 - f_n4"
+  c_mmp: "f_n1 - f_n2 - f_n3 + f_n4"
+  c_mmm: "f_n1 - f_n2 - f_n3 - f_n4"
+  ok_ppp: "c_ppp >= 0 && c_ppp <= RMAX ? outcome == 0 && result == c_ppp : outcome == 2"
+  ok_ppm: "c_ppm >= 0 && c_ppm <= RMAX ? outcome == 0 && result == c_ppm : outcome == 2"
+  ok_pmp: "c_pmp >= 0 && c_pmp <= RMAX ? outcome == 0 && result == c_pmp : outcome == 2"
+  ok_pmm: "c_pmm >= 0 && c_pmm <= RMAX ? outcome == 0 && result == c_pmm : outcome == 2"
+  ok_mpp: "c_mpp >= 0 && c_mpp <= RMAX ? outcome == 0 && result == c_mpp : outcome == 2"
+  ok_mpm: "c_mpm >= 0 && c_mpm <= RMAX ? outcome == 0 && result == c_mpm : outcome == 2"
+  ok_mmp: "c_mmp >= 0 && c_mmp <= RMAX ? outcome == 0 && result == c_mmp : outcome == 2"
+  ok_mmm: "c_mmm >= 0 && c_mmm <= RMAX ? outcome == 0 && result == c_mmm : outcome == 2"
+  rec_ok: "ok_ppp || ok_ppm || ok_pmp || ok_pmm || ok_mpp || ok_mpm || ok_mmp || ok_mmm"
+
+ghosts:   # fk: the value the last call fib4(k) returned (outcome 0), -1 if none or not representable
+  - {name: f4, range: &FR [-1, 332306998946228968225951765070086143], init: -1, next: "n == 4 ? (outcome == 0 ? result : -1) : f4"}
+  - {name: f5, range: *FR, init: -1, next: "n == 5 ? (outcome == 0 ? result : -1) : f5"}
+  - {name: f6, range: *FR, init: -1, next: "n == 6 ? (outcome == 0 ? result : -1) : f6"}
+  - {name: f7, range: *FR, init: -1, next: "n == 7 ? (outcome == 0 ? result : -1) : f7"}
+  - {name: f8, range: *FR, init: -1, next: "n == 8 ? (outcome == 0 ? result : -1) : f8"}
+  - {name: f9, range: *FR, init: -1, next: "n == 9 ? (outcome == 0 ? result : -1) : f9"}
+  - {name: f10, range: *FR, init: -1, next: "n == 10 ? (outcome == 0 ? result : -1) : f10"}
+  - {name: f11, range: *FR, init: -1, next: "n == 11 ? (outcome == 0 ? result : -1) : f11"}
+  - {name: f12, range: *FR, init: -1, next: "n == 12 ? (outcome == 0 ? result : -1) : f12"}
+  - {name: f13, range: *FR, init: -1, next: "n == 13 ? (outcome == 0 ? result : -1) : f13"}
+  - {name: f14, range: *FR, init: -1, next: "n == 14 ? (outcome == 0 ? result : -1) : f14"}
+  - {name: f15, range: *FR, init: -1, next: "n == 15 ? (outcome == 0 ? result : -1) : f15"}
+  - {name: f16, range: *FR, init: -1, next: "n == 16 ? (outcome == 0 ? result : -1) : f16"}
+  - {name: f17, range: *FR, init: -1, next: "n == 17 ? (outcome == 0 ? result : -1) : f17"}
+  - {name: f18, range: *FR, init: -1, next: "n == 18 ? (outcome == 0 ? result : -1) : f18"}
+  - {name: f19, range: *FR, init: -1, next: "n == 19 ? (outcome == 0 ? result : -1) : f19"}
+  - {name: f20, range: *FR, init: -1, next: "n == 20 ? (outcome == 0 ? result : -1) : f20"}
+  - {name: f21, range: *FR, init: -1, next: "n == 21 ? (outcome == 0 ? result : -1) : f21"}
+  - {name: f22, range: *FR, init: -1, next: "n == 22 ? (outcome == 0 ? result : -1) : f22"}
+  - {name: f23, range: *FR, init: -1, next: "n == 23 ? (outcome == 0 ? result : -1) : f23"}
+  - {name: f24, range: *FR, init: -1, next: "n == 24 ? (outcome == 0 ? result : -1) : f24"}
+  - {name: f25, range: *FR, init: -1, next: "n == 25 ? (outcome == 0 ? result : -1) : f25"}
+  - {name: f26, range: *FR, init: -1, next: "n == 26 ? (outcome == 0 ? result : -1) : f26"}
+  - {name: f27, range: *FR, init: -1, next: "n == 27 ? (outcome == 0 ? result : -1) : f27"}
+  - {name: f28, range: *FR, init: -1, next: "n == 28 ? (outcome == 0 ? result : -1) : f28"}
+  - {name: f29, range: *FR, init: -1, next: "n == 29 ? (outcome == 0 ? result : -1) : f29"}
+  - {name: f30, range: *FR, init: -1, next: "n == 30 ? (outcome == 0 ? result : -1) : f30"}
+  - {name: f31, range: *FR, init: -1, next: "n == 31 ? (outcome == 0 ? result : -1) : f31"}
+  - {name: f32, range: *FR, init: -1, next: "n == 32 ? (outcome == 0 ? result : -1) : f32"}
+  - {name: f33, range: *FR, init: -1, next: "n == 33 ? (outcome == 0 ? result : -1) : f33"}
+  - {name: f34, range: *FR, init: -1, next: "n == 34 ? (outcome == 0 ? result : -1) : f34"}
+  - {name: f35, range: *FR, init: -1, next: "n == 35 ? (outcome == 0 ? result : -1) : f35"}
+  - {name: f36, range: *FR, init: -1, next: "n == 36 ? (outcome == 0 ? result : -1) : f36"}
+  - {name: f37, range: *FR, init: -1, next: "n == 37 ? (outcome == 0 ? result : -1) : f37"}
+  - {name: f38, range: *FR, init: -1, next: "n == 38 ? (outcome == 0 ? result : -1) : f38"}
+  - {name: f39, range: *FR, init: -1, next: "n == 39 ? (outcome == 0 ? result : -1) : f39"}
+  - {name: f40, range: *FR, init: -1, next: "n == 40 ? (outcome == 0 ? result : -1) : f40"}
+  - {name: f41, range: *FR, init: -1, next: "n == 41 ? (outcome == 0 ? result : -1) : f41"}
+  - {name: f42, range: *FR, init: -1, next: "n == 42 ? (outcome == 0 ? result : -1) : f42"}
+  - {name: f43, range: *FR, init: -1, next: "n == 43 ? (outcome == 0 ? result : -1) : f43"}
+  - {name: f44, range: *FR, init: -1, next: "n == 44 ? (outcome == 0 ? result : -1) : f44"}
+  - {name: f45, range: *FR, init: -1, next: "n == 45 ? (outcome == 0 ? result : -1) : f45"}
+  - {name: f46, range: *FR, init: -1, next: "n == 46 ? (outcome == 0 ? result : -1) : f46"}
+  - {name: f47, range: *FR, init: -1, next: "n == 47 ? (outcome == 0 ? result : -1) : f47"}
+  - {name: f48, range: *FR, init: -1, next: "n == 48 ? (outcome == 0 ? result : -1) : f48"}
+  - {name: f49, range: *FR, init: -1, next: "n == 49 ? (outcome == 0 ? result : -1) : f49"}
+  - {name: f50, range: *FR, init: -1, next: "n == 50 ? (outcome == 0 ? result : -1) : f50"}
+  - {name: f51, range: *FR, init: -1, next: "n == 51 ? (outcome == 0 ? result : -1) : f51"}
+  - {name: f52, range: *FR, init: -1, next: "n == 52 ? (outcome == 0 ? result : -1) : f52"}
+  - {name: f53, range: *FR, init: -1, next: "n == 53 ? (outcome == 0 ? result : -1) : f53"}
+  - {name: f54, range: *FR, init: -1, next: "n == 54 ? (outcome == 0 ? result : -1) : f54"}
+  - {name: f55, range: *FR, init: -1, next: "n == 55 ? (outcome == 0 ? result : -1) : f55"}
+  - {name: f56, range: *FR, init: -1, next: "n == 56 ? (outcome == 0 ? result : -1) : f56"}
+  - {name: f57, range: *FR, init: -1, next: "n == 57 ? (outcome == 0 ? result : -1) : f57"}
+  - {name: f58, range: *FR, init: -1, next: "n == 58 ? (outcome == 0 ? result : -1) : f58"}
+  - {name: f59, range: *FR, init: -1, next: "n == 59 ? (outcome == 0 ? result : -1) : f59"}
+  - {name: f60, range: *FR, init: -1, next: "n == 60 ? (outcome == 0 ? result : -1) : f60"}
+  - {name: f61, range: *FR, init: -1, next: "n == 61 ? (outcome == 0 ? result : -1) : f61"}
+  - {name: f62, range: *FR, init: -1, next: "n == 62 ? (outcome == 0 ? result : -1) : f62"}
+  - {name: f63, range: *FR, init: -1, next: "n == 63 ? (outcome == 0 ? result : -1) : f63"}
+  - {name: f64, range: *FR, init: -1, next: "n == 64 ? (outcome == 0 ? result : -1) : f64"}
+  - {name: f65, range: *FR, init: -1, next: "n == 65 ? (outcome == 0 ? result : -1) : f65"}
+  - {name: f66, range: *FR, init: -1, next: "n == 66 ? (outcome == 0 ? result : -1) : f66"}
+  - {name: f67, range: *FR, init: -1, next: "n == 67 ? (outcome == 0 ? result : -1) : f67"}
+  - {name: f68, range: *FR, init: -1, next: "n == 68 ? (outcome == 0 ? result : -1) : f68"}
+  - {name: f69, range: *FR, init: -1, next: "n == 69 ? (outcome == 0 ? result : -1) : f69"}
+  - {name: f70, range: *FR, init: -1, next: "n == 70 ? (outcome == 0 ? result : -1) : f70"}
+  - {name: f71, range: *FR, init: -1, next: "n == 71 ? (outcome == 0 ? result : -1) : f71"}
+  - {name: f72, range: *FR, init: -1, next: "n == 72 ? (outcome == 0 ? result : -1) : f72"}
+  - {name: f73, range: *FR, init: -1, next: "n == 73 ? (outcome == 0 ? result : -1) : f73"}
+  - {name: f74, range: *FR, init: -1, next: "n == 74 ? (outcome == 0 ? result : -1) : f74"}
+  - {name: f75, range: *FR, init: -1, next: "n == 75 ? (outcome == 0 ? result : -1) : f75"}
+  - {name: f76, range: *FR, init: -1, next: "n == 76 ? (outcome == 0 ? result : -1) : f76"}
+  - {name: f77, range: *FR, init: -1, next: "n == 77 ? (outcome == 0 ? result : -1) : f77"}
+  - {name: f78, range: *FR, init: -1, next: "n == 78 ? (outcome == 0 ? result : -1) : f78"}
+  - {name: f79, range: *FR, init: -1, next: "n == 79 ? (outcome == 0 ? result : -1) : f79"}
+  - {name: f80, range: *FR, init: -1, next: "n == 80 ? (outcome == 0 ? result : -1) : f80"}
+  - {name: f81, range: *FR, init: -1, next: "n == 81 ? (outcome == 0 ? result : -1) : f81"}
+  - {name: f82, range: *FR, init: -1, next: "n == 82 ? (outcome == 0 ? result : -1) : f82"}
+  - {name: f83, range: *FR, init: -1, next: "n == 83 ? (outcome == 0 ? result : -1) : f83"}
+  - {name: f84, range: *FR, init: -1, next: "n == 84 ? (outcome == 0 ? result : -1) : f84"}
+  - {name: f85, range: *FR, init: -1, next: "n == 85 ? (outcome == 0 ? result : -1) : f85"}
+  - {name: f86, range: *FR, init: -1, next: "n == 86 ? (outcome == 0 ? result : -1) : f86"}
+  - {name: f87, range: *FR, init: -1, next: "n == 87 ? (outcome == 0 ? result : -1) : f87"}
+  - {name: f88, range: *FR, init: -1, next: "n == 88 ? (outcome == 0 ? result : -1) : f88"}
+  - {name: f89, range: *FR, init: -1, next: "n == 89 ? (outcome == 0 ? result : -1) : f89"}
+  - {name: f90, range: *FR, init: -1, next: "n == 90 ? (outcome == 0 ? result : -1) : f90"}
+  - {name: f91, range: *FR, init: -1, next: "n == 91 ? (outcome == 0 ? result : -1) : f91"}
+  - {name: f92, range: *FR, init: -1, next: "n == 92 ? (outcome == 0 ? result : -1) : f92"}
+  - {name: f93, range: *FR, init: -1, next: "n == 93 ? (outcome == 0 ? result : -1) : f93"}
+  - {name: f94, range: *FR, init: -1, next: "n == 94 ? (outcome == 0 ? result : -1) : f94"}
+  - {name: f95, range: *FR, init: -1, next: "n == 95 ? (outcome == 0 ? result : -1) : f95"}
+  - {name: f96, range: *FR, init: -1, next: "n == 96 ? (outcome == 0 ? result : -1) : f96"}
+  - {name: f97, range: *FR, init: -1, next: "n == 97 ? (outcome == 0 ? result : -1) : f97"}
+  - {name: f98, range: *FR, init: -1, next: "n == 98 ? (outcome == 0 ? result : -1) : f98"}
+  - {name: f99, range: *FR, init: -1, next: "n == 99 ? (outcome == 0 ? result : -1) : f99"}
+  - {name: f100, range: *FR, init: -1, next: "n == 100 ? (outcome == 0 ? result : -1) : f100"}
+  - {name: f101, range: *FR, init: -1, next: "n == 101 ? (outcome == 0 ? result : -1) : f101"}
+  - {name: f102, range: *FR, init: -1, next: "n == 102 ? (outcome == 0 ? result : -1) : f102"}
+  - {name: f103, range: *FR, init: -1, next: "n == 103 ? (outcome == 0 ? result : -1) : f103"}
+  - {name: f104, range: *FR, init: -1, next: "n == 104 ? (outcome == 0 ? result : -1) : f104"}
+  - {name: f105, range: *FR, init: -1, next: "n == 105 ? (outcome == 0 ? result : -1) : f105"}
+  - {name: f106, range: *FR, init: -1, next: "n == 106 ? (outcome == 0 ? result : -1) : f106"}
+  - {name: f107, range: *FR, init: -1, next: "n == 107 ? (outcome == 0 ? result : -1) : f107"}
+  - {name: f108, range: *FR, init: -1, next: "n == 108 ? (outcome == 0 ? result : -1) : f108"}
+  - {name: f109, range: *FR, init: -1, next: "n == 109 ? (outcome == 0 ? result : -1) : f109"}
+  - {name: f110, range: *FR, init: -1, next: "n == 110 ? (outcome == 0 ? result : -1) : f110"}
+  - {name: f111, range: *FR, init: -1, next: "n == 111 ? (outcome == 0 ? result : -1) : f111"}
+  - {name: f112, range: *FR, init: -1, next: "n == 112 ? (outcome == 0 ? result : -1) : f112"}
+  - {name: f113, range: *FR, init: -1, next: "n == 113 ? (outcome == 0 ? result : -1) : f113"}
+  - {name: f114, range: *FR, init: -1, next: "n == 114 ? (outcome == 0 ? result : -1) : f114"}
+  - {name: f115, range: *FR, init: -1, next: "n == 115 ? (outcome == 0 ? result : -1) : f115"}
+  - {name: f116, range: *FR, init: -1, next: "n == 116 ? (outcome == 0 ? result : -1) : f116"}
+  - {name: f117, range: *FR, init: -1, next: "n == 117 ? (outcome == 0 ? result : -1) : f117"}
+  - {name: f118, range: *FR, init: -1, next: "n == 118 ? (outcome == 0 ? result : -1) : f118"}
+  - {name: f119, range: *FR, init: -1, next: "n == 119 ? (outcome == 0 ? result : -1) : f119"}
+  - {name: f120, range: *FR, init: -1, next: "n == 120 ? (outcome == 0 ? result : -1) : f120"}
+  - {name: f121, range: *FR, init: -1, next: "n == 121 ? (outcome == 0 ? result : -1) : f121"}
+  - {name: f122, range: *FR, init: -1, next: "n == 122 ? (outcome == 0 ? result : -1) : f122"}
+  - {name: f123, range: *FR, init: -1, next: "n == 123 ? (outcome == 0 ? result : -1) : f123"}
+  - {name: f124, range: *FR, init: -1, next: "n == 124 ? (outcome == 0 ? result : -1) : f124"}
+  - {name: f125, range: *FR, init: -1, next: "n == 125 ? (outcome == 0 ? result : -1) : f125"}
+  - {name: f126, range: *FR, init: -1, next: "n == 126 ? (outcome == 0 ? result : -1) : f126"}
+
+properties:
+  - id: RB-BASE-1
+    req: R-BASE-1
+    pattern: implies
+    args: {trigger: "n == 0", cond: "outcome == 0 && result == 0"}
+    note: "'fib4(0) -> 0' read as: the call fib4(0) returns the int 0 (outcome 0, result 0)."
+  - id: RB-BASE-2
+    req: R-BASE-2
+    pattern: implies
+    args: {trigger: "n == 1", cond: "outcome == 0 && result == 0"}
+    note: "'fib4(1) -> 0': the call fib4(1) returns the int 0."
+  - id: RB-BASE-3
+    req: R-BASE-3
+    pattern: implies
+    args: {trigger: "n == 2", cond: "outcome == 0 && result == 2"}
+    note: "'fib4(2) -> 2': the call fib4(2) returns the int 2."
+  - id: RB-BASE-4
+    req: R-BASE-4
+    pattern: implies
+    args: {trigger: "n == 3", cond: "outcome == 0 && result == 0"}
+    note: "'fib4(3) -> 0': the call fib4(3) returns the int 0."
+  - id: RB-REC-1
+    req: R-REC-1
+    pattern: implies
+    args: {trigger: known, cond: rec_ok}
+    note: >-
+      Reading 4 of '+/-' (each sign may be + or - independently for every n), taken as the
+      most literal: '+/-' says 'plus or minus', and nothing in the text fixes the signs across
+      n or picks one (all '+' and alternating signs are particular cases). The recurrence then
+      relates fib4(n) to the function's own values at n-1 .. n-4. Calls are independent, so
+      those values are taken from the specification model: the base values for indices 0 .. 3
+      and, for k >= 4, the value the last earlier call fib4(k) returned (ghost fk). Whenever
+      n >= 4 and all four are known, the call must return one of the 8 sign combinations:
+      outcome 0 with that value if it is in 0 .. 2^118-1, outcome 2 (a negative or too large
+      integer, which `result` cannot carry) otherwise. At n = 4 the predecessors are the base
+      values, so every call fib4(4) is checked (2, or -2 shown as outcome 2). A predecessor that
+      was not called earlier, or whose value could not be carried (outcome 2), is unknown and
+      the check does not fire; the relation is only checked from predecessors to n, not when a
+      predecessor is called after n. Second flagged phrase, reading 1: the base values and this
+      recurrence define the sequence, as written. The examples are not dropped to make this
+      consistent: R-EX-1..3 are formalized literally (RB-EX-1..3), so the conflict stays
+      visible (RB-EX-1 cannot be reached together with RB-REC-5).
+  - id: RB-REC-5
+    req: R-REC-1
+    pattern: implies
+    args: {trigger: "n == 5", cond: "(outcome == 0 && (result == 0 || result == 4)) || outcome == 2"}
+    note: >-
+      Consequence of R-BASE-1..4 and R-REC-1 under reading 4 of '+/-', by enumerating every
+      choice of signs: fib4(4) = 0 +/- 2 +/- 0 +/- 0 is 2 or -2, and fib4(5) = fib4(4) +/- 0
+      +/- 2 +/- 0 is -4, 0 or 4. Unlike RB-REC-1 it needs no earlier call, so a single call
+      fib4(5) is checked. -4 cannot be carried by `result` (outcome 2).
+  - id: RB-REC-6
+    req: R-REC-1
+    pattern: implies
+    args: {trigger: "n == 6", cond: "(outcome == 0 && (result == 0 || result == 4 || result == 8)) || outcome == 2"}
+    note: >-
+      Consequence of R-BASE-1..4 and R-REC-1 under reading 4 of '+/-', by enumerating every
+      choice of signs: fib4(6) = fib4(5) +/- fib4(4) +/- 0 +/- 2 is one of -8, -4, 0, 4, 8
+      (8 with all '+', 0 with alternating signs). Checked on a single call; negative values
+      are outcome 2.
+  - id: RB-REC-7
+    req: R-REC-1
+    pattern: implies
+    args: {trigger: "n == 7", cond: "(outcome == 0 && (result == 2 || result == 6 || result == 10 || result == 14)) || outcome == 2"}
+    note: >-
+      Consequence of R-BASE-1..4 and R-REC-1 under reading 4 of '+/-', by enumerating every
+      choice of signs: fib4(7) = fib4(6) +/- fib4(5) +/- fib4(4) +/- 0 is one of -14, -10, -6,
+      -2, 2, 6, 10, 14 (14 with all '+', -2 with alternating signs). Checked on a single call;
+      negative values are outcome 2.
+  - id: RB-FUN-1
+    req: R-FUN-1
+    pattern: invariant
+    args: {cond: "outcome != 1"}
+    note: >-
+      Reading 1 of 'n-th element': the element with index n, counting fib4(0) as element 0,
+      the indexing RB-BASE-1..4 and RB-REC-* use; the value part of this requirement is
+      realized by those items. Every n of the trace (0 .. 127) is a valid argument, so this item
+      adds that every call returns a value: no exception and no call that does not finish
+      (outcome 1). 'as an integer': a returned element that `result` cannot carry (negative or
+      at least 2^118) is outcome 2, which RB-REC-* allow only where the model allows such an
+      element; a non-integer return also shows as outcome 2 and cannot be told apart.
+  - id: RB-NF-1
+    req: R-NF-1
+    pattern: invariant
+    args: {cond: "outcome != 1"}
+    note: >-
+      Reading 4 of 'efficiently': no particular bound, only exponential-time computation is
+      excluded. Running time is not observable in the trace, except that a call which does not
+      finish is recorded as outcome 1, and an exponential-time implementation (for example
+      naive recursion) does not finish for large n. Partial formalization: the bound itself,
+      and the distinctions between readings 1 .. 3, are not observable. Also fails on an
+      exception, which RB-FUN-1 forbids as well.
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: "n == 5 && outcome == 0 && result == 2"
+    note: >-
+      Reading 1 (literal): fib4(5) returns 2. This contradicts R-BASE-1..4 with R-REC-1 under
+      every reading of '+/-': fib4(5) is -4, 0 or 4 (RB-REC-5), so the scenario cannot be
+      reached. Kept as written so that the contradiction in the prompt is reported, not
+      repaired.
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: "n == 6 && outcome == 0 && result == 4"
+    note: >-
+      Reading 1 (literal): fib4(6) returns 4. Under the reading of '+/-' taken (4) it is
+      reachable: 0, 0, 2, 0, 2, 4, 4 with fib4(6) = fib4(5) + fib4(4) - fib4(3) - fib4(2).
+      It would contradict the recurrence with all '+' (8) or with alternating signs (0).
+  - id: RB-EX-3
+    req: R-EX-3
+    cover: "n == 7 && outcome == 0 && result == 6"
+    note: >-
+      Reading 1 (literal): fib4(7) returns 6. Under reading 4 of '+/-' it is reachable:
+      0, 0, 2, 0, 2, 4, 4, 6 with fib4(7) = fib4(6) + fib4(5) - fib4(4) + fib4(3), the same
+      sequence that meets RB-EX-2. It would contradict the recurrence with all '+' (14) or with
+      alternating signs (-2), and with any fixed signs together with RB-EX-2.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Concerns the form of the deliverable (the body of fib4 completed under the given
+      signature and docstring), not the behaviour of a call, so it is not observable in the
+      trace. Its observable content is what the other requirements state.
+  - req: R-IF-1
+    reason: >-
+      Met by the interface encoding: every cycle is one call of fib4 with its single int
+      argument n (a 7-bit unsigned input, 0 .. 127). Reading 1 of 'n: int' taken (n may be any
+      int, nothing is said for a negative n); negative n and n above 127 are not part of the
+      trace (frame.md), so no assumption is needed and none is made.
+  - req: R-DEF-1
+    reason: >-
+      A definition: it introduces the sequence that R-BASE-1..4 and R-REC-1 pin down. It is
+      realized by the specification model (ghosts f4 .. f126, defs f_n1 .. f_n4) and the items
+      that check outputs against it. 'similar to the Fibonacci sequence' adds no checkable
+      constraint.
+    covered_by: [RB-BASE-1, RB-BASE-2, RB-BASE-3, RB-BASE-4, RB-REC-1, RB-REC-5, RB-REC-6, RB-REC-7]
+  - req: R-NF-2
+    reason: >-
+      A property of the source code, not of the calls: a recursive and an iterative
+      implementation can produce identical traces. Reading 2 of 'recursion' taken (no function
+      of the implementation may be recursive, helpers and memoized recursion included); it
+      needs a code inspection, not a trace property.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, already part of every formalization set as F-ZERO
+      (design.yaml); not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-1, phrase: "n: int", reading: 1}
+  - {req: R-REC-1, phrase: "+/-", reading: 4}
+  - {req: R-REC-1, phrase: "fib4(n) -> fib4(n-1) +/- fib4(n-2) +/- fib4(n-3) +/- fib4(n-4)", reading: 1}
+  - {req: R-FUN-1, phrase: "n-th element", reading: 1}
+  - {req: R-NF-1, phrase: "efficiently", reading: 4}
+  - {req: R-NF-2, phrase: "recursion", reading: 2}
+  - {req: R-EX-1, phrase: ">>> fib4(5)", reading: 1}
+  - {req: R-EX-2, phrase: ">>> fib4(6)", reading: 1}
+  - {req: R-EX-3, phrase: ">>> fib4(7)", reading: 1}

@@ -1,0 +1,261 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 133,
+    "checked": 133,
+    "seconds": 28.4
+   },
+   "open": {
+    "open": {},
+    "checked": 87
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 135,
+    "checked": 135,
+    "seconds": 34.02
+   },
+   "open": {
+    "open": {},
+    "checked": 83
+   }
+  }
+ },
+ "readings": {
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SC-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SC-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SC-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SC-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `only_brackets`",
+    "where": {
+     "only_brackets": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1-D-RESULT",
+    "req": "R-IN-1",
+    "says": "`result` is free when `!only_brackets`",
+    "where": {
+     "only_brackets": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1-D-OUTCOME",
+    "req": "R-IN-1",
+    "says": "`outcome` is free when `!only_brackets`",
+    "where": {
+     "only_brackets": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1-A1",
+    "req": "R-IN-1",
+    "says": "every call meets `valid`",
+    "where": {
+     "valid": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1-D1",
+    "req": "R-IN-1",
+    "says": "`result` is free when `!valid`",
+    "where": {
+     "valid": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1-D2",
+    "req": "R-IN-1",
+    "says": "`outcome` is free when `!valid`",
+    "where": {
+     "valid": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "a string of \"(\" and \")\"",
+   "taken": 1,
+   "variant": 2,
+   "text": "A description of typical input only: the function must still answer for strings with other characters, judging only the '(' and ')' characters and ignoring the rest."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "brackets is a string",
+   "taken": 1,
+   "variant": 2,
+   "text": "The empty string is not a string of brackets, so it is outside the contract and its result is unconstrained."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "has a corresponding closing or opening bracket",
+   "taken": 1,
+   "variant": 2,
+   "text": "Equal counts: the number of '(' equals the number of ')', in any order (each '(' paired one-to-one with any ')'). This contradicts the example candidate(\")(()\") == False, which has two of each."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "return True if",
+   "taken": 1,
+   "variant": 2,
+   "text": "A sufficient condition only: the text says nothing about strings with an unmatched bracket, so any result (including None or an exception) is allowed for them."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "has a corresponding closing or opening bracket",
+   "taken": 1,
+   "variant": 2,
+   "text": "Equal counts: the number of '(' equals the number of ')', in any order (each '(' paired one-to-one with any ')'). This contradicts the example candidate(\")(()\") == False, which has two of each."
+  },
+  {
+   "req": "R-SC-2",
+   "phrase": "candidate(\"()\")",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradicts the literal respective reading of R-RET-1 (a closing bracket corresponds to a closing one, an opening to an opening), under which the lone '(' and ')' are unmatched and the result would not be True."
+  },
+  {
+   "req": "R-SC-3",
+   "phrase": "candidate(\"(()())\")",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradicts the literal respective reading of R-RET-1 (same-kind partners), under which three '(' and three ')' cannot all be paired and the result would not be True."
+  },
+  {
+   "req": "R-SC-4",
+   "phrase": "candidate(\")(()\")",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradicts R-RET-1 under the equal-count reading: \")(()\" has two '(' and two ')', so every bracket can be given a partner and the result would be True."
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(\")(())()()))((())(((()((()())))()\") -> False"
+   ]
+  }
+ },
+ "certified": [
+  "R-SC-1"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [
+    "candidate(\")(())()()))((())(((()((()())))()\") -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1",
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"has a corresponding closing or opening bracket\" can mean: Proper nesting: each ')' is paired with the nearest earlier unpaired '(', each bracket is used in at most one pair, and every bracket is paired (no prefix has more ')' than '(', and the totals are equal). / Equal counts: the number of '(' equals the number of ')', in any order (each '(' paired one-to-one with any ')'). This contradicts the example candidate(\")(()\") == False, which has two of each. / Directional but not exclusive: every '(' has some ')' after it and every ')' has some '(' before it, and a bracket may serve as the partner of several others (so \"(()\" and \"())\" count as matched). / Literal respective reading: a closing bracket corresponds to another closing bracket and an opening bracket to another opening bracket. This contradicts the examples candidate(\"()\") == True and candidate(\"(()())\") == True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"return True if\" can mean: If and only if: every string in which some bracket is unmatched returns False, as the False examples show. / A sufficient condition only: the text says nothing about strings with an unmatched bracket, so any result (including None or an exception) is allowed for them.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SC-2"
+   ],
+   "calls": [],
+   "question": "\"candidate(\"()\")\" can mean: Consistent with R-RET-1: an opening bracket corresponds to a closing bracket, so \"()\" is matched and the result is True. / Contradicts the literal respective reading of R-RET-1 (a closing bracket corresponds to a closing one, an opening to an opening), under which the lone '(' and ')' are unmatched and the result would not be True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SC-3"
+   ],
+   "calls": [],
+   "question": "\"candidate(\"(()())\")\" can mean: Consistent with R-RET-1: each opening bracket has a closing partner, so \"(()())\" is matched and the result is True. / Contradicts the literal respective reading of R-RET-1 (same-kind partners), under which three '(' and three ')' cannot all be paired and the result would not be True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SC-4"
+   ],
+   "calls": [],
+   "question": "\"candidate(\")(()\")\" can mean: Consistent with R-RET-1 under the order-sensitive (nesting) reading: the first ')' has no earlier '(' to correspond to, so the result is False. / Contradicts R-RET-1 under the equal-count reading: \")(()\" has two '(' and two ')', so every bracket can be given a partner and the result would be True.. Which is meant?"
+  }
+ ],
+ "limits": []
+}

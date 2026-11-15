@@ -1,0 +1,2569 @@
+{
+ "runs": 46400,
+ "implementations": {
+  "haiku": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "sonnet": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "opus": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "ref": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C1": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-ERR-ONLY"
+      ],
+      "call": "place_order(0, 0, 100, 1) with answers [\"refused\", \"refused\", \"error\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RET"
+      ],
+      "call": "place_order(0, 0, 100, 1) with answers [\"ok\", \"ok\", \"ok\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-STEPS-GO"
+      ],
+      "call": "place_order(0, 0, 100, 1) with answers [\"refused\", \"refused\", \"refused\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-STEPS-GO"
+      ],
+      "call": "place_order(0, 0, 100, 1) with answers [\"error\", \"ok\", \"ok\"]",
+      "conversation": [
+       "returns raised ValueError"
+      ]
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C2": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-ERR"
+      ],
+      "call": "place_order(0, 0, 1, 0) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 0) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 0)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 0) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 0) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 0)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-ERR-1"
+      ],
+      "call": "place_order(0, 0, 1, 0) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 0) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 0)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 0) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 0) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 0)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.8,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-ERR"
+      ],
+      "call": "place_order(0, 0, 1, 0) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 0) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 0)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 0) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 0) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 0)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C3": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RET"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"error\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"error\"",
+       "returns PaymentError: error"
+      ]
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CATCH"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"error\", \"ok\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"error\"",
+       "returns PaymentError: error"
+      ]
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-UNDO"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"error\", \"ok\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"error\"",
+       "returns PaymentError: error"
+      ]
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-STOP-FALSE"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"error\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"error\"",
+       "returns PaymentError: error"
+      ]
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-UNDO-REL"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"error\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"error\"",
+       "returns PaymentError: error"
+      ]
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-STOP-FALSE"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"error\", \"ok\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"error\"",
+       "returns PaymentError: error"
+      ]
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-UNDO-RELEASE"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"error\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"error\"",
+       "returns PaymentError: error"
+      ]
+     }
+    }
+   }
+  },
+  "C4": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-UNDO"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"refused\", \"ok\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"refused\"",
+       "returns False"
+      ]
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-UNDO-REL"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"error\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-UNDO-RELEASE"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"refused\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"refused\"",
+       "returns False"
+      ]
+     }
+    }
+   }
+  },
+  "C5": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-UNDO"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-UNDO-REF"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-UNDO-REFUND"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     }
+    }
+   }
+  },
+  "C6": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-ARG-REF"
+      ],
+      "call": "place_order(0, 0, 2, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 2) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 2)",
+       "inventory.release(0, 2)",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-ARGS-REF"
+      ],
+      "call": "place_order(0, 0, 1, 2) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 2) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-ARGS-REF"
+      ],
+      "call": "place_order(0, 0, 2, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 2) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 2)",
+       "inventory.release(0, 2)",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C7": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.8,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-ONCE-BOOK"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RET"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "shipping.book(0) -> \"error\"",
+       "returns ShippingError: error"
+      ]
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-STOP"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-UNDO"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "shipping.book(0) -> \"error\"",
+       "returns ShippingError: error"
+      ]
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.5,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-ONCE-BK"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\", \"ok\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "shipping.book(0) -> \"ok\"",
+       "returns True"
+      ]
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-STOP-FALSE",
+       "OA-STOP-STEP"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "shipping.book(0) -> \"error\"",
+       "returns ShippingError: error"
+      ]
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-UNDO-REF",
+       "OA-UNDO-REL"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "shipping.book(0) -> \"error\"",
+       "returns ShippingError: error"
+      ]
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.8,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-ONCE-BOOK"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "shipping.book(0) -> \"error\"",
+       "returns ShippingError: error"
+      ]
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-RET"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\", \"ok\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "shipping.book(0) -> \"ok\"",
+       "returns True"
+      ]
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-STOP-FALSE",
+       "OB-P-STOP-NOSTEP"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "shipping.book(0) -> \"error\"",
+       "returns ShippingError: error"
+      ]
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-UNDO-REFUND",
+       "OB-P-UNDO-RELEASE"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "shipping.book(0) -> \"error\"",
+       "returns ShippingError: error"
+      ]
+     }
+    }
+   }
+  },
+  "C8": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-UNDO",
+       "G-UNDO-REL"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"error\", \"ok\", \"ok\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"error\"",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.5,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-UNDO-REL-ONLY"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"refused\", \"refused\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"refused\"",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.8,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-UNDO-RELEASE"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"refused\", \"refused\", \"ok\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"refused\"",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     }
+    }
+   }
+  },
+  "C9": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OA-LIMIT-1"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"refused\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"refused\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-ARGS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-LIMIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "OB-P-LIMIT"
+      ],
+      "call": "place_order(0, 0, 1, 1) with answers [\"ok\", \"ok\", \"error\"]",
+      "conversation": [
+       "inventory.reserve(0, 1) -> \"ok\"",
+       "payments.charge(0, 1) -> \"ok\"",
+       "shipping.book(0) -> \"error\"",
+       "payments.refund(0, 1)",
+       "inventory.release(0, 1)",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ORDER-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STEPS-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-STOP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-UNDO-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  }
+ },
+ "summary": {
+  "proved": 278,
+  "proved_bounded": 0,
+  "fails_both": 73,
+  "missed_by_scope": 0,
+  "scope_only": 0,
+  "unknown": 0,
+  "pairs": 39,
+  "untranslatable": [],
+  "seconds": [
+   1.4,
+   1.8
+  ]
+ },
+ "seconds": 83
+}

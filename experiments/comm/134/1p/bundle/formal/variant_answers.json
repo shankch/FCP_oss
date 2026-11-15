@@ -1,0 +1,86 @@
+[
+ {
+  "req": "R-RET-1",
+  "phrase": "returns True",
+  "taken": 1,
+  "variant": 2,
+  "text": "any truthy or falsy value (such as 1 and 0, or a non-empty and an empty string) is acceptable"
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "is ,",
+  "taken": 1,
+  "variant": 2,
+  "text": "the last character is an ASCII letter (a-z, A-Z) that stands alone: txt has length 1 or the character before it is a space (an alphabetical character that is not part of a longer word); consistent with every example"
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "the last character",
+  "taken": 1,
+  "variant": 2,
+  "text": "the last non-space character of txt, ignoring trailing spaces; then \"apple pi e \" is judged on its lone 'e' and would give True, which contradicts R-EX-3"
+ },
+ {
+  "req": "R-RET-3",
+  "phrase": "otherwise",
+  "taken": 1,
+  "variant": 2,
+  "text": "only for non-empty strings whose last character lacks the property; the empty string, which has no last character, is not covered by this sentence (R-EX-4 gives it False)"
+ },
+ {
+  "req": "R-RET-3",
+  "phrase": "False otherwise",
+  "taken": 2,
+  "variant": 1,
+  "text": "consistent with R-EX-2 when the property of R-RET-2 is a letter standing alone at the end of txt"
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "\"word\"",
+  "taken": 2,
+  "variant": 1,
+  "text": "the definition serves the missing property of R-RET-2 (for example 'not a part of a word') and so constrains the result"
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "group of characters",
+  "taken": 1,
+  "variant": 2,
+  "text": "two or more characters, so a single letter is not a word"
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "space",
+  "taken": 1,
+  "variant": 2,
+  "text": "any whitespace character, such as tab or newline"
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "separated by space",
+  "taken": 1,
+  "variant": 2,
+  "text": "a word is a run of letters, so digits and punctuation also separate words"
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "candidate(\"apple pie\") \u279e False",
+  "taken": 1,
+  "variant": 2,
+  "text": "contradicts R-RET-2 when the property is only 'the last character is an alphabetical character': 'e' is a letter, so True would be required"
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "candidate(\"apple pi e\") \u279e True",
+  "taken": 2,
+  "variant": 1,
+  "text": "consistent with R-RET-2 when the property is a letter standing alone at the end of txt"
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "candidate(\"apple pi e \") \u279e False",
+  "taken": 1,
+  "variant": 2,
+  "text": "contradicts R-RET-2 when the last character means the last non-space character: the lone 'e' would then give True"
+ }
+]

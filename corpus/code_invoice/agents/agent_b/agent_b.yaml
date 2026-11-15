@@ -1,0 +1,176 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md,
+# "Calls"), so the model is combinational: every expected value is computed
+# from the arguments of the current call, and every output is checked against
+# it. FCP-PL has no division, so "x rounded down to the cent after taking 10%"
+# (floor(x / 10)) is carried as ten times its value, x - x % 10, and compared
+# with ten times the output.
+defs:
+  n: "len(price)"                                   # the number of items
+  bad_input: "n == 0 || any(i < n: qty[i] == 0)"    # rule 1: items empty, or an item with quantity 0
+  valid: "!bad_input"
+  ret: "outcome == 0"                               # the call returned a dict of the declared form
+  # item k (k is a rigid index)
+  item_k: "k < n"
+  pq_k: "price[k] * qty[k]"                         # the line's price times its quantity
+  md_k: "member && sale[k] == 0"                    # rule 3: a member's line that is not on sale
+  ld10_k: "md_k ? pq_k - pq_k % 10 : 0"             # ten times the line's discount: 10 * floor(pq_k / 10), else 0
+  # sums over all items
+  gross: "sum(i < n: price[i] * qty[i])"            # price times quantity of all items, summed
+  ns_gross: "sum(i < n: sale[i] == 0 ? price[i] * qty[i] : 0)"   # same, over the items not on sale
+  lines_sum: "sum(i < len(lines): lines[i])"
+
+rigids:
+  - {name: k, range: [0, 4]}                        # an item position (at most 5 items)
+
+properties:
+  # R-RET-1 ---------------------------------------------------------------
+  - id: IB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "valid", cond: "outcome == 0"}
+    note: >-
+      The sentence is unconditional, but rule 1 makes some calls raise; read as
+      "every call that rule 1 does not reject returns a dict with exactly the
+      keys lines, discount and total" (outcome 0, as defined in frame.md).
+      Rule 1 says when to raise but not "only then"; returning on every other
+      call is this requirement.
+
+  # R-ERR-1 ---------------------------------------------------------------
+  - id: IB-ERR-1
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "n == 0", cond: "outcome == 1"}
+    note: "items is empty: ValueError."
+  - id: IB-ERR-2
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "any(i < n: qty[i] == 0)", cond: "outcome == 1"}
+    note: "Some item has quantity 0: ValueError. Negative quantities are not part of the trace (frame.md)."
+
+  # R-LINES-1 -------------------------------------------------------------
+  - id: IB-LINES-1
+    req: R-LINES-1
+    pattern: implies
+    args: {trigger: "ret", cond: "len(lines) == n"}
+    note: >-
+      "one amount per item": whenever a dict is returned, lines has exactly as
+      many amounts as there are items. Conditioned on the call returning,
+      because lines exists only then; whether it returns is R-RET-1/R-ERR-1.
+  - id: IB-LINES-2
+    req: R-LINES-1
+    pattern: implies
+    args: {trigger: "ret && item_k", cond: "10 * lines[k] == 10 * pq_k - ld10_k"}
+    note: >-
+      "in the same order": amount k belongs to item k. Each amount is price
+      times quantity minus that line's discount. The only rule that gives a
+      line a discount is rule 3 (a member's line not on sale, 10% of price
+      times quantity rounded down), so every other line's discount is read as
+      0: a sale line, and every line of a non-member, is exactly price times
+      quantity. Stated as 10 * lines[k] == 10 * (pq - floor(pq / 10)) because
+      FCP-PL has no division.
+
+  # R-MEM-1 ---------------------------------------------------------------
+  - id: IB-MEM-1
+    req: R-MEM-1
+    pattern: implies
+    args: {trigger: "ret && item_k && md_k", cond: "10 * (pq_k - lines[k]) == pq_k - pq_k % 10"}
+    note: >-
+      Ambiguity "rounded down to the cent": the most literal reading takes the
+      "10% off" (the line's discount) as the amount rounded down, so the
+      discount is floor(price * qty / 10) and the line is price * qty minus
+      that. The other reading (the discounted line rounded down,
+      floor(0.9 * price * qty)) disagrees with the example of R-EX-1 (3998 ->
+      3599, not 3598), which supports this reading. "every line" is read as the
+      line's price times its quantity, not per unit. The rule says nothing
+      about sale lines or non-members; those are constrained by IB-LINES-2
+      only.
+
+  # R-DISC-1 --------------------------------------------------------------
+  - id: IB-DISC-1
+    req: R-DISC-1
+    pattern: implies
+    args: {trigger: "ret && member", cond: "10 * discount == ns_gross - ns_gross % 10"}
+    note: >-
+      Ambiguity "summed and rounded down": read in the order written, the
+      price-times-quantity amounts of the items not on sale are summed first
+      and 10% of the sum is rounded down once: discount == floor(sum / 10).
+      The other reading (each item's 10% rounded down, then summed) is not
+      chosen. CONFLICT: under this reading discount is not the sum of the line
+      discounts of rule 3 when a member has two or more items not on sale
+      whose price-times-quantity remainders mod 10 add up to 10 or more
+      (e.g. two items of 9 cents, quantity 1: lines [9, 9], discount 1).
+      Then R-SUM-1 (total 18) and R-TOT-1 (total 17) cannot both hold, and
+      with R-RET-1 the call has no conforming answer. Left as written, not
+      repaired.
+  - id: IB-DISC-2
+    req: R-DISC-1
+    pattern: implies
+    args: {trigger: "ret && !member", cond: "discount == 0"}
+    note: "\"and 0 for everyone else\": a non-member's discount is 0."
+
+  # R-SUM-1 ---------------------------------------------------------------
+  - id: IB-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args: {trigger: "ret", cond: "total == lines_sum"}
+    note: >-
+      Literal: total equals the sum of the returned lines (a relation between
+      outputs, as the text states it). The lines themselves are checked
+      against the model by IB-LINES-2. See IB-DISC-1 for the conflict with
+      R-TOT-1.
+
+  # R-TOT-1 ---------------------------------------------------------------
+  - id: IB-TOT-1
+    req: R-TOT-1
+    pattern: implies
+    args: {trigger: "ret", cond: "total == gross - discount"}
+    note: >-
+      Literal: total equals price times quantity of all items (sale or not),
+      summed, minus the returned `discount` (the text names the returned key).
+      discount itself is checked against the model by IB-DISC-1/IB-DISC-2.
+      Contradicts R-SUM-1 + R-LINES-1 + R-MEM-1 for some member calls; see
+      IB-DISC-1.
+
+  # R-EX-1 ----------------------------------------------------------------
+  - id: IB-EX-2
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "member && n == 1 && price[0] == 1999 && qty[0] == 2 && sale[0] == 0"
+      cond: "outcome == 0 && lines == [3599] && discount == 399 && total == 3599"
+    note: >-
+      The example says the call "returns" this dict, so besides being possible
+      (IB-EX-1) it is the only allowed answer to that call. It agrees with the
+      model: 1999 * 2 = 3998, line discount floor(399.8) = 399, line 3599,
+      discount floor(3998 / 10) = 399, total 3599 either way. With one item
+      the two roundings of R-DISC-1 coincide, so the example does not settle
+      that ambiguity.
+
+scenarios:
+  - id: IB-EX-1
+    req: R-EX-1
+    cover: "member && n == 1 && price[0] == 1999 && qty[0] == 2 && sale[0] == 0 && outcome == 0 && lines == [3599] && discount == 399 && total == 3599"
+    note: "The example call and its answer must be a possible behaviour."
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the function's name, arguments and result type. The
+      signature is realized by the interface encoding (design.yaml function
+      section and frame.md); that a valid call returns a dict is IB-RET-1.
+    covered_by: [IB-RET-1]
+  - req: R-IN-1
+    reason: >-
+      Definition of an item's fields (price in cents, quantity, sale flag).
+      It is realized by the interface encoding: price, qty and sale are one
+      interface group of sequence signals, item i being price[i], qty[i],
+      sale[i] (frame.md, "Records"). It places no constraint on behaviour.
+  - req: R-FR-1
+    reason: >-
+      Definition from the adapter (frame.md), not the prompt. It is the frame
+      item F-ZERO of design.yaml, which is added to every formalization set,
+      so restating it here would duplicate it.

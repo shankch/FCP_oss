@@ -1,0 +1,157 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate is memoryless (frame.md: each cycle is one
+# independent call), so the reference model is combinational: want is the
+# value the call must return, 2^x modulo y, for every y in 1 .. 127.
+# FCP-PL needs a constant divisor for %, so want is a sum over every possible
+# modulus d = q + 1 in which only the term with y == d is non-zero. Within a
+# term, 2^x = product over the set bits i of x of 2^(2^i), and each factor is
+# the constant 2^(2^i) mod d; the product (below 127^11) is reduced mod d once.
+# want is therefore the least non-negative residue, in 0 .. y-1, and 0 when
+# y == 0 (no term matches; the prompt leaves that case open). No ghost state is
+# needed: the function keeps nothing between calls.
+defs:
+  want: >-
+    sum(q < 127: (y == q + 1) * (((x[0] ? (1 << 1) % (q + 1) : 1)
+    * (x[1] ? (1 << 2) % (q + 1) : 1) * (x[2] ? (1 << 4) % (q + 1) : 1)
+    * (x[3] ? (1 << 8) % (q + 1) : 1) * (x[4] ? (1 << 16) % (q + 1) : 1)
+    * (x[5] ? (1 << 32) % (q + 1) : 1) * (x[6] ? (1 << 64) % (q + 1) : 1)
+    * (x[7] ? (1 << 128) % (q + 1) : 1) * (x[8] ? (1 << 256) % (q + 1) : 1)
+    * (x[9] ? (1 << 512) % (q + 1) : 1) * (x[10] ? (1 << 1024) % (q + 1) : 1))
+    % (q + 1)))
+  # the modulus is defined (the prompt says nothing about modulo 0)
+  has_mod: "y != 0"
+  # the call returned an integer that fits result
+  returned_int: "outcome == 0"
+
+properties:
+  - id: RB-MOD-1-RET
+    req: R-MOD-1
+    expr: "has_mod -> returned_int"
+    note: >-
+      "Return 2^n modulo p": every call with a non-zero modulus ends by
+      returning an integer (outcome 0). Reading 1 of "Return": the value must
+      be a Python int; a float such as 3.0 is "anything else" (outcome 2) in
+      frame.md and is rejected. The residue is in 0 .. y-1 <= 126, so it
+      always fits result; an exception or a call that does not finish
+      (outcome 1) is a violation. The case y == 0 is left free (RB-MOD-1-Y0-*).
+  - id: RB-MOD-1-VAL
+    req: R-MOD-1
+    expr: "has_mod -> result == want"
+    note: >-
+      The returned integer is 2^x modulo y. Readings taken: n is the first
+      argument x and p the second argument y (all five examples agree);
+      2^n is exponentiation, not Python XOR (candidate(3, 5) == 3 rules out
+      XOR); "modulo p" is the least non-negative residue in 0 .. y-1, so
+      candidate(x, 1) returns 0; p is any positive modulus, not only a prime:
+      the text never says prime, so non-prime y (including 1 and even y) are
+      constrained too. y == 0 is not constrained here (see the dont_cares).
+  - id: RB-NUM-1
+    req: R-NUM-1
+    expr: "has_mod -> returned_int && result == want"
+    note: >-
+      "be aware of numerics", reading 1: the result must be exact for every
+      exponent in range, including those where 2^x is far beyond floating-point
+      precision (x up to 2047). How the residue is computed (no floats,
+      modular exponentiation) is not observable in the trace; what is
+      observable is that every call with y != 0 returns the exact residue as
+      an integer, which coincides with RB-MOD-1-RET and RB-MOD-1-VAL. A call
+      too slow to finish shows as outcome 1 and is also rejected, so reading 2
+      adds nothing observable within the frame either.
+  - id: RB-EX-1-P
+    req: R-EX-1
+    expr: "x == 3 && y == 5 -> returned_int && result == 3"
+    note: >-
+      The doctest is an assertion about the call; the function is memoryless
+      (frame.md), so every call candidate(3, 5) must return the integer 3.
+      Agrees with the model: 2^3 mod 5 = 3.
+  - id: RB-EX-2-P
+    req: R-EX-2
+    expr: "x == 1101 && y == 101 -> returned_int && result == 2"
+    note: >-
+      Every call candidate(1101, 101) returns the integer 2. Agrees with the
+      model: 2^100 = 1 mod 101, so 2^1101 = 2^1 = 2 mod 101.
+  - id: RB-EX-3-P
+    req: R-EX-3
+    expr: "x == 0 && y == 101 -> returned_int && result == 1"
+    note: Every call candidate(0, 101) returns the integer 1 (2^0 mod 101).
+  - id: RB-EX-4-P
+    req: R-EX-4
+    expr: "x == 3 && y == 11 -> returned_int && result == 8"
+    note: Every call candidate(3, 11) returns the integer 8 (2^3 mod 11).
+  - id: RB-EX-5-P
+    req: R-EX-5
+    expr: "x == 100 && y == 101 -> returned_int && result == 1"
+    note: Every call candidate(100, 101) returns the integer 1 (2^100 mod 101, Fermat).
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "x == 3 && y == 5 && returned_int && result == 3"
+    note: The call candidate(3, 5) returning 3 must be possible.
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: "x == 1101 && y == 101 && returned_int && result == 2"
+    note: The call candidate(1101, 101) returning 2 must be possible.
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "x == 0 && y == 101 && returned_int && result == 1"
+    note: The call candidate(0, 101) returning 1 must be possible.
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: "x == 3 && y == 11 && returned_int && result == 8"
+    note: The call candidate(3, 11) returning 8 must be possible.
+  - id: RB-EX-5-S
+    req: R-EX-5
+    cover: "x == 100 && y == 101 && returned_int && result == 1"
+    note: The call candidate(100, 101) returning 1 must be possible.
+
+dont_cares:
+  - id: RB-MOD-1-Y0-OUTCOME
+    req: R-MOD-1
+    signal: outcome
+    when: "y == 0"
+    note: >-
+      "modulo p, when p is 0", reading 1: the prompt does not say what modulo
+      0 means, so a call with y == 0 may end in any way (return, raise, or not
+      finish). Not repaired to Python's ZeroDivisionError (reading 2) nor to
+      returning 2^x unreduced (reading 3).
+  - id: RB-MOD-1-Y0-RESULT
+    req: R-MOD-1
+    signal: result
+    when: "y == 0"
+    note: >-
+      With y == 0 the returned integer is unconstrained by the prompt (it is
+      still 0 whenever outcome != 0, by frame rule F-ZERO).
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Non-functional instruction about the deliverable ("Complete this
+      function:"): keeping the signature and docstring is not observable in a
+      trace of calls. The behaviour the completed function must have is
+      formalized under R-MOD-1 and R-EX-1 .. R-EX-5.
+  - req: R-SIG-2
+    reason: >-
+      Definition of the parameters. frame.md maps the first argument to signal
+      x and the second to y, and integer arguments in range are the only calls
+      in the trace. Reading 1 of "x: int, y: int" (x is the exponent n, y the
+      modulus p, as all five examples require) is used by the R-MOD-1 items.
+    covered_by: [RB-MOD-1-RET, RB-MOD-1-VAL]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; design.yaml adds it to every
+      formalization set as F-ZERO, so it is not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-SIG-2, phrase: "x: int, y: int", reading: 1}
+  - {req: R-MOD-1, phrase: "2^n modulo p", reading: 1}
+  - {req: R-MOD-1, phrase: "2^n", reading: 1}
+  - {req: R-MOD-1, phrase: "modulo p", reading: 1}
+  - {req: R-MOD-1, phrase: "modulo p, when p is 0", reading: 1}
+  - {req: R-MOD-1, phrase: "p", reading: 1}
+  - {req: R-MOD-1, phrase: "Return", reading: 1}
+  - {req: R-NUM-1, phrase: "be aware of numerics", reading: 1}

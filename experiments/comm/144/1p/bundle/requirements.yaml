@@ -1,0 +1,144 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FN-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete, working Python implementation of the function simplify(x, n) shown in the request.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-FN-2
+  doc: SPEC
+  quote: 'def simplify(x, n):'
+  text: The function is named simplify and takes exactly two parameters, x and n, in that order.
+  kind: definition
+  lines:
+  - 4
+- id: R-OUT-1
+  doc: SPEC
+  quote: Your task is to implement a function that will simplify the expression
+  text: For every call whose arguments x and n are valid fractions with non-zero denominators, simplify(x, n) finishes and returns a value; it does not raise an exception.
+  kind: guarantee
+  depends:
+  - R-IN-1
+  - R-IN-2
+  - R-IN-3
+  - R-IN-4
+  ambiguity:
+  - phrase: will simplify the expression
+    readings:
+    - the function must return normally on every valid input (it delivers the simplified expression as its returned value)
+    - the function may signal some valid inputs (for example an expression that cannot be simplified further) by raising an exception; only the inputs it can simplify must return
+  - phrase: simplify the expression
+    readings:
+    - the returned value is a boolean (True or False), which is how the adapter records the result; any other returned value is outcome 2
+    - the returned value is the simplified expression itself (a fraction string such as "1/2", a number, or a Fraction object), which the adapter records as outcome 2 rather than as a returned boolean;
+      this conflicts with the adapter's boolean result
+  lines:
+  - 5
+- id: R-OUT-2
+  doc: SPEC
+  quote: Your task is to implement a function that will simplify the expression
+  text: For valid fractions x and n, the value returned by simplify(x, n) is the result of simplifying 'the expression' formed from x and n; the request does not say which expression or what form the simplified
+    result takes.
+  kind: guarantee
+  depends:
+  - R-IN-1
+  - R-IN-2
+  - R-IN-3
+  - R-IN-4
+  - R-OUT-1
+  ambiguity:
+  - phrase: the expression
+    readings:
+    - the product x * n
+    - the quotient x / n
+    - each of x and n on its own (the two fractions are simplified separately)
+    - some other expression in x and n; the request names no operator and the docstring gives no antecedent for 'the expression'
+  - phrase: simplify
+    readings:
+    - return True if the expression evaluates to a whole number and False otherwise (a boolean, matching the adapter's boolean result)
+    - return the expression reduced to lowest terms as a fraction string '<numerator>/<denominator>' (for example '2/4' * '1/1' gives '1/2')
+    - return the reduced value as a number or Fraction object (a whole number when the denominator becomes 1)
+  - phrase: simplify the expression
+    readings:
+    - 'the returned value is a boolean, as the adapter records it (frame.md: the returned value is recorded as a boolean, anything else is outcome 2)'
+    - 'the returned value is the simplified expression (string, number or Fraction), which contradicts the adapter''s boolean result: every such answer would be recorded as outcome 2'
+  - phrase: simplify (form of a simplified fraction)
+    readings:
+    - a whole-number result is written without a denominator (for example '2')
+    - a whole-number result keeps the denominator 1 (for example '2/1')
+  lines:
+  - 5
+- id: R-IN-1
+  doc: SPEC
+  quote: You can assume that x, and n are valid fractions
+  text: The caller passes as x a valid fraction; calls in which x is not a valid fraction need not be handled in any particular way.
+  kind: assumption
+  ambiguity:
+  - phrase: valid fractions
+    readings:
+    - a string '<numerator>/<denominator>' in which both parts are non-empty strings of decimal digits denoting positive whole numbers
+    - a string '<numerator>/<denominator>' in which the numerator may be zero
+    - a string '<numerator>/<denominator>' that may also carry a sign, spaces or leading zeros, or a whole number written without '/'
+    - a Fraction object or a number rather than a string (the adapter passes only strings)
+  - phrase: valid fractions, and do not have zero as denominator
+    readings:
+    - '''valid'' already excludes a zero denominator and the second clause only repeats it'
+    - '''valid'' refers only to the textual form, so a valid fraction could have a zero denominator were it not for the second clause'
+  lines:
+  - 6
+- id: R-IN-2
+  doc: SPEC
+  quote: You can assume that x, and n are valid fractions
+  text: The caller passes as n a valid fraction; calls in which n is not a valid fraction need not be handled in any particular way.
+  kind: assumption
+  ambiguity:
+  - phrase: valid fractions
+    readings:
+    - a string '<numerator>/<denominator>' in which both parts are non-empty strings of decimal digits denoting positive whole numbers
+    - a string '<numerator>/<denominator>' in which the numerator may be zero
+    - a string '<numerator>/<denominator>' that may also carry a sign, spaces or leading zeros, or a whole number written without '/'
+    - a Fraction object or a number rather than a string (the adapter passes only strings)
+  - phrase: valid fractions, and do not have zero as denominator
+    readings:
+    - '''valid'' already excludes a zero denominator and the second clause only repeats it'
+    - '''valid'' refers only to the textual form, so a valid fraction could have a zero denominator were it not for the second clause'
+  lines:
+  - 6
+- id: R-IN-3
+  doc: SPEC
+  quote: do not have zero as denominator
+  text: The caller never passes as x a fraction whose denominator is zero.
+  kind: assumption
+  ambiguity:
+  - phrase: zero as denominator
+    readings:
+    - the denominator's numeric value is not 0 (so '1/00' is also excluded)
+    - the denominator is not the single character '0'
+  lines:
+  - 6
+- id: R-IN-4
+  doc: SPEC
+  quote: do not have zero as denominator
+  text: The caller never passes as n a fraction whose denominator is zero.
+  kind: assumption
+  ambiguity:
+  - phrase: zero as denominator
+    readings:
+    - the denominator's numeric value is not 0 (so '1/00' is also excluded)
+    - the denominator is not the single character '0'
+  lines:
+  - 6
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, the result signal is false whenever the outcome is not 0 (the call raised, did not finish, or returned something other than a boolean).
+  kind: guarantee
+  lines:
+  - 53

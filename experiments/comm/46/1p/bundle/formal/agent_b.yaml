@@ -1,0 +1,155 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. frame.md: calls are independent and fib4 keeps no
+# state, so the model is combinational in the argument n (no ghost state is
+# needed): `listed` says whether the prompt lists the element, `elem` is the
+# listed value. The prompt lists fib4(0) to fib4(3) only and states no rule
+# for later elements (R-SEQ-1, reading 4), so the model defines nothing for
+# n >= 4.
+defs:
+  listed: "n <= 3"
+  elem: "n == 0 ? 0 : (n == 1 ? 0 : (n == 2 ? 2 : 0))"   # last branch: n == 3
+
+properties:
+  - id: RB-BASE-1
+    req: R-BASE-1
+    pattern: implies
+    args: {trigger: "n == 0", cond: "outcome == 0 && result == 0"}
+    note: >-
+      "fib4(0) -> 0" read as: the call fib4(0) returns the integer 0. outcome
+      == 0 is required because, by the frame rule F-ZERO, result is also 0
+      when the call raises or returns a non-integer; returning a float 0.0
+      (outcome 2) does not meet it (R-NTH-1 "compute", reading 1).
+
+  - id: RB-BASE-2
+    req: R-BASE-2
+    pattern: implies
+    args: {trigger: "n == 1", cond: "outcome == 0 && result == 0"}
+    note: >-
+      "fib4(1) -> 0" read as: the call fib4(1) returns the integer 0.
+
+  - id: RB-BASE-3
+    req: R-BASE-3
+    pattern: implies
+    args: {trigger: "n == 2", cond: "outcome == 0 && result == 2"}
+    note: >-
+      "fib4(2) -> 2" taken literally as a listed starting value (reading 1):
+      the call fib4(2) returns the integer 2. No Fibonacci-like rule is
+      applied to it (the text states none, see R-SEQ-1).
+
+  - id: RB-BASE-4
+    req: R-BASE-4
+    pattern: implies
+    args: {trigger: "n == 3", cond: "outcome == 0 && result == 0"}
+    note: >-
+      "fib4(3) -> 0" taken literally as a listed starting value (reading 1):
+      the call fib4(3) returns the integer 0. No Fibonacci-like rule is
+      applied to it (the text states none, see R-SEQ-1).
+
+  - id: RB-NTH-1
+    req: R-NTH-1
+    pattern: implies
+    args: {trigger: "listed", cond: "outcome == 0 && result == elem"}
+    note: >-
+      For every n whose element the prompt defines (n <= 3), fib4(n) returns
+      that element as an integer. Elements are counted from 0 as the list
+      writes them (reading 1 of "n-th element"; counting from 1 would make
+      fib4(2) return 0 and contradict R-BASE-3). "compute" is read as
+      returning the element itself, a Python int (reading 1); a float equal
+      to it is outcome 2 and fails. Literal reading of "the fib4 number
+      sequence" (reading 2): the prompt only lists fib4(0) to fib4(3) and
+      states no rule for later elements, so for n >= 4 there is no n-th
+      element and the call is left free (RB-NTH-2, RB-NTH-3). This
+      contradicts the request to compute the n-th element for every n and
+      the hints "efficiently" and "Do not use recursion", which suggest an
+      unstated recurrence; the formalization does not invent one.
+
+dont_cares:
+  - id: RB-NTH-2
+    req: R-NTH-1
+    signal: result
+    when: "!listed"
+    note: >-
+      For n >= 4 the prompt defines no element of the sequence (R-SEQ-1,
+      reading 4; R-NTH-1 "the fib4 number sequence", reading 2), so the
+      returned value is unconstrained. A likely intended recurrence (sum of
+      the four previous elements, suggested only by the name Fib4) is not in
+      the text and is not assumed.
+
+  - id: RB-NTH-3
+    req: R-NTH-1
+    signal: outcome
+    when: "!listed"
+    note: >-
+      For n >= 4 there is no element to compute, so how the call ends
+      (returning an integer, raising, returning another type) is also left
+      free. outcome cannot separate "did not finish" from "raised", so no
+      termination obligation is stated for these calls either.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Definition of the interface: the function fib4 with one integer
+      argument n, each call checked on its own. It is realized by the
+      adapter (design.yaml `function`, the 7-bit input n, frame.md "Calls")
+      rather than by a property. Negative arguments are not part of the
+      trace (frame.md), so the reading of "n: int" (any integer, reading 1)
+      changes no formal item.
+
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the answer must be a complete implementation of the
+      stub with the same name and parameter. Only its observable part is
+      checkable: if fib4 is missing or does not accept n, every call ends
+      with outcome 1, which RB-NTH-1 (outcome 0 for n <= 3) rejects.
+    covered_by: [RB-NTH-1]
+
+  - req: R-SEQ-1
+    reason: >-
+      Definition. Taken literally (reading 4 of "similar to the Fibbonacci
+      sequnece"): only a resemblance to the Fibonacci sequence is claimed,
+      no rule is given, and the four listed values fib4(0) to fib4(3) are the
+      whole definition. It is realized by the defs `listed` and `elem`, the
+      base-value properties and the don't-cares for n >= 4. Readings 1 and 2
+      would add a recurrence the text does not state (reading 1 only via the
+      name Fib4); reading 3 contradicts the listed values fib4(2) and
+      fib4(3). Reading 4 contradicts R-NTH-1, which asks for the n-th element
+      for every n.
+    covered_by: [RB-BASE-1, RB-BASE-2, RB-BASE-3, RB-BASE-4, RB-NTH-1, RB-NTH-2, RB-NTH-3]
+
+  - req: R-NF-1
+    reason: >-
+      Non-functional: running time is not part of the trace; the only
+      observable trace of slowness is a call that does not finish, which is
+      outcome 1 and cannot be told apart from a raised exception. Reading 3
+      of "efficiently" is taken (no complexity class is stated; the method
+      must finish promptly for the checked arguments); termination for the
+      calls the prompt defines (n <= 3) is already required by RB-NTH-1.
+
+  - req: R-NF-2
+    reason: >-
+      Non-functional: whether the code uses recursion is a property of its
+      source, not of the values it returns, so it is not observable in the
+      call trace. Reading 1 of "recursion" is taken (no function of the
+      implementation may call itself, directly or indirectly); it has to be
+      checked on the source code.
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter (frame.md): result is 0 unless
+      outcome is 0. It is stated by the design's frame item F-ZERO, which is
+      part of every formalization set and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-1, phrase: "n: int", reading: 1}
+  - {req: R-SEQ-1, phrase: "similar to the Fibbonacci sequnece", reading: 4}
+  - {req: R-BASE-3, phrase: "fib4(2) -> 2", reading: 1}
+  - {req: R-BASE-4, phrase: "fib4(3) -> 0", reading: 1}
+  - {req: R-NTH-1, phrase: "n-th element", reading: 1}
+  - {req: R-NTH-1, phrase: "the fib4 number sequence", reading: 2}
+  - {req: R-NTH-1, phrase: "compute", reading: 1}
+  - {req: R-NF-1, phrase: "efficiently", reading: 3}
+  - {req: R-NF-2, phrase: "recursion", reading: 1}

@@ -1,0 +1,202 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-API-1
+  doc: SPEC
+  quote: 'def valid_date(date):'
+  text: The deliverable is a completed Python function named valid_date that takes exactly one parameter, named date.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: validates a given date string
+  text: The argument date passed to valid_date is a string.
+  kind: assumption
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: returns True if the date is valid
+  text: When the date string is valid (as defined by R-VAL-1), valid_date returns the boolean True (it does not raise and does not return any other value).
+  kind: guarantee
+  lines:
+  - 6
+- id: R-RET-2
+  doc: SPEC
+  quote: otherwise False
+  text: When the date string is not valid (as defined by R-VAL-1), valid_date returns the boolean False rather than raising an exception or returning any other value.
+  kind: guarantee
+  ambiguity:
+  - phrase: otherwise False
+    readings:
+    - Every invalid string, including malformed ones (empty, wrong separators, non-digit characters, wrong field count), yields the return value False; the function never raises.
+    - Only well-formed strings with an out-of-range day or month must yield False; for malformed strings the behaviour (e.g. raising ValueError) is not specified.
+  lines:
+  - 6
+- id: R-VAL-1
+  doc: SPEC
+  quote: 'The date is valid if all of the following rules are satisfied:'
+  text: 'A date string is valid exactly when it satisfies all four listed rules: it is not empty (R-EMP-1), its day is within the range for its month (R-DAY-1, R-DAY-2, R-DAY-3), its month is between 1
+    and 12 (R-MON-1), and it has the required format (R-FMT-1, R-FMT-2, R-FMT-3).'
+  kind: definition
+  ambiguity:
+  - phrase: The date is valid if all of the following rules are satisfied
+    readings:
+    - 'The four listed rules are the complete definition: a string that satisfies all of them is valid, with no further check (no leap-year check, no year-range check).'
+    - The listed rules are necessary conditions only; the string must additionally denote a real calendar date (e.g. 29 February only in a leap year, a plausible year).
+  lines:
+  - 7
+- id: R-EMP-1
+  doc: SPEC
+  quote: The date string is not empty.
+  text: 'An empty date string is not valid: valid_date('''') returns False.'
+  kind: guarantee
+  lines:
+  - 8
+- id: R-DAY-1
+  doc: SPEC
+  quote: The number of days is not less than 1 or higher than 31 days for months 1,3,5,7,8,10,12.
+  text: For a date whose month is 1, 3, 5, 7, 8, 10 or 12, the date is valid only if its day number is between 1 and 31 inclusive; a day below 1 or above 31 makes the date invalid.
+  kind: guarantee
+  ambiguity:
+  - phrase: is not less than 1 or higher than 31 days
+    readings:
+    - 'not (less than 1 or higher than 31): the day must lie in 1..31.'
+    - '(not less than 1) or (higher than 31): taken literally as a logical formula, only day >= 1 is required, so no upper bound.'
+  lines:
+  - 9
+- id: R-DAY-2
+  doc: SPEC
+  quote: And the number of days is not less than 1 or higher than 30 days for months 4,6,9,11.
+  text: For a date whose month is 4, 6, 9 or 11, the date is valid only if its day number is between 1 and 30 inclusive; a day below 1 or above 30 makes the date invalid.
+  kind: guarantee
+  ambiguity:
+  - phrase: is not less than 1 or higher than 30 days
+    readings:
+    - 'not (less than 1 or higher than 30): the day must lie in 1..30.'
+    - '(not less than 1) or (higher than 30): taken literally as a logical formula, only day >= 1 is required, so no upper bound.'
+  lines:
+  - 9
+- id: R-DAY-3
+  doc: SPEC
+  quote: And, the number of days is not less than 1 or higher than 29 for the month 2.
+  text: For a date whose month is 2, the date is valid only if its day number is between 1 and 29 inclusive; a day below 1 or above 29 makes the date invalid.
+  kind: guarantee
+  ambiguity:
+  - phrase: is not less than 1 or higher than 29
+    readings:
+    - 'not (less than 1 or higher than 29): the day must lie in 1..29.'
+    - '(not less than 1) or (higher than 29): taken literally as a logical formula, only day >= 1 is required, so no upper bound.'
+  - phrase: higher than 29 for the month 2
+    readings:
+    - Day 29 of month 2 is accepted for every year, leap or not.
+    - Day 29 of month 2 is accepted only when the year is a leap year (a real calendar check, since the function 'validates a given date').
+  lines:
+  - 9
+- id: R-MON-1
+  doc: SPEC
+  quote: The months should not be less than 1 or higher than 12.
+  text: A date is valid only if its month number is between 1 and 12 inclusive; a month below 1 or above 12 makes the date invalid.
+  kind: guarantee
+  ambiguity:
+  - phrase: should not be less than 1 or higher than 12
+    readings:
+    - 'should not be (less than 1 or higher than 12): the month must lie in 1..12.'
+    - '(should not be less than 1) or (higher than 12): taken literally, only month >= 1 is required, so no upper bound.'
+  lines:
+  - 10
+- id: R-FMT-1
+  doc: SPEC
+  quote: 'The date should be in the format: dd-mm-yyyy or mm-dd-yyyy'
+  text: A valid date string consists of exactly three fields separated by hyphen characters '-'; a string that uses any other separator (such as '/') or has a different number of fields is not valid.
+  kind: guarantee
+  lines:
+  - 11
+- id: R-FMT-2
+  doc: SPEC
+  quote: 'The date should be in the format: dd-mm-yyyy or mm-dd-yyyy'
+  text: In a valid date string the first two fields (day and month) are each two decimal digits and the third field (the year) is four decimal digits, with no other characters in the string.
+  kind: guarantee
+  ambiguity:
+  - phrase: dd-mm-yyyy or mm-dd-yyyy
+    readings:
+    - 'dd and mm are exactly two digits each (leading zero required) and yyyy exactly four digits: the valid string has exactly 10 characters.'
+    - dd and mm are day and month numbers written with one or two digits (e.g. '4-1-2040' is acceptable), and yyyy is the year as digits.
+  - phrase: The date should be in the format
+    readings:
+    - Any character outside the format, including leading or trailing spaces, makes the string invalid.
+    - Surrounding whitespace is ignored (the string is stripped) before the format is checked.
+  - phrase: yyyy
+    readings:
+    - Any four digits form an acceptable year, including '0000'.
+    - The year must be a real year, at least 1 (so '0000' is invalid).
+  lines:
+  - 11
+- id: R-FMT-3
+  doc: SPEC
+  quote: dd-mm-yyyy or mm-dd-yyyy
+  text: 'Both field orders are accepted: a string whose first field is the day and second the month (dd-mm-yyyy), or whose first field is the month and second the day (mm-dd-yyyy), is valid if it satisfies
+    the day and month rules under that order.'
+  kind: guarantee
+  ambiguity:
+  - phrase: dd-mm-yyyy or mm-dd-yyyy
+    readings:
+    - 'Either order is accepted: the string is valid if the day and month rules hold when it is read as dd-mm-yyyy or when it is read as mm-dd-yyyy (so ''15-01-2012'', 15 January, is valid; this CONTRADICTS
+      the example valid_date(''15-01-2012'') => False, R-EX-2).'
+    - Only mm-dd-yyyy is accepted (the first field is the month), as the example valid_date('15-01-2012') => False requires; the dd-mm-yyyy alternative is an error in the prompt.
+    - The implementation may choose one of the two orders and apply it consistently (which one is left open).
+    - The string is valid only if the day and month rules hold under both orders (consistent with all examples, including '15-01-2012' => False).
+  lines:
+  - 11
+- id: R-EX-1
+  doc: SPEC
+  quote: valid_date('03-11-2000') => True
+  text: valid_date('03-11-2000') returns True.
+  kind: scenario
+  lines:
+  - 14
+- id: R-EX-2
+  doc: SPEC
+  quote: valid_date('15-01-2012') => False
+  text: valid_date('15-01-2012') returns False.
+  kind: scenario
+  ambiguity:
+  - phrase: valid_date('15-01-2012') => False
+    readings:
+    - 'The example is correct: only mm-dd-yyyy order counts, month 15 is out of range, so the result is False. This CONTRADICTS rule 4''s acceptance of dd-mm-yyyy (R-FMT-3).'
+    - 'The example is wrong: rule 4 accepts dd-mm-yyyy, under which ''15-01-2012'' is 15 January 2012 and satisfies every rule, so the call should return True.'
+  lines:
+  - 16
+- id: R-EX-3
+  doc: SPEC
+  quote: valid_date('04-0-2040') => False
+  text: valid_date('04-0-2040') returns False.
+  kind: scenario
+  lines:
+  - 18
+- id: R-EX-4
+  doc: SPEC
+  quote: valid_date('06-04-2020') => True
+  text: valid_date('06-04-2020') returns True.
+  kind: scenario
+  lines:
+  - 20
+- id: R-EX-5
+  doc: SPEC
+  quote: valid_date('06/04/2020') => False
+  text: valid_date('06/04/2020') returns False.
+  kind: scenario
+  lines:
+  - 22
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `valid` is false unless `outcome` is 0.'
+  text: In every call, the output valid is false unless outcome is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 50

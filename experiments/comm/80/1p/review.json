@@ -1,0 +1,254 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 206,
+    "checked": 206,
+    "seconds": 4.8
+   },
+   "open": {
+    "open": {},
+    "checked": 130
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 223,
+    "checked": 223,
+    "seconds": 5.57
+   },
+   "open": {
+    "open": {},
+    "checked": 136
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-5": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-6": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FN-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FN-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "a string",
+   "taken": 1,
+   "variant": 2,
+   "text": "only strings of lowercase letters (the only characters any example uses) are valid arguments; the answer on other strings is a don't care"
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "a string s",
+   "taken": 1,
+   "variant": 2,
+   "text": "only non-empty strings are given; the answer on the empty string is a don't care"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "happy",
+   "taken": 1,
+   "variant": 2,
+   "text": "s has at least 3 characters and no two adjacent characters are equal; e.g. 'aba' is happy, 'abca' is happy, 'ab' is not happy"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "the string",
+   "taken": 1,
+   "variant": 2,
+   "text": "letters are compared ignoring case, so 'aA' contains a repeated letter"
+  },
+  {
+   "req": "R-FN-2",
+   "phrase": "check",
+   "taken": 1,
+   "variant": 2,
+   "text": "any truthy or falsy return value (e.g. 1/0, a non-empty or empty value, None for not happy) counts as the answer"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "is_happy(a)",
+   "taken": 1,
+   "variant": 2,
+   "text": "literal Python: a call with the value of a variable named a, which the request does not give (so not a string, at odds with R-IN-1)"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "is_happy(aa)",
+   "taken": 1,
+   "variant": 2,
+   "text": "literal Python: a call with the value of a variable named aa, which the request does not give (so not a string, at odds with R-IN-1)"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "is_happy(abcd)",
+   "taken": 1,
+   "variant": 2,
+   "text": "literal Python: a call with the value of a variable named abcd, which the request does not give (so not a string, at odds with R-IN-1)"
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "is_happy(aabb)",
+   "taken": 1,
+   "variant": 2,
+   "text": "literal Python: a call with the value of a variable named aabb, which the request does not give (so not a string, at odds with R-IN-1)"
+  },
+  {
+   "req": "R-EX-5",
+   "phrase": "is_happy(adb)",
+   "taken": 1,
+   "variant": 2,
+   "text": "literal Python: a call with the value of a variable named adb, which the request does not give (so not a string, at odds with R-IN-1)"
+  },
+  {
+   "req": "R-EX-6",
+   "phrase": "is_happy(xyy)",
+   "taken": 1,
+   "variant": 2,
+   "text": "literal Python: a call with the value of a variable named xyy, which the request does not give (so not a string, at odds with R-IN-1)"
+  }
+ ],
+ "depends": {
+  "R-FN-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_happy(\"dcbabaiagfpgflaq\") -> False"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [
+    "is_happy(\"dcbabaiagfpgflaq\") -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-2"
+   ],
+   "calls": [],
+   "question": "\"check\" can mean: the result is returned as the bool True or False, as the examples show / any truthy or falsy return value (e.g. 1/0, a non-empty or empty value, None for not happy) counts as the answer. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"is_happy(a)\" can mean: a call with the string 'a', written without quotes / literal Python: a call with the value of a variable named a, which the request does not give (so not a string, at odds with R-IN-1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"is_happy(aa)\" can mean: a call with the string 'aa', written without quotes / literal Python: a call with the value of a variable named aa, which the request does not give (so not a string, at odds with R-IN-1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"is_happy(abcd)\" can mean: a call with the string 'abcd', written without quotes / literal Python: a call with the value of a variable named abcd, which the request does not give (so not a string, at odds with R-IN-1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"is_happy(aabb)\" can mean: a call with the string 'aabb', written without quotes / literal Python: a call with the value of a variable named aabb, which the request does not give (so not a string, at odds with R-IN-1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-5"
+   ],
+   "calls": [],
+   "question": "\"is_happy(adb)\" can mean: a call with the string 'adb', written without quotes / literal Python: a call with the value of a variable named adb, which the request does not give (so not a string, at odds with R-IN-1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-6"
+   ],
+   "calls": [],
+   "question": "\"is_happy(xyy)\" can mean: a call with the string 'xyy', written without quotes / literal Python: a call with the value of a variable named xyy, which the request does not give (so not a string, at odds with R-IN-1). Which is meant?"
+  }
+ ],
+ "limits": []
+}

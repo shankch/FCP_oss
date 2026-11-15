@@ -1,0 +1,220 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. A reset creates a new card (frame.md); every later
+# cycle is one call on it. The ghost `cb` is the balance the prompt defines,
+# driven only by the calls (op, amount); every result is checked against it.
+#   - starts at 0 (R-NEW-1)
+#   - an accepted load adds amount (R-LOAD-1) and its bonus (R-BONUS-1)
+#   - a spend the balance covers takes amount off (R-SPEND-1)
+#   - every other call (balance, a spend the balance does not cover, any
+#     call that raises ValueError) leaves it as it was
+# A call that raises is modelled as leaving the balance unchanged. The prompt
+# does not say so in words; it is the reading under which a raising load
+# cannot take the balance over $500.00 (rule 3) and the only reading of rule 1
+# that does not invent a partial effect.
+defs:
+  ld: "op == 1"
+  sp: "op == 2"
+  bq: "op == 3"
+  valid: "amount >= 1 && amount <= 50000"                # rule 1: 1 .. 50,000 cents
+  bad: "(op == 1 || op == 2) && !valid"                  # rule 1 applies to the methods that take amount
+  bonus: "amount >= 10000 ? 500 : 0"                     # rule 4: $100.00 or more earns $5.00
+  over: "cb + amount + bonus > 50000"                    # rule 3: the load, with its bonus, would take the balance over $500.00
+  ld_ok: "op == 1 && valid && !over"                     # a load that is accepted
+  ld_over: "op == 1 && valid && over"                    # a valid load refused by the cap
+  sp_ok: "op == 2 && valid && amount <= cb"              # the balance covers the spend
+  sp_no: "op == 2 && valid && amount > cb"               # the balance does not cover it
+
+ghosts:
+  - name: cb
+    range: [0, 50000]
+    init: 0
+    next: "cb + (ld_ok ? amount + bonus : 0) - (sp_ok ? amount : 0)"
+  - name: calls                                          # calls made on the current card so far (saturating at 3)
+    range: [0, 3]
+    init: 0
+    next: "min(calls + 1, 3)"
+
+properties:
+  # R-SIG-1: the declared methods and result types
+  - id: GB-SIG-1
+    req: R-SIG-1
+    pattern: implies
+    args: {trigger: "op == 1 || op == 2 || op == 3", cond: "outcome == 0 || outcome == 1"}
+    note: >-
+      The signature declares that load returns an int, spend a bool and balance
+      an int. The only exception the prompt names is ValueError (rules 1 and 3),
+      so a call of one of the three methods either returns a value of its
+      declared type (outcome 0) or raises ValueError (outcome 1); never another
+      exception, no answer, or a value of another type. op 0 is not a method and
+      is left unconstrained.
+
+  # R-NEW-1: a new card has a balance of 0
+  - id: GB-NEW-1
+    req: R-NEW-1
+    pattern: implies
+    args: {trigger: "calls == 0 && bq", cond: "outcome == 0 && bal == 0"}
+    note: >-
+      The balance of a card is only observable through balance(), which returns
+      it (R-BAL-1). Read literally, "a new card" is the card before any call on
+      it, so balance() as the first call on a card returns 0. The same fact
+      also sets the initial value of the model balance cb (init 0), through
+      which GB-BAL-1 checks every later balance() call.
+
+  # R-RANGE-1: amount outside 1 .. 50,000 raises ValueError
+  - id: GB-RANGE-1
+    req: R-RANGE-1
+    pattern: implies
+    args: {trigger: bad, cond: "outcome == 1"}
+    note: >-
+      Rule 1 names `amount`, the argument of load and spend; balance takes no
+      amount. Amounts in the trace are 0 .. 131,071 (frame.md), so "less than
+      1" is amount 0. Rule 1 takes precedence over rule 5 for invalid amounts:
+      read alone, rule 5 would have spend(0) return True (a balance always
+      covers 0) and spend(50001) return False, but rule 1 says such a call
+      raises. The model leaves the balance unchanged by a call that raises.
+
+  # R-LOAD-1: load adds amount to the balance
+  - id: GB-LOAD-1
+    req: R-LOAD-1
+    pattern: implies
+    args: {trigger: ld_ok, cond: "outcome == 0"}
+    note: >-
+      A load with a valid amount that rule 3 does not refuse returns. Its
+      effect on the balance (adding amount) is the ld_ok term of the model cb;
+      GB-LOAD-2 and GB-BAL-1 check it through balance().
+  - id: GB-LOAD-2
+    req: R-LOAD-1
+    pattern: implies
+    args: {trigger: "bq && prev(ld_ok && amount < 10000)", cond: "bal == prev(cb) + prev(amount)"}
+    note: >-
+      The effect of a load is visible in the next balance() call: a load without
+      a bonus adds exactly amount. (A load of 10,000 or more also adds amount,
+      plus its bonus: GB-BONUS-2.) The effect on later calls is carried by the
+      model cb (GB-BAL-1, GB-CAP-1, GB-SPEND-1/2).
+
+  # R-CAP-1: the balance is never more than $500.00; a load that would take it over raises
+  - id: GB-CAP-1
+    req: R-CAP-1
+    pattern: implies
+    args: {trigger: ld_over, cond: "outcome == 1"}
+    note: >-
+      AMBIGUOUS (recorded in requirements.yaml): "a load that would take it
+      over" could mean balance + amount > 50,000 or balance + amount + bonus
+      > 50,000. Chosen: balance + amount + bonus, the literal effect of the
+      load (rule 2 adds amount, rule 4 earns the bonus "on the card"). The
+      other reading contradicts the first clause of rule 3: a load with
+      balance + amount <= 50,000 < balance + amount + 500 would then return
+      and leave a balance over $500.00. Consequence of the chosen reading: a
+      load of 49,501 .. 50,000 cents always raises, even on a new card, although
+      rule 1 accepts these amounts.
+  - id: GB-CAP-2
+    req: R-CAP-1
+    pattern: implies
+    args: {trigger: "bq && outcome == 0", cond: "bal <= 50000"}
+    note: >-
+      "The balance is never more than $500.00", as observed through
+      balance(). The model cb is bounded by 50,000 by construction (range
+      [0, 50000]; the ld_ok term only adds when the result stays within it).
+
+  # R-BONUS-1: a load of $100.00 or more earns a $5.00 bonus; load returns the bonus
+  - id: GB-BONUS-1
+    req: R-BONUS-1
+    pattern: implies
+    args: {trigger: ld_ok, cond: "earned == bonus"}
+    note: >-
+      An accepted load returns 500 when amount >= 10,000 ("$100.00 or more",
+      inclusive) and 0 otherwise. "Every load" is read as every load that
+      returns: a load that raises ValueError returns nothing and earns nothing
+      (the model adds no bonus for it).
+  - id: GB-BONUS-2
+    req: R-BONUS-1
+    pattern: implies
+    args: {trigger: "bq && prev(ld_ok && amount >= 10000)", cond: "bal == prev(cb) + prev(amount) + 500"}
+    note: >-
+      The bonus is "on the card": a balance() call right after an accepted load
+      of 10,000 or more shows the amount (rule 2) plus 500. The bonus term of
+      the model cb carries it to every later call.
+
+  # R-SPEND-1: spend takes amount off and returns True if the balance covers it; otherwise False and unchanged
+  - id: GB-SPEND-1
+    req: R-SPEND-1
+    pattern: implies
+    args: {trigger: sp_ok, cond: "outcome == 0 && ok"}
+    note: >-
+      "The balance covers it" is read as balance >= amount: a balance equal to
+      the amount covers it. Only valid amounts (rule 1 raises for the others,
+      see GB-RANGE-1). The model takes amount off cb.
+  - id: GB-SPEND-2
+    req: R-SPEND-1
+    pattern: implies
+    args: {trigger: sp_no, cond: "outcome == 0 && !ok"}
+    note: >-
+      A valid spend the balance does not cover (amount > balance) returns
+      False; the model leaves cb as it was.
+  - id: GB-SPEND-3
+    req: R-SPEND-1
+    pattern: implies
+    args: {trigger: "bq && prev(sp_ok)", cond: "bal == prev(cb) - prev(amount)"}
+    note: >-
+      The effect of a covered spend, visible in the next balance() call: the
+      amount was taken off. Later calls see it through the model cb.
+  - id: GB-SPEND-4
+    req: R-SPEND-1
+    pattern: implies
+    args: {trigger: "bq && prev(sp_no)", cond: "bal == prev(cb)"}
+    note: >-
+      "The balance stays as it was" after a spend that is not covered, visible
+      in the next balance() call.
+
+  # R-BAL-1: balance returns the balance
+  - id: GB-BAL-1
+    req: R-BAL-1
+    pattern: implies
+    args: {trigger: bq, cond: "outcome == 0 && bal == cb"}
+    note: >-
+      Every balance() call returns the model balance cb, which is driven by the
+      calls on the card according to rules 2 to 5 and starts at 0 (R-NEW-1).
+      This is the check of the specification model: through it, every rule's
+      effect on the balance is observable at any later balance() call.
+
+  # R-EX-1: after load(2000) and spend(500) on a new card, balance() returns 1500
+  - id: GB-EX-2
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "calls == 2 && bq && prev(sp && amount == 500) && prev(ld && amount == 2000, 2)"
+      cond: "outcome == 0 && bal == 1500"
+    note: >-
+      The example states a result, so besides the scenario (GB-EX-1) it is
+      also stated as a guarantee: when the first three calls on a new card are
+      load(2000), spend(500), balance(), the third returns 1500. "After load and
+      spend" is read as these being the only calls on the card, the card being
+      new (calls counts the calls since the reset). The trigger names only the
+      calls, not their results.
+
+scenarios:
+  - id: GB-EX-1
+    req: R-EX-1
+    cover: "calls == 2 && bq && outcome == 0 && bal == 1500 && prev(sp && amount == 500) && prev(ld && amount == 2000, 2)"
+    note: >-
+      It must be possible that the first three calls on a new card are
+      load(2000), spend(500) and balance(), and that balance() returns 1500.
+  - id: GB-SC-BONUS
+    req: R-BONUS-1
+    cover: "ld && outcome == 0 && earned == 500"
+    note: "A load that earns the bonus is possible."
+  - id: GB-SC-FULL
+    req: R-CAP-1
+    cover: "bq && outcome == 0 && bal == 50000"
+    note: >-
+      A balance of exactly $500.00 is possible (for instance load(49500), which
+      earns the bonus and reaches 50,000): the cap is "never more than".
+  - id: GB-SC-NOCOVER
+    req: R-SPEND-1
+    cover: "sp && valid && outcome == 0 && !ok"
+    note: "A valid spend the balance does not cover, returning False, is possible."
+
+unformalized: []

@@ -1,0 +1,14 @@
+# Defects planted in spec.md (hidden from every agent).
+design: code_limit
+defects:
+- id: D-1
+  kind: conflict
+  reqs: [R-FAIR-1, R-PEN-1]
+  note: >
+    Attempts at 0, 1 and 2 seconds are allowed and one at 59 seconds is denied, because three
+    attempts fall within the last 60 seconds. At 61 seconds the attempt at 0 has left the window,
+    so rule 4 must allow the attempt, while rule 5 still denies it until 69 seconds. No
+    implementation can meet both rules on this sequence.
+- {id: D-2, kind: ambiguity, reqs: [R-MAX-1, R-FAIR-1], note: '"in any 60 seconds", "in the last 60 seconds": is an attempt exactly 60 seconds earlier inside the window?'}
+- {id: D-3, kind: ambiguity, reqs: [R-PEN-1], note: '"for the next 10 seconds": is an attempt exactly 10 seconds after the denial denied? Does a denial by rule 5 start another 10 seconds?'}
+- {id: D-4, kind: ambiguity, reqs: [R-ERR-1], note: '"the previous call": of any customer, and does a call that raised count?'}

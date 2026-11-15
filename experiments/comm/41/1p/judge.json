@@ -1,0 +1,44 @@
+{
+ "b1": {
+  "questions": "The docstring cuts off mid-sentence (\"Two cars are said to collide\u2026\"), so a few things are unclear:\n\n1. **What counts as a collision?** Is it when a left-to-right car hits a right-to-left car?\n2. **What happens after a collision?** Do the cars keep moving along their paths as if they hadn't collided, or do they stop, bounce back, or get removed?\n3. **What should the function return?** Is it the total number of collisions, or something else, such as the time of the first collision or which cars collide?\n4. **Are there any examples** of the expected input and output?\n\nIf the intended behavior is the standard version of this puzzle, the answer is `n * n`. In that version, cars keep moving after colliding and the function returns the total number of collisions, so every left-moving car meets every right-moving car once. Please confirm or correct this so I can write the right implementation.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.013348,
+  "seconds": 2.7
+ },
+ "b2": {
+  "questions": "The problem description is cut off mid-sentence and never says what the function should return. I need the following clarified:\n\n1. **What counts as a collision?** The text ends at \"Two cars are said to collide\". Is a collision when a left-to-right car meets a right-to-left car? Do cars traveling in the same direction ever collide? (They all move at the same speed, so presumably not.)\n\n2. **What happens to cars after a collision?** Do they keep moving on their original paths as if nothing happened, so they can collide with other cars too? Or do they stop, bounce back, or get removed?\n\n3. **What should the function return?** Is it the total number of collisions? Or something else, such as the number of cars that collide or the time of the first collision?\n\n4. **Is each pair counted once?** If cars pass through each other, should each meeting between a left-moving car and a right-moving car count as exactly one collision? That would give a total of n \u00d7 n.\n\n5. **Edge cases:** What should be returned for `n = 0`? Can `n` be negative, and if so, how should that be handled?",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.013912,
+  "seconds": 3.1
+ },
+ "b0": {
+  "questions": "This is the classic car race collision problem. Since all cars move at the same speed and pass through each other unaffected, every left-to-right car meets every right-to-left car exactly once. That gives `n * n` collisions.\n\n```python\ndef candidate(n: int):\n    \"\"\"\n    Imagine a road that's a perfectly straight infinitely long line.\n    n cars are driving left to right;  simultaneously, a different set of n cars\n    are driving right to left.   The two sets of cars start out being very far from\n    each other.  All cars move in the same speed.  Two cars are said to collide\n    when a car that's moving left to right hits a car that's moving right to left.\n    However, the cars are infinitely sturdy and strong; as a result, they continue moving\n    in their trajectory as if they did not collide.\n\n    This function outputs the number of such collisions.\n    \"\"\"\n    return n * n\n```\n\nThe docstring in your snippet was cut off after \"Two cars are said to collide\". I filled in the rest from the standard version of this problem, which says the cars keep moving after colliding.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0145561,
+  "seconds": 3.6
+ },
+ "fcp": {
+  "questions": "1. the request allows `result` to be 0 or 1 (the reading leaves this free on purpose: RA-FN-1-VAL) and lets this call end in two ways, \"returned\" or \"returned something else\": is any answer acceptable, or which is meant?\n   - R-FN-1: The function candidate(n) must be given a complete body that produces its answer for every valid n.\n   - on: candidate(0)\n2. both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?\n   - R-FN-1: The function candidate(n) must be given a complete body that produces its answer for every valid n.\n   - on: candidate(256) -> 0\n   - \"Complete this function\" (R-FN-1) could also mean: return the number of collisions between the left-to-right cars and the right-to-left cars, the quantity the truncated docstring leads up to\n   - \"n cars\" (R-CAR-1) could also mean: n is at least 1; a road without cars (n = 0) is outside the request\n   - \"simultaneously\" (R-CAR-2) could also mean: both sets start moving at the same instant\n   - \"driving right to left\" (R-CAR-2) could also mean: if 'the same speed' in R-CAR-4 means the same velocity, every car moves in one direction, which contradicts the second set driving right to left while the first drives left to right\n   - \"very far from each other\" (R-CAR-3) could also mean: every left-to-right car starts to the left of every right-to-left car, so each left-to-right car approaches each right-to-left car\n   - \"the same speed\" (R-CAR-4) could also mean: every car has the same velocity (speed and direction), which contradicts the two sets driving in opposite directions (R-CAR-1, R-CAR-2)\n   - \"move in the same speed\" (R-CAR-4) could also mean: the common speed is constant over time\n   - \"Two cars are said to collide\" (R-COL-1) could also mean: two cars collide when a car moving left to right meets a car moving right to left\n   - \"collide\" (R-COL-1) could also mean: cars continue moving along their path after a collision, as if they had not collided\n3. \"Complete this function\" can mean: return the number of collisions between the left-to-right cars and the right-to-left cars, the quantity the truncated docstring leads up to / the request never states what the function returns (the docstring stops mid-sentence), so any returned value is acceptable / also finish the truncated docstring, not only the function body. Which is meant?\n   - R-FN-1: The function candidate(n) must be given a complete body that produces its answer for every valid n.",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0197641,
+  "seconds": 6.4
+ },
+ "fcp_formal": {
+  "questions": "1. the request allows `result` to be 0 or 1 (the reading leaves this free on purpose: RA-FN-1-VAL) and lets this call end in two ways, \"returned\" or \"returned something else\": is any answer acceptable, or which is meant?\n   - R-FN-1: The function candidate(n) must be given a complete body that produces its answer for every valid n.\n   - on: candidate(0)\n2. both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?\n   - R-FN-1: The function candidate(n) must be given a complete body that produces its answer for every valid n.\n   - on: candidate(256) -> 0\n   - \"Complete this function\" (R-FN-1) could also mean: return the number of collisions between the left-to-right cars and the right-to-left cars, the quantity the truncated docstring leads up to\n   - \"n cars\" (R-CAR-1) could also mean: n is at least 1; a road without cars (n = 0) is outside the request\n   - \"simultaneously\" (R-CAR-2) could also mean: both sets start moving at the same instant\n   - \"driving right to left\" (R-CAR-2) could also mean: if 'the same speed' in R-CAR-4 means the same velocity, every car moves in one direction, which contradicts the second set driving right to left while the first drives left to right\n   - \"very far from each other\" (R-CAR-3) could also mean: every left-to-right car starts to the left of every right-to-left car, so each left-to-right car approaches each right-to-left car\n   - \"the same speed\" (R-CAR-4) could also mean: every car has the same velocity (speed and direction), which contradicts the two sets driving in opposite directions (R-CAR-1, R-CAR-2)\n   - \"move in the same speed\" (R-CAR-4) could also mean: the common speed is constant over time\n   - \"Two cars are said to collide\" (R-COL-1) could also mean: two cars collide when a car moving left to right meets a car moving right to left\n   - \"collide\" (R-COL-1) could also mean: cars continue moving along their path after a collision, as if they had not collided",
+  "reply": "2",
+  "grade": 2,
+  "cost_usd": 0.0191966,
+  "seconds": 3.8
+ },
+ "fcp_hard": {
+  "questions": "1. the request allows `result` to be 0 or 1 (the reading leaves this free on purpose: RA-FN-1-VAL) and lets this call end in two ways, \"returned\" or \"returned something else\": is any answer acceptable, or which is meant?\n   - R-FN-1: The function candidate(n) must be given a complete body that produces its answer for every valid n.\n   - on: candidate(0)",
+  "reply": "1",
+  "grade": 1,
+  "cost_usd": 0.0135907,
+  "seconds": 3.1
+ }
+}

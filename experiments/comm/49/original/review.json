@@ -1,0 +1,359 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 1344,
+    "checked": 1344,
+    "seconds": 0.79
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "modp(0, 0)",
+      "args": [
+       0,
+       0
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": [
+       "RA-RES-2-RESULT"
+      ]
+     },
+     "outcome": {
+      "call": "modp(0, 0)",
+      "args": [
+       0,
+       0
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": [
+       "RA-RES-2-OUTCOME"
+      ]
+     }
+    },
+    "checked": 1
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 4896,
+    "checked": 4896,
+    "seconds": 22.58
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "modp(0, 0)",
+      "args": [
+       0,
+       0
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": [
+       "RB-RES-2-RES"
+      ]
+     },
+     "outcome": {
+      "call": "modp(0, 0)",
+      "args": [
+       0,
+       0
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": [
+       "RB-RES-2-OUT"
+      ]
+     }
+    },
+    "checked": 1
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-5": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RES-1": {
+   "plain": "INCOMPARABLE",
+   "context": "INCOMPARABLE",
+   "witness": [
+    "modp(1, 2) -> 1"
+   ]
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": [
+   {
+    "reading": "agent_a",
+    "id": "RA-RES-2-OUTCOME",
+    "req": "R-RES-2",
+    "says": "`outcome` is free when `p == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-RES-2-RESULT",
+    "req": "R-RES-2",
+    "says": "`result` is free when `p == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-RES-2-RES",
+    "req": "R-RES-2",
+    "says": "`result` is free when `p == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-RES-2-OUT",
+    "req": "R-RES-2",
+    "says": "`outcome` is free when `p == 0`",
+    "where": {}
+   }
+  ]
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-RES-1",
+   "phrase": "2^n",
+   "taken": 1,
+   "variant": 2,
+   "text": "2 XOR n, which is what 2 ^ n means in Python code; this reading contradicts the examples modp(3, 5) = 3, modp(1101, 101) = 2, modp(0, 101) = 1 and modp(3, 11) = 8"
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "modulo p",
+   "taken": 1,
+   "variant": 2,
+   "text": "for n = 0 the value 2^0 = 1 is returned as is, as the example modp(0, 101) = 1 may be generalized to modp(0, p) = 1 for every p, so modp(0, 1) is 1; this contradicts the first reading at p = 1"
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "Return",
+   "taken": 1,
+   "variant": 2,
+   "text": "any number equal to the residue is acceptable, such as the float 3.0 (the doctest output 3 and the frame's outcome 2 for other types argue against this)"
+  },
+  {
+   "req": "R-RES-2",
+   "phrase": "modulo p",
+   "taken": 1,
+   "variant": 2,
+   "text": "the call must raise an exception for p = 0, as Python's 2**n % 0 raises ZeroDivisionError and pow(2, n, 0) raises ValueError"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "modp(0, 101)",
+   "taken": 1,
+   "variant": 2,
+   "text": "an illustration that modp(0, p) is 1 for every p, which contradicts R-RES-1's reduced result 2^0 mod 1 = 0 at p = 1"
+  }
+ ],
+ "depends": {
+  "R-EX-3": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": null
+  },
+  "R-RES-1": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "modp(1, 2) -> 0"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-2",
+  "R-EX-4",
+  "R-EX-5"
+ ],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "modp(0, 0)"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "0",
+      "1"
+     ],
+     "ending": false,
+     "declared": [
+      "RA-RES-2-RESULT"
+     ],
+     "reqs": [
+      "R-RES-2"
+     ]
+    },
+    "outcome": {
+     "reading": "agent_a",
+     "shown": [
+      "returned",
+      "returned something else"
+     ],
+     "ending": true,
+     "declared": [
+      "RA-RES-2-OUTCOME"
+     ],
+     "reqs": [
+      "R-RES-2"
+     ]
+    }
+   },
+   "signal": "result, outcome",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "question": "the request allows `result` to be 0 or 1 (the reading leaves this free on purpose: RA-RES-2-RESULT) and lets this call end in two ways, \"returned\" or \"returned something else\" (the reading leaves this free on purpose: RA-RES-2-OUTCOME): is any answer acceptable, or which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-EX-3",
+    "R-RES-1"
+   ],
+   "calls": [
+    "modp(1, 2) -> 0"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "relation": "INCOMPARABLE",
+   "calls": [
+    "modp(1, 2) -> 1"
+   ],
+   "question": "the two readings of this requirement disagree on these calls: which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"2^n\" can mean: 2 raised to the power n (mathematical notation); every example agrees with this reading / 2 XOR n, which is what 2 ^ n means in Python code; this reading contradicts the examples modp(3, 5) = 3, modp(1101, 101) = 2, modp(0, 101) = 1 and modp(3, 11) = 8. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"modulo p\" can mean: the result is always reduced into 0 .. p-1, so modp(0, 1) is 0 (2^0 mod 1 = 0) / for n = 0 the value 2^0 = 1 is returned as is, as the example modp(0, 101) = 1 may be generalized to modp(0, p) = 1 for every p, so modp(0, 1) is 1; this contradicts the first reading at p = 1. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"Return\" can mean: the returned value is a Python int / any number equal to the residue is acceptable, such as the float 3.0 (the doctest output 3 and the frame's outcome 2 for other types argue against this). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"modp(0, 101)\" can mean: a single data point: only modp(0, 101) = 1 is required, consistent with reducing 2^0 = 1 modulo 101 / an illustration that modp(0, p) is 1 for every p, which contradicts R-RES-1's reduced result 2^0 mod 1 = 0 at p = 1. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the comparison of agent_a and variant",
+  "the comparison of agent_a and variant: it cannot assume RV-RES1-VAL (rules stated for every value of a variable), and requirements they bear on stay undecided",
+  "the comparison of agent_b and variant",
+  "the comparison of agent_b and variant: it cannot assume RV-RES1-VAL (rules stated for every value of a variable), and requirements they bear on stay undecided"
+ ]
+}

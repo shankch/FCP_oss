@@ -1,0 +1,202 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model of the email.
+#   pos     - 0-based index of the current unit; driven only by the clock
+#             (unit 1 of the response, cycle 1, has pos == 0).
+#   nfeat   - feature units before the current one (saturates at 4).
+#   nprice  - $249-price units before the current one (saturates at 2).
+#   nbody   - body units before the current one (saturates at 7).
+#   closing - the closing (sign-off block) began in an earlier unit.
+#   lastcta - the previous unit asked the reader to act.
+# Every ghost reads `init` in the first unit and reflects only earlier units.
+defs:
+  # A unit of the body: not the subject line, not the greeting (salutation),
+  # not part of the closing, and not after the end of the response.
+  body_unit: "!eos && !subject && !greet && !signoff"
+  # The first unit of the closing.
+  close_start: "signoff && closing == 0"
+ghosts:
+  - {name: pos,     range: [0, 15], init: 0, next: "min(pos + 1, 15)"}
+  - {name: nfeat,   range: [0, 4],  init: 0, next: "min(nfeat + feature, 4)"}
+  - {name: nprice,  range: [0, 2],  init: 0, next: "min(nprice + price, 2)"}
+  - {name: nbody,   range: [0, 7],  init: 0, next: "min(nbody + body_unit, 7)"}
+  - {name: closing, range: [0, 1],  init: 0, next: "closing == 1 || signoff"}
+  - {name: lastcta, range: [0, 1],  init: 0, next: "cta"}
+
+properties:
+  - id: PB-SUBJ-1
+    req: R-SUBJ-1
+    pattern: implies
+    args: {trigger: "pos == 0", cond: "subject"}
+    note: >-
+      "Start with a subject line": the first unit of the response (cycle 1,
+      where pos == 0) is the subject line. The text does not forbid further units labelled subject,
+      so they are left free. A subject line without the "Subject:" prefix is
+      not labelled subject by the frame and fails this property.
+
+  - id: PB-GREET-1
+    req: R-GREET-1
+    pattern: implies
+    args: {trigger: "pos == 1", cond: "greet"}
+    note: >-
+      "Then greet ...": read literally as the very next unit after the subject
+      line (the second unit). The weaker reading "a greeting somewhere after
+      the subject line" is not taken. Consequence of the frame: a subject line
+      that splits into two sentence units pushes the greeting to unit 3 and
+      fails this property.
+
+  - id: PB-FEAT-1A
+    req: R-FEAT-1
+    pattern: invariant
+    args: {cond: "nfeat + feature <= 3"}
+    note: >-
+      "exactly three features", upper half: no unit is ever a fourth feature
+      unit. Labels carry no feature identity, so this counts units labelled
+      feature over the whole response (the subject line included): a unit
+      describing two features counts once and a feature described in two
+      units counts twice. Equating feature units with features relies on
+      R-FEAT-2 (each feature in its own sentence). Which three of the four
+      product facts are used is not observable.
+
+  - id: PB-FEAT-1B
+    req: R-FEAT-1
+    pattern: implies
+    args: {trigger: "eos", cond: "nfeat == 3"}
+    note: >-
+      "exactly three features", checked at the end of the response: exactly
+      three feature units occurred. Same counting caveats as PB-FEAT-1A. The
+      end is the frame's eos, which F-LEN forces within 14 units.
+
+  - id: PB-FEAT-3
+    req: R-FEAT-3
+    pattern: next
+    args: {trigger: "feature", cond: "benefit"}
+    note: >-
+      "follow it with a sentence about the benefit": every feature unit is
+      immediately followed by a benefit unit ("follow" read as the next
+      unit). A feature in the last unit before the end therefore fails. That
+      the benefit belongs to that particular feature is not observable. Per
+      the reading of R-FEAT-2 taken here, the feature unit may itself also
+      state a benefit; a benefit sentence must still follow. This applies to
+      every feature unit, including a feature mentioned in the subject line.
+
+  - id: PB-PRICE-1A
+    req: R-PRICE-1
+    pattern: invariant
+    args: {cond: "nprice + price <= 1"}
+    note: >-
+      "Mention the price, $249, once": "once" read literally as exactly once
+      (the weaker reading "at least once" is not taken). Upper half: no
+      second unit states $249, the subject line included. Counted per unit:
+      two mentions inside one unit count once, and a unit that states only a
+      discounted price is not labelled price and is not counted.
+
+  - id: PB-PRICE-1B
+    req: R-PRICE-1
+    pattern: implies
+    args: {trigger: "eos", cond: "nprice == 1"}
+    note: >-
+      Exactly once, checked at the end of the response: exactly one unit
+      stated the price $249. Same counting caveats as PB-PRICE-1A.
+
+  - id: PB-OFFER-1
+    req: R-OFFER-1
+    pattern: implies
+    args: {trigger: "offer", cond: "ends"}
+    note: >-
+      "the same sentence" = the same unit. Mentioning the offer is optional
+      (see PB-OFFER-1D). Whether the stated end date is the correct one
+      (30 November) is not observable: ends only says the unit states when
+      the offer ends. A unit that states the end date without mentioning the
+      offer is unconstrained.
+
+  - id: PB-RIVAL-1
+    req: R-RIVAL-1
+    pattern: invariant
+    args: {cond: "!rival"}
+    note: No unit mentions a competing product, brand or company.
+
+  - id: PB-LEN-1
+    req: R-LEN-1
+    pattern: invariant
+    args: {cond: "nbody + body_unit <= 6"}
+    note: >-
+      "under 7 sentences" = at most 6 body units, counting each unit as one
+      sentence. Ambiguous "the body": the literal (letter/email) sense is
+      the text between the salutation and the closing, so the subject line,
+      the greeting unit (any unit labelled greet) and the closing units are
+      excluded, and the call to action counts. The other reading, in which
+      the greeting counts, is not taken. Specification tension: R-FEAT-1 and
+      R-FEAT-3 require three feature units each followed by a benefit unit,
+      and R-END-1 requires a call to action. If these are seven distinct
+      sentences the body has 7 and violates this property, so a conforming
+      response must merge them (e.g. the call to action inside the last
+      benefit sentence, the price inside one of them) and can have no
+      separate introductory sentence.
+
+  - id: PB-END-1A
+    req: R-END-1
+    pattern: implies
+    args: {trigger: "closing == 1", cond: "signoff || eos"}
+    note: >-
+      The sign-off ends the email: once the closing has begun, every later
+      unit belongs to the closing until the response ends (nothing such as
+      a P.S. after it).
+
+  - id: PB-END-1B
+    req: R-END-1
+    pattern: implies
+    args: {trigger: "close_start", cond: "lastcta == 1"}
+    note: >-
+      "End with a call to action, followed by the sign-off": the unit just
+      before the first closing unit asks the reader to act ("followed by"
+      read as immediately followed). Earlier calls to action are not
+      forbidden.
+
+  - id: PB-END-1C
+    req: R-END-1
+    pattern: implies
+    args: {trigger: "eos", cond: "closing == 1"}
+    note: >-
+      The response has a closing before it ends; with PB-END-1A its last
+      unit is a closing unit. "The sign-off" is taken to be the closing
+      block: the frame labels a closing word such as "Warmly," and the name
+      alike, so a closing of one or more units is accepted. That the name is
+      literally "The Aurora Team" is not observable through the labels.
+
+dont_cares:
+  - id: PB-OFFER-1D
+    req: R-OFFER-1
+    signal: offer
+    when: "ends"
+    note: >-
+      "If you mention the launch offer" makes the mention optional. Because
+      PB-OFFER-1 allows offer only in a unit that also states when the offer
+      ends, offer is free exactly in such units.
+
+unformalized:
+  - req: R-FACT-1
+    reason: >-
+      Definition of the product facts. The labels use it (price = states
+      $249, offer = the 20% discount, ends = when it ends), but they carry no
+      fact identity or accuracy: whether a feature unit states one of these
+      four facts or an invented or wrong one, and whether the end date is
+      30 November, cannot be observed.
+  - req: R-FEAT-2
+    reason: >-
+      Ambiguous "its own sentence". Reading taken (the more literal, adding
+      no prohibition the text does not state): one feature per sentence; the
+      feature sentence may also state the benefit. The alternative reading
+      (the feature sentence states only the feature, i.e. feature -> !benefit)
+      is not taken. With 1-bit labels a unit describing two features looks
+      the same as a unit describing one, so the requirement has no
+      observable consequence of its own. Its consequence together with
+      R-FEAT-1 (three features, one sentence each, hence exactly three
+      feature units) is realized by PB-FEAT-1A and PB-FEAT-1B.
+    covered_by: [PB-FEAT-1A, PB-FEAT-1B]
+  - req: R-TONE-1
+    reason: >-
+      Non-functional: no label encodes tone, so "warm, confident" is not
+      observable in the trace.

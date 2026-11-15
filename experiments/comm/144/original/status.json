@@ -1,0 +1,25 @@
+{
+ "lint": "clean",
+ "agents": "ok",
+ "agents_seconds": 1333,
+ "attempts": 1,
+ "earlier": [
+  {
+   "check": "stopped after 45 minutes",
+   "seconds": 2700,
+   "why": "stopped at its 45 minutes, in the comparison of the variant reading; its readings state a rule for every value of a rigid variable over 10^20 values, which the integer encoding now declines (fixed: fcp/software.py, RIGID_CASES); whether that rule made the run long was not established"
+  },
+  {
+   "check": "ok",
+   "seconds": 1560,
+   "why": "the bit-level comparison left out rules over more than 64 values of a rigid variable (fixed: fcp/software.py)"
+  },
+  {
+   "check": "ok",
+   "seconds": 2104,
+   "why": "the solver could give a call an outcome code that names no ending (fixed: fcp/harness.py, fcp/smt.py, fcp/software.py)"
+  }
+ ],
+ "check": "ok",
+ "check_seconds": 2044
+}

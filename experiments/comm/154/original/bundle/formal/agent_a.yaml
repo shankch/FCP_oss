@@ -1,0 +1,136 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-IN-1: a word is a non-empty string of letters (ASCII letters, as isalpha gives them)
+  a_letters: 'all(i < len(a): isalpha(a[i]))'
+  b_letters: 'all(i < len(b): isalpha(b[i]))'
+  # R-DEF-2: the second word b itself occurs in a as a run of adjacent characters, at a start i with i + len(b) <= len(a)
+  b_in_a: 'any(i < len(a) - len(b) + 1: all(j < len(b): a[i + j] == b[j]))'
+  # R-DEF-1 + R-DEF-2: some rotation b[k:] + b[:k] (0 <= k < len(b)) occurs in a; slot j of that rotation is b[j + k] if j + k < len(b), else b[j + k - len(b)]
+  rot_in_a: 'any(k < len(b): any(i < len(a) - len(b) + 1: all(j < len(b): a[i + j] == (j + k < len(b) ? b[j + k] : b[j + k - len(b)]))))'
+  # R-RES-1: "the second word or any of its rotations is a substring in the first word"
+  match: 'b_in_a || rot_in_a'
+
+assumptions:
+  - id: RA-IN-1-LETTERS
+    req: R-IN-1
+    expr: 'a_letters && b_letters'
+    note: >-
+      "words" taken literally (reading 2): both arguments consist of letters only; a call with any
+      other character is outside the contract. Every example of the prompt is a string of letters,
+      several of them not dictionary words (whassup, himenss), so "word" is read as "string of
+      letters", not "dictionary word". Letters are the ASCII letters A-Z and a-z (FCP-PL isalpha);
+      the prompt does not say whether Latin-1 letters such as 0xE9 count, and they are left outside
+      the contract. That the arguments are strings needs no assumption: the frame admits only
+      string arguments.
+  - id: RA-IN-1-NONEMPTY
+    req: R-IN-1
+    expr: 'len(a) > 0 && len(b) > 0'
+    note: >-
+      "2 words" taken literally (reading 2): a word has at least one letter, so both arguments are
+      non-empty; a call with an empty argument is outside the contract and its result is
+      unconstrained. The prompt never says what an empty second word should give.
+
+properties:
+  - id: RA-RES-1
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: 'match'
+      cond: 'outcome == 0 && result'
+    note: >-
+      Whenever b, or a rotation b[k:] + b[:k] of b, occurs in a as a contiguous run (the whole of a
+      included), the call returns True. Characters are compared exactly (case-sensitive). b itself
+      is listed separately from its rotations because the text names it separately ("the second
+      word or any of its rotations"); for a non-empty b it is also the rotation with k = 0.
+  - id: RA-RES-2
+    req: R-RES-2
+    pattern: implies
+    args:
+      trigger: '!match'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      "return True if" read as "if and only if" (reading 1). The bare "if" only states when True is
+      returned, but the function returns a bool and three examples of the prompt (abcd/abd,
+      whassup/psus, efef/eeff) return False exactly when no rotation of b occurs in a, so the
+      complement is False. "Returns False" is taken as a normal return of False (outcome 0), not
+      merely the absence of True.
+  - id: RA-RES-3
+    req: R-RES-3
+    pattern: invariant
+    args:
+      cond: 'outcome == 0'
+    note: >-
+      "return True" read as the Python bool values exactly (reading 1): every call on two words
+      ends by returning True or False (outcome 0); raising, not finishing, or returning another type
+      such as 1, 0 or None (outcome 1 or 2) breaks it. Holds only under the word assumptions
+      RA-IN-1-LETTERS and RA-IN-1-NONEMPTY.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: 'a == "abcd" && b == "abd" && outcome == 0 && !result'
+    note: The call cycpattern_check("abcd", "abd") returning False must be possible.
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: 'a == "hello" && b == "ell" && outcome == 0 && result'
+    note: The call cycpattern_check("hello", "ell") returning True must be possible.
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: 'a == "whassup" && b == "psus" && outcome == 0 && !result'
+    note: The call cycpattern_check("whassup", "psus") returning False must be possible.
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: 'a == "abab" && b == "baa" && outcome == 0 && result'
+    note: The call cycpattern_check("abab", "baa") returning True must be possible (rotation "aba").
+  - id: RA-EX-5
+    req: R-EX-5
+    cover: 'a == "efef" && b == "eeff" && outcome == 0 && !result'
+    note: >-
+      The call cycpattern_check("efef", "eeff") returning False must be possible. This example
+      rules out reading "rotations" as permutations.
+  - id: RA-EX-6
+    req: R-EX-6
+    cover: 'a == "himenss" && b == "simen" && outcome == 0 && result'
+    note: The call cycpattern_check("himenss", "simen") returning True must be possible (rotation "imens").
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: asks for a complete implementation of the function. Delivering one is not a
+      property of a single call; a call that does not finish or raises is outcome 1, which RA-RES-3
+      already forbids for calls on two words.
+  - req: R-IF-2
+    reason: >-
+      Definition: the first word is the input a and the second word is the input b. It is realized
+      by the defs b_in_a and rot_in_a, which look for b (and its rotations) inside a, and so by
+      every item that uses them.
+    covered_by: [RA-RES-1, RA-RES-2]
+  - req: R-DEF-1
+    reason: >-
+      Definition of a rotation (cyclic shift b[k:] + b[:k], 0 <= k < len(b); reading 1). It is the
+      def rot_in_a, used by RA-RES-1 and RA-RES-2. FCP-PL's % needs a constant divisor, so slot j of
+      the rotation is written b[j + k] if j + k < len(b), else b[j + k - len(b)].
+    covered_by: [RA-RES-1, RA-RES-2]
+  - req: R-DEF-2
+    reason: >-
+      Definition of a substring (a contiguous run a[i:i+len(s)], 0 <= i <= len(a) - len(s), which
+      may be the whole of a; characters compared exactly). It is the defs b_in_a and rot_in_a, used
+      by RA-RES-1 and RA-RES-2.
+    covered_by: [RA-RES-1, RA-RES-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter (outcome != 0 -> !result). It is the design's frame item
+      F-ZERO, which is part of every formalization set and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "words", reading: 2}
+  - {req: R-IN-1, phrase: "2 words", reading: 2}
+  - {req: R-DEF-1, phrase: "rotations", reading: 1}
+  - {req: R-DEF-2, phrase: "a substring", reading: 1}
+  - {req: R-DEF-2, phrase: "substring in the first word", reading: 1}
+  - {req: R-RES-2, phrase: "return True if", reading: 1}
+  - {req: R-RES-3, phrase: "return True", reading: 1}

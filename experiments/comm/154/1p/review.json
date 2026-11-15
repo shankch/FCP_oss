@@ -1,0 +1,260 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 364,
+    "checked": 364,
+    "seconds": 196.21
+   },
+   "open": {
+    "open": {},
+    "checked": 371
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 382,
+    "checked": 382,
+    "seconds": 235.22
+   },
+   "open": {
+    "open": {},
+    "checked": 384
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-5": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-6": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RULE-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RULE-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-RET-1",
+   "phrase": "Complete this function",
+   "taken": 1,
+   "variant": 2,
+   "text": "only the calls shown in the examples must return a bool; on other calls (for example with an empty string) raising an exception or returning another type is allowed"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "=> True / => False (the result notation of the examples)",
+   "taken": 1,
+   "variant": 2,
+   "text": "any truthy (falsy) value, such as 1, 0, \"\" or None, is acceptable"
+  },
+  {
+   "req": "R-RULE-1",
+   "phrase": "the prompt states no rule, only six examples",
+   "taken": 1,
+   "variant": 2,
+   "text": "True exactly when some rotation of b or some rotation of the reverse of b is a contiguous substring of a (also agrees with all six examples)"
+  },
+  {
+   "req": "R-RULE-1",
+   "phrase": "an empty b (no example has one)",
+   "taken": 1,
+   "variant": 2,
+   "text": "False: an empty pattern never matches"
+  },
+  {
+   "req": "R-RULE-1",
+   "phrase": "upper and lower case (every example is lower case)",
+   "taken": 1,
+   "variant": 2,
+   "text": "letters are compared ignoring case (\"A\" matches \"a\")"
+  },
+  {
+   "req": "R-RULE-2",
+   "phrase": "the prompt states no rule, only six examples",
+   "taken": 1,
+   "variant": 2,
+   "text": "False exactly when no rotation of b and no rotation of the reverse of b is a contiguous substring of a (also agrees with all six examples)"
+  },
+  {
+   "req": "R-RULE-2",
+   "phrase": "an empty b (no example has one)",
+   "taken": 1,
+   "variant": 2,
+   "text": "an empty b never matches, so the call returns False"
+  },
+  {
+   "req": "R-RULE-2",
+   "phrase": "upper and lower case (every example is lower case)",
+   "taken": 1,
+   "variant": 2,
+   "text": "letters are compared ignoring case (\"A\" matches \"a\")"
+  }
+ ],
+ "depends": {
+  "R-RULE-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(\"\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\", \"\") -> False"
+   ]
+  },
+  "R-RULE-2": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(\"p\\u00d9Z\\u00ca\\u00cc\\u00cd\\u00c4\\u00c9\\u00d1\\u00cf\\u00c7\\u00e0\\u00d8\\u00eeYX\", \"\\u00d9PXY\\u00ce\\u00d8\\u00c0\\u00c7\\u00cf\\u00d1\\u00c9\\u00c4\\u00cd\\u00cc\\u00caZ\") -> True"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-2",
+  "R-EX-3",
+  "R-EX-4",
+  "R-EX-5",
+  "R-EX-6"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RULE-1",
+    "R-RULE-2"
+   ],
+   "calls": [
+    "candidate(\"\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\", \"\") -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"Complete this function\" can mean: every call on any two strings must return True or False / only the calls shown in the examples must return a bool; on other calls (for example with an empty string) raising an exception or returning another type is allowed. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"=> True / => False (the result notation of the examples)\" can mean: the returned value is exactly the bool True (False) / any truthy (falsy) value, such as 1, 0, \"\" or None, is acceptable. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RULE-1"
+   ],
+   "calls": [],
+   "question": "\"the prompt states no rule, only six examples\" can mean: True exactly when b or some rotation of b is a contiguous substring of a / True exactly when some rotation of b or some rotation of the reverse of b is a contiguous substring of a (also agrees with all six examples) / only the six example calls are constrained; every other call may return True or False. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RULE-1"
+   ],
+   "calls": [],
+   "question": "\"an empty b (no example has one)\" can mean: True: the empty string is a substring of every string, including the empty one / False: an empty pattern never matches / unconstrained: either result is acceptable. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RULE-1",
+    "R-RULE-2"
+   ],
+   "calls": [],
+   "question": "\"upper and lower case (every example is lower case)\" can mean: characters are compared by their exact codes (\"A\" differs from \"a\") / letters are compared ignoring case (\"A\" matches \"a\"). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RULE-2"
+   ],
+   "calls": [],
+   "question": "\"the prompt states no rule, only six examples\" can mean: False exactly when neither b nor any rotation of b is a contiguous substring of a / False exactly when no rotation of b and no rotation of the reverse of b is a contiguous substring of a (also agrees with all six examples) / only the six example calls are constrained; every other call may return True or False. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RULE-2"
+   ],
+   "calls": [],
+   "question": "\"an empty b (no example has one)\" can mean: an empty b is a substring of every a, so this rule never applies to it and the call returns True / an empty b never matches, so the call returns False / unconstrained: either result is acceptable. Which is meant?"
+  }
+ ],
+ "limits": [
+  "request points of agent_a",
+  "request points of agent_b"
+ ]
+}

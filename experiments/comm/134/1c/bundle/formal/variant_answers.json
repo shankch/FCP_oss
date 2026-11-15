@@ -1,0 +1,86 @@
+[
+ {
+  "req": "R-DEF-1",
+  "phrase": "a group of characters",
+  "taken": 2,
+  "variant": 1,
+  "text": "A group has one or more characters: a single non-space character between spaces (or at an end of the string) is a one-character word."
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "separated by space",
+  "taken": 1,
+  "variant": 2,
+  "text": "Any whitespace character (space, tab, newline, ...) separates words."
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "\"word\" is a group",
+  "taken": 1,
+  "variant": 2,
+  "text": "A word is a run of letters, so a letter preceded by a digit or punctuation mark (as in \"ab 1e\") is not part of a word."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "the last character",
+  "taken": 1,
+  "variant": 2,
+  "text": "The last non-space character of txt: trailing spaces are ignored, as example R-EX-3 (\"apple pi e \" gives True) suggests."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "an alphabetical character",
+  "taken": 1,
+  "variant": 2,
+  "text": "Any character for which Python's str.isalpha() is true, including Latin-1 letters above code 127 such as \u00e9."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "is not a part of a word",
+  "taken": 1,
+  "variant": 2,
+  "text": "By the note (R-DEF-1) a one-character group is itself a word, so an alphabetical last character is always part of a word and the function never returns True."
+ },
+ {
+  "req": "R-RES-1",
+  "phrase": "returns True",
+  "taken": 1,
+  "variant": 2,
+  "text": "Example R-EX-2 is authoritative: \"apple pi e\" returns False, contradicting this rule."
+ },
+ {
+  "req": "R-RES-2",
+  "phrase": "False otherwise",
+  "taken": 1,
+  "variant": 2,
+  "text": "The examples are authoritative exceptions: \"apple pie\", \"apple pi e \" and \"\" return True, contradicting this rule."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "\"apple pie\") \u279e True",
+  "taken": 1,
+  "variant": 2,
+  "text": "R-RES-2 is authoritative: \"apple pie\" returns False and the example is wrong."
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "\"apple pi e\") \u279e False",
+  "taken": 1,
+  "variant": 2,
+  "text": "R-RES-1 is authoritative: \"apple pi e\" returns True and the example is wrong."
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "\"apple pi e \") \u279e True",
+  "taken": 1,
+  "variant": 2,
+  "text": "R-RES-2 is authoritative: \"apple pi e \" returns False and the example is wrong."
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "(\"\") \u279e True",
+  "taken": 1,
+  "variant": 2,
+  "text": "R-RES-2 is authoritative: the empty string returns False and the example is wrong."
+ }
+]

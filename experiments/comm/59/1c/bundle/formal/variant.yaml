@@ -1,0 +1,121 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # n is prime. n <= 65535 < 256 * 256, so a composite n has a divisor in 2..255.
+  n_prime: 'n >= 2 && all(d < 254: d + 2 < n -> n % (d + 2) != 0)'
+  # factor is n itself or a divisor of n of at most 255 (the smallest divisor
+  # of a composite n <= 65535 is at most 255, so larger proper divisors never matter).
+  factor_divides_n: 'factor == n || any(d < 254: factor == d + 2 && n % (d + 2) == 0)'
+  # no number in 2 .. factor - 1 divides n
+  no_smaller_divisor: 'all(d < 254: d + 2 < factor -> n % (d + 2) != 0)'
+
+properties:
+  - id: RV-FN-1
+    req: R-FN-1
+    pattern: implies
+    args:
+      trigger: 'n >= 2'
+      cond: 'outcome == 0 && factor >= 2 && factor_divides_n && no_smaller_divisor'
+    note: >-
+      Reading taken as instructed by the request, not the more natural one: "the largest
+      prime factor of n" is read as the value the examples show, i.e. the smallest prime
+      factor of n (13195 -> 5; 2048 -> 2 fits both). The smallest divisor of n that is at
+      least 2 is necessarily prime, so the property says: for every n >= 2 the call returns
+      an integer that divides n, is at least 2, and no number in 2 .. factor - 1 divides n.
+      The trigger is n >= 2 (a prime factor exists) and includes prime n, because under
+      the instructed readings of R-ENV-1 and R-ENV-2 neither is a caller precondition.
+      CONFLICT: at n = 13195 this requires factor == 5, while RV-EX-1 (R-EX-1 under its
+      instructed reading) requires factor == 29; the set has no conforming answer there.
+
+  - id: RV-ENV-1
+    req: R-ENV-1
+    pattern: implies
+    args:
+      trigger: 'n <= 1'
+      cond: 'outcome == 1'
+    note: >-
+      Reading taken as instructed by the request, not the more natural one (a caller
+      precondition): "Assume n > 1" is read as a statement of the valid domain that the
+      function must enforce. For n <= 1 (on the 16-bit input: n = 0 and n = 1) no prime
+      factor exists and the call must raise an exception rather than return a value. It is
+      therefore a guarantee, not an assumption, and no assumption on n is made. The adapter
+      maps "raised any exception" and "did not finish" both to outcome 1 and names no
+      exception, so the property cannot tell them apart nor require a specific exception.
+
+  - id: RV-ENV-2
+    req: R-ENV-2
+    pattern: implies
+    args:
+      trigger: 'n_prime'
+      cond: 'outcome == 0 && factor == n'
+    note: >-
+      Reading taken as instructed by the request, not the more natural one (a caller
+      precondition): "and is not a prime" only says prime arguments are not expected; the
+      prime factor of a prime n is n itself, so the call must still return n. This is a
+      guarantee, not an assumption. It agrees with RV-FN-1 (the smallest prime factor of
+      a prime n is also n).
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'n == 13195'
+      cond: 'outcome == 0 && factor == 29'
+    note: >-
+      Reading taken as instructed by the request, not the more natural one: the example
+      ">>> largest_prime_factor(13195) 5" is read as wrong; 13195 = 5 * 7 * 13 * 29, so the
+      call must return 29, not 5. CONFLICT: the justification of this reading relies on
+      "largest prime factor" in its literal sense, but R-FN-1 was to be read as the
+      smallest prime factor, under which RV-FN-1 requires factor == 5 at n = 13195. The
+      two instructed readings contradict each other; both are formalized as instructed
+      and not repaired, so no answer at n = 13195 meets the set.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'n == 2048'
+      cond: 'outcome == 0 && factor == 2'
+    note: >-
+      The example largest_prime_factor(2048) -> 2. 2048 = 2^11, so 2 is both its largest
+      and its smallest prime factor; consistent with RV-FN-1.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'n == 13195 && outcome == 0 && factor == 29'
+    note: >-
+      The example call is possible with the result 29 (R-EX-1 read, as instructed by the
+      request, as a wrong example whose correct result is 29). Expected to be unreachable
+      together with RV-FN-1 (smallest prime factor, 5): see the conflict noted in RV-EX-1.
+
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'n == 2048 && outcome == 0 && factor == 2'
+    note: The example call largest_prime_factor(2048) returning 2 is possible.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Describes the deliverable (a complete implementation in place of the stub), not the
+      behaviour of a call. Its observable content, that calls return results rather than
+      the stub's None, is realized by the functional properties.
+    covered_by: [RV-FN-1, RV-ENV-1]
+  - req: R-IF-2
+    reason: >-
+      Definition of the interface: the function name largest_prime_factor and its single
+      integer argument n are fixed by the function section of design.yaml (argument n
+      drives signal n); it constrains no call of the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the adapter (frame.md), declared in design.yaml and part of
+      every formalization set by construction; it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: 'the largest prime factor of n', reading: 2}
+  - {req: R-ENV-1, phrase: 'Assume n > 1', reading: 2}
+  - {req: R-ENV-2, phrase: 'and is not a prime', reading: 2}
+  - {req: R-EX-1, phrase: 'largest_prime_factor(13195) 5', reading: 1}

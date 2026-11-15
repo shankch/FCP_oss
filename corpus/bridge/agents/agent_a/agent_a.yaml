@@ -1,0 +1,255 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# Conventions: "cycle" = clock cycle, "the cycle after X" = t+1 when X holds at t.
+# A transfer is "in progress" while psel is high (setup + access phases, SPEC 4).
+# A response is "pending" while rsp_valid is high (SPEC 5).
+defs:
+  cmd_acc: "cmd_valid && cmd_ready"      # R-CMD-1: a command is accepted
+  rsp_acc: "rsp_valid && rsp_ready"      # SPEC 5: the response is accepted
+  in_setup: "psel && !penable"           # SPEC 4: setup phase
+  in_access: "psel && penable"           # SPEC 4: access phase
+  xfer_done: "in_access && pready"       # R-APB-4: the transfer completes in the cycle where pready is sampled high in the access phase
+  idle: "!psel && !rsp_valid"            # R-CMD-2: no transfer in progress and no response pending
+
+assumptions:
+  - id: BA-A-CMD-3
+    req: R-CMD-3
+    pattern: hold_until
+    args:
+      trigger: "cmd_valid && !cmd_ready"
+      hold: "cmd_valid && stable(cmd_write) && stable(cmd_addr) && stable(cmd_wdata)"
+      release: "cmd_ready"
+    note: >-
+      A command that is presented (cmd_valid high) but not accepted must be
+      presented again in every following cycle, with unchanged cmd_write,
+      cmd_addr and cmd_wdata, up to and including the cycle in which it is
+      accepted (cmd_ready high). Stability is stated cycle to cycle, which by
+      induction means stable since the first cycle of the pending command.
+      Cancelled by reset (the requester is not obliged to keep a command
+      across a reset).
+
+  - id: BA-A-APB-9
+    req: R-APB-9
+    pattern: within
+    args: {trigger: "rose(in_access)", cond: "pready", min: 0, max: 4}
+    note: >-
+      AMBIGUOUS boundary. Most literal reading of "within 4 cycles of the
+      start of the access phase": if the access phase starts in cycle s (first
+      cycle with psel && penable), pready is high in some cycle in [s, s+4],
+      i.e. at most 4 wait cycles, so the access phase lasts at most 5 cycles.
+      The requirement paraphrase says "the access phase lasts at most 4
+      cycles", which would be the window [s, s+3] (max: 3). The literal quote
+      was preferred (it is also the weaker, i.e. safer, environment
+      assumption). The choice does not change the verdict on R-LAT-1 (worst
+      case response is presented 7 cycles after acceptance).
+
+properties:
+  # ---------------------------------------------------------------- overview
+  - id: BA-P-OV-1
+    req: R-OV-1
+    pattern: implies
+    args:
+      trigger: "cmd_acc"
+      cond: "!psel && (!rsp_valid || rsp_ready)"
+    note: >-
+      "One transaction is processed at a time" = at most one transaction in
+      flight, where a transaction is in flight from the cycle in which its
+      command is accepted until the cycle in which its response is accepted.
+      A command can therefore be accepted only if no transfer is in progress
+      (psel low) and no response is outstanding, except one that is accepted in
+      this very cycle (rsp_valid && rsp_ready ends the previous transaction).
+      The overview sentence says nothing about the response-handshake cycle, so
+      the weaker (literal) reading is used here; the stricter condition (no
+      response pending at all) is the property of R-CMD-2. Transfer-in-progress
+      is observed as psel and response-pending as rsp_valid, which leaves no gap
+      given R-APB-3 and R-RSP-3.
+
+  # ----------------------------------------------------------- command channel
+  - id: BA-P-CMD-2
+    req: R-CMD-2
+    pattern: implies
+    args: {trigger: "cmd_ready", cond: "idle"}
+    note: >-
+      Most literal reading of "asserted ONLY WHILE the bridge is idle": an
+      implication, cmd_ready -> idle. The paraphrase "cmd_ready is high exactly
+      when the bridge is idle" (if-and-only-if) is NOT formalized: the quote does
+      not require cmd_ready whenever idle (apart from the reset case, R-RST-1),
+      so cmd_ready may stay low while idle. "Response pending" is read as
+      rsp_valid high, including the cycle in which rsp_ready completes the
+      response handshake. Under this reading the property CONTRADICTS the
+      permission of R-RSP-6 (accept the next command in the response-handshake
+      cycle); the contradiction in the specification is deliberately left
+      unrepaired, see BA-S-RSP-6.
+
+  # ------------------------------------------------------------- APB transfer
+  - id: BA-P-APB-1w
+    req: R-APB-1
+    pattern: inorder
+    args: {in_fire: "cmd_acc", in_data: "cmd_write", out_fire: "xfer_done", out_data: "pwrite", capacity: 1, peek: "psel"}
+    note: >-
+      One of three field-wise instances (pwrite/paddr/pwdata) of the same queue:
+      every accepted command is delivered as exactly one APB transfer (delivery =
+      completion, xfer_done), no transfer completes without an accepted command in
+      flight, and while the transfer is on the bus (psel high) its fields show the
+      oldest undelivered command's fields. Capacity 1 follows R-OV-1 / "one
+      transaction at a time". This also realizes R-APB-2 (order).
+  - id: BA-P-APB-1a
+    req: R-APB-1
+    pattern: inorder
+    args: {in_fire: "cmd_acc", in_data: "cmd_addr", out_fire: "xfer_done", out_data: "paddr", capacity: 1, peek: "psel"}
+    note: Address field of the transfer, see BA-P-APB-1w.
+  - id: BA-P-APB-1d
+    req: R-APB-1
+    pattern: inorder
+    args: {in_fire: "cmd_acc", in_data: "cmd_wdata", out_fire: "xfer_done", out_data: "pwdata", capacity: 1, peek: "psel"}
+    note: >-
+      Write-data field of the transfer, see BA-P-APB-1w. The text requires
+      pwdata == cmd_wdata for reads as well as writes, so no read/write
+      distinction is made (literal reading).
+
+  - id: BA-P-APB-3a
+    req: R-APB-3
+    pattern: next
+    args: {trigger: "cmd_acc", cond: "in_setup"}
+    note: The transfer starts in the cycle after acceptance with the setup phase (psel high, penable low).
+  - id: BA-P-APB-3b
+    req: R-APB-3
+    pattern: next
+    args: {trigger: "in_setup", cond: "in_access"}
+    note: >-
+      The setup phase lasts exactly one cycle and is followed by the access phase
+      (psel and penable high) in the next cycle.
+
+  - id: BA-P-APB-4
+    req: R-APB-4
+    pattern: next
+    args: {trigger: "in_access && !pready", cond: "in_access"}
+    note: >-
+      The access phase lasts until pready is sampled high: while pready is low in
+      the access phase, the next cycle is again an access cycle. The second half
+      of the sentence ("the transfer completes in that cycle") is the definition
+      xfer_done = in_access && pready used by the other items; its consequences
+      are R-APB-7 and R-RSP-3. Note that pready sampled during the setup phase is
+      irrelevant (the trigger requires the access phase).
+
+  - id: BA-P-APB-5
+    req: R-APB-5
+    pattern: hold_until
+    args:
+      trigger: "in_setup"
+      hold: "psel && stable(pwrite) && stable(paddr) && stable(pwdata)"
+      release: "xfer_done"
+    note: >-
+      From the cycle after the setup phase up to and including the completion
+      cycle, psel stays high and pwrite, paddr, pwdata keep their setup-phase
+      values (stated cycle to cycle). The setup cycle itself is the baseline.
+
+  - id: BA-P-APB-6
+    req: R-APB-6
+    pattern: implies
+    args: {trigger: "penable", cond: "psel"}
+
+  - id: BA-P-APB-7
+    req: R-APB-7
+    pattern: next
+    args: {trigger: "xfer_done", cond: "!psel && !penable"}
+
+  # --------------------------------------------------------- response channel
+  - id: BA-P-RSP-1
+    req: R-RSP-1
+    pattern: inorder
+    args: {in_fire: "xfer_done", in_data: "pslverr", out_fire: "rsp_acc", out_data: "rsp_err", capacity: 1, peek: "rsp_valid"}
+    note: >-
+      Every completed transfer yields exactly one response (delivery = response
+      accepted, rsp_valid && rsp_ready), in order, and no response is accepted
+      without a completed transfer in flight. While rsp_valid is high, rsp_err
+      shows the pslverr sampled at completion of the oldest unanswered transfer.
+      Applies to read and write transfers alike. Capacity 1 follows R-OV-1.
+
+  - id: BA-P-RSP-2
+    req: R-RSP-2
+    pattern: next
+    args:
+      trigger: "xfer_done && !pwrite"
+      cond: "(rsp_valid -> rsp_rdata == prev(prdata))"
+    note: >-
+      For a read transfer (pwrite low at completion, psel is high then) the
+      response presented in the cycle after completion carries the prdata sampled
+      at completion; stability for the remaining cycles is R-RSP-4. Guarded by
+      rsp_valid because rsp_rdata is don't care while rsp_valid is low (R-RSP-5),
+      the timing of rsp_valid itself being R-RSP-3. The text says nothing about
+      rsp_rdata of WRITE responses: it is neither constrained nor declared don't
+      care (specification gap).
+
+  - id: BA-P-RSP-3
+    req: R-RSP-3
+    pattern: next
+    args: {trigger: "xfer_done", cond: "rsp_valid"}
+
+  - id: BA-P-RSP-4
+    req: R-RSP-4
+    pattern: hold_until
+    args:
+      trigger: "rsp_valid && !rsp_ready"
+      hold: "rsp_valid && stable(rsp_rdata) && stable(rsp_err)"
+      release: "rsp_ready"
+    note: >-
+      Once rsp_valid is high and not accepted, in every following cycle up to and
+      including the one where rsp_ready is high, rsp_valid stays high and rsp_rdata
+      and rsp_err are unchanged. Applies to every response, including write
+      responses (literal reading).
+
+  - id: BA-P-LAT-1
+    req: R-LAT-1
+    pattern: within
+    args: {trigger: "cmd_acc", cond: "rsp_valid", min: 1, max: 8}
+    note: >-
+      rsp_valid is high in some cycle in [a+1, a+8] after acceptance in cycle a.
+      Upper bound read as "no later than 8 cycles after the acceptance cycle".
+      min = 1 because a response presented in the acceptance cycle itself can only
+      belong to the previous transaction (R-RSP-6). Holds only under BA-A-APB-9.
+
+  # -------------------------------------------------------------------- reset
+  - id: BA-P-RST-1
+    req: R-RST-1
+    pattern: after_reset
+    args: {cond: "!psel && !penable && !rsp_valid && cmd_ready"}
+    note: Evaluated in every cycle that follows a reset cycle (synchronous reset).
+
+scenarios:
+  - id: BA-S-RSP-6
+    req: R-RSP-6
+    cover: "cmd_acc && rsp_acc"
+    note: >-
+      "may accept the next command in the same cycle in which the response is
+      accepted" is read as a PERMISSION (the behaviour must be possible), not an
+      obligation; hence a scenario and not a property. It is unreachable together
+      with BA-P-CMD-2 under the literal reading of R-CMD-2 (cmd_ready only while no
+      response is pending): this is a contradiction between SPEC 3 and SPEC 5,
+      reported and not repaired. The obligation reading would be
+      rsp_acc && cmd_valid -> cmd_ready, which is not formalized.
+
+dont_cares:
+  - {id: BA-D-APB-8w, req: R-APB-8, signal: pwrite, when: "!psel"}
+  - {id: BA-D-APB-8a, req: R-APB-8, signal: paddr, when: "!psel"}
+  - {id: BA-D-APB-8d, req: R-APB-8, signal: pwdata, when: "!psel"}
+  - {id: BA-D-RSP-5r, req: R-RSP-5, signal: rsp_rdata, when: "!rsp_valid"}
+  - {id: BA-D-RSP-5e, req: R-RSP-5, signal: rsp_err, when: "!rsp_valid"}
+
+unformalized:
+  - req: R-CMD-1
+    reason: >-
+      Pure definition (acceptance = cmd_valid && cmd_ready). It has no behaviour of
+      its own; it is realized as the def cmd_acc, used by every command-triggered
+      item.
+    covered_by: [BA-P-OV-1, BA-P-APB-1w, BA-P-APB-1a, BA-P-APB-1d, BA-P-APB-3a, BA-P-LAT-1, BA-S-RSP-6]
+  - req: R-APB-2
+    reason: >-
+      Transfer order equals acceptance order. This is the FIFO ("oldest undelivered
+      item") part of the inorder pattern used for R-APB-1; the bus exposes no
+      transaction tag, so there is no separate observable to state it on. With the
+      capacity 1 taken from R-OV-1 the order is trivially preserved, and the pattern
+      would flag any reordering as soon as a second command is in flight.
+    covered_by: [BA-P-APB-1w, BA-P-APB-1a, BA-P-APB-1d]

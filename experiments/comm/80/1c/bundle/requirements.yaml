@@ -1,0 +1,227 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-API-1
+  doc: SPEC
+  quote: 'def is_happy(s):'
+  text: 'The deliverable is a complete Python implementation of the given stub: a function named is_happy that takes exactly one parameter, s.'
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: You are given a string s.
+  text: Every call of is_happy passes a string as the argument s; calls whose argument is not a string are outside the request.
+  kind: assumption
+  ambiguity:
+  - phrase: a string
+    readings:
+    - any string, including the empty string and strings that contain characters other than letters
+    - only strings made of letters are ever passed (the definition speaks of 'letters'), so the result for other strings is left open
+  lines:
+  - 5
+- id: R-OUT-1
+  doc: SPEC
+  quote: Your task is to check if the string is happy or not.
+  text: For every string s, is_happy(s) finishes and returns a Python bool (True or False); it does not raise an exception, run forever or return a value of another type.
+  kind: guarantee
+  ambiguity:
+  - phrase: check if the string is happy or not
+    readings:
+    - return the bool True when the string is happy and the bool False when it is not
+    - return any truthy value when the string is happy and any falsy value when it is not (for example 1 and 0, or None)
+  lines:
+  - 6
+- id: R-HAP-1
+  doc: SPEC
+  quote: A string is happy if its length is at least 3 and every 3 consecutive letters are distinct
+  text: If s has at least 3 characters and, for every position i from 0 to len(s)-3, the characters s[i], s[i+1] and s[i+2] are pairwise distinct, then is_happy(s) returns True.
+  kind: guarantee
+  ambiguity:
+  - phrase: letters
+    readings:
+    - every character of s counts as a letter, whatever its class
+    - 'only alphabetic characters count: other characters are dropped before the groups of 3 consecutive letters are formed'
+    - a string that contains a character other than a letter is not happy
+  - phrase: its length
+    readings:
+    - the number of characters of s
+    - the number of letters (alphabetic characters) in s
+  - phrase: 3 consecutive letters
+    readings:
+    - every overlapping window s[i], s[i+1], s[i+2], for each start i from 0 to len(s)-3
+    - the non-overlapping blocks s[0..2], s[3..5], ... (a trailing block shorter than 3 is ignored)
+  - phrase: distinct
+    readings:
+    - the three characters are pairwise different by exact character code (so 'a' and 'A' differ)
+    - the three characters are pairwise different when letter case is ignored
+    - the three characters are not all the same (at least two of them differ)
+    - each group of 3 consecutive letters differs, as a substring, from every other such group
+  - phrase: A string is happy if its length is at least 3 and every 3 consecutive letters are distinct
+    readings:
+    - 'the definition is authoritative: ''abcd'' and ''adb'' meet both conditions, so is_happy returns True for them, which contradicts the examples R-EX-3 and R-EX-5'
+    - 'the examples are authoritative: is_happy(''abcd'') and is_happy(''adb'') return False, so meeting both conditions does not force the result True'
+    - every example is the negation of the definition, so is_happy returns True exactly when the string is not happy
+  lines:
+  - 7
+- id: R-HAP-2
+  doc: SPEC
+  quote: A string is happy if its length is at least 3
+  text: If s has fewer than 3 characters (including the empty string), then is_happy(s) returns False.
+  kind: guarantee
+  ambiguity:
+  - phrase: is happy if
+    readings:
+    - 'if and only if: a string with fewer than 3 characters is not happy, so is_happy returns False for it'
+    - 'if only (a sufficient condition): the definition does not say whether a string with fewer than 3 characters is happy, so either answer is allowed'
+  - phrase: its length
+    readings:
+    - the number of characters of s
+    - the number of letters (alphabetic characters) in s
+  - phrase: its length is at least 3
+    readings:
+    - 'the definition is authoritative: ''a'' and ''aa'' are shorter than 3, so is_happy returns False for them, which contradicts the examples R-EX-1 and R-EX-2'
+    - 'the examples are authoritative: is_happy(''a'') and is_happy(''aa'') return True, so a string shorter than 3 can be happy'
+    - every example is the negation of the definition, so is_happy returns True exactly when the string is not happy
+  lines:
+  - 7
+- id: R-HAP-3
+  doc: SPEC
+  quote: A string is happy if its length is at least 3 and every 3 consecutive letters are distinct
+  text: If, for some position i from 0 to len(s)-3, two of the characters s[i], s[i+1] and s[i+2] are equal, then is_happy(s) returns False.
+  kind: guarantee
+  ambiguity:
+  - phrase: is happy if
+    readings:
+    - 'if and only if: a string with a repeated character among some 3 consecutive letters is not happy, so is_happy returns False for it'
+    - 'if only (a sufficient condition): the definition does not say whether such a string is happy, so either answer is allowed'
+  - phrase: letters
+    readings:
+    - every character of s counts as a letter, whatever its class
+    - 'only alphabetic characters count: other characters are dropped before the groups of 3 consecutive letters are formed'
+    - a string that contains a character other than a letter is not happy
+  - phrase: 3 consecutive letters
+    readings:
+    - every overlapping window s[i], s[i+1], s[i+2], for each start i from 0 to len(s)-3
+    - the non-overlapping blocks s[0..2], s[3..5], ... (a trailing block shorter than 3 is ignored)
+  - phrase: distinct
+    readings:
+    - the three characters are pairwise different by exact character code (so 'a' and 'A' differ)
+    - the three characters are pairwise different when letter case is ignored
+    - the three characters are not all the same (at least two of them differ)
+    - each group of 3 consecutive letters differs, as a substring, from every other such group
+  - phrase: every 3 consecutive letters are distinct
+    readings:
+    - 'the definition is authoritative: ''aabb'' (window ''aab'') and ''xyy'' (window ''xyy'') repeat a character, so is_happy returns False for them, which contradicts the examples R-EX-4 and R-EX-6'
+    - 'the examples are authoritative: is_happy(''aabb'') and is_happy(''xyy'') return True, so a repeated character among 3 consecutive letters does not force the result False'
+    - every example is the negation of the definition, so is_happy returns True exactly when the string is not happy
+  lines:
+  - 7
+- id: R-EX-1
+  doc: SPEC
+  quote: is_happy(a) => True
+  text: Calling is_happy with the one-character string 'a' returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: is_happy(a)
+    readings:
+    - the argument is the string 'a' (the quotes are omitted)
+    - a is a variable whose value is not given, so the example fixes no particular call
+  - phrase: is_happy(a) => True
+    readings:
+    - 'the example is authoritative: is_happy(''a'') returns True'
+    - 'the definition is authoritative: ''a'' is shorter than 3 characters, so it is not happy and is_happy(''a'') returns False (R-HAP-2); the example contradicts the definition'
+  lines:
+  - 9
+- id: R-EX-2
+  doc: SPEC
+  quote: is_happy(aa) => True
+  text: Calling is_happy with the string 'aa' returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: is_happy(aa)
+    readings:
+    - the argument is the string 'aa' (the quotes are omitted)
+    - aa is a variable whose value is not given, so the example fixes no particular call
+  - phrase: is_happy(aa) => True
+    readings:
+    - 'the example is authoritative: is_happy(''aa'') returns True'
+    - 'the definition is authoritative: ''aa'' is shorter than 3 characters, so it is not happy and is_happy(''aa'') returns False (R-HAP-2); the example contradicts the definition'
+  lines:
+  - 10
+- id: R-EX-3
+  doc: SPEC
+  quote: is_happy(abcd) => False
+  text: Calling is_happy with the string 'abcd' returns False.
+  kind: scenario
+  ambiguity:
+  - phrase: is_happy(abcd)
+    readings:
+    - the argument is the string 'abcd' (the quotes are omitted)
+    - abcd is a variable whose value is not given, so the example fixes no particular call
+  - phrase: is_happy(abcd) => False
+    readings:
+    - 'the example is authoritative: is_happy(''abcd'') returns False'
+    - 'the definition is authoritative: ''abcd'' has 4 characters and its windows ''abc'' and ''bcd'' are each pairwise distinct, so it is happy and is_happy(''abcd'') returns True (R-HAP-1); the example
+      contradicts the definition'
+  lines:
+  - 11
+- id: R-EX-4
+  doc: SPEC
+  quote: is_happy(aabb) => True
+  text: Calling is_happy with the string 'aabb' returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: is_happy(aabb)
+    readings:
+    - the argument is the string 'aabb' (the quotes are omitted)
+    - aabb is a variable whose value is not given, so the example fixes no particular call
+  - phrase: is_happy(aabb) => True
+    readings:
+    - 'the example is authoritative: is_happy(''aabb'') returns True'
+    - 'the definition is authoritative: the window ''aab'' repeats ''a'', so ''aabb'' is not happy and is_happy(''aabb'') returns False (R-HAP-3); the example contradicts the definition'
+  lines:
+  - 12
+- id: R-EX-5
+  doc: SPEC
+  quote: is_happy(adb) => False
+  text: Calling is_happy with the string 'adb' returns False.
+  kind: scenario
+  ambiguity:
+  - phrase: is_happy(adb)
+    readings:
+    - the argument is the string 'adb' (the quotes are omitted)
+    - adb is a variable whose value is not given, so the example fixes no particular call
+  - phrase: is_happy(adb) => False
+    readings:
+    - 'the example is authoritative: is_happy(''adb'') returns False'
+    - 'the definition is authoritative: ''adb'' has 3 characters that are pairwise distinct, so it is happy and is_happy(''adb'') returns True (R-HAP-1); the example contradicts the definition'
+  lines:
+  - 13
+- id: R-EX-6
+  doc: SPEC
+  quote: is_happy(xyy) => True
+  text: Calling is_happy with the string 'xyy' returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: is_happy(xyy)
+    readings:
+    - the argument is the string 'xyy' (the quotes are omitted)
+    - xyy is a variable whose value is not given, so the example fixes no particular call
+  - phrase: is_happy(xyy) => True
+    readings:
+    - 'the example is authoritative: is_happy(''xyy'') returns True'
+    - 'the definition is authoritative: ''xyy'' repeats ''y'', so it is not happy and is_happy(''xyy'') returns False (R-HAP-3); the example contradicts the definition'
+  lines:
+  - 14
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `happy` is false unless `outcome` is 0.'
+  text: In every call, the output happy is false unless outcome is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 49

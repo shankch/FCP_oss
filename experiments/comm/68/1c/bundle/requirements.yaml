@@ -1,0 +1,215 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `plucked` is the empty list unless `outcome` is 0.'
+  text: In every call whose outcome is not 0 (an exception, no answer, or a returned value that does not fit), plucked has length 0.
+  kind: guarantee
+  lines:
+  - 46
+- id: R-DEF-1
+  doc: SPEC
+  quote: Given an array representing a branch of a tree
+  text: 'The argument arr is a list whose elements are the nodes of a tree branch: the value of a node is the element, and the index of a node is its position in arr.'
+  kind: definition
+  ambiguity:
+  - phrase: representing a branch of a tree
+    readings:
+    - arr is a flat list of node values; position carries no tree meaning beyond being the node's index
+    - arr encodes tree structure (for example level order), so positions also carry parent/child meaning
+  lines:
+  - 6
+- id: R-IN-1
+  doc: SPEC
+  quote: that has non-negative integer nodes
+  text: Every element of arr is a non-negative integer.
+  kind: assumption
+  lines:
+  - 6
+- id: R-IN-2
+  doc: SPEC
+  quote: 1 <= nodes.length <= 10000
+  text: arr has at least 1 element.
+  kind: assumption
+  ambiguity:
+  - phrase: 1 <= nodes.length
+    readings:
+    - the empty array is outside the input domain, so the result of pluck([]) is not specified (contradicts R-EMP-2 and Example 3, R-EX-3)
+    - 'the constraint is wrong or loose: the empty array is a valid input and pluck([]) must return [] (as R-EMP-2 and Example 3 state)'
+  lines:
+  - 34
+- id: R-IN-3
+  doc: SPEC
+  quote: 1 <= nodes.length <= 10000
+  text: arr has at most 10000 elements.
+  kind: assumption
+  lines:
+  - 34
+- id: R-IN-4
+  doc: SPEC
+  quote: 0 <= node.value
+  text: Every element of arr is at least 0.
+  kind: assumption
+  lines:
+  - 35
+- id: R-PL-1
+  doc: SPEC
+  quote: your task is to pluck one of the nodes and return it.
+  text: When arr contains at least one even value, the call returns a result that designates exactly one node of arr (it does not raise and does not return []).
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: pluck
+    readings:
+    - select the node and report it, leaving arr unchanged
+    - remove the node from arr (mutating the argument) and report it
+  - phrase: return it
+    readings:
+    - return the node in the [value, index] list form given later (R-OUT-1)
+    - return the node's value alone
+  lines:
+  - 7
+- id: R-PL-2
+  doc: SPEC
+  quote: The plucked node should be the node with the smallest even value.
+  text: When arr contains at least one even value, the value of the plucked node is even and no even element of arr is smaller than it.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: the smallest even value
+    readings:
+    - the minimum among the even elements of arr, as this sentence states
+    - the largest element of arr of any parity, which is what Examples 1, 2 and 4 show ([4,2,3] -> [4, 0], [1,2,3] -> [3, 2], [5, 0, 3, 0, 4, 2] -> [5, 0]); contradicts R-EX-1, R-EX-2 and R-EX-4
+  - phrase: even
+    readings:
+    - 0 counts as an even value
+    - 0 is not counted as an even value
+  lines:
+  - 8
+- id: R-PL-3
+  doc: SPEC
+  quote: If multiple nodes with the same smallest even value are found return the node that has smallest index.
+  text: When the smallest even value of arr occurs at several positions, the index of the plucked node is the smallest of those positions.
+  kind: guarantee
+  depends:
+  - R-PL-2
+  ambiguity:
+  - phrase: return the node that has smallest index
+    readings:
+    - ties are broken by the smallest index, so pluck([5, 0, 3, 0, 4, 2]) returns [0, 1]
+    - Example 4 (R-EX-4) is right and pluck([5, 0, 3, 0, 4, 2]) returns [5, 0], so the tie on 0 does not decide the result; contradicts this sentence
+  lines:
+  - 9
+- id: R-OUT-1
+  doc: SPEC
+  quote: The plucked node should be returned in a list, [ smalest_value, its index ],
+  text: 'When a node is plucked, the result is a list of exactly two integers: first the value of the plucked node, then its index.'
+  kind: guarantee
+  depends:
+  - R-PL-1
+  ambiguity:
+  - phrase: smalest_value
+    readings:
+    - the smallest even value, i.e. the value of the plucked node (R-PL-2)
+    - the smallest value of arr of any parity
+    - the largest value of arr, as Examples 1, 2 and 4 show; contradicts R-PL-2
+  lines:
+  - 11
+- id: R-OUT-2
+  doc: SPEC
+  quote: '[ smalest_value, its index ]'
+  text: In a two-element result, the second element is the index in arr of the plucked node, so the element of arr at that index equals the first element of the result.
+  kind: guarantee
+  depends:
+  - R-OUT-1
+  - R-DEF-1
+  ambiguity:
+  - phrase: its index
+    readings:
+    - the 0-based Python index of the node in arr (consistent with every example)
+    - the 1-based position of the node in arr
+  lines:
+  - 11
+- id: R-EMP-1
+  doc: SPEC
+  quote: If there are no even values or the given array is empty, return [].
+  text: When arr is non-empty and contains no even value, the call returns the empty list [].
+  kind: guarantee
+  ambiguity:
+  - phrase: no even values
+    readings:
+    - 0 is even, so an array whose only even elements are 0 does have even values and a node is plucked
+    - 0 is not counted, so such an array has no even values and the call returns []
+  lines:
+  - 12
+- id: R-EMP-2
+  doc: SPEC
+  quote: If there are no even values or the given array is empty, return [].
+  text: When arr is empty, the call returns the empty list [].
+  kind: guarantee
+  ambiguity:
+  - phrase: the given array is empty
+    readings:
+    - the empty array is a valid input and pluck([]) must return []
+    - the empty array is excluded by the Constraints (1 <= nodes.length, R-IN-2), so this clause never applies; contradicts R-IN-2
+  lines:
+  - 12
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example 1: Input: [4,2,3] Output: [4, 0]'
+  text: pluck([4, 2, 3]) returns [4, 0].
+  kind: scenario
+  ambiguity:
+  - phrase: 'Output: [4, 0]'
+    readings:
+    - '[4, 0] is the intended output (the largest value 4 at index 0); contradicts R-PL-2, under which the smallest even value is 2 at index 1'
+    - the rule of R-PL-2 holds and the intended output is [2, 1]; the example is wrong
+  lines:
+  - 14
+  - 16
+- id: R-EX-2
+  doc: SPEC
+  quote: 'Example 2: Input: [1,2,3] Output: [3, 2]'
+  text: pluck([1, 2, 3]) returns [3, 2].
+  kind: scenario
+  ambiguity:
+  - phrase: 'Output: [3, 2]'
+    readings:
+    - '[3, 2] is the intended output (the largest value 3 at index 2); contradicts R-PL-2, since 3 is odd and the only even value is 2 at index 1'
+    - the rule of R-PL-2 holds and the intended output is [2, 1]; the example is wrong
+  lines:
+  - 19
+  - 21
+- id: R-EX-3
+  doc: SPEC
+  quote: 'Example 3: Input: [] Output: []'
+  text: pluck([]) returns [].
+  kind: scenario
+  ambiguity:
+  - phrase: 'Input: []'
+    readings:
+    - the empty array is a valid input whose result is []
+    - the empty array violates the Constraints (1 <= nodes.length, R-IN-2), so this example lies outside the input domain; contradicts R-IN-2
+  lines:
+  - 24
+  - 26
+- id: R-EX-4
+  doc: SPEC
+  quote: 'Example 4: Input: [5, 0, 3, 0, 4, 2] Output: [5, 0]'
+  text: pluck([5, 0, 3, 0, 4, 2]) returns [5, 0].
+  kind: scenario
+  ambiguity:
+  - phrase: 'Output: [5, 0]'
+    readings:
+    - '[5, 0] is the intended output (the largest value 5 at index 0); contradicts R-PL-2 and R-PL-3, under which the smallest even value 0 first occurs at index 1'
+    - the rules of R-PL-2 and R-PL-3 hold and the intended output is [0, 1]; the example is wrong
+  lines:
+  - 28
+  - 30

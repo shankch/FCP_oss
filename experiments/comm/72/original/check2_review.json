@@ -1,0 +1,291 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 349,
+    "checked": 349,
+    "seconds": 3.87
+   },
+   "open": {
+    "open": {},
+    "checked": 200
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 366,
+    "checked": 366,
+    "seconds": 4.37
+   },
+   "open": {
+    "open": {},
+    "checked": 212
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FLY-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FLY-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FLY-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-OUT-1",
+   "phrase": "returns True if the object q will fly, and False otherwise",
+   "taken": 1,
+   "variant": 2,
+   "text": "any truthy or falsy value (such as 1 or 0, or a non-empty or empty list) is acceptable as the answer"
+  },
+  {
+   "req": "R-FLY-1",
+   "phrase": "less than or equal the maximum possible weight w",
+   "taken": 1,
+   "variant": 2,
+   "text": "sum(q) < w, as the example comments phrase it (\"is less than the maximum possible weight\"): a balanced q whose sum equals w does not fly"
+  },
+  {
+   "req": "R-FLY-1",
+   "phrase": "palindromic list",
+   "taken": 1,
+   "variant": 2,
+   "text": "the empty list is not a balanced object, so will_it_fly([], w) returns False"
+  },
+  {
+   "req": "R-FLY-2",
+   "phrase": "The object q will fly if",
+   "taken": 1,
+   "variant": 2,
+   "text": "'if' gives only a sufficient condition: the prompt does not say when q does not fly, so the answer for an unbalanced q is not determined by 'False otherwise'"
+  },
+  {
+   "req": "R-FLY-2",
+   "phrase": "palindromic list",
+   "taken": 1,
+   "variant": 2,
+   "text": "the empty list is not a balanced object, so will_it_fly([], w) returns False"
+  },
+  {
+   "req": "R-FLY-3",
+   "phrase": "The object q will fly if",
+   "taken": 1,
+   "variant": 2,
+   "text": "'if' gives only a sufficient condition: the prompt does not say when q does not fly, so the answer for a q heavier than w is not determined by 'False otherwise'"
+  },
+  {
+   "req": "R-FLY-3",
+   "phrase": "less than or equal the maximum possible weight w",
+   "taken": 1,
+   "variant": 2,
+   "text": "sum(q) < w flies, as the example comments phrase it: False is also required when sum(q) == w"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "The object q will fly if",
+   "taken": 1,
+   "variant": 2,
+   "text": "'if' gives only a sufficient condition: q flies at least in that case, and the prompt does not say whether it can fly otherwise"
+  },
+  {
+   "req": "R-DEF-2",
+   "phrase": "palindromic list",
+   "taken": 1,
+   "variant": 2,
+   "text": "the empty list is not a balanced object, hence never flies"
+  },
+  {
+   "req": "R-DEF-3",
+   "phrase": "less than or equal the maximum possible weight w",
+   "taken": 1,
+   "variant": 2,
+   "text": "sum(q) < w, as the example comments phrase it (\"is less than the maximum possible weight\"): a sum equal to w does not meet the condition"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "is less than the maximum possible weight",
+   "taken": 1,
+   "variant": 2,
+   "text": "the comment states the rule: the sum must be strictly less than w, contradicting 'less than or equal' for a sum equal to w"
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "is less than the maximum possible weight",
+   "taken": 1,
+   "variant": 2,
+   "text": "the comment states the rule: the sum must be strictly less than w, contradicting 'less than or equal' for a sum equal to w"
+  }
+ ],
+ "depends": {
+  "R-FLY-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "will_it_fly([1, 1], 2) -> False"
+   ]
+  },
+  "R-FLY-2": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "will_it_fly([0, 1], 2) -> True"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-2"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-FLY-1",
+    "R-FLY-2"
+   ],
+   "calls": [
+    "will_it_fly([1, 1], 2) -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"returns True if the object q will fly, and False otherwise\" can mean: the returned value must be the Python bool True or False / any truthy or falsy value (such as 1 or 0, or a non-empty or empty list) is acceptable as the answer. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FLY-1"
+   ],
+   "calls": [],
+   "question": "\"less than or equal the maximum possible weight w\" can mean: sum(q) <= w, as the rule states: a balanced q whose sum equals w flies (True) / sum(q) < w, as the example comments phrase it (\"is less than the maximum possible weight\"): a balanced q whose sum equals w does not fly. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FLY-1"
+   ],
+   "calls": [],
+   "question": "\"palindromic list\" can mean: the empty list is palindromic (it equals its reverse), so will_it_fly([], w) returns True for every w >= 0 / the empty list is not a balanced object, so will_it_fly([], w) returns False. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FLY-2"
+   ],
+   "calls": [],
+   "question": "\"The object q will fly if\" can mean: 'if' means 'if and only if': q flies exactly when it is balanced and light enough, so an unbalanced q must return False / 'if' gives only a sufficient condition: the prompt does not say when q does not fly, so the answer for an unbalanced q is not determined by 'False otherwise'. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FLY-2"
+   ],
+   "calls": [],
+   "question": "\"palindromic list\" can mean: the empty list is palindromic, so it is never covered by this requirement / the empty list is not a balanced object, so will_it_fly([], w) returns False. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FLY-3"
+   ],
+   "calls": [],
+   "question": "\"The object q will fly if\" can mean: 'if' means 'if and only if': q flies exactly when it is balanced and light enough, so a q heavier than w must return False / 'if' gives only a sufficient condition: the prompt does not say when q does not fly, so the answer for a q heavier than w is not determined by 'False otherwise'. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FLY-3"
+   ],
+   "calls": [],
+   "question": "\"less than or equal the maximum possible weight w\" can mean: sum(q) <= w flies: False is required only when sum(q) > w / sum(q) < w flies, as the example comments phrase it: False is also required when sum(q) == w. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"is less than the maximum possible weight\" can mean: the comment only describes this call (8 < 9); the rule 'less than or equal' still decides a sum equal to w, which flies / the comment states the rule: the sum must be strictly less than w, contradicting 'less than or equal' for a sum equal to w. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"is less than the maximum possible weight\" can mean: the comment only describes this call (3 < 5); the rule 'less than or equal' still decides a sum equal to w, which flies / the comment states the rule: the sum must be strictly less than w, contradicting 'less than or equal' for a sum equal to w. Which is meant?"
+  }
+ ],
+ "limits": []
+}

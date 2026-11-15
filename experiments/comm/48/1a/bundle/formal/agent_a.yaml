@@ -1,0 +1,124 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-DEF-1, reading 1 (exact): character i equals character len-1-i, case and
+  # spaces included. Holds for the empty string and every one-character string.
+  pal: 'all(i < len(text): text[i] == text[len(text) - 1 - i])'
+  # R-DEF-2, reading 2: no letter occurs twice, ignoring case; non-letters may
+  # repeat. Holds for the empty string. Letters are those of FCP-PL isalpha
+  # (ASCII only, as frame.md states for the character functions).
+  iso: 'all(i < len(text): all(j < i: isalpha(text[j]) -> lower(text[i]) != lower(text[j])))'
+  # R-CHK-1/R-CHK-2, reading 1: "Isogram/Palindrome" read as "isogram or palindrome".
+  isopal: 'iso || pal'
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    expr: 'outcome == 0'
+    note: >-
+      "Checks if given string is ... or not" read as: every call on a string
+      returns a bool (True or False); no exception, no non-termination, no
+      other return type.
+
+  - id: RA-CHK-1
+    req: R-CHK-1
+    pattern: implies
+    args: {trigger: 'isopal', cond: 'outcome == 0 && result'}
+    note: >-
+      "Isogram/Palindrome" taken in its most literal sense, the slash as "or":
+      True whenever text is an isogram (letters, case-insensitive) or a
+      palindrome (exact). This reading contradicts the example
+      candidate('zbcd') -> False (R-EX-4): 'zbcd' repeats no letter, so it is
+      an isogram and this property requires True. The contradiction is left
+      visible (scenario RA-EX-4 is unreachable under this property), not
+      repaired.
+
+  - id: RA-CHK-2
+    req: R-CHK-2
+    pattern: implies
+    args: {trigger: '!isopal', cond: 'outcome == 0 && !result'}
+    note: >-
+      Same reading as RA-CHK-1 ("/" as "or"): False when text is neither an
+      isogram nor a palindrome. Under this reading 'zbcd' does not trigger
+      this property, so the docstring gives no support to the example
+      candidate('zbcd') -> False.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: 'text == "" && outcome == 0 && result'
+    note: The doctest candidate('') -> True, as written.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: 'text == "aba" && outcome == 0 && result'
+    note: >-
+      The doctest candidate('aba') -> True, as written (the example is taken to
+      be right). 'aba' is a palindrome, so it is consistent with RA-CHK-1
+      under the "or" reading, even though 'a' repeats.
+
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: 'text == "aaaaa" && outcome == 0 && result'
+    note: >-
+      The doctest candidate('aaaaa') -> True, as written (the example is taken
+      to be right). 'aaaaa' is a palindrome, so it is consistent with RA-CHK-1
+      under the "or" reading.
+
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: 'text == "zbcd" && outcome == 0 && !result'
+    note: >-
+      The doctest candidate('zbcd') -> False, as written (the example is taken
+      to be right). CONTRADICTS RA-CHK-1: 'zbcd' is an isogram under every
+      reading of "Isogram" listed in R-DEF-2, so "Isogram/Palindrome" read as
+      "or" requires True. Only the "palindrome only" reading of the docstring
+      (which treats "Isogram" as a mislabel) agrees with all four examples.
+      This scenario is expected to be unreachable; that is the contradiction in
+      the specification, kept on purpose.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Names the function and its parameter. The adapter (design.yaml function
+      section, frame.md) fixes that each cycle is one call candidate(text);
+      there is no behaviour to state on the trace.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the deliverable is a completed body of candidate with the
+      same name and signature. Not a property of the call trace.
+  - req: R-ENV-1
+    reason: >-
+      Read as a type hint that only constrains the caller (reading 1). It holds
+      by construction of the interface: the text input is always a string of
+      at most 32 Latin-1 characters, and calls with non-str arguments are not
+      part of the trace (frame.md, Inputs). An assumption would be a tautology,
+      and behaviour on non-str arguments is left unspecified.
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized by def `pal` (exact palindrome, reading 1) and used
+      in the trigger of the R-CHK items.
+    covered_by: [RA-CHK-1, RA-CHK-2]
+  - req: R-DEF-2
+    reason: >-
+      Definition, realized by def `iso` (no letter repeats ignoring case,
+      non-letters may repeat, reading 2) and used in the trigger of the R-CHK
+      items.
+    covered_by: [RA-CHK-1, RA-CHK-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter; frame item F-ZERO (outcome != 0 -> !result)
+      in design.yaml is added to every formalization set and need not be
+      restated (frame.md, Frame rules).
+
+decisions:
+  - {req: R-ENV-1, phrase: 'text: str', reading: 1}
+  - {req: R-DEF-1, phrase: 'Palindrome', reading: 1}
+  - {req: R-DEF-2, phrase: 'Isogram', reading: 2}
+  - {req: R-CHK-1, phrase: 'Isogram/Palindrome', reading: 1}
+  - {req: R-CHK-2, phrase: 'Isogram/Palindrome', reading: 1}
+  - {req: R-EX-2, phrase: "candidate('aba')", reading: 1}
+  - {req: R-EX-3, phrase: "candidate('aaaaa')", reading: 1}
+  - {req: R-EX-4, phrase: "candidate('zbcd')", reading: 1}

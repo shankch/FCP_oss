@@ -1,0 +1,106 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# Divisibility and primality over 16-bit values without division or a
+# non-constant modulus: a divisor d of x with d*d <= x is at most 255, so trial
+# division by the constants 2..255 decides primality; a divisor of n is either
+# at most 255 (constant modulus) or has a cofactor of at most 255 (n <= 65535).
+defs:
+  n_prime: "n >= 2 && all(i < 254: (i + 2) * (i + 2) <= n -> n % (i + 2) != 0)"
+  f_prime: "factor >= 2 && all(i < 254: (i + 2) * (i + 2) <= factor -> factor % (i + 2) != 0)"
+  f_divides_n: "any(i < 254: factor == i + 2 && n % (i + 2) == 0) || any(m < 255: (m + 1) * factor == n)"
+  q_prime: "all(i < 254: (i + 2) * (i + 2) <= q -> q % (i + 2) != 0)"
+  q_divides_n: "any(i < 254: q == i + 2 && n % (i + 2) == 0) || any(m < 255: (m + 1) * q == n)"
+
+rigids:
+  - {name: q, range: [2, 65535]}   # any candidate prime factor of n
+
+assumptions:
+  - id: RA-ENV-1
+    req: R-ENV-1
+    expr: "n > 1"
+    note: >-
+      "Assume n > 1" read literally as a precondition on the caller (reading 1):
+      calls with n = 0 or n = 1 are outside the contract, so any outcome is
+      acceptable for them. The text does not ask the function to reject them.
+  - id: RA-ENV-2
+    req: R-ENV-2
+    expr: "!n_prime"
+    note: >-
+      "and is not a prime" is governed by "Assume", so it is read as a
+      precondition on the caller (reading 1): prime arguments are outside the
+      contract and any outcome is acceptable for them. Literally "n is not a
+      prime"; together with RA-ENV-1 this means n is composite.
+
+properties:
+  - id: RA-FN-1-RET
+    req: R-FN-1
+    expr: "outcome == 0"
+    note: >-
+      "Return ..." : the call returns an integer that fits factor. Under the
+      assumptions n is composite and at most 65,535, so its largest prime
+      factor is at most 32,767 and always fits the 16-bit factor output.
+  - id: RA-FN-1-PRIME
+    req: R-FN-1
+    expr: "f_prime"
+    note: "The returned value is a prime number."
+  - id: RA-FN-1-DIV
+    req: R-FN-1
+    expr: "f_divides_n"
+    note: "The returned value divides n."
+  - id: RA-FN-1-MAX
+    req: R-FN-1
+    expr: "q_prime && q_divides_n -> q <= factor"
+    note: >-
+      No prime factor of n is larger than the returned value (q ranges over
+      every value 2..65535). "the largest prime factor of n" is taken
+      literally (reading 1): the greatest prime dividing n, e.g. 29 for
+      13195 = 5 * 7 * 13 * 29. This CONTRADICTS the example of R-EX-1
+      (largest_prime_factor(13195) -> 5, the smallest prime factor); the
+      specification is not repaired here, see RA-EX-1.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "n == 13195 && outcome == 0 && factor == 5"
+    note: >-
+      The doctest taken literally (reading 2 for the call's result): calling
+      largest_prime_factor(13195) returns 5. On deterministic code a cover of
+      this call is the doctest itself. The second half of reading 2 (reading
+      R-FN-1's "largest" through the examples) is NOT adopted, because R-FN-1
+      is formalized with its literal wording. The two literal readings
+      contradict each other: 13195 > 1 is composite, so RA-ENV-1/RA-ENV-2 admit
+      the call, and RA-FN-1-PRIME/-DIV/-MAX force factor == 29 there; this
+      scenario is therefore expected to be unreachable together with R-FN-1.
+      The contradiction is in the specification and is left visible.
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: "n == 2048 && outcome == 0 && factor == 2"
+    note: >-
+      The doctest: largest_prime_factor(2048) returns 2. 2048 = 2^11, so 2 is
+      both the largest and the smallest prime factor; consistent with R-FN-1.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: states that the deliverable is a complete implementation
+      in place of the stub. It constrains no call's result beyond the
+      functional requirements (R-FN-1, R-EX-1, R-EX-2).
+  - req: R-IF-2
+    reason: >-
+      Definition of the interface (function name largest_prime_factor, one
+      integer argument n). It is realized by the function and interface
+      sections of design.yaml (argument n drives input signal n), not by a
+      behavioural property.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, added to every formalization set by
+      construction (frame.md: "need not be restated").
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: "the largest prime factor of n", reading: 1}
+  - {req: R-ENV-1, phrase: "Assume n > 1", reading: 1}
+  - {req: R-ENV-2, phrase: "and is not a prime", reading: 1}
+  - {req: R-EX-1, phrase: "largest_prime_factor(13195) 5", reading: 2}

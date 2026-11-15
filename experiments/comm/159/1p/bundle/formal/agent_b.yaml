@@ -1,0 +1,160 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model of one call. eat is a function without memory and the
+# checker orders calls freely (frame.md), so the model has no ghost state: it
+# is a combinational function of the arguments of the current call.
+defs:
+  already_eaten: "number"        # R-DEF-1: carrots eaten before this call
+  more_needed: "need"            # R-DEF-2: further carrots needed to complete the day's meals
+  returned: "outcome != 1"       # the call ended by returning a value (no exception, it finished)
+
+assumptions:
+  - id: RB-ENV-1
+    req: R-ENV-1
+    expr: "already_eaten >= 0"
+    note: >-
+      Reading 1 of "a certain number": number counts carrots, so it is a
+      non-negative integer with no upper bound. The 11-bit unsigned signal
+      already carries only 0 to 2,047 (frame.md excludes negative and larger
+      arguments), so this assumption removes no call from the trace; it is
+      stated to record the obligation.
+
+  - id: RB-ENV-2
+    req: R-ENV-2
+    expr: "more_needed >= 1"
+    note: >-
+      Reading 1 of "need to eat more carrots": the most literal reading of
+      "now you need to eat more carrots" is that at least one more carrot is
+      needed, so need >= 1. The requirement's paraphrase says "non-negative"
+      (reading 2); the quote itself says "more carrots", which a need of 0
+      does not satisfy. Consequence: calls with need == 0 are outside the
+      contract and every guarantee of this set is unconstrained on them.
+
+properties:
+  - id: RB-API-1
+    req: R-API-1
+    expr: "returned"
+    note: >-
+      "so that a call eat(number, need, remaining) is accepted": the only
+      observable consequence of the signature is that a call with three
+      integer arguments goes through. The adapter maps every exception
+      (including a TypeError from a wrong signature) and a call that does not
+      finish to outcome 1, so "accepted" is read as outcome != 1: the call
+      returns some value. This also forbids any other exception on valid
+      calls. It does not constrain the form of the returned value: outcome 0
+      (a list) and outcome 2 (anything else) are both allowed, as R-OUT-1
+      leaves the return value free. Reading 1 of
+      "eat(number, need, remaining)" (integer arguments); the trace carries
+      only integers, so reading 2 would add calls the trace cannot express.
+
+scenarios:
+  - id: RB-DEF-3
+    req: R-DEF-3
+    cover: "more_needed > remaining && returned"
+    note: >-
+      Reading 3 of "remaining": the prompt never says what remaining counts,
+      so it places no obligation linking remaining to the result. Reading 2
+      of "need, remaining": nothing in the prompt says remaining limits what
+      the rabbit eats, so there is no contradiction with "to complete the
+      day's meals" (R-EAT-2). This scenario records that reading: a call in
+      which remaining is below need is a legitimate call, and it must be
+      possible for it to be accepted and return a value.
+
+dont_cares:
+  - id: RB-OUT-1
+    req: R-OUT-1
+    signal: result
+    when: "outcome == 0"
+    note: >-
+      Reading 1 of "complete the day's meals.": the prompt names no return
+      value and no return form, so the returned list is unconstrained. The
+      form of the returned value (outcome 0 for a list, outcome 2 for
+      anything else) is also left free; RB-API-1 only excludes outcome 1.
+      When outcome != 0 the frame rule F-EMPTY already fixes result to the
+      empty list, hence the condition. Readings 2 to 4 each invent a return
+      format the prompt does not state.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: it concerns the form of the response (that it completes
+      the given function), not the behaviour of a call. Reading 1 of
+      "Complete this function" (only the body is written; signature and
+      docstring stay as given); whether the docstring was kept is not visible
+      in a trace of calls. The behavioural part (a function eat that accepts
+      the call) is R-API-1, formalized by RB-API-1.
+
+  - req: R-CTX-1
+    reason: >-
+      Definition. Reading 1 of "hungry rabbit": narrative framing only, it
+      places no obligation on the result. The quantities it introduces are
+      named by the defs already_eaten and more_needed.
+
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized by the def already_eaten := number, used by
+      RB-ENV-1. Reading 1 of "a certain number of carrots" (the count is the
+      argument number) and reading 1 of "already have eaten" (carrots eaten
+      so far today, counting toward the day's meals). No output reports the
+      carrots eaten, so the second reading has no observable consequence.
+    covered_by: [RB-ENV-1]
+
+  - req: R-DEF-2
+    reason: >-
+      Definition, realized by the def more_needed := need, used by RB-ENV-2.
+      Reading 1 of "need to eat more carrots": need is the number of
+      additional carrots on top of number (the day's total would be
+      number + need). No output reports it.
+    covered_by: [RB-ENV-2]
+
+  - req: R-ENV-3
+    reason: >-
+      Reading 2 of "remaining": the prompt places no bound on remaining (it
+      is only a parameter name, and under reading 3 of R-DEF-3 its meaning is
+      not described), so there is no environment obligation to state. Every
+      value the trace can carry (0 to 2,047) is a valid call; negative values
+      would also be valid under this reading, but frame.md excludes them from
+      the trace, so the difference from reading 1 cannot be observed.
+
+  - req: R-EAT-1
+    reason: >-
+      Reading 1 of "eat more carrots": the rabbit eats exactly need more
+      carrots, so after the call it has eaten number + need. The prompt does
+      not say what eat returns (R-OUT-1, reading 1), so no output signal
+      reports how many carrots were eaten and "the result reflects those
+      carrots" cannot be stated as a constraint on result or outcome without
+      inventing a return format. That a call returns at all is RB-API-1.
+
+  - req: R-EAT-2
+    reason: >-
+      Reading 1 of "to complete" (after the call the day's meals are always
+      complete) and reading 2 of "complete the day's meals" (no contradiction
+      with remaining, see RB-DEF-3). Whether the meals are complete is not
+      reported by any output (R-OUT-1 leaves the return value free), so the
+      statement constrains no signal of the trace.
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, added to every formalization set
+      as F-EMPTY (outcome != 0 -> len(result) == 0); frame.md says it need
+      not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-TASK-1, phrase: "Complete this function", reading: 1}
+  - {req: R-API-1, phrase: "eat(number, need, remaining)", reading: 1}
+  - {req: R-CTX-1, phrase: "hungry rabbit", reading: 1}
+  - {req: R-DEF-1, phrase: "a certain number of carrots", reading: 1}
+  - {req: R-DEF-1, phrase: "already have eaten", reading: 1}
+  - {req: R-DEF-2, phrase: "need to eat more carrots", reading: 1}
+  - {req: R-DEF-3, phrase: "remaining", reading: 3}
+  - {req: R-DEF-3, phrase: "need, remaining", reading: 2}
+  - {req: R-ENV-3, phrase: "remaining", reading: 2}
+  - {req: R-ENV-1, phrase: "a certain number", reading: 1}
+  - {req: R-ENV-2, phrase: "need to eat more carrots", reading: 1}
+  - {req: R-EAT-1, phrase: "eat more carrots", reading: 1}
+  - {req: R-EAT-2, phrase: "to complete", reading: 1}
+  - {req: R-EAT-2, phrase: "complete the day's meals", reading: 2}
+  - {req: R-OUT-1, phrase: "complete the day's meals.", reading: 1}

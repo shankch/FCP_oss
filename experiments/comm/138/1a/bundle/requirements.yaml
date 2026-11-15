@@ -1,0 +1,127 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete, working implementation of the given Python function, not a stub.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def candidate(n):'
+  text: The function is named candidate and takes exactly one parameter, n.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: the given number n
+  text: The argument n is a number supplied by the caller; in the trace it is an integer from 0 to 65,535.
+  kind: assumption
+  ambiguity:
+  - phrase: the given number n
+    readings:
+    - n is a non-negative integer
+    - n is any integer, negative values included
+    - n is any real number, non-integers included
+  lines:
+  - 5
+- id: R-FN-1
+  doc: SPEC
+  quote: Evaluate whether
+  text: For every argument n, candidate(n) finishes without raising and returns a boolean (True or False).
+  kind: guarantee
+  ambiguity:
+  - phrase: Evaluate whether
+    readings:
+    - the function returns the bool True or False
+    - the function returns any value that compares equal to True or False (e.g. 1 or 0), not necessarily of type bool
+  lines:
+  - 5
+- id: R-FN-2
+  doc: SPEC
+  quote: can be written as the sum of 4 numbers
+  text: candidate(n) returns True exactly when n can be written as the sum of 4 numbers, and False otherwise.
+  kind: guarantee
+  ambiguity:
+  - phrase: 4 numbers
+    readings:
+    - 'any integers, negatives allowed: every n qualifies, so the result is always True'
+    - 'non-negative integers (zero allowed): every n >= 0 qualifies, so the result is always True'
+    - 'positive integers: True exactly when n >= 4'
+    - 'positive even integers: True exactly when n is even and n >= 8'
+    - 'integers of at least 2, or primes: True exactly when n >= 8'
+    - 'distinct positive integers: True exactly when n >= 10 (1+2+3+4)'
+  - phrase: the sum of 4
+    readings:
+    - exactly four summands
+    - four or more summands
+  - phrase: can be written as
+    readings:
+    - 'contradiction with the examples: read literally (any four integers, non-negative integers or positive integers), 4 = 1+1+1+1 and 6 = 1+1+2+2 qualify, so candidate(4) and candidate(6) would be True,
+      against candidate(4) == False and candidate(6) == False'
+    - the statement is abbreviated and the examples fix the kind of number (e.g. four positive even numbers), so the examples take precedence
+    - 'contradiction with the example candidate(8) == True if the summands must be distinct: the smallest sum of four distinct positive integers is 10'
+  lines:
+  - 5
+- id: R-EX-1
+  doc: SPEC
+  quote: candidate(4) == False
+  text: 'Example: candidate(4) returns False.'
+  kind: scenario
+  ambiguity:
+  - phrase: candidate(4)
+    readings:
+    - the example holds, so the main statement must be read narrowly (e.g. four positive even numbers, or four integers of at least 2), under which 4 does not qualify
+    - 'contradiction: the main statement read literally (four positive or non-negative integers) makes 4 qualify (1+1+1+1 or 4+0+0+0), so candidate(4) would be True'
+  - phrase: == False
+    readings:
+    - the call returns the bool False
+    - the call returns any value equal to False (e.g. 0)
+  lines:
+  - 7
+- id: R-EX-2
+  doc: SPEC
+  quote: candidate(6) == False
+  text: 'Example: candidate(6) returns False.'
+  kind: scenario
+  ambiguity:
+  - phrase: candidate(6)
+    readings:
+    - the example holds, so the main statement must be read narrowly (e.g. four positive even numbers, or four integers of at least 2), under which 6 does not qualify
+    - 'contradiction: the main statement read literally (four positive or non-negative integers) makes 6 qualify (1+1+2+2 or 6+0+0+0), so candidate(6) would be True'
+  - phrase: == False
+    readings:
+    - the call returns the bool False
+    - the call returns any value equal to False (e.g. 0)
+  lines:
+  - 8
+- id: R-EX-3
+  doc: SPEC
+  quote: candidate(8) == True
+  text: 'Example: candidate(8) returns True.'
+  kind: scenario
+  ambiguity:
+  - phrase: candidate(8)
+    readings:
+    - 8 qualifies because summands may repeat (2+2+2+2, 1+1+3+3)
+    - 'contradiction: if the four numbers must be distinct positive integers, the smallest such sum is 10, so 8 would not qualify and candidate(8) would be False'
+  - phrase: == True
+    readings:
+    - the call returns the bool True
+    - the call returns any value equal to True (e.g. 1)
+  lines:
+  - 9
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, result is 0 unless outcome is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 39

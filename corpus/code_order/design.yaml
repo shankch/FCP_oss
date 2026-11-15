@@ -1,0 +1,62 @@
+fcp: '0.1'
+design: code_order
+summary: A Python function that calls services it imports. A reset starts a run of place_order(order_id, sku, qty, amount); every later cycle is one call the function makes on inventory, payments or shipping, with the service's scripted answer as an input, and then the return. The prompt is the specification, and code written by AI models is checked by running it against every script of answers in the scope.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt P-ORD-1: Fernwood Outfitters order placement'}
+- {id: FRAME, path: frame.md, title: 'FCP interface adapter, version 0.6'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: order_id, dir: in, width: 20, desc: 'order_id argument, held through the run'}
+  - {name: sku, dir: in, width: 16, desc: 'sku argument, held through the run'}
+  - {name: qty, dir: in, width: 8, desc: 'qty argument, held through the run'}
+  - {name: amount, dir: in, width: 21, desc: 'amount argument in cents, held through the run'}
+  - {name: answer, dir: in, width: 2, desc: 'the answer to reserve, charge or book: 0 ok, 1 refused, 2 it raised its error'}
+  - {name: phase, dir: out, width: 1, desc: '0 a call on a service, 1 returned'}
+  - {name: op, dir: out, width: 3, desc: 'the call: 1 inventory.reserve, 2 payments.charge, 3 shipping.book, 4 payments.refund, 5 inventory.release'}
+  - {name: r_sku, dir: out, width: 16, desc: 'reserve: sku argument'}
+  - {name: r_qty, dir: out, width: 8, desc: 'reserve: qty argument'}
+  - {name: c_order, dir: out, width: 20, desc: 'charge: order_id argument'}
+  - {name: c_amount, dir: out, width: 21, desc: 'charge: amount argument'}
+  - {name: b_order, dir: out, width: 20, desc: 'book: order_id argument'}
+  - {name: f_order, dir: out, width: 20, desc: 'refund: order_id argument'}
+  - {name: f_amount, dir: out, width: 21, desc: 'refund: amount argument'}
+  - {name: l_sku, dir: out, width: 16, desc: 'release: sku argument'}
+  - {name: l_qty, dir: out, width: 8, desc: 'release: qty argument'}
+  - {name: outcome, dir: out, width: 2, desc: 'once returned: 0 returned a bool, 1 ValueError, 2 other exception or no answer, 3 anything else'}
+  - {name: result, dir: out, width: 1, desc: 'the returned value'}
+environment: {initial_reset: true, reset_anytime: true, bmc_depth: 10, cover_depth: 10}
+frame:
+- {id: F-END, req: R-FR-1, expr: 'prev(phase) -> phase && stable(outcome) && stable(result)'}
+- {id: F-ZERO, req: R-FR-2, expr: '(!phase -> outcome == 0 && !result) && (phase -> op == 0) && (outcome != 0 -> !result)'}
+- {id: F-LIMIT, req: R-FR-3, expr: 'phase || !(prev(!phase) && prev(!phase, 2) && prev(!phase, 3) && prev(!phase, 4) && prev(!phase, 5) && prev(!phase, 6) && prev(!phase, 7) && prev(!phase, 8))'}
+- {id: F-ANS, req: R-FR-4, expr: '!(!phase && (op == 1 || op == 2 || op == 3)) -> answer == 0'}
+function:
+  name: place_order
+  module: orders
+  args:
+  - {name: order_id, signal: order_id, type: int}
+  - {name: sku, signal: sku, type: int}
+  - {name: qty, signal: qty, type: int}
+  - {name: amount, signal: amount, type: int}
+  interface:
+    position: null
+    methods:
+    - {name: reserve, op: 1, patch: inventory.reserve, args: [r_sku, r_qty], answers: [ok, refused, error], raises: {error: inventory.InventoryError}}
+    - {name: charge, op: 2, patch: payments.charge, args: [c_order, c_amount], answers: [ok, refused, error], raises: {error: payments.PaymentError}}
+    - {name: book, op: 3, patch: shipping.book, args: [b_order], answers: [ok, refused, error], raises: {error: shipping.ShippingError}}
+    - {name: refund, op: 4, patch: payments.refund, args: [f_order, f_amount]}
+    - {name: release, op: 5, patch: inventory.release, args: [l_sku, l_qty]}
+    signals: {phase: phase, op: op, answer: answer}
+    max_calls: 8
+  returns: {signal: result, type: bool}
+  outcome: {signal: outcome, raises: [ValueError]}
+  scope:
+    script: {length: 5, random: 100}
+    order_id: {values: [7], only: true}
+    sku: {values: [3], only: true}
+    qty: {values: [0, 1, 2, 100, 101]}
+    amount: {values: [0, 1, 500, 1000000, 1000001]}

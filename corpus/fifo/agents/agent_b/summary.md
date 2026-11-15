@@ -1,0 +1,3 @@
+35 items (24 properties, 10 scenarios, 1 dont_care); ghost occ driven by inputs; inorder monitors (FWFT). Unformalized: R-PAR-1 (parameter range), R-USE-1 (deliberately not assumed: it would make the tolerance checks vacuous and hide the R-SIM-1 conflict).
+Kept literal (annotated): almost_full >= vs > (both formalized, contradict at count == AF_LEVEL); R-SIM-1 split into a neither-full-nor-empty part plus two literal corner properties that conflict with R-WR-2/R-RD-3; R-TM-3 same-cycle reading; per-operation reading of R-WR-1/R-RD-2.
+Process note (isolation): listed the parent ws directory names once and created an empty probe dir there (removed); read nothing outside its workspace.

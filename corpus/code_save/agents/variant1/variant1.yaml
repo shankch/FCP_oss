@@ -1,0 +1,211 @@
+fcp: "0.1"
+set: variant1
+origin: {kind: agent, role: formalizer, id: variant1}
+
+# Ghost state is kept to two values that no relation between the signals of
+# the trace can give: which file object is the temporary file (a number that
+# must be remembered from its open), and whether balance.txt.tmp exists
+# before the current call (needed at a call of os.replace, including the very
+# first call of a run, where prev() is not evaluated).
+ghosts:
+  - {name: tf, range: [0, 7], init: 0, next: "open_tmp ? of : tf"}
+  - {name: tmp_ex, range: [0, 1], init: 0, next: "mk_tmp ? 1 : (del_tmp ? 0 : tmp_ex)"}
+
+defs:
+  # cents is an unsigned 27-bit signal, so it can never be negative.
+  valid: "cents <= 100000000"
+  wmode: "(o_mode == 2 || o_mode == 3 || o_mode == 4)"
+  # open of balance.txt.tmp in a writing mode: creates (or truncates) it; tf becomes its file object
+  open_tmp: "(!phase && op == 1 && o_path == 2 && wmode)"
+  # calls on the file object of balance.txt.tmp
+  cl_t: "(!phase && op == 4 && tf != 0 && of == tf)"
+  sy_t: "(!phase && op == 5 && tf != 0 && s_handle == tf)"
+  tf_closed: "since(!open_tmp, cl_t)"
+  wr_t: "(!phase && op == 2 && tf != 0 && of == tf && !tf_closed)"
+  rep: "(!phase && op == 6)"
+  # os.replace(balance.txt.tmp, balance.txt)
+  mv: "(rep && r_src == 2 && r_dst == 1)"
+  # calls that create or overwrite balance.txt.tmp, and calls after which it no longer exists
+  mk_tmp: "(open_tmp || rep && r_src != 2 && r_dst == 2 && !answer)"
+  del_tmp: "(!phase && op == 7 && d_path == 2 || rep && r_src == 2 && r_dst != 2 && !answer)"
+  chg_tmp: "(mk_tmp || del_tmp)"
+  # os.replace raised OSError by the script
+  rep_err: "(rep && answer)"
+  # os.replace raised: OSError by the script, or FileNotFoundError because balance.txt.tmp was not there
+  rep_fail: "(rep && (answer || r_src == 2 && tmp_ex == 0))"
+  # balance.txt.tmp holds exactly the decimal digits of cents (after the current call):
+  # its first write since it was created spelled cents and nothing changed it since
+  unwritten: "since(!wr_t && !chg_tmp, open_tmp)"
+  tmp_dig: "since(!wr_t && !chg_tmp, wr_t && w_value == cents && prev(unwritten))"
+  # balance.txt receives the digits: balance.txt.tmp, holding them, is moved over it
+  mv_good: "(mv && !answer && prev(tmp_dig))"
+  # any other change of balance.txt
+  bal_break: "(!phase && (op == 1 && o_path == 1 && wmode || op == 7 && d_path == 1) || rep && !answer && (r_src == 1 && r_dst != 1 || r_src != 1 && r_dst == 1 && !mv_good && !(r_src == 2 && tmp_ex == 0)))"
+  # balance.txt holds the balance as its decimal digits (after the current call)
+  bal_ok: "since(!bal_break, mv_good)"
+  # since balance.txt.tmp was last opened for writing, os.fsync was called on its file object and then it was closed
+  synced_closed: "since(!open_tmp, cl_t && since(!open_tmp, sy_t))"
+
+assumptions:
+  - id: V1-A-CENTS
+    req: R-SIG-1
+    expr: "stable(cents)"
+    note: >-
+      One run is one call save_balance(cents); its single argument does not
+      change during the run (frame.md: cents is the same in every cycle of a run).
+
+properties:
+  - id: V1-P-SIG
+    req: R-SIG-1
+    pattern: implies
+    args: {trigger: "phase", cond: "outcome != 3"}
+    note: >-
+      The declared result type bool: the function never returns a value that is
+      not True or False (outcome 3). Raising is not excluded by the signature.
+      The name and the single int argument are fixed by the function section of
+      design.yaml.
+
+  - id: V1-P-ERR-RAISE
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "phase && cents > 100000000", cond: "outcome == 1"}
+    note: >-
+      Out of range means more than 100,000,000; a negative cents cannot be
+      driven (cents is an unsigned 27-bit signal), so that half of the rule is
+      vacuous in this trace model. Read as "if", not "only if".
+
+  - id: V1-P-ERR-NOFILE
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: "cents > 100000000", cond: "phase"}
+    note: >-
+      "Touch no file": every recorded call (open, write, flush, close, os.fsync,
+      os.replace, os.remove) touches a file, so the run makes no call at all:
+      its first cycle is already the return.
+
+  - id: V1-P-STORE
+    req: R-STORE-1
+    pattern: implies
+    args: {trigger: "phase && valid && !once(rep_err)", cond: "bal_ok"}
+    note: >-
+      At the return of a run with an in-range cents, balance.txt holds exactly
+      the decimal digits of cents: a balance.txt.tmp whose only write since it
+      was created spelled cents was moved over it by a successful os.replace,
+      and nothing changed balance.txt afterwards. The rule is worded
+      unconditionally, but os.replace can fail by the adapter's script and
+      rule 7 says what to do then (keep the temporary file, return False);
+      read unconditionally the rule could not be met when the script makes
+      os.replace fail and would contradict rules 5 and 7. The obligation is
+      therefore taken on runs in which no os.replace raised OSError by the
+      script (a FileNotFoundError caused by the function itself does not
+      excuse it). This weakening is a specification issue, not a silent
+      repair. Contents are not modelled by the adapter: the digits are the
+      number w_value spells, so leading zeros, a trailing newline inside the
+      same write, and (for cents 0) a write that spells no number cannot be
+      told apart from the exact digits; the balance written in two writes
+      counts as not stored. balance.txt is taken not to hold the new balance
+      at the start of a run. "In the current directory" is the relative path
+      balance.txt (o_path 1). No flush is required for the digits to count as
+      written (reading 1 of R-SYNC-1).
+
+  - id: V1-P-TMP-NOOPEN
+    req: R-TMP-1
+    pattern: implies
+    args: {trigger: "!phase && op == 1", cond: "o_path != 1"}
+    note: "\"Never open balance.txt itself\": no open of balance.txt, in any mode."
+
+  - id: V1-P-TMP-WRITE
+    req: R-TMP-1
+    pattern: implies
+    args: {trigger: "mv", cond: "since(!mk_tmp, wr_t && w_value == cents)"}
+    note: >-
+      "Write the digits to balance.txt.tmp, then move that file": at every
+      os.replace(balance.txt.tmp, balance.txt), the digits of cents were
+      written on the file object of balance.txt.tmp (opened in a writing mode
+      w, a or x) since that file was last created. Only the write is required
+      here; that the file holds nothing else is part of V1-P-STORE.
+
+  - id: V1-P-TMP-MOVE
+    req: R-TMP-1
+    pattern: implies
+    args: {trigger: "phase && valid", cond: "once(mv)"}
+    note: >-
+      "Then move that file over balance.txt with os.replace": a run with an
+      in-range cents calls os.replace(balance.txt.tmp, balance.txt) before it
+      returns (the call is required, not its success, which the script decides).
+
+  - id: V1-P-SYNC
+    req: R-SYNC-1
+    pattern: implies
+    args: {trigger: "rep && r_src == 2", cond: "synced_closed"}
+    note: >-
+      Reading 1 of "call `os.fsync` on the temporary file", as instructed:
+      os.fsync on its descriptor, i.e. s_handle is the file object of
+      balance.txt.tmp; no flush before it is required, so the digits may
+      still be in Python's buffer when os.fsync runs. At every os.replace that
+      moves balance.txt.tmp, since balance.txt.tmp was last opened for
+      writing, os.fsync was called on its file object and the object was then
+      closed. os.fsync is required before the close because a closed file
+      has no descriptor to sync (and the example gives that order).
+
+  - id: V1-P-RET
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "phase && valid", cond: "outcome == 0 && result == bal_ok"}
+    note: >-
+      The function returns (outcome 0) True if balance.txt holds the balance
+      at the return and False otherwise. "Once" is read as "when", at the
+      return, not as "as soon as". Read literally, "False otherwise" would
+      also cover an out-of-range cents and contradict rule 1's ValueError; the
+      item applies rule 5 to in-range cents and leaves out-of-range calls to
+      rule 1 (V1-P-ERR-RAISE). If the function retries a failed os.replace and
+      the retry succeeds, this item demands True while R-KEEP-1 demands False.
+
+  - id: V1-P-CLEAN
+    req: R-CLEAN-1
+    pattern: implies
+    args: {trigger: "phase", cond: "tmp_ex == 0"}
+    note: >-
+      Reading 1 of "Leave no temporary file behind", as instructed: when the
+      function returns, no temporary file exists. It is checked at every
+      return, whatever the outcome (the return cycle of the frame also ends a
+      run that raised). The temporary file is balance.txt.tmp, the only one the
+      prompt names; other paths are coded 0 and cannot be followed. This
+      contradicts R-KEEP-1 (V1-P-KEEP) whenever os.replace fails, which the
+      script can always make happen, and V1-P-TMP-MOVE forces os.replace to be
+      called on every in-range cents.
+
+  - id: V1-P-KEEP
+    req: R-KEEP-1
+    pattern: implies
+    args: {trigger: "phase && once(rep_fail)", cond: "tmp_ex == 1 && outcome == 0 && !result"}
+    note: >-
+      If any call of os.replace in the run failed (raised OSError by the
+      script, or FileNotFoundError because balance.txt.tmp was not there),
+      balance.txt.tmp exists at the return and the function returned False.
+      "Keep" is read as "do not remove it": that the kept file still holds the
+      balance is not required here (the digits are required by R-TMP-1).
+      Under reading 1 of R-CLEAN-1 (no temporary file exists when the function
+      returns) this item and V1-P-CLEAN cannot both hold on a run whose
+      os.replace fails: the specification is contradictory there and this
+      formalization keeps both literally.
+
+scenarios:
+  - id: V1-S-EX
+    req: R-EX-1
+    cover: "phase && cents == 1250 && outcome == 0 && result && prev(mv && !answer) && prev(cl_t, 2) && prev(sy_t, 3) && prev(wr_t && w_value == 1250, 4) && prev(hist(open_tmp && o_mode == 2 && of == 1), 5)"
+    note: >-
+      The example's run is possible: open(balance.txt.tmp, w) as the first call
+      returning file object 1, write "1250" on it, os.fsync on it, close it,
+      os.replace(balance.txt.tmp, balance.txt) with the script letting it
+      succeed, then return True. The example has no flush, which agrees with
+      reading 1 of R-SYNC-1 (os.fsync on its descriptor).
+
+unformalized:
+  - {req: R-FR-1, reason: "Frame rule F-END of design.yaml, part of every formalization set by construction of the trace.", covered_by: [F-END]}
+  - {req: R-FR-2, reason: "Frame rule F-ZERO of design.yaml, part of every formalization set by construction of the trace.", covered_by: [F-ZERO]}
+  - {req: R-FR-3, reason: "Frame rule F-LIMIT of design.yaml, part of every formalization set by construction of the trace.", covered_by: [F-LIMIT]}
+
+decisions:
+  - {req: R-SYNC-1, phrase: "call `os.fsync` on the temporary file", reading: 1}
+  - {req: R-CLEAN-1, phrase: "Leave no temporary file behind", reading: 1}

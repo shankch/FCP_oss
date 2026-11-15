@@ -1,0 +1,43 @@
+fcp: "0.1"
+set: gold
+origin:
+  kind: human
+  id: gold
+  role: formalizer
+  note: >
+    Expert reference formalization. Decisions: D-1 R-OV-1 is an informal
+    overview statement superseded by R-G-3; D-2 R-PRI-3 (maintenance
+    override) is obsolete and contradicts R-FAIR-1; D-3 "rotates by one
+    position" means true round robin (the granted requester becomes the
+    lowest priority).
+defs:
+  cur_last: "gnt[0] ? 0 : gnt[1] ? 1 : gnt[2] ? 2 : gnt[3] ? 3 : last"   # most recent grant, as of this cycle
+  p1: "(cur_last + 1) % N"
+  p2: "(cur_last + 2) % N"
+  p3: "(cur_last + 3) % N"
+  win: "req[p1] ? p1 : req[p2] ? p2 : req[p3] ? p3 : cur_last"            # round-robin winner of this cycle's requests
+ghosts:
+  - {name: last,  range: [0, "N - 1"], init: "N - 1", next: "cur_last", desc: most recently granted requester}
+  - {name: fresh, width: 1, init: 1, next: "fresh && req == 0", desc: no arbitration with requests since reset}
+rigids:
+  - {name: i, range: [0, "N - 1"], desc: an arbitrary requester}
+assumptions:
+  - {id: G-A-1, req: R-ENV-1, pattern: hold_until, args: {trigger: "req[i] && !gnt[i]", hold: "req[i]", release: "gnt[i]"}}
+properties:
+  - {id: G-G-1,    req: R-G-1,    expr: "onehot0(gnt)"}
+  - {id: G-G-2,    req: R-G-2,    expr: "(gnt & ~prev(req)) == 0"}
+  - {id: G-G-3,    req: R-G-3,    pattern: next, args: {trigger: "req != 0", cond: "gnt == 1 << prev(win)"},
+     note: "reference model: the visible grant is the round-robin decision on the previous cycle's requests"}
+  - {id: G-WC-1,   req: R-WC-1,   pattern: next, args: {trigger: "req != 0", cond: "onehot(gnt)"}}
+  - {id: G-PRI-1,  req: R-PRI-1,  pattern: next, args: {trigger: "fresh && req != 0", cond: "gnt == (prev(req[0]) ? 1 : prev(req[1]) ? 2 : prev(req[2]) ? 4 : 8)"}}
+  - {id: G-PRI-2,  req: R-PRI-2,  pattern: next, args: {trigger: "req[cur_last] && countones(req) >= 2", cond: "!gnt[prev(cur_last)]"}, decision: D-3}
+  - {id: G-FAIR-1, req: R-FAIR-1, pattern: bounded_wait, args: {cond: "req[i] && !gnt[i]", max: N}}
+  - {id: G-RST-1,  req: R-RST-1,  expr: "rst_active -> gnt == 0", mode: always}
+  - {id: G-RST-2,  req: R-RST-1,  pattern: after_reset, args: {cond: "gnt == 0"}}
+scenarios:
+  - {id: S-ALL,  req: R-FAIR-1, cover: "req == 15"}
+  - {id: S-WRAP, req: R-PRI-2,  cover: "gnt[3] && req[0] && req[3]"}
+unformalized:
+  - {req: R-OV-1,  reason: "Informal overview sentence; contradicts R-G-3 (registered grant) and R-G-1 when several requests rise together.", decision: D-1}
+  - {req: R-PRI-3, reason: "Obsolete maintenance override; contradicts R-FAIR-1 when requester 3 requests continuously.", decision: D-2}
+  - {req: R-ENV-2, reason: "Restates R-ENV-1.", covered_by: [G-A-1]}

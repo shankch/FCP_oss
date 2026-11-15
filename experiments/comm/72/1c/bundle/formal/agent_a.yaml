@@ -1,0 +1,161 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-DEF-1: q reads the same forwards and backwards (the empty list is a palindrome)
+  balanced: 'all(i < len(q): q[i] == q[len(q) - 1 - i])'
+  # R-DEF-2: the sum of the elements of q, and whether it is at most w
+  total: 'sum(i < len(q): q[i])'
+  light: 'total <= w'
+  # R-DEF-3: q will fly exactly when it is balanced and within the weight limit
+  fly: 'balanced && light'
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'fly', cond: 'outcome == 0 && flies'}
+    note: >-
+      Rule as stated in the docstring: a balanced q whose sum is at most w makes
+      the call return True. The examples will_it_fly([3, 2, 3], 9) and
+      will_it_fly([3], 5) say False for such calls; that contradiction is kept
+      visible through RA-EX-3 and RA-EX-4 rather than repaired here.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: '!balanced', cond: 'outcome == 0 && !flies'}
+    note: >-
+      "False otherwise", read as stated: an unbalanced q makes the call return
+      False whatever w is. Contradicted by the example will_it_fly([1, 2], 5)
+      ➞ True (RA-EX-1).
+
+  - id: RA-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: '!light', cond: 'outcome == 0 && !flies'}
+    note: >-
+      "False otherwise", read as stated: a q whose sum exceeds w makes the call
+      return False whether or not it is balanced. Contradicted by the example
+      will_it_fly([3, 2, 3], 1) ➞ True (RA-EX-2).
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: 'q == [1, 2] && w == 5 && outcome == 0 && flies'
+    note: >-
+      Example taken as written: the call returns True. This conflicts with
+      RA-RET-2 ([1, 2] is not a palindrome) and with its own comment (RA-WHY-1),
+      so it is expected to be unreachable under the properties; the
+      specification is contradictory here and is not repaired.
+
+  - id: RA-WHY-1
+    req: R-WHY-1
+    cover: 'q == [1, 2] && w == 5 && total < w && !balanced && outcome == 0 && !flies'
+    note: >-
+      The comment read as explaining a False result: 1+2 is (strictly) less
+      than w and the list is unbalanced, so the call returns False. Contradicts
+      the stated result of the same example (RA-EX-1).
+
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: 'q == [3, 2, 3] && w == 1 && outcome == 0 && flies'
+    note: >-
+      Example taken as written: the call returns True. This conflicts with
+      RA-RET-3 (3+2+3 = 8 > 1) and with its own comment (RA-WHY-2); not
+      repaired.
+
+  - id: RA-WHY-2
+    req: R-WHY-2
+    cover: 'q == [3, 2, 3] && w == 1 && balanced && total > w && outcome == 0 && !flies'
+    note: >-
+      The comment read as explaining a False result: the list is balanced but
+      3+2+3 is more than w, so the call returns False. Contradicts the stated
+      result of the same example (RA-EX-2).
+
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: 'q == [3, 2, 3] && w == 9 && outcome == 0 && !flies'
+    note: >-
+      Example taken as written: the call returns False. This conflicts with
+      RA-RET-1 ([3, 2, 3] is a palindrome and 8 <= 9) and with its own comment
+      (RA-WHY-3); not repaired.
+
+  - id: RA-WHY-3
+    req: R-WHY-3
+    cover: 'q == [3, 2, 3] && w == 9 && total < w && balanced && outcome == 0 && flies'
+    note: >-
+      The comment read as explaining a True result: 3+2+3 is (strictly) less
+      than w and the list is balanced, so the call returns True. Contradicts
+      the stated result of the same example (RA-EX-3).
+
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: 'q == [3] && w == 5 && outcome == 0 && !flies'
+    note: >-
+      Example taken as written: the call returns False. This conflicts with
+      RA-RET-1 ([3] is a palindrome and 3 <= 5) and with its own comment
+      (RA-WHY-4); not repaired.
+
+  - id: RA-WHY-4
+    req: R-WHY-4
+    cover: 'q == [3] && w == 5 && total < w && balanced && outcome == 0 && flies'
+    note: >-
+      The comment read as explaining a True result: 3 is (strictly) less than w
+      and the one-element list is balanced, so the call returns True.
+      Contradicts the stated result of the same example (RA-EX-4).
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Function name and parameter order are properties of the code interface,
+      fixed by the adapter's function section (design.yaml), not of the call
+      trace.
+  - req: R-IN-1
+    reason: >-
+      Holds by construction of the interface encoding: q is a sequence of at
+      most 8 integers 0..255 and calls with any other q are not part of the
+      trace (frame.md), so every q in the trace can be summed and no
+      environment constraint remains to state.
+  - req: R-IN-2
+    reason: >-
+      Holds by construction of the interface encoding: w is an integer
+      0..2047 and calls with any other w are not part of the trace (frame.md),
+      so no environment constraint remains to state.
+  - req: R-DEF-1
+    reason: >-
+      Definition, captured by the def `balanced` (empty list counts as a
+      palindrome) and used by the items below.
+    covered_by: [RA-RET-1, RA-RET-2, RA-WHY-1, RA-WHY-2, RA-WHY-3, RA-WHY-4]
+  - req: R-DEF-2
+    reason: >-
+      Definition, captured by the defs `total` and `light` (sum <= w, equality
+      within the limit) and used by the items below.
+    covered_by: [RA-RET-1, RA-RET-3, RA-WHY-1, RA-WHY-2, RA-WHY-3, RA-WHY-4]
+  - req: R-DEF-3
+    reason: >-
+      Definition, captured by the def `fly` read as "if and only if"; the "if"
+      direction is RA-RET-1 and the "only if" direction is RA-RET-2 with
+      RA-RET-3.
+    covered_by: [RA-RET-1, RA-RET-2, RA-RET-3]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, already part of every formalization set as
+      F-ZERO in design.yaml; not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-DEF-1, phrase: "palindromic list", reading: 1}
+  - {req: R-DEF-3, phrase: "will fly if", reading: 1}
+  - {req: R-RET-1, phrase: "returns True if the object q will fly", reading: 1}
+  - {req: R-RET-2, phrase: "False otherwise", reading: 1}
+  - {req: R-RET-3, phrase: "False otherwise", reading: 1}
+  - {req: R-EX-1, phrase: "➞ True", reading: 1}
+  - {req: R-WHY-1, phrase: "but it's unbalanced", reading: 1}
+  - {req: R-EX-2, phrase: "➞ True", reading: 1}
+  - {req: R-WHY-2, phrase: "but 3+2+3 is more than the maximum possible weight", reading: 1}
+  - {req: R-EX-3, phrase: "➞ False", reading: 1}
+  - {req: R-WHY-3, phrase: "and it's balanced", reading: 1}
+  - {req: R-EX-4, phrase: "➞ False", reading: 1}
+  - {req: R-WHY-4, phrase: "and it's balanced", reading: 1}

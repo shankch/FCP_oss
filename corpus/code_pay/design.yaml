@@ -1,0 +1,45 @@
+fcp: '0.1'
+design: code_pay
+summary: A Python function that acts through an interface. A reset starts a run of charge_order(api, order_id, amount); every later cycle is one call the function makes on api (charge or sleep), with the service's scripted answer as an input, and then the return. The prompt is the specification, and code written by AI models is checked by running it against every script of answers in the scope.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt P-PAY-1: Fernwood Outfitters payment retry'}
+- {id: FRAME, path: frame.md, title: 'FCP interface adapter, version 0.5'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: order_id, dir: in, width: 20, desc: 'order_id argument, held through the run'}
+  - {name: amount, dir: in, width: 21, desc: 'amount argument in cents, held through the run'}
+  - {name: answer, dir: in, width: 2, desc: 'the answer to a charge: 0 ok, 1 declined, 2 error'}
+  - {name: phase, dir: out, width: 1, desc: '0 a call on api, 1 returned'}
+  - {name: op, dir: out, width: 2, desc: 'the call: 1 charge, 2 sleep'}
+  - {name: c_order, dir: out, width: 20, desc: 'charge: order_id argument'}
+  - {name: c_amount, dir: out, width: 21, desc: 'charge: amount argument'}
+  - {name: s_seconds, dir: out, width: 8, desc: 'sleep: seconds argument'}
+  - {name: outcome, dir: out, width: 2, desc: 'once returned: 0 returned a bool, 1 ValueError, 2 other exception or no answer, 3 anything else'}
+  - {name: result, dir: out, width: 1, desc: 'the returned value'}
+environment: {initial_reset: true, reset_anytime: true, bmc_depth: 10, cover_depth: 10}
+frame:
+- {id: F-END, req: R-FR-1, expr: 'prev(phase) -> phase && stable(outcome) && stable(result)'}
+- {id: F-ZERO, req: R-FR-2, expr: '(!phase -> outcome == 0 && !result) && (phase -> op == 0) && (outcome != 0 -> !result)'}
+- {id: F-LIMIT, req: R-FR-3, expr: 'phase || !(prev(!phase) && prev(!phase, 2) && prev(!phase, 3) && prev(!phase, 4) && prev(!phase, 5) && prev(!phase, 6) && prev(!phase, 7) && prev(!phase, 8))'}
+function:
+  name: charge_order
+  args:
+  - {name: order_id, signal: order_id, type: int}
+  - {name: amount, signal: amount, type: int}
+  interface:
+    position: 0
+    methods:
+    - {name: charge, op: 1, args: [c_order, c_amount], answers: [ok, declined, error]}
+    - {name: sleep, op: 2, args: [s_seconds]}
+    signals: {phase: phase, op: op, answer: answer}
+    max_calls: 8
+  returns: {signal: result, type: bool}
+  outcome: {signal: outcome, raises: [ValueError]}
+  scope:
+    script: {length: 6, random: 300}
+    order_id: {values: [7]}
+    amount: {values: [0, 1, 2, 999999, 1000000, 1000001]}

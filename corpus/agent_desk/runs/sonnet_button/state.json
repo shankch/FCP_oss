@@ -1,0 +1,58 @@
+{
+ "scenario": {
+  "id": "button",
+  "title": "The customer presses \"Talk to a human\" right away",
+  "probes": [
+   "R-HUM-1",
+   "R-END-1"
+  ],
+  "account": {
+   "name": "Alex Kim",
+   "email": "alex.kim@example.com",
+   "zip": "10027"
+  },
+  "orders": {
+   "3902": {
+    "item": "wool rug",
+    "total": 120,
+    "eligible": true,
+    "why": "delivered 3 days ago",
+    "note": ""
+   }
+  },
+  "opening": "I want to talk to a person about my order 3902, please. [The customer pressed \"Talk to a human\".]",
+  "button": [
+   1
+  ],
+  "replies": [
+   {
+    "when": "anything else",
+    "say": "No. Please just connect me to a person."
+   }
+  ],
+  "default": "Please connect me to a person.",
+  "confirm": [
+   true
+  ]
+ },
+ "kernel": "ref",
+ "regs": {
+  "done": 1,
+  "verified": 0,
+  "fails": 0,
+  "okay": 0,
+  "tot0": 0,
+  "tot1": 0,
+  "paid": 0,
+  "c_yes": 0,
+  "c_ord": 0,
+  "c_amt": 0,
+  "asked": 0
+ },
+ "turn": 1,
+ "started": true,
+ "over": true,
+ "slots": {},
+ "uses": {},
+ "confirms": 0
+}

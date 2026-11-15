@@ -1,0 +1,123 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model.
+# Calls are independent and the function keeps no state (frame.md, "Calls"),
+# so the reference model is combinational in the argument n: no ghost state is
+# needed, and every output is checked against the defs below.
+defs:
+  # n can be written as the sum of exactly 4 positive even numbers (summands may
+  # repeat). Such a sum is 2a+2b+2c+2d with a,b,c,d >= 1, i.e. 2k for any k >= 4,
+  # so the representable n are exactly the even n >= 2+2+2+2 = 8.
+  rep: "n % 2 == 0 && n >= 8"
+  # how the call ended, read from the outputs (frame.md, "Outputs")
+  ret_bool: "outcome == 0"
+  ret_true: "outcome == 0 && result"
+  ret_false: "outcome == 0 && !result"
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: "ret_bool"}
+    note: >-
+      Every call returns True or False (outcome 0): it neither raises / fails to
+      finish (outcome 1) nor returns a value of another type (outcome 2). Reading 1
+      of "Evaluate whether": a Python bool is required. Reading 2 (1/0 accepted)
+      would allow outcome 2, but the trace then cannot carry the value (F-ZERO
+      forces result to 0), so it is not taken.
+
+  - id: RB-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args: {trigger: "rep", cond: "ret_true"}
+    note: >-
+      Literal reading of the description: if n is even and n >= 8 (summands may
+      repeat, e.g. 8 = 2+2+2+2), the call returns True. This contradicts the
+      example is_equal_to_sum_even(8) == False (R-EX-3, RB-EX-3, RB-EX-3-P); the
+      contradiction is left in place, not repaired.
+
+  - id: RB-SUM-2
+    req: R-SUM-2
+    pattern: implies
+    args: {trigger: "!rep", cond: "ret_false"}
+    note: >-
+      Literal reading of the description: if n is odd or n < 8 (no sum of four
+      positive even numbers, the least being 8), the call returns False. This
+      contradicts the examples is_equal_to_sum_even(4) == True and
+      is_equal_to_sum_even(6) == True (R-EX-1, R-EX-2); the contradiction is left
+      in place. The distinct-summands reading (even n >= 20) would not remove it.
+
+  - id: RB-EX-1-P
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 4", cond: "ret_true"}
+    note: >-
+      The example asserts is_equal_to_sum_even(4) == True. The function is
+      deterministic and keeps no state, so the assertion holds for every call
+      with n = 4, not just some call; stated as a guarantee in addition to the
+      scenario RB-EX-1. Example taken as authoritative (reading 1); contradicts
+      RB-SUM-2 (4 < 8).
+
+  - id: RB-EX-2-P
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 6", cond: "ret_true"}
+    note: >-
+      The example asserts is_equal_to_sum_even(6) == True, for every call with
+      n = 6 (deterministic, stateless function); stated as a guarantee in
+      addition to the scenario RB-EX-2. Example taken as authoritative
+      (reading 1); contradicts RB-SUM-2 (6 < 8).
+
+  - id: RB-EX-3-P
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "n == 8", cond: "ret_false"}
+    note: >-
+      The example asserts is_equal_to_sum_even(8) == False, for every call with
+      n = 8 (deterministic, stateless function); stated as a guarantee in
+      addition to the scenario RB-EX-3. Example taken as authoritative
+      (reading 1); contradicts RB-SUM-1 (8 = 2+2+2+2).
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: "n == 4 && ret_true"
+    note: >-
+      A call with n = 4 returning True must be possible. Conflicts with RB-SUM-2.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: "n == 6 && ret_true"
+    note: >-
+      A call with n = 6 returning True must be possible. Conflicts with RB-SUM-2.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    cover: "n == 8 && ret_false"
+    note: >-
+      A call with n = 8 returning False must be possible. Conflicts with RB-SUM-1.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the name and signature of the deliverable. The trace has
+      no signal for it; it is fixed by the function section of design.yaml
+      (name is_equal_to_sum_even, one argument n), which the adapter uses to
+      make every call.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md): F-ZERO is added to every
+      formalization set by construction and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-RET-1, phrase: "Evaluate whether", reading: 1}
+  - {req: R-SUM-1, phrase: "exactly 4 positive even numbers", reading: 1}
+  - {req: R-SUM-1, phrase: "can be written as the sum of exactly 4 positive even numbers", reading: 1}
+  - {req: R-SUM-2, phrase: "exactly 4 positive even numbers", reading: 1}
+  - {req: R-SUM-2, phrase: "can be written as the sum of exactly 4 positive even numbers", reading: 1}
+  - {req: R-EX-1, phrase: "is_equal_to_sum_even(4) == True", reading: 1}
+  - {req: R-EX-2, phrase: "is_equal_to_sum_even(6) == True", reading: 1}
+  - {req: R-EX-3, phrase: "is_equal_to_sum_even(8) == False", reading: 1}

@@ -1,0 +1,164 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # a is a word: non-empty, ASCII letters only (either case)
+  word_a: "len(a) >= 1 && all(i < len(a): isalpha(a[i]))"
+  # b is a word: non-empty, ASCII letters only (either case)
+  word_b: "len(b) >= 1 && all(i < len(b): isalpha(b[i]))"
+  # b, or one of its cyclic rotations, occurs as a contiguous substring of a,
+  # characters compared exactly. Rotation k moves the first k characters of b
+  # to the end (k = 0 is b itself); i is the start position in a.
+  related: "any(k < max(len(b), 1): any(i < len(a) + 1: i + len(b) <= len(a) && all(j < len(b): a[i + j] == (j + k < len(b) ? b[j + k] : b[j + k - len(b)]))))"
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: "word_a && word_b"
+    note: >-
+      "You are given 2 words" is an obligation on the caller. Literal reading of
+      "words" (decision reading 2): both arguments are non-empty strings of
+      letters; calls with an empty string or a non-letter character are outside
+      the contract. Letters are the ASCII letters (FCP-PL isalpha); Latin-1
+      letters above code 127 are treated as non-letters. Upper and lower case
+      are both letters and stay distinct (case is significant, reading 1 of
+      "words").
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: "related"
+      cond: "outcome == 0 && result"
+    note: >-
+      "related to the first word" is read as "occurs as a contiguous substring
+      of the first word" (reading 1, the only reading of the listed ones besides
+      the "either contains the other" one that fits all six examples); characters
+      are compared exactly (case-sensitive); "rotations" are the cyclic shifts
+      of b. "the second word or any of its rotations" is b itself (k = 0) or a
+      rotation. "return True" is the bool True, so outcome is 0 and result is 1.
+      The empty second word is excluded by RA-IN-1, so the reading of "the
+      second word" for b = "" has no effect here (the def would count "" as
+      occurring in every a).
+
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: "!related"
+      cond: "outcome == 0 && !result"
+    note: >-
+      Literally, "return True if ..." gives only a sufficient condition. It is
+      read as "if and only if" (reading 1): the function returns a bool, and the
+      three examples that return False (abcd/abd, whassup/psus, efef/eeff) are
+      exactly the calls where no rotation is related. So when neither b nor any
+      rotation of b occurs in a, the call returns the bool False (outcome 0,
+      result 0). Same reading of "related" and "rotations" as RA-RET-1.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'a == "abcd" && b == "abd"'
+      cond: "outcome == 0 && !result"
+    note: >-
+      The example states the returned value for this call, so it is a
+      guarantee about this input. It is consistent with the substring reading
+      (none of abd, bda, dab occurs in abcd).
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'a == "hello" && b == "ell"'
+      cond: "outcome == 0 && result"
+    note: The example states the returned value for this call (ell occurs in hello).
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'a == "whassup" && b == "psus"'
+      cond: "outcome == 0 && !result"
+    note: The example states the returned value for this call (none of psus, susp, usps, spsu occurs in whassup).
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: 'a == "abab" && b == "baa"'
+      cond: "outcome == 0 && result"
+    note: The example states the returned value for this call (the rotation aba occurs in abab).
+  - id: RA-EX-5
+    req: R-EX-5
+    pattern: implies
+    args:
+      trigger: 'a == "efef" && b == "eeff"'
+      cond: "outcome == 0 && !result"
+    note: The example states the returned value for this call (none of eeff, effe, ffee, feef occurs in efef).
+  - id: RA-EX-6
+    req: R-EX-6
+    pattern: implies
+    args:
+      trigger: 'a == "himenss" && b == "simen"'
+      cond: "outcome == 0 && result"
+    note: The example states the returned value for this call (the rotation imens occurs in himenss).
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: 'a == "abcd" && b == "abd" && outcome == 0 && !result'
+    note: The example call returning False must be possible together with every other requirement.
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: 'a == "hello" && b == "ell" && outcome == 0 && result'
+    note: The example call returning True must be possible together with every other requirement.
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: 'a == "whassup" && b == "psus" && outcome == 0 && !result'
+    note: The example call returning False must be possible together with every other requirement.
+  - id: RA-EX-4-S
+    req: R-EX-4
+    cover: 'a == "abab" && b == "baa" && outcome == 0 && result'
+    note: The example call returning True must be possible together with every other requirement.
+  - id: RA-EX-5-S
+    req: R-EX-5
+    cover: 'a == "efef" && b == "eeff" && outcome == 0 && !result'
+    note: The example call returning False must be possible together with every other requirement.
+  - id: RA-EX-6-S
+    req: R-EX-6
+    cover: 'a == "himenss" && b == "simen" && outcome == 0 && result'
+    note: The example call returning True must be possible together with every other requirement.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a Python function with this signature.
+      The function section of design.yaml binds the name and arguments; there
+      is no behaviour to check.
+  - req: R-IF-2
+    reason: >-
+      Definition: the first word is argument a and the second word is argument
+      b. Every item uses this binding (a is the word searched in, b is the
+      rotated word).
+    covered_by: [RA-IN-1, RA-RET-1, RA-RET-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (outcome != 0 -> !result). Frame items
+      are added to every formalization set, so it is not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "2 words", reading: 2}
+  - {req: R-IN-1, phrase: "words", reading: 1}
+  - {req: R-RET-1, phrase: "related to the first word", reading: 1}
+  - {req: R-RET-1, phrase: "related", reading: 1}
+  - {req: R-RET-1, phrase: "any of its rotations", reading: 1}
+  - {req: R-RET-1, phrase: "the second word", reading: 2}
+  - {req: R-RET-1, phrase: "return True", reading: 1}
+  - {req: R-RET-2, phrase: "if", reading: 1}
+  - {req: R-EX-1, phrase: "=> False", reading: 1}
+  - {req: R-EX-2, phrase: "=> True", reading: 1}
+  - {req: R-EX-3, phrase: "=> False", reading: 1}
+  - {req: R-EX-4, phrase: "=> True", reading: 1}
+  - {req: R-EX-5, phrase: "=> False", reading: 1}
+  - {req: R-EX-6, phrase: "=> True", reading: 1}

@@ -1,0 +1,130 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-NF-1
+  doc: SPEC
+  quote: 'def candidate(brackets: str):'
+  text: The deliverable is the completed Python function candidate, taking one string argument named brackets.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: brackets is a string of "(" and ")".
+  text: The brackets argument is a string whose every character is either '(' or ')'; callers pass no other characters.
+  kind: assumption
+  ambiguity:
+  - phrase: a string of "(" and ")"
+    readings:
+    - 'A precondition on the caller: strings containing any other character are outside the contract, and the function''s behaviour on them is unconstrained.'
+    - 'A description of typical input only: the function must still answer for strings with other characters, judging only the ''('' and '')'' characters and ignoring the rest.'
+    - 'A validity condition: a string containing any other character does not have every bracket matched and must return False (or be rejected).'
+  - phrase: brackets is a string
+    readings:
+    - The empty string is a valid argument; it has no unmatched bracket, so the function returns True for it.
+    - The empty string is not a string of brackets, so it is outside the contract and its result is unconstrained.
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: return True if every closing or opening bracket has a corresponding closing or opening bracket.
+  text: When every '(' and every ')' in brackets has a corresponding bracket of the other kind, candidate returns True (a bool).
+  kind: guarantee
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: has a corresponding closing or opening bracket
+    readings:
+    - 'Proper nesting: each '')'' is paired with the nearest earlier unpaired ''('', each bracket is used in at most one pair, and every bracket is paired (no prefix has more '')'' than ''('', and the totals
+      are equal).'
+    - 'Equal counts: the number of ''('' equals the number of '')'', in any order (each ''('' paired one-to-one with any '')''). This contradicts the example candidate(")(()") == False, which has two of
+      each.'
+    - 'Directional but not exclusive: every ''('' has some '')'' after it and every '')'' has some ''('' before it, and a bracket may serve as the partner of several others (so "(()" and "())" count as
+      matched).'
+    - 'Literal respective reading: a closing bracket corresponds to another closing bracket and an opening bracket to another opening bracket. This contradicts the examples candidate("()") == True and candidate("(()())")
+      == True.'
+  lines:
+  - 6
+- id: R-RET-2
+  doc: SPEC
+  quote: return True if every closing or opening bracket has a corresponding closing or opening bracket.
+  text: When some '(' or ')' in brackets has no corresponding bracket of the other kind, candidate returns False (a bool).
+  kind: guarantee
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: return True if
+    readings:
+    - 'If and only if: every string in which some bracket is unmatched returns False, as the False examples show.'
+    - 'A sufficient condition only: the text says nothing about strings with an unmatched bracket, so any result (including None or an exception) is allowed for them.'
+  - phrase: has a corresponding closing or opening bracket
+    readings:
+    - 'Proper nesting: each '')'' is paired with the nearest earlier unpaired ''('', each bracket is used in at most one pair, and every bracket is paired (no prefix has more '')'' than ''('', and the totals
+      are equal).'
+    - 'Equal counts: the number of ''('' equals the number of '')'', in any order (each ''('' paired one-to-one with any '')''). This contradicts the example candidate(")(()") == False, which has two of
+      each.'
+    - 'Directional but not exclusive: every ''('' has some '')'' after it and every '')'' has some ''('' before it, and a bracket may serve as the partner of several others (so "(()" and "())" count as
+      matched).'
+    - 'Literal respective reading: a closing bracket corresponds to another closing bracket and an opening bracket to another opening bracket. This contradicts the examples candidate("()") == True and candidate("(()())")
+      == True.'
+  lines:
+  - 6
+- id: R-SC-1
+  doc: SPEC
+  quote: '>>> candidate("(") False'
+  text: candidate("(") returns False.
+  kind: scenario
+  lines:
+  - 8
+  - 9
+- id: R-SC-2
+  doc: SPEC
+  quote: '>>> candidate("()") True'
+  text: candidate("()") returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: candidate("()")
+    readings:
+    - 'Consistent with R-RET-1: an opening bracket corresponds to a closing bracket, so "()" is matched and the result is True.'
+    - Contradicts the literal respective reading of R-RET-1 (a closing bracket corresponds to a closing one, an opening to an opening), under which the lone '(' and ')' are unmatched and the result would
+      not be True.
+  lines:
+  - 10
+  - 11
+- id: R-SC-3
+  doc: SPEC
+  quote: '>>> candidate("(()())") True'
+  text: candidate("(()())") returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: candidate("(()())")
+    readings:
+    - 'Consistent with R-RET-1: each opening bracket has a closing partner, so "(()())" is matched and the result is True.'
+    - Contradicts the literal respective reading of R-RET-1 (same-kind partners), under which three '(' and three ')' cannot all be paired and the result would not be True.
+  lines:
+  - 12
+  - 13
+- id: R-SC-4
+  doc: SPEC
+  quote: '>>> candidate(")(()") False'
+  text: candidate(")(()") returns False.
+  kind: scenario
+  ambiguity:
+  - phrase: candidate(")(()")
+    readings:
+    - 'Consistent with R-RET-1 under the order-sensitive (nesting) reading: the first '')'' has no earlier ''('' to correspond to, so the result is False.'
+    - 'Contradicts R-RET-1 under the equal-count reading: ")(()" has two ''('' and two '')'', so every bracket can be given a partner and the result would be True.'
+  lines:
+  - 14
+  - 15
+- id: R-FR-1
+  doc: FRAME
+  quote: '`result` is false unless `outcome` is 0.'
+  text: The result output is false in every call whose outcome is not 0 (the call did not return True or False).
+  kind: guarantee
+  lines:
+  - 48

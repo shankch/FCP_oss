@@ -1,0 +1,192 @@
+fcp: "0.1"
+set: variant2
+origin: {kind: agent, role: formalizer, id: variant2}
+
+# A "digit" is read throughout as any character Python's str.isdigit accepts
+# (R-ERR-1, reading 2). Within the 0..255 range of the trace these are 0-9,
+# superscript one (185), superscript two (178) and superscript three (179),
+# with the Unicode digit values 1, 2 and 3.
+# Defs ending in _i / _j / _next_i are macros over the index of the
+# enclosing quantifier.
+defs:
+  dig_i: '(isdigit(number[i]) || number[i] == 178 || number[i] == 179 || number[i] == 185)'
+  dig_j: '(isdigit(number[j]) || number[j] == 178 || number[j] == 179 || number[j] == 185)'
+  dig_next_i: '(isdigit(number[i + 1]) || number[i + 1] == 178 || number[i + 1] == 179 || number[i + 1] == 185)'
+  sep_i: '(number[i] == " " || number[i] == "-")'
+  sep_next_i: '(number[i + 1] == " " || number[i + 1] == "-")'
+  # value of the digit at i, for the Luhn check
+  val_i: '(isdigit(number[i]) ? number[i] - "0" : (number[i] == 185 ? 1 : (number[i] == 178 ? 2 : (number[i] == 179 ? 3 : 0))))'
+  # number of digits of the number, and of digits to the right of position i
+  nd: 'count(i < len(number): dig_i)'
+  after_i: 'count(j < len(number): j > i && dig_j)'
+  # the three conditions of rule 1
+  chars_ok: 'all(i < len(number): dig_i || sep_i)'
+  count_ok: '(nd >= 12 && nd <= 19)'
+  luhn_sum: 'sum(i < len(number): dig_i ? (after_i % 2 == 1 ? (2 * val_i > 9 ? 2 * val_i - 9 : 2 * val_i) : val_i) : 0)'
+  luhn_ok: '(luhn_sum % 10 == 0)'
+  # R-IN-2, reading 2: every space or hyphen has a digit immediately before and after it
+  seps_between: '(number[0] != " " && number[0] != "-" && all(i < len(number): (sep_i -> dig_next_i) && (sep_next_i -> dig_i)))'
+  card: '(chars_ok && count_ok && luhn_ok && seps_between)'
+  # digit characters in the returned string
+  mdig_i: '(isdigit(masked[i]) || masked[i] == 178 || masked[i] == 179 || masked[i] == 185)'
+
+properties:
+  - id: V2-SIG-1
+    req: R-SIG-1
+    expr: 'outcome != 3'
+    note: >-
+      The annotation `-> str` read as: the function never returns a value of
+      another type (outcome 3). The name and the single `number: str`
+      argument are fixed by the `function` section of design.yaml. Outcome 3
+      also covers a str longer than 32 characters or with a code above 255.
+      No result the prompt allows is like that: rule 3 gives it
+      len(number) <= 32 characters and rules 2-3 fix each one to `*`, a
+      digit of the number, a space or a hyphen. So excluding outcome 3
+      excludes no allowed result.
+
+  - id: V2-RET-1
+    req: R-RET-1
+    expr: 'card -> outcome == 0'
+    note: >-
+      A card number (rule 1 does not apply, and every separator stands as
+      R-IN-2 describes it) is returned as a string. Reading 2 of R-IN-2
+      ("between groups of digits": spaces and hyphens only between two
+      digits, one at a time) is part of `card`. Inputs that rule 1 accepts
+      but whose separators are misplaced (leading, trailing, doubled, next to
+      each other) are then not card numbers. The text gives them no outcome:
+      rule 1 lists no ValueError for them and this sentence does not require
+      a result, so they are left free (outcome 0, 1 or 2; if a string is
+      returned, rules 2-4 still apply). Reading 2 of R-ERR-1 ("digits": any
+      str.isdigit character, e.g. superscript two) is used for the digit
+      count, the Luhn check and the separator neighbours.
+
+  - id: V2-RET-2
+    req: R-RET-1
+    expr: 'outcome == 0 -> 2 * count(i < len(masked): mdig_i) < nd'
+    note: >-
+      "with most of its digits hidden": fewer than half of the number's
+      digits are shown, a digit being shown when it appears as a digit
+      character in the result (the same measure as V2-QUARTER-1). Reading 2
+      of R-ERR-1 is used: digits are str.isdigit characters, in `number` and
+      in `masked`.
+
+  - id: V2-ERR-1
+    req: R-ERR-1
+    expr: '!chars_ok -> outcome == 1'
+    note: >-
+      "contains anything other than digits, spaces and hyphens" raises
+      ValueError. Reading 2 of R-ERR-1 ("digits": any str.isdigit character,
+      e.g. superscript two): 0-9 and the superscripts one, two and three are
+      accepted characters here. Under reading 2 of R-IN-2 a misplaced space
+      or hyphen is still a space or hyphen, so this item does not reject it;
+      rule 1 is not extended.
+
+  - id: V2-ERR-2
+    req: R-ERR-1
+    expr: '!count_ok -> outcome == 1'
+    note: >-
+      "has fewer than 12 or more than 19 digits" raises ValueError. Reading 2
+      of R-ERR-1 ("digits": any str.isdigit character, e.g. superscript two):
+      superscript one, two and three count as digits.
+
+  - id: V2-ERR-3
+    req: R-ERR-1
+    expr: '!luhn_ok -> outcome == 1'
+    note: >-
+      "fails the Luhn check" raises ValueError. Luhn over the digits in
+      order, separators skipped: counting from the rightmost digit, every
+      second digit is doubled (minus 9 when above 9); the sum must be a
+      multiple of 10. Reading 2 of R-ERR-1 ("digits": any str.isdigit
+      character, e.g. superscript two): superscripts take their Unicode digit
+      values (one 1, two 2, three 3). The text does not give these values;
+      using them is our assumption.
+
+  - id: V2-MASK-1
+    req: R-MASK-1
+    expr: 'outcome == 0 -> all(i < len(number): dig_i && after_i >= 4 -> masked[i] == "*")'
+    note: >-
+      Every digit with at least four digits to its right (so not one of the
+      last four) is replaced, in place, by `*` in a returned result. Reading
+      2 of R-ERR-1 ("digits": any str.isdigit character, e.g. superscript
+      two) applies to every use of "digit" in the prompt, so superscripts are
+      masked and counted among the last four like 0-9.
+
+  - id: V2-LAST4-1
+    req: R-LAST4-1
+    expr: 'outcome == 0 -> all(i < len(number): dig_i && after_i < 4 -> masked[i] == number[i])'
+    note: >-
+      The last four digits (fewer than four digits to their right) appear
+      unchanged at their positions in a returned result. Reading 2 of R-ERR-1
+      ("digits": any str.isdigit character, e.g. superscript two): a
+      superscript among the last four stays a superscript. For card numbers
+      of 12 to 15 digits this contradicts R-QUARTER-1 (4 > nd/4), and
+      V2-RET-1 requires a result; the conflict is in the prompt and is kept,
+      not repaired.
+
+  - id: V2-SEP-1
+    req: R-SEP-1
+    expr: 'outcome == 0 -> all(i < len(number): sep_i -> masked[i] == number[i])'
+    note: Every space and hyphen of the number is at the same position in a returned result.
+
+  - id: V2-SEP-2
+    req: R-SEP-1
+    expr: 'outcome == 0 -> len(masked) == len(number)'
+    note: A returned result has the same length as `number`.
+
+  - id: V2-QUARTER-1
+    req: R-QUARTER-1
+    expr: 'outcome == 0 -> 4 * count(i < len(masked): mdig_i) <= nd'
+    note: >-
+      "never show more than a quarter of the digits": the digit characters in
+      a returned result number at most nd/4, counted exactly (13 digits allow
+      3). Shown is read as appearing as a digit in the result, at any
+      position. When nothing is returned, `masked` is empty (F-EMPTY), so
+      nothing is shown. Reading 2 of R-ERR-1 ("digits": any str.isdigit
+      character, e.g. superscript two) applies to both counts. Contradicts
+      R-LAST4-1 for card numbers of 12 to 15 digits (four digits shown,
+      allowed at most 3); kept as written.
+
+  - id: V2-EX-1
+    req: R-EX-1
+    expr: 'number == "4111 1111 1111 1111" -> outcome == 0 && masked == "**** **** **** 1111"'
+    note: The example read as a definite result for that one argument.
+
+scenarios:
+  - id: V2-EX-2
+    req: R-EX-1
+    cover: 'number == "4111 1111 1111 1111" && outcome == 0 && masked == "**** **** **** 1111"'
+    note: The example call must be possible together with every other item.
+
+  - id: V2-IN2-1
+    req: R-IN-2
+    cover: 'seps_between && outcome == 0 && any(i < len(number): number[i] == "-")'
+    note: >-
+      A card number with hyphens between groups of digits can be returned.
+      Reading 2 of R-IN-2 ("between groups of digits": only between two
+      digits, one at a time), with reading 2 of R-ERR-1 for "digits" (any
+      str.isdigit character). The same reading defines `card` in V2-RET-1.
+
+  - id: V2-IN2-2
+    req: R-IN-2
+    cover: 'seps_between && outcome == 0 && any(i < len(number): number[i] == " ")'
+    note: >-
+      A card number with spaces between groups of digits can be returned.
+      Reading 2 of R-IN-2 ("between groups of digits": only between two
+      digits, one at a time), with reading 2 of R-ERR-1 for "digits" (any
+      str.isdigit character).
+
+unformalized:
+  - req: R-IN-1
+    reason: >-
+      A definition: the 12-to-19 digit count of a card number. It is the
+      `count_ok` bound used by V2-ERR-2 (raise outside it) and V2-RET-1
+      (return inside it), with digits read as in R-ERR-1, reading 2.
+    covered_by: [V2-ERR-2, V2-RET-1]
+  - req: R-FR-1
+    reason: >-
+      A frame rule of the adapter, F-EMPTY in design.yaml. It is added to
+      every formalization set and need not be restated.
+
+decisions:
+  - {req: R-IN-2, phrase: "between groups of digits", reading: 2}
+  - {req: R-ERR-1, phrase: "digits", reading: 2}

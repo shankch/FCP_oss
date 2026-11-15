@@ -1,0 +1,45 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+defs:
+  valid: 'subtotal <= 1000000 && coupon <= 50'            # R-IN-1, R-IN-2
+  disc: 'min(coupon + (member ? 10 : 0), 30)'              # combined discount in percent (R-STACK-1: the percentages add up)
+  x100: 'subtotal * (100 - disc)'                          # 100 times the exact discounted price, in cents
+  dev: '100 * price - x100'                                # 100 times the rounding error of price
+properties:
+- {id: G-RET, req: R-RET-1, pattern: implies, args: {trigger: valid, cond: 'outcome == 0'}}
+- {id: G-ERR, req: R-ERR-1, pattern: implies, args: {trigger: '!valid', cond: 'outcome == 1'}}
+- id: G-MEM
+  req: R-MEM-1
+  pattern: implies
+  args: {trigger: 'valid && member && coupon == 0', cond: '100 * price > 90 * subtotal - 100 && 100 * price < 90 * subtotal + 100'}
+  note: 'a member without a coupon pays 90% of the subtotal, up to rounding to a whole cent (the rounding rule is R-ROUND-1)'
+- id: G-COUP
+  req: R-COUP-1
+  pattern: implies
+  args: {trigger: 'valid && !member && coupon <= 30', cond: '100 * price > (100 - coupon) * subtotal - 100 && 100 * price < (100 - coupon) * subtotal + 100'}
+  note: 'decision: the 30% limit of rule 4 overrides a larger coupon, so rule 3 alone is checked for coupons up to 30%; up to rounding to a whole cent'
+- id: G-STACK
+  req: R-STACK-1
+  pattern: implies
+  args: {trigger: valid, cond: '100 * price > x100 - 100 && 100 * price < x100 + 100'}
+  note: 'decision: "stack" means the percentages add up; the sum is capped at 30%. Up to rounding to a whole cent'
+- id: G-ROUND
+  req: R-ROUND-1
+  pattern: implies
+  args: {trigger: valid, cond: 'dev <= 50 && dev >= -50'}
+  note: 'literal: at exactly half a cent both neighbours are nearest, so either is allowed'
+- id: G-SHIP
+  req: R-SHIP-1
+  pattern: implies
+  args: {trigger: valid, cond: 'ship == (subtotal < 5000 ? 499 : 0)'}
+  note: 'decision: the order value is the subtotal before discounts'
+- id: G-MONO
+  req: R-MONO-1
+  pattern: implies
+  args:
+    trigger: 'valid && prev(valid) && outcome == 0 && prev(outcome) == 0 && coupon == prev(coupon) && member == prev(member) && subtotal > prev(subtotal)'
+    cond: 'price + ship >= prev(price + ship)'
+  note: 'adding items: a larger subtotal with the same coupon and membership, compared over any two calls'
+scenarios:
+- {id: S-EX, req: R-EX-1, cover: 'subtotal == 10000 && coupon == 0 && member && outcome == 0 && price == 9000 && ship == 0'}

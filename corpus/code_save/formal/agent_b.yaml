@@ -1,0 +1,232 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model.
+# A run is one call of save_balance(cents); ghosts hold the state of the two
+# files the prompt names, as the calls recorded so far have left it (the value
+# of a ghost at a cycle is the state before that cycle's call).
+#   t* : balance.txt.tmp     b* : balance.txt
+#   ?ex  exists (balance.txt exists at the start, the temporary file does not)
+#   ?h   the file object of the latest open of the path in a writing mode
+#        (w, a, x), 0 if none; a move carries it to the new path
+#   ?cl  that file object has been closed
+#   ?c   content: 0 empty, 1 exactly the decimal digits of cents,
+#        2 anything else, 3 the content balance.txt had before the run
+#   tsy  os.fsync has been called on the temporary file's file object
+#   ex   progress through the call sequence of the prompt's example
+defs:
+  valid: "cents <= 100000000"
+  wmode: "o_mode == 2 || o_mode == 3 || o_mode == 4"
+  trunc: "o_mode == 2 || o_mode == 4"
+  open_t: "!phase && op == 1 && o_path == 2 && wmode"
+  open_b: "!phase && op == 1 && o_path == 1 && wmode"
+  empty_t: "open_t && (trunc || tex == 0)"
+  empty_b: "open_b && (trunc || bex == 0)"
+  wr_t: "!phase && op == 2 && th != 0 && of == th && tcl == 0"
+  wr_b: "!phase && op == 2 && bh != 0 && of == bh && bcl == 0"
+  cl_t: "!phase && op == 4 && th != 0 && of == th"
+  cl_b: "!phase && op == 4 && bh != 0 && of == bh"
+  sy_t: "!phase && op == 5 && th != 0 && s_handle == th"
+  rep: "!phase && op == 6"
+  src_ex: "(r_src == 1 && bex == 1) || (r_src == 2 && tex == 1)"
+  rep_ok: "rep && !answer && src_ex"
+  rep_fail: "rep && !rep_ok"
+  mv_tb: "rep_ok && r_src == 2 && r_dst == 1"
+  mv_bt: "rep_ok && r_src == 1 && r_dst == 2"
+  out_t: "rep_ok && r_src == 2 && r_dst != 2"
+  out_b: "rep_ok && r_src == 1 && r_dst != 1"
+  rm_t: "!phase && op == 7 && d_path == 2"
+  rm_b: "!phase && op == 7 && d_path == 1"
+  tmp_good: "tex == 1 && tc == 1"
+  bal_ok: "bex == 1 && bc == 1"
+  move_tmp: "!phase && op == 6 && r_src == 2"
+
+ghosts:
+  - {name: tex, range: [0, 1], init: 0, next: "open_t ? 1 : (mv_bt ? 1 : ((out_t || rm_t) ? 0 : tex))"}
+  - {name: th, range: [0, 7], init: 0, next: "open_t ? of : (mv_bt ? bh : ((out_t || rm_t) ? 0 : th))"}
+  - {name: tcl, range: [0, 1], init: 0, next: "open_t ? 0 : (cl_t ? 1 : (mv_bt ? bcl : tcl))"}
+  - {name: tc, range: [0, 3], init: 0, next: "empty_t ? 0 : (wr_t ? ((tc == 0 && w_value == cents) ? 1 : 2) : (mv_bt ? bc : tc))"}
+  - {name: tsy, range: [0, 1], init: 0, next: "open_t ? 0 : (sy_t ? 1 : ((mv_bt || out_t || rm_t) ? 0 : tsy))"}
+  - {name: bex, range: [0, 1], init: 1, next: "open_b ? 1 : (mv_tb ? 1 : ((out_b || rm_b) ? 0 : bex))"}
+  - {name: bh, range: [0, 7], init: 0, next: "open_b ? of : (mv_tb ? th : ((out_b || rm_b) ? 0 : bh))"}
+  - {name: bcl, range: [0, 1], init: 0, next: "open_b ? 0 : (cl_b ? 1 : (mv_tb ? tcl : bcl))"}
+  - {name: bc, range: [0, 3], init: 3, next: "empty_b ? 0 : (wr_b ? ((bc == 0 && w_value == cents) ? 1 : 2) : (mv_tb ? tc : bc))"}
+  - name: ex
+    range: [0, 6]
+    init: 0
+    next: >-
+      phase ? ex :
+      ((ex == 0 && op == 1 && o_path == 2 && o_mode == 2) ? 1 :
+      ((ex == 1 && op == 2 && th != 0 && of == th && w_value == 1250) ? 2 :
+      ((ex == 2 && op == 5 && th != 0 && s_handle == th) ? 3 :
+      ((ex == 3 && op == 4 && th != 0 && of == th) ? 4 :
+      ((ex == 4 && op == 6 && r_src == 2 && r_dst == 1 && !answer) ? 5 : 6)))))
+
+properties:
+  # R-SIG-1
+  - id: SB-SIG-1
+    req: R-SIG-1
+    expr: "phase -> outcome != 3"
+    note: >-
+      Only the result type is checkable: "-> bool" read as "the function never
+      returns a value that is not a bool" (outcome 3). The name and the single
+      argument are fixed by the adapter (design.yaml function section).
+
+  # R-ERR-1
+  - id: SB-ERR-1
+    req: R-ERR-1
+    expr: "!valid -> phase"
+    note: >-
+      "touch no file": with cents above 100,000,000 the run makes no call at
+      all on open, a file object, os.fsync, os.replace or os.remove (every
+      operational cycle is the return). "negative" cannot occur: cents is a
+      27-bit unsigned signal, so that half of the rule is vacuous in this frame.
+  - id: SB-ERR-2
+    req: R-ERR-1
+    expr: "!valid && phase -> outcome == 1"
+    note: With cents above 100,000,000 the function raises ValueError.
+
+  # R-STORE-1
+  - id: SB-STORE-1
+    req: R-STORE-1
+    expr: "bex == 1 -> bc == 1 || bc == 3"
+    note: >-
+      Format and place: whatever the run puts into balance.txt (by writing it
+      or by moving a file over it) is exactly the decimal digits of cents;
+      while balance.txt exists it holds either its content from before the
+      run or those digits. Checked at every cycle. Content is modelled from
+      the writes: a file opened in w or x mode (or a new file in a mode) is
+      empty, the first write that spells cents makes it hold the digits, any
+      other write or any further write makes it hold something else. So a
+      trailing newline counts as not the digits (literal "as its decimal
+      digits"); digits split over several writes, or with leading zeros, are
+      misjudged by the frame's w_value encoding.
+  - id: SB-STORE-2
+    req: R-STORE-1
+    expr: "phase && valid && !once(rep_fail) -> bal_ok"
+    note: >-
+      End state: with a valid balance, when the function returns, balance.txt
+      holds the digits of cents. Taken for runs in which no os.replace call
+      failed. The sentence states storage unconditionally, but whether
+      os.replace succeeds is decided by the environment (the script), and the
+      prompt itself names that case (rule 5 "False otherwise", rule 7 "if
+      os.replace fails ... so that the balance can be recovered"); the
+      unconditional reading is unrealizable for every implementation. Rule 1
+      is read as a precondition, so invalid cents are excluded.
+
+  # R-TMP-1
+  - id: SB-TMP-1
+    req: R-TMP-1
+    expr: "!phase && op == 1 -> o_path != 1"
+    note: '"Never open balance.txt itself": no open of balance.txt in any mode.'
+  - id: SB-TMP-2
+    req: R-TMP-1
+    expr: "!phase && op == 6 -> r_src == 2 && r_dst == 1"
+    note: >-
+      Every os.replace call is the move the rule describes, balance.txt.tmp
+      over balance.txt (both relative names, i.e. in the current directory).
+      Literal reading: the text gives os.replace no other use.
+  - id: SB-TMP-3
+    req: R-TMP-1
+    expr: "move_tmp -> tmp_good"
+    note: >-
+      "write the digits to balance.txt.tmp, then move": when the temporary
+      file is moved it exists and holds exactly the digits of cents, written
+      through a file object opened on it in a writing mode.
+  - id: SB-TMP-4
+    req: R-TMP-1
+    expr: "phase && valid -> once(!phase && op == 6 && r_src == 2 && r_dst == 1)"
+    note: >-
+      With a valid balance the move is attempted: os.replace(balance.txt.tmp,
+      balance.txt) is called before the function returns (its success is up
+      to the script).
+
+  # R-SYNC-1
+  - id: SB-SYNC-1
+    req: R-SYNC-1
+    expr: "move_tmp -> th != 0 && tsy == 1"
+    note: >-
+      Reading 1: before balance.txt.tmp is moved, os.fsync has been called on
+      the file object of its latest writing open (by that object's fileno()).
+      No flush is required (the prompt's example has none), and the text
+      orders the fsync only before the move, not after the write.
+  - id: SB-SYNC-2
+    req: R-SYNC-1
+    expr: "move_tmp -> th != 0 && tcl == 1"
+    note: >-
+      Before balance.txt.tmp is moved, the file object of its latest writing
+      open has been closed. The text does not order the fsync and the close
+      relative to each other (the example does: fsync first), so no order is
+      imposed.
+
+  # R-RET-1
+  - id: SB-RET-1
+    req: R-RET-1
+    expr: "phase && valid -> outcome == 0"
+    note: >-
+      "Return True ..., and False otherwise": with a valid balance the function
+      returns a bool in every case (it never raises or fails to finish). The
+      rule is read as not applying to invalid cents, for which rule 1 demands
+      ValueError.
+  - id: SB-RET-2
+    req: R-RET-1
+    expr: "phase && outcome == 0 -> (result <-> bal_ok)"
+    note: >-
+      The returned value is True exactly when balance.txt holds the digits of
+      cents at the return. "once" is read as "when", not "as soon as": calls
+      after the move are allowed. Old content of balance.txt from before the
+      run is not "the balance" (the model cannot know it). Conflicts with
+      R-KEEP-1 only if a failed os.replace is retried and then succeeds
+      (R-RET-1 then demands True, R-KEEP-1 False).
+
+  # R-CLEAN-1
+  - id: SB-CLEAN-1
+    req: R-CLEAN-1
+    expr: "phase -> tex == 0"
+    note: >-
+      Reading 1: when the function returns (in every outcome), balance.txt.tmp
+      does not exist. Reading 2 (even after a crash) cannot be expressed: a
+      crash is not part of the trace. Taken literally and unconditionally, as
+      written. It CONTRADICTS rule 7 (R-KEEP-1, SB-KEEP-2): after a failed
+      os.replace, rule 7 demands that balance.txt.tmp be kept, rule 6 that no
+      temporary file be left. The script decides whether os.replace fails, so
+      no implementation can meet both; the contradiction is left in place
+      rather than repaired.
+
+  # R-KEEP-1
+  - id: SB-KEEP-1
+    req: R-KEEP-1
+    expr: "phase && once(rep_fail) -> outcome == 0 && !result"
+    note: >-
+      If any os.replace call of the run failed (the script made it raise
+      OSError, or its source did not exist), the function returns False.
+  - id: SB-KEEP-2
+    req: R-KEEP-1
+    expr: "once(prev(rep_fail)) -> tmp_good"
+    note: >-
+      "keep balance.txt.tmp so that the balance can be recovered from it":
+      from the cycle after a failed os.replace on, up to and including the
+      return, balance.txt.tmp exists and holds exactly the digits of cents.
+      "Never lose a balance" is read as the heading of this clause (the
+      colon), not as a separate obligation. Contradicts R-CLEAN-1, see
+      SB-CLEAN-1.
+
+scenarios:
+  - id: SB-EX-1
+    req: R-EX-1
+    cover: "phase && cents == 1250 && ex == 5 && outcome == 0 && result"
+    note: >-
+      The example run is possible: with cents 1250 the calls are exactly
+      open(balance.txt.tmp, w) as the first call, write "1250" on that file
+      object, os.fsync on it, close it, os.replace(balance.txt.tmp,
+      balance.txt) succeeding, then the return of True.
+
+unformalized:
+  - {req: R-FR-1, reason: "Frame rule of the adapter, added to every formalization set by design.yaml.", covered_by: [F-END]}
+  - {req: R-FR-2, reason: "Frame rule of the adapter, added to every formalization set by design.yaml.", covered_by: [F-ZERO]}
+  - {req: R-FR-3, reason: "Frame rule of the adapter, added to every formalization set by design.yaml.", covered_by: [F-LIMIT]}
+
+decisions:
+  - {req: R-SYNC-1, phrase: "call `os.fsync` on the temporary file", reading: 1}
+  - {req: R-CLEAN-1, phrase: "Leave no temporary file behind", reading: 1}

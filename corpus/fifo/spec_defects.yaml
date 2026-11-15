@@ -1,0 +1,12 @@
+# Ground truth for the specification defects of SFIFO-01 (not visible to agents).
+defects:
+  - {id: SD1, kind: contradiction, reqs: [R-SIM-1, R-WR-2, R-RD-3], planted: true,
+     desc: "simultaneous push/pop 'both take effect, count unchanged' contradicts push-while-full and pop-while-empty being ignored"}
+  - {id: SD2, kind: contradiction, reqs: [R-ST-3, R-TM-2], planted: true,
+     desc: "almost_full threshold: >= AF_LEVEL (Section 5) vs > AF_LEVEL (Section 6 table)"}
+  - {id: SD3, kind: ambiguity, reqs: [R-TM-3, R-RD-1], planted: true,
+     desc: "pop_data timing: same cycle as pop (first-word fall-through) vs the cycle after"}
+  - {id: SD4, kind: vacuity-trap, reqs: [R-USE-1, R-USE-2], planted: true,
+     desc: "usage rule (no push when full) must not become an environment assumption: it would make the tolerance requirements vacuous"}
+  - {id: SD5, kind: inconsistency, reqs: [R-PAR-1], planted: false,
+     desc: "default AF_LEVEL=3 violates 1 <= AF_LEVEL <= DEPTH for the legal DEPTH=2; found by the decomposer agent, not planted"}

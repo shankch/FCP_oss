@@ -1,0 +1,29 @@
+fcp: '0.1'
+design: code_smallest_change
+summary: A Python function on a list of integers treated as a chip without memory. Each cycle is one call of smallest_change(arr); the argument is an input list of at most 10 integers, the returned integer and the way the call ended are outputs. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt: smallest_change'}
+- {id: FRAME, path: frame.md, title: 'FCP function adapter, version 0.3'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: arr, dir: in, width: 4, length: 10, desc: 'the arr argument: a list of at most 10 integers, 0 to 15'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned an integer that fits, 1 any exception or no answer, 2 returned anything else'}
+  - {name: changes, dir: out, width: 4, desc: 'the returned integer (outcome 0), 0 to 15'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> changes == 0'}
+function:
+  name: smallest_change
+  args:
+  - {name: arr, signal: arr, type: list}
+  returns: {signal: changes, type: int}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    arr:
+      elements: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      random: 3000
+      values: [[1, 2, 3, 5, 4, 7, 9, 6], [1, 2, 3, 4, 3, 2, 2], [1, 2, 3, 2, 1]]

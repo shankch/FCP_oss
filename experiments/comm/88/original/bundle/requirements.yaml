@@ -1,0 +1,153 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete Python implementation of the given function stub, not a stub.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def sort_array(array):'
+  text: The function is named sort_array and takes a single parameter named array.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: Given an array of non-negative integers
+  text: The argument array is a list whose elements are all non-negative integers; behaviour for any other argument is not specified.
+  kind: assumption
+  lines:
+  - 6
+- id: R-RET-1
+  doc: SPEC
+  quote: return a copy of the given array after sorting
+  text: For every argument that is a list of non-negative integers, sort_array returns a list (it does not raise an exception and does finish).
+  kind: guarantee
+  lines:
+  - 6
+- id: R-RET-2
+  doc: SPEC
+  quote: return a copy of the given array after sorting
+  text: 'The returned list is a rearrangement of the given array: it has the same length and contains every value exactly as many times as the given array does.'
+  kind: guarantee
+  lines:
+  - 6
+- id: R-RET-3
+  doc: SPEC
+  quote: return a copy of the given array after sorting
+  text: The returned list is a new list object, distinct from the list passed as array.
+  kind: guarantee
+  ambiguity:
+  - phrase: a copy of the given array after sorting
+    readings:
+    - a new list holding the elements of the given array in sorted order; the given array itself is left as it was
+    - the given array is sorted (in place) and then a copy of it is returned; this contradicts "don't change the given array" (R-NC-1)
+  - phrase: a copy
+    readings:
+    - a distinct list object, so the caller can modify the result without affecting the given array
+    - only the values matter; returning the given list object itself is acceptable when its order already matches
+  lines:
+  - 6
+- id: R-ORD-1
+  doc: SPEC
+  quote: you will sort the given array in ascending order if the sum( first index value, last index value) is odd
+  text: If the given array is non-empty and array[0] + array[len(array) - 1] is odd, the returned list is in ascending order (each element is less than or equal to the next).
+  kind: guarantee
+  ambiguity:
+  - phrase: first index value, last index value
+    readings:
+    - 'the values stored at the first and the last index: array[0] + array[len(array) - 1]'
+    - 'the first and the last index numbers themselves: 0 + (len(array) - 1), i.e. the parity of len(array) - 1 (the examples agree with both readings)'
+  - phrase: ascending order
+    readings:
+    - 'non-decreasing order, equal values kept: result[i] <= result[i + 1]'
+    - 'strictly increasing order: result[i] < result[i + 1] (impossible together with R-RET-2 when the array has repeated values)'
+  - phrase: you will sort the given array
+    readings:
+    - the values of the given array are sorted into the returned copy; the given array itself is not modified
+    - the given list itself is sorted in place; this contradicts "don't change the given array" (R-NC-1)
+  - phrase: the sum( first index value, last index value) is odd
+    readings:
+    - the condition is defined only for a non-empty array; the empty array falls under neither order rule
+    - for the empty array the sum is taken over the missing values as 0 (even), so the descending rule applies instead
+  lines:
+  - 7
+- id: R-ORD-2
+  doc: SPEC
+  quote: or sort it in descending order if the sum( first index value, last index value) is even
+  text: If the given array is non-empty and array[0] + array[len(array) - 1] is even, the returned list is in descending order (each element is greater than or equal to the next).
+  kind: guarantee
+  ambiguity:
+  - phrase: first index value, last index value
+    readings:
+    - 'the values stored at the first and the last index: array[0] + array[len(array) - 1]'
+    - 'the first and the last index numbers themselves: 0 + (len(array) - 1), i.e. the parity of len(array) - 1 (the examples agree with both readings)'
+  - phrase: descending order
+    readings:
+    - 'non-increasing order, equal values kept: result[i] >= result[i + 1]'
+    - 'strictly decreasing order: result[i] > result[i + 1] (impossible together with R-RET-2 when the array has repeated values)'
+  - phrase: sort it
+    readings:
+    - '"it" is the copy to be returned; the values of the given array are sorted into the returned list and the given array is not modified'
+    - '"it" is the given array, sorted in place; this contradicts "don''t change the given array" (R-NC-1)'
+  - phrase: the sum( first index value, last index value) is even
+    readings:
+    - the condition is defined only for a non-empty array; the empty array falls under neither order rule
+    - for the empty array the sum is taken over the missing values as 0, which is even, so this descending rule applies
+  lines:
+  - 8
+- id: R-NC-1
+  doc: SPEC
+  quote: don't change the given array.
+  text: 'sort_array does not modify the list passed as array: after the call it holds the same elements in the same order as before the call.'
+  kind: guarantee
+  ambiguity:
+  - phrase: don't change the given array
+    readings:
+    - the list passed as array keeps its elements and their order; only a copy is sorted
+    - contradicted by "you will sort the given array" and "sort it" (R-ORD-1, R-ORD-2) and by "a copy of the given array after sorting" (R-RET-3), which read as sorting the given list itself
+  lines:
+  - 11
+- id: R-EX-1
+  doc: SPEC
+  quote: sort_array([]) => []
+  text: Called with the empty list, sort_array returns the empty list.
+  kind: scenario
+  lines:
+  - 14
+- id: R-EX-2
+  doc: SPEC
+  quote: sort_array([5]) => [5]
+  text: Called with [5], sort_array returns [5].
+  kind: scenario
+  lines:
+  - 15
+- id: R-EX-3
+  doc: SPEC
+  quote: sort_array([2, 4, 3, 0, 1, 5]) => [0, 1, 2, 3, 4, 5]
+  text: Called with [2, 4, 3, 0, 1, 5] (first plus last value 2 + 5 = 7, odd), sort_array returns [0, 1, 2, 3, 4, 5].
+  kind: scenario
+  lines:
+  - 16
+- id: R-EX-4
+  doc: SPEC
+  quote: sort_array([2, 4, 3, 0, 1, 5, 6]) => [6, 5, 4, 3, 2, 1, 0]
+  text: Called with [2, 4, 3, 0, 1, 5, 6] (first plus last value 2 + 6 = 8, even), sort_array returns [6, 5, 4, 3, 2, 1, 0].
+  kind: scenario
+  lines:
+  - 17
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `result` is the empty list unless `outcome` is 0.'
+  text: Whenever outcome is not 0 (the call did not return a list that fits), result is the empty list.
+  kind: guarantee
+  lines:
+  - 49

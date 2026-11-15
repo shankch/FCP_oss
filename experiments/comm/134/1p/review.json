@@ -1,0 +1,325 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 159,
+    "checked": 159,
+    "seconds": 2.69
+   },
+   "open": {
+    "open": {},
+    "checked": 91
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [
+     {
+      "core": [
+       "RB-EX-2",
+       "RB-RET-3"
+      ],
+      "muses": [
+       [
+        "RB-EX-2",
+        "RB-RET-3"
+       ]
+      ],
+      "calls": [
+       [
+        "apple pi e"
+       ]
+      ],
+      "stimulus": [
+       "candidate(\"apple pi e\")"
+      ],
+      "reqs": [
+       "R-EX-2",
+       "R-RET-3"
+      ]
+     }
+    ],
+    "candidates": 191,
+    "checked": 191,
+    "seconds": 6.5
+   },
+   "open": {
+    "open": {},
+    "checked": 111
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [
+    "RA-EX-2"
+   ],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-RET-1",
+   "phrase": "returns True",
+   "taken": 1,
+   "variant": 2,
+   "text": "any truthy or falsy value (such as 1 and 0, or a non-empty and an empty string) is acceptable"
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "is ,",
+   "taken": 1,
+   "variant": 2,
+   "text": "the last character is an ASCII letter (a-z, A-Z) that stands alone: txt has length 1 or the character before it is a space (an alphabetical character that is not part of a longer word); consistent with every example"
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "the last character",
+   "taken": 1,
+   "variant": 2,
+   "text": "the last non-space character of txt, ignoring trailing spaces; then \"apple pi e \" is judged on its lone 'e' and would give True, which contradicts R-EX-3"
+  },
+  {
+   "req": "R-RET-3",
+   "phrase": "otherwise",
+   "taken": 1,
+   "variant": 2,
+   "text": "only for non-empty strings whose last character lacks the property; the empty string, which has no last character, is not covered by this sentence (R-EX-4 gives it False)"
+  },
+  {
+   "req": "R-RET-3",
+   "phrase": "False otherwise",
+   "taken": 2,
+   "variant": 1,
+   "text": "consistent with R-EX-2 when the property of R-RET-2 is a letter standing alone at the end of txt"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "\"word\"",
+   "taken": 2,
+   "variant": 1,
+   "text": "the definition serves the missing property of R-RET-2 (for example 'not a part of a word') and so constrains the result"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "group of characters",
+   "taken": 1,
+   "variant": 2,
+   "text": "two or more characters, so a single letter is not a word"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "space",
+   "taken": 1,
+   "variant": 2,
+   "text": "any whitespace character, such as tab or newline"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "separated by space",
+   "taken": 1,
+   "variant": 2,
+   "text": "a word is a run of letters, so digits and punctuation also separate words"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "candidate(\"apple pie\") \u279e False",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-RET-2 when the property is only 'the last character is an alphabetical character': 'e' is a letter, so True would be required"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "candidate(\"apple pi e\") \u279e True",
+   "taken": 2,
+   "variant": 1,
+   "text": "consistent with R-RET-2 when the property is a letter standing alone at the end of txt"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "candidate(\"apple pi e \") \u279e False",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-RET-2 when the last character means the last non-space character: the lone 'e' would then give True"
+  }
+ ],
+ "depends": {
+  "R-RET-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(\"\\u0001!\\u0001!!!!!!\\u0001!!!\\u0001!!!!!!!!!! A      \") -> False"
+   ]
+  },
+  "R-RET-3": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(\"\\u0000!!!!!!!\\u0001!\\u0001!!!\\u0001[{\\u0001!!![{!\\u0001\\u0001\\u0001\\u0001{,\") -> True"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-4"
+ ],
+ "queue": [
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-EX-2",
+    "R-RET-3"
+   ],
+   "calls": [
+    "candidate(\"apple pi e\")"
+   ],
+   "variants": 1,
+   "question": "no implementation can meet these requirements on these calls: which one gives way?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-2 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-2",
+    "R-RET-3"
+   ],
+   "calls": [
+    "candidate(\"\\u0001!\\u0001!!!!!!\\u0001!!!\\u0001!!!!!!!!!! A      \") -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"returns True\" can mean: the returned value is exactly the bool True or False / any truthy or falsy value (such as 1 and 0, or a non-empty and an empty string) is acceptable. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"is ,\" can mean: literal: the last character is a comma ','; this contradicts R-EX-2, since \"apple pi e\" ends in 'e' yet must give True / the last character is an ASCII letter (a-z, A-Z) that stands alone: txt has length 1 or the character before it is a space (an alphabetical character that is not part of a longer word); consistent with every example / as the previous reading, but the character before the letter must be a space, so a one-character string such as \"e\" gives False / the last character is a letter standing alone, where 'letter' is whatever Python's str.isalpha accepts, so non-ASCII Latin-1 letters such as '\u00e9' or '\u00df' also count / the last character is a letter and the character before it, if any, is not a letter (a ',', '.', digit or space before it all qualify) / the last character is any alphabetical character, whatever precedes it; this contradicts R-EX-1, since \"apple pie\" ends in the letter 'e' yet must give False / the last character is an alphabetical character that is not part of a word as R-DEF-1 defines it; a single letter between spaces is itself a word, so no letter qualifies and the result is always False, which contradicts R-EX-2. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"the last character\" can mean: the final character of txt, whatever it is, so a trailing space is the last character; consistent with R-EX-3 / the last non-space character of txt, ignoring trailing spaces; then \"apple pi e \" is judged on its lone 'e' and would give True, which contradicts R-EX-3. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-3"
+   ],
+   "calls": [],
+   "question": "\"otherwise\" can mean: whenever the last character lacks the property of R-RET-2, and also when txt is empty and so has no last character / only for non-empty strings whose last character lacks the property; the empty string, which has no last character, is not covered by this sentence (R-EX-4 gives it False). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-3"
+   ],
+   "calls": [],
+   "question": "\"False otherwise\" can mean: consistent with R-EX-2 when the property of R-RET-2 is a letter standing alone at the end of txt / contradicts R-EX-2 under the literal property 'the last character is ,': \"apple pi e\" does not end in a comma, so this sentence requires False where R-EX-2 requires True. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"candidate(\"apple pie\") \u279e False\" can mean: consistent with R-RET-2 when the property requires the final letter to stand alone, not to end a longer word / contradicts R-RET-2 when the property is only 'the last character is an alphabetical character': 'e' is a letter, so True would be required. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"candidate(\"apple pi e\") \u279e True\" can mean: consistent with R-RET-2 when the property is a letter standing alone at the end of txt / contradicts R-RET-2 and R-RET-3 under the literal property 'the last character is ,': 'e' is not a comma, so False would be required / contradicts R-DEF-1 together with the property 'not a part of a word': by the note a lone 'e' is itself a word, so the last letter is part of a word and False would be required. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"candidate(\"apple pi e \") \u279e False\" can mean: consistent with R-RET-2 when the last character is the final character of txt, here a space / contradicts R-RET-2 when the last character means the last non-space character: the lone 'e' would then give True. Which is meant?"
+  }
+ ],
+ "limits": []
+}

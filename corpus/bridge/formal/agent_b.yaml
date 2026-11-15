@@ -1,0 +1,312 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# ---------------------------------------------------------------------------
+# Specification model (a reference model driven by the inputs and by the two
+# handshakes the text defines: command acceptance and response acceptance).
+# Every output is checked against it.
+#
+#   phase      protocol phase of the one transaction being processed
+#                0 idle | 1 APB setup | 2 APB access | 3 response pending
+#   inflight   commands accepted whose response has not yet been accepted
+#   cur_*      fields of the most recently accepted command
+#   done_*     pslverr / prdata sampled in the cycle the transfer completed
+# ---------------------------------------------------------------------------
+defs:
+  acc: "cmd_valid && cmd_ready"                 # R-CMD-1: command acceptance
+  rspacc: "rsp_valid && rsp_ready"              # response acceptance
+  in_setup: "phase == 1"
+  in_access: "phase == 2"
+  in_xfer: "phase == 1 || phase == 2"           # a transfer is in progress
+  resp_pend: "phase == 3"                       # a response is pending
+  idle: "!in_xfer && !resp_pend"                # R-CMD-2: bridge idle
+  xfer_done: "phase == 2 && pready"             # R-APB-4: transfer completes
+
+ghosts:
+  - name: phase
+    range: [0, 3]
+    init: 0
+    next: "phase == 0 ? (acc ? 1 : 0) : (phase == 1 ? 2 : (phase == 2 ? (pready ? 3 : 2) : (rsp_ready ? (acc ? 1 : 0) : 3)))"
+  # +1 per accepted command, -1 per accepted response. The clamps to [0, 2]
+  # only keep the ghost inside its declared range once a violation (a second
+  # command in flight, or a spurious response) has already been flagged by
+  # BB-P-OV-1 / BB-P-RSP-1a; they never mask a violation.
+  - name: inflight
+    range: [0, 2]
+    init: 0
+    next: "min(2, max(0, inflight + acc - rspacc))"
+  - name: cur_write
+    range: [0, 1]
+    init: 0
+    next: "acc ? cmd_write : cur_write"
+  - name: cur_addr
+    range: [0, 255]
+    init: 0
+    next: "acc ? cmd_addr : cur_addr"
+  - name: cur_wdata
+    range: [0, 255]
+    init: 0
+    next: "acc ? cmd_wdata : cur_wdata"
+  - name: done_err
+    range: [0, 1]
+    init: 0
+    next: "xfer_done ? pslverr : done_err"
+  - name: done_rdata
+    range: [0, 255]
+    init: 0
+    next: "xfer_done ? prdata : done_rdata"
+
+assumptions:
+  - id: BB-A-CMD-3
+    req: R-CMD-3
+    pattern: hold_until
+    args:
+      trigger: "cmd_valid && !cmd_ready"
+      hold: "cmd_valid && stable(cmd_write) && stable(cmd_addr) && stable(cmd_wdata)"
+      release: "acc"
+    note: >-
+      Environment obligation on cmd_valid, cmd_write, cmd_addr, cmd_wdata. A
+      command is pending in a cycle with cmd_valid high and cmd_ready low; from
+      the next cycle on, up to and including the cycle in which it is accepted,
+      cmd_valid stays high and the three fields equal their previous-cycle
+      values. A command accepted at once, or one withdrawn by reset, creates no
+      obligation.
+  - id: BB-A-APB-9
+    req: R-APB-9
+    pattern: bounded_wait
+    args: {cond: "psel && penable && !pready", max: 4}
+    note: >-
+      Environment obligation on pready. The text is ambiguous by one cycle.
+      Literal reading used: pready is high no later than 4 cycles after the
+      first access-phase cycle, i.e. at most 4 consecutive access-phase cycles
+      with pready low (an access phase of at most 5 cycles). The decomposition
+      gloss "the access phase lasts at most 4 cycles" is the stricter reading
+      (max 3). The weaker obligation is used so that the assumption is no
+      stronger than the text supports; BB-P-LAT-1 holds under either reading.
+
+properties:
+  - id: BB-P-OV-1
+    req: R-OV-1
+    expr: "inflight <= 1"
+    note: >-
+      "One transaction is processed at a time" is read as: at most one command
+      is accepted and not yet answered, counted from its acceptance to the
+      acceptance of its response. A command accepted in the cycle in which the
+      previous response is accepted (R-RSP-6) leaves inflight at 1, so this
+      item does not conflict with R-RSP-6. It is deliberately independent of
+      the stricter idle condition of R-CMD-2.
+  - id: BB-P-CMD-2
+    req: R-CMD-2
+    pattern: implies
+    args: {trigger: "cmd_ready", cond: "idle"}
+    note: >-
+      AMBIGUOUS AND IN TENSION WITH R-RSP-6. Literal reading of "asserted only
+      while the bridge is idle": cmd_ready implies idle (necessary condition
+      only). The converse (idle implies cmd_ready) is NOT asserted, except in
+      the cycle after reset (R-RST-1); the decomposition gloss "exactly when" is
+      the stronger iff reading and is not used. Idle = no transfer in progress
+      (setup or access phase) and no response pending. A response is pending in
+      every cycle in which rsp_valid is high, including the cycle in which
+      rsp_ready accepts it, so literally cmd_ready is never high in the
+      response-handshake cycle. That contradicts the permission in R-RSP-6
+      (scenario BB-S-RSP-6). The conflict is left visible, not repaired. A
+      reconciling reading (not used) would be cmd_ready implies
+      (idle || (resp_pend && rsp_ready)).
+  - id: BB-P-APB-1a
+    req: R-APB-1
+    pattern: implies
+    args:
+      trigger: "psel && in_xfer"
+      cond: "pwrite == cur_write && paddr == cur_addr && pwdata == cur_wdata"
+    note: >-
+      The fields of the transfer equal those of the accepted command in every
+      cycle of the transfer (setup and access). pwdata equals cmd_wdata for
+      read commands too: the text makes no read/write distinction. Constrained
+      only while psel is high, because R-APB-8 leaves the fields free when psel
+      is low.
+  - id: BB-P-APB-1b
+    req: R-APB-1
+    pattern: implies
+    args: {trigger: "psel", cond: "in_xfer"}
+    note: >-
+      "Exactly one APB transfer" per accepted command is read as one-to-one: a
+      transfer (psel high) exists only while the transfer of an accepted command
+      is under way (setup or access phase of the model). Together with
+      BB-P-APB-3a/3b (the transfer starts once, in the cycle after acceptance)
+      and BB-P-APB-7 (it is over after completion) no second or spurious
+      transfer is possible. The text states the count only per accepted
+      command; the absence of transfers without a command is the natural
+      reading of "exactly one" and is flagged here as an interpretation.
+  - id: BB-P-APB-2
+    req: R-APB-2
+    pattern: inorder
+    args:
+      in_fire: "acc"
+      in_data: "(zext(cmd_write, AW+DW+1) << (AW+DW)) | (zext(cmd_addr, AW+DW+1) << DW) | zext(cmd_wdata, AW+DW+1)"
+      out_fire: "psel && !penable"
+      out_data: "(zext(pwrite, AW+DW+1) << (AW+DW)) | (zext(paddr, AW+DW+1) << DW) | zext(pwdata, AW+DW+1)"
+      capacity: 1
+    note: >-
+      Order of transfers = order of acceptance. An item is the triple (write,
+      addr, wdata); a delivery is the start of a transfer (setup phase,
+      psel high and penable low, whose fields are present in that same cycle).
+      Capacity 1 because the text allows one transaction at a time (R-OV-1).
+      With a single transaction in flight the order is also implied by the
+      single-slot model used elsewhere; this item states it independently.
+  - id: BB-P-APB-3a
+    req: R-APB-3
+    pattern: implies
+    args: {trigger: "in_setup", cond: "psel && !penable"}
+    note: >-
+      in_setup (phase 1) is true exactly in the cycle after a command is
+      accepted, so this is "the transfer starts in the cycle after acceptance
+      with psel high and penable low".
+  - id: BB-P-APB-3b
+    req: R-APB-3
+    pattern: next
+    args: {trigger: "in_setup", cond: "psel && penable"}
+    note: >-
+      The setup phase lasts exactly one cycle and is followed by the access
+      phase (psel and penable high). pready is not looked at in the setup
+      cycle: the access phase always begins, whatever pready is.
+  - id: BB-P-APB-4
+    req: R-APB-4
+    pattern: implies
+    args: {trigger: "in_access", cond: "psel && penable"}
+    note: >-
+      The access phase (psel and penable high) persists in every cycle from its
+      start up to and including the first cycle in which pready is sampled high;
+      that cycle is the completion (xfer_done in the model). That the phase
+      ends there is stated by R-APB-7 (BB-P-APB-7).
+  - id: BB-P-APB-5
+    req: R-APB-5
+    pattern: hold_until
+    args:
+      trigger: "in_setup"
+      hold: "psel && stable(pwrite) && stable(paddr) && stable(pwdata)"
+      release: "xfer_done"
+    note: >-
+      From the setup cycle on, up to and including the completion cycle, psel
+      stays high and pwrite, paddr, pwdata keep their setup-cycle values.
+  - id: BB-P-APB-6
+    req: R-APB-6
+    pattern: implies
+    args: {trigger: "penable", cond: "psel"}
+  - id: BB-P-APB-7
+    req: R-APB-7
+    pattern: next
+    args: {trigger: "xfer_done", cond: "!psel && !penable"}
+    note: >-
+      Completion = access-phase cycle in which pready is high (R-APB-4).
+  - id: BB-P-RSP-1a
+    req: R-RSP-1
+    expr: "rsp_valid <-> resp_pend"
+    note: >-
+      "Exactly one response" for every completed transfer, modelled as
+      rsp_valid being high exactly while a completed transfer's response is
+      pending (from the cycle after completion until the cycle in which
+      rsp_ready accepts it). The "at most one" half (rsp_valid low again after
+      acceptance and no response without a completed transfer) is not stated
+      explicitly anywhere in the text; it is the literal consequence of
+      "exactly one". "In order" is trivial with one transaction in flight
+      (R-OV-1).
+  - id: BB-P-RSP-1b
+    req: R-RSP-1
+    pattern: implies
+    args: {trigger: "rsp_valid", cond: "rsp_err == done_err"}
+    note: >-
+      rsp_err equals the pslverr sampled in the completing access cycle, in
+      every cycle in which the response is presented. Applies to read and write
+      transfers alike.
+  - id: BB-P-RSP-2
+    req: R-RSP-2
+    pattern: implies
+    args: {trigger: "rsp_valid && cur_write == 0", cond: "rsp_rdata == done_rdata"}
+    note: >-
+      Only read transfers are constrained, as the text says. The text says
+      nothing about rsp_rdata for a write transfer (neither a value nor "don't
+      care"); no constraint is invented, so the rsp_rdata of a write response is
+      left free apart from the stability of R-RSP-4. This is a gap in the
+      specification.
+  - id: BB-P-RSP-3
+    req: R-RSP-3
+    pattern: next
+    args: {trigger: "xfer_done", cond: "rsp_valid"}
+    note: >-
+      Completion = access-phase cycle in which pready is high (R-APB-4).
+  - id: BB-P-RSP-4
+    req: R-RSP-4
+    pattern: hold_until
+    args:
+      trigger: "rsp_valid && !rsp_ready"
+      hold: "rsp_valid && stable(rsp_rdata) && stable(rsp_err)"
+      release: "rsp_ready"
+    note: >-
+      The cycle in which rsp_ready is sampled high is still a presented cycle
+      (rsp_valid high, data stable). The text does not say what rsp_valid does
+      after acceptance; see BB-P-RSP-1a. Stability also applies to rsp_rdata of
+      write responses.
+  - id: BB-P-LAT-1
+    req: R-LAT-1
+    pattern: within
+    args: {trigger: "acc", cond: "rsp_valid", min: 1, max: 8}
+    note: >-
+      "Within 8 cycles of the command being accepted" is read as: rsp_valid is
+      high in at least one of the 8 cycles after the acceptance cycle (window
+      1..8). Cycle 0 is excluded so that the response of the previous
+      transaction, accepted in the same cycle (R-RSP-6), cannot satisfy it. It
+      holds only under BB-A-APB-9: with a slave that never asserts pready no
+      response is ever presented. Worst case under the model: accept at t,
+      setup t+1, access from t+2, pready at the latest at t+6, rsp_valid at t+7.
+  - id: BB-P-RST-1
+    req: R-RST-1
+    pattern: after_reset
+    args: {cond: "!psel && !penable && !rsp_valid && cmd_ready"}
+    note: >-
+      "The cycle after reset" is read as every cycle that follows a cycle with
+      reset asserted (the after_reset pattern).
+
+scenarios:
+  - id: BB-S-RSP-6
+    req: R-RSP-6
+    cover: "acc && rspacc"
+    note: >-
+      "may accept" is read as a permission, not an obligation: a command being
+      accepted in the cycle in which the response is accepted must be possible
+      (scenario); no property requires it. CONFLICT: with the literal reading of
+      R-CMD-2 (BB-P-CMD-2, no response pending, which excludes every cycle with
+      rsp_valid high) and the model rsp_valid <-> response pending
+      (BB-P-RSP-1a), this scenario is unreachable. A consistency analysis is
+      expected to report {BB-P-CMD-2, BB-P-RSP-1a, BB-S-RSP-6}. Left unrepaired
+      on purpose; see the note of BB-P-CMD-2.
+
+dont_cares:
+  - id: BB-D-APB-8a
+    req: R-APB-8
+    signal: pwrite
+    when: "!psel"
+  - id: BB-D-APB-8b
+    req: R-APB-8
+    signal: paddr
+    when: "!psel"
+  - id: BB-D-APB-8c
+    req: R-APB-8
+    signal: pwdata
+    when: "!psel"
+  - id: BB-D-RSP-5a
+    req: R-RSP-5
+    signal: rsp_rdata
+    when: "!rsp_valid"
+  - id: BB-D-RSP-5b
+    req: R-RSP-5
+    signal: rsp_err
+    when: "!rsp_valid"
+
+unformalized:
+  - req: R-CMD-1
+    reason: >-
+      Definition, not a behaviour: acceptance = cmd_valid && cmd_ready. It is
+      realized as the macro acc, which drives the model and appears in the
+      items listed in covered_by.
+    covered_by: [BB-A-CMD-3, BB-P-APB-2, BB-P-LAT-1, BB-S-RSP-6]

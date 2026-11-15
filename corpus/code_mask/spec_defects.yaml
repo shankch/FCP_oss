@@ -1,0 +1,14 @@
+# Defects planted in spec.md (hidden from every agent).
+design: code_mask
+defects:
+- id: D-1
+  kind: conflict
+  reqs: [R-LAST4-1, R-QUARTER-1]
+  note: >
+    A card number has 12 to 19 digits (line 9), and every valid one must be answered (rule 1).
+    Rule 2 shows its last four digits, and rule 4 shows at most a quarter of them: for 12 to
+    15 digits, four is more than a quarter. A 15-digit American Express number or the
+    12-digit 000000000000, which passes the Luhn check, cannot be answered under both rules.
+    The writer had 16-digit cards in mind, for which four digits are exactly a quarter.
+- {id: D-2, kind: ambiguity, reqs: [R-IN-2, R-ERR-1], note: '"between groups of digits": may a space or hyphen come first, last, or twice in a row? Rule 1 rejects only other characters'}
+- {id: D-3, kind: ambiguity, reqs: [R-ERR-1], note: '"digits": the characters 0 to 9, or every character Python''s str.isdigit accepts, such as a superscript two'}

@@ -1,0 +1,350 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 32,
+    "checked": 32,
+    "seconds": 0.15
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "fib4(4)",
+      "args": [
+       4
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": [
+       "RA-NTH-2"
+      ]
+     },
+     "outcome": {
+      "call": "fib4(4)",
+      "args": [
+       4
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "returned",
+       "raised another exception or did not finish"
+      ],
+      "ending": true,
+      "declared": [
+       "RA-NTH-3"
+      ]
+     }
+    },
+    "checked": 5
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 26,
+    "checked": 26,
+    "seconds": 0.07
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "fib4(4)",
+      "args": [
+       4
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": [
+       "RB-NTH-2"
+      ]
+     },
+     "outcome": {
+      "call": "fib4(4)",
+      "args": [
+       4
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": [
+       "RB-NTH-3"
+      ]
+     }
+    },
+    "checked": 5
+   }
+  }
+ },
+ "readings": {
+  "R-BASE-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-NTH-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": [
+   {
+    "reading": "agent_a",
+    "id": "RA-NTH-2",
+    "req": "R-NTH-1",
+    "says": "`result` is free when `n >= 4`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-NTH-3",
+    "req": "R-NTH-1",
+    "says": "`outcome` is free when `n >= 4`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-NTH-2",
+    "req": "R-NTH-1",
+    "says": "`result` is free when `!listed`",
+    "where": {
+     "listed": "n <= 3"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-NTH-3",
+    "req": "R-NTH-1",
+    "says": "`outcome` is free when `!listed`",
+    "where": {
+     "listed": "n <= 3"
+    }
+   }
+  ]
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IF-1",
+   "phrase": "n: int",
+   "taken": 1,
+   "variant": 2,
+   "text": "n is an index into the sequence, so only non-negative integers are valid arguments"
+  },
+  {
+   "req": "R-SEQ-1",
+   "phrase": "similar to the Fibbonacci sequnece",
+   "taken": 4,
+   "variant": 1,
+   "text": "fib4(0) to fib4(3) are the starting values and every later element is the sum of the four elements before it, fib4(n) = fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4) for n >= 4 (as the name Fib4 suggests), giving 0, 0, 2, 0, 2, 4, 8, 14, 28, 54, 104, ..."
+  },
+  {
+   "req": "R-BASE-3",
+   "phrase": "fib4(2) -> 2",
+   "taken": 1,
+   "variant": 2,
+   "text": "the Fibonacci rule of R-SEQ-1 applies from fib4(2) on (each element the sum of the two before it), so fib4(2) would be fib4(1) + fib4(0) = 0, which contradicts the listed value 2"
+  },
+  {
+   "req": "R-BASE-4",
+   "phrase": "fib4(3) -> 0",
+   "taken": 1,
+   "variant": 2,
+   "text": "the Fibonacci rule of R-SEQ-1 applies from fib4(2) on (each element the sum of the two before it), so fib4(3) would be fib4(2) + fib4(1) = 2, which contradicts the listed value 0"
+  },
+  {
+   "req": "R-NTH-1",
+   "phrase": "n-th element",
+   "taken": 1,
+   "variant": 2,
+   "text": "elements are counted from 1: the first element is the one written fib4(0), so fib4(n) returns the element written fib4(n-1) and fib4(0) has no element; this conflicts with the listed values read as calls (fib4(2) would return 0, not 2)"
+  },
+  {
+   "req": "R-NTH-1",
+   "phrase": "the fib4 number sequence",
+   "taken": 2,
+   "variant": 1,
+   "text": "the sequence extends to every n through the Fibonacci-like rule of R-SEQ-1, so the n-th element exists and must be returned for every n"
+  },
+  {
+   "req": "R-NTH-1",
+   "phrase": "compute",
+   "taken": 1,
+   "variant": 2,
+   "text": "fib4 may return any number equal to the element, so a float such as 2.0 also meets the requirement"
+  },
+  {
+   "req": "R-NF-2",
+   "phrase": "recursion",
+   "taken": 1,
+   "variant": 2,
+   "text": "only fib4 itself must not call itself, directly or indirectly; a recursive helper function is allowed"
+  }
+ ],
+ "depends": {
+  "R-NTH-1": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "fib4(6) -> 0"
+   ]
+  }
+ },
+ "certified": [
+  "R-BASE-1",
+  "R-BASE-2"
+ ],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "fib4(4)"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "0",
+      "1"
+     ],
+     "ending": false,
+     "declared": [
+      "RA-NTH-2"
+     ],
+     "reqs": [
+      "R-NTH-1"
+     ]
+    },
+    "outcome": {
+     "reading": "agent_a",
+     "shown": [
+      "returned",
+      "raised another exception or did not finish"
+     ],
+     "ending": true,
+     "declared": [
+      "RA-NTH-3"
+     ],
+     "reqs": [
+      "R-NTH-1"
+     ]
+    }
+   },
+   "signal": "result, outcome",
+   "reqs": [
+    "R-NTH-1"
+   ],
+   "question": "the request allows `result` to be 0 or 1 (the reading leaves this free on purpose: RA-NTH-2) and lets this call end in two ways, \"returned\" or \"raised another exception or did not finish\" (the reading leaves this free on purpose: RA-NTH-3): is any answer acceptable, or which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-NTH-1"
+   ],
+   "calls": [
+    "fib4(6) -> 0"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-BASE-3"
+   ],
+   "calls": [],
+   "question": "\"fib4(2) -> 2\" can mean: fib4(2) is a starting value of the sequence: fib4(2) returns 2, and the Fibonacci-like rule of R-SEQ-1 does not apply to it / the Fibonacci rule of R-SEQ-1 applies from fib4(2) on (each element the sum of the two before it), so fib4(2) would be fib4(1) + fib4(0) = 0, which contradicts the listed value 2. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-BASE-4"
+   ],
+   "calls": [],
+   "question": "\"fib4(3) -> 0\" can mean: fib4(3) is a starting value of the sequence: fib4(3) returns 0, and the Fibonacci-like rule of R-SEQ-1 does not apply to it / the Fibonacci rule of R-SEQ-1 applies from fib4(2) on (each element the sum of the two before it), so fib4(3) would be fib4(2) + fib4(1) = 2, which contradicts the listed value 0. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-NTH-1"
+   ],
+   "calls": [],
+   "question": "\"n-th element\" can mean: elements are counted from 0, as in the list: fib4(n) returns the element the list writes as fib4(n), so fib4(0) is the 0th element / elements are counted from 1: the first element is the one written fib4(0), so fib4(n) returns the element written fib4(n-1) and fib4(0) has no element; this conflicts with the listed values read as calls (fib4(2) would return 0, not 2). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-NTH-1"
+   ],
+   "calls": [],
+   "question": "\"the fib4 number sequence\" can mean: the sequence extends to every n through the Fibonacci-like rule of R-SEQ-1, so the n-th element exists and must be returned for every n / the sequence is only what R-SEQ-1 lists, fib4(0) to fib4(3), so for n >= 4 there is no n-th element and the result is unconstrained; this contradicts the request to compute the n-th element for every n. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-NTH-1"
+   ],
+   "calls": [],
+   "question": "\"compute\" can mean: fib4 returns the element as a Python int (the declared return type is left out, but the elements are integers) / fib4 may return any number equal to the element, so a float such as 2.0 also meets the requirement. Which is meant?"
+  }
+ ],
+ "limits": []
+}

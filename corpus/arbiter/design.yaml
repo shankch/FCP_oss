@@ -1,0 +1,48 @@
+fcp: '0.1'
+design: rr_arbiter
+summary: Registered 4-way round-robin arbiter (RRA-4).
+docs:
+- id: SPEC
+  path: spec.md
+  title: RRA-4 Functional Specification v0.9
+interface:
+  clock: clk
+  reset:
+    name: rst_n
+    active_low: true
+    synchronous: true
+  params:
+    N: 4
+  signals:
+  - name: clk
+    dir: in
+    width: 1
+  - name: rst_n
+    dir: in
+    width: 1
+  - name: req
+    dir: in
+    width: N
+  - name: gnt
+    dir: out
+    width: N
+environment:
+  initial_reset: true
+  reset_anytime: true
+rtl:
+  ref:
+    top: rr_arbiter
+    files:
+    - rtl/rr_arbiter.v
+    params:
+      N: N
+    desc: Reference implementation (human-written).
+    origin: human
+  ai:
+    top: rr_arbiter
+    files:
+    - rtl/ai_rr_arbiter.v
+    params:
+      N: N
+    desc: AI-generated implementation (RTL generator agent, spec only).
+    origin: agent:rtlgen

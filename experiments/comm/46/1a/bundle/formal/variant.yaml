@@ -1,0 +1,206 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # The Fib4 sequence as the definition states it: base values 0, 0, 2, 0 for
+  # indices 0..3, then every '+/-' read as '+' from index 4 on.
+  # seq_def[k] is the element with index k, k = 0..126.
+  seq_def: >-
+    [0, 0, 2, 0, 2, 4, 8, 14, 28, 54,
+    104, 200, 386, 744, 1434, 2764, 5328, 10270, 19796, 38158,
+    73552, 141776, 273282, 526768, 1015378, 1957204, 3772632, 7271982, 14017196, 27019014,
+    52080824, 100389016, 193506050, 372994904, 718970794, 1385860764, 2671332512, 5149158974, 9925323044, 19131675294,
+    36877489824, 71083647136, 137018135298, 264110947552, 509090219810, 981302949796, 1891522252456, 3646026369614, 7027941791676, 13546793363542,
+    26112283777288, 50333045302120, 97020064234626, 187012186677576, 360477579991610, 694842876205932, 1339352707109744, 2581685349984862, 4976358513292148, 9592239446592686,
+    18489636016979440, 35639919326849136, 68698153303713410, 132419948094134672, 255247656741676658, 492005677466373876, 948371435605898616, 1828044717908083822, 3523669487722032972, 6792091318702389286,
+    13092176959938404696, 25235982484270910776, 48643920250633737730, 93764171013545442488, 180736250708388495690, 348380324456838586684, 671524666429406262592, 1294405412608178787454, 2495046654202812132420, 4809357057697235769150,
+    9270333790937632951616, 17869142915445859640640, 34443880418283540493826, 66392714182364268855232, 127976071307031301941314, 246681808823124970931012, 475494474730804082221384, 916545069043324623948942, 1766697423904284979042652, 3405418776501538656143990,
+    6564155744179952341356968, 12652817013629100600492552, 24389088958214876577036162, 47011480492525468175029672, 90617542208549397693915354, 174670928672918843046473740, 336689040332208585492454928, 648988991706202294407873694, 1250966502919879120640717716, 2411315463631208843587520078,
+    4647959998589498844128566416, 8959230956846789102764677904, 17269472921987375911121482114, 33287979341054872701602246512, 64164643218478536559616972946, 123681326438367574275105379476, 238403421919888359447446081048, 459537370917789342983770679982, 885786762494523813265939113452, 1707408881770569089972261253958,
+    3291136437102770605669417128440, 6343869452285652851891388175832, 12228201533653516360799005671682, 23570616304812508908332072229912, 45433823727854448726691883205866, 87576511018606126847714349283292, 168809152584926600843537310390752, 325390103636199685326275615109822, 627209590967586861744219157989732, 1208985358207319274761746432773598,
+    2330394205396032422675778516263904, 4491979258207138244508019722137056, 8658568412778076803689763829164290, 16689927234588566745635308500338848, 32170869110969814216508870567904098, 62011344016543596010341962619544292, 119530708774880053776175905516951528]
+  # The sequence the examples fit: the same base values, fib4(4) = 0, then
+  # every '+/-' read as '+' from index 5 on (0, 0, 2, 0, 0, 2, 4, 6, 12, ...).
+  # seq_ex[k] is the element with index k, k = 0..127.
+  seq_ex: >-
+    [0, 0, 2, 0, 0, 2, 4, 6, 12, 24,
+    46, 88, 170, 328, 632, 1218, 2348, 4526, 8724, 16816,
+    32414, 62480, 120434, 232144, 447472, 862530, 1662580, 3204726, 6177308, 11907144,
+    22951758, 44240936, 85277146, 164376984, 316846824, 610741890, 1177242844, 2269208542, 4374040100, 8431233376,
+    16251724862, 31326206880, 60383205218, 116392370336, 224353507296, 432455289730, 833584372580, 1606785539942, 3097178709548, 5970003911800,
+    11507552533870, 22181520695160, 42756255850378, 82415332991208, 158860662070616, 306213771607362, 590246022519564, 1137735789188750, 2193056245386292, 4227251828701968,
+    8148289885796574, 15706333749073584, 30274931708958418, 58356807172530544, 112486362516359120, 216824435146921666, 417942536544769748, 805610141380581078, 1552863475588631612, 2993240588660904104,
+    5769656742174886542, 11121370947805003336, 21437131754229425594, 41321400032870219576, 79649559477079535048, 153529462211984183554, 295937553476163363772, 570437975198097301950, 1099554550363324384324, 2119459541249569233600,
+    4085389620287154283646, 7874841687098145203520, 15179245398998193105090, 29258936247633061825856, 56398412954016554418112, 108711436287745954552578, 209548030888393763901636, 403916816377789334698182, 778574696507945607570508, 1500750980061874660722904,
+    2892790523836003366893230, 5576033016783612969884824, 10748149217189436605071466, 20717723737870927602572424, 39934696495679980544421944, 76976602467523957721950658, 148377171918264302474016492, 286006194619339168342961518, 551294665500807409083350612, 1062654634505934837622279280,
+    2048332666544345717522607902, 3948288161170427132571199312, 7610570127721515096799437106, 14669845589942222784515523600, 28277036545378510731408767920, 54505740424212675745294927938, 105063192687254924358018656564, 202515815246788333619237876022, 390361784903634444453960228444, 752446533261890378176511688968,
+    1450387326099568080607728449998, 2795711459511881236857438243432, 5388907103776974140095638610842, 10387452422650313835737316993240, 20022458312038737293298122297512, 38594529297977906505988516145026, 74393347136443931775119594046620, 143397787169110889410143549482398, 276408121915571464984549781971556, 532793785519104192675801441645600,
+    1026993041740230478845614367146174, 1979592736344017025916109140245728, 3815787685518923162422074731009058, 7355167249122274859859599680046560, 14177540712725445527043397918447520, 27328088383710660575241181469748866, 52676584031077304124566253799252004, 101537380376635685086710432867494950]
+
+assumptions:
+  - id: RV-IF-1
+    req: R-IF-1
+    expr: 'n >= 0'
+    note: >-
+      Read as instructed (reading 2 of 'n: int'): n is a non-negative index
+      into the sequence, which starts at fib4(0), and a negative n is never
+      passed. The adapter encodes n as an unsigned 7-bit signal, so this holds
+      on every trace; the single int argument is fixed by the interface.
+
+properties:
+  - id: RV-BASE-1
+    req: R-BASE-1
+    expr: 'n == 0 -> outcome == 0 && result == 0'
+    note: >-
+      Literal: the call fib4(0) returns the integer 0. Affected by the
+      instructed reading 2 of 'n-th element' (R-FUN-1): RV-FUN-1 leaves
+      fib4(0) undefined, so this is the only item that constrains n = 0.
+  - id: RV-BASE-2
+    req: R-BASE-2
+    expr: 'n == 1 -> outcome == 0 && result == 0'
+    note: >-
+      Literal: the call fib4(1) returns 0. Under the instructed reading 2 of
+      'n-th element', RV-FUN-1 also gives 0 here (the definition's element
+      with index 0), so the two items agree.
+  - id: RV-BASE-3
+    req: R-BASE-3
+    expr: 'n == 2 -> outcome == 0 && result == 2'
+    note: >-
+      Literal: the call fib4(2) returns 2. Affected by the instructed reading
+      2 of 'n-th element' (R-FUN-1): RV-FUN-1 requires fib4(2) to return the
+      definition's element with index 1, which is 0, so RV-BASE-3 and
+      RV-FUN-1 contradict each other at n = 2. Left as stated, not repaired.
+  - id: RV-BASE-4
+    req: R-BASE-4
+    expr: 'n == 3 -> outcome == 0 && result == 0'
+    note: >-
+      Literal: the call fib4(3) returns 0. Affected by the instructed reading
+      2 of 'n-th element' (R-FUN-1): RV-FUN-1 requires fib4(3) to return the
+      definition's element with index 2, which is 2, so RV-BASE-4 and
+      RV-FUN-1 contradict each other at n = 3. Left as stated, not repaired.
+  - id: RV-REC-1
+    req: R-REC-1
+    expr: 'n >= 5 -> outcome == 0 && result == seq_ex[n]'
+    note: >-
+      Read as instructed: every '+/-' is '+' (reading 1 of '+/-'), and in the
+      contradiction with the examples, the examples are right and the
+      definition is wrong as stated (reading 2 of the recurrence phrase). The
+      all-'+' recurrence is kept from n = 5 on, where it agrees with the
+      examples. Calls are independent, so the recurrence is written in closed
+      form: seq_ex is the sequence with base values 0, 0, 2, 0, fib4(4) = 0
+      (see RV-REC-2), and fib4(k) = fib4(k-1) + fib4(k-2) + fib4(k-3) +
+      fib4(k-4) for k >= 5. That gives 2, 4, 6, 12, 24, ... for n = 5, 6, 7, 8, 9.
+      Every value up to n = 127 fits result (below 2^118), so the call must
+      return it with outcome 0. Contradicts RV-FUN-1 for every n >= 7 (for
+      example fib4(7) = 6 here, 8 there).
+  - id: RV-REC-2
+    req: R-REC-1
+    expr: 'n == 4 -> outcome == 0 && result == 0'
+    note: >-
+      Read as instructed (reading 2 of the recurrence phrase): the examples
+      are right and the definition is wrong as stated. The stated recurrence
+      with all '+' would give fib4(4) = 0 + 2 + 0 + 0 = 2. The examples fit
+      the all-'+' recurrence only if fib4(4) = 0, so under this reading the
+      stated recurrence does not hold at n = 4, and fib4(4) is 0. Agrees with
+      RV-FUN-1 at n = 4 (the definition's element with index 3 is 0).
+  - id: RV-FUN-1
+    req: R-FUN-1
+    expr: 'n >= 1 -> outcome == 0 && result == seq_def[n - 1]'
+    note: >-
+      Read as instructed (reading 2 of 'n-th element'): elements are counted
+      from 1, so fib4(n) returns the value the definition gives for index
+      n-1, as an integer (outcome 0; every such value fits result). As that
+      reading's own wording says ("with all '+' this matches fib4(5) = 2 and
+      fib4(6) = 4 but not fib4(7) = 6"), 'the definition' is the one stated:
+      base values 0, 0, 2, 0 and the all-'+' recurrence from index 4 (seq_def
+      = 0, 0, 2, 0, 2, 4, 8, 14, ...), not the corrected sequence of
+      RV-REC-1. n = 0 is left unconstrained here ("leaves fib4(0)
+      undefined"). Under this reading the item contradicts RV-BASE-3 (n = 2),
+      RV-BASE-4 (n = 3), RV-EX-3 (n = 7) and RV-REC-1 (every n >= 7).
+  - id: RV-EX-1
+    req: R-EX-1
+    expr: 'n == 5 -> outcome == 0 && result == 2'
+    note: >-
+      Reading 1 of '>>> fib4(5)': the example is right, and fib4(5) must
+      return 2. This matches the instructed reading 2 of R-REC-1's recurrence
+      phrase (the examples are right). The function is deterministic, so the
+      doctest is a guarantee for that call; scenario RV-EX-1-S states that the
+      call is possible. Agrees with RV-REC-1 and RV-FUN-1.
+  - id: RV-EX-2
+    req: R-EX-2
+    expr: 'n == 6 -> outcome == 0 && result == 4'
+    note: >-
+      Reading 1 of '>>> fib4(6)': the example is right, and fib4(6) must
+      return 4. This matches the instructed reading 2 of R-REC-1's recurrence
+      phrase. A guarantee for that call; scenario RV-EX-2-S states that it is
+      possible. Agrees with RV-REC-1 and RV-FUN-1.
+  - id: RV-EX-3
+    req: R-EX-3
+    expr: 'n == 7 -> outcome == 0 && result == 6'
+    note: >-
+      Reading 1 of '>>> fib4(7)': the example is right, and fib4(7) must
+      return 6. This matches the instructed reading 2 of R-REC-1's recurrence
+      phrase. A guarantee for that call; scenario RV-EX-3-S states that it is
+      possible. Agrees with RV-REC-1 but contradicts RV-FUN-1 under the
+      instructed reading 2 of 'n-th element', which gives fib4(7) = 8.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'n == 5 && outcome == 0 && result == 2'
+    note: >-
+      The doctest call fib4(5) returning 2 must be possible (reading 1 of
+      '>>> fib4(5)'; see RV-EX-1).
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'n == 6 && outcome == 0 && result == 4'
+    note: >-
+      The doctest call fib4(6) returning 4 must be possible (reading 1 of
+      '>>> fib4(6)'; see RV-EX-2).
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'n == 7 && outcome == 0 && result == 6'
+    note: >-
+      The doctest call fib4(7) returning 6 must be possible (reading 1 of
+      '>>> fib4(7)'; see RV-EX-3). Unreachable together with RV-FUN-1 under
+      the instructed reading 2 of 'n-th element'.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Says what to deliver (complete the body of the given function), not
+      how a call behaves. The signature it fixes (one int argument, an
+      integer returned) is the adapter's interface encoding.
+  - req: R-DEF-1
+    reason: >-
+      A definition with no behaviour of its own. Its base values and
+      recurrence are formalized by the items listed here; seq_def (the
+      sequence as stated) and seq_ex (the sequence the examples fit) are its
+      closed forms under the instructed readings of R-REC-1.
+    covered_by: [RV-BASE-1, RV-BASE-2, RV-BASE-3, RV-BASE-4, RV-REC-1, RV-REC-2]
+  - req: R-NF-1
+    reason: >-
+      Read as instructed (reading 1 of 'efficiently'): time linear in n and
+      constant extra memory (an iterative loop that keeps the last four
+      elements). Running time and memory are not part of the trace, which
+      records only n, result and outcome. The one observable effect, a call
+      that never finishes (outcome 1), is already ruled out by the items that
+      require outcome 0 (RV-BASE-1 for n = 0, RV-FUN-1 for n >= 1).
+  - req: R-NF-2
+    reason: >-
+      Read as instructed (reading 1 of 'recursion'): fib4 must not call
+      itself, directly or through other functions; a recursive helper that
+      does not call fib4 is allowed. Which functions the code calls is not
+      part of the trace, which records only n, result and outcome.
+
+decisions:
+  - {req: R-IF-1, phrase: 'n: int', reading: 2}
+  - {req: R-REC-1, phrase: '+/-', reading: 1}
+  - {req: R-REC-1, phrase: 'fib4(n) -> fib4(n-1) +/- fib4(n-2) +/- fib4(n-3) +/- fib4(n-4)', reading: 2}
+  - {req: R-FUN-1, phrase: 'n-th element', reading: 2}
+  - {req: R-NF-1, phrase: 'efficiently', reading: 1}
+  - {req: R-NF-2, phrase: 'recursion', reading: 1}
+  - {req: R-EX-1, phrase: '>>> fib4(5)', reading: 1}
+  - {req: R-EX-2, phrase: '>>> fib4(6)', reading: 1}
+  - {req: R-EX-3, phrase: '>>> fib4(7)', reading: 1}

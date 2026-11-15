@@ -1,0 +1,2045 @@
+{
+ "what": "every call shown under a `readings` or `depends` relation of a stored review, replayed on the monitors of the two readings (experiments/comm_replay.py)",
+ "totals": {
+  "requests": 72,
+  "requests by status": {
+   "no call": 13,
+   "ok": 59
+  },
+  "relations": 119,
+  "by result": {
+   "depends: confirmed": 109,
+   "readings: confirmed": 10
+  }
+ },
+ "requests": {
+  "08319839ac07": {
+   "task": "HumanEval/159",
+   "variant": "1c",
+   "review": "acb1365801a3604c",
+   "with_call": 4,
+   "status": "ok",
+   "seconds": 1.2,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-LEFT-1",
+     "calls": [
+      "eat(0, 1, 1) -> [1, 0]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "eat(0, 1, 0) -> returned something else"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-TOT-1",
+     "calls": [
+      "eat(1, 0, 1) -> [1, 1]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-HUN-1",
+     "calls": [
+      "eat(0, 1, 0) -> [0, 0]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_b",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "138620991e36": {
+   "task": "HumanEval/80",
+   "variant": "1p",
+   "review": "e3449a652449ac56",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 0.8,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-FN-1",
+     "calls": [
+      "is_happy(\"dcbabaiagfpgflaq\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "16a7b2fe5d6d": {
+   "task": "HumanEval/26",
+   "variant": "1c",
+   "review": "f9845dc5707c64e0",
+   "with_call": 3,
+   "status": "ok",
+   "seconds": 6.4,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-IF-3",
+     "calls": [
+      "remove_duplicates([0, 1, 1, 1]) -> raised another exception or did not finish"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RM-1",
+     "calls": [
+      "remove_duplicates([185, 148, 224, 148, 148, 0, 206]) -> [185, 224, 0, 206]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RM-2",
+     "calls": [
+      "remove_duplicates([1, 27, 1, 27, 229, 94, 240, 225]) -> [229, 94, 240, 225]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "1913572e6b20": {
+   "task": "HumanEval/68",
+   "variant": "1a",
+   "review": "5e41eb4e6549d1b3",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 0.7,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-SEL-1",
+     "calls": [
+      "pluck([0, 4, 4, 0, 0, 0, 0, 0]) -> returned something else"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "1a5fcd4d7d64": {
+   "task": "HumanEval/138",
+   "variant": "1c",
+   "review": "836b29f8406916a8",
+   "with_call": 3,
+   "status": "ok",
+   "seconds": 1.1,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-EX-3",
+     "calls": [
+      "is_equal_to_sum_even(8) -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-SUM-1",
+     "calls": [
+      "is_equal_to_sum_even(20) -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-SUM-2",
+     "calls": [
+      "is_equal_to_sum_even(0) -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "204ea321af59": {
+   "task": "HumanEval/154",
+   "variant": "original",
+   "review": "475b07199280ca90",
+   "with_call": 3,
+   "status": "ok",
+   "seconds": 22.6,
+   "relations": [
+    {
+     "kind": "readings",
+     "req": "R-RES-1",
+     "calls": [
+      "cycpattern_check(\"\", \"\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "agent_b",
+     "mode": "in context"
+    },
+    {
+     "kind": "readings",
+     "req": "R-RES-2",
+     "calls": [
+      "cycpattern_check(\"\", \" \") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "agent_b",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RES-1",
+     "calls": [
+      "cycpattern_check(\" \", \"\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "20b39c6ea722": {
+   "task": "HumanEval/48",
+   "variant": "1p",
+   "review": "85ecfeb1940aa882",
+   "with_call": 3,
+   "status": "ok",
+   "seconds": 1.2,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-CHK-1",
+     "calls": [
+      "candidate(\"\") -> returned something else"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-CHK-2",
+     "calls": [
+      "candidate(\"\\u0001\\b\\u008b;N\\u008a*\\u0080\\u00f3\\fi\\u001f\\u00e3\\u0085Y\\u0085\\u00e3\\u001fi\\f\\u00f3\\u0080*\\u008aN;\\u008b\\b\\u0001\") -> False",
+      "candidate(\"\\u0001\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_b",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-CHK-3",
+     "calls": [
+      "candidate(\"\\u0001\\u0002\\u0001\\u0001\\u0001\\u0001\\u0001\") -> True",
+      "candidate(\"\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_b",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "241da7595679": {
+   "task": "HumanEval/46",
+   "variant": "original",
+   "review": "d45e8393a379315f",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "26fd5d055292": {
+   "task": "HumanEval/72",
+   "variant": "1p",
+   "review": "026fbacc9ee4ca95",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 0.8,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-FLY-1",
+     "calls": [
+      "will_it_fly([2], 3) -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "2b1c888104ee": {
+   "task": "HumanEval/124",
+   "variant": "1a",
+   "review": "545c0f6dac99a7e9",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 6.9,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "valid_date(\"\\r\\u0085\\u00a0\\u00851-9-4\\u00a0\\u0085\\u0085 \\f\\f\\r\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-2",
+     "calls": [
+      "valid_date(\"1-1\\u000e\\u0000./.-\\u0085\\t\\r\\f\\u00a0\\u00a0\\r\") -> raised another exception or did not finish"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "2b98cbf49d1f": {
+   "task": "HumanEval/163",
+   "variant": "1p",
+   "review": "526c2bf045d9ea4c",
+   "with_call": 3,
+   "status": "ok",
+   "seconds": 16.3,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "generate_integers(0, 0) -> raised another exception or did not finish"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-2",
+     "calls": [
+      "generate_integers(0, 9) -> [2, 2, 3, 3, 3, 4, 6, 8, 8, 8]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-3",
+     "calls": [
+      "generate_integers(0, 0) -> [8, 8, 8, 8]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "2ddb62206a79": {
+   "task": "HumanEval/80",
+   "variant": "1c",
+   "review": "7082bd5954aa5594",
+   "with_call": 3,
+   "status": "ok",
+   "seconds": 580.9,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-HAP-1",
+     "calls": [
+      "is_happy(\"adb\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-HAP-2",
+     "calls": [
+      "is_happy(\"a\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-HAP-3",
+     "calls": [
+      "is_happy(\"xyy\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "3a96fd11524b": {
+   "task": "HumanEval/134",
+   "variant": "1a",
+   "review": "81186b3cbc880cea",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 1.5,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "candidate(\"A\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-2",
+     "calls": [
+      "candidate(\"b\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "3b1d7825db6a": {
+   "task": "HumanEval/64",
+   "variant": "1p",
+   "review": "c74c03c8a7d8b0f8",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "4600087ad4bd": {
+   "task": "HumanEval/73",
+   "variant": "1a",
+   "review": "1c4559a74e54409c",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 85.0,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-CH-1",
+     "calls": [
+      "candidate([4, 100, 0, 101, 201, 10, 0, 100, 200, 13]) -> 5"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-DEF-1",
+     "calls": [
+      "candidate([1, 102, 102, 232, 5, 232, 102, 102, 1]) -> 0"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_b",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "46b20069f7c9": {
+   "task": "HumanEval/61",
+   "variant": "1p",
+   "review": "34abc036c579adaa",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 1.2,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "correct_bracketing(\"\\u0001\\u0001\") -> raised another exception or did not finish"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "497827219484": {
+   "task": "HumanEval/88",
+   "variant": "1c",
+   "review": "bc458323010b2ffe",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 1.2,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-ORD-1",
+     "calls": [
+      "sort_array([0, 4, 1, 3, 0, 1, 3]) -> [0, 0, 1, 1, 3, 3, 4]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-ORD-2",
+     "calls": [
+      "sort_array([3, 6, 2, 6, 0, 3, 2, 6]) -> [0, 2, 2, 3, 3, 6, 6, 6]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "49fa1b859a16": {
+   "task": "HumanEval/73",
+   "variant": "original",
+   "review": "22c732dc42b7ac5e",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "4acc4d008a8f": {
+   "task": "HumanEval/48",
+   "variant": "1c",
+   "review": "3aec1c920e0718f0",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 2.6,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-FN-1",
+     "calls": [
+      "is_palindrome(\"\\u00c0\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-FN-2",
+     "calls": [
+      "is_palindrome(\"\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u00c0\\u00c1\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0002\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "4b95292abbb0": {
+   "task": "HumanEval/72",
+   "variant": "1a",
+   "review": "52a0fb626db6bcca",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 0.9,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "will_it_fly([], 0) -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-2",
+     "calls": [
+      "will_it_fly([1, 1, 1, 52, 52, 1, 1, 1], 0) -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "4c775f6e9d66": {
+   "task": "HumanEval/68",
+   "variant": "1p",
+   "review": "179ba28b5dc805a3",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 0.7,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-OUT-1",
+     "calls": [
+      "pluck([1, 1, 1, 3, 1, 1, 1, 3]) -> 2",
+      "pluck([1, 1, 1, 1, 1, 1, 1, 1]) -> 1"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_b",
+     "mode": "in context"
+    }
+   ]
+  },
+  "4dedff52e911": {
+   "task": "HumanEval/124",
+   "variant": "original",
+   "review": "3c29534206432537",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 1.8,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "valid_date(\"00002-00000001-3\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "56020d91c587": {
+   "task": "HumanEval/26",
+   "variant": "1p",
+   "review": "aa0df679d9fbdf08",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 1.7,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RM-3",
+     "calls": [
+      "candidate([0]) -> []"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "598de130691c": {
+   "task": "HumanEval/61",
+   "variant": "1c",
+   "review": "ce39560e3308305f",
+   "with_call": 3,
+   "status": "ok",
+   "seconds": 11.8,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-EX-1",
+     "calls": [
+      "correct_bracketing(\"(\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-EX-4",
+     "calls": [
+      "correct_bracketing(\")(()\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "correct_bracketing(\"\\u0001\\u0001\\u0001\\u0001*\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "5a95c05438cd": {
+   "task": "HumanEval/138",
+   "variant": "original",
+   "review": "1526cfc389a17b41",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 0.9,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-SUM-1",
+     "calls": [
+      "is_equal_to_sum_even(10) -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-SUM-2",
+     "calls": [
+      "is_equal_to_sum_even(8) -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "5f37916c06b1": {
+   "task": "HumanEval/64",
+   "variant": "1c",
+   "review": "6e71bed37906f823",
+   "with_call": 4,
+   "status": "ok",
+   "seconds": 2.2,
+   "relations": [
+    {
+     "kind": "readings",
+     "req": "R-OUT-1",
+     "calls": [
+      "vowels_count(\"\") -> returned something else"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "agent_b",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-OUT-1",
+     "calls": [
+      "vowels_count(\"\") -> raised another exception or did not finish"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-OUT-2",
+     "calls": [
+      "vowels_count(\"\\u00f2y\") -> 1"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-Y-2",
+     "calls": [
+      "vowels_count(\"a\\u00deafaOff\\u00dc\\u00de\\u00ddz`uAaAa[\\\\O\\u00dfYuvuA`yAAY\") -> 16"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_b",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "62df4a5a5b38": {
+   "task": "HumanEval/134",
+   "variant": "1p",
+   "review": "d2e7697959202ecb",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 3.0,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-2",
+     "calls": [
+      "candidate(\"\\u0001!\\u0001!!!!!!\\u0001!!!\\u0001!!!!!!!!!! A      \") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-3",
+     "calls": [
+      "candidate(\"\\u0000!!!!!!!\\u0001!\\u0001!!!\\u0001[{\\u0001!!![{!\\u0001\\u0001\\u0001\\u0001{,\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "63528569e110": {
+   "task": "HumanEval/154",
+   "variant": "1a",
+   "review": "f7a0d75bce6598c1",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "6823786fff65": {
+   "task": "HumanEval/61",
+   "variant": "original",
+   "review": "9ef2154d56cb4ace",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "6fd3a2613e90": {
+   "task": "HumanEval/144",
+   "variant": "original",
+   "review": "1ea5e402cf4731b2",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "701ec0dbc149": {
+   "task": "HumanEval/73",
+   "variant": "1c",
+   "review": "7254913f70d1d4ab",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 0.8,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-CH-1",
+     "calls": [
+      "smallest_change([0, 1, 0]) -> 0"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "718f121b6c5f": {
+   "task": "HumanEval/154",
+   "variant": "1p",
+   "review": "560d879799679509",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 215.3,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RULE-1",
+     "calls": [
+      "candidate(\"\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\", \"\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RULE-2",
+     "calls": [
+      "candidate(\"p\\u00d9Z\\u00ca\\u00cc\\u00cd\\u00c4\\u00c9\\u00d1\\u00cf\\u00c7\\u00e0\\u00d8\\u00eeYX\", \"\\u00d9PXY\\u00ce\\u00d8\\u00c0\\u00c7\\u00cf\\u00d1\\u00c9\\u00c4\\u00cd\\u00cc\\u00caZ\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "7420ede04f16": {
+   "task": "HumanEval/163",
+   "variant": "1c",
+   "review": "3ebc105b1a2e40df",
+   "with_call": 5,
+   "status": "ok",
+   "seconds": 2.9,
+   "relations": [
+    {
+     "kind": "readings",
+     "req": "R-ORD-1",
+     "calls": [
+      "generate_integers(2, 3) -> [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]",
+      "generate_integers(3, 1) -> [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "agent_b",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-OUT-1",
+     "calls": [
+      "generate_integers(0, 1) -> raised another exception or did not finish",
+      "generate_integers(1, 1) -> []"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RES-2",
+     "calls": [
+      "generate_integers(9, 14) -> [12]",
+      "generate_integers(17, 16) -> []"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RES-4",
+     "calls": [
+      "generate_integers(0, 63) -> [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62]",
+      "generate_integers(45, 47) -> []"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-SYM-1",
+     "calls": [
+      "generate_integers(10, 7) -> [8]",
+      "generate_integers(0, 2) -> []"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "759017ffc3d0": {
+   "task": "HumanEval/88",
+   "variant": "original",
+   "review": "805999a0fd88766f",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 1.2,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-ORD-1",
+     "calls": [
+      "sort_array([1, 1, 7, 1, 1, 6, 1, 1]) -> [7, 6, 1, 1, 1, 1, 1, 1]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-ORD-2",
+     "calls": [
+      "sort_array([8, 7, 8, 8, 8, 6, 8]) -> [8, 8, 8, 8, 8, 7, 6]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "769fbd1f9961": {
+   "task": "HumanEval/41",
+   "variant": "1c",
+   "review": "09e2ea5dbd15b8e1",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 0.7,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-OUT-1",
+     "calls": [
+      "is_prime(25) -> returned something else"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "77875ab5aa76": {
+   "task": "HumanEval/88",
+   "variant": "1a",
+   "review": "d78bec1398134b06",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 1.3,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-ORD-1",
+     "calls": [
+      "sort_array([2, 4, 0]) -> [4, 2, 0]"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-ORD-2",
+     "calls": [
+      "sort_array([0, 0, 0, 0, 0, 0, 0]) -> [0, 0, 0, 0, 0, 0, 0]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "7b95c329cc30": {
+   "task": "HumanEval/80",
+   "variant": "original",
+   "review": "7029d978071426b0",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 552.1,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-HAP-4",
+     "calls": [
+      "is_happy(\"hacbabfhecdabigjklmnopqrstuvwxyz\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "7eec07d4bfb2": {
+   "task": "HumanEval/41",
+   "variant": "1p",
+   "review": "17f1fe709d4cac8c",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 0.7,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-FN-1",
+     "calls": [
+      "candidate(256) -> 0"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "8a8949830b8d": {
+   "task": "HumanEval/138",
+   "variant": "1p",
+   "review": "aeca1748e0ef07f1",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 0.9,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-SUM-1",
+     "calls": [
+      "is_equal_to_sum_even(0) -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-SUM-2",
+     "calls": [
+      "is_equal_to_sum_even(0) -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "8b2b41ae49fa": {
+   "task": "HumanEval/72",
+   "variant": "1c",
+   "review": "7405ebf3ca268220",
+   "with_call": 3,
+   "status": "ok",
+   "seconds": 1.2,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "will_it_fly([0], 0) -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-2",
+     "calls": [
+      "will_it_fly([0, 1, 1, 1, 1, 1, 1, 233], 239) -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-3",
+     "calls": [
+      "will_it_fly([2], 0) -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "8bb2bd411315": {
+   "task": "HumanEval/80",
+   "variant": "1a",
+   "review": "ae6f9026f5ed2113",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 2.6,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-HAP-3",
+     "calls": [
+      "is_happy(\"bcdfebfcdeafgeabcstvuavrqpronppa\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "8d539fbca98d": {
+   "task": "HumanEval/49",
+   "variant": "original",
+   "review": "b36a7d9cc1064b14",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 4.4,
+   "relations": [
+    {
+     "kind": "readings",
+     "req": "R-RES-1",
+     "calls": [
+      "modp(1, 2) -> 1"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "agent_b",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RES-1",
+     "calls": [
+      "modp(1, 2) -> 0"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ],
+   "cases": 65536
+  },
+  "96aed0407607": {
+   "task": "HumanEval/134",
+   "variant": "original",
+   "review": "8e3768fffaebd5f7",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 1.3,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-LAST-1",
+     "calls": [
+      "check_if_last_char_is_a_letter(\" a                              \") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "974dd7557321": {
+   "task": "HumanEval/73",
+   "variant": "1p",
+   "review": "7cf0dba75d7ea54a",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 0.8,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-CNT-2",
+     "calls": [
+      "candidate([]) -> returned something else"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "992f15da0614": {
+   "task": "HumanEval/124",
+   "variant": "1c",
+   "review": "95f8fc8e52e6722b",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 3.2,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-FMT-2",
+     "calls": [
+      "valid_date(\"06-06-0000\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "valid_date(\" 5\\u00001'1531\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "9a1445b821ee": {
+   "task": "HumanEval/64",
+   "variant": "original",
+   "review": "ef277c6cc93d147e",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 1.5,
+   "relations": [
+    {
+     "kind": "readings",
+     "req": "R-CNT-1",
+     "calls": [
+      "vowels_count(\"yBBVVByBzBzVBVBBBVyBBBBBBVzBBIVy\") -> 2"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_b",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-CNT-1",
+     "calls": [
+      "vowels_count(\" \") -> 55"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "9a9c508831d6": {
+   "task": "HumanEval/26",
+   "variant": "1a",
+   "review": "704ce920ae475872",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 2.7,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-FN-2",
+     "calls": [
+      "candidate([0]) -> []"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "9b7fc9a31469": {
+   "task": "HumanEval/46",
+   "variant": "1a",
+   "review": "3d772b5e0d88470a",
+   "with_call": 3,
+   "status": "ok",
+   "seconds": 1.6,
+   "relations": [
+    {
+     "kind": "readings",
+     "req": "R-REC-1",
+     "calls": [
+      "fib4(5) -> 124615124604835863084731911095975935"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "agent_b",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-FUN-1",
+     "calls": [
+      "fib4(2) -> 2"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-REC-1",
+     "calls": [
+      "fib4(8) -> 14"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "a0fb8b87d4d0": {
+   "task": "HumanEval/41",
+   "variant": "original",
+   "review": "0226bc1ee7470e9d",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "a34b973d19b8": {
+   "task": "HumanEval/144",
+   "variant": "1p",
+   "review": "81e369e90f71fbb3",
+   "with_call": 4,
+   "status": "ok",
+   "seconds": 78.0,
+   "relations": [
+    {
+     "kind": "readings",
+     "req": "R-OUT-1",
+     "calls": [
+      "simplify(\"51/17659\", \"29/4\") -> returned something else"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_b",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "readings",
+     "req": "R-OUT-2",
+     "calls": [
+      "simplify(\"001111111111/111\", \"001111111/111114\") -> True",
+      "simplify(\"0011111111111/0\", \"\\u00010111111111111/0\") -> raised another exception or did not finish"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "agent_b",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-OUT-1",
+     "calls": [
+      "simplify(\"11211111/1011011\", \"11/2111100112213\") -> returned something else",
+      "simplify(\"/212/\\u0001//1./20\", \"2//./\\u0001\\u0001/////\\u00021/2\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-OUT-2",
+     "calls": [
+      "simplify(\"111/140212144453\", \"1/11211111121111\") -> False",
+      "simplify(\"./2/\\u00011.121////61\", \"2/////22./21.\\u00012\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "a530614bf6b3": {
+   "task": "HumanEval/159",
+   "variant": "1p",
+   "review": "461ccab0a2b03773",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "a6673c501460": {
+   "task": "HumanEval/144",
+   "variant": "1c",
+   "review": "0f36a6456f4bd4d6",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "a9524a0b08c9": {
+   "task": "HumanEval/68",
+   "variant": "1c",
+   "review": "43dba45b2f26b292",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 6.8,
+   "relations": [
+    {
+     "kind": "readings",
+     "req": "R-EMP-2",
+     "calls": [
+      "pluck([]) -> [1]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "agent_b",
+     "mode": "in context"
+    }
+   ]
+  },
+  "a96703c146c7": {
+   "task": "HumanEval/154",
+   "variant": "1c",
+   "review": "b02eca2030fe3cdd",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 48.9,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RES-1",
+     "calls": [
+      "cycpattern_check(\"\\u0001\\u0001\\u0001\", \"\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RES-2",
+     "calls": [
+      "cycpattern_check(\"efef\", \"eeff\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "bbbb5ec937d5": {
+   "task": "HumanEval/72",
+   "variant": "original",
+   "review": "994edab75a426f15",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 1.0,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-FLY-1",
+     "calls": [
+      "will_it_fly([1, 1], 2) -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-FLY-2",
+     "calls": [
+      "will_it_fly([0, 1], 2) -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "bbbe745cc740": {
+   "task": "HumanEval/138",
+   "variant": "1a",
+   "review": "51a007cc9625e2c5",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 0.8,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-FN-1",
+     "calls": [
+      "candidate(62639) -> returned something else"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-FN-2",
+     "calls": [
+      "candidate(4) -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "be9546c88f56": {
+   "task": "HumanEval/46",
+   "variant": "1c",
+   "review": "3a3d94cfac3777b4",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 0.9,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-FN-1",
+     "calls": [
+      "fib4(3) -> 0"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "c05fcc5e8ba4": {
+   "task": "HumanEval/159",
+   "variant": "original",
+   "review": "344c26c1ac115e9b",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 0.8,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "eat(0, 1, 0) -> returned something else"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "c2338f73899b": {
+   "task": "HumanEval/48",
+   "variant": "original",
+   "review": "c7459662f3eda39c",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 1.4,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-PAL-1",
+     "calls": [
+      "is_palindrome(\"\\u00c0\\u00e0\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-PAL-2",
+     "calls": [
+      "is_palindrome(\"\\u00d8\\u00f8\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "c5889d92794f": {
+   "task": "HumanEval/159",
+   "variant": "1a",
+   "review": "87a2066cd11a0dba",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 1.0,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "eat(776, 1000, 1023) -> raised another exception or did not finish"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-2",
+     "calls": [
+      "eat(0, 1, 1) -> [1, 0]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "ca32dc983662": {
+   "task": "HumanEval/88",
+   "variant": "1p",
+   "review": "50858a8e74262e27",
+   "with_call": 4,
+   "status": "ok",
+   "seconds": 4.6,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-ORD-1",
+     "calls": [
+      "sort_array([1, 1, 2, 5, 3, 5, 6, 5]) -> [1, 1, 2, 3, 5, 5, 5, 6]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-ORD-2",
+     "calls": [
+      "sort_array([4, 2, 0, 2, 4, 3, 0, 3]) -> [0, 0, 2, 2, 3, 3, 4, 4]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "sort_array([]) -> raised another exception or did not finish"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RET-2",
+     "calls": [
+      "sort_array([]) -> [1, 2, 3, 4, 5, 6, 7]"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_b",
+     "mode": "in context"
+    }
+   ]
+  },
+  "cd20e174a100": {
+   "task": "HumanEval/124",
+   "variant": "1p",
+   "review": "cfa4e8c297e5ccab",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "d2f5a3a326eb": {
+   "task": "HumanEval/61",
+   "variant": "1a",
+   "review": "0ce0371047392886",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 1.2,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-1",
+     "calls": [
+      "candidate(\")(())()()))((())(((()((()())))()\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "dd5fcdefb0dc": {
+   "task": "HumanEval/163",
+   "variant": "original",
+   "review": "2354c69b3ba57e7c",
+   "with_call": 4,
+   "status": "ok",
+   "seconds": 7.0,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-OUT-1",
+     "calls": [
+      "generate_integers(0, 0) -> raised another exception or did not finish"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-OUT-2",
+     "calls": [
+      "generate_integers(0, 20) -> [2, 4, 6, 8, 10, 12, 14, 16, 18]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-OUT-3",
+     "calls": [
+      "generate_integers(1, 6) -> [2, 4]"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-OUT-4",
+     "calls": [
+      "generate_integers(0, 10) -> [2, 4, 2, 2, 6, 2, 2, 2, 8, 2]"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "e4e8c1a2b4e3": {
+   "task": "HumanEval/48",
+   "variant": "1a",
+   "review": "d6660655aceed47f",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 3.9,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-CHK-1",
+     "calls": [
+      "candidate(\"yCUAbWxvzZVXwBaucY\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-CHK-2",
+     "calls": [
+      "candidate(\"dbc\\u008d\\u0096\\u008e\\u0095\\u0084y}\\u0083@\\u0090\\u0081\\u0093\\u0098\\u008f\\u0094e\\u0082Z\\u0080\\u0097\\u0091\\u008c~\\u0092\\u0080\\u0083\\u008b\\u007f\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "e979a6870783": {
+   "task": "HumanEval/26",
+   "variant": "original",
+   "review": "a3263f28661fa91b",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 1.6,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RM-1",
+     "calls": [
+      "remove_duplicates([6, 4, 5, 0, 1, 1, 1, 6]) -> [6, 4, 5, 0, 1]"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-SIG-2",
+     "calls": [
+      "remove_duplicates([0, 1, 1, 1]) -> raised another exception or did not finish"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    }
+   ]
+  },
+  "e9fdac1f79e5": {
+   "task": "HumanEval/134",
+   "variant": "1c",
+   "review": "638de6a6f7b591f2",
+   "with_call": 2,
+   "status": "ok",
+   "seconds": 1.8,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RES-1",
+     "calls": [
+      "check_if_last_char_is_a_letter(\"A\") -> False"
+     ],
+     "result": "confirmed",
+     "accepts": "variant",
+     "rejects": "agent_a",
+     "mode": "in context"
+    },
+    {
+     "kind": "depends",
+     "req": "R-RES-2",
+     "calls": [
+      "check_if_last_char_is_a_letter(\"\\u0001q\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001!\\u0001\\u0001\\u0001 a\") -> True"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "eb1287b2499a": {
+   "task": "HumanEval/163",
+   "variant": "1a",
+   "review": "a5795b3be835534c",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "f6e52ef2f7d0": {
+   "task": "HumanEval/64",
+   "variant": "1a",
+   "review": "2baf1e37f0f128d3",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 1.2,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-RET-2",
+     "calls": [
+      "candidate(\"PBBBBBBBBBABBBBBBBBBBBBBBBBBVBBB\") -> 1"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "f7c11c2591b2": {
+   "task": "HumanEval/46",
+   "variant": "1p",
+   "review": "f68845bc7b4e9d97",
+   "with_call": 1,
+   "status": "ok",
+   "seconds": 0.8,
+   "relations": [
+    {
+     "kind": "depends",
+     "req": "R-NTH-1",
+     "calls": [
+      "fib4(6) -> 0"
+     ],
+     "result": "confirmed",
+     "accepts": "agent_a",
+     "rejects": "variant",
+     "mode": "in context"
+    }
+   ]
+  },
+  "fb43c9908360": {
+   "task": "HumanEval/41",
+   "variant": "1a",
+   "review": "05b7d5165bbd2fb8",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  },
+  "fe1adc3d68ae": {
+   "task": "HumanEval/68",
+   "variant": "original",
+   "review": "d85346bb0e517c9c",
+   "with_call": 0,
+   "status": "no call",
+   "seconds": 0,
+   "relations": []
+  }
+ }
+}

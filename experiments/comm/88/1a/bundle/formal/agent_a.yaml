@@ -1,0 +1,146 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-DEF-1: the sum of the value at the first index and the value at the last
+  # index of the given array, as passed (meaningful only for a non-empty array)
+  psum: "array[0] + array[len(array) - 1]"
+  # result is in ascending (non-decreasing) order
+  asc: "all(i < len(result) - 1: result[i] <= result[i + 1])"
+  # result is in descending (non-increasing) order
+  desc: "all(i < len(result) - 1: result[i] >= result[i + 1])"
+  # result has the same length as array and every element of array occurs in
+  # result as often as in array (with equal lengths: a permutation)
+  perm: "len(result) == len(array) && all(i < len(array): count(j < len(array): array[j] == array[i]) == count(j < len(result): result[j] == array[i]))"
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: "all(i < len(array): array[i] >= 0)"
+    note: >-
+      "an array of non-negative integers". The encoding (frame.md, Inputs)
+      already keeps negative and non-integer elements out of the trace, so this
+      assumption holds by construction; it is stated to record the obligation.
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    expr: "outcome == 0"
+    note: >-
+      "return a copy of the given array": every call on an admissible argument
+      returns a list normally (no exception, no non-termination, no value of
+      another form). That the returned list is a new object (a copy) is not
+      observable in the trace.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    expr: "perm"
+    note: >-
+      "a copy of the given array after sorting": the returned list has exactly
+      the elements of the argument, each with the same multiplicity. Reading 1
+      (sort a copy) taken; the in-place reading would not change this property,
+      because the trace records the argument as passed, before the call.
+
+  - id: RA-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args:
+      trigger: "len(array) > 0 && (psum % 2 == 1 || psum % 2 == 0)"
+      cond: "asc"
+    note: >-
+      Literal reading of "if the sum(...) is odd or even": the condition holds
+      for every sum, so every non-empty array is returned in ascending
+      (non-decreasing) order. This is not the odd-only rule stated in the
+      requirement's `text`, which repairs the condition. Read literally, the
+      rule contradicts RA-ORD-2 (descending for every non-empty array) for any
+      array with two distinct values, and it contradicts example R-EX-4
+      (RA-EX-4). "you will sort the given array" is read as ordering the
+      returned copy (reading 1). The trace cannot tell this apart from sorting
+      in place.
+
+  - id: RA-ORD-2
+    req: R-ORD-2
+    pattern: implies
+    args:
+      trigger: "len(array) > 0 && (psum % 2 == 0 || psum % 2 == 1)"
+      cond: "desc"
+    note: >-
+      Literal reading of "if the sum(...) is even or odd": the condition holds
+      for every sum, so every non-empty array is returned in descending
+      (non-increasing) order. This is not the even-only rule stated in the
+      requirement's `text`, which repairs the condition. Read literally, the
+      rule contradicts RA-ORD-1 for any array with two distinct values, and it
+      contradicts example R-EX-3 (RA-EX-3). The clause opens with "or", which
+      links it to the R-ORD-1 clause; the two are formalized separately, as
+      requirements.yaml splits them. "sort it" is read as sorting the returned
+      copy (reading 1). The trace cannot tell this apart from sorting in place.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "len(array) == 0 && outcome == 0 && len(result) == 0"
+    note: "sort_array([]) => []: the call returns (outcome 0) the empty list."
+
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: "array == [5] && outcome == 0 && result == [5]"
+
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: "array == [2, 4, 3, 0, 1, 5] && outcome == 0 && result == [0, 1, 2, 3, 4, 5]"
+    note: >-
+      Taken as written: the result is [0, 1, 2, 3, 4, 5], ascending, with
+      first + last = 2 + 5 = 7, which is odd. Under the literal reading of
+      R-ORD-2 (RA-ORD-2: descending for every non-empty array) this behaviour
+      is excluded, so the scenario is expected to be unreachable together with
+      RA-ORD-2. That contradiction is in the specification.
+
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: "array == [2, 4, 3, 0, 1, 5, 6] && outcome == 0 && result == [6, 5, 4, 3, 2, 1, 0]"
+    note: >-
+      Taken as written: the result is [6, 5, 4, 3, 2, 1, 0], descending, with
+      first + last = 2 + 6 = 8, which is even. Under the literal reading of
+      R-ORD-1 (RA-ORD-1: ascending for every non-empty array) this behaviour
+      is excluded, so the scenario is expected to be unreachable together with
+      RA-ORD-1. That contradiction is in the specification.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md F-EMPTY), already present in every
+      formalization set as frame item F-EMPTY of design.yaml; frame.md says it
+      need not be restated.
+    covered_by: [F-EMPTY]
+  - req: R-API-1
+    reason: >-
+      Non-functional interface requirement (function name sort_array, one
+      argument array). It is fixed by the function section of design.yaml and
+      is not a property of the trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition. It is realized by the def psum (array[0] + array[len(array) - 1],
+      on the given array as passed), which the order rules use.
+    covered_by: [RA-ORD-1, RA-ORD-2]
+  - req: R-MUT-1
+    reason: >-
+      Not observable. The trace records only the argument as passed (before
+      the call) and the returned list (frame.md: "nothing else about the call
+      is recorded"). Calls are independent, and prev(array) is the argument of
+      an unrelated call, so whether the call modifies the caller's list cannot
+      be stated over the trace.
+
+decisions:
+  - {req: R-RET-2, phrase: "a copy of the given array after sorting", reading: 1}
+  - {req: R-DEF-1, phrase: "first index value, last index value", reading: 1}
+  - {req: R-DEF-1, phrase: "the sum( first index value, last index value)", reading: 1}
+  - {req: R-ORD-1, phrase: "is odd or even", reading: 2}
+  - {req: R-ORD-1, phrase: "in ascending order", reading: 1}
+  - {req: R-ORD-1, phrase: "you will sort the given array", reading: 1}
+  - {req: R-ORD-2, phrase: "is even or odd", reading: 2}
+  - {req: R-ORD-2, phrase: "in descending order", reading: 1}
+  - {req: R-ORD-2, phrase: "sort it", reading: 1}
+  - {req: R-MUT-1, phrase: "don't change the given array", reading: 1}
+  - {req: R-EX-3, phrase: "[0, 1, 2, 3, 4, 5]", reading: 1}
+  - {req: R-EX-4, phrase: "[6, 5, 4, 3, 2, 1, 0]", reading: 1}

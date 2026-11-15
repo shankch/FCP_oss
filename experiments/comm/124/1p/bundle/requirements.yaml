@@ -1,0 +1,114 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-API-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete Python implementation of the given function stub, whose body is otherwise only a docstring.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-API-2
+  doc: SPEC
+  quote: 'def valid_date(date):'
+  text: The function is a Python function named valid_date that takes exactly one parameter, named date.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: validates a given date string
+  text: The argument date passed to valid_date is a string.
+  kind: assumption
+  ambiguity:
+  - phrase: a given date string
+    readings:
+    - Any string may be passed, whatever its content (including the empty string and strings that look nothing like a date); the function must classify every one.
+    - Only strings that are shaped like dates are passed; behaviour on other strings is outside the contract.
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: returns True if the date is valid otherwise False
+  text: For every string argument, a call of valid_date returns a bool (True or False); it does not raise an exception, fail to finish, or return a value of any other type.
+  kind: guarantee
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: returns True if the date is valid otherwise False
+    readings:
+    - 'Total: every string argument, however malformed, yields True or False and never an exception.'
+    - Only for date-shaped strings (see R-IN-1); for other strings the function may raise or return anything.
+  lines:
+  - 6
+- id: R-RET-2
+  doc: SPEC
+  quote: returns True if the date is valid
+  text: If the date string is valid (per the validity definition R-VAL-1), valid_date returns True.
+  kind: guarantee
+  depends:
+  - R-VAL-1
+  lines:
+  - 6
+- id: R-RET-3
+  doc: SPEC
+  quote: otherwise False
+  text: If the date string is not valid (per the validity definition R-VAL-1), valid_date returns False.
+  kind: guarantee
+  depends:
+  - R-VAL-1
+  ambiguity:
+  - phrase: otherwise False
+    readings:
+    - 'Contradiction with R-VAL-1/R-VAL-2: the function is said to validate and to return False for invalid dates, which presumes some strings are invalid; but the rule list that defines validity is empty,
+      so under a literal reading no string is ever invalid and False is never returned.'
+    - False is required for strings that break validity rules which the prompt intended but omitted; which strings those are is unspecified.
+  lines:
+  - 6
+- id: R-VAL-1
+  doc: SPEC
+  quote: 'The date is valid if all of the following rules are satisfied:'
+  text: A date string is valid when it satisfies every rule of the numbered list that follows in the docstring.
+  kind: definition
+  depends:
+  - R-VAL-2
+  ambiguity:
+  - phrase: is valid if
+    readings:
+    - 'If and only if: a date string is valid exactly when every listed rule is satisfied (consistent with ''otherwise False'').'
+    - 'Sufficient only: satisfying every listed rule makes a date valid, but a date may also be valid in other cases.'
+  - phrase: all of the following rules
+    readings:
+    - 'The list is empty, so the conjunction is vacuously true: every string is valid and the function always returns True.'
+    - The rules were omitted from the prompt, so which strings are valid is unspecified (the result is a don't-care beyond being a bool).
+    - 'The rules of a conventional date check were intended (for example: non-empty string, month 1 to 12, day within the length of its month, a fixed format such as mm-dd-yyyy), although none is stated.'
+  - phrase: The date is valid if all of the following rules are satisfied
+    readings:
+    - 'Contradiction with R-RET-3: an empty rule list makes every string valid, yet the function is asked to validate and return False for invalid dates, which presumes some string is invalid.'
+    - 'No contradiction: the function validly returns True for every string and the False branch is simply unreachable.'
+  lines:
+  - 7
+- id: R-VAL-2
+  doc: SPEC
+  quote: '1.'
+  text: 'The first (and only) item of the numbered validity rule list is blank: the prompt states no concrete validity rule.'
+  kind: definition
+  ambiguity:
+  - phrase: '1.'
+    readings:
+    - 'There is no rule: the list is intentionally or effectively empty, imposing no constraint on validity.'
+    - A rule (and possibly further rules) exists but its text is missing; its content is unknown and cannot be checked.
+    - The truncated rule is the first rule of a conventional date check (for example, that the date string is not empty).
+  lines:
+  - 8
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `valid` is false unless `outcome` is 0.'
+  text: In every call, the output valid is false unless outcome is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 49

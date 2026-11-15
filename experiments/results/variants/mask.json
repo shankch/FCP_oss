@@ -1,0 +1,399 @@
+{
+ "task": "mask",
+ "readers": {
+  "variant1": {
+   "k": 1,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-IN-2",
+     "phrase": "between groups of digits",
+     "reading": 1,
+     "text": "spaces and hyphens may appear anywhere (rule 1 rejects only other characters)"
+    },
+    {
+     "req": "R-ERR-1",
+     "phrase": "digits",
+     "reading": 1,
+     "text": "the ten characters 0 to 9"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-IN-2",
+     "phrase": "between groups of digits",
+     "reading": 1
+    },
+    {
+     "req": "R-ERR-1",
+     "phrase": "digits",
+     "reading": 1
+    }
+   ],
+   "pairs": {
+    "agent_a|variant1": {
+     "seconds": 1128,
+     "engine": "5d715d0",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-LAST4-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-MASK-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-QUARTER-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-RET-1": {
+       "plain": "A-STRONGER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-SEP-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      }
+     }
+    },
+    "agent_b|variant1": {
+     "seconds": 1848,
+     "engine": "47a823a",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-LAST4-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-MASK-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-QUARTER-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-RET-1": {
+       "plain": "A-STRONGER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-SEP-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      }
+     }
+    }
+   }
+  },
+  "variant2": {
+   "k": 2,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-IN-2",
+     "phrase": "between groups of digits",
+     "reading": 2,
+     "text": "spaces and hyphens may appear only between two digits, one at a time"
+    },
+    {
+     "req": "R-ERR-1",
+     "phrase": "digits",
+     "reading": 2,
+     "text": "any character Python counts as a digit (str.isdigit), such as a superscript two"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-IN-2",
+     "phrase": "between groups of digits",
+     "reading": 2
+    },
+    {
+     "req": "R-ERR-1",
+     "phrase": "digits",
+     "reading": 2
+    }
+   ],
+   "pairs": {
+    "agent_a|variant2": {
+     "seconds": 7482,
+     "engine": "47a823a",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-SIG-1": {
+       "plain": "ONLY-B",
+       "k": 1,
+       "exact": true
+      },
+      "R-ERR-1": {
+       "plain": "UNKNOWN",
+       "k": 1,
+       "exact": true,
+       "plain_scope_check": {
+        "witness_a_not_b": {
+         "calls": 200,
+         "separated": false,
+         "bit": "unknown"
+        }
+       },
+       "context": "UNKNOWN",
+       "context_scope_check": {
+        "witness_a_not_b": {
+         "calls": 200,
+         "separated": false,
+         "bit": "unknown"
+        }
+       },
+       "b_not_a": {
+        "calls": [
+         [
+          "2\u00b21-1690-6-8 0  22"
+         ]
+        ],
+        "lines": [
+         "mask_card(\"2\\u00b21-1690-6-8 0  22\") -> raised another exception or did not finish"
+        ]
+       }
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-LAST4-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-MASK-1": {
+       "plain": "A-WEAKER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-QUARTER-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "UNKNOWN",
+       "context_scope_check": {
+        "witness_a_not_b": {
+         "calls": 200,
+         "separated": false,
+         "bit": "none"
+        },
+        "witness_b_not_a": {
+         "calls": 200,
+         "separated": false,
+         "bit": "unknown"
+        }
+       }
+      },
+      "R-RET-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "calls": [
+         [
+          "0\u00b2490001-6 2\u00b21"
+         ]
+        ],
+        "lines": [
+         "mask_card(\"0\\u00b2490001-6 2\\u00b21\") -> raised ValueError"
+        ]
+       },
+       "b_not_a": {
+        "calls": [
+         [
+          "385939695768-"
+         ]
+        ],
+        "lines": [
+         "mask_card(\"385939695768-\") -> raised ValueError"
+        ]
+       }
+      },
+      "R-SEP-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      }
+     }
+    },
+    "agent_b|variant2": {
+     "seconds": 7512,
+     "engine": "47a823a",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-SIG-1": {
+       "plain": "ONLY-B",
+       "k": 1,
+       "exact": true
+      },
+      "R-ERR-1": {
+       "plain": "UNKNOWN",
+       "k": 1,
+       "exact": true,
+       "plain_scope_check": {
+        "witness_a_not_b": {
+         "calls": 200,
+         "separated": false,
+         "bit": "unknown"
+        }
+       },
+       "context": "UNKNOWN",
+       "context_scope_check": {
+        "witness_a_not_b": {
+         "calls": 200,
+         "separated": false,
+         "bit": "unknown"
+        }
+       },
+       "b_not_a": {
+        "calls": [
+         [
+          "\u00b284-6-8-8-99 70338-199-908"
+         ]
+        ],
+        "lines": [
+         "mask_card(\"\\u00b284-6-8-8-99 70338-199-908\") -> \"***-*-*-*-** *****-**9-908\""
+        ]
+       }
+      },
+      "R-EX-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      },
+      "R-LAST4-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-MASK-1": {
+       "plain": "A-WEAKER",
+       "k": 1,
+       "exact": true,
+       "context": "EQUIVALENT",
+       "spot_check": {
+        "calls": 400,
+        "separated": 0
+       }
+      },
+      "R-QUARTER-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "UNKNOWN",
+       "context_scope_check": {
+        "witness_a_not_b": {
+         "calls": 200,
+         "separated": false,
+         "bit": "unknown"
+        },
+        "witness_b_not_a": {
+         "calls": 200,
+         "separated": false,
+         "bit": "unknown"
+        }
+       }
+      },
+      "R-RET-1": {
+       "plain": "INCOMPARABLE",
+       "k": 1,
+       "exact": true,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "calls": [
+         [
+          "10\u00b2011080862"
+         ]
+        ],
+        "lines": [
+         "mask_card(\"10\\u00b2011080862\") -> raised ValueError"
+        ]
+       },
+       "b_not_a": {
+        "calls": [
+         [
+          "440456000064 "
+         ]
+        ],
+        "lines": [
+         "mask_card(\"440456000064 \") -> raised ValueError"
+        ]
+       }
+      },
+      "R-SEP-1": {
+       "plain": "EQUIVALENT",
+       "k": 1,
+       "exact": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "settings": {
+  "jobs": 2,
+  "bit_jobs": 2
+ }
+}

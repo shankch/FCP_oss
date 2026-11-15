@@ -1,0 +1,213 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-API-1
+  doc: SPEC
+  quote: 'def will_it_fly(q,w):'
+  text: The solution is a Python function named will_it_fly that takes two parameters, q and w, in that order.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: the sum of its elements
+  text: The caller passes as q a list whose elements are numbers that can be summed.
+  kind: assumption
+  lines:
+  - 7
+- id: R-IN-2
+  doc: SPEC
+  quote: the maximum possible weight w
+  text: 'The caller passes as w a number: the maximum possible weight.'
+  kind: assumption
+  lines:
+  - 7
+- id: R-DEF-1
+  doc: SPEC
+  quote: it's balanced (it is a palindromic list)
+  text: 'The list q is balanced exactly when it is a palindrome: it reads the same forwards and backwards, i.e. q[i] == q[len(q)-1-i] for every index i below len(q).'
+  kind: definition
+  ambiguity:
+  - phrase: palindromic list
+    readings:
+    - The empty list is a palindrome, so it is balanced.
+    - The empty list is not a balanced object, so it is not balanced (and does not fly).
+  lines:
+  - 7
+- id: R-DEF-2
+  doc: SPEC
+  quote: the sum of its elements is less than or equal the maximum possible weight w
+  text: The list q is within the weight limit exactly when the sum of its elements is less than or equal to w (equality is within the limit).
+  kind: definition
+  lines:
+  - 7
+- id: R-DEF-3
+  doc: SPEC
+  quote: The object q will fly if it's balanced (it is a palindromic list) and the sum of its elements is less than or equal the maximum possible weight w.
+  text: The object q will fly when it is both balanced (a palindromic list) and its element sum is less than or equal to w.
+  kind: definition
+  depends:
+  - R-DEF-1
+  - R-DEF-2
+  ambiguity:
+  - phrase: will fly if
+    readings:
+    - 'If and only if: q flies exactly when it is balanced and its sum is at most w; in every other case it does not fly.'
+    - 'Sufficient condition only: being balanced with sum at most w is enough to fly, but whether any other q flies (and so whether the call returns False for it) is not stated.'
+  lines:
+  - 7
+- id: R-RET-1
+  doc: SPEC
+  quote: returns True if the object q will fly
+  text: If q is a palindromic list and the sum of its elements is less than or equal to w, will_it_fly(q, w) returns True.
+  kind: guarantee
+  depends:
+  - R-DEF-3
+  ambiguity:
+  - phrase: returns True if the object q will fly
+    readings:
+    - 'As stated: a balanced q with sum at most w makes the call return True.'
+    - "As the examples show (contradiction): a balanced q with sum at most w makes the call return False, e.g. will_it_fly([3, 2, 3], 9) \u279E False and will_it_fly([3], 5) \u279E False; all four examples\
+      \ return the opposite of the stated rule."
+  lines:
+  - 6
+- id: R-RET-2
+  doc: SPEC
+  quote: and False otherwise
+  text: If q is not a palindromic list, will_it_fly(q, w) returns False, whatever w is.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-DEF-3
+  ambiguity:
+  - phrase: False otherwise
+    readings:
+    - 'As stated: an unbalanced q makes the call return False.'
+    - "As the example shows (contradiction): an unbalanced q with sum at most w makes the call return True, e.g. will_it_fly([1, 2], 5) \u279E True."
+  lines:
+  - 6
+- id: R-RET-3
+  doc: SPEC
+  quote: and False otherwise
+  text: If the sum of the elements of q is greater than w, will_it_fly(q, w) returns False, whether or not q is a palindrome.
+  kind: guarantee
+  depends:
+  - R-DEF-2
+  - R-DEF-3
+  ambiguity:
+  - phrase: False otherwise
+    readings:
+    - 'As stated: a q whose sum exceeds w makes the call return False.'
+    - "As the example shows (contradiction): a balanced q whose sum exceeds w makes the call return True, e.g. will_it_fly([3, 2, 3], 1) \u279E True."
+  lines:
+  - 6
+- id: R-EX-1
+  doc: SPEC
+  quote: "will_it_fly([1, 2], 5) \u279E True"
+  text: The call will_it_fly([1, 2], 5) returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: "\u279E True"
+    readings:
+    - 'As written: the call returns True. This contradicts the rule (R-RET-2: [1, 2] is not a palindrome, so the call returns False) and the example''s own comment (R-WHY-1: it''s unbalanced).'
+    - 'The expected value is an error: the call returns False, as the rule and the comment imply.'
+  lines:
+  - 10
+- id: R-WHY-1
+  doc: SPEC
+  quote: 1+2 is less than the maximum possible weight, but it's unbalanced.
+  text: 'For the call will_it_fly([1, 2], 5): the sum 1+2 = 3 is less than the maximum possible weight 5, but the list [1, 2] is unbalanced (not a palindrome), so it does not meet the flying condition.'
+  kind: scenario
+  ambiguity:
+  - phrase: but it's unbalanced
+    readings:
+    - "The comment explains a False result: an unbalanced list does not fly. This contradicts the stated result will_it_fly([1, 2], 5) \u279E True (R-EX-1)."
+    - The comment is consistent with the stated result True, i.e. the returned value is True when q does not fly (inverted output).
+  lines:
+  - 11
+- id: R-EX-2
+  doc: SPEC
+  quote: "will_it_fly([3, 2, 3], 1) \u279E True"
+  text: The call will_it_fly([3, 2, 3], 1) returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: "\u279E True"
+    readings:
+    - 'As written: the call returns True. This contradicts the rule (R-RET-3: 3+2+3 = 8 is greater than 1, so the call returns False) and the example''s own comment (R-WHY-2: more than the maximum possible
+      weight).'
+    - 'The expected value is an error: the call returns False, as the rule and the comment imply.'
+  lines:
+  - 13
+- id: R-WHY-2
+  doc: SPEC
+  quote: it's balanced, but 3+2+3 is more than the maximum possible weight.
+  text: 'For the call will_it_fly([3, 2, 3], 1): the list [3, 2, 3] is balanced (a palindrome), but its sum 3+2+3 = 8 is more than the maximum possible weight 1, so it does not meet the flying condition.'
+  kind: scenario
+  ambiguity:
+  - phrase: but 3+2+3 is more than the maximum possible weight
+    readings:
+    - "The comment explains a False result: an overweight list does not fly. This contradicts the stated result will_it_fly([3, 2, 3], 1) \u279E True (R-EX-2)."
+    - The comment is consistent with the stated result True, i.e. the returned value is True when q does not fly (inverted output).
+  lines:
+  - 14
+- id: R-EX-3
+  doc: SPEC
+  quote: "will_it_fly([3, 2, 3], 9) \u279E False"
+  text: The call will_it_fly([3, 2, 3], 9) returns False.
+  kind: scenario
+  ambiguity:
+  - phrase: "\u279E False"
+    readings:
+    - 'As written: the call returns False. This contradicts the rule (R-RET-1: [3, 2, 3] is a palindrome and 3+2+3 = 8 is at most 9, so the call returns True) and the example''s own comment (R-WHY-3: less
+      than the maximum weight, and balanced).'
+    - 'The expected value is an error: the call returns True, as the rule and the comment imply.'
+  lines:
+  - 16
+- id: R-WHY-3
+  doc: SPEC
+  quote: 3+2+3 is less than the maximum possible weight, and it's balanced.
+  text: 'For the call will_it_fly([3, 2, 3], 9): the sum 3+2+3 = 8 is less than the maximum possible weight 9, and the list [3, 2, 3] is balanced (a palindrome), so it meets the flying condition.'
+  kind: scenario
+  ambiguity:
+  - phrase: and it's balanced
+    readings:
+    - "The comment explains a True result: a balanced list within the weight limit flies. This contradicts the stated result will_it_fly([3, 2, 3], 9) \u279E False (R-EX-3)."
+    - The comment is consistent with the stated result False, i.e. the returned value is False when q flies (inverted output).
+  lines:
+  - 17
+- id: R-EX-4
+  doc: SPEC
+  quote: "will_it_fly([3], 5) \u279E False"
+  text: The call will_it_fly([3], 5) returns False.
+  kind: scenario
+  ambiguity:
+  - phrase: "\u279E False"
+    readings:
+    - 'As written: the call returns False. This contradicts the rule (R-RET-1: [3] is a palindrome and 3 is at most 5, so the call returns True) and the example''s own comment (R-WHY-4: less than the maximum
+      weight, and balanced).'
+    - 'The expected value is an error: the call returns True, as the rule and the comment imply.'
+  lines:
+  - 19
+- id: R-WHY-4
+  doc: SPEC
+  quote: '# 3 is less than the maximum possible weight, and it''s balanced.'
+  text: 'For the call will_it_fly([3], 5): the sum 3 is less than the maximum possible weight 5, and the one-element list [3] is balanced (a palindrome), so it meets the flying condition.'
+  kind: scenario
+  ambiguity:
+  - phrase: and it's balanced
+    readings:
+    - "The comment explains a True result: a balanced list within the weight limit flies. This contradicts the stated result will_it_fly([3], 5) \u279E False (R-EX-4)."
+    - The comment is consistent with the stated result False, i.e. the returned value is False when q flies (inverted output).
+  lines:
+  - 20
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `flies` is false unless `outcome` is 0.'
+  text: The output flies is false in every call whose outcome is not 0 (the call raised, did not finish, or returned something other than a bool).
+  kind: guarantee
+  lines:
+  - 47

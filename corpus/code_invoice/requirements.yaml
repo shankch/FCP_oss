@@ -1,0 +1,94 @@
+fcp: '0.1'
+design: code_invoice
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def invoice(items: list[dict], member: bool) -> dict:'
+  text: The function, its arguments and its result type.
+  kind: definition
+  lines:
+  - 5
+- id: R-IN-1
+  doc: SPEC
+  quote: 'Each item is a dict `{"price": cents, "qty": quantity, "sale": bool}`, with the unit price in cents.'
+  text: Every item has a unit price in cents, a quantity and a sale flag.
+  kind: definition
+  lines:
+  - 7
+- id: R-RET-1
+  doc: SPEC
+  quote: 'The function returns a dict `{"lines": [...], "discount": cents, "total": cents}`.'
+  text: For a valid call, invoice returns a dict with the keys lines, discount and total.
+  kind: guarantee
+  lines:
+  - 7
+- id: R-ERR-1
+  doc: SPEC
+  quote: Raise ValueError if `items` is empty, or if an item has a quantity of 0.
+  text: A call with no items, or with an item whose quantity is 0, raises ValueError.
+  kind: guarantee
+  lines:
+  - 11
+- id: R-LINES-1
+  doc: SPEC
+  quote: '`lines` has one amount per item, in the same order: the item''s price times its quantity, minus that line''s discount.'
+  text: lines has one amount per item, in order, each the item's price times its quantity minus the line's discount (none unless rule 3 gives one).
+  kind: guarantee
+  lines:
+  - 12
+- id: R-MEM-1
+  doc: SPEC
+  quote: Members get 10% off every line that is not on sale, rounded down to the cent.
+  text: For a member, the discount of every line not on sale is 10% of the line's price times quantity, rounded down.
+  kind: guarantee
+  ambiguity:
+  - phrase: rounded down to the cent
+    readings:
+    - the line's discount is rounded down (the line is rounded up)
+    - the discounted line amount is rounded down
+  lines:
+  - 13
+- id: R-DISC-1
+  doc: SPEC
+  quote: '`discount` is 10% of the price times quantity of the items not on sale, summed and rounded down to the cent, for members, and 0 for everyone else.'
+  text: For a member, discount is 10% of the summed price times quantity of the items not on sale, rounded down; otherwise 0.
+  kind: guarantee
+  ambiguity:
+  - phrase: summed and rounded down
+    readings:
+    - the sum is taken first, then 10% of it is rounded down
+    - each item's 10% is rounded down, then summed
+  lines:
+  - 14
+- id: R-SUM-1
+  doc: SPEC
+  quote: '`total` is the sum of `lines`.'
+  text: total is the sum of the line amounts.
+  kind: guarantee
+  lines:
+  - 15
+- id: R-TOT-1
+  doc: SPEC
+  quote: '`total` is the price times quantity of all items, summed, minus `discount`.'
+  text: total is the summed price times quantity of all items minus discount.
+  kind: guarantee
+  lines:
+  - 16
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: for a member, `invoice([{"price": 1999, "qty": 2, "sale": False}], True)` returns `{"lines": [3599], "discount": 399, "total": 3599}`.'
+  text: For a member with one item of price 1999, quantity 2, not on sale, the result is lines [3599], discount 399, total 3599.
+  kind: scenario
+  lines:
+  - 18
+- id: R-FR-1
+  doc: FRAME
+  quote: '`lines` is empty and `discount` and `total` are 0 unless `outcome` is 0.'
+  text: lines is empty and discount and total are 0 unless the call returned a dict of the declared form.
+  kind: definition
+  lines:
+  - 53

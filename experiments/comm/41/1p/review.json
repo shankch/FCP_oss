@@ -1,0 +1,285 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 26,
+    "checked": 26,
+    "seconds": 0.03
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "candidate(0)",
+      "args": [
+       0
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": [
+       "RA-FN-1-VAL"
+      ]
+     },
+     "outcome": {
+      "call": "candidate(0)",
+      "args": [
+       0
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": []
+     }
+    },
+    "checked": 1
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 26,
+    "checked": 26,
+    "seconds": 0.02
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "candidate(0)",
+      "args": [
+       0
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": [
+       "RB-FN-1-D"
+      ]
+     },
+     "outcome": {
+      "call": "candidate(0)",
+      "args": [
+       0
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": []
+     }
+    },
+    "checked": 1
+   }
+  }
+ },
+ "readings": {
+  "R-CAR-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-FN-1": {
+   "plain": "A-STRONGER",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": [
+   {
+    "reading": "agent_a",
+    "id": "RA-FN-1-VAL",
+    "req": "R-FN-1",
+    "says": "`result` is free when `outcome == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-FN-1-D",
+    "req": "R-FN-1",
+    "says": "`result` is free when `outcome == 0`",
+    "where": {}
+   }
+  ]
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FN-1",
+   "phrase": "Complete this function",
+   "taken": 2,
+   "variant": 1,
+   "text": "return the number of collisions between the left-to-right cars and the right-to-left cars, the quantity the truncated docstring leads up to"
+  },
+  {
+   "req": "R-CAR-1",
+   "phrase": "n cars",
+   "taken": 1,
+   "variant": 2,
+   "text": "n is at least 1; a road without cars (n = 0) is outside the request"
+  },
+  {
+   "req": "R-CAR-2",
+   "phrase": "simultaneously",
+   "taken": 1,
+   "variant": 2,
+   "text": "both sets start moving at the same instant"
+  },
+  {
+   "req": "R-CAR-2",
+   "phrase": "driving right to left",
+   "taken": 1,
+   "variant": 2,
+   "text": "if 'the same speed' in R-CAR-4 means the same velocity, every car moves in one direction, which contradicts the second set driving right to left while the first drives left to right"
+  },
+  {
+   "req": "R-CAR-3",
+   "phrase": "very far from each other",
+   "taken": 2,
+   "variant": 1,
+   "text": "every left-to-right car starts to the left of every right-to-left car, so each left-to-right car approaches each right-to-left car"
+  },
+  {
+   "req": "R-CAR-4",
+   "phrase": "the same speed",
+   "taken": 1,
+   "variant": 2,
+   "text": "every car has the same velocity (speed and direction), which contradicts the two sets driving in opposite directions (R-CAR-1, R-CAR-2)"
+  },
+  {
+   "req": "R-CAR-4",
+   "phrase": "move in the same speed",
+   "taken": 2,
+   "variant": 1,
+   "text": "the common speed is constant over time"
+  },
+  {
+   "req": "R-COL-1",
+   "phrase": "Two cars are said to collide",
+   "taken": 3,
+   "variant": 1,
+   "text": "two cars collide when a car moving left to right meets a car moving right to left"
+  },
+  {
+   "req": "R-COL-1",
+   "phrase": "collide",
+   "taken": 2,
+   "variant": 1,
+   "text": "cars continue moving along their path after a collision, as if they had not collided"
+  }
+ ],
+ "depends": {
+  "R-FN-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(256) -> 0"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "candidate(0)"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "0",
+      "1"
+     ],
+     "ending": false,
+     "declared": [
+      "RA-FN-1-VAL"
+     ],
+     "reqs": [
+      "R-FN-1"
+     ]
+    },
+    "outcome": {
+     "reading": "agent_a",
+     "shown": [
+      "returned",
+      "returned something else"
+     ],
+     "ending": true,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "result, outcome",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "question": "the request allows `result` to be 0 or 1 (the reading leaves this free on purpose: RA-FN-1-VAL) and lets this call end in two ways, \"returned\" or \"returned something else\": is any answer acceptable, or which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [
+    "candidate(256) -> 0"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"Complete this function\" can mean: return the number of collisions between the left-to-right cars and the right-to-left cars, the quantity the truncated docstring leads up to / the request never states what the function returns (the docstring stops mid-sentence), so any returned value is acceptable / also finish the truncated docstring, not only the function body. Which is meant?"
+  }
+ ],
+ "limits": []
+}

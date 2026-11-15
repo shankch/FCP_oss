@@ -1,0 +1,29 @@
+fcp: '0.1'
+design: review
+summary: A Python function on strings treated as a chip without memory. Each cycle is one call of simplify(x, n); the two arguments are input strings of at most 16 characters, the returned boolean and the way the call ended are outputs. The request is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Request: complete simplify(x, n)'}
+- {id: FRAME, path: frame.md, title: 'FCP function adapter, version 0.2'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: x, dir: in, width: 8, length: 16, desc: 'the x argument: a string of at most 16 characters, codes 0 to 255'}
+  - {name: n, dir: in, width: 8, length: 16, desc: 'the n argument: a string of at most 16 characters, codes 0 to 255'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a bool, 1 any exception or no answer, 2 returned anything else'}
+  - {name: result, dir: out, width: 1, desc: 'the returned value (outcome 0), 1: True'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 3, cover_depth: 3}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> !result'}
+function:
+  name: simplify
+  args:
+  - {name: x, signal: x, type: str}
+  - {name: n, signal: n, type: str}
+  returns: {signal: result, type: bool}
+  outcome: {signal: outcome, raises: []}
+  scope:
+    x: {alphabet: '0123456789/', random: 2000, values: ['0/1', '1/1', '1/2', '2/1', '1/0']}
+    n: {alphabet: '0123456789/', random: 2000, values: ['0/1', '1/1', '1/2', '2/1', '1/0']}

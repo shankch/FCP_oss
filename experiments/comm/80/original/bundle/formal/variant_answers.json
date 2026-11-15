@@ -1,0 +1,135 @@
+[
+ {
+  "req": "R-IN-1",
+  "phrase": "a string",
+  "taken": 1,
+  "variant": 2,
+  "text": "s contains only lower-case letters, as in every example, so the result for any other string is not specified."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "check",
+  "taken": 1,
+  "variant": 2,
+  "text": "is_happy may return any truthy or falsy value (for example 1 or 0, or a non-empty or empty object)."
+ },
+ {
+  "req": "R-HAP-1",
+  "phrase": "happy if",
+  "taken": 1,
+  "variant": 2,
+  "text": "'if' gives only a sufficient condition: the sentence says nothing about strings that fail a condition."
+ },
+ {
+  "req": "R-HAP-1",
+  "phrase": "every 3 consecutive letters",
+  "taken": 1,
+  "variant": 2,
+  "text": "non-overlapping blocks of three (positions 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') would be happy."
+ },
+ {
+  "req": "R-HAP-1",
+  "phrase": "letters",
+  "taken": 1,
+  "variant": 2,
+  "text": "only alphabetic letters count: non-letter characters are skipped and windows are taken over the sequence of letters."
+ },
+ {
+  "req": "R-HAP-1",
+  "phrase": "distinct",
+  "taken": 1,
+  "variant": 2,
+  "text": "only adjacent characters must differ (s[i] != s[i+1] and s[i+1] != s[i+2]), so 'aba' is happy. This matches every example."
+ },
+ {
+  "req": "R-HAP-1",
+  "phrase": "letters are distinct",
+  "taken": 1,
+  "variant": 2,
+  "text": "characters are compared ignoring case, so 'a' and 'A' are the same letter."
+ },
+ {
+  "req": "R-HAP-2",
+  "phrase": "happy if",
+  "taken": 1,
+  "variant": 2,
+  "text": "'if' gives only a sufficient condition: the rule leaves the result for strings shorter than 3 open, and only the examples 'a' and 'aa' give False."
+ },
+ {
+  "req": "R-HAP-3",
+  "phrase": "happy if",
+  "taken": 1,
+  "variant": 2,
+  "text": "'if' gives only a sufficient condition: the rule leaves the result for such strings open."
+ },
+ {
+  "req": "R-HAP-3",
+  "phrase": "every 3 consecutive letters",
+  "taken": 1,
+  "variant": 2,
+  "text": "non-overlapping blocks of three (positions 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') would be happy."
+ },
+ {
+  "req": "R-HAP-3",
+  "phrase": "letters",
+  "taken": 1,
+  "variant": 2,
+  "text": "only alphabetic letters count: non-letter characters are skipped and windows are taken over the sequence of letters."
+ },
+ {
+  "req": "R-HAP-3",
+  "phrase": "distinct",
+  "taken": 1,
+  "variant": 2,
+  "text": "only adjacent characters must differ (s[i] != s[i+1] and s[i+1] != s[i+2]), so 'aba' gives True. This matches every example."
+ },
+ {
+  "req": "R-HAP-3",
+  "phrase": "letters are distinct",
+  "taken": 1,
+  "variant": 2,
+  "text": "characters are compared ignoring case, so 'aAb' gives False."
+ },
+ {
+  "req": "R-HAP-4",
+  "phrase": "every 3 consecutive letters",
+  "taken": 1,
+  "variant": 2,
+  "text": "non-overlapping blocks of three (positions 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') gives True."
+ },
+ {
+  "req": "R-HAP-4",
+  "phrase": "letters",
+  "taken": 1,
+  "variant": 2,
+  "text": "only alphabetic letters count: non-letter characters are skipped and windows are taken over the sequence of letters."
+ },
+ {
+  "req": "R-HAP-4",
+  "phrase": "distinct",
+  "taken": 1,
+  "variant": 2,
+  "text": "only adjacent characters must differ (s[i] != s[i+1] and s[i+1] != s[i+2]), so 'aba' gives True. This matches every example."
+ },
+ {
+  "req": "R-HAP-4",
+  "phrase": "letters are distinct",
+  "taken": 1,
+  "variant": 2,
+  "text": "characters are compared ignoring case, so 'aAb' does not meet the condition."
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "is_happy(aabb) => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradicts the rule when 'distinct' means 'not all three the same' or 'no 3-character window repeats': 'aab' and 'abb' then pass, so the rule gives True."
+ },
+ {
+  "req": "R-EX-6",
+  "phrase": "is_happy(xyy) => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradicts the rule when 'distinct' means 'not all three the same' or 'no 3-character window repeats': the single window 'xyy' then passes, so the rule gives True."
+ }
+]

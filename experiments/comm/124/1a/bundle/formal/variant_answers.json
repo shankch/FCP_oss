@@ -1,0 +1,86 @@
+[
+ {
+  "req": "R-RET-2",
+  "phrase": "otherwise False",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only well-formed strings with an out-of-range day or month must yield False; for malformed strings the behaviour (e.g. raising ValueError) is not specified."
+ },
+ {
+  "req": "R-VAL-1",
+  "phrase": "The date is valid if all of the following rules are satisfied",
+  "taken": 1,
+  "variant": 2,
+  "text": "The listed rules are necessary conditions only; the string must additionally denote a real calendar date (e.g. 29 February only in a leap year, a plausible year)."
+ },
+ {
+  "req": "R-DAY-1",
+  "phrase": "is not less than 1 or higher than 31 days",
+  "taken": 1,
+  "variant": 2,
+  "text": "(not less than 1) or (higher than 31): taken literally as a logical formula, only day >= 1 is required, so no upper bound."
+ },
+ {
+  "req": "R-DAY-2",
+  "phrase": "is not less than 1 or higher than 30 days",
+  "taken": 1,
+  "variant": 2,
+  "text": "(not less than 1) or (higher than 30): taken literally as a logical formula, only day >= 1 is required, so no upper bound."
+ },
+ {
+  "req": "R-DAY-3",
+  "phrase": "is not less than 1 or higher than 29",
+  "taken": 1,
+  "variant": 2,
+  "text": "(not less than 1) or (higher than 29): taken literally as a logical formula, only day >= 1 is required, so no upper bound."
+ },
+ {
+  "req": "R-DAY-3",
+  "phrase": "higher than 29 for the month 2",
+  "taken": 1,
+  "variant": 2,
+  "text": "Day 29 of month 2 is accepted only when the year is a leap year (a real calendar check, since the function 'validates a given date')."
+ },
+ {
+  "req": "R-MON-1",
+  "phrase": "should not be less than 1 or higher than 12",
+  "taken": 1,
+  "variant": 2,
+  "text": "(should not be less than 1) or (higher than 12): taken literally, only month >= 1 is required, so no upper bound."
+ },
+ {
+  "req": "R-FMT-2",
+  "phrase": "dd-mm-yyyy or mm-dd-yyyy",
+  "taken": 1,
+  "variant": 2,
+  "text": "dd and mm are day and month numbers written with one or two digits (e.g. '4-1-2040' is acceptable), and yyyy is the year as digits."
+ },
+ {
+  "req": "R-FMT-2",
+  "phrase": "The date should be in the format",
+  "taken": 1,
+  "variant": 2,
+  "text": "Surrounding whitespace is ignored (the string is stripped) before the format is checked."
+ },
+ {
+  "req": "R-FMT-2",
+  "phrase": "yyyy",
+  "taken": 1,
+  "variant": 2,
+  "text": "The year must be a real year, at least 1 (so '0000' is invalid)."
+ },
+ {
+  "req": "R-FMT-3",
+  "phrase": "dd-mm-yyyy or mm-dd-yyyy",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only mm-dd-yyyy is accepted (the first field is the month), as the example valid_date('15-01-2012') => False requires; the dd-mm-yyyy alternative is an error in the prompt."
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "valid_date('15-01-2012') => False",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example is wrong: rule 4 accepts dd-mm-yyyy, under which '15-01-2012' is 15 January 2012 and satisfies every rule, so the call should return True."
+ }
+]

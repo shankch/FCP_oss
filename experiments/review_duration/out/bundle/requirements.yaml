@@ -1,0 +1,214 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-NF-1
+  doc: SPEC
+  quote: 'Write a Python function for our scheduling app:'
+  text: The deliverable is a Python function, meant to be used by a scheduling application.
+  kind: non_functional
+  lines:
+  - 3
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def parse_duration(text: str) -> int:'
+  text: The function is named parse_duration and takes exactly one parameter, text, of type str.
+  kind: non_functional
+  lines:
+  - 5
+- id: R-IF-2
+  doc: SPEC
+  quote: '(text: str) -> int'
+  text: Whenever parse_duration returns normally, the returned value is an int (not a float, a str, None or any other type).
+  kind: guarantee
+  lines:
+  - 5
+- id: R-CONV-1
+  doc: SPEC
+  quote: It converts a duration such as `"1h30m"` or `"45s"` into a number of seconds.
+  text: 'For every text that is a duration (one or more parts, each a whole number from 1 to 99 immediately followed by one of the units h, m or s, each unit at most once, units in the order h, m, s, no
+    spaces), parse_duration returns its total length in seconds: 3600 times the number before h, plus 60 times the number before m, plus the number before s, a missing unit counting as 0.'
+  kind: guarantee
+  depends:
+  - R-FMT-1
+  - R-FMT-2
+  - R-FMT-3
+  - R-FMT-4
+  - R-FMT-5
+  - R-NUM-1
+  - R-FMT-6
+  ambiguity:
+  - phrase: a duration
+    readings:
+    - 'any text that meets rules 1 to 4 of the request is a duration and is converted, including one longer than one day: "25h" returns 90000 (this contradicts R-MAX-1)'
+    - a text is a duration only if it meets rules 1 to 4 and is also at most one day (86400 seconds) long; a longer text such as "25h" is not converted (it raises ValueError or is out of scope, see R-MAX-1)
+  lines:
+  - 7
+- id: R-FMT-1
+  doc: SPEC
+  quote: A duration is one or more parts
+  text: A duration consists of one or more parts written one after another; a text with no parts, such as the empty string, is not a duration.
+  kind: definition
+  lines:
+  - 9
+- id: R-FMT-2
+  doc: SPEC
+  quote: each a whole number followed by a unit
+  text: Each part of a duration is a whole number immediately followed by a unit; a number without a unit (such as "45") or a unit without a number (such as "h") is not a part.
+  kind: definition
+  ambiguity:
+  - phrase: a whole number
+    readings:
+    - 'leading zeros are allowed and the number is the value of its digits: "01h" is 1 hour and "007s" is 7 seconds'
+    - 'leading zeros are not allowed: "01h" is not a part, so it raises ValueError'
+    - 'a number has at most two digits, leading zero allowed: "01h" is a part, "001h" is not'
+  - phrase: a whole number
+    readings:
+    - 'only the decimal digits 0 to 9, with no sign: "+1h" raises ValueError'
+    - 'an optional sign may precede the digits, as Python int() accepts: "+1h" is 1 hour'
+  lines:
+  - 9
+- id: R-FMT-3
+  doc: SPEC
+  quote: '`h` for hours, `m` for minutes, `s` for seconds'
+  text: The unit of a part is one of the letters h (hours, 3600 seconds each), m (minutes, 60 seconds each) or s (seconds); there is no other unit.
+  kind: definition
+  ambiguity:
+  - phrase: '`h` for hours, `m` for minutes, `s` for seconds'
+    readings:
+    - 'only the lowercase letters h, m and s are units: "1H30M" raises ValueError'
+    - 'units are case-insensitive: "1H30M" is the same duration as "1h30m"'
+  lines:
+  - 9
+- id: R-FMT-4
+  doc: SPEC
+  quote: Each unit appears at most once
+  text: parse_duration raises ValueError for a text in which the same unit letter (h, m or s) ends more than one part, such as "1h2h" or "5s5s".
+  kind: guarantee
+  depends:
+  - R-ERR-1
+  lines:
+  - 10
+- id: R-FMT-5
+  doc: SPEC
+  quote: in the order h, m, s
+  text: parse_duration raises ValueError for a text whose units do not appear in the order h, then m, then s, such as "30m1h" or "5s1m".
+  kind: guarantee
+  depends:
+  - R-ERR-1
+  ambiguity:
+  - phrase: in the order h, m, s
+    readings:
+    - 'the units present keep the relative order h before m before s, and a unit may be skipped: "1h5s" is valid (3605 seconds)'
+    - 'the units present form a contiguous run of h, m, s with none skipped in between: "1h5s" raises ValueError'
+  lines:
+  - 10
+- id: R-NUM-1
+  doc: SPEC
+  quote: Every number is between 1 and 99.
+  text: parse_duration raises ValueError for a text in which the number of some part is below 1 or above 99, such as "0m" or "100s"; every number from 1 to 99 is allowed for every unit.
+  kind: guarantee
+  depends:
+  - R-ERR-1
+  ambiguity:
+  - phrase: between 1 and 99
+    readings:
+    - 'inclusive: 1 and 99 are allowed ("1s" and "99s" are valid)'
+    - 'exclusive: only 2 to 98 are allowed ("1s" and "99s" raise ValueError)'
+  - phrase: Every number
+    readings:
+    - 'the same range 1 to 99 applies to every unit: "90m" and "1h90m" are valid'
+    - 'minutes and seconds stay below 60 as on a clock, at least after a larger unit: "1h90m" or "1m75s" raises ValueError'
+  - phrase: Every number is between 1 and 99. / A duration is never longer than one day.
+    readings:
+    - 'contradiction with R-MAX-1: this rule admits up to 99 hours ("99h" is 356400 seconds, "99h99m99s" is 362439), while R-MAX-1 says no duration is longer than one day (86400 seconds); if every number
+      from 1 to 99 is valid for every unit, "25h" must be converted to 90000'
+    - 'no contradiction if R-MAX-1 is an extra restriction: numbers 1 to 99 are necessary but not sufficient, and "25h" or "24h1s" raises ValueError because it is longer than one day'
+  lines:
+  - 11
+- id: R-FMT-6
+  doc: SPEC
+  quote: Spaces are not allowed.
+  text: 'parse_duration raises ValueError for a text that contains a space anywhere: before the first part, between parts, inside a part or after the last part (for example " 45s", "1h 30m", "45 s", "45s
+    ").'
+  kind: guarantee
+  depends:
+  - R-ERR-1
+  ambiguity:
+  - phrase: Spaces
+    readings:
+    - only the space character (code 32) is meant; other whitespace such as tab or newline is rejected only because it is not part of the duration syntax
+    - every whitespace character (space, tab, newline, carriage return, ...) is meant
+    - spaces are forbidden inside the duration, but surrounding whitespace may be trimmed first, so "45s " returns 45
+  lines:
+  - 12
+- id: R-ERR-1
+  doc: SPEC
+  quote: Raise ValueError for anything else
+  text: parse_duration raises ValueError for every text that is not a duration, that is, not one or more parts, each a whole number from 1 to 99 immediately followed by one of the units h, m or s, each
+    unit at most once, in the order h, m, s, with no spaces; for example a text with any character other than the digits and h, m, s, a part without a number, or a number without a unit.
+  kind: guarantee
+  depends:
+  - R-FMT-1
+  - R-FMT-2
+  - R-FMT-3
+  ambiguity:
+  - phrase: anything else
+    readings:
+    - anything that does not meet rules 1 to 4, which precede this rule; a text meeting them but longer than one day (rule 6, which follows) is not covered by this rule
+    - anything that does not meet rules 1 to 4 or rule 6; a text longer than one day, such as "25h", also raises ValueError
+  lines:
+  - 13
+- id: R-ERR-2
+  doc: SPEC
+  quote: including an empty string
+  text: parse_duration("") raises ValueError.
+  kind: guarantee
+  depends:
+  - R-ERR-1
+  - R-FMT-1
+  lines:
+  - 13
+- id: R-MAX-1
+  doc: SPEC
+  quote: A duration is never longer than one day.
+  text: 'No text describing more than one day (86400 seconds) is accepted as a duration: parse_duration never returns a value above 86400, and it raises ValueError for a text such as "25h" or "24h1s" that
+    meets the other rules but totals more than 86400 seconds. Exactly one day ("24h", 86400 seconds) is not longer than one day and is allowed.'
+  kind: guarantee
+  ambiguity:
+  - phrase: A duration is never longer than one day.
+    readings:
+    - 'a validity rule: a text totalling more than 86400 seconds is not a duration, so parse_duration raises ValueError for it'
+    - 'an assumption about callers: the scheduling app never passes a text longer than one day, so the behaviour on such texts is left free (a dont_care)'
+    - 'a bound on the result only: parse_duration never returns more than 86400, for example by clamping "25h" to 86400 rather than raising'
+  - phrase: A duration is never longer than one day. / Every number is between 1 and 99.
+    readings:
+    - 'contradiction with R-NUM-1 and R-CONV-1: rules 1 to 4 admit up to 99 hours ("99h" is 356400 seconds, "99h99m99s" is 362439), and R-CONV-1 converts every such duration, yet this rule says no duration
+      is longer than one day; "25h" cannot both return 90000 and be rejected'
+    - 'no contradiction if this rule is an extra restriction on top of rules 1 to 4: "25h" meets every number range but is still rejected for being longer than one day'
+  lines:
+  - 14
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: `parse_duration("1h30m")` returns `5400`.'
+  text: parse_duration("1h30m") returns 5400.
+  kind: scenario
+  lines:
+  - 16
+- id: R-EX-2
+  doc: SPEC
+  quote: such as `"1h30m"` or `"45s"`
+  text: '"45s" is a duration: parse_duration("45s") returns 45.'
+  kind: scenario
+  lines:
+  - 7
+- id: R-FR-1
+  doc: FRAME
+  quote: '`seconds` is 0 unless `outcome` is 0.'
+  text: In every call that does not return an integer from 0 to 524287 (outcome is not 0), the seconds output is 0.
+  kind: guarantee
+  lines:
+  - 47

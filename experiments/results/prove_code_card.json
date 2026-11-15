@@ -1,0 +1,5084 @@
+{
+ "calls": 65771,
+ "implementations": {
+  "haiku": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance",
+       "b >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LOAD"
+      ],
+      "calls": [
+       "load(49501)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> self._balance <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 49
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 17.7,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= self._balance",
+       "card >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= self._balance",
+       "card >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= 50000",
+       "card <= self._balance",
+       "card >= 0",
+       "card >= self._balance"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= self._balance",
+       "card >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card == self._balance",
+       "card >= 0",
+       "hist(is_balance) -> card <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card == self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 37
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 5.4,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> self._balance <= 0",
+       "calls >= 0",
+       "self._balance >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= 50000",
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance >= 0"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= 50000",
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance >= 0"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 104
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 8.0,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "load(24251)",
+       "load(24752)",
+       "spend(24751)",
+       "load(10000)",
+       "load(13747)",
+       "load(24753)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "balance()",
+       "load(50000)",
+       "load(0)",
+       "spend(498)",
+       "load(50003)",
+       "spend(1)",
+       "balance()",
+       "balance()",
+       "load(50002)",
+       "load(1)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "load(1)",
+       "load(0)",
+       "load(2)",
+       "spend(0)",
+       "load(10000)",
+       "load(38998)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-1"
+      ],
+      "calls": [
+       "load(1)",
+       "load(2)",
+       "load(10000)",
+       "load(1)",
+       "load(18496)",
+       "load(10000)",
+       "load(10000)",
+       "load(0)",
+       "load(0)",
+       "spend(40001)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 104
+    }
+   }
+  },
+  "sonnet": {
+   "gold": {
+    "status": "ok",
+    "seconds": 11.4,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance",
+       "b >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LOAD"
+      ],
+      "calls": [
+       "spend(1)",
+       "spend(50001)",
+       "load(1)",
+       "load(2)",
+       "load(4)",
+       "load(0)",
+       "load(49494)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> self._balance <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 49
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 16.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= self._balance",
+       "card >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= self._balance",
+       "card >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= self._balance",
+       "card >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= self._balance",
+       "card >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card == self._balance",
+       "card >= 0",
+       "hist(is_balance) -> card <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= 50000",
+       "card == self._balance",
+       "self._balance >= 0"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 37
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 2.9,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> self._balance <= 0",
+       "calls >= 0",
+       "self._balance >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 104
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 1.5,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "load(0)",
+       "load(1)",
+       "load(9997)",
+       "load(9999)",
+       "load(29503)",
+       "spend(9998)",
+       "spend(9999)",
+       "load(1)",
+       "load(19497)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "load(49502)",
+       "load(0)",
+       "load(10000)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "load(49500)",
+       "spend(1)",
+       "spend(2)",
+       "spend(4)",
+       "spend(8)",
+       "spend(16)",
+       "spend(1)",
+       "spend(9966)",
+       "spend(9999)",
+       "load(50001)",
+       "load(19997)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-1"
+      ],
+      "calls": [
+       "balance()",
+       "balance()",
+       "balance()",
+       "load(49501)",
+       "balance()",
+       "spend(49500)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 104
+    }
+   }
+  },
+  "opus": {
+   "gold": {
+    "status": "ok",
+    "seconds": 3.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance",
+       "b >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LOAD"
+      ],
+      "calls": [
+       "load(0)",
+       "spend(50001)",
+       "load(0)",
+       "load(0)",
+       "load(9999)",
+       "spend(1)",
+       "spend(9999)",
+       "load(50000)",
+       "load(39503)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> b <= 0",
+       "b >= self._balance"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 49
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 0.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= self._balance",
+       "card >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= self._balance",
+       "card >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= self._balance",
+       "card >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card <= self._balance",
+       "card >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card == self._balance",
+       "card >= 0",
+       "hist(is_balance) -> card <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card == self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 37
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 5.8,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= 0",
+       "cb >= self._balance",
+       "self._balance <= 50000"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> self._balance <= 0",
+       "calls >= 0",
+       "self._balance >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "cb <= self._balance",
+       "cb >= self._balance",
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 104
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 2.0,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "load(0)",
+       "spend(7500)",
+       "load(0)",
+       "load(0)",
+       "load(47501)",
+       "spend(2499)",
+       "load(49500)",
+       "load(0)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "load(50000)",
+       "load(1)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "load(1)",
+       "load(2)",
+       "load(4)",
+       "load(8)",
+       "load(10000)",
+       "load(1)",
+       "load(0)",
+       "spend(9999)",
+       "load(518)",
+       "balance()",
+       "load(48466)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-1"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(44996)",
+       "spend(9999)",
+       "load(14503)",
+       "load(50000)",
+       "spend(35498)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 104
+    }
+   }
+  },
+  "ref": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.9,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance",
+       "b >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BONUS"
+      ],
+      "calls": [
+       "spend(50001)",
+       "spend(1)",
+       "load(50001)",
+       "load(9999)",
+       "load(9999)",
+       "load(40002)",
+       "load(9999)",
+       "load(30005)",
+       "spend(20004)",
+       "load(40007)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b >= self._balance"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> self._balance <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 49
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 4.8,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BAL-1"
+      ],
+      "calls": [
+       "spend(1)",
+       "balance()",
+       "load(50001)",
+       "spend(50001)",
+       "load(0)",
+       "balance()",
+       "load(50000)",
+       "load(1)",
+       "load(10000)",
+       "load(10502)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BONUS-1"
+      ],
+      "calls": [
+       "load(50001)",
+       "spend(50001)",
+       "load(50001)",
+       "load(0)",
+       "load(50000)",
+       "load(0)",
+       "load(19498)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-CAP-1"
+      ],
+      "calls": [
+       "load(49501)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-LOAD-1"
+      ],
+      "calls": [
+       "load(0)",
+       "spend(0)",
+       "balance()",
+       "load(0)",
+       "balance()",
+       "load(1)",
+       "balance()",
+       "load(10000)",
+       "balance()",
+       "load(39000)",
+       "load(9999)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card >= 0",
+       "hist(is_balance) -> card <= 0",
+       "hist(is_balance) -> card == self._balance"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-SPEND-1"
+      ],
+      "calls": [
+       "spend(0)",
+       "balance()",
+       "spend(0)",
+       "balance()",
+       "load(1)",
+       "load(9997)",
+       "load(0)",
+       "load(0)",
+       "spend(9999)",
+       "load(39503)",
+       "spend(9999)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 31
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.9,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BAL-1"
+      ],
+      "calls": [
+       "load(49499)",
+       "spend(2)",
+       "spend(10000)",
+       "load(0)",
+       "spend(1)",
+       "spend(39995)",
+       "spend(0)",
+       "load(49500)",
+       "spend(9999)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BONUS-1"
+      ],
+      "calls": [
+       "load(0)",
+       "load(0)",
+       "load(50001)",
+       "load(50001)",
+       "load(0)",
+       "spend(9999)",
+       "balance()",
+       "spend(131071)",
+       "load(50000)",
+       "spend(0)",
+       "load(10000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-CAP-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "load(50001)",
+       "load(40001)"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> cb <= self._balance",
+       "calls == 0 -> self._balance <= 0",
+       "calls >= 0",
+       "cb >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-LOAD-1"
+      ],
+      "calls": [
+       "load(39502)",
+       "load(9999)",
+       "spend(30004)",
+       "spend(9999)",
+       "spend(1)",
+       "spend(9494)",
+       "balance()",
+       "load(48998)",
+       "spend(503)",
+       "load(1)",
+       "load(49499)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-SPEND-2"
+      ],
+      "calls": [
+       "spend(50001)",
+       "load(0)",
+       "load(2)",
+       "spend(3)",
+       "balance()",
+       "load(49499)",
+       "spend(9999)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 94
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 8.0,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "load(1)",
+       "load(0)",
+       "load(10000)",
+       "load(1)",
+       "load(13997)",
+       "load(25000)",
+       "load(0)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BONUS-1"
+      ],
+      "calls": [
+       "load(49501)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "load(50000)",
+       "load(50501)",
+       "load(0)",
+       "spend(1)",
+       "spend(501)",
+       "spend(2)",
+       "load(503)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "load(9998)",
+       "load(9999)",
+       "load(0)",
+       "spend(1)",
+       "balance()",
+       "spend(19996)",
+       "load(10000)",
+       "load(39001)",
+       "spend(40002)",
+       "spend(9999)",
+       "load(40003)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-1"
+      ],
+      "calls": [
+       "spend(50001)",
+       "spend(50001)",
+       "spend(9999)",
+       "load(50000)",
+       "spend(0)",
+       "load(0)",
+       "spend(25250)",
+       "spend(50001)",
+       "load(131071)",
+       "spend(50001)",
+       "spend(24751)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 104
+    }
+   }
+  },
+  "C1": {
+   "gold": {
+    "status": "ok",
+    "seconds": 5.9,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance",
+       "b >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BONUS"
+      ],
+      "calls": [
+       "spend(49501)",
+       "load(10001)",
+       "load(10001)",
+       "load(10001)",
+       "load(18382)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b >= self._balance"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> self._balance <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 49
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 46.7,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BAL-1"
+      ],
+      "calls": [
+       "spend(0)",
+       "spend(50001)",
+       "load(10001)",
+       "load(1)",
+       "spend(50001)",
+       "load(10503)",
+       "balance()",
+       "load(1)",
+       "spend(21507)",
+       "load(10000)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BONUS-1"
+      ],
+      "calls": [
+       "load(10001)",
+       "load(10502)",
+       "load(1)",
+       "load(27746)",
+       "load(0)",
+       "load(50001)",
+       "spend(251)",
+       "spend(9999)",
+       "load(50001)",
+       "load(10000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-CAP-1"
+      ],
+      "calls": [
+       "load(1)",
+       "load(2)",
+       "load(4)",
+       "load(50001)",
+       "load(50001)",
+       "load(0)",
+       "balance()",
+       "load(10001)",
+       "load(0)",
+       "spend(50001)",
+       "load(39492)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-LOAD-1"
+      ],
+      "calls": [
+       "load(47003)",
+       "spend(1)",
+       "spend(10001)",
+       "spend(12500)",
+       "spend(25000)",
+       "balance()",
+       "load(50001)",
+       "load(0)",
+       "load(50001)",
+       "load(49999)",
+       "load(9999)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card >= 0",
+       "hist(is_balance) -> card <= 0",
+       "hist(is_balance) -> card == self._balance"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-SPEND-2"
+      ],
+      "calls": [
+       "load(9999)",
+       "load(0)",
+       "spend(1)",
+       "load(40002)",
+       "load(0)",
+       "spend(9997)",
+       "load(0)",
+       "balance()",
+       "load(2)",
+       "spend(50000)",
+       "balance()"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 31
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.9,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BAL-1"
+      ],
+      "calls": [
+       "spend(50001)",
+       "balance()",
+       "load(50001)",
+       "balance()",
+       "balance()",
+       "spend(0)",
+       "spend(0)",
+       "load(24250)",
+       "spend(24749)",
+       "load(10000)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BONUS-1"
+      ],
+      "calls": [
+       "spend(0)",
+       "spend(0)",
+       "balance()",
+       "spend(50001)",
+       "spend(0)",
+       "balance()",
+       "load(49501)",
+       "load(50000)",
+       "balance()",
+       "load(0)",
+       "load(10001)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-CAP-1"
+      ],
+      "calls": [
+       "load(50000)"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> self._balance <= 0",
+       "calls >= 0",
+       "self._balance >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-LOAD-1"
+      ],
+      "calls": [
+       "load(10000)",
+       "load(39499)",
+       "spend(29501)",
+       "spend(9999)",
+       "spend(9999)",
+       "load(49500)",
+       "balance()",
+       "load(0)",
+       "balance()",
+       "load(502)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-SPEND-2"
+      ],
+      "calls": [
+       "load(49501)",
+       "spend(10001)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 92
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "load(10000)",
+       "load(1)",
+       "spend(50001)",
+       "load(14248)",
+       "load(24749)",
+       "spend(25247)",
+       "spend(25250)",
+       "load(49999)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BONUS-1"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(1)",
+       "spend(2)",
+       "load(10001)",
+       "load(10001)",
+       "spend(0)",
+       "load(28998)",
+       "load(28498)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "load(39439)",
+       "load(10000)",
+       "load(54936)",
+       "spend(62)",
+       "spend(126)",
+       "spend(250)",
+       "load(0)",
+       "load(1)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "load(50000)",
+       "balance()",
+       "spend(49999)",
+       "spend(2)",
+       "spend(2)",
+       "balance()",
+       "spend(2)",
+       "spend(50001)",
+       "spend(1)",
+       "load(50000)",
+       "load(494)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-2"
+      ],
+      "calls": [
+       "load(10000)",
+       "balance()",
+       "spend(0)",
+       "load(40000)",
+       "spend(39500)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 104
+    }
+   }
+  },
+  "C2": {
+   "gold": {
+    "status": "ok",
+    "seconds": 25.9,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance",
+       "self._balance >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BONUS"
+      ],
+      "calls": [
+       "load(49501)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-LOAD"
+      ],
+      "calls": [
+       "load(9999)",
+       "spend(0)",
+       "spend(1)",
+       "load(0)",
+       "load(0)",
+       "load(0)",
+       "load(9999)",
+       "spend(9999)",
+       "load(9999)",
+       "spend(10000)",
+       "load(40003)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> self._balance <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 49
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 5.9,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BAL-1"
+      ],
+      "calls": [
+       "spend(1)",
+       "balance()",
+       "spend(0)",
+       "balance()",
+       "load(1)",
+       "load(19502)",
+       "load(9999)",
+       "load(9999)",
+       "load(9999)",
+       "spend(10000)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BONUS-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "spend(49997)",
+       "balance()",
+       "spend(50001)",
+       "load(49498)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-CAP-1"
+      ],
+      "calls": [
+       "load(9998)",
+       "load(9999)",
+       "load(0)",
+       "balance()",
+       "balance()",
+       "load(29502)",
+       "load(1)",
+       "spend(2)",
+       "spend(49998)",
+       "spend(49501)",
+       "load(49503)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-LOAD-1"
+      ],
+      "calls": [
+       "spend(50001)",
+       "load(9999)",
+       "load(10000)",
+       "load(1)",
+       "load(20501)",
+       "load(1)",
+       "load(8497)",
+       "load(1)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card >= 0",
+       "hist(is_balance) -> card <= 0",
+       "hist(is_balance) -> card == self._balance"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-SPEND-1"
+      ],
+      "calls": [
+       "load(1)",
+       "load(2)",
+       "spend(50001)",
+       "spend(131071)",
+       "load(4)",
+       "load(49494)",
+       "spend(49991)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 31
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 56.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BAL-1"
+      ],
+      "calls": [
+       "spend(0)",
+       "load(0)",
+       "load(0)",
+       "load(1)",
+       "load(19502)",
+       "load(0)",
+       "spend(50001)",
+       "load(9999)",
+       "load(9999)",
+       "load(9999)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BONUS-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "balance()",
+       "load(0)",
+       "balance()",
+       "spend(49998)",
+       "load(3)",
+       "spend(3)",
+       "spend(50001)",
+       "load(0)",
+       "load(49499)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-CAP-1"
+      ],
+      "calls": [
+       "load(2)",
+       "load(49499)"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> self._balance <= 0",
+       "calls >= 0",
+       "self._balance >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-LOAD-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "load(5)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-SPEND-2"
+      ],
+      "calls": [
+       "load(49500)",
+       "load(0)",
+       "balance()",
+       "load(0)",
+       "load(50001)",
+       "spend(25249)",
+       "balance()",
+       "balance()",
+       "balance()",
+       "load(24750)",
+       "spend(24752)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 93
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 3.1,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "load(49514)",
+       "spend(13)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BONUS-1"
+      ],
+      "calls": [
+       "load(49501)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "balance()",
+       "load(1)",
+       "load(49999)",
+       "load(2)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "load(50000)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-1"
+      ],
+      "calls": [
+       "load(49502)",
+       "load(0)",
+       "spend(3)",
+       "load(1)",
+       "load(0)",
+       "spend(1)",
+       "spend(49999)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 104
+    }
+   }
+  },
+  "C3": {
+   "gold": {
+    "status": "ok",
+    "seconds": 31.9,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BAL"
+      ],
+      "calls": [
+       "load(131071)",
+       "load(10000)",
+       "load(1)",
+       "load(10000)",
+       "load(0)",
+       "load(1)",
+       "load(1)",
+       "load(3996)",
+       "spend(0)",
+       "spend(25001)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BONUS"
+      ],
+      "calls": [
+       "load(33997)",
+       "load(1)",
+       "load(1)",
+       "load(1)",
+       "load(10000)",
+       "spend(5001)",
+       "load(10000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED-BOUNDED",
+      "scope": "PASS"
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED-BOUNDED",
+      "scope": "PASS"
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> self._balance <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-SPEND"
+      ],
+      "calls": [
+       "spend(0)",
+       "spend(49501)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 21
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BAL-1"
+      ],
+      "calls": [
+       "spend(49501)",
+       "spend(50000)",
+       "load(49501)",
+       "load(49501)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BONUS-1"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(49999)",
+       "load(0)",
+       "spend(0)",
+       "spend(1)",
+       "spend(2)",
+       "spend(0)",
+       "spend(9995)",
+       "spend(9999)",
+       "load(19498)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-CAP-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "spend(5000)",
+       "spend(9999)",
+       "load(5001)",
+       "load(50000)",
+       "load(50000)",
+       "load(0)",
+       "spend(50001)",
+       "balance()",
+       "load(49999)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-LOAD-1"
+      ],
+      "calls": [
+       "load(1)",
+       "load(49500)",
+       "load(1)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card >= 0",
+       "hist(is_balance) -> card <= 0",
+       "hist(is_balance) -> card == self._balance"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-SPEND-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "load(39500)",
+       "load(0)",
+       "spend(2)",
+       "spend(9999)",
+       "load(10000)",
+       "load(0)",
+       "load(9999)",
+       "load(0)",
+       "spend(49999)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 29
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 4.1,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BAL-1"
+      ],
+      "calls": [
+       "spend(1)",
+       "spend(49502)",
+       "spend(1)",
+       "spend(993)",
+       "load(49499)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BONUS-2"
+      ],
+      "calls": [
+       "load(10000)",
+       "spend(50000)",
+       "load(38997)",
+       "balance()"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-CAP-1"
+      ],
+      "calls": [
+       "load(0)",
+       "load(50001)",
+       "load(9999)",
+       "load(29501)",
+       "load(10000)"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> self._balance <= 0",
+       "calls == 0 -> self._balance >= 0",
+       "calls >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-LOAD-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "spend(49501)",
+       "spend(500)",
+       "spend(0)",
+       "spend(50002)",
+       "spend(0)",
+       "spend(50001)",
+       "spend(1)",
+       "spend(1)",
+       "load(49504)",
+       "load(9999)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SIG-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-SIG-1"
+      ],
+      "calls": [
+       "load(0)",
+       "spend(1)",
+       "load(50000)",
+       "spend(0)",
+       "spend(10000)",
+       "load(0)",
+       "load(1)",
+       "spend(15002)",
+       "spend(25001)",
+       "load(50001)",
+       "balance()"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-SPEND-2"
+      ],
+      "calls": [
+       "balance()",
+       "load(50000)",
+       "balance()",
+       "spend(50000)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 88
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "spend(49999)",
+       "load(0)",
+       "load(0)",
+       "spend(3)",
+       "load(49503)",
+       "load(0)",
+       "load(10000)",
+       "load(0)",
+       "load(0)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BONUS-1"
+      ],
+      "calls": [
+       "spend(1)",
+       "spend(0)",
+       "load(49309)",
+       "load(1)",
+       "spend(50000)",
+       "load(50192)",
+       "spend(308)",
+       "load(50000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "spend(1)",
+       "spend(1)",
+       "spend(1)",
+       "spend(50004)",
+       "spend(49504)",
+       "load(99508)",
+       "load(99508)",
+       "load(99508)",
+       "load(99508)",
+       "load(9999)",
+       "load(50000)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "spend(9999)",
+       "load(44500)",
+       "load(9497)",
+       "spend(4999)",
+       "spend(10000)",
+       "spend(20502)",
+       "spend(9249)",
+       "load(251)",
+       "load(49502)",
+       "load(9999)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-2"
+      ],
+      "calls": [
+       "balance()",
+       "load(0)",
+       "load(50001)",
+       "spend(1)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 100
+    }
+   }
+  },
+  "C4": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.0,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance",
+       "b >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BONUS"
+      ],
+      "calls": [
+       "load(49501)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b >= self._balance"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> self._balance <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-SPEND"
+      ],
+      "calls": [
+       "spend(0)",
+       "load(49501)",
+       "spend(50000)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 51
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.5,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BAL-1"
+      ],
+      "calls": [
+       "spend(50001)",
+       "balance()",
+       "load(39502)",
+       "spend(9999)",
+       "load(9997)",
+       "load(0)",
+       "load(0)",
+       "load(10000)",
+       "spend(0)",
+       "spend(0)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BONUS-1"
+      ],
+      "calls": [
+       "load(49249)",
+       "balance()",
+       "load(252)",
+       "spend(251)",
+       "load(50001)",
+       "balance()",
+       "load(0)",
+       "spend(9998)",
+       "load(0)",
+       "load(10500)",
+       "load(10000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-CAP-1"
+      ],
+      "calls": [
+       "load(49499)",
+       "balance()",
+       "balance()",
+       "spend(2)",
+       "load(0)",
+       "spend(495)",
+       "spend(49502)",
+       "spend(9999)",
+       "load(39502)",
+       "load(9999)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-LOAD-1"
+      ],
+      "calls": [
+       "load(50000)",
+       "load(0)",
+       "load(0)",
+       "load(39002)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card >= 0",
+       "hist(is_balance) -> card <= 0",
+       "hist(is_balance) -> card == self._balance"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-SPEND-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "spend(0)",
+       "balance()",
+       "load(49498)",
+       "load(0)",
+       "spend(49999)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 31
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 2.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BAL-1"
+      ],
+      "calls": [
+       "load(10000)",
+       "load(19003)",
+       "load(0)",
+       "load(0)",
+       "load(9999)",
+       "load(9999)",
+       "spend(9998)",
+       "load(19497)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BONUS-1"
+      ],
+      "calls": [
+       "balance()",
+       "load(39502)",
+       "load(9999)",
+       "load(1)",
+       "spend(9996)",
+       "load(19494)",
+       "spend(40509)",
+       "load(30008)",
+       "spend(50001)",
+       "balance()",
+       "load(10000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-CAP-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "spend(1)",
+       "spend(50001)",
+       "load(39502)",
+       "load(0)",
+       "spend(50000)",
+       "load(39501)",
+       "spend(49998)",
+       "load(1)",
+       "spend(9999)",
+       "load(30004)"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> cb <= self._balance",
+       "calls == 0 -> self._balance <= 0",
+       "calls >= 0",
+       "cb >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-LOAD-1"
+      ],
+      "calls": [
+       "load(49498)",
+       "load(3)",
+       "spend(49998)",
+       "load(3)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-SPEND-2"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(3998)",
+       "load(1)",
+       "load(10000)",
+       "load(0)",
+       "load(14500)",
+       "load(10000)",
+       "load(1)",
+       "load(10000)",
+       "spend(49999)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 94
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 3.2,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "spend(1)",
+       "balance()",
+       "load(1)",
+       "load(50001)",
+       "load(24500)",
+       "load(25000)",
+       "load(0)",
+       "load(0)",
+       "load(24999)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BONUS-1"
+      ],
+      "calls": [
+       "spend(0)",
+       "load(9999)",
+       "load(39502)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "load(50000)",
+       "load(0)",
+       "load(0)",
+       "load(49999)",
+       "load(9999)",
+       "spend(249)",
+       "balance()",
+       "spend(250)",
+       "balance()",
+       "load(498)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "spend(50001)",
+       "load(50000)",
+       "spend(2)",
+       "load(1)",
+       "load(50499)",
+       "balance()",
+       "spend(49999)",
+       "load(0)",
+       "spend(2)",
+       "load(0)",
+       "load(9999)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "spend(50000)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 104
+    }
+   }
+  },
+  "C5": {
+   "gold": {
+    "status": "ok",
+    "seconds": 2.1,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance",
+       "b >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BONUS"
+      ],
+      "calls": [
+       "load(1)",
+       "spend(49499)",
+       "load(49500)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b == self._balance"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> self._balance <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RANGE"
+      ],
+      "calls": [
+       "load(9999)",
+       "spend(1697)",
+       "spend(0)"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b == self._balance"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 49
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 2.8,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BAL-1"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(49501)",
+       "spend(50001)",
+       "spend(1)",
+       "spend(2)",
+       "spend(9995)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BONUS-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "spend(0)",
+       "load(0)",
+       "load(48998)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-CAP-1"
+      ],
+      "calls": [
+       "load(1)",
+       "load(4997)",
+       "load(4999)",
+       "load(9998)",
+       "load(29503)",
+       "spend(1)",
+       "spend(4)",
+       "spend(9991)",
+       "spend(9999)",
+       "load(0)",
+       "load(19997)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-LOAD-1"
+      ],
+      "calls": [
+       "spend(0)",
+       "balance()",
+       "balance()",
+       "spend(0)",
+       "load(50001)",
+       "balance()",
+       "load(24500)",
+       "spend(24999)",
+       "load(1)",
+       "load(49499)",
+       "load(9999)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card >= 0",
+       "hist(is_balance) -> card <= 0",
+       "hist(is_balance) -> card == self._balance"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-RANGE-1"
+      ],
+      "calls": [
+       "spend(9999)",
+       "load(10000)",
+       "spend(39500)",
+       "spend(1)",
+       "spend(10000)",
+       "spend(500)",
+       "spend(500)",
+       "spend(0)"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-SPEND-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "spend(1)",
+       "load(0)",
+       "load(39503)",
+       "spend(40004)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 31
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 14.3,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BAL-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "spend(1)",
+       "spend(9997)",
+       "load(49500)",
+       "load(0)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BONUS-1"
+      ],
+      "calls": [
+       "spend(50001)",
+       "load(0)",
+       "balance()",
+       "spend(0)",
+       "spend(9999)",
+       "load(49501)",
+       "spend(49999)",
+       "spend(50001)",
+       "load(0)",
+       "balance()",
+       "load(49500)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-CAP-1"
+      ],
+      "calls": [
+       "load(1)",
+       "load(49999)"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> cb <= self._balance",
+       "calls == 0 -> self._balance <= 0",
+       "calls >= 0",
+       "cb >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-LOAD-1"
+      ],
+      "calls": [
+       "load(1)",
+       "load(13997)",
+       "load(14499)",
+       "load(1)",
+       "load(10000)",
+       "load(0)",
+       "spend(50001)",
+       "load(1)",
+       "load(1)",
+       "load(10000)",
+       "load(9999)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-RANGE-1"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(9999)",
+       "spend(1)",
+       "load(9999)",
+       "spend(1)",
+       "spend(1)",
+       "spend(1)",
+       "spend(19994)",
+       "load(10000)",
+       "spend(0)"
+      ]
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-SPEND-2"
+      ],
+      "calls": [
+       "load(0)",
+       "load(0)",
+       "balance()",
+       "spend(1)",
+       "spend(1)",
+       "load(50001)",
+       "load(49501)",
+       "spend(50001)",
+       "load(1)",
+       "load(2)",
+       "spend(4)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 94
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 6.7,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(49502)",
+       "spend(10000)",
+       "spend(9999)",
+       "spend(0)",
+       "spend(0)",
+       "load(19500)",
+       "load(50004)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BONUS-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "spend(40002)",
+       "spend(131071)",
+       "spend(131071)",
+       "spend(131071)",
+       "spend(40000)",
+       "load(40002)",
+       "load(29500)",
+       "spend(50001)",
+       "spend(50001)",
+       "load(10000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "spend(50001)",
+       "load(49502)",
+       "spend(1)",
+       "load(9999)",
+       "load(0)",
+       "spend(49999)",
+       "spend(0)",
+       "spend(50001)",
+       "load(10000)",
+       "load(39499)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "load(50002)",
+       "load(0)",
+       "load(0)",
+       "load(0)",
+       "spend(50000)",
+       "load(2)",
+       "load(4)",
+       "load(9992)",
+       "spend(9999)",
+       "load(50000)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-RANGE-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "load(9999)",
+       "spend(1)",
+       "spend(1)",
+       "spend(49999)",
+       "spend(1)",
+       "spend(1)",
+       "spend(49996)",
+       "spend(0)"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "load(0)",
+       "spend(0)",
+       "load(0)",
+       "load(0)",
+       "load(50001)",
+       "spend(50001)",
+       "load(0)",
+       "load(40001)",
+       "spend(1)",
+       "spend(50000)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 104
+    }
+   }
+  },
+  "C6": {
+   "gold": {
+    "status": "ok",
+    "seconds": 22.8,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BAL"
+      ],
+      "calls": [
+       "load(10000)",
+       "load(50000)",
+       "load(0)",
+       "load(50001)",
+       "load(0)",
+       "spend(39499)",
+       "spend(0)",
+       "load(49501)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BONUS"
+      ],
+      "calls": [
+       "load(1)",
+       "load(1)",
+       "load(1)",
+       "load(24496)",
+       "spend(25001)",
+       "load(9999)",
+       "load(40002)",
+       "spend(9999)",
+       "load(7488)",
+       "load(2)",
+       "load(42011)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CAPLOAD"
+      ],
+      "calls": [
+       "balance()",
+       "load(49499)",
+       "balance()",
+       "spend(9996)",
+       "spend(50000)",
+       "load(9999)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED-BOUNDED",
+      "scope": "PASS"
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> self._balance <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-SPEND"
+      ],
+      "calls": [
+       "load(0)",
+       "load(0)",
+       "load(1)",
+       "spend(50000)",
+       "load(49501)",
+       "spend(20252)",
+       "spend(19751)",
+       "spend(9998)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 39
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 8.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BAL-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "load(0)",
+       "load(50001)",
+       "spend(5001)",
+       "load(1)",
+       "load(2)",
+       "spend(4999)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BONUS-1"
+      ],
+      "calls": [
+       "spend(50001)",
+       "spend(50000)",
+       "load(9999)",
+       "load(0)",
+       "spend(9998)",
+       "spend(2)",
+       "load(49501)",
+       "spend(1)",
+       "spend(500)",
+       "load(49500)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-CAP-1"
+      ],
+      "calls": [
+       "load(0)",
+       "load(19003)",
+       "load(0)",
+       "load(0)",
+       "spend(30498)",
+       "load(9998)",
+       "load(9999)",
+       "load(10001)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-LOAD-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "spend(2)",
+       "spend(1)",
+       "spend(4)",
+       "spend(1)",
+       "spend(1)",
+       "load(9999)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card >= 0",
+       "hist(is_balance) -> card <= 0",
+       "hist(is_balance) -> card == self._balance"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-SPEND-2"
+      ],
+      "calls": [
+       "load(1)",
+       "load(49500)",
+       "load(49001)",
+       "spend(2376)",
+       "spend(9999)",
+       "balance()"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 31
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 8.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BAL-1"
+      ],
+      "calls": [
+       "load(49499)",
+       "spend(50000)",
+       "spend(49501)",
+       "load(48507)",
+       "load(0)",
+       "load(496)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BONUS-2"
+      ],
+      "calls": [
+       "spend(9999)",
+       "load(49499)",
+       "spend(50000)",
+       "spend(49998)",
+       "load(9999)",
+       "load(29503)",
+       "spend(9999)",
+       "spend(50001)",
+       "load(10000)",
+       "balance()"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-CAP-1"
+      ],
+      "calls": [
+       "load(0)",
+       "spend(1)",
+       "load(44500)",
+       "spend(4998)",
+       "spend(9999)",
+       "load(19997)"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> cb <= self._balance",
+       "calls == 0 -> self._balance <= 0",
+       "calls >= 0",
+       "cb >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-LOAD-1"
+      ],
+      "calls": [
+       "load(0)",
+       "load(50001)",
+       "load(49501)",
+       "load(0)",
+       "load(50001)",
+       "load(0)",
+       "spend(1)",
+       "load(39502)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-SPEND-4"
+      ],
+      "calls": [
+       "load(49499)",
+       "spend(2873)",
+       "spend(10000)",
+       "spend(12374)",
+       "load(0)",
+       "spend(24752)",
+       "load(0)",
+       "load(39502)",
+       "spend(9999)",
+       "spend(50000)",
+       "balance()"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 93
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 6.7,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "load(0)",
+       "load(49500)",
+       "load(10000)",
+       "load(1)",
+       "load(0)",
+       "load(0)",
+       "spend(1)",
+       "balance()",
+       "load(50001)",
+       "spend(50000)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BONUS-1"
+      ],
+      "calls": [
+       "load(0)",
+       "spend(50001)",
+       "load(10000)",
+       "spend(10501)",
+       "load(39499)",
+       "load(10000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "load(24500)",
+       "spend(25001)",
+       "load(0)",
+       "load(50000)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "load(50001)",
+       "balance()",
+       "load(50000)",
+       "spend(49999)",
+       "load(49500)",
+       "load(10000)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-2"
+      ],
+      "calls": [
+       "load(50000)",
+       "load(0)",
+       "spend(19996)",
+       "load(19497)",
+       "load(9999)",
+       "spend(40001)",
+       "spend(9999)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 104
+    }
+   }
+  },
+  "C7": {
+   "gold": {
+    "status": "ok",
+    "seconds": 11.7,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BAL"
+      ],
+      "calls": [
+       "load(0)",
+       "load(0)",
+       "load(0)",
+       "spend(0)",
+       "load(0)",
+       "load(9999)",
+       "spend(9999)",
+       "load(0)",
+       "load(50001)",
+       "load(49999)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BONUS"
+      ],
+      "calls": [
+       "load(50000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CAPLOAD"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(49998)",
+       "spend(5001)",
+       "spend(9999)",
+       "spend(9999)",
+       "load(25000)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED-BOUNDED",
+      "scope": "PASS"
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> self._balance <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-SPEND"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(9999)",
+       "load(0)",
+       "load(50001)",
+       "load(30003)",
+       "load(50001)",
+       "spend(9999)",
+       "load(50001)",
+       "load(19498)",
+       "load(50501)",
+       "spend(49502)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 39
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BAL-1"
+      ],
+      "calls": [
+       "load(1)",
+       "load(2)",
+       "load(4)",
+       "load(8)",
+       "load(0)",
+       "load(9983)",
+       "load(0)",
+       "load(9999)",
+       "load(29502)",
+       "load(0)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BONUS-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "load(0)",
+       "spend(1)",
+       "spend(1)",
+       "spend(1)",
+       "load(39505)",
+       "load(0)",
+       "load(0)",
+       "spend(4999)",
+       "balance()",
+       "load(44503)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-CAP-1"
+      ],
+      "calls": [
+       "spend(50001)",
+       "load(49499)",
+       "spend(9497)",
+       "spend(9999)",
+       "spend(30002)",
+       "load(0)",
+       "balance()",
+       "spend(1)",
+       "load(49999)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-LOAD-1"
+      ],
+      "calls": [
+       "balance()",
+       "load(0)",
+       "load(9999)",
+       "load(9999)",
+       "load(29499)",
+       "load(1)",
+       "load(501)",
+       "load(2)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card >= 0",
+       "hist(is_balance) -> card <= 0",
+       "hist(is_balance) -> card == self._balance"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-SPEND-1"
+      ],
+      "calls": [
+       "load(49999)",
+       "load(0)",
+       "load(0)",
+       "spend(49999)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 31
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 2.1,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BAL-1"
+      ],
+      "calls": [
+       "load(40004)",
+       "spend(40501)",
+       "spend(1)",
+       "spend(50001)",
+       "spend(1)",
+       "spend(50001)",
+       "load(9999)",
+       "load(9999)",
+       "load(29501)",
+       "spend(40002)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BONUS-1"
+      ],
+      "calls": [
+       "balance()",
+       "load(49999)",
+       "balance()",
+       "spend(2)",
+       "spend(50001)",
+       "balance()",
+       "load(50001)",
+       "spend(49996)",
+       "spend(0)",
+       "spend(9999)",
+       "load(49500)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-CAP-1"
+      ],
+      "calls": [
+       "load(0)",
+       "load(50001)",
+       "spend(1)",
+       "spend(1)",
+       "load(131071)",
+       "load(9999)",
+       "spend(50001)",
+       "load(40000)"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> self._balance <= 0",
+       "calls >= 0",
+       "self._balance >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-LOAD-1"
+      ],
+      "calls": [
+       "balance()",
+       "spend(0)",
+       "balance()",
+       "balance()",
+       "load(0)",
+       "load(49501)",
+       "load(50001)",
+       "balance()",
+       "balance()",
+       "load(9999)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-SPEND-3"
+      ],
+      "calls": [
+       "load(9999)",
+       "load(39500)",
+       "load(0)",
+       "spend(502)",
+       "spend(1004)",
+       "spend(10000)",
+       "load(0)",
+       "spend(37992)",
+       "balance()"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 92
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 1.8,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "load(0)",
+       "load(0)",
+       "load(0)",
+       "load(49503)",
+       "load(50004)",
+       "load(50004)",
+       "spend(49504)",
+       "spend(498)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BONUS-1"
+      ],
+      "calls": [
+       "spend(0)",
+       "load(49998)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "spend(9999)",
+       "load(50001)",
+       "load(1)",
+       "load(0)",
+       "spend(2)",
+       "load(49500)",
+       "load(0)",
+       "spend(50002)",
+       "spend(0)",
+       "load(0)",
+       "load(1)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "balance()",
+       "balance()",
+       "load(0)",
+       "balance()",
+       "load(49501)",
+       "spend(0)",
+       "load(0)",
+       "load(50002)",
+       "spend(0)",
+       "spend(49502)",
+       "load(10000)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-1"
+      ],
+      "calls": [
+       "balance()",
+       "load(0)",
+       "load(24749)",
+       "load(24750)",
+       "load(0)",
+       "load(0)",
+       "balance()",
+       "load(0)",
+       "load(502)",
+       "load(0)",
+       "spend(50000)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 104
+    }
+   }
+  },
+  "C8": {
+   "gold": {
+    "status": "untranslatable",
+    "seconds": 0.0,
+    "why": "operator Div"
+   },
+   "agent_a": {
+    "status": "untranslatable",
+    "seconds": 0.0,
+    "why": "operator Div"
+   },
+   "agent_b": {
+    "status": "untranslatable",
+    "seconds": 0.0,
+    "why": "operator Div"
+   },
+   "variant": {
+    "status": "untranslatable",
+    "seconds": 0.0,
+    "why": "operator Div"
+   }
+  },
+  "C9": {
+   "gold": {
+    "status": "ok",
+    "seconds": 0.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance",
+       "b >= 0"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-BONUS"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(50000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b == self._balance"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= 50000",
+       "b >= self._balance"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "!once(op == 1 && outcome == 0) -> self._balance <= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "b <= self._balance",
+       "b >= self._balance"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 145,
+     "invariant": 49
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 6.6,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BAL-1"
+      ],
+      "calls": [
+       "load(50000)",
+       "load(1)",
+       "spend(0)",
+       "load(10000)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-BONUS-1"
+      ],
+      "calls": [
+       "load(46877)",
+       "load(0)",
+       "load(0)",
+       "spend(10000)",
+       "spend(12624)",
+       "spend(1)",
+       "balance()",
+       "spend(50001)",
+       "spend(24752)",
+       "load(50000)",
+       "load(49500)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-CAP-1"
+      ],
+      "calls": [
+       "load(0)",
+       "load(24499)",
+       "balance()",
+       "load(25000)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-LOAD-1"
+      ],
+      "calls": [
+       "load(0)",
+       "balance()",
+       "load(9999)",
+       "load(9999)",
+       "spend(0)",
+       "load(30003)",
+       "load(0)",
+       "load(0)",
+       "load(29503)",
+       "balance()",
+       "load(19999)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "card >= 0",
+       "hist(is_balance) -> card <= 0",
+       "hist(is_balance) -> card == self._balance"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GA-SPEND-1"
+      ],
+      "calls": [
+       "spend(50001)",
+       "balance()",
+       "balance()",
+       "balance()",
+       "load(49868)",
+       "spend(49501)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 2,
+     "candidates": 121,
+     "invariant": 31
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 2.4,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BAL-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "load(50001)",
+       "load(0)",
+       "load(0)",
+       "load(0)",
+       "load(0)",
+       "load(39502)",
+       "load(0)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-BONUS-1"
+      ],
+      "calls": [
+       "spend(50001)",
+       "load(9999)",
+       "spend(9998)",
+       "balance()",
+       "spend(9999)",
+       "spend(49500)",
+       "spend(0)",
+       "load(2)",
+       "balance()",
+       "load(49996)",
+       "load(10000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-CAP-1"
+      ],
+      "calls": [
+       "load(24251)",
+       "load(24751)"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls == 0 -> self._balance <= 0",
+       "calls >= 0",
+       "self._balance >= 0"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-LOAD-2"
+      ],
+      "calls": [
+       "load(49500)",
+       "spend(5000)",
+       "spend(1)",
+       "spend(5000)",
+       "spend(10001)",
+       "spend(29997)",
+       "spend(50001)",
+       "load(49500)",
+       "spend(9999)",
+       "load(2)",
+       "balance()"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "calls >= 0"
+      ]
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": [
+       "self._balance <= 50000",
+       "self._balance >= 0"
+      ]
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GB-SPEND-2"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(49501)",
+       "load(0)",
+       "spend(49999)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 3,
+     "candidates": 318,
+     "invariant": 94
+    }
+   },
+   "variant": {
+    "status": "ok",
+    "seconds": 3.2,
+    "requirements": {
+     "R-BAL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BAL-1"
+      ],
+      "calls": [
+       "load(9999)",
+       "load(40001)",
+       "balance()"
+      ]
+     },
+     "R-BONUS-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-BONUS-1"
+      ],
+      "calls": [
+       "load(0)",
+       "load(50000)"
+      ]
+     },
+     "R-CAP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-CAP-1"
+      ],
+      "calls": [
+       "load(10000)",
+       "load(39001)",
+       "spend(50000)",
+       "load(50001)",
+       "load(49999)",
+       "spend(10000)",
+       "spend(0)",
+       "spend(498)",
+       "spend(9999)",
+       "load(50001)",
+       "load(20497)"
+      ]
+     },
+     "R-LOAD-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-LOAD-1"
+      ],
+      "calls": [
+       "load(50001)",
+       "load(9999)",
+       "load(40001)",
+       "spend(50501)",
+       "balance()",
+       "load(0)",
+       "spend(9999)",
+       "load(9500)",
+       "load(9499)"
+      ]
+     },
+     "R-NEW-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-RANGE-1": {
+      "proof": "PROVED",
+      "scope": "PASS",
+      "invariant": []
+     },
+     "R-SPEND-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "GV-SPEND-1"
+      ],
+      "calls": [
+       "load(49501)",
+       "balance()",
+       "load(0)",
+       "spend(40002)",
+       "load(0)",
+       "spend(9999)"
+      ]
+     }
+    },
+    "induction": {
+     "status": "ok",
+     "window": 1,
+     "candidates": 348,
+     "invariant": 104
+    }
+   }
+  }
+ },
+ "summary": {
+  "proved": 186,
+  "proved_bounded": 4,
+  "fails_both": 174,
+  "missed_by_scope": 0,
+  "scope_only": 0,
+  "unknown": 0,
+  "pairs": 48,
+  "untranslatable": [
+   "C8/gold: operator Div",
+   "C8/agent_a: operator Div",
+   "C8/agent_b: operator Div",
+   "C8/variant: operator Div"
+  ],
+  "seconds": [
+   0.6,
+   56.6
+  ]
+ },
+ "seconds": 404
+}

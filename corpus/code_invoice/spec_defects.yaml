@@ -1,0 +1,13 @@
+# Defects planted in spec.md (hidden from every agent).
+design: code_invoice
+defects:
+- id: D-1
+  kind: conflict
+  reqs: [R-MEM-1, R-DISC-1, R-SUM-1, R-TOT-1]
+  note: >
+    For a member with two items of 5 cents, neither on sale, each line's 10% (half a cent) rounds
+    down to nothing, so the lines are 5 and 5 and rule 5 makes the total 10. Rule 4 rounds 10% of the
+    summed 10 cents down to 1 cent, and rule 6 makes the total 10 minus 1. Whenever the lines' lost
+    fractions add up to a cent or more, no result meets rules 3 to 6; it takes two lines or more.
+- {id: D-2, kind: ambiguity, reqs: [R-MEM-1], note: '"rounded down to the cent": is the line''s discount rounded down (the customer pays the extra fraction), or the discounted line amount?'}
+- {id: D-3, kind: ambiguity, reqs: [R-DISC-1], note: '"summed and rounded down": 10% of the sum rounded down, or each item''s 10% rounded down and then summed? The second makes rules 3 to 6 consistent.'}

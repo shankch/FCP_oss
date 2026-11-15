@@ -1,0 +1,154 @@
+fcp: "0.1"
+set: variant1
+origin: {kind: agent, role: formalizer, id: variant1}
+
+defs:
+  # Rule 1: a call is accepted unless items is empty or an item has quantity 0.
+  valid: "len(price) > 0 && all(i < len(qty): qty[i] != 0)"
+  # Price times quantity of all items, summed (rule 6).
+  gross: "sum(i < len(price): price[i] * qty[i])"
+  # Price times quantity of the items not on sale, summed (rule 4).
+  gross_ns: "sum(i < len(price): sale[i] == 0 ? price[i] * qty[i] : 0)"
+
+properties:
+  - id: V1-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: "valid"
+      cond: "outcome == 0"
+    note: >-
+      The quote says unconditionally that the function returns a dict, but
+      rule 1 (R-ERR-1) makes it raise for empty items or a zero quantity; the
+      sentence is read as applying to every call rule 1 does not reject, as
+      the requirement text says ("for a valid call"). Outcome 0 also requires
+      the values to fit their signals; with at most 5 items, prices up to
+      4,095 and quantities up to 15 every value the rules define does
+      (line <= 61,425, total <= 307,125, discount <= 30,712).
+
+  - id: V1-ERR-1
+    req: R-ERR-1
+    pattern: implies
+    args:
+      trigger: "len(price) == 0 || any(i < len(qty): qty[i] == 0)"
+      cond: "outcome == 1"
+    note: >-
+      Literal "if": both conditions force ValueError. The converse (accepted
+      calls return) is V1-RET-1.
+
+  - id: V1-LINES-1
+    req: R-LINES-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "len(lines) == len(price)"
+    note: >-
+      One amount per item; "in the same order" is the index correspondence
+      lines[i] <-> item i used by V1-LINES-2 and V1-MEM-1.
+
+  - id: V1-LINES-2
+    req: R-LINES-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "all(i < len(price): !(member && sale[i] == 0) -> lines[i] == price[i] * qty[i])"
+    note: >-
+      A line's discount is only the one rule 3 gives (members, items not on
+      sale); every other line has no discount, so its amount is price times
+      quantity. The discounted lines are constrained by V1-MEM-1.
+
+  - id: V1-MEM-1
+    req: R-MEM-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && member"
+      cond: "all(i < len(price): sale[i] == 0 -> 10 * (price[i] * qty[i] - lines[i]) <= price[i] * qty[i] && price[i] * qty[i] < 10 * (price[i] * qty[i] - lines[i]) + 10)"
+    note: >-
+      Reading 1 of "rounded down to the cent" (as instructed): the line's
+      discount, price*qty - lines[i], is 10% of price*qty rounded down, i.e.
+      floor(price*qty / 10), so the line amount is effectively rounded up.
+      FCP-PL has no division, so d = floor(x/10) is written 10*d <= x < 10*d + 10.
+      The example (R-EX-1: 3998 -> 3599) agrees with this reading.
+
+  - id: V1-DISC-1
+    req: R-DISC-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && member"
+      cond: "10 * discount <= gross_ns && gross_ns < 10 * discount + 10"
+    note: >-
+      Reading 1 of "summed and rounded down" (as instructed): price*qty of the
+      items not on sale is summed first, then 10% of the sum is rounded down:
+      discount == floor(gross_ns / 10), written without division as
+      10*discount <= gross_ns < 10*discount + 10. This can exceed the sum
+      of the per-line discounts of R-MEM-1 (each rounded down separately), so
+      together with R-SUM-1 and R-TOT-1 it contradicts rules 2-3 on some
+      member calls (see V1-TOT-1); not repaired.
+
+  - id: V1-DISC-2
+    req: R-DISC-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0 && !member"
+      cond: "discount == 0"
+    note: "\"and 0 for everyone else\": non-members get a discount of 0."
+
+  - id: V1-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "total == sum(i < len(lines): lines[i])"
+
+  - id: V1-TOT-1
+    req: R-TOT-1
+    pattern: implies
+    args:
+      trigger: "outcome == 0"
+      cond: "total == gross - discount"
+    note: >-
+      Under the readings taken (per-line discounts rounded down in R-MEM-1,
+      summed-then-rounded discount in R-DISC-1), this conflicts with R-SUM-1
+      whenever the per-line roundings lose a cent: e.g. a member with two items
+      {price 5, qty 1, sale False}: lines must be [5, 5] (total 10 by rule 5)
+      but discount must be 1 (total 9 by rule 6). With R-RET-1 such calls have
+      no conforming answer. Formalized literally, not repaired.
+
+  - id: V1-EX-2
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "member && price == [1999] && qty == [2] && sale == [0]"
+      cond: "outcome == 0 && lines == [3599] && discount == 399 && total == 3599"
+    note: >-
+      The example states what this call returns, so besides the scenario
+      (V1-EX-1) the result is required for this call. A single item does not
+      distinguish the readings of R-DISC-1; it rules out reading 2 of R-MEM-1
+      (which would give a line of 3598).
+
+scenarios:
+  - id: V1-EX-1
+    req: R-EX-1
+    cover: "member && price == [1999] && qty == [2] && sale == [0] && outcome == 0 && lines == [3599] && discount == 399 && total == 3599"
+    note: The example call and its result must be possible.
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the function, its arguments and result type; realized by
+      the interface and the function section of design.yaml. That a dict is
+      returned is the guarantee R-RET-1.
+    covered_by: [V1-RET-1]
+  - req: R-IN-1
+    reason: >-
+      Definition of the item record (price in cents, qty, sale flag); realized
+      by the grouped sequence signals price, qty and sale of the interface.
+  - req: R-FR-1
+    reason: >-
+      Adapter definition of the outputs of a call that did not return; it is
+      the frame rule F-ZERO of design.yaml, added to every formalization set.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-MEM-1, phrase: "rounded down to the cent", reading: 1}
+  - {req: R-DISC-1, phrase: "summed and rounded down", reading: 1}

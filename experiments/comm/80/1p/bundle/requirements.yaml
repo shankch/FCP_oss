@@ -1,0 +1,178 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-API-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete Python implementation of the function whose stub is given in the request.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-API-2
+  doc: SPEC
+  quote: 'def is_happy(s):'
+  text: The function is named is_happy and takes exactly one parameter, named s.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: You are given a string s.
+  text: The caller passes a string as the argument s of is_happy.
+  kind: assumption
+  ambiguity:
+  - phrase: a string
+    readings:
+    - any string of any characters (uppercase, digits, spaces, punctuation and other codes included) is a valid argument and must be answered
+    - only strings of lowercase letters (the only characters any example uses) are valid arguments; the answer on other strings is a don't care
+  - phrase: a string s
+    readings:
+    - the empty string is a valid argument and must be answered
+    - only non-empty strings are given; the answer on the empty string is a don't care
+  lines:
+  - 5
+- id: R-DEF-1
+  doc: SPEC
+  quote: the string is happy
+  text: A string is either happy or not happy. The request never defines the property; it can only be inferred from the examples, which require that 'a', 'aa', 'aabb' and 'xyy' are not happy and that 'abcd'
+    and 'adb' are happy.
+  kind: definition
+  ambiguity:
+  - phrase: happy
+    readings:
+    - s has at least 3 characters and every 3 consecutive characters are pairwise distinct (s[i], s[i+1], s[i+2] all different); e.g. 'aba' is not happy, 'abca' is happy, 'ab' is not happy
+    - s has at least 3 characters and no two adjacent characters are equal; e.g. 'aba' is happy, 'abca' is happy, 'ab' is not happy
+    - s has at least 3 characters and all its characters are pairwise distinct; e.g. 'aba' is not happy, 'abca' is not happy, 'ab' is not happy
+    - s has at least 2 characters and no two adjacent characters are equal; e.g. 'aba' is happy, 'ab' is happy
+  - phrase: the string
+    readings:
+    - characters are compared by their exact code, so 'aA' contains two different characters
+    - letters are compared ignoring case, so 'aA' contains a repeated letter
+  lines:
+  - 6
+- id: R-FN-1
+  doc: SPEC
+  quote: Your task is to check if the string is happy or not.
+  text: is_happy(s) returns True when s is happy and False when s is not happy (happy as defined by R-DEF-1).
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-IN-1
+  lines:
+  - 6
+- id: R-FN-2
+  doc: SPEC
+  quote: check if the string is happy or not
+  text: 'For every argument string s, the call is_happy(s) finishes and returns a value of type bool (True or False): it raises no exception, does not hang, and returns no other type.'
+  kind: guarantee
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: check
+    readings:
+    - the result is returned as the bool True or False, as the examples show
+    - any truthy or falsy return value (e.g. 1/0, a non-empty or empty value, None for not happy) counts as the answer
+  lines:
+  - 6
+- id: R-EX-1
+  doc: SPEC
+  quote: is_happy(a) => False
+  text: Calling is_happy with the one-character string 'a' returns False.
+  kind: scenario
+  depends:
+  - R-FN-1
+  ambiguity:
+  - phrase: is_happy(a)
+    readings:
+    - a call with the string 'a', written without quotes
+    - 'literal Python: a call with the value of a variable named a, which the request does not give (so not a string, at odds with R-IN-1)'
+  lines:
+  - 8
+- id: R-EX-2
+  doc: SPEC
+  quote: is_happy(aa) => False
+  text: Calling is_happy with the string 'aa' returns False.
+  kind: scenario
+  depends:
+  - R-FN-1
+  ambiguity:
+  - phrase: is_happy(aa)
+    readings:
+    - a call with the string 'aa', written without quotes
+    - 'literal Python: a call with the value of a variable named aa, which the request does not give (so not a string, at odds with R-IN-1)'
+  lines:
+  - 9
+- id: R-EX-3
+  doc: SPEC
+  quote: is_happy(abcd) => True
+  text: Calling is_happy with the string 'abcd' returns True.
+  kind: scenario
+  depends:
+  - R-FN-1
+  ambiguity:
+  - phrase: is_happy(abcd)
+    readings:
+    - a call with the string 'abcd', written without quotes
+    - 'literal Python: a call with the value of a variable named abcd, which the request does not give (so not a string, at odds with R-IN-1)'
+  lines:
+  - 10
+- id: R-EX-4
+  doc: SPEC
+  quote: is_happy(aabb) => False
+  text: Calling is_happy with the string 'aabb' returns False.
+  kind: scenario
+  depends:
+  - R-FN-1
+  ambiguity:
+  - phrase: is_happy(aabb)
+    readings:
+    - a call with the string 'aabb', written without quotes
+    - 'literal Python: a call with the value of a variable named aabb, which the request does not give (so not a string, at odds with R-IN-1)'
+  lines:
+  - 11
+- id: R-EX-5
+  doc: SPEC
+  quote: is_happy(adb) => True
+  text: Calling is_happy with the string 'adb' returns True.
+  kind: scenario
+  depends:
+  - R-FN-1
+  ambiguity:
+  - phrase: is_happy(adb)
+    readings:
+    - a call with the string 'adb', written without quotes
+    - 'literal Python: a call with the value of a variable named adb, which the request does not give (so not a string, at odds with R-IN-1)'
+  lines:
+  - 12
+- id: R-EX-6
+  doc: SPEC
+  quote: is_happy(xyy) => False
+  text: Calling is_happy with the string 'xyy' returns False.
+  kind: scenario
+  depends:
+  - R-FN-1
+  ambiguity:
+  - phrase: is_happy(xyy)
+    readings:
+    - a call with the string 'xyy', written without quotes
+    - 'literal Python: a call with the value of a variable named xyy, which the request does not give (so not a string, at odds with R-IN-1)'
+  lines:
+  - 13
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `happy` is false unless `outcome` is 0.'
+  text: In every call, the output happy is false unless outcome is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 47
+- id: R-FR-2
+  doc: FRAME
+  quote: 'F-CODE: `outcome` is never 3.'
+  text: In every call, the output outcome is never 3.
+  kind: guarantee
+  lines:
+  - 48

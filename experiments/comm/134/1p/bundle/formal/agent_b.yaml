@@ -1,0 +1,164 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate(txt) keeps no state between calls (frame.md,
+# "Calls"), so the reference model is combinational: the defs below compute,
+# from the input txt alone, what the request says the call must return, and
+# every output is checked against them. No ghost is needed (a ghost would
+# carry information from one call to the next, which the adapter forbids).
+defs:
+  ok: 'outcome == 0'                                     # the call returned a bool
+  nonempty: 'len(txt) > 0'
+  last: 'txt[len(txt) - 1]'                              # the last character (frame.md), meaningful when nonempty
+  last_is_comma: 'nonempty && last == ","'               # R-RET-2, literal reading of "is ,"
+  expect: 'last_is_comma'                                # model of the value candidate(txt) must return
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: 'ok'}
+    note: >-
+      Every call, including the empty string, finishes and returns a bool: never an exception
+      (outcome 1) and never a value of another kind (outcome 2). Reading 1 of "returns True":
+      the returned value is exactly True or False; a truthy/falsy non-bool value is outcome 2
+      and violates this.
+
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: 'expect', cond: 'ok && result'}
+    note: >-
+      The request reads "returns True if the last character of a given string is , and False
+      otherwise": the property after "is" is missing. Most literal reading (reading 1 of "is ,"):
+      the last character is a comma ',' (code 44). The last character is the final character of
+      txt, whatever it is (reading 1 of "the last character", frame.md: txt[len(txt) - 1]).
+      This reading CONTRADICTS the example R-EX-2: "apple pi e" ends in 'e', not ',', so
+      RB-RET-3 requires False where RB-EX-2 requires True. The text is not repaired here; the
+      contradiction is left for the consistency check to report. The examples and the note on
+      "word" suggest the intended property was a letter standing alone at the end of txt
+      (reading 2), which this set deliberately does not adopt.
+
+  - id: RB-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: '!expect', cond: 'ok && !result'}
+    note: >-
+      "False otherwise": in every case where RB-RET-2 does not require True the call returns
+      the bool False. Reading 1 of "otherwise": this includes the empty string, which has no
+      last character and so does not end in a comma. Reading 2 of "False otherwise": with the
+      literal comma property this contradicts R-EX-2 ("apple pi e" must give True but does not
+      end in ',').
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'txt == "apple pie"', cond: 'ok && !result'}
+    note: >-
+      The example states the value returned for this argument, so it is an obligation on every
+      call with it (the function is deterministic and memoryless), not only a possibility; the
+      scenario RB-EX-1-S records that it must also be reachable. Returns False means the bool
+      False (outcome 0). Consistent with RB-RET-3 under the literal comma reading ('e' is not
+      ',').
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e"', cond: 'ok && result'}
+    note: >-
+      Obligation on every call with this argument: it returns the bool True. Reading 2 of the
+      example: under the literal property of R-RET-2 ("the last character is ,") this
+      contradicts RB-RET-3, which requires False since "apple pi e" does not end in ','.
+      Formalized as written; the conflict {RB-RET-3, RB-EX-2} is a defect of the request.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'txt == "apple pi e "', cond: 'ok && !result'}
+    note: >-
+      Obligation on every call with this argument: it returns the bool False. The last character
+      is the trailing space (reading 1), consistent with RB-RET-3.
+
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'len(txt) == 0', cond: 'ok && !result'}
+    note: >-
+      Obligation on every call with the empty string: it returns the bool False. Consistent with
+      RB-RET-3 (reading 1 of "otherwise" covers the empty string).
+
+scenarios:
+  - id: RB-IN-1
+    req: R-IN-1
+    cover: 'len(txt) == 0 && ok'
+    note: >-
+      The empty string is a valid argument: a call with it must be possible and end with a
+      returned bool. That txt is a string of at most 32 Latin-1 characters holds by construction
+      of the interface (frame.md, "Inputs"), so no assumption is needed and none is stated.
+
+  - id: RB-RET-2-S
+    req: R-RET-2
+    cover: 'expect && ok && result'
+    note: The function can return True (for an argument whose last character is ',').
+
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: 'txt == "apple pie" && ok && !result'
+    note: candidate("apple pie") returning False must be possible.
+
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: 'txt == "apple pi e" && ok && result'
+    note: >-
+      candidate("apple pi e") returning True must be possible. Expected to be unreachable under
+      RB-RET-3 with the literal comma reading of R-RET-2; that is the specification's
+      contradiction, not a formalization error.
+
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: 'txt == "apple pi e " && ok && !result'
+    note: candidate("apple pi e ") returning False must be possible.
+
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: 'len(txt) == 0 && ok && !result'
+    note: candidate("") returning False must be possible.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (outcome != 0 -> !result); it is item F-ZERO of design.yaml,
+      added to every formalization set, and need not be restated (frame.md, "Frame rules").
+    covered_by: [F-ZERO]
+  - req: R-NF-1
+    reason: >-
+      Non-functional: the deliverable is Python code completing the stub. It is not a property
+      of the trace; the behaviour of the completed function is covered by the R-RET-* and R-EX-*
+      items.
+  - req: R-IF-1
+    reason: >-
+      Interface definition (name candidate, one parameter txt). It is realized by the function
+      adapter in design.yaml (function.name and function.args), which fixes how each call
+      becomes a cycle; it is not a property of the trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition of "word". Under the literal reading of R-RET-2 taken here (the last character
+      is ','), the request never uses the term "word" outside the note, so the definition
+      constrains no output (reading 2 of '"word"'). The readings recorded for its other phrases
+      (one or more characters, the space character only, maximal runs of non-space characters)
+      are the most literal ones and have no effect on this set.
+
+decisions:
+  - {req: R-RET-1, phrase: "returns True", reading: 1}
+  - {req: R-RET-2, phrase: "is ,", reading: 1}
+  - {req: R-RET-2, phrase: "the last character", reading: 1}
+  - {req: R-RET-3, phrase: "otherwise", reading: 1}
+  - {req: R-RET-3, phrase: "False otherwise", reading: 2}
+  - {req: R-DEF-1, phrase: '"word"', reading: 2}
+  - {req: R-DEF-1, phrase: "group of characters", reading: 1}
+  - {req: R-DEF-1, phrase: "space", reading: 1}
+  - {req: R-DEF-1, phrase: "separated by space", reading: 1}
+  - {req: R-EX-1, phrase: "candidate(\"apple pie\") ➞ False", reading: 1}
+  - {req: R-EX-2, phrase: "candidate(\"apple pi e\") ➞ True", reading: 2}
+  - {req: R-EX-3, phrase: "candidate(\"apple pi e \") ➞ False", reading: 1}

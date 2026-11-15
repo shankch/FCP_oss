@@ -1,0 +1,724 @@
+{
+ "task": "limit",
+ "readers": {
+  "variant1": {
+   "k": 1,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-ERR-1",
+     "phrase": "the previous call",
+     "reading": 1,
+     "text": "the previous call of any customer"
+    },
+    {
+     "req": "R-MAX-1",
+     "phrase": "in any 60 seconds",
+     "reading": 1,
+     "text": "attempts at t and t + 60 are within 60 seconds of each other"
+    },
+    {
+     "req": "R-PEN-1",
+     "phrase": "for the next 10 seconds",
+     "reading": 1,
+     "text": "an attempt exactly 10 seconds after the denial is denied"
+    },
+    {
+     "req": "R-PEN-1",
+     "phrase": "After a denied attempt",
+     "reading": 1,
+     "text": "every denied attempt, including one denied by this rule, starts 10 seconds"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-ERR-1",
+     "phrase": "the previous call",
+     "reading": 1
+    },
+    {
+     "req": "R-MAX-1",
+     "phrase": "in any 60 seconds",
+     "reading": 1
+    },
+    {
+     "req": "R-PEN-1",
+     "phrase": "for the next 10 seconds",
+     "reading": 1
+    },
+    {
+     "req": "R-PEN-1",
+     "phrase": "After a denied attempt",
+     "reading": 1
+    }
+   ],
+   "pairs": {
+    "agent_a|variant1": {
+     "seconds": 7,
+     "engine": "a901600",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-MAX-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 150
+       },
+       "context": "UNKNOWN",
+       "context_scope_check": {
+        "calls": 150,
+        "separated": false
+       }
+      },
+      "R-FAIR-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 150
+       },
+       "context": "UNKNOWN",
+       "context_scope_check": {
+        "calls": 150,
+        "separated": false
+       }
+      },
+      "R-PEN-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 150
+       },
+       "context": "UNKNOWN",
+       "a_not_b": {
+        "calls": [
+         [
+          1000,
+          65524
+         ],
+         [
+          1000,
+          1
+         ],
+         [
+          1000,
+          32746
+         ],
+         [
+          1000,
+          65524
+         ],
+         [
+          1000,
+          65524
+         ],
+         [
+          1000,
+          65529
+         ]
+        ],
+        "lines": [
+         "allow(1000, 65524) -> False",
+         "allow(1000, 1) -> raised ValueError",
+         "allow(1000, 32746) -> False",
+         "allow(1000, 65524) -> True",
+         "allow(1000, 65524) -> True",
+         "allow(1000, 65529) -> True"
+        ],
+        "sequence": true
+       },
+       "context_scope_check": {
+        "calls": 150,
+        "separated": false
+       }
+      }
+     }
+    },
+    "agent_b|variant1": {
+     "seconds": 13,
+     "engine": "a901600",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-MAX-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 150
+       },
+       "context": "UNKNOWN",
+       "a_not_b": {
+        "calls": [
+         [
+          481,
+          24572
+         ],
+         [
+          481,
+          24597
+         ],
+         [
+          481,
+          24626
+         ],
+         [
+          481,
+          24632
+         ],
+         [
+          481,
+          24058
+         ]
+        ],
+        "lines": [
+         "allow(481, 24572) -> True",
+         "allow(481, 24597) -> True",
+         "allow(481, 24626) -> True",
+         "allow(481, 24632) -> True",
+         "allow(481, 24058) -> raised ValueError"
+        ],
+        "sequence": true
+       },
+       "context_scope_check": {
+        "calls": 150,
+        "separated": false
+       }
+      },
+      "R-COUNT-1": {
+       "plain": "ONLY-A",
+       "bounded": 8
+      },
+      "R-FAIR-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 150
+       },
+       "context": "UNKNOWN",
+       "a_not_b": {
+        "calls": [
+         [
+          992,
+          33
+         ],
+         [
+          993,
+          32769
+         ],
+         [
+          993,
+          33
+         ],
+         [
+          993,
+          62
+         ],
+         [
+          993,
+          62
+         ],
+         [
+          993,
+          62
+         ]
+        ],
+        "lines": [
+         "allow(992, 33) -> True",
+         "allow(993, 32769) -> True",
+         "allow(993, 33) -> raised ValueError",
+         "allow(993, 62) -> False",
+         "allow(993, 62) -> False",
+         "allow(993, 62) -> False"
+        ],
+        "sequence": true
+       },
+       "context_scope_check": {
+        "calls": 150,
+        "separated": false
+       }
+      },
+      "R-PEN-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 150
+       },
+       "context": "UNKNOWN",
+       "a_not_b": {
+        "calls": [
+         [
+          0,
+          65524
+         ],
+         [
+          0,
+          65534
+         ],
+         [
+          0,
+          65534
+         ]
+        ],
+        "lines": [
+         "allow(0, 65524) -> False",
+         "allow(0, 65534) -> True",
+         "allow(0, 65534) -> False"
+        ],
+        "sequence": true
+       },
+       "context_scope_check": {
+        "calls": 150,
+        "separated": false
+       }
+      }
+     }
+    }
+   }
+  },
+  "variant2": {
+   "k": 2,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-ERR-1",
+     "phrase": "the previous call",
+     "reading": 2,
+     "text": "the previous call that did not raise"
+    },
+    {
+     "req": "R-MAX-1",
+     "phrase": "in any 60 seconds",
+     "reading": 2,
+     "text": "attempts at t and t + 60 are not"
+    },
+    {
+     "req": "R-PEN-1",
+     "phrase": "for the next 10 seconds",
+     "reading": 2,
+     "text": "it is not"
+    },
+    {
+     "req": "R-PEN-1",
+     "phrase": "After a denied attempt",
+     "reading": 2,
+     "text": "only an attempt denied by the limit starts 10 seconds"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-ERR-1",
+     "phrase": "the previous call",
+     "reading": 2
+    },
+    {
+     "req": "R-MAX-1",
+     "phrase": "in any 60 seconds",
+     "reading": 2
+    },
+    {
+     "req": "R-PEN-1",
+     "phrase": "for the next 10 seconds",
+     "reading": 2
+    },
+    {
+     "req": "R-PEN-1",
+     "phrase": "After a denied attempt",
+     "reading": 2
+    }
+   ],
+   "pairs": {
+    "agent_a|variant2": {
+     "seconds": 9,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-ERR-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "calls": [
+         [
+          508,
+          32768
+         ],
+         [
+          508,
+          0
+         ],
+         [
+          508,
+          0
+         ]
+        ],
+        "lines": [
+         "allow(508, 32768) -> True",
+         "allow(508, 0) -> raised ValueError",
+         "allow(508, 0) -> True"
+        ],
+        "sequence": true
+       },
+       "b_not_a": {
+        "calls": [
+         [
+          1020,
+          65535
+         ],
+         [
+          508,
+          0
+         ],
+         [
+          508,
+          128
+         ]
+        ],
+        "lines": [
+         "allow(1020, 65535) -> raised ValueError",
+         "allow(508, 0) -> True",
+         "allow(508, 128) -> True"
+        ],
+        "sequence": true
+       }
+      },
+      "R-RET-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "calls": [
+         [
+          1020,
+          65535
+         ],
+         [
+          508,
+          0
+         ],
+         [
+          508,
+          128
+         ]
+        ],
+        "lines": [
+         "allow(1020, 65535) -> raised ValueError",
+         "allow(508, 0) -> raised ValueError",
+         "allow(508, 128) -> True"
+        ],
+        "sequence": true
+       },
+       "b_not_a": {
+        "calls": [
+         [
+          508,
+          128
+         ],
+         [
+          508,
+          0
+         ],
+         [
+          508,
+          0
+         ],
+         [
+          508,
+          128
+         ]
+        ],
+        "lines": [
+         "allow(508, 128) -> True",
+         "allow(508, 0) -> raised ValueError",
+         "allow(508, 0) -> raised ValueError",
+         "allow(508, 128) -> True"
+        ],
+        "sequence": true
+       }
+      },
+      "R-MAX-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "calls": [
+         [
+          404,
+          49127
+         ],
+         [
+          404,
+          49127
+         ],
+         [
+          404,
+          49159
+         ],
+         [
+          404,
+          49187
+         ]
+        ],
+        "lines": [
+         "allow(404, 49127) -> True",
+         "allow(404, 49127) -> True",
+         "allow(404, 49159) -> True",
+         "allow(404, 49187) -> True"
+        ],
+        "sequence": true
+       }
+      },
+      "R-FAIR-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "calls": [
+         [
+          765,
+          32712
+         ],
+         [
+          765,
+          32738
+         ],
+         [
+          765,
+          32752
+         ],
+         [
+          765,
+          32772
+         ]
+        ],
+        "lines": [
+         "allow(765, 32712) -> True",
+         "allow(765, 32738) -> True",
+         "allow(765, 32752) -> True",
+         "allow(765, 32772) -> False"
+        ],
+        "sequence": true
+       }
+      },
+      "R-PEN-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "calls": [
+         [
+          1000,
+          0
+         ],
+         [
+          1000,
+          0
+         ],
+         [
+          1001,
+          0
+         ]
+        ],
+        "lines": [
+         "allow(1000, 0) -> False",
+         "allow(1000, 0) -> True",
+         "allow(1001, 0) -> raised ValueError"
+        ],
+        "sequence": true
+       }
+      }
+     }
+    },
+    "agent_b|variant2": {
+     "seconds": 12,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-ERR-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "calls": [
+         [
+          508,
+          13648
+         ],
+         [
+          1020,
+          1
+         ],
+         [
+          508,
+          13633
+         ],
+         [
+          1020,
+          13653
+         ]
+        ],
+        "lines": [
+         "allow(508, 13648) -> True",
+         "allow(1020, 1) -> raised ValueError",
+         "allow(508, 13633) -> True",
+         "allow(1020, 13653) -> raised ValueError"
+        ],
+        "sequence": true
+       },
+       "b_not_a": {
+        "calls": [
+         [
+          1020,
+          65535
+         ],
+         [
+          508,
+          128
+         ],
+         [
+          1020,
+          126
+         ]
+        ],
+        "lines": [
+         "allow(1020, 65535) -> raised ValueError",
+         "allow(508, 128) -> True",
+         "allow(1020, 126) -> raised ValueError"
+        ],
+        "sequence": true
+       }
+      },
+      "R-RET-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "INCOMPARABLE",
+       "a_not_b": {
+        "calls": [
+         [
+          1020,
+          65535
+         ],
+         [
+          508,
+          1
+         ],
+         [
+          508,
+          65535
+         ]
+        ],
+        "lines": [
+         "allow(1020, 65535) -> raised ValueError",
+         "allow(508, 1) -> raised ValueError",
+         "allow(508, 65535) -> True"
+        ],
+        "sequence": true
+       },
+       "b_not_a": {
+        "calls": [
+         [
+          508,
+          1
+         ],
+         [
+          1020,
+          0
+         ],
+         [
+          508,
+          0
+         ],
+         [
+          508,
+          65535
+         ]
+        ],
+        "lines": [
+         "allow(508, 1) -> True",
+         "allow(1020, 0) -> raised ValueError",
+         "allow(508, 0) -> raised ValueError",
+         "allow(508, 65535) -> True"
+        ],
+        "sequence": true
+       }
+      },
+      "R-MAX-1": {
+       "plain": "A-WEAKER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-COUNT-1": {
+       "plain": "ONLY-A",
+       "bounded": 8
+      },
+      "R-FAIR-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-PEN-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "calls": [
+         [
+          508,
+          14351
+         ],
+         [
+          508,
+          14351
+         ],
+         [
+          509,
+          14351
+         ]
+        ],
+        "lines": [
+         "allow(508, 14351) -> False",
+         "allow(508, 14351) -> True",
+         "allow(509, 14351) -> False"
+        ],
+        "sequence": true
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "settings": {
+  "jobs": 2,
+  "bit_jobs": 1
+ }
+}

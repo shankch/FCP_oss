@@ -1,0 +1,123 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. smallest_change keeps no state between calls (frame.md),
+# so the reference model is combinational: it is computed from the argument of
+# the current call alone, and every output is checked against it. No ghost
+# state is needed (nothing must be remembered across calls).
+defs:
+  # R-DEF-1: palindromic = reads the same backwards and forwards.
+  pal: 'all(i < len(arr): arr[i] == arr[len(arr) - 1 - i])'
+  # Mirror pairs (i, len-1-i) with i < len-1-i; the middle element of an odd
+  # length array is its own mirror and never needs a change.
+  pairs: 'count(i < len(arr): i < len(arr) - 1 - i)'
+  # Reference answer: the number of mirror pairs whose two elements differ.
+  # It is the minimum of R-CH-1 under R-DEF-2: a change alters one element, so
+  # each differing pair needs at least one change (pairs are disjoint), and one
+  # change per differing pair (set one element to its mirror's value) suffices.
+  need: 'count(i < len(arr): i < len(arr) - 1 - i && arr[i] != arr[len(arr) - 1 - i])'
+
+properties:
+  - id: RB-CH-1
+    req: R-CH-1
+    pattern: invariant
+    args: {cond: 'outcome == 0 && changes == need'}
+    note: >-
+      Every call returns the minimum number of changes, i.e. the number of
+      mismatched mirror pairs. Reading 1 of "the minimum number of elements
+      that need to be changed": the stated definition (backed by R-DEF-1 and
+      R-DEF-2) is taken over the examples, which give len(arr) instead and
+      contradict it (see RB-EX-1..3). Literal reading of the main sentence;
+      no other reading of "minimum" yields len(arr).
+
+  - id: RB-IN-1
+    req: R-IN-1
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      Reading 1 of "an array arr of integers": any list of integers, the empty
+      list included, is a valid argument. The encoding already restricts arr to
+      lists of integers (frame.md), so no environment assumption is needed;
+      the requirement's effect on the trace is that the call returns an integer
+      for every argument, never raises.
+
+  - id: RB-IN-2
+    req: R-IN-1
+    pattern: implies
+    args: {trigger: 'len(arr) == 0', cond: 'outcome == 0 && changes == 0'}
+    note: >-
+      Reading 1: the empty list is in the domain and is already palindromic, so
+      its answer is 0 (not a don't-care). Also implied by RB-CH-1.
+
+  - id: RB-DEF-1
+    req: R-DEF-1
+    pattern: invariant
+    args: {cond: 'pal <-> (outcome == 0 && changes == 0)'}
+    note: >-
+      The definition of palindromic applied to the answer: zero changes are
+      needed exactly when arr already reads the same backwards and forwards.
+      This contradicts example R-EX-3 ([1, 2, 3, 2, 1] is palindromic, yet the
+      example gives 5).
+
+  - id: RB-DEF-2
+    req: R-DEF-2
+    pattern: implies
+    args: {trigger: 'outcome == 0', cond: 'changes <= need && changes <= pairs'}
+    note: >-
+      One change sets one element to any other value, so one change per
+      mismatched mirror pair suffices (set it to its mirror's value): the
+      minimum never exceeds the number of mismatched pairs, nor the number of
+      mirror pairs floor(len/2). Reading 1 of "any other element" (any value);
+      under reading 2 (a value already present in the array) the bound and the
+      minimum are the same, since the mirror's value is another element of the
+      array. Example R-EX-1 (8 for 8 elements) exceeds floor(8/2) = 4.
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: 'arr == [1, 2, 3, 5, 4, 7, 9, 6] && outcome == 0 && changes == 4'
+    note: >-
+      The text says == 8. Reading 1 taken: the example is erroneous; it
+      contradicts R-CH-1 (all four mirror pairs (1,6), (2,9), (3,7), (5,4)
+      differ, so the minimum is 4) and R-DEF-2 (at most 4 changes are ever
+      needed for 8 elements). Formalized as the value the definition gives;
+      the literal value 8 is NOT required here.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: 'arr == [1, 2, 3, 4, 3, 2, 2] && outcome == 0 && changes == 1'
+    note: >-
+      The text says == 7. Reading 1 taken: the example is erroneous; only the
+      mirror pair (1,2) differs, so the minimum is 1. Formalized as the value
+      the definition gives; the literal value 7 is NOT required here.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    cover: 'arr == [1, 2, 3, 2, 1] && outcome == 0 && changes == 0'
+    note: >-
+      The text says == 5. Reading 1 taken: the example is erroneous;
+      [1, 2, 3, 2, 1] is already palindromic (R-DEF-1), so the minimum is 0.
+      Formalized as the value the definition gives; the literal value 5 is NOT
+      required here.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the function's name and signature (smallest_change, one
+      argument arr). It is realized by the function section of design.yaml and
+      is not observable on the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the list adapter; design.yaml adds it to every
+      formalization set as F-ZERO (outcome != 0 -> changes == 0), so it is not
+      restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "an array arr of integers", reading: 1}
+  - {req: R-DEF-2, phrase: "any other element", reading: 1}
+  - {req: R-CH-1, phrase: "the minimum number of elements that need to be changed", reading: 1}
+  - {req: R-EX-1, phrase: "== 8", reading: 1}
+  - {req: R-EX-2, phrase: "== 7", reading: 1}
+  - {req: R-EX-3, phrase: "== 5", reading: 1}

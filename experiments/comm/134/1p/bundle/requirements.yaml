@@ -1,0 +1,158 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: The result signal is false in every call whose outcome is not 0 (the call did not return a bool).
+  kind: guarantee
+  lines:
+  - 48
+- id: R-NF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a Python implementation of the given function stub, keeping its name and signature.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def candidate(txt):'
+  text: The function is named candidate and takes exactly one parameter, txt.
+  kind: definition
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: of a given string
+  text: The argument txt is a string; the empty string is a valid argument.
+  kind: assumption
+  lines:
+  - 7
+- id: R-RET-1
+  doc: SPEC
+  quote: returns True if the last character of a given string is , and False otherwise.
+  text: For every string txt, including the empty string, candidate(txt) finishes and returns a bool (True or False); it raises no exception and returns no other kind of value.
+  kind: guarantee
+  ambiguity:
+  - phrase: returns True
+    readings:
+    - the returned value is exactly the bool True or False
+    - any truthy or falsy value (such as 1 and 0, or a non-empty and an empty string) is acceptable
+  lines:
+  - 6
+  - 7
+- id: R-RET-2
+  doc: SPEC
+  quote: returns True if the last character of a given string is ,
+  text: candidate(txt) returns True when the last character of txt has the property the request names after 'is'; the property itself is missing from the text, which reads 'is ,'.
+  kind: guarantee
+  ambiguity:
+  - phrase: is ,
+    readings:
+    - 'literal: the last character is a comma '',''; this contradicts R-EX-2, since "apple pi e" ends in ''e'' yet must give True'
+    - 'the last character is an ASCII letter (a-z, A-Z) that stands alone: txt has length 1 or the character before it is a space (an alphabetical character that is not part of a longer word); consistent
+      with every example'
+    - as the previous reading, but the character before the letter must be a space, so a one-character string such as "e" gives False
+    - "the last character is a letter standing alone, where 'letter' is whatever Python's str.isalpha accepts, so non-ASCII Latin-1 letters such as '\xE9' or '\xDF' also count"
+    - the last character is a letter and the character before it, if any, is not a letter (a ',', '.', digit or space before it all qualify)
+    - the last character is any alphabetical character, whatever precedes it; this contradicts R-EX-1, since "apple pie" ends in the letter 'e' yet must give False
+    - the last character is an alphabetical character that is not part of a word as R-DEF-1 defines it; a single letter between spaces is itself a word, so no letter qualifies and the result is always False,
+      which contradicts R-EX-2
+  - phrase: the last character
+    readings:
+    - the final character of txt, whatever it is, so a trailing space is the last character; consistent with R-EX-3
+    - the last non-space character of txt, ignoring trailing spaces; then "apple pi e " is judged on its lone 'e' and would give True, which contradicts R-EX-3
+  lines:
+  - 6
+  - 7
+- id: R-RET-3
+  doc: SPEC
+  quote: and False otherwise.
+  text: candidate(txt) returns False in every case where R-RET-2 does not require True.
+  kind: guarantee
+  depends:
+  - R-RET-2
+  ambiguity:
+  - phrase: otherwise
+    readings:
+    - whenever the last character lacks the property of R-RET-2, and also when txt is empty and so has no last character
+    - only for non-empty strings whose last character lacks the property; the empty string, which has no last character, is not covered by this sentence (R-EX-4 gives it False)
+  - phrase: False otherwise
+    readings:
+    - consistent with R-EX-2 when the property of R-RET-2 is a letter standing alone at the end of txt
+    - 'contradicts R-EX-2 under the literal property ''the last character is ,'': "apple pi e" does not end in a comma, so this sentence requires False where R-EX-2 requires True'
+  lines:
+  - 7
+- id: R-DEF-1
+  doc: SPEC
+  quote: 'Note: "word" is a group of characters separated by space.'
+  text: A word is a group of characters delimited by spaces.
+  kind: definition
+  ambiguity:
+  - phrase: '"word"'
+    readings:
+    - the definition serves the missing property of R-RET-2 (for example 'not a part of a word') and so constrains the result
+    - the note is left over and constrains nothing, since the request never uses the term 'word' elsewhere
+  - phrase: group of characters
+    readings:
+    - one or more characters, so a single letter between spaces is a word; then a lone final letter is part of a word, which contradicts R-EX-2 if the intended property is 'not a part of a word'
+    - two or more characters, so a single letter is not a word
+  - phrase: space
+    readings:
+    - only the space character ' ' (code 32)
+    - any whitespace character, such as tab or newline
+  - phrase: separated by space
+    readings:
+    - a word is a maximal run of non-space characters, so digits and punctuation such as ',' or '.' belong to the word they touch
+    - a word is a run of letters, so digits and punctuation also separate words
+  lines:
+  - 8
+- id: R-EX-1
+  doc: SPEC
+  quote: "candidate(\"apple pie\") \u279E False"
+  text: candidate("apple pie") returns False.
+  kind: scenario
+  ambiguity:
+  - phrase: "candidate(\"apple pie\") \u279E False"
+    readings:
+    - consistent with R-RET-2 when the property requires the final letter to stand alone, not to end a longer word
+    - 'contradicts R-RET-2 when the property is only ''the last character is an alphabetical character'': ''e'' is a letter, so True would be required'
+  lines:
+  - 11
+- id: R-EX-2
+  doc: SPEC
+  quote: "candidate(\"apple pi e\") \u279E True"
+  text: candidate("apple pi e") returns True.
+  kind: scenario
+  ambiguity:
+  - phrase: "candidate(\"apple pi e\") \u279E True"
+    readings:
+    - consistent with R-RET-2 when the property is a letter standing alone at the end of txt
+    - 'contradicts R-RET-2 and R-RET-3 under the literal property ''the last character is ,'': ''e'' is not a comma, so False would be required'
+    - 'contradicts R-DEF-1 together with the property ''not a part of a word'': by the note a lone ''e'' is itself a word, so the last letter is part of a word and False would be required'
+  lines:
+  - 12
+- id: R-EX-3
+  doc: SPEC
+  quote: "candidate(\"apple pi e \") \u279E False"
+  text: candidate("apple pi e ") returns False (the string ends in a space).
+  kind: scenario
+  ambiguity:
+  - phrase: "candidate(\"apple pi e \") \u279E False"
+    readings:
+    - consistent with R-RET-2 when the last character is the final character of txt, here a space
+    - 'contradicts R-RET-2 when the last character means the last non-space character: the lone ''e'' would then give True'
+  lines:
+  - 13
+- id: R-EX-4
+  doc: SPEC
+  quote: "candidate(\"\") \u279E False"
+  text: candidate("") returns False (the empty string has no last character).
+  kind: scenario
+  lines:
+  - 14

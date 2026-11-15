@@ -1,0 +1,480 @@
+fcp: '0.1'
+design: rr_arbiter
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-OVR-1
+  doc: SPEC
+  quote: RRA-4 arbitrates between N requesters (N = 4) for a shared resource.
+  text: The design arbitrates access to a single shared resource among N = 4 requesters.
+  kind: definition
+  ambiguity:
+  - phrase: N requesters (N = 4)
+    readings:
+    - N is a fixed constant equal to 4, consistent with the name RRA-4 and with the hard-coded requester numbers 0 to 3 in Section 3.3.
+    - N is a design parameter whose value for this specification is 4; Sections 3.3 and 3.4 would then need restating for general N (for example, is the maintenance requester always index 3 or index N-1?).
+  - phrase: a shared resource
+    readings:
+    - 'The resource lies outside the design: the interface has no resource-side signal (busy, ready, done), so grants are issued without knowledge of the resource state and a grant is taken to occupy the
+      resource for one cycle.'
+    - The arbiter is expected to take resource availability into account, but no input carrying it is specified (a gap in the interface).
+  confidence: high
+  lines:
+  - 7
+- id: R-OVR-2
+  doc: SPEC
+  quote: Each requester raises its request line and waits for a grant.
+  text: A requester signals its need for the shared resource by raising its own request line req[i] and then waits for a grant on gnt[i].
+  kind: assumption
+  depends:
+  - R-IF-3
+  - R-IF-4
+  ambiguity:
+  - phrase: waits for a grant
+    readings:
+    - The requester keeps req[i] asserted while it waits; this sentence then only narrates the Section 5 rule and duplicates R-ENV-1.
+    - The requester only refrains from using the resource until it is granted; nothing is said here about req[i] staying asserted while it waits (that is only fixed by R-ENV-1).
+  - phrase: raises its request line
+    readings:
+    - A request is raised by a 0-to-1 transition of req[i] (edge-based notion of a request).
+    - A request is any cycle in which req[i] is asserted (level-based notion, which is how Sections 3.1 and 3.2 use req[i]).
+  confidence: medium
+  lines:
+  - 7
+  - 8
+- id: R-OVR-3
+  doc: SPEC
+  quote: Grants last one cycle.
+  text: Each grant on gnt is asserted for a single clock cycle.
+  kind: guarantee
+  depends:
+  - R-IF-4
+  ambiguity:
+  - phrase: Grants last one cycle
+    readings:
+    - gnt[i] is never asserted in two consecutive cycles (every grant is a one-cycle pulse).
+    - Each grant gives the requester one cycle of use of the shared resource; the same requester may be granted in consecutive cycles, each cycle being a separate grant.
+  - phrase: Grants last one cycle
+    readings:
+    - 'CONTRADICTION (under the one-pulse reading) with R-WC-1 and R-ENV-2: a requester that is the only one requesting and, per R-ENV-2, may withdraw only after the grant still has req[i] asserted in the
+      cycle in which gnt[i] is first visible; R-WC-1 then demands a grant in the next cycle and R-GNT-2 allows only requester i, so gnt[i] is asserted in two consecutive cycles.'
+    - The conflict disappears if the requester may withdraw in the grant cycle itself (R-ENV-2 read as 'at or after the grant') or if the arbiter masks a request that is being granted; the text states neither.
+  confidence: low
+  lines:
+  - 8
+  - 9
+- id: R-OVR-4
+  doc: SPEC
+  quote: The arbiter grants a request in the same cycle in which it is raised.
+  text: 'A request raised in cycle t is granted in that same cycle t: gnt[i] is asserted in the cycle in which req[i] is raised (zero request-to-grant latency).'
+  kind: guarantee
+  depends:
+  - R-IF-3
+  - R-IF-4
+  ambiguity:
+  - phrase: in the same cycle in which it is raised
+    readings:
+    - 'CONTRADICTION with R-GNT-2, R-GNT-3, R-GNT-4 and R-WC-1: they say gnt[i] needs req[i] in the previous cycle, gnt is a registered output, and the decision becomes visible on gnt one cycle after the
+      request. A zero-latency grant needs a combinational path from req to gnt. If this sentence is authoritative, those four statements are wrong.'
+    - If R-GNT-2, R-GNT-3, R-GNT-4 and R-WC-1 are authoritative (four consistent statements), this sentence is wrong or loosely worded and should say that the grant appears in the cycle after the request
+      is raised.
+  - phrase: grants a request
+    readings:
+    - 'CONTRADICTION with R-GNT-1: if several requests are raised in the same cycle, at most one of them can be granted in that cycle, so a same-cycle grant cannot hold for every request even with a combinational
+      arbiter.'
+    - The sentence only describes the case of a single request being raised and leaves simultaneous requests to the priority rules; the text does not say so.
+  confidence: low
+  lines:
+  - 9
+- id: R-IF-1
+  doc: SPEC
+  quote: '| clk    | in  | 1     | Clock, rising edge. |'
+  text: clk is a 1-bit input and is the clock; the design is clocked on its rising edge.
+  kind: definition
+  confidence: high
+  lines:
+  - 15
+- id: R-IF-2
+  doc: SPEC
+  quote: '| rst_n  | in  | 1     | Synchronous active-low reset. |'
+  text: rst_n is a 1-bit input and is the reset; it is active when low (0) and synchronous, i.e. it takes effect at a rising edge of clk.
+  kind: definition
+  ambiguity:
+  - phrase: Synchronous active-low reset
+    readings:
+    - 'CONTRADICTION (apparent) with R-RST-1: a synchronous reset acts at the next rising edge of clk, so a registered gnt (R-GNT-3) cannot be cleared in the first cycle in which rst_n is low; a grant decided
+      in the previous cycle is still visible in that cycle, yet R-RST-1 says no grant is asserted while rst_n is low.'
+    - R-RST-1 is only meant to hold from the second reset cycle on (after the first clock edge with rst_n low), or gnt is additionally gated combinationally by rst_n, which makes the reset not purely synchronous
+      and gnt not purely registered.
+  confidence: high
+  lines:
+  - 16
+- id: R-IF-3
+  doc: SPEC
+  quote: '| req    | in  | N     | Request lines, one per requester. |'
+  text: req is an N-bit input; bit req[i] is the request line of requester i.
+  kind: definition
+  ambiguity:
+  - phrase: one per requester
+    readings:
+    - Bit index equals requester number (req[i] belongs to requester i), as implied by the use of req[i], gnt[i] and 'requester 0' to 'requester 3' in Sections 3.1 and 3.3.
+    - The correspondence between bit position and requester number is never stated explicitly; it is only implied.
+  confidence: high
+  lines:
+  - 17
+- id: R-IF-4
+  doc: SPEC
+  quote: '| gnt    | out | N     | Grant lines, one per requester. |'
+  text: gnt is an N-bit output; bit gnt[i] is the grant line of requester i.
+  kind: definition
+  ambiguity:
+  - phrase: one per requester
+    readings:
+    - Bit index equals requester number (gnt[i] belongs to requester i), as implied by the use of gnt[i] and 'requester 0' to 'requester 3' in Sections 3.1 and 3.3.
+    - The correspondence between bit position and requester number is never stated explicitly; it is only implied.
+  confidence: high
+  lines:
+  - 18
+- id: R-GNT-1
+  doc: SPEC
+  quote: At most one grant line is asserted in any cycle.
+  text: In every cycle at most one bit of gnt is asserted (gnt is all zeros or one-hot).
+  kind: guarantee
+  depends:
+  - R-IF-4
+  ambiguity:
+  - phrase: At most one grant line is asserted in any cycle
+    readings:
+    - 'CONTRADICTION with R-OVR-4 when several requests are raised in the same cycle: R-OVR-4 grants a request in the cycle in which it is raised, but only one grant line may be asserted per cycle.'
+    - R-OVR-4 only covers a lone request, in which case there is no conflict; the text does not say so.
+  confidence: high
+  lines:
+  - 24
+- id: R-GNT-2
+  doc: SPEC
+  quote: 'A requester is never granted unless it requested: gnt[i] is asserted only if req[i] was asserted in the previous cycle.'
+  text: For every requester i and every cycle t, if gnt[i] is asserted in cycle t then req[i] was asserted in cycle t-1.
+  kind: guarantee
+  depends:
+  - R-IF-3
+  - R-IF-4
+  ambiguity:
+  - phrase: unless it requested
+    readings:
+    - 'Signal level (the precise formulation after the colon): req[i] was high in the previous cycle. A requester that has just been granted and still holds req[i] in the grant cycle (allowed by R-ENV-2)
+      may then be granted again in the next cycle.'
+    - 'Request level: the requester has an outstanding request that has not yet been served. Under this reading a repeated grant for an already-served request would be forbidden, which the precise formulation
+      does not do.'
+  - phrase: in the previous cycle
+    readings:
+    - 'CONTRADICTION with R-OVR-4 (grant in the same cycle in which the request is raised): a same-cycle grant has no request in the previous cycle.'
+    - If R-OVR-4 is authoritative, this sentence would have to be relaxed to the same cycle; the text says otherwise.
+  confidence: medium
+  lines:
+  - 24
+  - 26
+- id: R-GNT-3
+  doc: SPEC
+  quote: gnt is a registered output
+  text: 'gnt is a registered output: it is driven directly from clocked storage, so gnt in cycle t is determined by input and state values of cycles before t, and there is no combinational path from the
+    inputs of cycle t to gnt in cycle t.'
+  kind: non_functional
+  depends:
+  - R-IF-1
+  - R-IF-4
+  ambiguity:
+  - phrase: registered output
+    readings:
+    - 'CONTRADICTION with R-OVR-4: a registered output cannot respond to a request in the same cycle in which it is raised.'
+    - If R-OVR-4 is authoritative, gnt would depend combinationally on req and would not be a registered output.
+  - phrase: registered output
+    readings:
+    - 'CONTRADICTION (apparent) with R-RST-1 and R-IF-2: with a synchronous reset a purely registered gnt cannot be zero in the first cycle in which rst_n is low.'
+    - gnt is registered but additionally masked combinationally by rst_n; then there is a combinational path from rst_n to gnt and the output is not purely registered.
+  confidence: medium
+  lines:
+  - 26
+- id: R-GNT-4
+  doc: SPEC
+  quote: the arbitration decision is made on the request lines sampled in one cycle and becomes visible on gnt in the next cycle.
+  text: The grant decision computed from the request lines sampled in cycle t becomes visible on gnt in cycle t+1 (request-to-grant latency of exactly one cycle).
+  kind: guarantee
+  depends:
+  - R-GNT-3
+  - R-IF-1
+  - R-IF-3
+  - R-IF-4
+  ambiguity:
+  - phrase: becomes visible on gnt in the next cycle
+    readings:
+    - 'CONTRADICTION with R-OVR-4: this puts the grant one cycle after the request, R-OVR-4 puts it in the same cycle.'
+    - If R-OVR-4 is authoritative, this sentence and R-GNT-3 are wrong.
+  confidence: high
+  lines:
+  - 26
+  - 28
+- id: R-WC-1
+  doc: SPEC
+  quote: If at least one request line is asserted in a cycle, exactly one grant line is asserted in the next cycle.
+  text: If at least one bit of req is asserted in cycle t, then exactly one bit of gnt is asserted in cycle t+1.
+  kind: guarantee
+  depends:
+  - R-GNT-4
+  - R-IF-3
+  - R-IF-4
+  ambiguity:
+  - phrase: in a cycle
+    readings:
+    - 'CONTRADICTION with R-RST-1 and R-RST-2: the sentence has no reset exemption, but a request asserted in a cycle in which rst_n is low would require a grant in the next cycle, which is either still
+      a reset cycle (R-RST-1) or the cycle after reset (R-RST-2), where no grant may be asserted.'
+    - The rule applies only to cycles in which rst_n is high (requests sampled during reset are ignored); the text does not say so.
+  - phrase: in the next cycle
+    readings:
+    - 'CONTRADICTION with R-OVR-4: the grant for a request is due in the next cycle here and in the same cycle there.'
+    - If R-OVR-4 is authoritative, this sentence is wrong.
+  - phrase: exactly one grant line is asserted
+    readings:
+    - 'CONTRADICTION (under the one-pulse reading) with R-OVR-3: applied literally, a requester that still holds req[i] in the cycle in which gnt[i] is visible (R-ENV-2) is the only request and is granted
+      again, so gnt[i] is asserted in two consecutive cycles.'
+    - The arbiter is meant to ignore a request that is being granted, or the requester is meant to withdraw in the grant cycle; the text states neither.
+  confidence: medium
+  lines:
+  - 32
+  - 33
+- id: R-PRI-1
+  doc: SPEC
+  quote: After reset, requester 0 has the highest priority, followed by requesters 1, 2 and 3.
+  text: After reset the priority order is requester 0 (highest), then requester 1, then requester 2, then requester 3 (lowest); among simultaneously asserted requests, the one with the highest priority
+    is the one granted.
+  kind: guarantee
+  depends:
+  - R-IF-2
+  - R-WC-1
+  ambiguity:
+  - phrase: After reset
+    readings:
+    - 'Initial priority state only: the order holds for arbitration decisions made before the first grant following each reset (including a reset applied during operation), after which R-PRI-2 rotates it.'
+    - The order holds permanently or at a fixed time after reset; incompatible with the rotation in R-PRI-2, so presumably not intended.
+  - phrase: has the highest priority
+    readings:
+    - 'The operational meaning is implied but never stated: when several request lines are asserted in a cycle, the asserted request with the highest priority is the one granted in the next cycle.'
+    - Priority is only a tie-break between requests that became asserted in the same cycle, and requests pending longer could take precedence; the text does not say which.
+  - phrase: requester 0 has the highest priority, followed by requesters 1, 2 and 3
+    readings:
+    - 'CONTRADICTION with R-PRI-4: here requester 3 has the lowest priority after reset, there it always wins arbitration.'
+    - If R-PRI-4 is authoritative, requester 3 outranks all others from the first arbitration after reset and this order applies only among requesters 0, 1 and 2.
+  confidence: medium
+  lines:
+  - 37
+  - 38
+- id: R-PRI-2
+  doc: SPEC
+  quote: The priority rotates by one position after each grant.
+  text: After each grant the priority order is rotated by one position.
+  kind: guarantee
+  depends:
+  - R-PRI-1
+  ambiguity:
+  - phrase: rotates by one position
+    readings:
+    - 'Classic round-robin: the requester just granted becomes the lowest priority and the next requester (index + 1 modulo N) becomes the highest.'
+    - 'Fixed rotation: the whole order is shifted by one position after every grant regardless of who was granted (0>1>2>3 becomes 1>2>3>0, then 2>3>0>1, and so on). This differs observably from the first
+      reading: after reset, a grant to requester 2 leaves the order 3>0>1>2 under the first reading and 1>2>3>0 under the second.'
+    - Rotation in the opposite direction (0>1>2>3 becomes 3>0>1>2).
+  - phrase: after each grant
+    readings:
+    - The rotated order is used already by the arbitration decision made in the cycle in which the grant first appears on gnt (back-to-back grants rotate immediately); cycles without a grant do not rotate
+      the priority.
+    - The rotated order is used only one decision later, because the grant becomes visible one cycle after it is decided (R-GNT-4); the decision made in the grant cycle still uses the old order. The text
+      does not say which.
+  - phrase: The priority rotates by one position after each grant.
+    readings:
+    - 'CONTRADICTION with R-PRI-4: a rotating priority cannot coexist with a requester that always wins; under rotation requester 3 is the highest priority only one grant in four.'
+    - If R-PRI-4 is authoritative, requester 3 is outside the rotation (permanent top priority) and only requesters 0, 1 and 2 rotate among themselves, which the text does not say.
+  confidence: low
+  lines:
+  - 38
+- id: R-PRI-3
+  doc: SPEC
+  quote: Requester 3 is reserved for maintenance traffic
+  text: Requester 3 (req[3] and gnt[3]) is dedicated to maintenance traffic.
+  kind: definition
+  depends:
+  - R-OVR-1
+  - R-IF-3
+  - R-IF-4
+  ambiguity:
+  - phrase: reserved for maintenance traffic
+    readings:
+    - 'Role label only: it explains why requester 3 gets special treatment (R-PRI-4) and has no checkable consequence on the interface.'
+    - 'Obligation on the environment: only maintenance traffic may use requester 3 and maintenance traffic may use no other requester (not observable at the interface).'
+    - 'Obligation on the arbiter: a reserved share of the shared resource for requester 3; no figure is given.'
+  - phrase: maintenance traffic
+    readings:
+    - Maintenance requests are rare and short, so that always serving requester 3 first cannot starve the others in practice (assumed, not stated).
+    - Maintenance requests may be continuous or unbounded, in which case 'always wins' starves requesters 0, 1 and 2 (see R-PRI-4 and R-FAIR-1). The term is undefined and no rate or duration is given.
+  confidence: low
+  lines:
+  - 38
+  - 39
+- id: R-PRI-4
+  doc: SPEC
+  quote: Requester 3 is reserved for maintenance traffic and always wins arbitration when it requests.
+  text: 'Whenever req[3] is asserted in cycle t, requester 3 wins the arbitration: gnt[3] is asserted in cycle t+1, regardless of the other request lines and of the current priority order.'
+  kind: guarantee
+  depends:
+  - R-PRI-3
+  - R-GNT-4
+  ambiguity:
+  - phrase: always wins arbitration when it requests
+    readings:
+    - 'CONTRADICTION with R-PRI-1: after reset the order is 0, 1, 2, 3 with requester 3 last, so if req[0] and req[3] are asserted together in the first arbitration after reset, R-PRI-1 grants requester
+      0 and this sentence grants requester 3.'
+    - If R-PRI-4 is authoritative, requester 3 outranks every other requester from the first arbitration after reset and R-PRI-1 describes only the order among requesters 0, 1 and 2.
+  - phrase: always wins arbitration when it requests
+    readings:
+    - 'CONTRADICTION with R-PRI-2: with a rotating priority requester 3 is the highest priority only one grant in four, so it cannot always win.'
+    - If R-PRI-4 is authoritative, requester 3 is outside the rotation and only requesters 0, 1 and 2 rotate among themselves (not stated).
+  - phrase: always wins arbitration when it requests
+    readings:
+    - 'CONTRADICTION with R-FAIR-1: if requester 3 keeps requesting (Section 5 forbids withdrawing before a grant, not requesting again after it) and always wins, requesters 0, 1 and 2 are never granted,
+      so no bound of N cycles can hold for them.'
+    - 'If R-FAIR-1 is authoritative, requester 3 cannot always win: it must yield to a starving requester, or its request rate is bounded by an assumption that the text does not give.'
+  - phrase: always wins
+    readings:
+    - 'Absolute: gnt[3] is asserted in cycle t+1 whenever req[3] is asserted in cycle t, irrespective of the other requests and of the priority state.'
+    - 'Relative: requester 3 wins whenever it is the highest priority in the current order, so ''always'' is loose language.'
+    - Permanent top priority for requester 3 with requesters 0, 1 and 2 rotating among themselves.
+  - phrase: when it requests
+    readings:
+    - 'Level: in any cycle in which req[3] is asserted.'
+    - 'Edge: only when requester 3 raises a new request; a requester 3 that keeps req[3] asserted after a grant is then treated like any other requester.'
+  confidence: low
+  lines:
+  - 38
+  - 39
+- id: R-FAIR-1
+  doc: SPEC
+  quote: A requester that keeps its request asserted is granted within N cycles.
+  text: If requester i keeps req[i] asserted continuously starting in cycle t, then gnt[i] is asserted in some cycle within N (= 4) cycles of t, taken as a cycle in the window [t+1, t+N] (the reading consistent
+    with the registered output).
+  kind: guarantee
+  depends:
+  - R-OVR-1
+  - R-GNT-4
+  - R-ENV-1
+  ambiguity:
+  - phrase: within N cycles
+    readings:
+    - gnt[i] is asserted in some cycle in [t+1, t+N], t being the first cycle with req[i] asserted. This is the tightest bound a registered arbiter with four competing requesters and fair rotation can meet
+      (the last of four requesters is granted in cycle t+4).
+    - gnt[i] is asserted in some cycle in [t, t+N-1] (the request cycle counts as the first of the N cycles); only possible with a same-cycle grant (R-OVR-4), impossible with a registered output (R-GNT-3).
+    - gnt[i] is asserted in some cycle in [t+1, t+N-1] (N cycles counted including the request cycle); cannot be met when all four requesters ask in the same cycle, since the last one is then granted in
+      cycle t+4.
+  - phrase: keeps its request asserted
+    readings:
+    - The request is held continuously from its first cycle until the grant is visible (consistent with R-ENV-1); the bound is measured from the first cycle of this continuous assertion.
+    - The request is held for the whole window of N cycles regardless of a grant in between; after a grant the bound would restart for what is then a new request, which the text does not clarify.
+  - phrase: is granted within N cycles
+    readings:
+    - 'CONTRADICTION with R-PRI-4: if requester 3 requests continuously and always wins, requesters 0, 1 and 2 are never granted, so no bound of N cycles holds for them.'
+    - R-FAIR-1 holds only for requesters 0 to 2 under an environment assumption bounding requester 3's request rate, or requester 3 is exempt from the bound; the text states neither.
+  - phrase: within N cycles
+    readings:
+    - A reset occurring during the wait cancels the bound, which restarts after reset (no grant can be given during reset, R-RST-1).
+    - The bound applies regardless of reset, which is unsatisfiable if reset is asserted during the wait.
+  confidence: medium
+  lines:
+  - 43
+- id: R-RST-1
+  doc: SPEC
+  quote: While rst_n is low, and in the cycle after it, no grant line is asserted.
+  text: In every cycle in which rst_n is low, no bit of gnt is asserted.
+  kind: guarantee
+  depends:
+  - R-IF-2
+  - R-IF-4
+  ambiguity:
+  - phrase: While rst_n is low
+    readings:
+    - 'CONTRADICTION (apparent) with R-GNT-3 and R-IF-2: gnt is zero in every cycle in which rst_n is low, including the first such cycle. A purely registered gnt with a synchronous reset cannot do this:
+      in the first low cycle gnt still shows the decision made in the previous cycle, so it would have to be masked combinationally by rst_n.'
+    - 'Weaker reading: gnt is zero in every cycle that follows a cycle with rst_n low (reset takes effect at the next clock edge) and the first low cycle is exempt.'
+  - phrase: no grant line is asserted
+    readings:
+    - 'CONTRADICTION with R-WC-1: a request asserted in a reset cycle would require exactly one grant in the next cycle (R-WC-1), but no grant is allowed in a reset cycle.'
+    - Requests sampled during reset are ignored and R-WC-1 is exempt for them; the text does not say so.
+  confidence: medium
+  lines:
+  - 47
+- id: R-RST-2
+  doc: SPEC
+  quote: While rst_n is low, and in the cycle after it, no grant line is asserted.
+  text: 'In the cycle after rst_n is low, no bit of gnt is asserted: in every cycle that follows a cycle with rst_n low, including the first cycle in which rst_n is high again, gnt is zero.'
+  kind: guarantee
+  depends:
+  - R-IF-2
+  - R-IF-4
+  - R-RST-1
+  ambiguity:
+  - phrase: in the cycle after it
+    readings:
+    - '''it'' is the reset condition of every reset cycle: every cycle following a cycle with rst_n low has gnt zero; together with R-RST-1 gnt is zero from the first low cycle through the first cycle with
+      rst_n high again.'
+    - '''it'' is the end of the low period: only the first cycle with rst_n high after the reset is covered (the same set of cycles as the first reading once combined with R-RST-1).'
+    - '''it'' is the falling edge of rst_n: only the cycle after the first low cycle is covered, leaving the first cycle after a multi-cycle reset unconstrained.'
+  - phrase: in the cycle after it
+    readings:
+    - 'CONTRADICTION with R-WC-1: if req is asserted in the last reset cycle, R-WC-1 requires exactly one grant in the first cycle after reset, whereas this sentence requires none.'
+    - Requests sampled in a reset cycle are ignored and R-WC-1 does not apply to them; the text does not say so.
+  confidence: medium
+  lines:
+  - 47
+- id: R-ENV-1
+  doc: SPEC
+  quote: A requester that has raised its request shall keep it asserted until it receives a grant.
+  text: Once requester i has raised req[i], it keeps req[i] asserted in every following cycle until it receives a grant on gnt[i].
+  kind: assumption
+  depends:
+  - R-IF-3
+  - R-IF-4
+  ambiguity:
+  - phrase: until it receives a grant
+    readings:
+    - req[i] must remain asserted through the cycle in which gnt[i] is first visible (the requester can only react to the grant afterwards).
+    - req[i] must remain asserted only up to the cycle before gnt[i] is visible, i.e. it may be dropped in the grant cycle itself (needs a combinational reaction of the requester to gnt).
+  - phrase: until it receives a grant
+    readings:
+    - 'The obligation survives a reset: a requester with a pending request keeps it through reset, although no grant can be given while rst_n is low (R-RST-1).'
+    - 'A reset cancels the obligation: the requester may drop its request because of reset without having been granted; the text does not say so.'
+  confidence: medium
+  lines:
+  - 51
+  - 52
+- id: R-ENV-2
+  doc: SPEC
+  quote: A request may be withdrawn only after the grant.
+  text: A requester deasserts req[i] only after the grant for its request has been received; req[i] is not deasserted before the grant.
+  kind: assumption
+  depends:
+  - R-ENV-1
+  ambiguity:
+  - phrase: may be withdrawn
+    readings:
+    - 'Restriction (a ''may ... only'' wording): equivalent to the prohibition in R-ENV-1 on withdrawing before the grant; the requester is not obliged to withdraw after the grant.'
+    - 'A permission only: after the grant the requester is allowed, not required, to withdraw and may keep req[i] asserted, which then counts as a new request; the text does not say how the arbiter tells
+      a new request from an already-served one.'
+  - phrase: only after the grant
+    readings:
+    - 'Strictly after: the earliest cycle with req[i] deasserted is the cycle after the one in which gnt[i] is visible.'
+    - 'At or after: req[i] may already be deasserted in the cycle in which gnt[i] is visible (needs a combinational reaction of the requester to gnt).'
+  - phrase: only after the grant
+    readings:
+    - 'CONTRADICTION (under ''strictly after'') with R-OVR-3 and R-WC-1: a lone requester still asserting req[i] in the grant cycle is granted again in the next cycle, so gnt[i] is asserted in two consecutive
+      cycles, against ''Grants last one cycle''.'
+    - The conflict disappears under 'at or after' or if the arbiter masks a request that is being granted; the text states neither.
+  confidence: medium
+  lines:
+  - 52

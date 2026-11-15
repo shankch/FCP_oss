@@ -1,0 +1,113 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md,
+# "Calls"), so the model is combinational: defs over the argument n, not
+# ghosts (a ghost's value would carry over from the previous call).
+defs:
+  lr_cars: "n"                                        # R-CAR-1: n cars drive left to right
+  rl_cars: "n"                                        # R-CAR-2: a different set of n cars drives right to left
+  meets_per_pair: "1"                                 # R-ROAD-1, R-CAR-3 (reading 1), R-CAR-4, R-COL-2: every opposite pair meets exactly once
+  expected: "lr_cars * rl_cars * meets_per_pair"      # R-COL-1, R-OUT-1: one collision per (left-to-right, right-to-left) meeting
+
+properties:
+  - id: RB-OUT-1-RET
+    req: R-OUT-1
+    expr: "outcome == 0"
+    note: >-
+      Reading 1 of "outputs": the count is the function's return value, an
+      int, so every call returns an integer. The largest count, 1023*1023 =
+      1,046,529, fits the 20-bit collisions signal, so outcome 0 is required
+      for every n in the trace (0 to 1,023). Reading 1 of "This function
+      outputs the number of such collisions": the docstring governs and the
+      name is_prime is a misnomer; the function does not return a bool.
+
+  - id: RB-OUT-1-VAL
+    req: R-OUT-1
+    expr: "collisions == expected"
+    note: >-
+      The returned value equals the model count lr_cars * rl_cars *
+      meets_per_pair = n*n. Reading 1 of "the number of such collisions": a
+      collision is one left-to-right car hitting one right-to-left car
+      (R-COL-1), counted per pair. With the left-to-right set starting
+      entirely to the left of the right-to-left set (R-CAR-3 reading 1), equal
+      speeds (R-CAR-4) and cars passing through unchanged (R-COL-2), the two
+      positions a0 + v*t and b0 - v*t coincide at exactly one time, so each of
+      the n*n pairs collides exactly once. n = 0 gives 0.
+
+scenarios:
+  - id: RB-OUT-1-MAX
+    req: R-OUT-1
+    cover: "n == 1023 && outcome == 0 && collisions == 1046529"
+    note: >-
+      The largest argument in the trace returns its count, 1023*1023 =
+      1,046,529, which fits in the collisions output; the requirement does not
+      conflict with the interface width or with F-ZERO.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional: the deliverable is the function body, keeping the given
+      signature (fixed by the adapter's function section). Only its
+      observable consequence, that every call returns an integer, can be
+      checked on the trace.
+    covered_by: [RB-OUT-1-RET]
+  - req: R-FN-2
+    reason: >-
+      Definition of the name and signature, encoded by the interface (one
+      argument, signal n). Reading 1 taken: is_prime is only the name and the
+      behaviour is the collision count of R-OUT-1. Reading 2 (return a bool
+      saying whether n is prime) contradicts R-OUT-1 and the 20-bit integer
+      output.
+    covered_by: [RB-OUT-1-RET, RB-OUT-1-VAL]
+  - req: R-ROAD-1
+    reason: >-
+      Definition of the scenario geometry (one straight, unbounded line), used
+      by the model: on a single unbounded line every approaching opposite
+      pair meets, and no car leaves the road before meeting (def
+      meets_per_pair).
+    covered_by: [RB-OUT-1-VAL]
+  - req: R-CAR-1
+    reason: "Definition: the argument n is the number of left-to-right cars (def lr_cars)."
+    covered_by: [RB-OUT-1-VAL]
+  - req: R-CAR-2
+    reason: "Definition: the right-to-left set is disjoint from the left-to-right set and has n cars (def rl_cars)."
+    covered_by: [RB-OUT-1-VAL]
+  - req: R-CAR-3
+    reason: >-
+      Definition of the initial positions. Reading 1 taken: every
+      left-to-right car starts to the left of every right-to-left car, so the
+      sets approach ("start out" far implies they later get closer) and every
+      opposite pair meets (def meets_per_pair = 1). Reading 2 (order
+      unstated, the sets may be receding) would allow 0 as well as n*n.
+    covered_by: [RB-OUT-1-VAL]
+  - req: R-CAR-4
+    reason: >-
+      Definition: all cars have the same speed, so a left-to-right and a
+      right-to-left car close their gap at a constant rate and meet exactly
+      once (def meets_per_pair); cars in the same direction never meet.
+    covered_by: [RB-OUT-1-VAL]
+  - req: R-COL-1
+    reason: >-
+      Definition of a collision: one left-to-right car hitting one
+      right-to-left car; the count is per such pair meeting (def expected).
+    covered_by: [RB-OUT-1-VAL]
+  - req: R-COL-2
+    reason: >-
+      Definition: collisions do not change motion, so every left-to-right car
+      goes on to meet every right-to-left car, not only the first one it hits
+      (def meets_per_pair).
+    covered_by: [RB-OUT-1-VAL]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md: part of every formalization set,
+      need not be restated); realized by the frame item F-ZERO of design.yaml.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-2, phrase: "is_prime", reading: 1}
+  - {req: R-CAR-3, phrase: "very far from each other", reading: 1}
+  - {req: R-OUT-1, phrase: "This function outputs the number of such collisions", reading: 1}
+  - {req: R-OUT-1, phrase: "outputs", reading: 1}
+  - {req: R-OUT-1, phrase: "the number of such collisions", reading: 1}

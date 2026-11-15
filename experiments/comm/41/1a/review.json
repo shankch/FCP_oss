@@ -1,0 +1,249 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 26,
+    "checked": 26,
+    "seconds": 0.04
+   },
+   "open": {
+    "open": {
+     "collisions": {
+      "call": "car_race_collision(1)",
+      "args": [
+       1
+      ],
+      "values": [
+       2,
+       4
+      ],
+      "shown": [
+       "2",
+       "4"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 209
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 26,
+    "checked": 26,
+    "seconds": 0.04
+   },
+   "open": {
+    "open": {
+     "collisions": {
+      "call": "car_race_collision(1)",
+      "args": [
+       1
+      ],
+      "values": [
+       1,
+       2
+      ],
+      "shown": [
+       "1",
+       "2"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 209
+   }
+  }
+ },
+ "readings": {
+  "R-OUT-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-1",
+    "req": "R-ENV-1",
+    "says": "every call meets `n >= 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-1",
+    "req": "R-ENV-1",
+    "says": "every call meets `n >= 0`",
+    "where": {}
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-ENV-1",
+   "phrase": "n: int",
+   "taken": 1,
+   "variant": 2,
+   "text": "n may be any Python int, so negative n must also be handled (with some unstated result)"
+  },
+  {
+   "req": "R-CAR-1",
+   "phrase": "2*n or n cars",
+   "taken": 3,
+   "variant": 1,
+   "text": "exactly n cars drive left to right"
+  },
+  {
+   "req": "R-CAR-1",
+   "phrase": "2*n or n",
+   "taken": 2,
+   "variant": 1,
+   "text": "one fixed count is meant, consistent with the function outputting a single number of collisions (R-OUT-2)"
+  },
+  {
+   "req": "R-CAR-2",
+   "phrase": "2*n or n cars",
+   "taken": 3,
+   "variant": 1,
+   "text": "exactly n cars drive right to left"
+  },
+  {
+   "req": "R-CAR-2",
+   "phrase": "a different set",
+   "taken": 1,
+   "variant": 2,
+   "text": "a set of a different size: if one set has n cars the other has 2*n cars"
+  },
+  {
+   "req": "R-CAR-2",
+   "phrase": "2*n or n",
+   "taken": 2,
+   "variant": 1,
+   "text": "one fixed count is meant, consistent with the function outputting a single number of collisions (R-OUT-2)"
+  },
+  {
+   "req": "R-POS-1",
+   "phrase": "start out being very far from each other",
+   "taken": 1,
+   "variant": 2,
+   "text": "only the distance is stated, not the side: if the left-to-right set starts on the right, the sets move apart and no collision ever happens"
+  },
+  {
+   "req": "R-COL-1",
+   "phrase": "said to collide",
+   "taken": 1,
+   "variant": 2,
+   "text": "since the cars continue as if they did not collide (R-COL-2), the meeting is not a collision and is not counted, contradicting this definition"
+  },
+  {
+   "req": "R-COL-2",
+   "phrase": "as if they did not collide",
+   "taken": 1,
+   "variant": 2,
+   "text": "the collision is treated as not having happened, so it is not counted, contradicting the definition of a collision (R-COL-1)"
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "outputs",
+   "taken": 1,
+   "variant": 2,
+   "text": "prints the number of collisions; the return value is unspecified"
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "the number of such collisions",
+   "taken": 4,
+   "variant": 1,
+   "text": "n*n (n cars in each direction)"
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "the number",
+   "taken": 2,
+   "variant": 1,
+   "text": "a single number determined by n, so one fixed car count must be meant (R-CAR-1, R-CAR-2)"
+  }
+ ],
+ "depends": {},
+ "certified": [],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "car_race_collision(1)"
+   ],
+   "outputs": {
+    "collisions": {
+     "reading": "agent_a",
+     "shown": [
+      "2",
+      "4"
+     ],
+     "ending": false,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "collisions",
+   "reqs": [],
+   "question": "the request allows 2 or 4: which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"outputs\" can mean: returns the number of collisions as an int / prints the number of collisions; the return value is unspecified. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"the number of such collisions\" can mean: n*n (n cars in each direction) / 4*n*n (2*n cars in each direction) / 2*n*n (2*n cars in one direction and n in the other) / any of n*n, 2*n*n or 4*n*n is acceptable, since the car counts are given as alternatives. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2"
+   ],
+   "calls": [],
+   "question": "\"the number\" can mean: a single number determined by n, so one fixed car count must be meant (R-CAR-1, R-CAR-2) / the car counts are left open (R-CAR-1, R-CAR-2), which contradicts there being one number of collisions for each n. Which is meant?"
+  }
+ ],
+ "limits": []
+}

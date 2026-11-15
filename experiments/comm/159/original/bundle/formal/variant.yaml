@@ -1,0 +1,255 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-DEF-2, reading 2 (given): need is the day's total including the carrots
+  # already eaten, so only max(need - number, 0) more are needed in this call.
+  want: 'max(need - number, 0)'
+  # R-IN-1..3, reading 2 (given): calls outside 0..1000 must be rejected.
+  inrange: 'number <= 1000 && need <= 1000 && remaining <= 1000'
+  # The call returned a list of two integers that fit eaten and left.
+  pair: 'outcome == 0'
+
+properties:
+  - id: RV-RET-1-PAIR
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'inrange && want <= remaining', cond: 'outcome == 0'}
+    note: >-
+      "return an array of [ total number of eaten carrots after your meals, the
+      number of carrots left after your meals ]" is read as given (reading 2):
+      the result must also report that the rabbit is still hungry (R-EAT-5),
+      which contradicts returning exactly two elements. So a plain list of two
+      integers is required only when the rabbit is not still hungry, i.e. when
+      the stock covers what it still needs (want <= remaining). "the number of
+      carrots that you need to eat" (R-DEF-2) is read as given (reading 2):
+      want = max(need - number, 0). "Constrain" (R-IN-1..3) is read as given
+      (reading 2): only in-range calls must return; out-of-range calls must be
+      rejected (RV-IN-*). "array" is read as a Python list (reading 1, the
+      list literals of the examples); the adapter maps a list and a tuple of
+      two integers both to outcome 0, so this item cannot tell them apart.
+  - id: RV-RET-1-HUNGRY
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'inrange && remaining < want', cond: 'outcome == 2'}
+    note: >-
+      "return an array of [ ... ]" is read as given (reading 2): when the rabbit
+      is still hungry the result must also report that, so it is not a list of
+      exactly two integers. The interface has no signal for the report; the
+      adapter records a returned value with another number of elements or of
+      another form as outcome 2, which is all that can be stated. This
+      contradicts the "array of [two elements]" of the same sentence.
+      "Still hungry" is remaining < want (strict: when remaining == want the
+      rabbit eats exactly what it needs). want follows R-DEF-2 read as given
+      (reading 2): max(need - number, 0). In-range only, since "Constrain"
+      (R-IN-1..3) is read as given (reading 2) and out-of-range calls are
+      rejected instead (RV-IN-*).
+  - id: RV-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: 'pair', cond: 'eaten <= remaining'}
+    note: >-
+      "total number of eaten carrots" is read as given (reading 2): the first
+      element counts only the carrots eaten in this call, without number. Those
+      carrots come from the stock (R-DEF-3: remaining is the number of carrots
+      that exist in stock), so the first element of a returned list never
+      exceeds remaining. Its relation to the meal is in RV-EAT-1 and RV-EAT-3,
+      and RV-RET-3 uses eaten as the carrots eaten in this call.
+  - id: RV-RET-3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: 'pair', cond: 'left + eaten == want'}
+    note: >-
+      "the number of carrots left" is read as given (reading 2): the carrots
+      the rabbit still has left to eat, i.e. what it needs minus the carrots
+      eaten in this call. What it needs is want = max(need - number, 0), since
+      R-DEF-2 is read as given (reading 2); the carrots eaten in this call are
+      eaten, since R-RET-2 is read as given (reading 2). So left == want -
+      eaten. Taken literally the difference is negative when the rabbit eats
+      more than it needs (allowed by R-EAT-1/R-EAT-2 read as given); a negative
+      element is not a list of two integers that fit (outcome 2), so in a
+      returned list eaten never exceeds want. Not repaired with max(..., 0).
+  - id: RV-EAT-1
+    req: R-EAT-1
+    pattern: implies
+    args: {trigger: 'pair && want <= remaining', cond: 'eaten >= want'}
+    note: >-
+      "you need to eat more carrots" is read as given (reading 2): when the
+      stock suffices the rabbit eats at least what it needs and may eat more,
+      e.g. all remaining carrots (bounded by the stock, RV-RET-2). What it
+      needs is want = max(need - number, 0), since "the number of carrots that
+      you need to eat" (R-DEF-2) is read as given (reading 2); the stock
+      suffices when want <= remaining. The first element is only the carrots
+      eaten in this call, since "total number of eaten carrots" (R-RET-2) is
+      read as given (reading 2), so the requirement's "number + need" becomes
+      "at least want". Only a returned list ("the first element of the
+      returned list") is constrained.
+  - id: RV-EAT-2
+    req: R-EAT-2
+    pattern: implies
+    args: {trigger: 'pair && want <= remaining', cond: 'left == 0'}
+    note: >-
+      "you need to eat more carrots" is read as given (reading 2): when the
+      stock suffices (want <= remaining, want = max(need - number, 0) by R-DEF-2
+      read as given, reading 2) the rabbit eats at least want. The second
+      element is the carrots it still has left to eat, since "the number of
+      carrots left" (R-RET-3) is read as given (reading 2): want minus the
+      carrots eaten, which is at most 0, so in a returned list (non-negative
+      elements) it is 0. The requirement's "remaining - need" does not survive
+      these readings.
+  - id: RV-EAT-3
+    req: R-EAT-3
+    pattern: implies
+    args: {trigger: 'pair && remaining <= want', cond: 'eaten == remaining'}
+    note: >-
+      "not enough remaining carrots" is read as given (reading 2): remaining <=
+      what the rabbit needs, which is want = max(need - number, 0) since R-DEF-2
+      is read as given (reading 2). It then eats all remaining carrots; the
+      first element is only the carrots eaten in this call (R-RET-2 read as
+      given, reading 2), so it is remaining, not number + remaining. Only a
+      returned list is constrained. Because a still-hungry result must also
+      report the hunger (R-EAT-5 and R-RET-1 read as given, reading 2), it is
+      outcome 2 and its elements are not on eaten; with these readings this
+      item can only bite when remaining == want.
+  - id: RV-EAT-4
+    req: R-EAT-4
+    pattern: implies
+    args: {trigger: 'pair && remaining <= want', cond: 'left == want - remaining'}
+    note: >-
+      "not enough remaining carrots" is read as given (reading 2): remaining <=
+      want, with want = max(need - number, 0) since R-DEF-2 is read as given
+      (reading 2). The rabbit eats all remaining carrots; the second element is
+      the carrots it still has left to eat, since "the number of carrots left"
+      (R-RET-3) is read as given (reading 2), so it is want - remaining, not 0
+      as the requirement text says. Only a returned list is constrained; a
+      still-hungry result is outcome 2 (R-EAT-5, R-RET-1 read as given), so
+      with these readings this item bites only when remaining == want (left 0).
+  - id: RV-EAT-5
+    req: R-EAT-5
+    pattern: implies
+    args: {trigger: 'remaining < want', cond: 'outcome != 0'}
+    note: >-
+      "but will still be hungry" is read as given (reading 2): the result must
+      report that the rabbit is still hungry (a flag or the shortfall), which
+      contradicts returning exactly two elements (R-RET-1). The interface has
+      no signal for the report, so this item states what is observable: a
+      still-hungry call never answers with a plain list of two integers. That
+      an in-range call returns (outcome 2) rather than raises is RV-RET-1-HUNGRY.
+      Still hungry is remaining < want (strict, as in the requirement text: at
+      remaining == want the rabbit eats exactly what it needs), with want =
+      max(need - number, 0) since R-DEF-2 is read as given (reading 2).
+  - id: RV-IN-1
+    req: R-IN-1
+    pattern: implies
+    args: {trigger: 'number > 1000', cond: 'outcome != 0'}
+    note: >-
+      "Constrain" is read as given (reading 2): the function must reject number
+      outside 0..1000, for example by raising an exception. Rejecting is read
+      as not answering with a list of two integers (outcome 1 for an exception,
+      2 for another kind of answer). The trace only carries 0..1023 and no
+      negative arguments (frame.md), so only 1001..1023 can be checked.
+  - id: RV-IN-2
+    req: R-IN-2
+    pattern: implies
+    args: {trigger: 'need > 1000', cond: 'outcome != 0'}
+    note: >-
+      "Constrain" is read as given (reading 2): the function must reject need
+      outside 0..1000, for example by raising an exception. Rejecting is read
+      as not answering with a list of two integers (outcome 1 for an exception,
+      2 for another kind of answer). The trace only carries 0..1023 and no
+      negative arguments (frame.md), so only 1001..1023 can be checked.
+  - id: RV-IN-3
+    req: R-IN-3
+    pattern: implies
+    args: {trigger: 'remaining > 1000', cond: 'outcome != 0'}
+    note: >-
+      "Constrain" is read as given (reading 2): the function must reject
+      remaining outside 0..1000, for example by raising an exception. Rejecting
+      is read as not answering with a list of two integers (outcome 1 for an
+      exception, 2 for another kind of answer). The trace only carries 0..1023
+      and no negative arguments (frame.md), so only 1001..1023 can be checked.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'number == 5 && need == 6 && remaining == 10 && outcome == 0 && eaten == 11 && left == 4'
+    note: >-
+      The example taken literally. It contradicts the readings given for
+      R-DEF-2, R-RET-2, R-RET-3 and R-EAT-1/R-EAT-2 (all reading 2), under
+      which the properties allow only [1, 0] for this call (want = 1); the
+      conflict is left visible, not repaired.
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'number == 4 && need == 8 && remaining == 9 && outcome == 0 && eaten == 12 && left == 1'
+    note: >-
+      The example taken literally. Under the readings given for R-DEF-2,
+      R-RET-2, R-RET-3 and R-EAT-1/R-EAT-2 (all reading 2) the properties allow
+      only [4, 0] for this call (want = 4); the conflict is left visible.
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'number == 1 && need == 10 && remaining == 10 && outcome == 0 && eaten == 11 && left == 0'
+    note: >-
+      The example taken literally. Under the readings given for R-DEF-2,
+      R-RET-2, R-RET-3 and R-EAT-1/R-EAT-2 (all reading 2) the properties allow
+      only [9, 0] for this call (want = 9 <= 10); the conflict is left visible.
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'number == 2 && need == 11 && remaining == 5 && outcome == 0 && eaten == 7 && left == 0'
+    note: >-
+      The example taken literally. Under the readings given for R-DEF-2 (want =
+      9 > 5, still hungry), R-EAT-5 and R-RET-1 (reading 2) the result must
+      also report the hunger, so no plain list of two integers is allowed for
+      this call (RV-EAT-5, RV-RET-1-HUNGRY); the values [7, 0] also contradict
+      R-RET-2/R-RET-3 read as given ([5, 4]). The conflict is left visible.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional: that the deliverable is a complete implementation is not a
+      property of the calls' trace; the adapter checks it by running the code.
+  - req: R-FN-2
+    reason: >-
+      Non-functional: the function name and argument order are fixed by the
+      adapter (design.yaml, function section), which calls eat(number, need,
+      remaining); they are not a property of the trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition of the argument number. With R-DEF-2 read as given (reading 2)
+      it enters only through want = max(need - number, 0), and with R-RET-2
+      read as given (reading 2) it is not part of the first element.
+    covered_by: [RV-RET-1-PAIR, RV-RET-1-HUNGRY, RV-RET-3, RV-EAT-1, RV-EAT-2, RV-EAT-3, RV-EAT-4, RV-EAT-5]
+  - req: R-DEF-2
+    reason: >-
+      Definition of the argument need. "the number of carrots that you need to
+      eat" is read as given (reading 2): need is the day's total requirement
+      including the carrots already eaten, so only want = max(need - number, 0)
+      more are needed. This contradicts eat(5, 6, 10) -> [11, 4]. It is realized
+      by the def want, used by the covering items.
+    covered_by: [RV-RET-1-PAIR, RV-RET-1-HUNGRY, RV-RET-3, RV-EAT-1, RV-EAT-2, RV-EAT-3, RV-EAT-4, RV-EAT-5]
+  - req: R-DEF-3
+    reason: >-
+      Definition of the argument remaining as the stock: the carrots eaten in a
+      call never exceed it (RV-RET-2), and it decides whether the stock covers
+      what the rabbit needs (RV-EAT-*, RV-RET-1-*).
+    covered_by: [RV-RET-2, RV-EAT-1, RV-EAT-3, RV-EAT-4, RV-EAT-5, RV-RET-1-PAIR, RV-RET-1-HUNGRY]
+  - req: R-FR-1
+    reason: >-
+      Adapter frame rule F-ZERO, part of every formalization set by
+      construction (frame.md); not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-DEF-2, phrase: 'the number of carrots that you need to eat', reading: 2}
+  - {req: R-RET-1, phrase: 'array', reading: 1}
+  - {req: R-RET-1, phrase: 'return an array of [ total number of eaten carrots after your meals, the number of carrots left after your meals ]', reading: 2}
+  - {req: R-RET-2, phrase: 'total number of eaten carrots', reading: 2}
+  - {req: R-RET-3, phrase: 'the number of carrots left', reading: 2}
+  - {req: R-EAT-1, phrase: 'you need to eat more carrots', reading: 2}
+  - {req: R-EAT-2, phrase: 'you need to eat more carrots', reading: 2}
+  - {req: R-EAT-3, phrase: 'not enough remaining carrots', reading: 2}
+  - {req: R-EAT-4, phrase: 'not enough remaining carrots', reading: 2}
+  - {req: R-EAT-5, phrase: 'but will still be hungry', reading: 2}
+  - {req: R-IN-1, phrase: 'Constrain', reading: 2}
+  - {req: R-IN-2, phrase: 'Constrain', reading: 2}
+  - {req: R-IN-3, phrase: 'Constrain', reading: 2}

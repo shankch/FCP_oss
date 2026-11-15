@@ -1,0 +1,32 @@
+fcp: '0.1'
+design: code_checkout
+summary: A Python function treated as a chip without memory. Each cycle is one call of checkout(subtotal, coupon, member); the arguments are inputs, the returned pair and the way the call ended are outputs. The prompt is the specification, and code written by AI models is checked by running it.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt P-CHECKOUT-1: Fernwood Outfitters checkout'}
+- {id: FRAME, path: frame.md, title: 'FCP function adapter, version 0.1'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: subtotal, dir: in, width: 21, desc: 'subtotal argument: the cart total in cents'}
+  - {name: coupon, dir: in, width: 7, desc: 'coupon argument: the coupon discount in percent'}
+  - {name: member, dir: in, width: 1, desc: 'member argument: the customer is in the loyalty program'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a pair that fits, 1 raised ValueError, 2 other exception or no answer, 3 returned anything else'}
+  - {name: price, dir: out, width: 21, desc: 'first element of the returned pair (outcome 0), in cents'}
+  - {name: ship, dir: out, width: 10, desc: 'second element of the returned pair (outcome 0), in cents'}
+environment: {initial_reset: true, reset_anytime: false, bmc_depth: 6, cover_depth: 6}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> price == 0 && ship == 0'}
+function:
+  name: checkout
+  args:
+  - {name: subtotal, signal: subtotal, type: int}
+  - {name: coupon, signal: coupon, type: int}
+  - {name: member, signal: member, type: bool}
+  returns: {signals: [price, ship]}
+  outcome: {signal: outcome, raises: [ValueError]}
+  scope:
+    subtotal: {dense: [0, 2000], random: 400}
+    coupon: {dense: [0, 60], random: 8}

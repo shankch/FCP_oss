@@ -1,0 +1,144 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+properties:
+  - id: RA-BASE-1
+    req: R-BASE-1
+    pattern: implies
+    args: {trigger: "n == 0", cond: "outcome == 0 && result == 0"}
+    note: >-
+      "fib4(0) -> 0": the call returns the integer 0, so it returns normally
+      with an integer that fits (outcome 0) and result is 0.
+
+  - id: RA-BASE-2
+    req: R-BASE-2
+    pattern: implies
+    args: {trigger: "n == 1", cond: "outcome == 0 && result == 0"}
+    note: >-
+      "fib4(1) -> 0": the call returns the integer 0.
+
+  - id: RA-BASE-3
+    req: R-BASE-3
+    pattern: implies
+    args: {trigger: "n == 2", cond: "outcome == 0 && result == 2"}
+    note: >-
+      "fib4(2) -> 2": literal reading (1), the listed value is returned as a
+      starting value. The Fibonacci rule applied from fib4(2) on would give 0
+      and contradict the listed value; that reading is not taken.
+
+  - id: RA-BASE-4
+    req: R-BASE-4
+    pattern: implies
+    args: {trigger: "n == 3", cond: "outcome == 0 && result == 0"}
+    note: >-
+      "fib4(3) -> 0": literal reading (1), the listed value is returned as a
+      starting value. The Fibonacci rule applied from fib4(2) on would give 2
+      and contradict the listed value; that reading is not taken.
+
+  - id: RA-NTH-1
+    req: R-NTH-1
+    pattern: implies
+    args: {trigger: "n <= 3", cond: "outcome == 0 && result == (n == 2 ? 2 : 0)"}
+    note: >-
+      For every n that has an element, fib4(n) returns that element as an
+      integer (outcome 0, "compute" reading 1: a float such as 2.0 would be
+      outcome 2 and is not accepted). Elements are counted from 0 as the list
+      writes them ("n-th element" reading 1), so fib4(n) returns the element
+      listed as fib4(n): 0, 0, 2, 0 for n = 0..3. The prompt states no rule
+      for elements after fib4(3) (see R-SEQ-1, reading 4), so only n <= 3 has
+      an element; RA-NTH-2 and RA-NTH-3 leave n >= 4 free.
+
+dont_cares:
+  - id: RA-NTH-2
+    req: R-NTH-1
+    signal: result
+    when: "n >= 4"
+    note: >-
+      "the fib4 number sequence" reading 2: the sequence is only what the
+      prompt lists (fib4(0) to fib4(3)). "similar to the Fibbonacci sequnece"
+      claims a resemblance but gives no rule, so there is no n-th element for
+      n >= 4 and the returned value is unconstrained. This is the literal
+      reading and it leaves "efficiently compute the n-th element" without
+      content for n >= 4. The name Fib4 suggests fib4(n) = fib4(n-1) +
+      fib4(n-2) + fib4(n-3) + fib4(n-4) (0, 0, 2, 0, 2, 4, 8, 14, ...), but
+      the prompt does not state it, so it is not added here.
+
+  - id: RA-NTH-3
+    req: R-NTH-1
+    signal: outcome
+    when: "n >= 4"
+    note: >-
+      Same reading as RA-NTH-2: with no n-th element for n >= 4, the call
+      fib4(n) is unconstrained, including how it ends (it may return a
+      non-integer, raise or not finish). F-ZERO still forces result to 0
+      whenever outcome is not 0.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Interface definition (name fib4, one integer argument n, calls checked
+      independently). It is realized by design.yaml (function fib4 with the
+      single argument n on the 7-bit input n) and by frame.md (each cycle is
+      one independent call). Literal reading (1) of "n: int": any integer is
+      a valid argument and nothing is defined for n < 0; negative arguments
+      are not part of the trace, so on the trace both readings coincide and
+      there is nothing left to constrain.
+
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the answer is a complete implementation of the stub that
+      keeps its name and single parameter. The name and parameter are fixed by
+      the function adapter, which calls fib4(n) and records an exception or a
+      missing answer as outcome 1; this is not a property of the trace. What
+      a working implementation must return is stated by RA-BASE-1..4 and
+      RA-NTH-1.
+
+  - req: R-SEQ-1
+    reason: >-
+      Definition of the sequence, realized by the items that use it. Literal
+      reading (4) of "similar to the Fibbonacci sequnece": only a resemblance
+      is claimed and no rule is given, so the four listed values are the whole
+      definition (RA-BASE-1..4, RA-NTH-1) and fib4(n) for n >= 4 is
+      unconstrained (RA-NTH-2, RA-NTH-3). The prompt says "defined as
+      follows" but lists only fib4(0) to fib4(3); it states neither the
+      four-term rule suggested by the name Fib4 nor the two-term Fibonacci
+      rule, and choosing one of them would repair the specification.
+    covered_by: [RA-BASE-1, RA-BASE-2, RA-BASE-3, RA-BASE-4, RA-NTH-1, RA-NTH-2, RA-NTH-3]
+
+  - req: R-NF-1
+    reason: >-
+      Non-functional: running time is not observable on the trace. Reading
+      (1) of "efficiently" is taken (time linear in n, not the exponential
+      cost of naive recursion), as the requirement text itself contrasts it
+      with the exponential naive definition. A call that does not finish is
+      recorded as outcome 1, but outcome 1 also covers exceptions, so even
+      termination cannot be stated separately; for n <= 3 RA-NTH-1 already
+      requires outcome 0, and for n >= 4 there is no element to compute
+      under the R-SEQ-1 reading taken.
+
+  - req: R-NF-2
+    reason: >-
+      Non-functional: a constraint on the structure of the code, not on its
+      calls and results, so it cannot be stated on the trace. Literal reading
+      (1) of "recursion" is taken: no function of the implementation (fib4, a
+      helper, or a memoized recursion) may call itself, directly or
+      indirectly. It must be checked on the source code.
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, already stated as F-ZERO in
+      design.yaml (outcome != 0 -> result == 0) and added to every
+      formalization set; frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-1, phrase: "n: int", reading: 1}
+  - {req: R-SEQ-1, phrase: "similar to the Fibbonacci sequnece", reading: 4}
+  - {req: R-BASE-3, phrase: "fib4(2) -> 2", reading: 1}
+  - {req: R-BASE-4, phrase: "fib4(3) -> 0", reading: 1}
+  - {req: R-NTH-1, phrase: "n-th element", reading: 1}
+  - {req: R-NTH-1, phrase: "the fib4 number sequence", reading: 2}
+  - {req: R-NTH-1, phrase: "compute", reading: 1}
+  - {req: R-NF-1, phrase: "efficiently", reading: 1}
+  - {req: R-NF-2, phrase: "recursion", reading: 1}

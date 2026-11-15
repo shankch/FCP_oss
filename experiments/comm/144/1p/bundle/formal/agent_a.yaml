@@ -1,0 +1,109 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # textual form of a fraction: one '/', not first and not last, every other
+  # character a decimal digit (numerator and denominator are non-empty digit
+  # strings; zero numerators and leading zeros are not excluded)
+  x_frac: 'count(i < len(x): x[i] == "/") == 1 && all(i < len(x): isdigit(x[i]) || x[i] == "/") && x[0] != "/" && x[len(x) - 1] != "/"'
+  n_frac: 'count(i < len(n): n[i] == "/") == 1 && all(i < len(n): isdigit(n[i]) || n[i] == "/") && n[0] != "/" && n[len(n) - 1] != "/"'
+  # the denominator (every character after the '/') has the numeric value 0
+  x_den_zero: 'all(i < len(x): (any(j < i: x[j] == "/") -> x[i] == "0"))'
+  n_den_zero: 'all(i < len(n): (any(j < i: n[j] == "/") -> n[i] == "0"))'
+  # both arguments are valid fractions with non-zero denominators
+  args_ok: 'x_frac && !x_den_zero && n_frac && !n_den_zero'
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: 'x_frac'
+    note: >-
+      "valid fractions" read as a string <numerator>/<denominator> of two
+      non-empty decimal-digit strings; the numerator may be zero (reading 2).
+      "valid" is taken to describe the textual form only, so a zero
+      denominator is excluded by RA-IN-3, not here (reading 2 of "valid
+      fractions, and do not have zero as denominator"). Leading zeros are not
+      excluded: the text does not mention them. Signs, spaces and whole
+      numbers without '/' are not valid.
+  - id: RA-IN-2
+    req: R-IN-2
+    expr: 'n_frac'
+    note: Same reading as RA-IN-1, for the argument n.
+  - id: RA-IN-3
+    req: R-IN-3
+    expr: 'x_frac -> !x_den_zero'
+    note: >-
+      "zero as denominator" read as the numeric value of the denominator
+      being 0 (reading 1), so '1/0' and '1/00' are both excluded. Stated only
+      for strings that have the fraction form; other strings are excluded by
+      RA-IN-1.
+  - id: RA-IN-4
+    req: R-IN-4
+    expr: 'n_frac -> !n_den_zero'
+    note: Same reading as RA-IN-3, for the argument n.
+
+properties:
+  - id: RA-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args: {trigger: 'args_ok', cond: 'outcome == 0'}
+    note: >-
+      On every call with valid arguments the function finishes and returns
+      True or False. "will simplify the expression" read as a promise for
+      every valid input (reading 1). For the type of the returned value
+      (reading 1 of "simplify the expression"): the request names no return
+      type; the adapter records the returned value as a boolean, and any other
+      returned value is outcome 2. The literal alternative, returning the
+      simplified expression itself, would make every correct answer outcome 2
+      and is not taken. The trigger restates the assumptions so that the
+      property does not rely on them.
+  - id: RA-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args: {trigger: 'args_ok && stable(x) && stable(n)', cond: 'stable(result)'}
+    note: >-
+      Only the dependence of the returned value on x and n alone is
+      formalized: two consecutive calls with the same valid arguments return
+      the same value. The request does not say what "the expression" is (no
+      antecedent and no operator: reading 4), so which boolean is returned for
+      given x and n is not determined by the text and is left
+      unconstrained. "simplify" read as a boolean answer (reading 1), the only
+      reading compatible with the boolean result taken for "simplify the
+      expression" (reading 1); the whole-number test of that reading cannot be
+      stated without knowing the expression. The form of a simplified
+      fraction (reading 1, '2' rather than '2/1') is irrelevant to a boolean
+      result.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      A statement about the deliverable (a complete, working Python
+      implementation), not about the behaviour of a call. Its observable part,
+      that the function works on valid inputs, is realized by RA-OUT-1 and
+      RA-OUT-2.
+    covered_by: [RA-OUT-1, RA-OUT-2]
+  - req: R-FN-2
+    reason: >-
+      A definition of the name and parameters, fixed by the adapter's binding
+      of simplify(x, n) to the signals x and n. A function with another name
+      or another parameter list makes every call raise, which RA-OUT-1
+      detects on valid arguments.
+    covered_by: [RA-OUT-1]
+  - req: R-FR-1
+    reason: Realized by the frame rule F-ZERO, which the adapter adds to every formalization set.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-OUT-1, phrase: "will simplify the expression", reading: 1}
+  - {req: R-OUT-1, phrase: "simplify the expression", reading: 1}
+  - {req: R-OUT-2, phrase: "the expression", reading: 4}
+  - {req: R-OUT-2, phrase: "simplify", reading: 1}
+  - {req: R-OUT-2, phrase: "simplify the expression", reading: 1}
+  - {req: R-OUT-2, phrase: "simplify (form of a simplified fraction)", reading: 1}
+  - {req: R-IN-1, phrase: "valid fractions", reading: 2}
+  - {req: R-IN-1, phrase: "valid fractions, and do not have zero as denominator", reading: 2}
+  - {req: R-IN-2, phrase: "valid fractions", reading: 2}
+  - {req: R-IN-2, phrase: "valid fractions, and do not have zero as denominator", reading: 2}
+  - {req: R-IN-3, phrase: "zero as denominator", reading: 1}
+  - {req: R-IN-4, phrase: "zero as denominator", reading: 1}

@@ -1,0 +1,148 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a Python implementation of the given function generate_integers, completing the stub shown in the request.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def generate_integers(a, b):'
+  text: The function is named generate_integers and takes two arguments, a and b, in that order.
+  kind: definition
+  ambiguity:
+  - phrase: generate_integers
+    readings:
+    - Only the name of the function; what it returns is fixed by the docstring (the even digits between a and b).
+    - 'The name states the behaviour: the function generates the even integers between a and b of any size. This conflicts with ''return the even digits between a and b'' and with the example generate_integers(10,
+      14) => [].'
+  lines:
+  - 4
+- id: R-ENV-1
+  doc: SPEC
+  quote: Given two positive integers a and b
+  text: The caller passes integer arguments a and b that are both positive.
+  kind: assumption
+  ambiguity:
+  - phrase: positive integers
+    readings:
+    - a >= 1 and b >= 1; a call with a or b equal to 0 is outside the contract and its outcome is unconstrained.
+    - a >= 0 and b >= 0 (non-negative); a call with 0 must also follow the rule, so whether 0 counts as an even digit matters.
+  lines:
+  - 6
+- id: R-OUT-1
+  doc: SPEC
+  quote: return the even digits between a and b
+  text: 'For positive integers a and b, generate_integers(a, b) returns a list of integers: it does not raise an exception, does not run forever, and does not return a value of another type.'
+  kind: guarantee
+  ambiguity:
+  - phrase: return the even digits
+    readings:
+    - Return a Python list of int values, as the examples show.
+    - 'Return the digits in another form: as digit characters (strings such as ''2''), or as another sequence type such as a tuple or a generator.'
+  lines:
+  - 6
+  - 7
+- id: R-OUT-2
+  doc: SPEC
+  quote: return the even digits between a and b
+  text: Every element of the list returned by generate_integers(a, b) is an even digit that lies between a and b (nothing else is returned).
+  kind: guarantee
+  ambiguity:
+  - phrase: even digits
+    readings:
+    - The even single-digit numbers 0, 2, 4, 6 and 8 (0 counts as an even digit).
+    - The even single-digit numbers 2, 4, 6 and 8 only (0 not counted).
+    - Every even integer, of any size (as the function name generate_integers suggests). Contradicts the example generate_integers(10, 14) => [], which would then be [10, 12, 14].
+    - The even digits that occur in the decimal writing of the integers between a and b. Contradicts the example generate_integers(10, 14) => [], which would then contain 0, 2 and 4.
+  - phrase: between a and b
+    readings:
+    - The integers from min(a, b) to max(a, b), both ends included, whichever argument is larger (matches all three examples).
+    - The integers strictly between min(a, b) and max(a, b), ends excluded. Contradicts the example generate_integers(2, 8) => [2, 4, 6, 8].
+    - The integers from a up to b only, none when a > b. Contradicts the example generate_integers(8, 2) => [2, 4, 6, 8].
+  lines:
+  - 6
+  - 7
+- id: R-OUT-3
+  doc: SPEC
+  quote: return the even digits between a and b
+  text: Every even digit that lies between a and b appears in the list returned by generate_integers(a, b) (none is left out).
+  kind: guarantee
+  ambiguity:
+  - phrase: even digits
+    readings:
+    - The even single-digit numbers 0, 2, 4, 6 and 8 (0 counts as an even digit).
+    - The even single-digit numbers 2, 4, 6 and 8 only (0 not counted).
+    - Every even integer, of any size (as the function name generate_integers suggests). Contradicts the example generate_integers(10, 14) => [], which would then be [10, 12, 14].
+    - The even digits that occur in the decimal writing of the integers between a and b. Contradicts the example generate_integers(10, 14) => [], which would then contain 0, 2 and 4.
+  - phrase: between a and b
+    readings:
+    - The integers from min(a, b) to max(a, b), both ends included, whichever argument is larger (matches all three examples).
+    - The integers strictly between min(a, b) and max(a, b), ends excluded. Contradicts the example generate_integers(2, 8) => [2, 4, 6, 8].
+    - The integers from a up to b only, none when a > b. Contradicts the example generate_integers(8, 2) => [2, 4, 6, 8].
+  lines:
+  - 6
+  - 7
+- id: R-OUT-4
+  doc: SPEC
+  quote: in ascending order
+  text: 'The list returned by generate_integers(a, b) is in ascending order: each element is smaller than the next.'
+  kind: guarantee
+  ambiguity:
+  - phrase: ascending order
+    readings:
+    - 'Strictly increasing: each element is smaller than the next, so no value is repeated.'
+    - 'Non-decreasing: each element is at most the next, so a value may repeat (matters only if the same digit can be found more than once).'
+  lines:
+  - 7
+- id: R-EX-1
+  doc: SPEC
+  quote: generate_integers(2, 8) => [2, 4, 6, 8]
+  text: Calling generate_integers(2, 8) returns the list [2, 4, 6, 8].
+  kind: scenario
+  ambiguity:
+  - phrase: generate_integers(2, 8) => [2, 4, 6, 8]
+    readings:
+    - 'Binding: the call (2, 8) returns [2, 4, 6, 8], so a and b themselves count as lying between a and b.'
+    - 'Illustrative only: it conflicts with ''between a and b'' read as excluding the ends (which gives [4, 6]), and the statement prevails.'
+  lines:
+  - 10
+- id: R-EX-2
+  doc: SPEC
+  quote: generate_integers(8, 2) => [2, 4, 6, 8]
+  text: Calling generate_integers(8, 2) returns the list [2, 4, 6, 8], the same as generate_integers(2, 8).
+  kind: scenario
+  ambiguity:
+  - phrase: generate_integers(8, 2) => [2, 4, 6, 8]
+    readings:
+    - 'Binding: the call (8, 2) returns [2, 4, 6, 8], so ''between a and b'' does not depend on which argument is larger.'
+    - 'Illustrative only: it conflicts with ''between a and b'' read as from a up to b (which gives [] when a > b), and the statement prevails.'
+  lines:
+  - 11
+- id: R-EX-3
+  doc: SPEC
+  quote: generate_integers(10, 14) => []
+  text: Calling generate_integers(10, 14) returns the empty list [].
+  kind: scenario
+  ambiguity:
+  - phrase: generate_integers(10, 14) => []
+    readings:
+    - 'Binding: the call (10, 14) returns [], so ''even digits'' means even single-digit numbers and none lies between 10 and 14.'
+    - 'Illustrative only: it conflicts with ''even digits'' read as even integers (as the name generate_integers suggests, giving [10, 12, 14]) or as the even digits written in 10 to 14 (giving 0, 2 and
+      4), and the statement prevails.'
+  lines:
+  - 12
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `result` is the empty list unless `outcome` is 0.'
+  text: Whenever outcome is not 0 (the call raised, did not finish, or returned something that is not a list of at most 10 integers from 0 to 255), result is the empty list.
+  kind: guarantee
+  lines:
+  - 43

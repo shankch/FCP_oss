@@ -1,0 +1,168 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a completed body for the given Python function stub candidate(s).
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: Write a function candidate which takes a string representing a word as input
+  text: candidate takes exactly one argument, s, which is a string.
+  kind: definition
+  lines:
+  - 9
+  - 10
+- id: R-IN-1
+  doc: SPEC
+  quote: a string representing a word
+  text: The caller passes a string s that represents a word.
+  kind: assumption
+  ambiguity:
+  - phrase: a string representing a word
+    readings:
+    - 'Assumption on the caller: s holds only letters (ASCII a-z, A-Z) and is not empty; the result for any other string is unconstrained.'
+    - 'Assumption on the caller: s holds only letters, but the empty string is allowed (and gives 0).'
+    - 'Description only, not an assumption: candidate must give the vowel count for every string, including ones with digits, spaces, punctuation or non-ASCII characters, and the empty string.'
+  - phrase: a word
+    readings:
+    - The whole string is one word, so 'the end of the given word' is the last character of s.
+    - The string may hold several words (e.g. separated by spaces), and each of them has its own end.
+  lines:
+  - 9
+  - 10
+- id: R-RET-1
+  doc: SPEC
+  quote: returns the number of characters or vowels in the string
+  text: Every call of candidate returns an integer (a count, so not negative) and raises no exception.
+  kind: guarantee
+  lines:
+  - 10
+- id: R-RET-2
+  doc: SPEC
+  quote: returns the number of characters or vowels in the string
+  text: The integer candidate(s) returns equals the number of vowels in s, where the vowels are the letters of R-VOW-1 plus a 'y' at the end of the word (R-Y-1), and no other character is counted.
+  kind: guarantee
+  depends:
+  - R-VOW-1
+  - R-Y-1
+  - R-Y-2
+  ambiguity:
+  - phrase: the number of characters or vowels
+    readings:
+    - The number of vowels in s (the 'characters' are the characters that are vowels); this is what both examples show.
+    - The number of characters in s, i.e. len(s). This contradicts R-EX-1 ("abcde" has 5 characters but must give 2) and R-EX-2 ("ACEDY" has 5 characters but must give 3), and makes the vowel definition
+      of R-VOW-1 pointless.
+    - 'Either count is acceptable: the implementation may return len(s) or the vowel count.'
+  - phrase: the number of ... vowels
+    readings:
+    - 'Every occurrence counts: "aa" gives 2.'
+    - 'Distinct vowels count: "aa" gives 1. (Neither example repeats a vowel, so they do not decide.)'
+  lines:
+  - 10
+- id: R-VOW-1
+  doc: SPEC
+  quote: Vowels in this case are 'a', 'e', 'i', 'o', 'u'.
+  text: The vowels are the letters a, e, i, o and u (with 'y' added under R-Y-1); no other character is a vowel.
+  kind: definition
+  ambiguity:
+  - phrase: '''a'', ''e'', ''i'', ''o'', ''u'''
+    readings:
+    - 'Lowercase only: ''A'', ''E'', ''I'', ''O'', ''U'' are not vowels. This contradicts R-EX-2, where "ACEDY" must give 3 and so ''A'' and ''E'' must count.'
+    - 'Case-insensitive: ''A'', ''E'', ''I'', ''O'', ''U'' are vowels too, as R-EX-2 implies.'
+  - phrase: Vowels in this case are
+    readings:
+    - "An exhaustive list: accented Latin-1 letters such as '\xE0', '\xE9' or '\xDC' are not vowels."
+    - 'The usual vowels of the language: accented forms of a, e, i, o, u also count.'
+  lines:
+  - 11
+- id: R-Y-1
+  doc: SPEC
+  quote: Here, 'y' is also a vowel, but only when it is at the end of the given word.
+  text: A 'y' that is the last character of s counts as one vowel.
+  kind: guarantee
+  ambiguity:
+  - phrase: '''y'''
+    readings:
+    - 'Lowercase only: a final ''Y'' does not count. This contradicts R-EX-2, where "ACEDY" must give 3 and so its final ''Y'' must count.'
+    - 'Case-insensitive: a final ''Y'' counts too, as R-EX-2 implies.'
+  - phrase: at the end of the given word
+    readings:
+    - 'Only the last character of s: in "ayy" only the final ''y'' counts.'
+    - 'Every ''y'' in the trailing run of ''y''s: in "ayy" both count.'
+    - The last letter of each word in s, if s holds several words.
+    - The last letter of s, ignoring trailing non-letters (e.g. "day." counts its 'y').
+  lines:
+  - 11
+  - 12
+- id: R-Y-2
+  doc: SPEC
+  quote: but only when it is at the end of the given word
+  text: A 'y' that is not the last character of s is not counted as a vowel.
+  kind: guarantee
+  ambiguity:
+  - phrase: '''y'''
+    readings:
+    - Applies to lowercase 'y' only (an uppercase 'Y' is never a vowel anywhere).
+    - 'Applies to ''y'' and ''Y'' alike: neither counts unless it is at the end.'
+  - phrase: at the end of the given word
+    readings:
+    - 'Only the last character of s: in "ayy" the first ''y'' does not count.'
+    - Every 'y' in the trailing run of 'y's counts, so in "ayy" neither 'y' is excluded.
+    - 'The last letter of each word in s, if s holds several words: a ''y'' before a space can count.'
+  lines:
+  - 12
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> candidate("abcde") 2'
+  text: candidate("abcde") returns 2 (the vowels 'a' and 'e').
+  kind: scenario
+  ambiguity:
+  - phrase: '2'
+    readings:
+    - Consistent with counting vowels (R-RET-2, first reading).
+    - 'Contradicts R-RET-2 read as ''the number of characters'': "abcde" has 5 characters.'
+  lines:
+  - 15
+  - 16
+- id: R-EX-2
+  doc: SPEC
+  quote: '>>> candidate("ACEDY") 3'
+  text: candidate("ACEDY") returns 3 (the vowels 'A', 'E' and the final 'Y').
+  kind: scenario
+  ambiguity:
+  - phrase: '3'
+    readings:
+    - Consistent with counting vowels case-insensitively, with a final 'Y' counted.
+    - 'Contradicts R-RET-2 read as ''the number of characters'': "ACEDY" has 5 characters.'
+    - 'Contradicts R-VOW-1 read as lowercase only: ''A'' and ''E'' would not count (the result would be at most 1).'
+    - 'Contradicts R-Y-1 read as lowercase ''y'' only: the final ''Y'' would not count (the result would be 2 or 0).'
+  lines:
+  - 17
+  - 18
+- id: R-FIX-1
+  doc: SPEC
+  quote: Add more test cases.
+  text: The response is asked to add more test cases for candidate.
+  kind: non_functional
+  ambiguity:
+  - phrase: Add more test cases.
+    readings:
+    - 'An instruction to the assistant: the completed code should include additional test cases (e.g. more doctests).'
+    - A leftover note stored in the FIX constant that places no obligation on the response; only the FIX string itself should be kept.
+  lines:
+  - 5
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is 0 unless `outcome` is 0.'
+  text: Whenever a call does not return an integer from 0 to 63 (outcome is not 0), the result signal is 0.
+  kind: guarantee
+  lines:
+  - 50

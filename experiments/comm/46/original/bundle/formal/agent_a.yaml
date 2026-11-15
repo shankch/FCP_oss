@@ -1,0 +1,185 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # The Fib4 sequence (R-DEF-1) at indices 0 to 127, the arguments a call can
+  # carry: the four base values of the prompt (0, 0, 2, 0) followed by the
+  # recurrence fib4(k) = fib4(k-1) + fib4(k-2) + fib4(k-3) + fib4(k-4).
+  # Four entries per line: indices 0-3, 4-7, ..., 124-127. The largest entry,
+  # fib4(127), is below 2^118, so every entry fits the 128-bit result.
+  fib4_seq: >-
+    [0, 0, 2, 0,
+    2, 4, 8, 14,
+    28, 54, 104, 200,
+    386, 744, 1434, 2764,
+    5328, 10270, 19796, 38158,
+    73552, 141776, 273282, 526768,
+    1015378, 1957204, 3772632, 7271982,
+    14017196, 27019014, 52080824, 100389016,
+    193506050, 372994904, 718970794, 1385860764,
+    2671332512, 5149158974, 9925323044, 19131675294,
+    36877489824, 71083647136, 137018135298, 264110947552,
+    509090219810, 981302949796, 1891522252456, 3646026369614,
+    7027941791676, 13546793363542, 26112283777288, 50333045302120,
+    97020064234626, 187012186677576, 360477579991610, 694842876205932,
+    1339352707109744, 2581685349984862, 4976358513292148, 9592239446592686,
+    18489636016979440, 35639919326849136, 68698153303713410, 132419948094134672,
+    255247656741676658, 492005677466373876, 948371435605898616, 1828044717908083822,
+    3523669487722032972, 6792091318702389286, 13092176959938404696, 25235982484270910776,
+    48643920250633737730, 93764171013545442488, 180736250708388495690, 348380324456838586684,
+    671524666429406262592, 1294405412608178787454, 2495046654202812132420, 4809357057697235769150,
+    9270333790937632951616, 17869142915445859640640, 34443880418283540493826, 66392714182364268855232,
+    127976071307031301941314, 246681808823124970931012, 475494474730804082221384, 916545069043324623948942,
+    1766697423904284979042652, 3405418776501538656143990, 6564155744179952341356968, 12652817013629100600492552,
+    24389088958214876577036162, 47011480492525468175029672, 90617542208549397693915354, 174670928672918843046473740,
+    336689040332208585492454928, 648988991706202294407873694, 1250966502919879120640717716, 2411315463631208843587520078,
+    4647959998589498844128566416, 8959230956846789102764677904, 17269472921987375911121482114, 33287979341054872701602246512,
+    64164643218478536559616972946, 123681326438367574275105379476, 238403421919888359447446081048, 459537370917789342983770679982,
+    885786762494523813265939113452, 1707408881770569089972261253958, 3291136437102770605669417128440, 6343869452285652851891388175832,
+    12228201533653516360799005671682, 23570616304812508908332072229912, 45433823727854448726691883205866, 87576511018606126847714349283292,
+    168809152584926600843537310390752, 325390103636199685326275615109822, 627209590967586861744219157989732, 1208985358207319274761746432773598,
+    2330394205396032422675778516263904, 4491979258207138244508019722137056, 8658568412778076803689763829164290, 16689927234588566745635308500338848,
+    32170869110969814216508870567904098, 62011344016543596010341962619544292, 119530708774880053776175905516951528, 230402849136982030748662047204738766]
+  # The four previous calls were fib4(n-1), fib4(n-2), fib4(n-3) and fib4(n-4),
+  # in that order, and each returned an integer.
+  prev4_returned: >-
+    prev(n) == n - 1 && prev(n, 2) == n - 2 && prev(n, 3) == n - 3 && prev(n, 4) == n - 4 &&
+    prev(outcome) == 0 && prev(outcome, 2) == 0 && prev(outcome, 3) == 0 && prev(outcome, 4) == 0
+
+properties:
+  - id: RA-BASE-1
+    req: R-BASE-1
+    pattern: implies
+    args: {trigger: "n == 0", cond: "outcome == 0 && result == 0"}
+    note: >-
+      'fib4(0) -> 0' read as: the call fib4(0) returns the integer 0. outcome
+      must be 0 too, because by F-ZERO result is also 0 when a call fails.
+  - id: RA-BASE-2
+    req: R-BASE-2
+    pattern: implies
+    args: {trigger: "n == 1", cond: "outcome == 0 && result == 0"}
+    note: "'fib4(1) -> 0': the call fib4(1) returns the integer 0."
+  - id: RA-BASE-3
+    req: R-BASE-3
+    pattern: implies
+    args: {trigger: "n == 2", cond: "outcome == 0 && result == 2"}
+    note: >-
+      'fib4(2) -> 2' taken as a base value that overrides the recurrence; the
+      recurrence applies only from n = 4 (reading 1). Read for every n, the
+      recurrence would give 0 here if terms before index 0 are 0.
+  - id: RA-BASE-4
+    req: R-BASE-4
+    pattern: implies
+    args: {trigger: "n == 3", cond: "outcome == 0 && result == 0"}
+    note: >-
+      'fib4(3) -> 0' taken as a base value that overrides the recurrence; the
+      recurrence applies only from n = 4 (reading 1). Read for every n, the
+      recurrence would give 2 here if terms before index 0 are 0.
+  - id: RA-REC-1
+    req: R-REC-1
+    pattern: implies
+    args:
+      trigger: "n >= 4 && prev4_returned"
+      cond: "outcome == 0 && result == prev(result) + prev(result, 2) + prev(result, 3) + prev(result, 4)"
+    note: >-
+      The recurrence relates the values the function returns for different
+      arguments. Calls are independent (frame.md), so fib4(n-k) is what any
+      call with argument n-k returns; the property relates a call fib4(n) to
+      the four calls just before it when those were fib4(n-1), fib4(n-2),
+      fib4(n-3), fib4(n-4) and returned integers. A failed earlier call has no
+      value, so it does not trigger the rule (RA-FN-1 rejects the failure
+      itself). Read for n >= 4 only (reading 1); n = 0 to 3 are the base
+      values. The sum fits the 128-bit result for every n up to 127, so the
+      call must return normally.
+  - id: RA-FN-1
+    req: R-FN-1
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Every n in the trace is a non-negative integer (0 to 127), so every call
+      must return normally. 'compute' is read as returning the element as the
+      function's result, not printing it (reading 1), and the returned value
+      must be a Python int (reading 1): a float or any other type is outcome
+      2, which this rejects.
+  - id: RA-FN-2
+    req: R-FN-1
+    pattern: invariant
+    args: {cond: "result == fib4_seq[n]"}
+    note: >-
+      The returned integer is the element of the Fib4 sequence at index n,
+      counting from 0 (reading 1): fib4_seq lists the sequence the base
+      values and the recurrence define. Counting from 0 agrees with the
+      examples: fib4_seq[5] = 4, fib4_seq[6] = 8, fib4_seq[7] = 14. RA-BASE-*
+      and RA-REC-1 restate the definition on the calls themselves, so a wrong
+      entry in fib4_seq would show as a conflict with them.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "n == 5 && outcome == 0 && result == 4"
+    note: "Doctest '>>> fib4(5)' shows 4: a call fib4(5) that returns the integer 4 must be possible. RA-FN-1 and RA-FN-2 already require this value."
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: "n == 6 && outcome == 0 && result == 8"
+    note: "Doctest '>>> fib4(6)' shows 8: a call fib4(6) that returns the integer 8 must be possible."
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: "n == 7 && outcome == 0 && result == 14"
+    note: "Doctest '>>> fib4(7)' shows 14: a call fib4(7) that returns the integer 14 must be possible."
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      The function's name and parameter list belong to the source code, not
+      to the call trace. The adapter calls fib4(n), so a renamed function or a
+      changed signature makes every call end with outcome 1, which RA-FN-1
+      rejects; the name itself cannot be stated in FCP-PL.
+  - req: R-IN-1
+    reason: >-
+      'n: int' read as any integer, negatives included (reading 1). The
+      argument is an integer by construction of the interface (n is a 7-bit
+      signal, 0 to 127), and frame.md leaves negative arguments and arguments
+      above 127 out of the trace, so no environment obligation is left to
+      assume.
+  - req: R-IN-2
+    reason: >-
+      The result for a negative n is free (reading 1), but frame.md says
+      negative arguments are not part of the trace: n is unsigned, so a
+      don't-care on n < 0 would never apply. Every n in the trace is
+      non-negative and is constrained by R-FN-1.
+  - req: R-DEF-1
+    reason: >-
+      A definition, not a behaviour. The listed rules are read as the complete
+      definition of the Fib4 sequence (reading 1), and the comparison with
+      Fibonacci as informative only (reading 1). The definition is the def
+      fib4_seq, and the items below state it on the calls.
+    covered_by: [RA-BASE-1, RA-BASE-2, RA-BASE-3, RA-BASE-4, RA-REC-1, RA-FN-2]
+  - req: R-NF-1
+    reason: >-
+      Running time is not observable in the call trace. 'efficiently' is read
+      as anything better than the exponential naive recursion (reading 2).
+      The only observable consequence, a call that does not finish (outcome
+      1), is rejected by RA-FN-1.
+  - req: R-NF-2
+    reason: >-
+      Whether the code uses recursion is a property of the source code, not
+      of the calls and their results. 'Do not use recursion.' is read without
+      restriction: no recursion anywhere, helpers included (reading 2).
+  - req: R-FR-1
+    reason: "Frame rule of the function adapter: F-ZERO in design.yaml is part of every formalization set, and frame.md says it need not be restated."
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "n: int", reading: 1}
+  - {req: R-IN-2, phrase: "the n-th element", reading: 1}
+  - {req: R-DEF-1, phrase: "that's defined as follows", reading: 1}
+  - {req: R-DEF-1, phrase: "similar to the Fibbonacci sequnece", reading: 1}
+  - {req: R-BASE-3, phrase: "fib4(2) -> 2", reading: 1}
+  - {req: R-BASE-4, phrase: "fib4(3) -> 0", reading: 1}
+  - {req: R-REC-1, phrase: "fib4(n)", reading: 1}
+  - {req: R-FN-1, phrase: "the n-th element", reading: 1}
+  - {req: R-FN-1, phrase: "compute", reading: 1}
+  - {req: R-FN-1, phrase: "compute the n-th element", reading: 1}
+  - {req: R-NF-1, phrase: "efficiently", reading: 2}
+  - {req: R-NF-2, phrase: "Do not use recursion.", reading: 2}

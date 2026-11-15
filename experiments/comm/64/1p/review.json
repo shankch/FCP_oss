@@ -1,0 +1,329 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 56,
+    "checked": 56,
+    "seconds": 1.08
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "candidate(\"A\")",
+      "args": [
+       "A"
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": [
+       "RA-OUT-1a"
+      ]
+     },
+     "outcome": {
+      "call": "candidate(\"A\")",
+      "args": [
+       "A"
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": []
+     }
+    },
+    "checked": 3
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 96,
+    "checked": 96,
+    "seconds": 2.62
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "candidate(\"E\")",
+      "args": [
+       "E"
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "0",
+       "1"
+      ],
+      "ending": false,
+      "declared": [
+       "RB-D-RESULT"
+      ]
+     },
+     "outcome": {
+      "call": "candidate(\"E\")",
+      "args": [
+       "E"
+      ],
+      "values": [
+       0,
+       2
+      ],
+      "shown": [
+       "returned",
+       "returned something else"
+      ],
+      "ending": true,
+      "declared": []
+     }
+    },
+    "checked": 4
+   }
+  }
+ },
+ "readings": {
+  "R-IN-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `word`",
+    "where": {
+     "word": "len(s) >= 1 && all(i < len(s): isalpha(s[i]))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-A-WORD",
+    "req": "R-IN-1",
+    "says": "every call meets `word`",
+    "where": {
+     "word": "len(s) >= 1 && all(i < len(s): isalpha(s[i]))"
+    }
+   }
+  ],
+  "free": [
+   {
+    "reading": "agent_a",
+    "id": "RA-OUT-1a",
+    "req": "R-OUT-1",
+    "says": "`result` is free when `outcome == 0`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-D-RESULT",
+    "req": "R-OUT-1",
+    "says": "`result` is free when `outcome == 0`",
+    "where": {}
+   }
+  ]
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-TASK-3",
+   "phrase": "Add more test cases.",
+   "taken": 2,
+   "variant": 1,
+   "text": "an instruction to the assistant to add test cases (examples in the docstring or a separate test suite)"
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "a string representing a word",
+   "taken": 1,
+   "variant": 2,
+   "text": "s may be any string, including the empty string and strings with non-letter characters, and candidate must handle all of them"
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "a word",
+   "taken": 1,
+   "variant": 2,
+   "text": "s may contain several words separated by spaces"
+  },
+  {
+   "req": "R-IN-2",
+   "phrase": "takes a string representing a word as input",
+   "taken": 1,
+   "variant": 2,
+   "text": "the phrase only describes the parameter type; behaviour on unusual strings (for example the empty string) is unconstrained"
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "Write a function candidate",
+   "taken": 4,
+   "variant": 1,
+   "text": "candidate returns the number of vowel characters (occurrences) in s, with vowels as defined by the request"
+  },
+  {
+   "req": "R-VOW-1",
+   "phrase": "'a', 'e', 'i', 'o', 'u'",
+   "taken": 1,
+   "variant": 2,
+   "text": "the letters are meant case-insensitively: 'A', 'E', 'I', 'O', 'U' are vowels too"
+  },
+  {
+   "req": "R-VOW-1",
+   "phrase": "Vowels in this case are 'a', 'e', 'i', 'o', 'u'.",
+   "taken": 1,
+   "variant": 2,
+   "text": "the list is closed, so 'y' is never a vowel, which contradicts the next sentence ('y' is also a vowel at the end of the word)"
+  },
+  {
+   "req": "R-VOW-2",
+   "phrase": "'a', 'e', 'i', 'o', 'u'",
+   "taken": 1,
+   "variant": 2,
+   "text": "upper-case 'A', 'E', 'I', 'O', 'U' are vowels as well, so they are not excluded"
+  },
+  {
+   "req": "R-VOW-3",
+   "phrase": "'y'",
+   "taken": 1,
+   "variant": 2,
+   "text": "'y' is meant case-insensitively: a final 'Y' is a vowel too"
+  },
+  {
+   "req": "R-VOW-3",
+   "phrase": "'y' is also a vowel",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradiction with the previous sentence, which lists the vowels as exactly 'a', 'e', 'i', 'o', 'u' and so excludes 'y'"
+  },
+  {
+   "req": "R-VOW-4",
+   "phrase": "at the end of the given word",
+   "taken": 1,
+   "variant": 2,
+   "text": "the 'y' is the last letter of the word, ignoring trailing non-letters such as spaces or punctuation"
+  },
+  {
+   "req": "R-VOW-4",
+   "phrase": "'y'",
+   "taken": 1,
+   "variant": 2,
+   "text": "the rule concerns 'y' and 'Y' alike"
+  }
+ ],
+ "depends": {},
+ "certified": [],
+ "queue": [
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "candidate(\"A\")"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "0",
+      "1"
+     ],
+     "ending": false,
+     "declared": [
+      "RA-OUT-1a"
+     ],
+     "reqs": [
+      "R-OUT-1"
+     ]
+    },
+    "outcome": {
+     "reading": "agent_a",
+     "shown": [
+      "returned",
+      "returned something else"
+     ],
+     "ending": true,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "result, outcome",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "question": "the request allows `result` to be 0 or 1 (the reading leaves this free on purpose: RA-OUT-1a) and lets this call end in two ways, \"returned\" or \"returned something else\": is any answer acceptable, or which is meant?"
+  },
+  {
+   "kind": "open",
+   "reading": "agent_b",
+   "calls": [
+    "candidate(\"E\")"
+   ],
+   "outputs": {
+    "outcome": {
+     "reading": "agent_b",
+     "shown": [
+      "returned",
+      "returned something else"
+     ],
+     "ending": true,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "outcome",
+   "reqs": [],
+   "question": "the request lets this call end in two ways, \"returned\" or \"returned something else\": which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-IN-2"
+   ],
+   "calls": [],
+   "question": "\"takes a string representing a word as input\" can mean: candidate must return normally for every such string, including edge cases such as the empty string / the phrase only describes the parameter type; behaviour on unusual strings (for example the empty string) is unconstrained. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"Write a function candidate\" can mean: candidate returns the number of vowel characters (occurrences) in s, with vowels as defined by the request / candidate returns the number of distinct vowels in s / candidate returns whether s contains a vowel (True/False or 1/0) / the return value is not specified at all, so any returned value is acceptable. Which is meant?"
+  }
+ ],
+ "limits": []
+}

@@ -1,0 +1,218 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # "returns False" / "returns True": the call returned a bool (outcome 0) with that value
+  ret_false: "outcome == 0 && !valid"
+  ret_true: "outcome == 0 && valid"
+
+  # Field structure (R-FMT-0 .. R-FMT-5), literal readings: mm, dd exactly two
+  # ASCII digits, yyyy exactly four, the whole string is mm-dd-yyyy.
+  ndash: 'count(i < len(date): date[i] == "-")'
+  # month field (before the first '-') is exactly two decimal digits
+  mm_ok: 'isdigit(date[0]) && isdigit(date[1]) && date[2] == "-"'
+  # day field (between the first and the second '-') is exactly two decimal digits
+  dd_ok: 'any(p < len(date): date[p] == "-" && all(j < p: date[j] != "-") && isdigit(date[p + 1]) && isdigit(date[p + 2]) && date[p + 3] == "-")'
+  # year field (everything after the second '-') is exactly four decimal digits
+  yyyy_ok: 'any(q < len(date): date[q] == "-" && count(j < q: date[j] == "-") == 1 && len(date) == q + 5 && isdigit(date[q + 1]) && isdigit(date[q + 2]) && isdigit(date[q + 3]) && isdigit(date[q + 4]))'
+  # an mm-dd-yyyy occurrence with at least one character before or after it
+  extra: 'any(k < len(date): (k > 0 || len(date) > k + 10) && isdigit(date[k]) && isdigit(date[k + 1]) && date[k + 2] == "-" && isdigit(date[k + 3]) && isdigit(date[k + 4]) && date[k + 5] == "-" && isdigit(date[k + 6]) && isdigit(date[k + 7]) && isdigit(date[k + 8]) && isdigit(date[k + 9]))'
+  # month and day fields both two digits, so mon and day below are their decimal values
+  md_ok: 'isdigit(date[0]) && isdigit(date[1]) && date[2] == "-" && isdigit(date[3]) && isdigit(date[4]) && date[5] == "-"'
+  mon: '(date[0] - "0") * 10 + (date[1] - "0")'
+  day: '(date[3] - "0") * 10 + (date[4] - "0")'
+  mon31: "mon == 1 || mon == 3 || mon == 5 || mon == 7 || mon == 8 || mon == 10 || mon == 12"
+  mon30: "mon == 4 || mon == 6 || mon == 9 || mon == 11"
+
+  # The four rules of the docstring (R-VAL-1, reading 1: necessary and sufficient)
+  rule1: "len(date) != 0"
+  rule2: "(mon31 -> day >= 1 && day <= 31) && (mon30 -> day >= 1 && day <= 30) && (mon == 2 -> day >= 1 && day <= 29)"
+  rule3: "mon >= 1 && mon <= 12"
+  rule4: 'len(date) == 10 && isdigit(date[0]) && isdigit(date[1]) && date[2] == "-" && isdigit(date[3]) && isdigit(date[4]) && date[5] == "-" && isdigit(date[6]) && isdigit(date[7]) && isdigit(date[8]) && isdigit(date[9])'
+  date_ok: "rule1 && rule2 && rule3 && rule4"
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "date_ok", cond: "ret_true"}
+    note: >-
+      date_ok is the conjunction of the four listed rules (R-VAL-1 reading 1: the
+      rules are sufficient, so '02-29-2001' and '01-01-0000' are valid). Rule 2
+      is stated as written: for each month group it bounds the day; for months
+      outside 1..12 it says nothing and rule 3 rejects them.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "!date_ok", cond: "ret_false"}
+    note: >-
+      "otherwise False": every string that does not satisfy all four rules makes
+      the call return the bool False (outcome 0), never raise or return another
+      value.
+
+  - id: RA-EMP-1
+    req: R-EMP-1
+    pattern: implies
+    args: {trigger: "len(date) == 0", cond: "ret_false"}
+
+  - id: RA-DAY-1
+    req: R-DAY-1
+    pattern: implies
+    args: {trigger: "md_ok && mon31 && (day < 1 || day > 31)", cond: "ret_false"}
+    note: >-
+      The month and day numbers (R-FMT-0) are taken as the decimal values of the
+      month and day fields when those fields are exactly two digits (R-FMT-2/3
+      reading 1); for other strings the numbers are not defined and the format
+      rules apply instead.
+
+  - id: RA-DAY-2
+    req: R-DAY-2
+    pattern: implies
+    args: {trigger: "md_ok && mon30 && (day < 1 || day > 30)", cond: "ret_false"}
+    note: Month and day numbers as in RA-DAY-1.
+
+  - id: RA-DAY-3
+    req: R-DAY-3
+    pattern: implies
+    args: {trigger: "md_ok && mon == 2 && (day < 1 || day > 29)", cond: "ret_false"}
+    note: >-
+      Reading 1 of "higher than 29 for the month 2": the bound is 29 in every
+      year; no leap-year rule is stated, so only days outside 1..29 are rejected
+      here. Month and day numbers as in RA-DAY-1.
+
+  - id: RA-MON-1
+    req: R-MON-1
+    pattern: implies
+    args: {trigger: "mm_ok && (mon < 1 || mon > 12)", cond: "ret_false"}
+    note: >-
+      The month number is the decimal value of the month field when it is
+      exactly two digits (R-FMT-2 reading 1); the day field is irrelevant here.
+
+  - id: RA-FMT-1
+    req: R-FMT-1
+    pattern: implies
+    args: {trigger: "ndash != 2", cond: "ret_false"}
+    note: >-
+      "three fields separated by exactly two '-' characters" holds exactly when
+      the string contains two '-' characters (it then splits into three fields),
+      so any other count of '-' (including '/' used as separator, which gives
+      zero) makes the call return False.
+
+  - id: RA-FMT-2
+    req: R-FMT-2
+    pattern: implies
+    args: {trigger: "!mm_ok", cond: "ret_false"}
+    note: >-
+      Reading 1 of "mm": the month field must be exactly two ASCII digits and be
+      followed by the first '-'. A string without any '-' has no month field
+      "before the first '-'" and is treated as not having a two-digit month
+      field (it is rejected by R-FMT-1 in any case).
+
+  - id: RA-FMT-3
+    req: R-FMT-3
+    pattern: implies
+    args: {trigger: "!dd_ok", cond: "ret_false"}
+    note: >-
+      Reading 1 of "dd": the text strictly between the first and the second '-'
+      must be exactly two ASCII digits, wherever the first '-' is. A string with
+      fewer than two '-' has no field "between the two '-'" and is treated as
+      lacking a two-digit day field (R-FMT-1 rejects it in any case).
+
+  - id: RA-FMT-4
+    req: R-FMT-4
+    pattern: implies
+    args: {trigger: "!yyyy_ok", cond: "ret_false"}
+    note: >-
+      Reading 1 of both "yyyy" phrases: the year field, taken literally as all
+      text after the second '-' to the end of the string, must be exactly four
+      ASCII digits; any value, including '0000', is accepted. Trailing
+      characters after four year digits therefore also violate this field rule
+      (overlapping R-FMT-5).
+
+  - id: RA-FMT-5
+    req: R-FMT-5
+    pattern: implies
+    args: {trigger: "extra", cond: "ret_false"}
+    note: >-
+      Reading 1: the whole string must be mm-dd-yyyy. "Any character before the
+      month field or after the year field" is read as the string containing a
+      complete mm-dd-yyyy occurrence (two digits, '-', two digits, '-', four
+      digits) with at least one other character before or after it, e.g.
+      ' 03-11-2000' or '03-11-2000 '. Strings with stray characters but no
+      complete mm-dd-yyyy occurrence are rejected by R-FMT-1..4 instead.
+
+  - id: RA-EX-1-G
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'date == "03-11-2000"', cond: "ret_true"}
+    note: The example states the result for this argument, so it is also a guarantee on that call.
+
+  - id: RA-EX-2-G
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'date == "15-01-2012"', cond: "ret_false"}
+    note: The example states the result for this argument, so it is also a guarantee on that call.
+
+  - id: RA-EX-3-G
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'date == "04-0-2040"', cond: "ret_false"}
+    note: The example states the result for this argument, so it is also a guarantee on that call.
+
+  - id: RA-EX-4-G
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'date == "06-04-2020"', cond: "ret_true"}
+    note: The example states the result for this argument, so it is also a guarantee on that call.
+
+  - id: RA-EX-5-G
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 'date == "06/04/2020"', cond: "ret_false"}
+    note: The example states the result for this argument, so it is also a guarantee on that call.
+
+scenarios:
+  - {id: RA-EX-1, req: R-EX-1, cover: 'date == "03-11-2000" && outcome == 0 && valid'}
+  - {id: RA-EX-2, req: R-EX-2, cover: 'date == "15-01-2012" && outcome == 0 && !valid'}
+  - {id: RA-EX-3, req: R-EX-3, cover: 'date == "04-0-2040" && outcome == 0 && !valid'}
+  - {id: RA-EX-4, req: R-EX-4, cover: 'date == "06-04-2020" && outcome == 0 && valid'}
+  - {id: RA-EX-5, req: R-EX-5, cover: 'date == "06/04/2020" && outcome == 0 && !valid'}
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function name and its single argument are fixed by the
+      adapter (design.yaml function section, frame.md Calls); every trace cycle is
+      already a call of valid_date(date), so there is nothing to state on the trace.
+  - req: R-ARG-1
+    reason: >-
+      Holds by construction of the interface: the date signal is a string
+      sequence (frame.md Inputs), and calls with non-string arguments are not part
+      of the trace, so an assumption would be a tautology.
+  - req: R-VAL-1
+    reason: >-
+      Definition of validity, realized by the def date_ok (rule1 && rule2 && rule3
+      && rule4, reading 1: the rules are necessary and sufficient) used in the two
+      return properties.
+    covered_by: [RA-RET-1, RA-RET-2]
+  - req: R-FMT-0
+    reason: >-
+      Definition of the fields; realized by the defs mm_ok, dd_ok, yyyy_ok, mon and
+      day used by the range and format properties.
+    covered_by: [RA-MON-1, RA-DAY-1, RA-DAY-2, RA-DAY-3, RA-RET-1, RA-RET-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, added to every formalization set as F-ZERO
+      (outcome != 0 -> !valid); frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-VAL-1, phrase: "The date is valid if all of the following rules are satisfied", reading: 1}
+  - {req: R-DAY-3, phrase: "higher than 29 for the month 2", reading: 1}
+  - {req: R-FMT-2, phrase: "mm", reading: 1}
+  - {req: R-FMT-3, phrase: "dd", reading: 1}
+  - {req: R-FMT-4, phrase: "yyyy", reading: 1}
+  - {req: R-FMT-4, phrase: "yyyy", reading: 1}
+  - {req: R-FMT-5, phrase: "The date should be in the format: mm-dd-yyyy", reading: 1}

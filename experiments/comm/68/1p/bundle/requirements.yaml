@@ -1,0 +1,120 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FN-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete, runnable implementation of the Python function given in the prompt.
+  kind: non_functional
+  ambiguity:
+  - phrase: Complete this function
+    readings:
+    - Fill in the body below the given signature and docstring, keeping both unchanged.
+    - Produce any working definition of the function; the given signature and docstring need not be kept verbatim.
+  lines:
+  - 1
+- id: R-FN-2
+  doc: SPEC
+  quote: 'def pluck(arr):'
+  text: The function is named pluck and takes exactly one parameter, arr.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: Given an array representing a branch of a tree
+  text: 'The argument arr represents a branch of a tree: each element of arr is one node of that branch, and the position of a node is its index in arr.'
+  kind: definition
+  ambiguity:
+  - phrase: an array
+    readings:
+    - arr is a Python list.
+    - arr may be any indexable sequence (list, tuple, array-like).
+  - phrase: a branch of a tree
+    readings:
+    - 'Only descriptive: arr is a flat collection of node values and the tree imposes no constraint on it.'
+    - The order of arr encodes tree structure (e.g. a path from the branch root outward), which the selection of the node may depend on.
+  lines:
+  - 6
+- id: R-IN-2
+  doc: SPEC
+  quote: that has non-negative integer nodes
+  text: Every element of arr is a non-negative integer; the caller never passes negative or non-integer elements.
+  kind: assumption
+  ambiguity:
+  - phrase: that has non-negative integer nodes
+    readings:
+    - arr always contains at least one node (the caller never passes an empty list).
+    - arr may be empty; the phrase only constrains the values of whatever nodes are present.
+  - phrase: that
+    readings:
+    - 'Refers to the branch: the elements of arr are non-negative integers.'
+    - 'Refers to the tree: all nodes of the whole tree, and hence of the branch, are non-negative integers.'
+  lines:
+  - 6
+- id: R-OUT-1
+  doc: SPEC
+  quote: your task is to pluck one of the nodes
+  text: 'Each call selects (plucks) exactly one node of arr: the selected node is one of the elements of arr.'
+  kind: guarantee
+  ambiguity:
+  - phrase: one of the nodes
+    readings:
+    - Any node of arr is acceptable as the plucked node (no further selection rule).
+    - A particular node is required, as the later sentence 'The plucked node should be the node' indicates; 'one of the nodes' only says it comes from arr.
+  - phrase: pluck
+    readings:
+    - Select the node without modifying arr.
+    - Remove the node from arr (mutating the caller's list) as well as selecting it.
+  - phrase: one of the nodes (when arr is empty)
+    readings:
+    - An empty arr never occurs (see R-IN-2), so there is always a node to pluck.
+    - For an empty arr no node can be plucked and the behaviour is unspecified (don't care).
+    - For an empty arr the function must still terminate normally with some agreed result, which the prompt does not state.
+  lines:
+  - 7
+- id: R-OUT-2
+  doc: SPEC
+  quote: and return it.
+  text: The function returns the plucked node as its result (it terminates normally rather than raising an exception, and the returned value identifies the plucked node).
+  kind: guarantee
+  ambiguity:
+  - phrase: return it
+    readings:
+    - Return the node's integer value itself.
+    - Return the node's position (index) in arr.
+    - Return the node wrapped in a container (e.g. a list holding the value, possibly with other data).
+  - phrase: it (when several nodes have the same value)
+    readings:
+    - Only the value matters; any node with that value is equivalent.
+    - The specific node (position) plucked matters, so equal values at different positions are distinguishable.
+  lines:
+  - 7
+- id: R-SEL-1
+  doc: SPEC
+  quote: The plucked node should be the node
+  text: The plucked node must be a specific node of arr determined by a selection criterion; the sentence stating the criterion is truncated in the prompt, so the criterion itself is not given.
+  kind: guarantee
+  ambiguity:
+  - phrase: The plucked node should be the node
+    readings:
+    - The sentence is incomplete and imposes no checkable rule; any node of arr satisfies it (selection is a don't care among the elements of arr).
+    - A specific node is required but the criterion is missing, so the correct result cannot be determined from the prompt and the requirement is unformalizable.
+    - 'Read as complete: the plucked node must be the same node that is returned (consistency between R-OUT-1 and R-OUT-2), adding no new constraint.'
+  - phrase: the node
+    readings:
+    - A particular node is required, which contradicts 'pluck one of the nodes' if that means any node is acceptable.
+    - Any node of arr is acceptable, consistent with 'pluck one of the nodes'; 'the node' just refers to the one chosen.
+  lines:
+  - 8
+- id: R-FR-1
+  doc: FRAME
+  quote: '`plucked` is 0 unless `outcome` is 0.'
+  text: Whenever outcome is not 0 (the call raised, did not finish, or returned something other than an integer from 0 to 255), plucked is 0.
+  kind: guarantee
+  lines:
+  - 46

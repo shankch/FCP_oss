@@ -1,0 +1,116 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # Mirrored index pairs (i, len(arr)-1-i), i strictly left of its mirror, whose
+  # two elements differ. Each such pair needs exactly one change and no other
+  # element needs any, so this is the minimum number of changes.
+  diff_pairs: "count(i < len(arr): i < len(arr) - 1 - i && arr[i] != arr[len(arr) - 1 - i])"
+
+properties:
+  - id: RA-CH-1
+    req: R-CH-1
+    expr: "outcome == 0 && changes == diff_pairs"
+    note: >-
+      Every call returns the minimum number of single-element changes that make
+      arr palindromic, which is the number of mirrored pairs whose elements
+      differ (the middle element of an odd-length array has no mirror and never
+      counts). "the number of elements that need to be changed" is read as that
+      minimum (reading 1); the examples R-EX-1 and R-EX-2 agree with it and
+      contradict counting both elements of every differing pair. "to make the
+      array palindromic" is read as computing the count only (reading 1);
+      whether arr is mutated is not observable on this interface, so nothing is
+      stated about it. Palindromic is element-wise (R-DEF-1) and a change
+      replaces one element's value (R-DEF-2); under both readings of R-DEF-2 each
+      differing pair is fixed by one change that copies the mirror element's
+      value, so the count does not depend on those readings. The count is at
+      most 5 for the at most 10 elements of the interface, so it fits changes
+      and the call ends with outcome 0.
+
+  - id: RA-CH-2
+    req: R-CH-2
+    expr: "outcome == 0"
+    note: >-
+      "find the number" is read as returning it as the function's result
+      (reading 1): every call returns an integer and raises no exception. The
+      encoding cannot tell a non-negative integer above 15 from another type
+      (both are outcome 2), so outcome 0 is required; this loses nothing,
+      because a number of elements of arr is at most len(arr) <= 10.
+
+scenarios:
+  - id: RA-IN-1
+    req: R-IN-1
+    cover: "len(arr) == 0 && outcome == 0 && changes == 0"
+    note: >-
+      "an array arr of integers" is read as admitting the empty array (reading
+      1): it is an in-scope input, it reads the same both ways, and the answer
+      for it is 0. No assumption item is needed for the rest of R-IN-1: the
+      interface encoding already restricts arr to lists of integers (at most 10,
+      each 0 to 255), and inputs of any other form are not part of the trace.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "arr == [1, 2, 3, 5, 4, 7, 9, 6] && outcome == 0 && changes == 4"
+    note: >-
+      Read as consistent with R-CH-1 as the minimum (reading 1): all four
+      mirrored pairs (1,6), (2,9), (3,7), (5,4) differ.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: "arr == [1, 2, 3, 4, 3, 2, 2] && outcome == 0 && changes == 1"
+    note: >-
+      Read as consistent with R-CH-1 as the minimum (reading 1): only the pair
+      (1,2) differs; the middle element 4 has no mirror.
+
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: "arr == [1, 2, 3, 2, 1] && outcome == 0 && changes == 0"
+    note: The array is already palindromic, so no change is needed.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional: the deliverable is an implementation of the function.
+      That is not a property of a trace of calls; the adapter binds the
+      function to the interface, and its behaviour is covered by the functional
+      items.
+  - req: R-FN-2
+    reason: >-
+      Non-functional: the function name and its single parameter are fixed by
+      the adapter's function binding (design.yaml, function section), not by a
+      property of the trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition. Read element-wise (reading 1): an array is palindromic when
+      arr[i] == arr[len(arr)-1-i] for every i, so [12, 21] is not palindromic.
+      It is realized by the element comparison of mirrored slots in def
+      diff_pairs; an array is palindromic exactly when diff_pairs is 0.
+    covered_by: [RA-CH-1, RA-EX-3]
+  - req: R-DEF-2
+    reason: >-
+      Definition of one change, used by R-CH-1. "any other element" is read
+      literally as the value of another element of the array (reading 2), and
+      "change one element" as giving it a different value (reading 1). Neither
+      reading changes the minimum: every differing mirrored pair is fixed by
+      one change that copies the value of its mirror element (another element,
+      different from the current value), and a minimal set of changes never
+      contains a change that keeps a value. Realized by def diff_pairs.
+    covered_by: [RA-CH-1]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, already part of every formalization
+      set as design.yaml frame item F-ZERO; frame.md says it need not be
+      restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "an array arr of integers", reading: 1}
+  - {req: R-CH-1, phrase: "the number of elements that need to be changed", reading: 1}
+  - {req: R-CH-1, phrase: "to make the array palindromic", reading: 1}
+  - {req: R-CH-2, phrase: "find the number", reading: 1}
+  - {req: R-DEF-1, phrase: "read the same backwards and forwards", reading: 1}
+  - {req: R-DEF-2, phrase: "any other element", reading: 2}
+  - {req: R-DEF-2, phrase: "In one change, you can change one element", reading: 1}
+  - {req: R-EX-1, phrase: "== 4", reading: 1}
+  - {req: R-EX-2, phrase: "== 1", reading: 1}

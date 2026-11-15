@@ -1,0 +1,43 @@
+[gold] 9 properties, 1 assumptions
+  gold:tautology: 0.0s
+  gold:consistency: 0.01s
+  gold:determinacy: 0.53s
+  gold:ref:verify: 0.01s
+  gold:ref:vacuity: 0.0s
+  gold:ref:receptive: 3.65s
+  gold:ai:verify: 0.03s
+  gold:ai:vacuity: 0.0s
+  gold:ai:receptive: 2.85s
+  gold:mutation: 0.08s
+[agent_a] 11 properties, 2 assumptions
+  agent_a:tautology: 0.0s
+  agent_a:consistency: 0.63s
+  agent_a:determinacy: 0.99s
+  agent_a:ref:verify: 0.17s
+  agent_a:ref:vacuity: 0.01s
+  agent_a:ref:receptive: 8.01s
+  agent_a:ai:verify: 0.2s
+  agent_a:ai:vacuity: 0.01s
+  agent_a:ai:receptive: 8.27s
+  agent_a:mutation: 1.93s
+[agent_b] 11 properties, 2 assumptions
+  agent_b:tautology: 0.0s
+  agent_b:consistency: 0.38s
+  agent_b:determinacy: 0.71s
+  agent_b:ref:verify: 0.12s
+  agent_b:ref:vacuity: 0.01s
+  agent_b:ref:receptive: 4.85s
+  agent_b:ai:verify: 0.15s
+  agent_b:ai:vacuity: 0.01s
+  agent_b:ai:receptive: 4.73s
+  agent_b:mutation: 1.55s
+  compare:gold|agent_a: 0.01s
+  compare:gold|agent_b: 0.0s
+  compare:agent_a|agent_b: 0.01s
+[gold / ref] {'ASSUMED': 1, 'ASSURED': 5, 'COVERED-INDIRECTLY': 1, 'PROVED-DISPUTED': 3, 'UNFORMALIZED': 2}  review queue: 8  -> corpus/arbiter/.fcp/report/report_gold_ref.html
+[gold / ai] {'ASSUMED': 1, 'ASSURED': 4, 'COVERED-INDIRECTLY': 1, 'FAILED': 1, 'PROVED-DISPUTED': 3, 'UNFORMALIZED': 2}  review queue: 9  -> corpus/arbiter/.fcp/report/report_gold_ai.html
+[agent_a / ref] {'ASSUMED': 2, 'ASSURED': 3, 'FAILED': 4, 'PROVED-CONFLICTED': 2, 'PROVED-DISPUTED': 1}  review queue: 13  -> corpus/arbiter/.fcp/report/report_agent_a_ref.html
+[agent_a / ai] {'ASSUMED': 2, 'ASSURED': 2, 'FAILED': 5, 'PROVED-CONFLICTED': 2, 'PROVED-DISPUTED': 1}  review queue: 14  -> corpus/arbiter/.fcp/report/report_agent_a_ai.html
+[agent_b / ref] {'ASSUMED': 2, 'ASSURED': 5, 'FAILED': 4, 'PROVED-DISPUTED': 1}  review queue: 12  -> corpus/arbiter/.fcp/report/report_agent_b_ref.html
+[agent_b / ai] {'ASSUMED': 2, 'ASSURED': 4, 'FAILED': 5, 'PROVED-DISPUTED': 1}  review queue: 13  -> corpus/arbiter/.fcp/report/report_agent_b_ai.html
+total 40.63s; engine tasks run 123, cached 1746

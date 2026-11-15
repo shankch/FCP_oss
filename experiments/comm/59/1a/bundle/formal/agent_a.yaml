@@ -1,0 +1,538 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# FCP-PL only accepts `%` with a literal divisor, so "x divides n" for a variable x
+# is built from literal divisibility tests. n and factor are below 65536 = 256 * 256,
+# so in any factorisation n == a * b one of a, b is at most 255; the number-theory
+# definitions below rely on that.
+defs:
+  # bit c (1 <= c <= 255) of n_divs is 1 exactly when c divides n; bit 0 is 0
+  n_divs: >-
+    zext(n % 1 == 0, 256) << 1 |
+    zext(n % 2 == 0, 256) << 2 |
+    zext(n % 3 == 0, 256) << 3 |
+    zext(n % 4 == 0, 256) << 4 |
+    zext(n % 5 == 0, 256) << 5 |
+    zext(n % 6 == 0, 256) << 6 |
+    zext(n % 7 == 0, 256) << 7 |
+    zext(n % 8 == 0, 256) << 8 |
+    zext(n % 9 == 0, 256) << 9 |
+    zext(n % 10 == 0, 256) << 10 |
+    zext(n % 11 == 0, 256) << 11 |
+    zext(n % 12 == 0, 256) << 12 |
+    zext(n % 13 == 0, 256) << 13 |
+    zext(n % 14 == 0, 256) << 14 |
+    zext(n % 15 == 0, 256) << 15 |
+    zext(n % 16 == 0, 256) << 16 |
+    zext(n % 17 == 0, 256) << 17 |
+    zext(n % 18 == 0, 256) << 18 |
+    zext(n % 19 == 0, 256) << 19 |
+    zext(n % 20 == 0, 256) << 20 |
+    zext(n % 21 == 0, 256) << 21 |
+    zext(n % 22 == 0, 256) << 22 |
+    zext(n % 23 == 0, 256) << 23 |
+    zext(n % 24 == 0, 256) << 24 |
+    zext(n % 25 == 0, 256) << 25 |
+    zext(n % 26 == 0, 256) << 26 |
+    zext(n % 27 == 0, 256) << 27 |
+    zext(n % 28 == 0, 256) << 28 |
+    zext(n % 29 == 0, 256) << 29 |
+    zext(n % 30 == 0, 256) << 30 |
+    zext(n % 31 == 0, 256) << 31 |
+    zext(n % 32 == 0, 256) << 32 |
+    zext(n % 33 == 0, 256) << 33 |
+    zext(n % 34 == 0, 256) << 34 |
+    zext(n % 35 == 0, 256) << 35 |
+    zext(n % 36 == 0, 256) << 36 |
+    zext(n % 37 == 0, 256) << 37 |
+    zext(n % 38 == 0, 256) << 38 |
+    zext(n % 39 == 0, 256) << 39 |
+    zext(n % 40 == 0, 256) << 40 |
+    zext(n % 41 == 0, 256) << 41 |
+    zext(n % 42 == 0, 256) << 42 |
+    zext(n % 43 == 0, 256) << 43 |
+    zext(n % 44 == 0, 256) << 44 |
+    zext(n % 45 == 0, 256) << 45 |
+    zext(n % 46 == 0, 256) << 46 |
+    zext(n % 47 == 0, 256) << 47 |
+    zext(n % 48 == 0, 256) << 48 |
+    zext(n % 49 == 0, 256) << 49 |
+    zext(n % 50 == 0, 256) << 50 |
+    zext(n % 51 == 0, 256) << 51 |
+    zext(n % 52 == 0, 256) << 52 |
+    zext(n % 53 == 0, 256) << 53 |
+    zext(n % 54 == 0, 256) << 54 |
+    zext(n % 55 == 0, 256) << 55 |
+    zext(n % 56 == 0, 256) << 56 |
+    zext(n % 57 == 0, 256) << 57 |
+    zext(n % 58 == 0, 256) << 58 |
+    zext(n % 59 == 0, 256) << 59 |
+    zext(n % 60 == 0, 256) << 60 |
+    zext(n % 61 == 0, 256) << 61 |
+    zext(n % 62 == 0, 256) << 62 |
+    zext(n % 63 == 0, 256) << 63 |
+    zext(n % 64 == 0, 256) << 64 |
+    zext(n % 65 == 0, 256) << 65 |
+    zext(n % 66 == 0, 256) << 66 |
+    zext(n % 67 == 0, 256) << 67 |
+    zext(n % 68 == 0, 256) << 68 |
+    zext(n % 69 == 0, 256) << 69 |
+    zext(n % 70 == 0, 256) << 70 |
+    zext(n % 71 == 0, 256) << 71 |
+    zext(n % 72 == 0, 256) << 72 |
+    zext(n % 73 == 0, 256) << 73 |
+    zext(n % 74 == 0, 256) << 74 |
+    zext(n % 75 == 0, 256) << 75 |
+    zext(n % 76 == 0, 256) << 76 |
+    zext(n % 77 == 0, 256) << 77 |
+    zext(n % 78 == 0, 256) << 78 |
+    zext(n % 79 == 0, 256) << 79 |
+    zext(n % 80 == 0, 256) << 80 |
+    zext(n % 81 == 0, 256) << 81 |
+    zext(n % 82 == 0, 256) << 82 |
+    zext(n % 83 == 0, 256) << 83 |
+    zext(n % 84 == 0, 256) << 84 |
+    zext(n % 85 == 0, 256) << 85 |
+    zext(n % 86 == 0, 256) << 86 |
+    zext(n % 87 == 0, 256) << 87 |
+    zext(n % 88 == 0, 256) << 88 |
+    zext(n % 89 == 0, 256) << 89 |
+    zext(n % 90 == 0, 256) << 90 |
+    zext(n % 91 == 0, 256) << 91 |
+    zext(n % 92 == 0, 256) << 92 |
+    zext(n % 93 == 0, 256) << 93 |
+    zext(n % 94 == 0, 256) << 94 |
+    zext(n % 95 == 0, 256) << 95 |
+    zext(n % 96 == 0, 256) << 96 |
+    zext(n % 97 == 0, 256) << 97 |
+    zext(n % 98 == 0, 256) << 98 |
+    zext(n % 99 == 0, 256) << 99 |
+    zext(n % 100 == 0, 256) << 100 |
+    zext(n % 101 == 0, 256) << 101 |
+    zext(n % 102 == 0, 256) << 102 |
+    zext(n % 103 == 0, 256) << 103 |
+    zext(n % 104 == 0, 256) << 104 |
+    zext(n % 105 == 0, 256) << 105 |
+    zext(n % 106 == 0, 256) << 106 |
+    zext(n % 107 == 0, 256) << 107 |
+    zext(n % 108 == 0, 256) << 108 |
+    zext(n % 109 == 0, 256) << 109 |
+    zext(n % 110 == 0, 256) << 110 |
+    zext(n % 111 == 0, 256) << 111 |
+    zext(n % 112 == 0, 256) << 112 |
+    zext(n % 113 == 0, 256) << 113 |
+    zext(n % 114 == 0, 256) << 114 |
+    zext(n % 115 == 0, 256) << 115 |
+    zext(n % 116 == 0, 256) << 116 |
+    zext(n % 117 == 0, 256) << 117 |
+    zext(n % 118 == 0, 256) << 118 |
+    zext(n % 119 == 0, 256) << 119 |
+    zext(n % 120 == 0, 256) << 120 |
+    zext(n % 121 == 0, 256) << 121 |
+    zext(n % 122 == 0, 256) << 122 |
+    zext(n % 123 == 0, 256) << 123 |
+    zext(n % 124 == 0, 256) << 124 |
+    zext(n % 125 == 0, 256) << 125 |
+    zext(n % 126 == 0, 256) << 126 |
+    zext(n % 127 == 0, 256) << 127 |
+    zext(n % 128 == 0, 256) << 128 |
+    zext(n % 129 == 0, 256) << 129 |
+    zext(n % 130 == 0, 256) << 130 |
+    zext(n % 131 == 0, 256) << 131 |
+    zext(n % 132 == 0, 256) << 132 |
+    zext(n % 133 == 0, 256) << 133 |
+    zext(n % 134 == 0, 256) << 134 |
+    zext(n % 135 == 0, 256) << 135 |
+    zext(n % 136 == 0, 256) << 136 |
+    zext(n % 137 == 0, 256) << 137 |
+    zext(n % 138 == 0, 256) << 138 |
+    zext(n % 139 == 0, 256) << 139 |
+    zext(n % 140 == 0, 256) << 140 |
+    zext(n % 141 == 0, 256) << 141 |
+    zext(n % 142 == 0, 256) << 142 |
+    zext(n % 143 == 0, 256) << 143 |
+    zext(n % 144 == 0, 256) << 144 |
+    zext(n % 145 == 0, 256) << 145 |
+    zext(n % 146 == 0, 256) << 146 |
+    zext(n % 147 == 0, 256) << 147 |
+    zext(n % 148 == 0, 256) << 148 |
+    zext(n % 149 == 0, 256) << 149 |
+    zext(n % 150 == 0, 256) << 150 |
+    zext(n % 151 == 0, 256) << 151 |
+    zext(n % 152 == 0, 256) << 152 |
+    zext(n % 153 == 0, 256) << 153 |
+    zext(n % 154 == 0, 256) << 154 |
+    zext(n % 155 == 0, 256) << 155 |
+    zext(n % 156 == 0, 256) << 156 |
+    zext(n % 157 == 0, 256) << 157 |
+    zext(n % 158 == 0, 256) << 158 |
+    zext(n % 159 == 0, 256) << 159 |
+    zext(n % 160 == 0, 256) << 160 |
+    zext(n % 161 == 0, 256) << 161 |
+    zext(n % 162 == 0, 256) << 162 |
+    zext(n % 163 == 0, 256) << 163 |
+    zext(n % 164 == 0, 256) << 164 |
+    zext(n % 165 == 0, 256) << 165 |
+    zext(n % 166 == 0, 256) << 166 |
+    zext(n % 167 == 0, 256) << 167 |
+    zext(n % 168 == 0, 256) << 168 |
+    zext(n % 169 == 0, 256) << 169 |
+    zext(n % 170 == 0, 256) << 170 |
+    zext(n % 171 == 0, 256) << 171 |
+    zext(n % 172 == 0, 256) << 172 |
+    zext(n % 173 == 0, 256) << 173 |
+    zext(n % 174 == 0, 256) << 174 |
+    zext(n % 175 == 0, 256) << 175 |
+    zext(n % 176 == 0, 256) << 176 |
+    zext(n % 177 == 0, 256) << 177 |
+    zext(n % 178 == 0, 256) << 178 |
+    zext(n % 179 == 0, 256) << 179 |
+    zext(n % 180 == 0, 256) << 180 |
+    zext(n % 181 == 0, 256) << 181 |
+    zext(n % 182 == 0, 256) << 182 |
+    zext(n % 183 == 0, 256) << 183 |
+    zext(n % 184 == 0, 256) << 184 |
+    zext(n % 185 == 0, 256) << 185 |
+    zext(n % 186 == 0, 256) << 186 |
+    zext(n % 187 == 0, 256) << 187 |
+    zext(n % 188 == 0, 256) << 188 |
+    zext(n % 189 == 0, 256) << 189 |
+    zext(n % 190 == 0, 256) << 190 |
+    zext(n % 191 == 0, 256) << 191 |
+    zext(n % 192 == 0, 256) << 192 |
+    zext(n % 193 == 0, 256) << 193 |
+    zext(n % 194 == 0, 256) << 194 |
+    zext(n % 195 == 0, 256) << 195 |
+    zext(n % 196 == 0, 256) << 196 |
+    zext(n % 197 == 0, 256) << 197 |
+    zext(n % 198 == 0, 256) << 198 |
+    zext(n % 199 == 0, 256) << 199 |
+    zext(n % 200 == 0, 256) << 200 |
+    zext(n % 201 == 0, 256) << 201 |
+    zext(n % 202 == 0, 256) << 202 |
+    zext(n % 203 == 0, 256) << 203 |
+    zext(n % 204 == 0, 256) << 204 |
+    zext(n % 205 == 0, 256) << 205 |
+    zext(n % 206 == 0, 256) << 206 |
+    zext(n % 207 == 0, 256) << 207 |
+    zext(n % 208 == 0, 256) << 208 |
+    zext(n % 209 == 0, 256) << 209 |
+    zext(n % 210 == 0, 256) << 210 |
+    zext(n % 211 == 0, 256) << 211 |
+    zext(n % 212 == 0, 256) << 212 |
+    zext(n % 213 == 0, 256) << 213 |
+    zext(n % 214 == 0, 256) << 214 |
+    zext(n % 215 == 0, 256) << 215 |
+    zext(n % 216 == 0, 256) << 216 |
+    zext(n % 217 == 0, 256) << 217 |
+    zext(n % 218 == 0, 256) << 218 |
+    zext(n % 219 == 0, 256) << 219 |
+    zext(n % 220 == 0, 256) << 220 |
+    zext(n % 221 == 0, 256) << 221 |
+    zext(n % 222 == 0, 256) << 222 |
+    zext(n % 223 == 0, 256) << 223 |
+    zext(n % 224 == 0, 256) << 224 |
+    zext(n % 225 == 0, 256) << 225 |
+    zext(n % 226 == 0, 256) << 226 |
+    zext(n % 227 == 0, 256) << 227 |
+    zext(n % 228 == 0, 256) << 228 |
+    zext(n % 229 == 0, 256) << 229 |
+    zext(n % 230 == 0, 256) << 230 |
+    zext(n % 231 == 0, 256) << 231 |
+    zext(n % 232 == 0, 256) << 232 |
+    zext(n % 233 == 0, 256) << 233 |
+    zext(n % 234 == 0, 256) << 234 |
+    zext(n % 235 == 0, 256) << 235 |
+    zext(n % 236 == 0, 256) << 236 |
+    zext(n % 237 == 0, 256) << 237 |
+    zext(n % 238 == 0, 256) << 238 |
+    zext(n % 239 == 0, 256) << 239 |
+    zext(n % 240 == 0, 256) << 240 |
+    zext(n % 241 == 0, 256) << 241 |
+    zext(n % 242 == 0, 256) << 242 |
+    zext(n % 243 == 0, 256) << 243 |
+    zext(n % 244 == 0, 256) << 244 |
+    zext(n % 245 == 0, 256) << 245 |
+    zext(n % 246 == 0, 256) << 246 |
+    zext(n % 247 == 0, 256) << 247 |
+    zext(n % 248 == 0, 256) << 248 |
+    zext(n % 249 == 0, 256) << 249 |
+    zext(n % 250 == 0, 256) << 250 |
+    zext(n % 251 == 0, 256) << 251 |
+    zext(n % 252 == 0, 256) << 252 |
+    zext(n % 253 == 0, 256) << 253 |
+    zext(n % 254 == 0, 256) << 254 |
+    zext(n % 255 == 0, 256) << 255
+  # n is a prime: n > 1 and no d with 2 <= d < n divides n (a composite n <= 65535
+  # has such a divisor d <= 255)
+  n_prime: "n > 1 && !any(d < 256: d >= 2 && d < n && n_divs[d])"
+  # the calls the guarantees are about: "Assume n > 1 and is not a prime"
+  n_valid: "n > 1 && !n_prime"
+  # factor is a prime number: greater than 1 and no prime p < factor divides it
+  # (a composite factor <= 65535 has a prime divisor p <= 251)
+  f_prime: >-
+    factor > 1 &&
+    (factor % 2 != 0 || factor == 2) && (factor % 3 != 0 || factor == 3) &&
+    (factor % 5 != 0 || factor == 5) && (factor % 7 != 0 || factor == 7) &&
+    (factor % 11 != 0 || factor == 11) && (factor % 13 != 0 || factor == 13) &&
+    (factor % 17 != 0 || factor == 17) && (factor % 19 != 0 || factor == 19) &&
+    (factor % 23 != 0 || factor == 23) && (factor % 29 != 0 || factor == 29) &&
+    (factor % 31 != 0 || factor == 31) && (factor % 37 != 0 || factor == 37) &&
+    (factor % 41 != 0 || factor == 41) && (factor % 43 != 0 || factor == 43) &&
+    (factor % 47 != 0 || factor == 47) && (factor % 53 != 0 || factor == 53) &&
+    (factor % 59 != 0 || factor == 59) && (factor % 61 != 0 || factor == 61) &&
+    (factor % 67 != 0 || factor == 67) && (factor % 71 != 0 || factor == 71) &&
+    (factor % 73 != 0 || factor == 73) && (factor % 79 != 0 || factor == 79) &&
+    (factor % 83 != 0 || factor == 83) && (factor % 89 != 0 || factor == 89) &&
+    (factor % 97 != 0 || factor == 97) && (factor % 101 != 0 || factor == 101) &&
+    (factor % 103 != 0 || factor == 103) && (factor % 107 != 0 || factor == 107) &&
+    (factor % 109 != 0 || factor == 109) && (factor % 113 != 0 || factor == 113) &&
+    (factor % 127 != 0 || factor == 127) && (factor % 131 != 0 || factor == 131) &&
+    (factor % 137 != 0 || factor == 137) && (factor % 139 != 0 || factor == 139) &&
+    (factor % 149 != 0 || factor == 149) && (factor % 151 != 0 || factor == 151) &&
+    (factor % 157 != 0 || factor == 157) && (factor % 163 != 0 || factor == 163) &&
+    (factor % 167 != 0 || factor == 167) && (factor % 173 != 0 || factor == 173) &&
+    (factor % 179 != 0 || factor == 179) && (factor % 181 != 0 || factor == 181) &&
+    (factor % 191 != 0 || factor == 191) && (factor % 193 != 0 || factor == 193) &&
+    (factor % 197 != 0 || factor == 197) && (factor % 199 != 0 || factor == 199) &&
+    (factor % 211 != 0 || factor == 211) && (factor % 223 != 0 || factor == 223) &&
+    (factor % 227 != 0 || factor == 227) && (factor % 229 != 0 || factor == 229) &&
+    (factor % 233 != 0 || factor == 233) && (factor % 239 != 0 || factor == 239) &&
+    (factor % 241 != 0 || factor == 241) && (factor % 251 != 0 || factor == 251)
+  # factor divides n exactly: n == q * factor for some integer q, and then q <= 255
+  # or factor <= 255
+  f_divides: "any(q < 256: q * factor == n) || (factor >= 1 && factor <= 255 && n_divs[factor])"
+  # factor is the smallest prime factor of n: a prime that divides n, and no d with
+  # 2 <= d < factor divides n (for a composite n the least such d is <= 255)
+  f_smallest: "f_prime && f_divides && !any(d < 256: d >= 2 && d < factor && n_divs[d])"
+  # the number of prime factors p <= 251 of n, counted with multiplicity: one term
+  # per prime power p^k <= 65535 (p <= 251) that divides n
+  n_omega_small: >-
+    (n % 2 == 0) + (n % 4 == 0) + (n % 8 == 0) + (n % 16 == 0) + (n % 32 == 0) +
+    (n % 64 == 0) + (n % 128 == 0) + (n % 256 == 0) + (n % 512 == 0) + (n % 1024 == 0) +
+    (n % 2048 == 0) + (n % 4096 == 0) + (n % 8192 == 0) + (n % 16384 == 0) + (n % 32768 == 0) +
+    (n % 3 == 0) + (n % 9 == 0) + (n % 27 == 0) + (n % 81 == 0) + (n % 243 == 0) +
+    (n % 729 == 0) + (n % 2187 == 0) + (n % 6561 == 0) + (n % 19683 == 0) + (n % 59049 == 0) +
+    (n % 5 == 0) + (n % 25 == 0) + (n % 125 == 0) + (n % 625 == 0) + (n % 3125 == 0) + (n % 15625 == 0) +
+    (n % 7 == 0) + (n % 49 == 0) + (n % 343 == 0) + (n % 2401 == 0) + (n % 16807 == 0) +
+    (n % 11 == 0) + (n % 121 == 0) + (n % 1331 == 0) + (n % 14641 == 0) +
+    (n % 13 == 0) + (n % 169 == 0) + (n % 2197 == 0) + (n % 28561 == 0) +
+    (n % 17 == 0) + (n % (17 * 17) == 0) + (n % (17 * 17 * 17) == 0) +
+    (n % 19 == 0) + (n % (19 * 19) == 0) + (n % (19 * 19 * 19) == 0) +
+    (n % 23 == 0) + (n % (23 * 23) == 0) + (n % (23 * 23 * 23) == 0) +
+    (n % 29 == 0) + (n % (29 * 29) == 0) + (n % (29 * 29 * 29) == 0) +
+    (n % 31 == 0) + (n % (31 * 31) == 0) + (n % (31 * 31 * 31) == 0) +
+    (n % 37 == 0) + (n % (37 * 37) == 0) + (n % (37 * 37 * 37) == 0) +
+    (n % 41 == 0) + (n % (41 * 41) == 0) + (n % 43 == 0) + (n % (43 * 43) == 0) +
+    (n % 47 == 0) + (n % (47 * 47) == 0) + (n % 53 == 0) + (n % (53 * 53) == 0) +
+    (n % 59 == 0) + (n % (59 * 59) == 0) + (n % 61 == 0) + (n % (61 * 61) == 0) +
+    (n % 67 == 0) + (n % (67 * 67) == 0) + (n % 71 == 0) + (n % (71 * 71) == 0) +
+    (n % 73 == 0) + (n % (73 * 73) == 0) + (n % 79 == 0) + (n % (79 * 79) == 0) +
+    (n % 83 == 0) + (n % (83 * 83) == 0) + (n % 89 == 0) + (n % (89 * 89) == 0) +
+    (n % 97 == 0) + (n % (97 * 97) == 0) + (n % 101 == 0) + (n % (101 * 101) == 0) +
+    (n % 103 == 0) + (n % (103 * 103) == 0) + (n % 107 == 0) + (n % (107 * 107) == 0) +
+    (n % 109 == 0) + (n % (109 * 109) == 0) + (n % 113 == 0) + (n % (113 * 113) == 0) +
+    (n % 127 == 0) + (n % (127 * 127) == 0) + (n % 131 == 0) + (n % (131 * 131) == 0) +
+    (n % 137 == 0) + (n % (137 * 137) == 0) + (n % 139 == 0) + (n % (139 * 139) == 0) +
+    (n % 149 == 0) + (n % (149 * 149) == 0) + (n % 151 == 0) + (n % (151 * 151) == 0) +
+    (n % 157 == 0) + (n % (157 * 157) == 0) + (n % 163 == 0) + (n % (163 * 163) == 0) +
+    (n % 167 == 0) + (n % (167 * 167) == 0) + (n % 173 == 0) + (n % (173 * 173) == 0) +
+    (n % 179 == 0) + (n % (179 * 179) == 0) + (n % 181 == 0) + (n % (181 * 181) == 0) +
+    (n % 191 == 0) + (n % (191 * 191) == 0) + (n % 193 == 0) + (n % (193 * 193) == 0) +
+    (n % 197 == 0) + (n % (197 * 197) == 0) + (n % 199 == 0) + (n % (199 * 199) == 0) +
+    (n % 211 == 0) + (n % (211 * 211) == 0) + (n % 223 == 0) + (n % (223 * 223) == 0) +
+    (n % 227 == 0) + (n % (227 * 227) == 0) + (n % 229 == 0) + (n % (229 * 229) == 0) +
+    (n % 233 == 0) + (n % (233 * 233) == 0) + (n % 239 == 0) + (n % (239 * 239) == 0) +
+    (n % 241 == 0) + (n % (241 * 241) == 0) + (n % 251 == 0) + (n % (251 * 251) == 0)
+  # n has a prime factor above 255: n == s * m with 1 <= s <= 255 and m > 1, where s
+  # has as many prime factors (with multiplicity, the sum below) as n has prime
+  # factors <= 251; then m has no prime factor <= 255, so m is a prime above 255
+  n_big_pf: >-
+    any(s < 256: s >= 1 && n_divs[s] && n > s && (
+    (s % 2 == 0) + (s % 4 == 0) + (s % 8 == 0) + (s % 16 == 0) + (s % 32 == 0) +
+    (s % 64 == 0) + (s % 128 == 0) +
+    (s % 3 == 0) + (s % 9 == 0) + (s % 27 == 0) + (s % 81 == 0) + (s % 243 == 0) +
+    (s % 5 == 0) + (s % 25 == 0) + (s % 125 == 0) + (s % 7 == 0) + (s % 49 == 0) +
+    (s % 11 == 0) + (s % 121 == 0) + (s % 13 == 0) + (s % 169 == 0) +
+    (s % 17 == 0) + (s % 19 == 0) + (s % 23 == 0) + (s % 29 == 0) + (s % 31 == 0) + (s % 37 == 0) +
+    (s % 41 == 0) + (s % 43 == 0) + (s % 47 == 0) + (s % 53 == 0) + (s % 59 == 0) + (s % 61 == 0) +
+    (s % 67 == 0) + (s % 71 == 0) + (s % 73 == 0) + (s % 79 == 0) + (s % 83 == 0) + (s % 89 == 0) +
+    (s % 97 == 0) + (s % 101 == 0) + (s % 103 == 0) + (s % 107 == 0) + (s % 109 == 0) + (s % 113 == 0) +
+    (s % 127 == 0) + (s % 131 == 0) + (s % 137 == 0) + (s % 139 == 0) + (s % 149 == 0) + (s % 151 == 0) +
+    (s % 157 == 0) + (s % 163 == 0) + (s % 167 == 0) + (s % 173 == 0) + (s % 179 == 0) + (s % 181 == 0) +
+    (s % 191 == 0) + (s % 193 == 0) + (s % 197 == 0) + (s % 199 == 0) + (s % 211 == 0) + (s % 223 == 0) +
+    (s % 227 == 0) + (s % 229 == 0) + (s % 233 == 0) + (s % 239 == 0) + (s % 241 == 0) + (s % 251 == 0)
+    ) == n_omega_small)
+  # factor is the largest prime factor of n: a prime that divides n, no prime p <= 251
+  # above factor divides n, and, if factor <= 255, n has no prime factor above 255
+  # (n <= 65535 has at most one prime factor above 255, so a factor above 255 that is
+  # a prime dividing n is the largest one)
+  f_largest: >-
+    f_prime && f_divides && (factor > 255 || !n_big_pf) &&
+    (n % 2 != 0 || factor >= 2) && (n % 3 != 0 || factor >= 3) &&
+    (n % 5 != 0 || factor >= 5) && (n % 7 != 0 || factor >= 7) &&
+    (n % 11 != 0 || factor >= 11) && (n % 13 != 0 || factor >= 13) &&
+    (n % 17 != 0 || factor >= 17) && (n % 19 != 0 || factor >= 19) &&
+    (n % 23 != 0 || factor >= 23) && (n % 29 != 0 || factor >= 29) &&
+    (n % 31 != 0 || factor >= 31) && (n % 37 != 0 || factor >= 37) &&
+    (n % 41 != 0 || factor >= 41) && (n % 43 != 0 || factor >= 43) &&
+    (n % 47 != 0 || factor >= 47) && (n % 53 != 0 || factor >= 53) &&
+    (n % 59 != 0 || factor >= 59) && (n % 61 != 0 || factor >= 61) &&
+    (n % 67 != 0 || factor >= 67) && (n % 71 != 0 || factor >= 71) &&
+    (n % 73 != 0 || factor >= 73) && (n % 79 != 0 || factor >= 79) &&
+    (n % 83 != 0 || factor >= 83) && (n % 89 != 0 || factor >= 89) &&
+    (n % 97 != 0 || factor >= 97) && (n % 101 != 0 || factor >= 101) &&
+    (n % 103 != 0 || factor >= 103) && (n % 107 != 0 || factor >= 107) &&
+    (n % 109 != 0 || factor >= 109) && (n % 113 != 0 || factor >= 113) &&
+    (n % 127 != 0 || factor >= 127) && (n % 131 != 0 || factor >= 131) &&
+    (n % 137 != 0 || factor >= 137) && (n % 139 != 0 || factor >= 139) &&
+    (n % 149 != 0 || factor >= 149) && (n % 151 != 0 || factor >= 151) &&
+    (n % 157 != 0 || factor >= 157) && (n % 163 != 0 || factor >= 163) &&
+    (n % 167 != 0 || factor >= 167) && (n % 173 != 0 || factor >= 173) &&
+    (n % 179 != 0 || factor >= 179) && (n % 181 != 0 || factor >= 181) &&
+    (n % 191 != 0 || factor >= 191) && (n % 193 != 0 || factor >= 193) &&
+    (n % 197 != 0 || factor >= 197) && (n % 199 != 0 || factor >= 199) &&
+    (n % 211 != 0 || factor >= 211) && (n % 223 != 0 || factor >= 223) &&
+    (n % 227 != 0 || factor >= 227) && (n % 229 != 0 || factor >= 229) &&
+    (n % 233 != 0 || factor >= 233) && (n % 239 != 0 || factor >= 239) &&
+    (n % 241 != 0 || factor >= 241) && (n % 251 != 0 || factor >= 251)
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "n_valid", cond: "outcome == 0"}
+    note: >-
+      For every call with n > 1 and n not a prime, the call returns an integer that fits
+      factor (outcome 0): no exception, no hang, no other kind of result. Calls outside
+      that domain are unconstrained (R-ENV-1, R-ENV-2). Any prime factor of n is at most
+      n <= 65535, so a correct answer always fits.
+
+  - id: RA-FAC-1
+    req: R-FAC-1
+    pattern: implies
+    args: {trigger: "n_valid && outcome == 0", cond: "f_divides"}
+    note: >-
+      The returned integer divides n exactly. The trigger includes outcome == 0 because
+      "the integer returned" presupposes a return, which R-RET-1 requires separately; a
+      call that raises is charged to R-RET-1 only. n % factor is not allowed in FCP-PL
+      (variable divisor), so divisibility is stated as n == q * factor with q <= 255, or
+      factor <= 255 and bit factor of n_divs set.
+
+  - id: RA-FAC-2
+    req: R-FAC-2
+    pattern: implies
+    args: {trigger: "n_valid && outcome == 0", cond: "f_prime"}
+    note: >-
+      The returned integer is a prime: greater than 1 and not divisible by any prime
+      below it; testing the primes up to 251 is enough below 65536. Same trigger as
+      RA-FAC-1.
+
+  - id: RA-FAC-3
+    req: R-FAC-3
+    pattern: implies
+    args: {trigger: "n_valid && outcome == 0", cond: "f_smallest || f_largest"}
+    note: >-
+      Reading 1 of "the smallest or largest prime factor": on every call independently
+      the returned integer is the smallest or the largest prime factor of n; a prime
+      factor strictly between them is not allowed. No convention linking calls is
+      required (the function keeps no state and the text names none), and neither option
+      is excluded by this item. The example candidate(13195) -> 29 is formalized
+      separately as a required output (RA-EX-1), so in this set the "smallest" option is
+      overridden at n = 13195 only; that is the reading taken for the contradiction
+      phrase (reading 2). For a prime power both options coincide.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 13195", cond: "outcome == 0 && factor == 29"}
+    note: >-
+      Most literal reading of the doctest ">>> candidate(13195)" followed by "29": it
+      states the value of that call, so it is a required output, not only a possible one
+      (reading 2). 13195 = 5 * 7 * 13 * 29, so this rules out 5, the smallest prime
+      factor, although "smallest or largest" allows it. Only n = 13195 is pinned; it is
+      not extended to a "largest" convention for other n, since R-FAC-3 is read without
+      a convention. 29 itself is allowed by R-FAC-3 (it is the largest prime factor).
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 2048", cond: "outcome == 0 && factor == 2"}
+    note: >-
+      Doctest read as a required output, like RA-EX-1. 2048 = 2^11, so 2 is both its
+      smallest and its largest prime factor and RA-FAC-3 already forces this answer.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: "n == 13195 && outcome == 0 && factor == 29"
+    note: >-
+      The example as a behaviour that must be possible: candidate(13195) returns 29. With
+      RA-EX-1 it is also the only allowed behaviour for that call.
+
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: "n == 2048 && outcome == 0 && factor == 2"
+    note: "The example as a behaviour that must be possible: candidate(2048) returns 2."
+
+dont_cares:
+  - id: RA-ENV-1-OUT
+    req: R-ENV-1
+    signal: outcome
+    when: "n <= 1"
+    note: >-
+      Reading 1 of "Assume n > 1": for n <= 1 (n = 0 or 1 in the trace) nothing is
+      required; an exception, no answer or any value is acceptable. The guarantees
+      exclude these calls through the n > 1 conjunct of n_valid in their triggers.
+      This is not an `assumptions` entry because frame.md lets the checker call with
+      any n from 0 to 65,535 in any order, and an assumption that fails once would (IR
+      section 6) also void the guarantees on every later call, whereas the requirement
+      only limits the guarantees to the calls with n > 1.
+
+  - id: RA-ENV-1-FAC
+    req: R-ENV-1
+    signal: factor
+    when: "n <= 1"
+    note: "For n <= 1 the returned value is free too (reading 1), subject only to the frame rule F-ZERO."
+
+  - id: RA-ENV-2-OUT
+    req: R-ENV-2
+    signal: outcome
+    when: "n_prime"
+    note: >-
+      Reading 1 of "is not a prime": for a prime n nothing is required; in particular the
+      function need not return n, although n would be its smallest and largest prime
+      factor. Same encoding as R-ENV-1: the guarantees exclude prime n through the
+      !n_prime conjunct of n_valid, and the outputs are declared free here.
+
+  - id: RA-ENV-2-FAC
+    req: R-ENV-2
+    signal: factor
+    when: "n_prime"
+    note: "For a prime n the returned value is free too (reading 1), subject only to the frame rule F-ZERO."
+
+unformalized:
+  - req: R-GEN-1
+    reason: >-
+      Non-functional: it states the deliverable (complete the body of candidate, keeping
+      its name and signature). It is not a property of a trace of calls; the adapter
+      (design.yaml, function section) fixes the function name and its single argument.
+  - req: R-ARG-1
+    reason: >-
+      Definition of the interface: the single integer argument n is the input signal n
+      (design.yaml; frame.md restricts the trace to 0 <= n <= 65535). It constrains no
+      behaviour by itself.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; it is added to every formalization set by
+      construction (frame item F-ZERO) and is not restated here.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-1, phrase: "Assume n > 1", reading: 1}
+  - {req: R-ENV-2, phrase: "is not a prime", reading: 1}
+  - {req: R-FAC-3, phrase: "the smallest or largest prime factor", reading: 1}
+  - {req: R-FAC-3, phrase: "smallest or largest (contradiction with the example candidate(13195) -> 29)", reading: 2}
+  - {req: R-EX-1, phrase: ">>> candidate(13195) 29", reading: 2}
+  - {req: R-EX-1, phrase: "candidate(13195) returns 29 (contradiction with 'the smallest or largest prime factor')", reading: 1}

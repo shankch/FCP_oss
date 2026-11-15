@@ -1,0 +1,86 @@
+[
+ {
+  "req": "R-IN-1",
+  "phrase": "a string representing a word",
+  "taken": 1,
+  "variant": 2,
+  "text": "Assumption on the caller: s holds only letters, but the empty string is allowed (and gives 0)."
+ },
+ {
+  "req": "R-IN-1",
+  "phrase": "a word",
+  "taken": 1,
+  "variant": 2,
+  "text": "The string may hold several words (e.g. separated by spaces), and each of them has its own end."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "the number of ... vowels",
+  "taken": 1,
+  "variant": 2,
+  "text": "Distinct vowels count: \"aa\" gives 1. (Neither example repeats a vowel, so they do not decide.)"
+ },
+ {
+  "req": "R-VOW-1",
+  "phrase": "'a', 'e', 'i', 'o', 'u'",
+  "taken": 2,
+  "variant": 1,
+  "text": "Lowercase only: 'A', 'E', 'I', 'O', 'U' are not vowels. This contradicts R-EX-2, where \"ACEDY\" must give 3 and so 'A' and 'E' must count."
+ },
+ {
+  "req": "R-VOW-1",
+  "phrase": "Vowels in this case are",
+  "taken": 1,
+  "variant": 2,
+  "text": "The usual vowels of the language: accented forms of a, e, i, o, u also count."
+ },
+ {
+  "req": "R-Y-1",
+  "phrase": "'y'",
+  "taken": 2,
+  "variant": 1,
+  "text": "Lowercase only: a final 'Y' does not count. This contradicts R-EX-2, where \"ACEDY\" must give 3 and so its final 'Y' must count."
+ },
+ {
+  "req": "R-Y-1",
+  "phrase": "at the end of the given word",
+  "taken": 1,
+  "variant": 2,
+  "text": "Every 'y' in the trailing run of 'y's: in \"ayy\" both count."
+ },
+ {
+  "req": "R-Y-2",
+  "phrase": "'y'",
+  "taken": 2,
+  "variant": 1,
+  "text": "Applies to lowercase 'y' only (an uppercase 'Y' is never a vowel anywhere)."
+ },
+ {
+  "req": "R-Y-2",
+  "phrase": "at the end of the given word",
+  "taken": 1,
+  "variant": 2,
+  "text": "Every 'y' in the trailing run of 'y's counts, so in \"ayy\" neither 'y' is excluded."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "2",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradicts R-RET-2 read as 'the number of characters': \"abcde\" has 5 characters."
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "3",
+  "taken": 1,
+  "variant": 2,
+  "text": "Contradicts R-RET-2 read as 'the number of characters': \"ACEDY\" has 5 characters."
+ },
+ {
+  "req": "R-FIX-1",
+  "phrase": "Add more test cases.",
+  "taken": 1,
+  "variant": 2,
+  "text": "A leftover note stored in the FIX constant that places no obligation on the response; only the FIX string itself should be kept."
+ }
+]

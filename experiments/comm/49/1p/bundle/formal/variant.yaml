@@ -1,0 +1,103 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+assumptions:
+  - id: RV-SIG-2
+    req: R-SIG-2
+    pattern: invariant
+    args: {cond: 'p >= 1'}
+    note: >-
+      Read as instructed for this set: 'p: int' means p is a positive int (a
+      modulus), so a call with p = 0 breaks the caller's obligation and its
+      outcome is free; hence the environment obligation p >= 1. 'n: int' is
+      read, also as instructed, as n being a non-negative int; the trace
+      carries only n in 0 to 1,023 (frame.md, Inputs), so that half of the
+      obligation holds by construction and needs no formula. Effect on other
+      items: this assumption makes RV-RES-2 (p = 0) vacuous and reduces the
+      trigger of RV-RES-1-RET to every call.
+
+properties:
+  - id: RV-RES-1-RET
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'p >= 1', cond: 'outcome != 1'}
+    note: >-
+      'Return' is read as instructed: any number equal in value is
+      acceptable, such as a float, which the trace records as outcome 2. So
+      for p >= 1 the call must return (no exception, no hang), and outcome 0
+      and outcome 2 are both allowed. The value itself is left free by
+      RV-RES-1-VAL. The instructed readings of R-RES-1 contradict each other:
+      'modulo.' is read as instructed as "the modulus is not stated, so the
+      request does not constrain the returned value", while '2^n modulo' is
+      read as instructed as "any integer congruent to 2^n modulo p". Both
+      cannot hold. The most literal one was kept: the sentence ends at
+      "modulo." and names no modulus. This also agrees with the instructed
+      reading of R-SIG-1 'p: int' (p need not affect the result). The
+      congruence reading is therefore not formalized. '2^n' is read as
+      instructed as 2 XOR n (Python's ^), but since the value is
+      unconstrained this reading has no effect on any formula.
+
+  - id: RV-RES-2
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: 'p == 0', cond: 'outcome == 1'}
+    note: >-
+      'modulo' is read as instructed (reading 1): 2^n modulo 0 ends in an
+      exception, as Python's 2**n % 0 raises ZeroDivisionError (outcome 1).
+      F-ZERO then makes result 0. This item is in tension with two other
+      instructed readings. First, R-SIG-2 'p: int' (p positive, p = 0 breaks
+      the caller's obligation) makes the trigger unreachable under RV-SIG-2,
+      so this property is vacuous. Second, R-RES-1 'modulo.' (no modulus is
+      stated) leaves no ground for treating p = 0 as a modulus of 0. It is
+      kept as the text of R-RES-2 states it and not repaired.
+
+dont_cares:
+  - id: RV-RES-1-VAL
+    req: R-RES-1
+    signal: result
+    when: 'p >= 1'
+    note: >-
+      'modulo.' is read as instructed: the modulus is not stated, so the
+      request does not constrain the returned value. This contradicts the
+      signature, which declares p with no other role; see R-SIG-1, where
+      'p: int' is read as instructed as "p need not affect the result". So
+      result is intentionally free for every call in R-RES-1's scope
+      (p >= 1). '2^n' (read as instructed as 2 XOR n) and '2^n modulo' (read
+      as instructed as any integer congruent to 2^n modulo p) would constrain
+      the value, but they are overridden by the contradiction described in
+      RV-RES-1-RET. 'Return' (read as instructed: any number equal in value,
+      such as a float) is reflected in RV-RES-1-RET. Frame rule F-ZERO still
+      forces result to 0 whenever outcome is not 0.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the adapter (design.yaml frame). It holds by
+      construction of the trace and is added to every formalization set, so it
+      is not restated here.
+    covered_by: [F-ZERO]
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: the deliverable is a complete Python implementation of
+      modp with the given signature. This is a property of the code artefact,
+      not of a trace of calls; the adapter checks it by running the code.
+  - req: R-SIG-1
+    reason: >-
+      Definition of the signature (name modp, positional parameters n then
+      p). The adapter's function section in design.yaml realizes it as the
+      mapping of arguments to the signals n and p; it places no constraint on
+      a trace. 'p: int' is read as instructed: the request never says what p
+      is for, and the docstring does not mention p, so p need not affect the
+      result. That is why no item makes result depend on p (see RV-RES-1-VAL
+      and RV-RES-1-RET).
+
+decisions:
+  - {req: R-SIG-1, phrase: 'p: int', reading: 2}
+  - {req: R-SIG-2, phrase: 'n: int', reading: 2}
+  - {req: R-SIG-2, phrase: 'p: int', reading: 2}
+  - {req: R-RES-1, phrase: '2^n', reading: 2}
+  - {req: R-RES-1, phrase: 'modulo.', reading: 2}
+  - {req: R-RES-1, phrase: '2^n modulo', reading: 2}
+  - {req: R-RES-1, phrase: 'Return', reading: 2}
+  - {req: R-RES-2, phrase: 'modulo', reading: 1}

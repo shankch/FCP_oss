@@ -1,0 +1,4 @@
+15 items (2 assumptions, 11 properties, 2 scenarios); one ghost counter `rot` (grants seen since reset, mod 4) for the rotation; direct relations elsewhere. All 12 requirements formalized.
+Readings: R-OV-1 literal (rising request granted in the same cycle, combinational); R-PRI-2 literal "rotates by exactly one position per grant regardless of who was granted"; R-PRI-3 req[3] -> gnt[3] next cycle; R-FAIR-1 bounded_wait N; R-RST-1 always-mode gnt == 0 plus after_reset.
+Spec problems: R-OV-1 vs the registered design; R-PRI-3 vs R-PRI-1/R-PRI-2/R-G-3/R-FAIR-1; rotation under-specified; 'grants last one cycle' vs hold-until-grant; R-RST-1 literal reading needs combinational masking; R-WC-1 vs reset; R-ENV-2 restates R-ENV-1.
+Tool issues reported: compiler AssertionError('narrowing') on `i - cnt` (fixed); bin/fcp only from project root (fixed).

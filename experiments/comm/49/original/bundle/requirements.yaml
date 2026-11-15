@@ -1,0 +1,120 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-TASK-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete implementation (a body) of the function modp declared in the prompt.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def modp(n: int, p: int):'
+  text: The function is named modp and takes two integer parameters, n first and p second.
+  kind: definition
+  lines:
+  - 4
+- id: R-RES-1
+  doc: SPEC
+  quote: Return 2^n modulo p
+  text: For every call modp(n, p) with p >= 1, the call returns normally with the integer 2 to the power n reduced modulo p, that is, the unique integer r with 0 <= r < p and r congruent to 2^n modulo p.
+  kind: guarantee
+  ambiguity:
+  - phrase: 2^n
+    readings:
+    - 2 raised to the power n (mathematical notation); every example agrees with this reading
+    - 2 XOR n, which is what 2 ^ n means in Python code; this reading contradicts the examples modp(3, 5) = 3, modp(1101, 101) = 2, modp(0, 101) = 1 and modp(3, 11) = 8
+  - phrase: modulo p
+    readings:
+    - the result is always reduced into 0 .. p-1, so modp(0, 1) is 0 (2^0 mod 1 = 0)
+    - for n = 0 the value 2^0 = 1 is returned as is, as the example modp(0, 101) = 1 may be generalized to modp(0, p) = 1 for every p, so modp(0, 1) is 1; this contradicts the first reading at p = 1
+  - phrase: Return
+    readings:
+    - the returned value is a Python int
+    - any number equal to the residue is acceptable, such as the float 3.0 (the doctest output 3 and the frame's outcome 2 for other types argue against this)
+  lines:
+  - 5
+- id: R-RES-2
+  doc: SPEC
+  quote: Return 2^n modulo p
+  text: The prompt does not define the result for p = 0, where 2^n modulo p is undefined; what modp(n, 0) does is left open.
+  kind: dont_care
+  ambiguity:
+  - phrase: modulo p
+    readings:
+    - 'p = 0 is outside the function''s contract: any outcome (a value, an exception, no answer) is acceptable'
+    - the call must raise an exception for p = 0, as Python's 2**n % 0 raises ZeroDivisionError and pow(2, n, 0) raises ValueError
+    - the call must return 2^n unreduced for p = 0 (the convention x mod 0 = x), which fits the result only for n < 16
+  lines:
+  - 5
+- id: R-NUM-1
+  doc: SPEC
+  quote: be aware of numerics
+  text: The implementation must take care with numerics so that it computes the residue exactly and without excessive cost even for large n (for example by reducing modulo p at each step instead of using
+    floating point or building 2^n in full).
+  kind: non_functional
+  ambiguity:
+  - phrase: be aware of numerics
+    readings:
+    - 'efficiency: use modular exponentiation (or reduce at every step) so that calls with large n finish quickly; a call that does not finish is outcome 1'
+    - 'exactness: use integer arithmetic only, never floating point such as math.pow(2, n) or 2.0 ** n, which loses precision or overflows for large n'
+    - 'overflow: guard against fixed-width integer overflow, which Python''s unbounded int does not have, so the remark imposes nothing observable'
+  lines:
+  - 5
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> modp(3, 5) 3'
+  text: modp(3, 5) returns 3.
+  kind: scenario
+  lines:
+  - 6
+  - 7
+- id: R-EX-2
+  doc: SPEC
+  quote: '>>> modp(1101, 101) 2'
+  text: modp(1101, 101) returns 2.
+  kind: scenario
+  lines:
+  - 8
+  - 9
+- id: R-EX-3
+  doc: SPEC
+  quote: '>>> modp(0, 101) 1'
+  text: modp(0, 101) returns 1.
+  kind: scenario
+  ambiguity:
+  - phrase: modp(0, 101)
+    readings:
+    - 'a single data point: only modp(0, 101) = 1 is required, consistent with reducing 2^0 = 1 modulo 101'
+    - an illustration that modp(0, p) is 1 for every p, which contradicts R-RES-1's reduced result 2^0 mod 1 = 0 at p = 1
+  lines:
+  - 10
+  - 11
+- id: R-EX-4
+  doc: SPEC
+  quote: '>>> modp(3, 11) 8'
+  text: modp(3, 11) returns 8.
+  kind: scenario
+  lines:
+  - 12
+  - 13
+- id: R-EX-5
+  doc: SPEC
+  quote: '>>> modp(100, 101) 1'
+  text: modp(100, 101) returns 1.
+  kind: scenario
+  lines:
+  - 14
+  - 15
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is 0 unless `outcome` is 0.'
+  text: In every call, the result signal is 0 unless outcome is 0, i.e. unless the call returned an integer that fits result.
+  kind: guarantee
+  lines:
+  - 38

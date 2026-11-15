@@ -1,0 +1,126 @@
+fcp: '0.1'
+design: hub2
+summary: Two-port APB hub (round-robin selector + BRG-1 bridge), HUB-2.
+docs:
+- id: SPEC
+  path: spec.md
+  title: HUB-2 Functional Specification v1.0
+interface:
+  clock: clk
+  reset:
+    name: rst_n
+    active_low: true
+    synchronous: true
+  params:
+    AW: 8
+    DW: 8
+  signals:
+  - name: clk
+    dir: in
+    width: 1
+  - name: rst_n
+    dir: in
+    width: 1
+  - name: c0_valid
+    dir: in
+    width: 1
+  - name: c0_ready
+    dir: out
+    width: 1
+  - name: c0_write
+    dir: in
+    width: 1
+  - name: c0_addr
+    dir: in
+    width: AW
+  - name: c0_wdata
+    dir: in
+    width: DW
+  - name: c1_valid
+    dir: in
+    width: 1
+  - name: c1_ready
+    dir: out
+    width: 1
+  - name: c1_write
+    dir: in
+    width: 1
+  - name: c1_addr
+    dir: in
+    width: AW
+  - name: c1_wdata
+    dir: in
+    width: DW
+  - name: r0_valid
+    dir: out
+    width: 1
+  - name: r0_ready
+    dir: in
+    width: 1
+  - name: r0_rdata
+    dir: out
+    width: DW
+  - name: r0_err
+    dir: out
+    width: 1
+  - name: r1_valid
+    dir: out
+    width: 1
+  - name: r1_ready
+    dir: in
+    width: 1
+  - name: r1_rdata
+    dir: out
+    width: DW
+  - name: r1_err
+    dir: out
+    width: 1
+  - name: psel
+    dir: out
+    width: 1
+  - name: penable
+    dir: out
+    width: 1
+  - name: pwrite
+    dir: out
+    width: 1
+  - name: paddr
+    dir: out
+    width: AW
+  - name: pwdata
+    dir: out
+    width: DW
+  - name: pready
+    dir: in
+    width: 1
+  - name: prdata
+    dir: in
+    width: DW
+  - name: pslverr
+    dir: in
+    width: 1
+environment:
+  initial_reset: true
+  reset_anytime: true
+rtl:
+  ref:
+    top: hub2
+    files:
+    - rtl/hub2.v
+    - rtl/apb_bridge.v
+    desc: Reference implementation (selector + bridge, human-written).
+    origin: human
+  fixed:
+    top: hub2
+    files:
+    - rtl/hub2_fixed.v
+    - rtl/apb_bridge.v
+    desc: 'Corrected implementation: selector holds its choice while the presented
+      command waits, honouring the bridge contract.'
+    origin: human
+  ai:
+    top: hub2
+    files:
+    - rtl/ai_hub2.v
+    desc: AI-generated implementation (RTL generator agent, spec only).
+    origin: agent:rtlgen

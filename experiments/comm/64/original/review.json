@@ -1,0 +1,234 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 87,
+    "checked": 87,
+    "seconds": 2.89
+   },
+   "open": {
+    "open": {},
+    "checked": 53
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 474,
+    "checked": 474,
+    "seconds": 37.26
+   },
+   "open": {
+    "open": {},
+    "checked": 279
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-VOW-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-VOW-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-VOW-3": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-CNT-1": {
+   "plain": "INCOMPARABLE",
+   "context": "A-STRONGER",
+   "witness": [
+    "vowels_count(\"yBBVVByBzBzVBVBBBVyBBBBBBVzBBIVy\") -> 2"
+   ]
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `is_word`",
+    "where": {
+     "is_word": "len(s) >= 1 && all(i < len(s): isalpha(s[i]))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `is_word`",
+    "where": {
+     "is_word": "len(s) >= 1 && all(i < len(s): isalpha(s[i]))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1-DC-COUNT",
+    "req": "R-IN-1",
+    "says": "`count` is free when `!is_word`",
+    "where": {
+     "is_word": "len(s) >= 1 && all(i < len(s): isalpha(s[i]))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1-DC-OUTCOME",
+    "req": "R-IN-1",
+    "says": "`outcome` is free when `!is_word`",
+    "where": {
+     "is_word": "len(s) >= 1 && all(i < len(s): isalpha(s[i]))"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [
+    "RA-EX-2"
+   ],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-TASK-3",
+   "phrase": "Add more test cases.",
+   "taken": 1,
+   "variant": 2,
+   "text": "A leftover maintainer note in the FIX constant, not addressed to the implementer; it places no obligation on the response, and only the function body has to be written."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "a string representing a word",
+   "taken": 1,
+   "variant": 2,
+   "text": "This only describes the typical use. vowels_count must accept any string and still return the number of vowels in it, including 0 for the empty string."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "a word",
+   "taken": 1,
+   "variant": 2,
+   "text": "The string may contain several words (for example a phrase), and the function still applies to the whole string."
+  },
+  {
+   "req": "R-CNT-1",
+   "phrase": "the number of vowels",
+   "taken": 1,
+   "variant": 2,
+   "text": "The number of distinct vowel letters that appear (for example \"aa\" gives 1)."
+  },
+  {
+   "req": "R-VOW-1",
+   "phrase": "Vowels in this case are",
+   "taken": 1,
+   "variant": 2,
+   "text": "Accented Latin-1 forms of these letters (for example '\u00e9', '\u00e0', '\u00fc') are vowels too."
+  },
+  {
+   "req": "R-VOW-3",
+   "phrase": "at the end of the given word",
+   "taken": 1,
+   "variant": 2,
+   "text": "If s contains several words, a y that is the last letter of any word in s is a vowel."
+  }
+ ],
+ "depends": {
+  "R-CNT-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "vowels_count(\" \") -> 55"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-1"
+ ],
+ "queue": [
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-2 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-CNT-1"
+   ],
+   "calls": [
+    "vowels_count(\" \") -> 55"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-CNT-1"
+   ],
+   "relation": "A-STRONGER",
+   "calls": [
+    "vowels_count(\"yBBVVByBzBzVBVBBBVyBBBBBBVzBBIVy\") -> 2"
+   ],
+   "question": "the two readings of this requirement disagree on these calls: which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-CNT-1"
+   ],
+   "calls": [],
+   "question": "\"the number of vowels\" can mean: The number of vowel occurrences, counted with repetition (for example \"aa\" gives 2). / The number of distinct vowel letters that appear (for example \"aa\" gives 1).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"vowels_count(\"ACEDY\")\" can mean: The example is authoritative: uppercase A, E, I, O, U count as vowels and a final uppercase Y counts too, so the answer is 3. / The example contradicts the vowel definitions (R-VOW-1, R-VOW-2), which list only lowercase 'a', 'e', 'i', 'o', 'u' and 'y'. Read literally, those give 0 for \"ACEDY\".. Which is meant?"
+  }
+ ],
+ "limits": [
+  "request points of variant, agent_b"
+ ]
+}

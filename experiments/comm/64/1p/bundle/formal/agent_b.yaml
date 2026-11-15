@@ -1,0 +1,126 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate(s) keeps no state between calls (frame.md), so
+# the model is combinational: defs over the argument of the current call.
+defs:
+  # R-IN-1, readings 1/1: a word is a non-empty string of letters only (so no
+  # spaces, digits or punctuation). FCP-PL isalpha is ASCII-only.
+  word: 'len(s) >= 1 && all(i < len(s): isalpha(s[i]))'
+  # R-VOW-1..4, readings 1/1, 1, 1/1, 1/1: lower-case a, e, i, o, u anywhere,
+  # and lower-case y only as the last character of s. No item uses it under
+  # reading 4 of R-OUT-1; it records the vowel reading taken.
+  nvow: 'count(i < len(s): s[i] == "a" || s[i] == "e" || s[i] == "i" || s[i] == "o" || s[i] == "u" || (s[i] == "y" && i == len(s) - 1))'
+
+assumptions:
+  - id: RB-A-WORD
+    req: R-IN-1
+    expr: 'word'
+    note: >-
+      Literal reading of "a string representing a word": s is one word, i.e. a
+      non-empty string made only of letters (ambiguity readings 1 and 1). The
+      empty string, strings with spaces (several words), digits or punctuation
+      are outside the contract. Letters are taken as the ASCII letters
+      (isalpha); Latin-1 letters such as 0xE9 are therefore also outside the
+      contract, which the prompt neither includes nor excludes.
+
+properties:
+  - id: RB-P-RET
+    req: R-IN-2
+    pattern: implies
+    args: {trigger: 'word', cond: 'outcome != 1'}
+    note: >-
+      Reading 1: candidate is total on its declared input, so for every string
+      that represents a word it finishes and returns a value without raising
+      (outcome is not 1). Under the reading taken for R-IN-1 the empty string
+      is not a word, so the empty-string example given with reading 1 does not
+      arise. The value may be of any type (outcome 0 or 2): which one is left
+      open by R-OUT-1. Guarded by `word` so the obligation reads per call even
+      though RB-A-WORD already restricts the environment.
+
+scenarios:
+  - id: RB-S-RET
+    req: R-IN-2
+    cover: 'word && outcome != 1'
+    note: >-
+      A call on a word that returns a value is possible: witnesses that the
+      input contract RB-A-WORD is not empty and that RB-P-RET can trigger.
+
+dont_cares:
+  - id: RB-D-RESULT
+    req: R-OUT-1
+    signal: result
+    when: 'outcome == 0'
+    note: >-
+      Reading 4, the most literal one: the prompt never states what candidate
+      returns (frame.md says so too), so any returned integer is acceptable.
+      Readings 1-3 (count of vowel occurrences, number of distinct vowels,
+      whether there is a vowel) are guesses the text does not support and are
+      not formalized. The vowel definitions (R-VOW-1..4, def nvow) therefore
+      constrain no output in this set. The type of the returned value is not
+      stated either, so on a word outcome 0 (an integer 0-63) and outcome 2
+      (another type, None, a negative or larger number) are both acceptable;
+      only outcome 1 is excluded, by RB-P-RET. outcome is deliberately not
+      declared a don't-care, because RB-P-RET constrains it. A function that
+      returns None on every word meets this set: that is the literal
+      consequence of the prompt not saying what is returned.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: the request to supply the body of the function says
+      nothing about the values of any call.
+  - req: R-TASK-2
+    reason: >-
+      Interface definition (name candidate, one argument s). It is realized by
+      the function section of design.yaml, which maps the argument to the input
+      signal s; it is not a property of a trace.
+  - req: R-TASK-3
+    reason: >-
+      Non-functional. Reading 2: "Add more test cases." is the value of the FIX
+      string constant inside the code to complete, not part of the request
+      ("Complete this function:"); under either reading it places no
+      obligation on what candidate returns.
+  - req: R-VOW-1
+    reason: >-
+      Definition (lower-case a, e, i, o, u are vowels; readings 1 and 1, the
+      list completed by the final-y rule). Under reading 4 of R-OUT-1 no output
+      depends on which characters are vowels, so it has no observable
+      consequence; the reading is recorded in def nvow.
+  - req: R-VOW-2
+    reason: >-
+      Definition (no other character, including upper-case A, E, I, O, U, is a
+      vowel; reading 1). No output depends on it under reading 4 of R-OUT-1;
+      the reading is recorded in def nvow.
+  - req: R-VOW-3
+    reason: >-
+      Definition (a lower-case y that is the last character of s is a vowel;
+      readings 1 and 1). No output depends on it under reading 4 of R-OUT-1;
+      the reading is recorded in def nvow.
+  - req: R-VOW-4
+    reason: >-
+      Definition (a y that is not the last character of s is not a vowel;
+      readings 1 and 1; under RB-A-WORD s is letters only, so its last
+      character is also its last letter and ends its only word). No output
+      depends on it under reading 4 of R-OUT-1; the reading is recorded in def
+      nvow.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter, part of every set by construction
+      (frame.md: need not be restated).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-TASK-3, phrase: "Add more test cases.", reading: 2}
+  - {req: R-IN-1, phrase: "a string representing a word", reading: 1}
+  - {req: R-IN-1, phrase: "a word", reading: 1}
+  - {req: R-IN-2, phrase: "takes a string representing a word as input", reading: 1}
+  - {req: R-OUT-1, phrase: "Write a function candidate", reading: 4}
+  - {req: R-VOW-1, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 1}
+  - {req: R-VOW-1, phrase: "Vowels in this case are 'a', 'e', 'i', 'o', 'u'.", reading: 1}
+  - {req: R-VOW-2, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 1}
+  - {req: R-VOW-3, phrase: "'y'", reading: 1}
+  - {req: R-VOW-3, phrase: "'y' is also a vowel", reading: 1}
+  - {req: R-VOW-4, phrase: "at the end of the given word", reading: 1}
+  - {req: R-VOW-4, phrase: "'y'", reading: 1}

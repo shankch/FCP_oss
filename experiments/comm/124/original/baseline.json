@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\nimport re\n\n\ndef valid_date(date):\n    \"\"\"Validate a date string in the format mm-dd-yyyy.\n\n    Returns True if the date is valid, otherwise False.\n    \"\"\"\n    if not isinstance(date, str):\n        return False\n\n    date = date.strip()\n    if not date:\n        return False\n\n    match = re.fullmatch(r\"(\\d{2})-(\\d{2})-(\\d{4})\", date)\n    if not match:\n        return False\n\n    month, day, _year = (int(part) for part in match.groups())\n\n    if month < 1 or month > 12:\n        return False\n\n    if month in (1, 3, 5, 7, 8, 10, 12):\n        max_day = 31\n    elif month in (4, 6, 9, 11):\n        max_day = 30\n    else:  # February\n        max_day = 29\n\n    return 1 <= day <= max_day\n```",
+  "seconds": 8.4,
+  "cost_usd": 0.024578700000000002,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "NO_QUESTIONS",
+  "seconds": 6.3,
+  "cost_usd": 0.0177229,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "```python\ndef valid_date(date):\n    \"\"\"Validate a date string in the format mm-dd-yyyy.\"\"\"\n    # Rule 1: the date string must not be empty\n    if not isinstance(date, str) or not date.strip():\n        return False\n\n    date = date.strip()\n\n    # Rule 4: the format must be mm-dd-yyyy\n    parts = date.split('-')\n    if len(parts) != 3:\n        return False\n\n    mm, dd, yyyy = parts\n    if not (len(mm) == 2 and len(dd) == 2 and len(yyyy) == 4):\n        return False\n    if not (mm.isdigit() and dd.isdigit() and yyyy.isdigit()):\n        return False\n\n    month, day = int(mm), int(dd)\n\n    # Rule 3: the month must be between 1 and 12\n    if month < 1 or month > 12:\n        return False\n\n    # Rule 2: the day must be valid for the given month\n    if month in (1, 3, 5, 7, 8, 10, 12):\n        max_day = 31\n    elif month in (4, 6, 9, 11):\n        max_day = 30\n    else:  # February\n        max_day = 29\n\n    return 1 <= day <= max_day\n```\n\n**How it works:**\n\n1. **Empty check:** It rejects empty or whitespace-only strings.\n2. **Format check:** The string must split on `-` into exactly three parts. The parts must be 2, 2 and 4 characters long, and all must be digits. This rejects `'06/04/2020'`, `'04-0-2040'`, `'2003-04-12'` and `'04122003'`.\n3. **Month check:** The month must be from 1 to 12, so `'15-01-2012'` is rejected.\n4. **Day check:** The day must be at least 1 and no more than the limit for that month: 31, 30 or 29 for February. As the spec says, February allows 29 days whether or not the year is a leap year.\n\n**Examples:**\n```python\nvalid_date('03-11-2000')  # True\nvalid_date('15-01-2012')  # False (month 15)\nvalid_date('04-0-2040')   # False (day is 0 and is not two digits)\nvalid_date('06-04-2020')  # True\nvalid_date('06/04/2020')  # False (wrong separator)\nvalid_date('04-31-2000')  # False (April has 30 days)\nvalid_date('')            # False\n```",
+  "seconds": 13.4,
+  "cost_usd": 0.0349249,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

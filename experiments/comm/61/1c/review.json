@@ -1,0 +1,493 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [
+     {
+      "core": [
+       "RA-EX-2",
+       "RA-RET-1"
+      ],
+      "muses": [
+       [
+        "RA-EX-2",
+        "RA-RET-1"
+       ]
+      ],
+      "calls": [
+       [
+        "()"
+       ]
+      ],
+      "stimulus": [
+       "correct_bracketing(\"()\")"
+      ],
+      "reqs": [
+       "R-EX-2",
+       "R-RET-1"
+      ]
+     },
+     {
+      "core": [
+       "RA-EX-3",
+       "RA-RET-1"
+      ],
+      "muses": [
+       [
+        "RA-EX-3",
+        "RA-RET-1"
+       ]
+      ],
+      "calls": [
+       [
+        "(()())"
+       ]
+      ],
+      "stimulus": [
+       "correct_bracketing(\"(()())\")"
+      ],
+      "reqs": [
+       "R-EX-3",
+       "R-RET-1"
+      ]
+     }
+    ],
+    "candidates": 101,
+    "checked": 101,
+    "seconds": 6.18
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "correct_bracketing(\"((\")",
+      "args": [
+       "(("
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "False",
+       "True"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 69
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [
+     {
+      "core": [
+       "RB-EX-2",
+       "RB-RET-1"
+      ],
+      "muses": [
+       [
+        "RB-EX-2",
+        "RB-RET-1"
+       ]
+      ],
+      "calls": [
+       [
+        "()"
+       ]
+      ],
+      "stimulus": [
+       "correct_bracketing(\"()\")"
+      ],
+      "reqs": [
+       "R-EX-2",
+       "R-RET-1"
+      ]
+     },
+     {
+      "core": [
+       "RB-EX-3",
+       "RB-RET-1"
+      ],
+      "muses": [
+       [
+        "RB-EX-3",
+        "RB-RET-1"
+       ]
+      ],
+      "calls": [
+       [
+        "(()())"
+       ]
+      ],
+      "stimulus": [
+       "correct_bracketing(\"(()())\")"
+      ],
+      "reqs": [
+       "R-EX-3",
+       "R-RET-1"
+      ]
+     }
+    ],
+    "candidates": 101,
+    "checked": 101,
+    "seconds": 48.51
+   },
+   "open": {
+    "open": {
+     "result": {
+      "call": "correct_bracketing(\"((\")",
+      "args": [
+       "(("
+      ],
+      "values": [
+       0,
+       1
+      ],
+      "shown": [
+       "False",
+       "True"
+      ],
+      "ending": false,
+      "declared": []
+     }
+    },
+    "checked": 65
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FN-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `valid`",
+    "where": {
+     "valid": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1-A",
+    "req": "R-IN-1",
+    "says": "every call meets `valid`",
+    "where": {
+     "valid": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1-D-RES",
+    "req": "R-IN-1",
+    "says": "`result` is free when `!valid`",
+    "where": {
+     "valid": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1-D-OUT",
+    "req": "R-IN-1",
+    "says": "`outcome` is free when `!valid`",
+    "where": {
+     "valid": "all(i < len(brackets): brackets[i] == \"(\" || brackets[i] == \")\")"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FN-2",
+   "phrase": "Complete this function",
+   "taken": 1,
+   "variant": 2,
+   "text": "Only the behaviour the docstring and examples state is required; what the function returns (or whether it returns at all) where the docstring is silent is unconstrained."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "\"(\" and \")\"",
+   "taken": 1,
+   "variant": 2,
+   "text": "Other characters may occur and are to be ignored (skipped) when checking the bracketing."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "a string of",
+   "taken": 1,
+   "variant": 2,
+   "text": "The prompt does not address the empty string; its result is unconstrained."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "return True if",
+   "taken": 1,
+   "variant": 2,
+   "text": "Biconditional: True is returned exactly when every opening bracket has a corresponding closing bracket, and False otherwise."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "a corresponding closing bracket",
+   "taken": 1,
+   "variant": 2,
+   "text": "Counting: the number of \")\" is at least the number of \"(\", wherever they are in the string (a \")\" before a \"(\" may correspond to it)."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "every opening bracket",
+   "taken": 1,
+   "variant": 2,
+   "text": "The whole string must be correctly bracketed, as the name correct_bracketing suggests: a \")\" with no earlier unmatched \"(\" also makes the bracketing incorrect."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "return True if every opening bracket has a corresponding closing bracket",
+   "taken": 1,
+   "variant": 2,
+   "text": "The examples are authoritative: all four of them are the negation of standard bracket matching, so the function returns True exactly when the string is NOT correctly bracketed and this sentence (and the name) is inverted."
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "correct_bracketing(\"(\")",
+   "taken": 1,
+   "variant": 2,
+   "text": "R-RET-1 read as a biconditional holds and this example is wrong: correct_bracketing(\"(\") returns False."
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "correct_bracketing(\"()\")",
+   "taken": 1,
+   "variant": 2,
+   "text": "R-RET-1 holds and this example is wrong: correct_bracketing(\"()\") returns True."
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "correct_bracketing(\"(()())\")",
+   "taken": 1,
+   "variant": 2,
+   "text": "R-RET-1 holds and this example is wrong: correct_bracketing(\"(()())\") returns True."
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "correct_bracketing(\")(()\")",
+   "taken": 1,
+   "variant": 2,
+   "text": "R-RET-1 read as a biconditional with nested matching (or whole-string correctness) holds and this example is wrong: correct_bracketing(\")(()\") returns False."
+  }
+ ],
+ "depends": {
+  "R-EX-1": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "correct_bracketing(\"(\") -> True"
+   ]
+  },
+  "R-EX-4": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "correct_bracketing(\")(()\") -> True"
+   ]
+  },
+  "R-RET-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "correct_bracketing(\"\\u0001\\u0001\\u0001\\u0001*\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\\u0001\") -> True"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-EX-2",
+    "R-RET-1"
+   ],
+   "calls": [
+    "correct_bracketing(\"()\")"
+   ],
+   "variants": 2,
+   "question": "no implementation can meet these requirements on these calls: which one gives way? (also with , at 2 places)"
+  },
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-EX-3",
+    "R-RET-1"
+   ],
+   "calls": [
+    "correct_bracketing(\"(()())\")"
+   ],
+   "variants": 2,
+   "question": "no implementation can meet these requirements on these calls: which one gives way? (also with , at 2 places)"
+  },
+  {
+   "kind": "open",
+   "reading": "agent_a",
+   "calls": [
+    "correct_bracketing(\"((\")"
+   ],
+   "outputs": {
+    "result": {
+     "reading": "agent_a",
+     "shown": [
+      "False",
+      "True"
+     ],
+     "ending": false,
+     "declared": [],
+     "reqs": []
+    }
+   },
+   "signal": "result",
+   "reqs": [],
+   "question": "the request allows False or True: which is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-EX-1",
+    "R-EX-4",
+    "R-RET-1"
+   ],
+   "calls": [
+    "correct_bracketing(\"(\") -> True"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-2"
+   ],
+   "calls": [],
+   "question": "\"Complete this function\" can mean: The completed function must return a bool (True or False) for every valid input, including inputs on which the docstring gives no explicit rule. / Only the behaviour the docstring and examples state is required; what the function returns (or whether it returns at all) where the docstring is silent is unconstrained. / Any value with the right truthiness (e.g. 1/0 or a non-empty/empty object) is acceptable in place of True/False.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"return True if\" can mean: Sufficient condition only: True is returned whenever every opening bracket has a corresponding closing bracket; nothing is said about when False is returned. / Biconditional: True is returned exactly when every opening bracket has a corresponding closing bracket, and False otherwise.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"a corresponding closing bracket\" can mean: Nested matching: each \"(\" is paired with its own distinct \")\" later in the string, pairs nesting properly (standard left-to-right bracket matching). / Counting: the number of \")\" is at least the number of \"(\", wherever they are in the string (a \")\" before a \"(\" may correspond to it). / Positional but not exclusive: for each \"(\" some \")\" occurs later in the string; one \")\" may serve several \"(\".. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"every opening bracket\" can mean: Only opening brackets are constrained: closing brackets with no opening bracket (as in \")\" or \"())\") do not prevent a True result. / The whole string must be correctly bracketed, as the name correct_bracketing suggests: a \")\" with no earlier unmatched \"(\" also makes the bracketing incorrect.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"return True if every opening bracket has a corresponding closing bracket\" can mean: This sentence is authoritative: correctly matched strings such as \"()\" and \"(()())\" return True, so examples R-EX-2 and R-EX-3 (and, under the biconditional reading, R-EX-1 and R-EX-4) are wrong. Contradicts R-EX-1, R-EX-2, R-EX-3 and R-EX-4. / The examples are authoritative: all four of them are the negation of standard bracket matching, so the function returns True exactly when the string is NOT correctly bracketed and this sentence (and the name) is inverted.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"correct_bracketing(\"(\")\" can mean: This example holds: correct_bracketing(\"(\") returns True. This contradicts R-RET-1 under its biconditional reading (the only opening bracket has no closing bracket, so False would be required) and agrees with its sufficient-only reading, which leaves this call free. / R-RET-1 read as a biconditional holds and this example is wrong: correct_bracketing(\"(\") returns False.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"correct_bracketing(\"()\")\" can mean: This example holds: correct_bracketing(\"()\") returns False. This contradicts R-RET-1 under every reading, since the only opening bracket has a corresponding closing bracket and R-RET-1 then requires True. / R-RET-1 holds and this example is wrong: correct_bracketing(\"()\") returns True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"correct_bracketing(\"(()())\")\" can mean: This example holds: correct_bracketing(\"(()())\") returns False. This contradicts R-RET-1 under every reading, since every opening bracket has a corresponding closing bracket and R-RET-1 then requires True. / R-RET-1 holds and this example is wrong: correct_bracketing(\"(()())\") returns True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"correct_bracketing(\")(()\")\" can mean: This example holds: correct_bracketing(\")(()\") returns True. This contradicts R-RET-1 read as a biconditional with nested matching (the \"(\" at index 1 has no matching \")\", so False would be required) or with whole-string correctness (the leading \")\" is unmatched); it agrees with the sufficient-only, counting or positional-but-not-exclusive readings. / R-RET-1 read as a biconditional with nested matching (or whole-string correctness) holds and this example is wrong: correct_bracketing(\")(()\") returns False.. Which is meant?"
+  }
+ ],
+ "limits": []
+}

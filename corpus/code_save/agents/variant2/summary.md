@@ -1,0 +1,15 @@
+I wrote `formal/variant2.yaml`. `fcp lint` reports no errors, and I read back the full `fcp explain --set variant2` output: every item says what I intended.
+
+**Items: 18.** There are 16 properties, 1 assumption and 1 scenario (V2-EX-1), plus 17 helper definitions. The assumption V2-ENV-1 says `cents` stays the same through a run, as frame.md states. There are no ghosts: the state of the temporary file is tracked with `since`/`once` and per-file-object quantifiers. Every non-frame requirement has at least one item, and both flagged phrases are recorded under `decisions` as reading 2. The note of every affected item (V2-SYNC-1/2, V2-CLEAN-1, V2-EX-1) says the reading was imposed.
+
+**Left unformalized:** only R-FR-1, R-FR-2 and R-FR-3. They are frame rules (F-END, F-ZERO, F-LIMIT) in design.yaml, which are added to every set automatically.
+
+**Problems in the specification:**
+1. **R-CLEAN-1 under reading 2 contradicts other rules.** "No temporary file is ever left, even by a crash" means `balance.txt.tmp` may never exist after any call. That conflicts with rule 3 (write the digits to it), rule 7 (keep it when `os.replace` fails) and the example. No valid balance can be saved, so expect consistency conflicts. Even reading 1 ("none exists when the function returns") conflicts with rule 7.
+2. **The example breaks R-SYNC-1 under reading 2.** The example goes write → `os.fsync` → close with no flush, so the scenario should come out unreachable. Rule 4 also doesn't fix the order of fsync and close; I took fsync first, as the example does.
+3. **"Negative" can't be expressed.** `cents` is a 27-bit unsigned signal, so the negative branch of rule 1 cannot be driven; only the "more than 100,000,000" case is formalized.
+4. **Rule 5 overlaps rule 1.** "Return … False otherwise" read literally would also cover out-of-range balances, where rule 1 requires ValueError. I limited "must return a bool" (V2-RET-2) to valid balances and said so in the note.
+5. **Rule 2 has no failure exception.** It says to store the balance unconditionally, which can't be done when the script makes `os.replace` fail. V2-STORE-2 borrows that exception from rule 7, and the note says so.
+6. **File contents aren't modelled.** I defined "the balance is in `balance.txt`" as: a successful `os.replace` of a temp file that was opened with mode `w`, then written once with text that spells `cents`, and not removed or moved afterwards. Leading zeros or a trailing newline can't be told apart. Implementations that open the temp file in `a` or `x` mode are rejected; the note explains why.
+
+I did not replay any traces through the compiled monitors. Running `fcp monitor` on a scratch copy needed a permission I didn't have, so the checks are lint, the explain read-back, and working through typical success and failure runs by hand.

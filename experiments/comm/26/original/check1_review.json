@@ -1,0 +1,224 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 305,
+    "checked": 0,
+    "seconds": 1895.44
+   },
+   "open": {
+    "open": {},
+    "checked": 202
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 598,
+    "checked": 598,
+    "seconds": 28.19
+   },
+   "open": {
+    "open": {},
+    "checked": 381
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-ORD-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RM-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RM-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RM-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SIG-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-SIG-1",
+   "phrase": "remove_duplicates",
+   "taken": 1,
+   "variant": 2,
+   "text": "The name states the behaviour: duplicates are removed so that each value is kept once, as its first occurrence (so [1, 2, 3, 2, 4] gives [1, 2, 3, 4]); this contradicts the docstring sentence of R-RM-1 and the example of R-EX-1."
+  },
+  {
+   "req": "R-SIG-2",
+   "phrase": "-> List[int]",
+   "taken": 1,
+   "variant": 2,
+   "text": "The return annotation only describes the type of the value when the function returns; raising an exception on some inputs is not excluded."
+  },
+  {
+   "req": "R-RM-1",
+   "phrase": "remove all elements that occur more than once",
+   "taken": 1,
+   "variant": 2,
+   "text": "Only the repeated (extra) occurrences are removed, so each value that occurs more than once is kept exactly once (the reading suggested by the function name remove_duplicates in R-SIG-1, which contradicts the example of R-EX-1)."
+  },
+  {
+   "req": "R-RM-1",
+   "phrase": "From a list of integers, remove",
+   "taken": 1,
+   "variant": 2,
+   "text": "The elements are deleted from the given list in place, and that list is returned."
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "Keep order of elements left the same as in the input",
+   "taken": 1,
+   "variant": 2,
+   "text": "The remaining elements keep their original positions (indices) in the list."
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "elements left",
+   "taken": 1,
+   "variant": 2,
+   "text": "Under the deduplicating reading of R-RM-1 and R-SIG-1, a kept value is ordered by the position of its first occurrence in numbers."
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "[1, 3, 4]",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example contradicts the function name remove_duplicates of R-SIG-1, under which the call would return [1, 2, 3, 4]."
+  }
+ ],
+ "depends": {
+  "R-RM-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "remove_duplicates([4, 6, 5, 3, 0, 5, 0, 6]) -> [4, 6, 5, 3, 0]"
+   ]
+  },
+  "R-SIG-2": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "remove_duplicates([0, 1, 1, 1]) -> raised another exception or did not finish"
+   ]
+  }
+ },
+ "certified": [
+  "R-RM-2",
+  "R-RM-3"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RM-1",
+    "R-SIG-2"
+   ],
+   "calls": [
+    "remove_duplicates([4, 6, 5, 3, 0, 5, 0, 6]) -> [4, 6, 5, 3, 0]"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SIG-2"
+   ],
+   "calls": [],
+   "question": "\"-> List[int]\" can mean: The return annotation is an obligation: for every list of integers the function returns a list of integers and never raises. / The return annotation only describes the type of the value when the function returns; raising an exception on some inputs is not excluded.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RM-1"
+   ],
+   "calls": [],
+   "question": "\"remove all elements that occur more than once\" can mean: Every occurrence of each value that occurs more than once in numbers is removed, so no such value is in the result (consistent with the example of R-EX-1). / Only the repeated (extra) occurrences are removed, so each value that occurs more than once is kept exactly once (the reading suggested by the function name remove_duplicates in R-SIG-1, which contradicts the example of R-EX-1).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RM-1"
+   ],
+   "calls": [],
+   "question": "\"From a list of integers, remove\" can mean: A new list without those elements is returned; the argument numbers is left unchanged. / The elements are deleted from the given list in place, and that list is returned.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"Keep order of elements left the same as in the input\" can mean: The remaining elements keep their relative order: the returned list is a subsequence of numbers. / The remaining elements keep their original positions (indices) in the list.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"elements left\" can mean: Under the docstring reading of R-RM-1, the elements left are those whose value occurs exactly once, ordered by their single position. / Under the deduplicating reading of R-RM-1 and R-SIG-1, a kept value is ordered by the position of its first occurrence in numbers. / Under the deduplicating reading of R-RM-1 and R-SIG-1, a kept value is ordered by the position of its last occurrence in numbers.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"[1, 3, 4]\" can mean: The example is authoritative: the value 2, which occurs twice, is removed entirely, as the docstring sentence of R-RM-1 literally says. / The example contradicts the function name remove_duplicates of R-SIG-1, under which the call would return [1, 2, 3, 4].. Which is meant?"
+  }
+ ],
+ "limits": [
+  "conflict search of agent_a"
+ ]
+}

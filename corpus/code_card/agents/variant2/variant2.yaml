@@ -1,0 +1,158 @@
+fcp: "0.1"
+set: variant2
+origin: {kind: agent, role: formalizer, id: variant2}
+
+defs:
+  # rule 1: the amount argument of load and spend is accepted
+  valid: "amount >= 1 && amount <= 50000"
+  # rule 4: the bonus a load of this amount earns, in cents
+  bonus: "amount >= 10000 ? 500 : 0"
+  # rule 3, reading 2 of "a load that would take it over": balance plus amount plus its bonus over $500.00
+  over: "b + amount + bonus > 50000"
+  # a load the specification accepts (rules 1, 2, 3, 4)
+  ld_ok: "op == 1 && valid && !over"
+  # a spend the specification accepts and the balance covers (rules 1, 5)
+  sp_ok: "op == 2 && valid && b >= amount"
+
+ghosts:
+  # The card's balance before the current call. It is hidden inside the object and only
+  # observable through balance(), so it needs a specification model. A new card has 0
+  # (R-NEW-1); an accepted load adds the amount and its bonus (R-LOAD-1, R-BONUS-1); a spend
+  # the balance covers takes the amount off (R-SPEND-1); every other call leaves it.
+  - name: b
+    range: [0, 50000]
+    init: 0
+    next: "ld_ok ? b + amount + bonus : (sp_ok ? b - amount : b)"
+
+assumptions:
+  - id: V2-A-OP
+    req: R-SIG-1
+    expr: "op != 0"
+    note: >-
+      The object has exactly three methods (load, spend, balance) and the adapter (frame.md,
+      Calls) makes every cycle after a reset a call of one of them, op 1, 2 or 3. The 2-bit op
+      value 0 is not a call, so the environment never drives it. This is the only environment
+      obligation in R-SIG-1. The rest of it (argument and result types) is built into the
+      adapter: outcome 0 means the call returned a value of the declared type, and every
+      property that requires outcome 0 requires that type.
+
+properties:
+  - id: V2-NEW-1
+    req: R-NEW-1
+    pattern: implies
+    args: {trigger: "op == 3 && hist(op == 3)", cond: "bal == 0"}
+    note: >-
+      "A new card has a balance of 0." The balance is observable only through balance(). A
+      card on which only balance() has been called so far is still the new card (balance()
+      only reports the balance, rule 6), so each such call reports 0. The ghost b also starts
+      at 0. Whether balance() returns at all is V2-BAL-1.
+
+  - id: V2-RANGE-1
+    req: R-RANGE-1
+    pattern: implies
+    args: {trigger: "(op == 1 || op == 2) && !valid", cond: "outcome == 1"}
+    note: >-
+      Rule 1 names the argument `amount`, which only load and spend take, so it applies to
+      those two methods. amount is never negative in the trace (frame.md), so "less than 1"
+      is amount 0. Read literally as "if", not "only if"; when the other calls return is
+      stated by V2-LOAD-1, V2-SPEND-1 and V2-BAL-1. Rule 1 is taken to come before rules 2
+      and 5: read literally, rule 5 would have spend(0) return True (the balance covers 0)
+      and a spend over 50,000 return False, which clashes with rule 1; this set follows
+      R-RANGE-1 and the R-SPEND-1 text and raises.
+
+  - id: V2-LOAD-1
+    req: R-LOAD-1
+    pattern: implies
+    args: {trigger: "ld_ok", cond: "outcome == 0"}
+    note: >-
+      A load with a valid amount that does not take the balance over $500.00 returns (outcome
+      0, an int). Reading 2 of the R-CAP-1 ambiguity, as instructed: "over" means the balance
+      plus the amount plus its bonus exceeds 50,000 cents, so ld_ok excludes a load whose
+      amount fits but whose bonus would not. The addition of the amount to the balance is the
+      ghost b (next = b + amount + bonus on ld_ok) and is observed by V2-BAL-1. Rule 2 alone
+      is unconditional ("load adds amount to the balance"); like the requirement text, it is
+      limited here to loads rules 1 and 3 do not reject.
+
+  - id: V2-CAP-1
+    req: R-CAP-1
+    pattern: implies
+    args: {trigger: "op == 1 && over", cond: "outcome == 1"}
+    note: >-
+      "raise ValueError for a load that would take it over". Reading 2 of the flagged phrase,
+      as instructed (the instruction overrides any other reading): the load takes the balance
+      over when the balance plus the amount plus the bonus that amount would earn is more than
+      50,000 cents. So, for example, a load of 10,000 on a balance of 40,000 raises (40,000 +
+      10,000 + 500 > 50,000), although the amount alone would fit. Every load is covered,
+      also one with an amount over 50,000 (which rule 1 rejects too, so the two agree).
+
+  - id: V2-CAP-2
+    req: R-CAP-1
+    pattern: implies
+    args: {trigger: "op == 3 && outcome == 0", cond: "bal <= 50000"}
+    note: >-
+      "The balance is never more than $500.00": whatever balance() returns is at most 50,000
+      cents. Under reading 2 of "a load that would take it over" (as instructed), no accepted
+      load, bonus included, takes the model balance b over 50,000 (b's range).
+
+  - id: V2-BONUS-1
+    req: R-BONUS-1
+    pattern: implies
+    args: {trigger: "op == 1 && outcome == 0", cond: "earned == bonus"}
+    note: >-
+      "load returns the bonus it earned, in cents (0 if none)": a load that returns returns
+      500 if its amount is 10,000 cents ($100.00) or more and 0 otherwise. One $5.00 bonus per
+      load, whatever the amount above $100.00. The bonus "on the card" is the + bonus in the
+      ghost b on an accepted load, observed by V2-BAL-1. Under reading 2 of R-CAP-1 (as
+      instructed), the bonus counts towards the $500.00 cap, so a load whose bonus would take
+      the balance over raises and earns nothing (V2-CAP-1).
+
+  - id: V2-SPEND-1
+    req: R-SPEND-1
+    pattern: implies
+    args: {trigger: "op == 2 && valid", cond: "outcome == 0 && ok == (b >= amount)"}
+    note: >-
+      A spend with a valid amount returns (outcome 0, a bool): True if the balance covers the
+      amount (balance at least the amount, equality included) and False otherwise. Taking
+      the amount off on True and leaving the balance on False is the ghost b (next = b -
+      amount on sp_ok) and is observed by V2-BAL-1. Limited to valid amounts as in the
+      requirement text; literally, rule 5 has no such limit and clashes with rule 1 (see
+      V2-RANGE-1). b depends on the reading of R-CAP-1 (reading 2, as instructed: bonuses
+      count towards the cap).
+
+  - id: V2-BAL-1
+    req: R-BAL-1
+    pattern: implies
+    args: {trigger: "op == 3", cond: "outcome == 0 && bal == b"}
+    note: >-
+      balance() returns (an int) and its value is the balance of the specification model b.
+      b is the only place where the effects of earlier calls show, so this property also
+      checks the balance changes of R-NEW-1, R-LOAD-1, R-BONUS-1 and R-SPEND-1, under reading
+      2 of R-CAP-1 (as instructed: bonus included in the cap). The specification does not say
+      what a call that raises ValueError does to the balance; b reads the raised call as
+      refused (the balance is unchanged), the usual meaning of rejecting a call with an
+      exception and the only one consistent with "never more than $500.00" for loads that
+      would go over.
+
+scenarios:
+  - id: V2-EX-1
+    req: R-EX-1
+    cover: "op == 3 && outcome == 0 && bal == 1500 && prev(op == 2 && amount == 500) && prev(op == 1 && amount == 2000 && b == 0, 2)"
+    note: >-
+      On a card with balance 0, load(2000), then spend(500), then balance() returning 1500
+      must be possible. "On a new card" comes from the requirement text; the example itself
+      only says "after". The specified state of a card is only its balance, and a new card
+      has 0 (R-NEW-1), so "new card" is stated as "the model balance b is 0 before the load"
+      instead of adding a call-counting ghost. The example says nothing about what load and
+      spend return, so the cover does not constrain them. 2000 is below $100.00, so no bonus;
+      the example is the same under either reading of R-CAP-1 (reading 2 taken, as
+      instructed).
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (F-ZERO in design.yaml): it holds by construction of the
+      trace and is part of every formalization set, so it is not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-CAP-1, phrase: "a load that would take it over", reading: 2}

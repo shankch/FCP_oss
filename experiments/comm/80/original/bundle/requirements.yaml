@@ -1,0 +1,211 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a completed body for the given Python function is_happy.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def is_happy(s):'
+  text: The function is named is_happy and takes exactly one parameter, s.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: You are given a string s.
+  text: The argument s of is_happy is a Python string (str).
+  kind: assumption
+  ambiguity:
+  - phrase: a string
+    readings:
+    - 's may be any string: any characters, including digits, spaces, punctuation, upper-case letters, and the empty string.'
+    - s contains only lower-case letters, as in every example, so the result for any other string is not specified.
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: Your task is to check if the string is happy or not.
+  text: For every string s, is_happy(s) returns a bool (True or False). It never raises an exception and always finishes.
+  kind: guarantee
+  ambiguity:
+  - phrase: check
+    readings:
+    - is_happy returns the Python bool True or False.
+    - is_happy may return any truthy or falsy value (for example 1 or 0, or a non-empty or empty object).
+  lines:
+  - 6
+- id: R-HAP-1
+  doc: SPEC
+  quote: A string is happy if its length is at least 3 and every 3 consecutive letters are distinct
+  text: A string is happy exactly when its length is at least 3 and, in every run of 3 consecutive characters, the three characters are pairwise distinct.
+  kind: definition
+  ambiguity:
+  - phrase: happy if
+    readings:
+    - '''if'' means ''if and only if'': a string that fails either condition is not happy.'
+    - '''if'' gives only a sufficient condition: the sentence says nothing about strings that fail a condition.'
+  - phrase: every 3 consecutive letters
+    readings:
+    - every overlapping window s[i], s[i+1], s[i+2] for i from 0 to len(s)-3.
+    - non-overlapping blocks of three (positions 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') would be happy.
+  - phrase: letters
+    readings:
+    - 'any characters: every window of 3 consecutive characters is checked, whatever the characters are.'
+    - 'only alphabetic letters count: non-letter characters are skipped and windows are taken over the sequence of letters.'
+    - a window that contains a non-letter character does not meet the condition, so such strings are not happy.
+  - phrase: distinct
+    readings:
+    - the three characters of each window are pairwise distinct (no two equal), so 'aba' is not happy.
+    - only adjacent characters must differ (s[i] != s[i+1] and s[i+1] != s[i+2]), so 'aba' is happy. This matches every example.
+    - the three characters of a window are not all the same. This contradicts the examples is_happy(aabb) => False and is_happy(xyy) => False.
+    - no 3-character window occurs twice in the string. This contradicts the examples is_happy(aabb) => False and is_happy(xyy) => False.
+  - phrase: letters are distinct
+    readings:
+    - characters are compared by code (case-sensitive), so 'a' and 'A' are distinct.
+    - characters are compared ignoring case, so 'a' and 'A' are the same letter.
+  lines:
+  - 7
+- id: R-HAP-2
+  doc: SPEC
+  quote: its length is at least 3
+  text: If len(s) is less than 3, is_happy(s) returns False.
+  kind: guarantee
+  depends:
+  - R-HAP-1
+  ambiguity:
+  - phrase: happy if
+    readings:
+    - '''if'' means ''if and only if'' (supported by ''happy or not''): every string shorter than 3 is not happy, so is_happy returns False.'
+    - '''if'' gives only a sufficient condition: the rule leaves the result for strings shorter than 3 open, and only the examples ''a'' and ''aa'' give False.'
+  lines:
+  - 7
+- id: R-HAP-3
+  doc: SPEC
+  quote: every 3 consecutive letters are distinct
+  text: If len(s) is at least 3 and some 3 consecutive characters of s include two equal characters, is_happy(s) returns False.
+  kind: guarantee
+  depends:
+  - R-HAP-1
+  ambiguity:
+  - phrase: happy if
+    readings:
+    - '''if'' means ''if and only if'': a string with a window that is not distinct is not happy, so is_happy returns False.'
+    - '''if'' gives only a sufficient condition: the rule leaves the result for such strings open.'
+  - phrase: every 3 consecutive letters
+    readings:
+    - every overlapping window s[i], s[i+1], s[i+2] for i from 0 to len(s)-3.
+    - non-overlapping blocks of three (positions 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') would be happy.
+  - phrase: letters
+    readings:
+    - 'any characters: every window of 3 consecutive characters is checked, whatever the characters are.'
+    - 'only alphabetic letters count: non-letter characters are skipped and windows are taken over the sequence of letters.'
+    - a window that contains a non-letter character does not meet the condition, so such strings are not happy.
+  - phrase: distinct
+    readings:
+    - the three characters of each window are pairwise distinct (no two equal), so 'aba' gives False.
+    - only adjacent characters must differ (s[i] != s[i+1] and s[i+1] != s[i+2]), so 'aba' gives True. This matches every example.
+    - the three characters of a window are not all the same. This contradicts the examples is_happy(aabb) => False and is_happy(xyy) => False.
+    - no 3-character window occurs twice in the string. This contradicts the examples is_happy(aabb) => False and is_happy(xyy) => False.
+  - phrase: letters are distinct
+    readings:
+    - characters are compared by code (case-sensitive), so 'aAb' gives True.
+    - characters are compared ignoring case, so 'aAb' gives False.
+  lines:
+  - 7
+- id: R-HAP-4
+  doc: SPEC
+  quote: A string is happy if its length is at least 3 and every 3 consecutive letters are distinct
+  text: If len(s) is at least 3 and, in every run of 3 consecutive characters of s, the three characters are pairwise distinct, then is_happy(s) returns True.
+  kind: guarantee
+  depends:
+  - R-HAP-1
+  ambiguity:
+  - phrase: every 3 consecutive letters
+    readings:
+    - every overlapping window s[i], s[i+1], s[i+2] for i from 0 to len(s)-3.
+    - non-overlapping blocks of three (positions 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') gives True.
+  - phrase: letters
+    readings:
+    - 'any characters: every window of 3 consecutive characters is checked, whatever the characters are.'
+    - 'only alphabetic letters count: non-letter characters are skipped and windows are taken over the sequence of letters.'
+    - a window that contains a non-letter character does not meet the condition, so such strings are not happy.
+  - phrase: distinct
+    readings:
+    - the three characters of each window are pairwise distinct (no two equal).
+    - only adjacent characters must differ (s[i] != s[i+1] and s[i+1] != s[i+2]), so 'aba' gives True. This matches every example.
+    - the three characters of a window are not all the same. This contradicts the examples is_happy(aabb) => False and is_happy(xyy) => False.
+    - no 3-character window occurs twice in the string. This contradicts the examples is_happy(aabb) => False and is_happy(xyy) => False.
+  - phrase: letters are distinct
+    readings:
+    - characters are compared by code (case-sensitive), so 'aAb' gives True.
+    - characters are compared ignoring case, so 'aAb' does not meet the condition.
+  lines:
+  - 7
+- id: R-EX-1
+  doc: SPEC
+  quote: is_happy(a) => False
+  text: is_happy('a') returns False.
+  kind: scenario
+  lines:
+  - 9
+- id: R-EX-2
+  doc: SPEC
+  quote: is_happy(aa) => False
+  text: is_happy('aa') returns False.
+  kind: scenario
+  lines:
+  - 10
+- id: R-EX-3
+  doc: SPEC
+  quote: is_happy(abcd) => True
+  text: is_happy('abcd') returns True.
+  kind: scenario
+  lines:
+  - 11
+- id: R-EX-4
+  doc: SPEC
+  quote: is_happy(aabb) => False
+  text: is_happy('aabb') returns False.
+  kind: scenario
+  ambiguity:
+  - phrase: is_happy(aabb) => False
+    readings:
+    - 'Matches the rule when ''distinct'' means pairwise distinct or adjacent characters differ: the window ''aab'' repeats ''a''.'
+    - 'Contradicts the rule when ''distinct'' means ''not all three the same'' or ''no 3-character window repeats'': ''aab'' and ''abb'' then pass, so the rule gives True.'
+  lines:
+  - 12
+- id: R-EX-5
+  doc: SPEC
+  quote: is_happy(adb) => True
+  text: is_happy('adb') returns True.
+  kind: scenario
+  lines:
+  - 13
+- id: R-EX-6
+  doc: SPEC
+  quote: is_happy(xyy) => False
+  text: is_happy('xyy') returns False.
+  kind: scenario
+  ambiguity:
+  - phrase: is_happy(xyy) => False
+    readings:
+    - 'Matches the rule when ''distinct'' means pairwise distinct or adjacent characters differ: ''y'' is repeated in the window ''xyy''.'
+    - 'Contradicts the rule when ''distinct'' means ''not all three the same'' or ''no 3-character window repeats'': the single window ''xyy'' then passes, so the rule gives True.'
+  lines:
+  - 14
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `happy` is false unless `outcome` is 0.'
+  text: The output happy is false in every call whose outcome is not 0.
+  kind: guarantee
+  lines:
+  - 45

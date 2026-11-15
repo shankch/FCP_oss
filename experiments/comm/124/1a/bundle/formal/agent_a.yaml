@@ -1,0 +1,202 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-FMT-1: how many hyphen characters the string contains (two hyphens = three fields)
+  hyphens: 'count(i < len(date): date[i] == "-")'
+  # R-FMT-2 (readings 1, 1, 1): exactly dd-mm-yyyy shape, 10 characters, ASCII digits, hyphens at 2 and 5, nothing else
+  fmt: 'len(date) == 10 && isdigit(date[0]) && isdigit(date[1]) && date[2] == "-" && isdigit(date[3]) && isdigit(date[4]) && date[5] == "-" && isdigit(date[6]) && isdigit(date[7]) && isdigit(date[8]) && isdigit(date[9])'
+  # numbers written in the first and second fields (meaningful when fmt holds)
+  n1: '(date[0] - "0") * 10 + (date[1] - "0")'
+  n2: '(date[3] - "0") * 10 + (date[4] - "0")'
+  # rules 2 and 3 with the string read as dd-mm-yyyy: day n1, month n2
+  d31_dm: '!(n2 in [1, 3, 5, 7, 8, 10, 12]) || (n1 >= 1 && n1 <= 31)'
+  d30_dm: '!(n2 in [4, 6, 9, 11]) || (n1 >= 1 && n1 <= 30)'
+  d29_dm: 'n2 != 2 || (n1 >= 1 && n1 <= 29)'
+  mon_dm: 'n2 >= 1 && n2 <= 12'
+  rules_dm: 'd31_dm && d30_dm && d29_dm && mon_dm'
+  # rules 2 and 3 with the string read as mm-dd-yyyy: month n1, day n2
+  d31_md: '!(n1 in [1, 3, 5, 7, 8, 10, 12]) || (n2 >= 1 && n2 <= 31)'
+  d30_md: '!(n1 in [4, 6, 9, 11]) || (n2 >= 1 && n2 <= 30)'
+  d29_md: 'n1 != 2 || (n2 >= 1 && n2 <= 29)'
+  mon_md: 'n1 >= 1 && n1 <= 12'
+  rules_md: 'd31_md && d30_md && d29_md && mon_md'
+  # R-VAL-1 (reading 1): the four rules are the complete definition; rule 4 accepts either order (R-FMT-3 reading 1)
+  ok: 'len(date) != 0 && hyphens == 2 && fmt && (rules_dm || rules_md)'
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: ok, cond: 'outcome == 0 && valid'}
+    note: >-
+      A string that meets the R-VAL-1 definition (def ok) makes the call return True:
+      no exception, no other return type. Under R-FMT-3 reading 1 this includes
+      '15-01-2012' (15 January 2012), which contradicts example R-EX-2.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: '!ok', cond: 'outcome == 0 && !valid'}
+    note: >-
+      Reading 1 of "otherwise False": every string that does not meet the definition,
+      malformed ones included (empty, wrong separator, non-digits, wrong length),
+      returns False. Raising (outcome 1) or returning another type (outcome 2) breaks this.
+
+  - id: RA-EMP-1
+    req: R-EMP-1
+    pattern: implies
+    args: {trigger: 'len(date) == 0', cond: 'outcome == 0 && !valid'}
+    note: The requirement says valid_date('') returns False, so the call must return normally.
+
+  - id: RA-DAY-1
+    req: R-DAY-1
+    pattern: implies
+    args: {trigger: 'fmt && !(d31_dm && d31_md)', cond: '!valid'}
+    note: >-
+      Reading 1 of "is not less than 1 or higher than 31 days": the "not" covers both
+      alternatives, so the day must lie in 1..31. Under reading 2 the bound 31 would mean
+      nothing. The rule applies to whichever field order the string is read in: if the
+      field read as month is 1, 3, 5, 7, 8, 10 or 12 and the field read as day is outside
+      1..31, the string is not valid. The other reading then takes that out-of-range number
+      (0 or 32..99) as the month, so it fails R-MON-1 too, and this item holds under every
+      reading of R-FMT-3. Malformed strings are left to R-FMT-1/R-FMT-2 (trigger needs fmt).
+      "Not valid" constrains only the returned value; the return form is R-RET-2's job.
+
+  - id: RA-DAY-2
+    req: R-DAY-2
+    pattern: implies
+    args: {trigger: 'fmt && !(d30_dm && d30_md)', cond: '!valid'}
+    note: >-
+      Reading 1 of "is not less than 1 or higher than 30 days": the day must lie in 1..30.
+      Applies to either field order, as in RA-DAY-1: a field read as month 4, 6, 9 or 11
+      with the other field outside 1..30 makes the string not valid.
+
+  - id: RA-DAY-3
+    req: R-DAY-3
+    pattern: implies
+    args: {trigger: 'fmt && !(d29_dm && d29_md)', cond: '!valid'}
+    note: >-
+      Reading 1 of "is not less than 1 or higher than 29": the day must lie in 1..29.
+      Reading 1 of "higher than 29 for the month 2": the text has no leap-year condition,
+      so day 29 of month 2 is accepted in every year (e.g. '29-02-2001' is not rejected by
+      this rule). Applies to either field order, as in RA-DAY-1.
+
+  - id: RA-MON-1
+    req: R-MON-1
+    pattern: implies
+    args: {trigger: 'fmt && !mon_dm && !mon_md', cond: '!valid'}
+    note: >-
+      Reading 1 of "should not be less than 1 or higher than 12": the month must lie in 1..12.
+      R-FMT-3 reading 1 accepts the string if either field order works, so a
+      well-formed string is rejected by this rule only when neither the first nor the
+      second field is in 1..12. A month field out of range in only one reading (e.g. '13-01-2000'
+      read as mm-dd) does not make the string invalid.
+
+  - id: RA-FMT-1
+    req: R-FMT-1
+    pattern: implies
+    args: {trigger: 'hyphens != 2', cond: '!valid'}
+    note: >-
+      Three fields separated by hyphens means exactly two hyphen characters. A string with
+      another separator such as '/' (example R-EX-5) has fewer than two hyphens. What the
+      fields contain is R-FMT-2.
+
+  - id: RA-FMT-2
+    req: R-FMT-2
+    pattern: implies
+    args: {trigger: '!fmt', cond: '!valid'}
+    note: >-
+      Reading 1 of "dd-mm-yyyy or mm-dd-yyyy": two digits, two digits, four digits (leading
+      zeros required), so a valid string has exactly 10 characters and '4-1-2040' is not valid.
+      Reading 1 of "The date should be in the format": no stripping, so any extra character,
+      including surrounding whitespace, makes the string invalid. Reading 1 of "yyyy": any
+      four ASCII digits, '0000' included. Digits are ASCII 0-9 only (FCP isdigit), so Latin-1
+      superscript digits are not digits.
+
+  - id: RA-FMT-3-DM
+    req: R-FMT-3
+    pattern: implies
+    args: {trigger: 'fmt && rules_dm', cond: valid}
+    note: >-
+      Reading 1 of "dd-mm-yyyy or mm-dd-yyyy": a well-formed string that meets the day and
+      month rules when read as dd-mm-yyyy (day first) is valid. 'valid' implies outcome 0 by
+      frame rule F-ZERO. This CONTRADICTS example R-EX-2: '15-01-2012' read as dd-mm-yyyy is
+      15 January 2012, so this item requires True where the example says False. Both are
+      formalized literally; the specification is not repaired.
+
+  - id: RA-FMT-3-MD
+    req: R-FMT-3
+    pattern: implies
+    args: {trigger: 'fmt && rules_md', cond: valid}
+    note: >-
+      Reading 1 of "dd-mm-yyyy or mm-dd-yyyy": a well-formed string that meets the day and
+      month rules when read as mm-dd-yyyy (month first) is valid.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: 'date == "03-11-2000" && outcome == 0 && valid'
+    note: Docstring example. The function is deterministic, so this reachable call is what the call returns.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: 'date == "15-01-2012" && outcome == 0 && !valid'
+    note: >-
+      Reading 1: the example is correct as written. It is UNREACHABLE together with
+      RA-FMT-3-DM and RA-RET-1 (R-FMT-3 reading 1, either order accepted): read as dd-mm-yyyy,
+      '15-01-2012' meets every rule. The prompt contradicts itself. The example is kept as
+      a scenario, not a property, so that the contradiction shows up as an unreachable
+      scenario and the property set stays satisfiable.
+
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: 'date == "04-0-2040" && outcome == 0 && !valid'
+    note: Docstring example; 9 characters, so not in the format (RA-FMT-2), and month or day 0 under either order.
+
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: 'date == "06-04-2020" && outcome == 0 && valid'
+    note: Docstring example; valid under both field orders.
+
+  - id: RA-EX-5
+    req: R-EX-5
+    cover: 'date == "06/04/2020" && outcome == 0 && !valid'
+    note: Docstring example; no hyphens (RA-FMT-1).
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the function name and its single parameter are fixed by the adapter
+      (design.yaml function section). A trace of calls cannot observe them.
+  - req: R-IN-1
+    reason: >-
+      Ensured by the interface encoding: date is a string signal, and calls whose argument is
+      not a string (or is longer than 16 characters, or has codes above 255) are not part
+      of the trace (frame.md, Inputs). No input constraint is left to assume.
+  - req: R-VAL-1
+    reason: >-
+      A definition, not an obligation by itself. It is the def 'ok' (reading 1: the four rules
+      are the complete definition, with no leap-year or year-range check), used by the items
+      that link validity to the returned value.
+    covered_by: [RA-RET-1, RA-RET-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO (design.yaml frame) is part of every formalization set by construction
+      and need not be restated (frame.md, Frame rules).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-RET-2, phrase: "otherwise False", reading: 1}
+  - {req: R-VAL-1, phrase: "The date is valid if all of the following rules are satisfied", reading: 1}
+  - {req: R-DAY-1, phrase: "is not less than 1 or higher than 31 days", reading: 1}
+  - {req: R-DAY-2, phrase: "is not less than 1 or higher than 30 days", reading: 1}
+  - {req: R-DAY-3, phrase: "is not less than 1 or higher than 29", reading: 1}
+  - {req: R-DAY-3, phrase: "higher than 29 for the month 2", reading: 1}
+  - {req: R-MON-1, phrase: "should not be less than 1 or higher than 12", reading: 1}
+  - {req: R-FMT-2, phrase: "dd-mm-yyyy or mm-dd-yyyy", reading: 1}
+  - {req: R-FMT-2, phrase: "The date should be in the format", reading: 1}
+  - {req: R-FMT-2, phrase: "yyyy", reading: 1}
+  - {req: R-FMT-3, phrase: "dd-mm-yyyy or mm-dd-yyyy", reading: 1}
+  - {req: R-EX-2, phrase: "valid_date('15-01-2012') => False", reading: 1}

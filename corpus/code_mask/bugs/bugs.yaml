@@ -1,0 +1,41 @@
+# Planted bugs: one textual patch of impl/ref.py each (the target text must
+# occur exactly once).  `violates` is the gold requirement each one breaks.
+design: code_mask
+bugs:
+- id: C1
+  desc: the Luhn check doubles every second digit from the left, which is wrong for an even number of digits
+  violates: [R-RET-1, R-ERR-1]
+  patch: {from: 'for k, c in enumerate(reversed(digits)):', to: 'for k, c in enumerate(digits):'}
+- id: C2
+  desc: digits are recognized with str.isdigit, which also accepts a superscript two
+  violates: [R-ERR-1]
+  patch: {from: '    return c in DIGITS', to: '    return c.isdigit()'}
+- id: C3
+  desc: the last four characters stay, instead of the last four digits
+  violates: [R-LAST4-1]
+  patch: {from: "    return ''.join(out)", to: "    head = ''.join('*' if is_digit(c) else c for c in number[:-4])\n    return head + number[-4:]"}
+- id: C4
+  desc: a 19-digit number is rejected
+  violates: [R-RET-1]
+  patch: {from: 'if not 12 <= len(digits) <= 19:', to: 'if not 12 <= len(digits) < 19:'}
+- id: C5
+  desc: hyphens are rejected
+  violates: [R-RET-1]
+  patch: {from: "if not all(is_digit(c) or c in ' -' for c in number):", to: "if not all(is_digit(c) or c == ' ' for c in number):"}
+- id: C6
+  desc: the number is stripped of surrounding whitespace first, so a tab is accepted and a leading space shortens the result
+  violates: [R-ERR-1, R-SEP-1]
+  patch: {from: "def mask_card(number: str) -> str:\n", to: "def mask_card(number: str) -> str:\n    number = number.strip()\n"}
+- id: C7
+  desc: digits are hidden with X instead of *
+  violates: [R-MASK-1]
+  patch: {from: "out.append('*' if seen < keep else c)", to: "out.append('X' if seen < keep else c)"}
+- id: C8
+  desc: the masked characters are returned as a list
+  violates: [R-RET-1]
+  patch: {from: '    return ''''.join(out)', to: '    return out'}
+- id: C9
+  desc: the last four digits are found with a regular expression; the same behaviour, written differently
+  violates: []
+  note: a refactoring, not a bug, which FCP must not flag
+  patch: {from: "    keep = len(digits) - 4\n    out, seen = [], 0\n    for c in number:\n        if is_digit(c):\n            out.append('*' if seen < keep else c)\n            seen += 1\n        else:\n            out.append(c)\n    return ''.join(out)", to: "    import re\n    keep = len(digits) - 4\n    count = iter(range(len(digits)))\n    return re.sub('[0-9]', lambda m: '*' if next(count) < keep else m.group(0), number)"}

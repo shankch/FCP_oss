@@ -1,0 +1,250 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 50,
+    "checked": 50,
+    "seconds": 0.92
+   },
+   "open": {
+    "open": {},
+    "checked": 128
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 38,
+    "checked": 38,
+    "seconds": 4.76
+   },
+   "open": {
+    "open": {},
+    "checked": 128
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-BASE-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-BASE-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FN-1": {
+   "plain": "UNKNOWN",
+   "context": "UNKNOWN",
+   "witness": null
+  },
+  "R-REC-1": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "n: int",
+   "taken": 1,
+   "variant": 2,
+   "text": "n is a non-negative integer only, since it indexes a sequence that starts at fib4(0)"
+  },
+  {
+   "req": "R-IN-2",
+   "phrase": "the n-th element",
+   "taken": 1,
+   "variant": 2,
+   "text": "values at negative n are determined by running the recurrence backward (fib4(-1) = -2, fib4(-2) = 4, ...), so they are not free"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "that's defined as follows",
+   "taken": 1,
+   "variant": 2,
+   "text": "the rules that follow define the Fibonacci sequence the Fib4 sequence is similar to"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "similar to the Fibbonacci sequnece",
+   "taken": 1,
+   "variant": 2,
+   "text": "Fibonacci conventions apply where the listed rules are silent (for example the indexing or the domain of n)"
+  },
+  {
+   "req": "R-BASE-3",
+   "phrase": "fib4(2) -> 2",
+   "taken": 1,
+   "variant": 2,
+   "text": "apparent contradiction with the recurrence read for every n: fib4(2) would be fib4(1) + fib4(0) + fib4(-1) + fib4(-2) = 0 + 0 + 0 + 0 = 0 if terms before the start are 0, not 2"
+  },
+  {
+   "req": "R-BASE-4",
+   "phrase": "fib4(3) -> 0",
+   "taken": 1,
+   "variant": 2,
+   "text": "apparent contradiction with the recurrence read for every n: fib4(3) would be fib4(2) + fib4(1) + fib4(0) + fib4(-1) = 2 + 0 + 0 + 0 = 2 if terms before the start are 0, not 0"
+  },
+  {
+   "req": "R-REC-1",
+   "phrase": "fib4(n)",
+   "taken": 1,
+   "variant": 2,
+   "text": "the recurrence holds for every n, which seems to contradict the base values fib4(2) -> 2 and fib4(3) -> 0 (and defines values at negative n)"
+  },
+  {
+   "req": "R-FN-1",
+   "phrase": "the n-th element",
+   "taken": 1,
+   "variant": 2,
+   "text": "counting from 1: the n-th element is the value the definition gives for index n-1 (this disagrees with the examples)"
+  },
+  {
+   "req": "R-FN-1",
+   "phrase": "compute",
+   "taken": 1,
+   "variant": 2,
+   "text": "print the element (the doctest output would look the same)"
+  },
+  {
+   "req": "R-FN-1",
+   "phrase": "compute the n-th element",
+   "taken": 1,
+   "variant": 2,
+   "text": "any value numerically equal to the element is acceptable, such as a float"
+  },
+  {
+   "req": "R-NF-1",
+   "phrase": "efficiently",
+   "taken": 2,
+   "variant": 1,
+   "text": "linear time in n with constant memory (an iterative loop keeping the last four values)"
+  },
+  {
+   "req": "R-NF-2",
+   "phrase": "Do not use recursion.",
+   "taken": 2,
+   "variant": 1,
+   "text": "fib4 must not call itself"
+  }
+ ],
+ "depends": {},
+ "certified": [
+  "R-BASE-1",
+  "R-BASE-2",
+  "R-EX-1",
+  "R-EX-2",
+  "R-EX-3"
+ ],
+ "queue": [
+  {
+   "kind": "readings",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "relation": "UNKNOWN",
+   "calls": [],
+   "question": "the two readings of this requirement disagree (no separating call was found within the budget): which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-BASE-3"
+   ],
+   "calls": [],
+   "question": "\"fib4(2) -> 2\" can mean: a base value that overrides the recurrence; the recurrence applies only from n = 4 / apparent contradiction with the recurrence read for every n: fib4(2) would be fib4(1) + fib4(0) + fib4(-1) + fib4(-2) = 0 + 0 + 0 + 0 = 0 if terms before the start are 0, not 2. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-BASE-4"
+   ],
+   "calls": [],
+   "question": "\"fib4(3) -> 0\" can mean: a base value that overrides the recurrence; the recurrence applies only from n = 4 / apparent contradiction with the recurrence read for every n: fib4(3) would be fib4(2) + fib4(1) + fib4(0) + fib4(-1) = 2 + 0 + 0 + 0 = 2 if terms before the start are 0, not 0. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-REC-1"
+   ],
+   "calls": [],
+   "question": "\"fib4(n)\" can mean: the recurrence holds only for n >= 4, where the four earlier terms are base values or computed terms / the recurrence holds for every n, which seems to contradict the base values fib4(2) -> 2 and fib4(3) -> 0 (and defines values at negative n). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"the n-th element\" can mean: counting from 0: the n-th element is fib4(n) as defined (the examples fib4(5) -> 4, fib4(6) -> 8, fib4(7) -> 14 agree with this) / counting from 1: the n-th element is the value the definition gives for index n-1 (this disagrees with the examples). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"compute\" can mean: return the element as the function's result / print the element (the doctest output would look the same). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FN-1"
+   ],
+   "calls": [],
+   "question": "\"compute the n-th element\" can mean: the returned value is a Python int / any value numerically equal to the element is acceptable, such as a float. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the comparison of agent_a and agent_b"
+ ]
+}

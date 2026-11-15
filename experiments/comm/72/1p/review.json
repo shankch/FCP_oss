@@ -1,0 +1,216 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 373,
+    "checked": 373,
+    "seconds": 3.95
+   },
+   "open": {
+    "open": {},
+    "checked": 220
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 444,
+    "checked": 444,
+    "seconds": 5.25
+   },
+   "open": {
+    "open": {},
+    "checked": 251
+   }
+  }
+ },
+ "readings": {
+  "R-BAL-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FLY-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FLY-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-WT-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-FLY-1",
+   "phrase": "will fly",
+   "taken": 1,
+   "variant": 2,
+   "text": "the prompt never defines flying, so only the necessary conditions in the example comment (R-BAL-1, R-WT-3) and the four examples are fixed; a balanced list within the weight limit may or may not fly"
+  },
+  {
+   "req": "R-FLY-1",
+   "phrase": "returns True",
+   "taken": 1,
+   "variant": 2,
+   "text": "returns any truthy value (for example 1 or a non-empty list)"
+  },
+  {
+   "req": "R-FLY-1",
+   "phrase": "the object q",
+   "taken": 1,
+   "variant": 2,
+   "text": "an empty q is no object and does not fly, so the function returns False for it"
+  },
+  {
+   "req": "R-FLY-2",
+   "phrase": "False",
+   "taken": 1,
+   "variant": 2,
+   "text": "returns any falsy value (for example 0, None or an empty list)"
+  },
+  {
+   "req": "R-WT-3",
+   "phrase": "less than the maximum possible weight",
+   "taken": 1,
+   "variant": 2,
+   "text": "the weight must be strictly less than w, as the comment phrases it: q does not fly when sum(q) >= w"
+  },
+  {
+   "req": "R-BAL-1",
+   "phrase": "unbalanced",
+   "taken": 1,
+   "variant": 2,
+   "text": "the first and last elements of q differ"
+  }
+ ],
+ "depends": {
+  "R-FLY-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "will_it_fly([2], 3) -> False"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-2",
+  "R-EX-3",
+  "R-EX-4"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-FLY-1"
+   ],
+   "calls": [
+    "will_it_fly([2], 3) -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FLY-1"
+   ],
+   "calls": [],
+   "question": "\"will fly\" can mean: q flies exactly when it is balanced (R-BAL-1) and its weight, the sum of its elements, is within the maximum possible weight w (R-WT-3); there is no other condition / the prompt never defines flying, so only the necessary conditions in the example comment (R-BAL-1, R-WT-3) and the four examples are fixed; a balanced list within the weight limit may or may not fly. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FLY-1"
+   ],
+   "calls": [],
+   "question": "\"returns True\" can mean: returns the bool True itself / returns any truthy value (for example 1 or a non-empty list). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FLY-1"
+   ],
+   "calls": [],
+   "question": "\"the object q\" can mean: q may be the empty list; it is balanced and weighs 0, so it flies whenever 0 is within the maximum weight w / an empty q is no object and does not fly, so the function returns False for it / the result for an empty q is left open. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FLY-2"
+   ],
+   "calls": [],
+   "question": "\"False\" can mean: returns the bool False itself / returns any falsy value (for example 0, None or an empty list). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-WT-3"
+   ],
+   "calls": [],
+   "question": "\"less than the maximum possible weight\" can mean: a weight equal to w is allowed: q can fly when sum(q) <= w, since w is the maximum possible weight / the weight must be strictly less than w, as the comment phrases it: q does not fly when sum(q) >= w. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-BAL-1"
+   ],
+   "calls": [],
+   "question": "\"unbalanced\" can mean: q is not a palindrome: q[i] != q[len(q)-1-i] for some i / the first and last elements of q differ / the sum of the first half of q differs from the sum of the second half (the middle element of an odd-length list belongs to neither). Which is meant?"
+  }
+ ],
+ "limits": []
+}

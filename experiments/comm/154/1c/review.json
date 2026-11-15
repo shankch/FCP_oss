@@ -1,0 +1,499 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 307,
+    "checked": 307,
+    "seconds": 205.11
+   },
+   "open": {
+    "open": {},
+    "checked": 293
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 288,
+    "checked": 288,
+    "seconds": 206.66
+   },
+   "open": {
+    "open": {},
+    "checked": 274
+   }
+  }
+ },
+ "readings": {
+  "R-RES-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RES-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `words`",
+    "where": {
+     "words": "len(a) > 0 && len(b) > 0 && all(i < len(a): isalpha(a[i])) && all(j < len(b): isalpha(b[j]))"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `words`",
+    "where": {
+     "words": "word_a && word_b"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [
+    "RA-EX-1",
+    "RA-EX-2",
+    "RA-EX-3",
+    "RA-EX-4",
+    "RA-EX-5",
+    "RA-EX-6"
+   ],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [
+    "RB-EX-1",
+    "RB-EX-2",
+    "RB-EX-3",
+    "RB-EX-4",
+    "RB-EX-5",
+    "RB-EX-6"
+   ],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-DEF-2",
+   "phrase": "rotations",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any rearrangement (permutation) of the characters of b (\"abd\" also has \"adb\", \"bad\", \"dba\")."
+  },
+  {
+   "req": "R-DEF-3",
+   "phrase": "substring",
+   "taken": 1,
+   "variant": 2,
+   "text": "Subsequence: the characters of s occur in a in the same order, not necessarily adjacent (\"abd\" would be in \"abcd\")."
+  },
+  {
+   "req": "R-DEF-3",
+   "phrase": "is a substring in the first word",
+   "taken": 1,
+   "variant": 2,
+   "text": "Letters are compared ignoring case: \"Ell\" is a substring of \"hello\"."
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "words",
+   "taken": 2,
+   "variant": 1,
+   "text": "Any string, including the empty string and strings with spaces, digits or other non-letter characters; every such call must follow the rule."
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "return True",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any truthy value (such as 1 or a non-empty string) counts as returning True."
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "the second word or any of its rotations",
+   "taken": 1,
+   "variant": 2,
+   "text": "When b is empty there is nothing to find, so the condition does not hold and the call does not return True."
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "cycpattern_check(\"hello\",\"ell\") => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example R-EX-2 wins: the call returns False, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "cycpattern_check(\"abab\",\"baa\") => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example R-EX-4 wins: the call returns False, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+  },
+  {
+   "req": "R-RES-1",
+   "phrase": "cycpattern_check(\"himenss\",\"simen\") => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example R-EX-6 wins: the call returns False, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+  },
+  {
+   "req": "R-RES-2",
+   "phrase": "return True if",
+   "taken": 1,
+   "variant": 2,
+   "text": "Only the True case is specified: when the condition does not hold, the result is not specified (any outcome allowed)."
+  },
+  {
+   "req": "R-RES-2",
+   "phrase": "cycpattern_check(\"abcd\",\"abd\") => True",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example R-EX-1 wins: the call returns True, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+  },
+  {
+   "req": "R-RES-2",
+   "phrase": "cycpattern_check(\"whassup\",\"psus\") => True",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example R-EX-3 wins: the call returns True, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+  },
+  {
+   "req": "R-RES-2",
+   "phrase": "cycpattern_check(\"efef\",\"eeff\") => True",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example R-EX-5 wins: the call returns True, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a)."
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "cycpattern_check(\"abcd\",\"abd\") => True",
+   "taken": 1,
+   "variant": 2,
+   "text": "The rule R-RES-2 is right: the call returns False and the example is wrong."
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "cycpattern_check(\"hello\",\"ell\") => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The rule R-RES-1 is right: the call returns True and the example is wrong."
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "cycpattern_check(\"whassup\",\"psus\") => True",
+   "taken": 1,
+   "variant": 2,
+   "text": "The rule R-RES-2 is right: the call returns False and the example is wrong."
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "cycpattern_check(\"abab\",\"baa\") => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The rule R-RES-1 is right: the call returns True and the example is wrong."
+  },
+  {
+   "req": "R-EX-5",
+   "phrase": "cycpattern_check(\"efef\",\"eeff\") => True",
+   "taken": 1,
+   "variant": 2,
+   "text": "The rule R-RES-2 is right: the call returns False and the example is wrong."
+  },
+  {
+   "req": "R-EX-6",
+   "phrase": "cycpattern_check(\"himenss\",\"simen\") => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The rule R-RES-1 is right: the call returns True and the example is wrong."
+  }
+ ],
+ "depends": {
+  "R-RES-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "cycpattern_check(\"\\u0001\\u0001\\u0001\", \"\") -> True"
+   ]
+  },
+  "R-RES-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "cycpattern_check(\"efef\", \"eeff\") -> False"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-1 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-2 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-3 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-4 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-5"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-5 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-6"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-6 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-1 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-2 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-3 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-4 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-5"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-5 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-6"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-6 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RES-1",
+    "R-RES-2"
+   ],
+   "calls": [
+    "cycpattern_check(\"\\u0001\\u0001\\u0001\", \"\") -> True"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"return True\" can mean: The function returns the boolean True. / Any truthy value (such as 1 or a non-empty string) counts as returning True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"the second word or any of its rotations\" can mean: When b is empty, the empty string is a substring of every a, so the call returns True. / When b is empty there is nothing to find, so the condition does not hold and the call does not return True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"hello\",\"ell\") => False\" can mean: The rule wins: \"ell\" is a substring of \"hello\" (\"hello\"[1:4]), so cycpattern_check(\"hello\", \"ell\") returns True and the example R-EX-2 is wrong. / The example R-EX-2 wins: the call returns False, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"abab\",\"baa\") => False\" can mean: The rule wins: the rotation \"aba\" of \"baa\" is a substring of \"abab\" (\"abab\"[0:3]), so cycpattern_check(\"abab\", \"baa\") returns True and the example R-EX-4 is wrong. / The example R-EX-4 wins: the call returns False, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-1"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"himenss\",\"simen\") => False\" can mean: The rule wins: the rotation \"imens\" of \"simen\" is a substring of \"himenss\" (\"himenss\"[1:6]), so cycpattern_check(\"himenss\", \"simen\") returns True and the example R-EX-6 is wrong. / The example R-EX-6 wins: the call returns False, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "calls": [],
+   "question": "\"return True if\" can mean: \"if\" means \"if and only if\": when the condition does not hold, the function returns False. / Only the True case is specified: when the condition does not hold, the result is not specified (any outcome allowed).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"abcd\",\"abd\") => True\" can mean: The rule wins: no rotation of \"abd\" (\"abd\", \"bda\", \"dab\") is a substring of \"abcd\" (whose 3-character substrings are \"abc\", \"bcd\"), so cycpattern_check(\"abcd\", \"abd\") returns False and the example R-EX-1 is wrong. / The example R-EX-1 wins: the call returns True, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"whassup\",\"psus\") => True\" can mean: The rule wins: no rotation of \"psus\" (\"psus\", \"susp\", \"usps\", \"spsu\") is a substring of \"whassup\" (whose 4-character substrings are \"whas\", \"hass\", \"assu\", \"ssup\"), so cycpattern_check(\"whassup\", \"psus\") returns False and the example R-EX-3 is wrong. / The example R-EX-3 wins: the call returns True, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RES-2"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"efef\",\"eeff\") => True\" can mean: The rule wins: no rotation of \"eeff\" (\"eeff\", \"effe\", \"ffee\", \"feef\") is a substring of \"efef\" (whose only 4-character substring is \"efef\"), so cycpattern_check(\"efef\", \"eeff\") returns False and the example R-EX-5 is wrong. / The example R-EX-5 wins: the call returns True, so the rule does not hold as written (all six examples fit the negated rule: True exactly when neither b nor any rotation of b is a substring of a).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"abcd\",\"abd\") => True\" can mean: The example is right: the call returns True, although no rotation of \"abd\" (\"abd\", \"bda\", \"dab\") is a substring of \"abcd\", which contradicts R-RES-2. / The rule R-RES-2 is right: the call returns False and the example is wrong.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"hello\",\"ell\") => False\" can mean: The example is right: the call returns False, although \"ell\" is a substring of \"hello\", which contradicts R-RES-1. / The rule R-RES-1 is right: the call returns True and the example is wrong.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"whassup\",\"psus\") => True\" can mean: The example is right: the call returns True, although no rotation of \"psus\" (\"psus\", \"susp\", \"usps\", \"spsu\") is a substring of \"whassup\", which contradicts R-RES-2. / The rule R-RES-2 is right: the call returns False and the example is wrong.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"abab\",\"baa\") => False\" can mean: The example is right: the call returns False, although the rotation \"aba\" of \"baa\" is a substring of \"abab\", which contradicts R-RES-1. / The rule R-RES-1 is right: the call returns True and the example is wrong.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-5"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"efef\",\"eeff\") => True\" can mean: The example is right: the call returns True, although no rotation of \"eeff\" (\"eeff\", \"effe\", \"ffee\", \"feef\") is a substring of \"efef\", which contradicts R-RES-2. / The rule R-RES-2 is right: the call returns False and the example is wrong.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-6"
+   ],
+   "calls": [],
+   "question": "\"cycpattern_check(\"himenss\",\"simen\") => False\" can mean: The example is right: the call returns False, although the rotation \"imens\" of \"simen\" is a substring of \"himenss\", which contradicts R-RES-1. / The rule R-RES-1 is right: the call returns True and the example is wrong.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "request points of agent_a",
+  "request points of agent_b"
+ ]
+}

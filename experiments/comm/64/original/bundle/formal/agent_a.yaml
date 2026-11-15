@@ -1,0 +1,123 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-IN-1: a word is a non-empty string of (ASCII) letters
+  is_word: 'len(s) >= 1 && all(i < len(s): isalpha(s[i]))'
+  # R-VOW-1: occurrences of the lowercase letters a, e, i, o, u, anywhere in s
+  n_aeiou: 'count(i < len(s): s[i] == "a" || s[i] == "e" || s[i] == "i" || s[i] == "o" || s[i] == "u")'
+  # R-VOW-2, R-VOW-3: a lowercase y is a vowel only as the last character of s
+  final_y: 'len(s) >= 1 && s[len(s) - 1] == "y"'
+  # R-CNT-1: vowel occurrences counted with repetition; no other character counts
+  n_vowels: 'n_aeiou + final_y'
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: 'is_word'
+    note: >-
+      Literal reading of "takes a string representing a word as input": an
+      obligation on the caller that s is one word, taken as a non-empty string
+      of ASCII letters (isalpha). Calls with the empty string, spaces, digits,
+      punctuation or non-ASCII characters are outside the environment, so their
+      result is unconstrained. Both examples ("abcde", "ACEDY") are words.
+
+properties:
+  - id: RA-CNT-1
+    req: R-CNT-1
+    expr: 'outcome == 0'
+    note: >-
+      "returns the number of vowels": every call returns an integer. The number
+      of vowels of a string of at most 32 characters is 0 to 32, so it fits the
+      0..63 range of outcome 0.
+  - id: RA-CNT-2
+    req: R-CNT-1
+    expr: 'count == n_vowels'
+    note: >-
+      The returned integer is the number of vowel occurrences in s, counted with
+      repetition ("aa" gives 2); characters that are not vowels add nothing.
+      Vowels are taken literally from R-VOW-1..3: only the lowercase characters
+      'a', 'e', 'i', 'o', 'u' (anywhere) and a lowercase 'y' that is the last
+      character of s. Uppercase letters and accented Latin-1 letters are not
+      vowels. This literal reading contradicts the docstring example
+      vowels_count("ACEDY") == 3 (R-EX-2), which needs A, E and the final Y to
+      count; under this property that call returns 0, so RA-EX-2 is
+      unreachable. The contradiction is left visible, not repaired.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: 's == "abcde" && outcome == 0 && count == 2'
+    note: >-
+      Doctest vowels_count("abcde") == 2 (a and e). Consistent with RA-CNT-2:
+      the final character is e, not y.
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: 's == "ACEDY" && outcome == 0 && count == 3'
+    note: >-
+      Doctest vowels_count("ACEDY") == 3, formalized verbatim. It contradicts
+      the literal vowel definitions (lowercase only, R-VOW-1, R-VOW-2), under
+      which RA-CNT-2 gives 0 for this call; the scenario is therefore expected
+      to be unreachable together with RA-CNT-2. Kept as written so that the
+      conflict between the examples and the definitions is reported.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: a statement about the response (a complete implementation,
+      not a stub), not about a single call. Its observable consequence, that
+      every call returns an integer instead of raising or returning None, is
+      RA-CNT-1; the correctness of the result is RA-CNT-2.
+    covered_by: [RA-CNT-1, RA-CNT-2]
+  - req: R-TASK-2
+    reason: >-
+      Definition of the interface (a function vowels_count with one argument s).
+      It is fixed by the function section of design.yaml, which calls
+      vowels_count(s) once per cycle; a missing function or another signature
+      makes the call raise (outcome 1), which RA-CNT-1 forbids.
+    covered_by: [RA-CNT-1]
+  - req: R-TASK-3
+    reason: >-
+      Non-functional. Read literally as an instruction to add test cases (reading
+      1), it concerns test code in the response, which is not observable in the
+      trace of vowels_count calls and cannot be stated in FCP-PL.
+  - req: R-VOW-1
+    reason: >-
+      Definition. Realized by the def n_aeiou (lowercase 'a', 'e', 'i', 'o', 'u'
+      only, taken literally; the list is exhaustive, so accented Latin-1 letters
+      are not vowels) used in RA-CNT-2. The literal lowercase reading
+      contradicts R-EX-2 (see RA-EX-2).
+    covered_by: [RA-CNT-2]
+  - req: R-VOW-2
+    reason: >-
+      Definition. Realized by the def final_y (a lowercase 'y' as the last
+      character of s adds one) used in RA-CNT-2. A final uppercase Y is not
+      counted (literal reading), which contradicts R-EX-2.
+    covered_by: [RA-CNT-2]
+  - req: R-VOW-3
+    reason: >-
+      Definition. Realized in RA-CNT-2: a 'y' adds one only through final_y,
+      i.e. only when it is the last character of the whole string s ("the end of
+      the given word", s being the given word); any other y adds nothing. Under
+      RA-IN-1 (s is a single word of letters) the readings "last letter of any
+      word" and "last letter before trailing non-letters" coincide with this.
+    covered_by: [RA-CNT-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (outcome != 0 -> count == 0). It holds by
+      construction of the adapter and is added to every formalization set, so
+      it is not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-TASK-3, phrase: "Add more test cases.", reading: 1}
+  - {req: R-IN-1, phrase: "a string representing a word", reading: 1}
+  - {req: R-IN-1, phrase: "a word", reading: 1}
+  - {req: R-CNT-1, phrase: "the number of vowels", reading: 1}
+  - {req: R-VOW-1, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 1}
+  - {req: R-VOW-1, phrase: "Vowels in this case are", reading: 1}
+  - {req: R-VOW-2, phrase: "'y'", reading: 1}
+  - {req: R-VOW-3, phrase: "at the end of the given word", reading: 1}
+  - {req: R-VOW-3, phrase: "'y'", reading: 1}
+  - {req: R-EX-2, phrase: 'vowels_count("ACEDY")', reading: 2}

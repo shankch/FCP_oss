@@ -1,0 +1,163 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate(n) keeps no state between calls (frame.md:
+# "Calls are independent"), so the model is combinational: definitions computed
+# from the input n of the current call, with both outputs (outcome, result)
+# checked against them. Ghost state would have nothing to remember.
+defs:
+  # Literal reading of "n can be written as the sum of 4 numbers" (R-FN-2,
+  # decisions below): exactly four summands, each any integer (negatives, zero
+  # and repeats allowed). Every integer n qualifies, witness n + 0 + 0 + 0, so
+  # the model answer is true for every n of the trace.
+  qualifies: "true"
+  # The call returned the bool True or False (frame.md: outcome 0).
+  returns_bool: "outcome == 0"
+
+assumptions:
+  - id: RB-IN-1
+    req: R-IN-1
+    expr: "n >= 0 && n <= 65535"
+    note: >-
+      Reading 2 of "the given number n": n is any integer. The prompt calls n a
+      number and restricts neither its sign nor its size; design.yaml treats the
+      function as one on integers. Negative and non-integer arguments are not
+      part of the trace (frame.md), so the only in-trace content is the range
+      0..65,535, which the 16-bit unsigned encoding already guarantees. The
+      assumption constrains nothing beyond the encoding; it places no
+      obligation on callers.
+
+properties:
+  - id: RB-FN-1
+    req: R-FN-1
+    pattern: invariant
+    args: {cond: "returns_bool"}
+    note: >-
+      Reading 1 of "Evaluate whether": every call returns the bool True or
+      False (outcome 0). Raising, not finishing (outcome 1) or returning a
+      non-bool such as 0, 1 or None (outcome 2) violates it. The prompt names no
+      exception and no argument for which the call may fail, so this holds for
+      every n of the trace.
+
+  - id: RB-FN-2
+    req: R-FN-2
+    pattern: invariant
+    args: {cond: "returns_bool && result == qualifies"}
+    note: >-
+      "returns True exactly when n can be written as the sum of 4 numbers, and
+      False otherwise", checked against the model `qualifies`. Literal reading
+      (decisions): "4 numbers" = any four integers, exactly four summands, so
+      every n qualifies (n + 0 + 0 + 0) and every call must return True; the
+      "False otherwise" branch never applies in the trace.
+      CONTRADICTION, not repaired: this reading (and equally the non-negative
+      integer reading, 4 = 4+0+0+0, or the positive integer reading,
+      4 = 1+1+1+1 and 6 = 1+1+2+2) makes candidate(4) and candidate(6) True,
+      against the examples candidate(4) == False and candidate(6) == False
+      (RB-EX-1, RB-EX-2). The narrower reading the examples point to (four
+      positive even numbers: True exactly when n is even and n >= 8) is not in
+      the text, so it is not formalized. No implementation can satisfy both
+      RB-FN-2 and RB-EX-1/RB-EX-2.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 4", cond: "returns_bool && !result"}
+    note: >-
+      The docstring example asserts candidate(4) == False. The function is
+      stateless (frame.md), so the example is a guarantee for every call with
+      n = 4, formalized here as a property and also as the scenario RB-EX-1-S.
+      "== False" read as the bool False (outcome 0, result 0). Reading 2 of
+      "candidate(4)" (contradiction): the literal main statement (RB-FN-2)
+      makes 4 qualify, so this example conflicts with RB-FN-2; it is
+      formalized as written, not dropped and not used to narrow RB-FN-2.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 6", cond: "returns_bool && !result"}
+    note: >-
+      The docstring example asserts candidate(6) == False; a guarantee for
+      every call with n = 6 (stateless function), also the scenario RB-EX-2-S.
+      "== False" read as the bool False. Reading 2 of "candidate(6)"
+      (contradiction): the literal main statement (RB-FN-2) makes 6 qualify
+      (6+0+0+0, 1+1+2+2), so this example conflicts with RB-FN-2; formalized
+      as written.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "n == 8", cond: "returns_bool && result"}
+    note: >-
+      The docstring example asserts candidate(8) == True; a guarantee for every
+      call with n = 8 (stateless function), also the scenario RB-EX-3-S.
+      "== True" read as the bool True. Reading 1 of "candidate(8)": the text
+      does not require distinct summands, so 8 qualifies (8+0+0+0, 2+2+2+2);
+      consistent with RB-FN-2.
+
+scenarios:
+  - id: RB-FN-1-S
+    req: R-FN-1
+    cover: "returns_bool"
+    note: A call that returns a bool is possible.
+
+  - id: RB-FN-2-S
+    req: R-FN-2
+    cover: "returns_bool && result && qualifies"
+    note: >-
+      A call on a qualifying n that returns True is possible. No scenario for
+      the False branch: under the literal reading no n of the trace fails to
+      qualify.
+
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "n == 4 && returns_bool && !result"
+    note: >-
+      The example call candidate(4) returning False must be possible. Expected
+      to be unreachable together with RB-FN-2 (see the contradiction noted
+      there).
+
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: "n == 6 && returns_bool && !result"
+    note: >-
+      The example call candidate(6) returning False must be possible. Expected
+      to be unreachable together with RB-FN-2 (see the contradiction noted
+      there).
+
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "n == 8 && returns_bool && result"
+    note: The example call candidate(8) returning True must be possible.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      "Complete this function" is a deliverable requirement, not a property of
+      a trace of calls. Its observable part (a working body, not a stub that
+      returns None or raises) is realized by the behavioural properties.
+    covered_by: [RB-FN-1, RB-FN-2]
+  - req: R-IF-2
+    reason: >-
+      The function name and its single parameter are the call interface,
+      fixed by the adapter's function binding in design.yaml (name candidate,
+      argument n on signal n); a signature is not expressible in FCP-PL over
+      the trace.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md), added to every formalization set by
+      construction ("need not be restated").
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "the given number n", reading: 2}
+  - {req: R-FN-1, phrase: "Evaluate whether", reading: 1}
+  - {req: R-FN-2, phrase: "4 numbers", reading: 1}
+  - {req: R-FN-2, phrase: "the sum of 4", reading: 1}
+  - {req: R-FN-2, phrase: "can be written as", reading: 1}
+  - {req: R-EX-1, phrase: "candidate(4)", reading: 2}
+  - {req: R-EX-1, phrase: "== False", reading: 1}
+  - {req: R-EX-2, phrase: "candidate(6)", reading: 2}
+  - {req: R-EX-2, phrase: "== False", reading: 1}
+  - {req: R-EX-3, phrase: "candidate(8)", reading: 1}
+  - {req: R-EX-3, phrase: "== True", reading: 1}

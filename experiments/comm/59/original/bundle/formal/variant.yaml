@@ -1,0 +1,119 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-DEF-1: a prime is an integer p > 1 whose only positive divisors are 1 and p.
+  # Every value on the interface is below 65536 = 256 * 256, so a number m in 2..65535 is
+  # prime iff no d in 2..255 with d * d <= m divides m (trial division, d = i + 2).
+  n_prime: 'n > 1 && all(i < 254: (i + 2) * (i + 2) <= n -> n % (i + 2) != 0)'
+  factor_prime: 'factor > 1 && all(i < 254: (i + 2) * (i + 2) <= factor -> factor % (i + 2) != 0)'
+  # factor divides n exactly: n == factor * q for an integer q. For factor < 256 this is
+  # n % factor == 0; for factor >= 256 the quotient q is below 256.
+  factor_divides_n: 'any(i < 254: factor == i + 2 && n % (i + 2) == 0) || any(q < 256: factor * q == n)'
+  # No prime p greater than factor divides n. Every prime p dividing n (n < 65536) has
+  # p < 256 or n / p < 256, so two cases cover every p:
+  # (a) p = i + 2 < 256, prime by trial division with d = k + 2 in 2..15 (16 * 16 > 255);
+  no_larger_small_prime: 'all(i < 254: (i + 2 > factor && all(k < 14: (k + 2) * (k + 2) <= i + 2 -> (i + 2) % (k + 2) != 0)) -> n % (i + 2) != 0)'
+  # (b) p = n / q for q = j + 1 < 256 dividing n, with n > q (p > 1): p is prime iff no
+  #     d = i + 2 in 2..255 with d * d * q <= n has q * d dividing n; p > factor iff n > factor * q.
+  no_larger_large_prime: 'all(j < 255: (n % (j + 1) == 0 && n > j + 1 && all(i < 254: (i + 2) * (i + 2) * (j + 1) <= n -> n % ((j + 1) * (i + 2)) != 0)) -> n <= factor * (j + 1))'
+  # R-DEF-1: factor is a prime that divides n exactly, and no greater prime divides n.
+  factor_is_lpf: 'factor_prime && factor_divides_n && no_larger_small_prime && no_larger_large_prime'
+
+properties:
+  - id: RV-FN-1
+    req: R-FN-1
+    pattern: implies
+    args:
+      trigger: 'n > 1 && !n_prime'
+      cond: '(outcome == 0 && factor_is_lpf) || outcome == 2'
+    note: >-
+      For every n > 1 that is not prime the call returns normally (outcome 0 or 2, never 1:
+      no exception and it finishes) with the largest prime factor of n (R-DEF-1, defs above).
+      Ambiguity "Return": taken as instructed, reading 2 (any returned value numerically
+      equal to the largest prime factor is acceptable, e.g. the float 29.0 or a numpy
+      integer; no return type is annotated). A Python int in 0..65535 is outcome 0 and its
+      value is on factor, so it must equal the answer. A returned float or other numeric
+      type is outcome 2, whose value the adapter does not record (F-ZERO puts 0 on factor),
+      so every outcome 2 is accepted. This over-approximates reading 2: outcome 2 also covers
+      a string, a negative number, a number above 65,535 or a float of another value, which
+      this property cannot tell apart from 29.0. The trigger states the case condition
+      explicitly because, under the readings taken for R-ENV-1 and R-ENV-2 (see RV-ENV-1,
+      RV-ENV-2), "Assume n > 1 and is not a prime" places no obligation on the caller.
+  - id: RV-ENV-1
+    req: R-ENV-1
+    pattern: implies
+    args:
+      trigger: 'n <= 1'
+      cond: 'outcome == 1'
+    note: >-
+      Ambiguity "Assume n > 1": taken as instructed, reading 2 (for n <= 1, which has no
+      prime factor, the function must signal the error by raising an exception). So this is
+      a guarantee on the function, not an assumption on the caller: no assumption restricts
+      n, and for n = 0 and n = 1 (the only values <= 1 the 16-bit signal carries; negative n
+      is not part of the trace) the call must raise. The adapter folds every exception and
+      "did not finish" into outcome 1, so a call that never finishes on n <= 1 also passes;
+      the property cannot require the raise more precisely than that. Any exception type is
+      accepted: the text names none.
+  - id: RV-ENV-2
+    req: R-ENV-2
+    pattern: implies
+    args:
+      trigger: 'n_prime'
+      cond: '(outcome == 0 && factor == n) || outcome == 2'
+    note: >-
+      Ambiguity "is not a prime": taken as instructed, reading 2 (for prime n the largest
+      prime factor is still well defined, n itself, so the function must return n; the
+      assumption only tells the implementer this case needs no special handling). So this is
+      a guarantee, not an assumption: no assumption excludes prime n, and for prime n the
+      call returns n. "Return" is read here as in RV-FN-1, the instructed reading 2 of
+      R-FN-1 (any returned value numerically equal to n is acceptable): an int is outcome 0
+      and must equal n; any outcome 2 is accepted because its value is not on the trace,
+      with the same over-approximation as RV-FN-1. A prime n is in 2..65521, so it fits
+      factor.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'n == 13195 && outcome == 0 && factor == 29'
+    note: >-
+      Doctest: largest_prime_factor(13195) shows 29 (13195 = 5 * 7 * 13 * 29). Taken
+      literally as the int 29 (outcome 0, factor 29), which is what the doctest prints. The
+      reading 2 taken for R-FN-1 "Return" also lets RV-FN-1 accept a numerically equal
+      non-int (outcome 2, e.g. 29.0) on this call; that reading is not extended to this
+      scenario, which only requires that the exact doctest result be possible.
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'n == 2048 && outcome == 0 && factor == 2'
+    note: >-
+      Doctest: largest_prime_factor(2048) shows 2 (2048 = 2^11). Taken literally as the int 2
+      (outcome 0, factor 2). As for RV-EX-1, the reading 2 taken for R-FN-1 "Return" lets
+      RV-FN-1 accept a numerically equal non-int here, but it is not extended to this
+      scenario.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      The function name and its single int parameter n are fixed by the `function` section
+      of design.yaml, through which the adapter makes every call; they are not a property of
+      the trace. The `n: int` annotation is not observable. A function that cannot be called
+      as largest_prime_factor(n) ends every call as outcome 1, which RV-FN-1 rejects.
+    covered_by: [RV-FN-1]
+  - req: R-DEF-1
+    reason: >-
+      Definition, not a behaviour. It is realized by the defs n_prime, factor_prime,
+      factor_divides_n, no_larger_small_prime, no_larger_large_prime and factor_is_lpf, which
+      RV-FN-1 and RV-ENV-2 use.
+    covered_by: [RV-FN-1, RV-ENV-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, realized by the frame item F-ZERO of design.yaml
+      (outcome != 0 -> factor == 0), which is part of every formalization set and need not
+      be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: 'Return', reading: 2}
+  - {req: R-ENV-1, phrase: 'Assume n > 1', reading: 2}
+  - {req: R-ENV-2, phrase: 'is not a prime', reading: 2}

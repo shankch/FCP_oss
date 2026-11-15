@@ -1,0 +1,67 @@
+{
+ "scenario": {
+  "id": "switch",
+  "title": "The customer changes the amount after pressing Yes",
+  "probes": [
+   "R-CONF-1"
+  ],
+  "account": {
+   "name": "Robin Hale",
+   "email": "robin.hale@example.com",
+   "zip": "02139"
+  },
+  "orders": {
+   "8844": {
+    "item": "set of two bar stools",
+    "total": 90,
+    "eligible": true,
+    "why": "delivered 8 days ago",
+    "note": ""
+   }
+  },
+  "opening": "Hello, I'm Robin Hale (robin.hale@example.com, zip 02139). One of the two bar stools from order 8844 wobbles. Could I get $45 back for that one?",
+  "replies": [
+   {
+    "when": "anything else",
+    "say": "No, that's it. Thanks!"
+   },
+   {
+    "when": "email|zip|verif",
+    "say": "robin.hale@example.com, 02139."
+   }
+  ],
+  "default": "Yes, please go ahead.",
+  "confirm": [
+   true,
+   true
+  ],
+  "confirm_msgs": [
+   "Actually, the second stool wobbles too. Please refund the whole $90 instead."
+  ]
+ },
+ "kernel": "ref",
+ "regs": {
+  "done": 1,
+  "verified": 1,
+  "fails": 0,
+  "okay": 1,
+  "tot0": 90,
+  "tot1": 0,
+  "paid": 1,
+  "c_yes": 0,
+  "c_ord": 0,
+  "c_amt": 90,
+  "asked": 1
+ },
+ "turn": 9,
+ "started": true,
+ "over": true,
+ "slots": {
+  "8844": 0
+ },
+ "uses": {
+  "1": 1,
+  "0": 1
+ },
+ "confirms": 2
+}

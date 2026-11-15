@@ -1,0 +1,141 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete Python implementation (a body) of the given stub generate_integers(a, b), keeping its signature.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def generate_integers(a, b):'
+  text: The function is a Python function named generate_integers that takes exactly two parameters, a then b.
+  kind: non_functional
+  ambiguity:
+  - phrase: generate_integers
+    readings:
+    - The name is only a label; the returned values are even digits (single digits 0-9) as the docstring says, so the name and the docstring do not conflict.
+    - 'The name is meant: the function generates integers of any size (even integers between a and b), which contradicts the docstring''s ''even digits'' (contradiction with R-RET-2).'
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: Given two positive integers a and b
+  text: The caller passes two integers a and b that are both positive (a >= 1 and b >= 1); calls outside this precondition are not constrained by the prompt.
+  kind: assumption
+  ambiguity:
+  - phrase: positive
+    readings:
+    - 'Strictly positive: a >= 1 and b >= 1; a call with a == 0 or b == 0 is outside the precondition and its behaviour is unconstrained.'
+    - 'Used loosely for non-negative: a >= 0 and b >= 0; calls with 0 must also satisfy every other requirement.'
+  - phrase: a and b
+    readings:
+    - 'No order between a and b is assumed: a call with a > b is a valid call and must be answered.'
+    - 'a <= b is implicitly assumed: a call with a > b is outside the precondition and its behaviour is unconstrained.'
+  lines:
+  - 6
+- id: R-RET-1
+  doc: SPEC
+  quote: return the even digits between
+  text: For every call with positive integers a and b, the function finishes without raising an exception and returns a list (of the even digits between a and b).
+  kind: guarantee
+  ambiguity:
+  - phrase: return
+    readings:
+    - The function returns a Python list.
+    - Any collection of the values is acceptable (a list, tuple, set, generator, ...).
+  lines:
+  - 6
+- id: R-RET-2
+  doc: SPEC
+  quote: return the even digits between
+  text: Every element of the returned list is an even digit, that is one of 0, 2, 4, 6 and 8.
+  kind: guarantee
+  ambiguity:
+  - phrase: even digits
+    readings:
+    - 'Even decimal digits: every element is a single-digit even number, one of 0, 2, 4, 6, 8 (the docstring wins over the function name).'
+    - '''Digits'' is used loosely for numbers: every element is an even integer of any size, as the function name generate_integers suggests (contradiction with R-IF-2).'
+    - 'Even digits that occur in the decimal writing of the numbers between a and b: every element is one of 0, 2, 4, 6, 8, taken from those numbers'' digits.'
+  lines:
+  - 6
+- id: R-RET-3
+  doc: SPEC
+  quote: Given two positive integers a and b, return the even digits between
+  text: Every element of the returned list lies between a and b (the prompt's sentence ends at 'between'; its object is taken to be a and b).
+  kind: guarantee
+  ambiguity:
+  - phrase: between
+    readings:
+    - 'Inclusive: a and b themselves count as lying between a and b.'
+    - 'Exclusive: only values strictly greater than the lower bound and strictly less than the upper bound lie between a and b.'
+  - phrase: a and b
+    readings:
+    - 'Either order: the range runs from min(a, b) to max(a, b), so swapping a and b does not change which values lie between them.'
+    - 'Ordered: the range runs from a up to b, so nothing lies between them when a > b and the list is empty.'
+  - phrase: even digits
+    readings:
+    - 'Even single digits (0, 2, 4, 6, 8): each element itself lies between a and b.'
+    - 'Even integers of any size, as the function name generate_integers suggests: each element itself lies between a and b.'
+    - 'Even digits occurring in the decimal writing of the numbers between a and b: each element is a digit of some number between a and b, and need not itself lie between a and b.'
+  lines:
+  - 6
+- id: R-RET-4
+  doc: SPEC
+  quote: Given two positive integers a and b, return the even digits between
+  text: Every even digit that lies between a and b appears in the returned list.
+  kind: guarantee
+  ambiguity:
+  - phrase: between
+    readings:
+    - 'Inclusive: a or b itself must appear when it is an even digit.'
+    - 'Exclusive: a and b themselves never appear; only values strictly between them are required.'
+  - phrase: a and b
+    readings:
+    - 'Either order: the even digits from min(a, b) to max(a, b) must appear, whichever of a and b is larger.'
+    - 'Ordered: the even digits from a up to b must appear; nothing is required when a > b.'
+  - phrase: even digits
+    readings:
+    - Every even single digit (0, 2, 4, 6, 8) between a and b must appear; nothing is required when the range lies above 9.
+    - Every even integer of any size between a and b must appear, as the function name generate_integers suggests (contradiction with R-IF-2).
+    - Every even digit occurring in the decimal writing of some number between a and b must appear.
+  lines:
+  - 6
+- id: R-RET-5
+  doc: SPEC
+  quote: return the even digits between
+  text: No value appears more than once in the returned list.
+  kind: guarantee
+  ambiguity:
+  - phrase: the even digits
+    readings:
+    - 'The set of qualifying values: each appears exactly once, without duplicates.'
+    - 'One entry per occurrence (for instance per occurrence of a digit in the decimal writing of the numbers between a and b): duplicates are allowed or required.'
+  lines:
+  - 6
+- id: R-RET-6
+  doc: SPEC
+  quote: return the even digits between
+  text: The prompt does not state the order of the elements of the returned list; any order of the required elements is acceptable.
+  kind: dont_care
+  ambiguity:
+  - phrase: return the even digits
+    readings:
+    - 'The order is unconstrained: any order of the required elements is acceptable.'
+    - Ascending order is implied, as is conventional for a list of numbers in a range.
+    - The order runs from a towards b, so the list is descending when a > b.
+  lines:
+  - 6
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `result` is the empty list unless `outcome` is 0.'
+  text: In every call whose outcome is not 0 (an exception, no answer, or a returned value that is not a fitting list), the result signal is the empty list.
+  kind: guarantee
+  lines:
+  - 48

@@ -1,0 +1,140 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FN-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete implementation of the Python function candidate(arr), taking one argument arr, with the signature and docstring given in the request.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-FN-2
+  doc: SPEC
+  quote: 'def candidate(arr):'
+  text: The function is named candidate and takes exactly one parameter, arr.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-IN-1
+  doc: SPEC
+  quote: Given an array arr of integers
+  text: The argument arr is an array (list) of integers; inputs of any other form are outside the specification.
+  kind: assumption
+  ambiguity:
+  - phrase: an array arr of integers
+    readings:
+    - arr may be empty; the empty array reads the same backwards and forwards, so the answer for it is 0
+    - arr is implicitly non-empty; the result for the empty array is unspecified (don't care)
+  lines:
+  - 6
+- id: R-CH-1
+  doc: SPEC
+  quote: find the number of elements that need to be changed to make the array palindromic
+  text: candidate(arr) returns the number of elements of arr that need to be changed, each change replacing one element by another value, for arr to become palindromic.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-DEF-2
+  ambiguity:
+  - phrase: the number of elements that need to be changed
+    readings:
+    - the minimum number of single-element changes that make arr palindromic, i.e. the number of mirrored index pairs (i, len(arr)-1-i) with i < len(arr)-1-i whose two elements differ
+    - the number of elements that differ from their mirrored element, i.e. both elements of every differing pair are counted (twice the number of differing pairs); this reading contradicts R-EX-1 (8, not
+      4) and R-EX-2 (2, not 1)
+    - any number of changes that suffices to make arr palindromic, not necessarily the smallest
+  - phrase: to make the array palindromic
+    readings:
+    - the function only computes and returns the count; arr itself is left as it was
+    - the function also turns arr into a palindrome (in place) and returns how many elements it changed
+  lines:
+  - 6
+  - 7
+- id: R-CH-2
+  doc: SPEC
+  quote: find the number of elements
+  text: For every array of integers, candidate(arr) returns a single non-negative integer (the count); it does not raise an exception or return a value of another type.
+  kind: guarantee
+  ambiguity:
+  - phrase: find the number
+    readings:
+    - return the number as the function's integer result
+    - output (e.g. print) the number; the return value is unspecified
+  lines:
+  - 6
+- id: R-DEF-1
+  doc: SPEC
+  quote: A palindromic array is an array that is read the same backwards and forwards.
+  text: An array is palindromic if and only if it reads the same backwards and forwards, i.e. arr[i] == arr[len(arr)-1-i] for every index i; the empty array and every one-element array are palindromic.
+  kind: definition
+  ambiguity:
+  - phrase: read the same backwards and forwards
+    readings:
+    - 'element-wise: the sequence of elements equals its reverse (e.g. [12, 21] is not palindromic)'
+    - 'textually: the written-out digits of the elements, read in reverse, are the same (e.g. [12, 21] reads 1221 and is palindromic)'
+  lines:
+  - 7
+  - 8
+- id: R-DEF-2
+  doc: SPEC
+  quote: In one change, you can change one element to any other element.
+  text: One change replaces the value of exactly one element of the array with another value; the length of the array is unchanged and no other operation (insertion, deletion, swap) is a change.
+  kind: definition
+  ambiguity:
+  - phrase: any other element
+    readings:
+    - any other integer value, whether or not it occurs in the array
+    - only the value of another element already present in the array
+  - phrase: In one change, you can change one element
+    readings:
+    - a change must give the element a value different from its current one
+    - any replacement counts as a change, even one that leaves the value the same
+  lines:
+  - 8
+- id: R-EX-1
+  doc: SPEC
+  quote: candidate([1,2,3,5,4,7,9,6]) == 4
+  text: candidate([1, 2, 3, 5, 4, 7, 9, 6]) returns 4.
+  kind: scenario
+  depends:
+  - R-CH-1
+  ambiguity:
+  - phrase: == 4
+    readings:
+    - 'consistent with R-CH-1 read as the minimum number of changes: all 4 mirrored pairs (1,6), (2,9), (3,7), (5,4) differ'
+    - contradicts R-CH-1 read as counting every element that differs from its mirror, which gives 8
+  lines:
+  - 11
+- id: R-EX-2
+  doc: SPEC
+  quote: candidate([1, 2, 3, 4, 3, 2, 2]) == 1
+  text: candidate([1, 2, 3, 4, 3, 2, 2]) returns 1.
+  kind: scenario
+  depends:
+  - R-CH-1
+  ambiguity:
+  - phrase: == 1
+    readings:
+    - 'consistent with R-CH-1 read as the minimum number of changes: only the pair (1,2) differs; the middle element 4 has no mirror'
+    - contradicts R-CH-1 read as counting every element that differs from its mirror, which gives 2
+  lines:
+  - 12
+- id: R-EX-3
+  doc: SPEC
+  quote: candidate([1, 2, 3, 2, 1]) == 0
+  text: candidate([1, 2, 3, 2, 1]) returns 0, since the array is already palindromic.
+  kind: scenario
+  depends:
+  - R-CH-1
+  lines:
+  - 13
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `changes` is 0 unless `outcome` is 0.'
+  text: In every call, the output changes is 0 whenever outcome is not 0 (the call raised, did not finish, or returned something other than an integer from 0 to 15).
+  kind: guarantee
+  lines:
+  - 49

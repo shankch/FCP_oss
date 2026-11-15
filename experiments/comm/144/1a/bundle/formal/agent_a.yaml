@@ -1,0 +1,166 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # powers of ten, indexed by the exponent (a digit's place value)
+  p10: '[1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000, 100000000000000, 1000000000000000]'
+
+  # x is the first argument a (R-FN-2, by position): slash index, numerator, denominator
+  pa: 'sum(i < len(a): a[i] == "/" ? i : 0)'
+  na: 'sum(i < len(a): i < pa ? (a[i] - "0") * p10[pa - 1 - i] : 0)'
+  da: 'sum(i < len(a): i > pa ? (a[i] - "0") * p10[len(a) - 1 - i] : 0)'
+  # n is the second argument b
+  pb: 'sum(i < len(b): b[i] == "/" ? i : 0)'
+  nb: 'sum(i < len(b): i < pb ? (b[i] - "0") * p10[pb - 1 - i] : 0)'
+  db: 'sum(i < len(b): i > pb ? (b[i] - "0") * p10[len(b) - 1 - i] : 0)'
+
+  # <numerator>/<denominator>: decimal digits, one '/', decimal digits, no leading zeros
+  fmt_a: 'count(i < len(a): a[i] == "/") == 1 && all(i < len(a): a[i] == "/" || isdigit(a[i])) && pa >= 1 && pa <= len(a) - 2 && (a[0] == "0" -> pa == 1) && (a[pa + 1] == "0" -> pa + 2 == len(a))'
+  fmt_b: 'count(i < len(b): b[i] == "/") == 1 && all(i < len(b): b[i] == "/" || isdigit(b[i])) && pb >= 1 && pb <= len(b) - 2 && (b[0] == "0" -> pb == 1) && (b[pb + 1] == "0" -> pb + 2 == len(b))'
+  pos_a: 'na >= 1 && da >= 1'
+  pos_b: 'nb >= 1 && db >= 1'
+
+  # x * n = prod_n / den and x + n = sum_n / den, in exact rational arithmetic
+  den: 'da * db'
+  prod_n: 'na * nb'
+  sum_n: 'na * db + nb * da'
+
+  ret_true: 'outcome == 0 && result'
+  ret_false: 'outcome == 0 && !result'
+
+rigids:
+  # a candidate integer quotient of x * n: the numerators have at most 14 digits, so x * n < 10^28
+  - {name: qp, range: [0, 10000000000000000000000000000]}
+  # a candidate integer quotient of x + n: x + n < 2 * 10^14
+  - {name: qs, range: [0, 200000000000000]}
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: 'fmt_a && fmt_b'
+    note: >-
+      Each argument is the decimal digits of the numerator, one '/', and the
+      decimal digits of the denominator, with nothing else (no signs, spaces or
+      other characters). I took "<numerator>/<denominator>" as the canonical
+      decimal representation (reading 1): no leading zeros, so '05/1' is outside
+      the assumption. A lone '0' is not a leading zero; R-IN-2 excludes it.
+  - id: RA-IN-2
+    req: R-IN-2
+    expr: 'pos_a && pos_b'
+    note: >-
+      "positive whole numbers" read as integers of at least 1 (reading 1), for
+      both numerator and denominator of both arguments. The values are computed
+      from the digits assumed by RA-IN-1.
+  - id: RA-IN-3
+    req: R-IN-3
+    expr: 'fmt_a && fmt_b && pos_a && pos_b'
+    note: >-
+      "valid fractions" read as the stated <numerator>/<denominator> format with
+      positive whole numerator and denominator (reading 1), i.e. the
+      conjunction of RA-IN-1 and RA-IN-2. Calls with other arguments are not
+      constrained by any property.
+  - id: RA-IN-4
+    req: R-IN-4
+    expr: 'da != 0 && db != 0'
+    note: >-
+      Read as a redundant restatement of R-IN-2 (reading 1): the denominator of
+      each argument is not zero.
+
+properties:
+  - id: RA-RES-1-PROD
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'prod_n == qp * den', cond: 'ret_true'}
+    note: >-
+      If x * n = (na*nb)/(da*db) is a whole number, simplify returns the bool
+      True. "is a whole number" is stated with the universally quantified
+      quotient qp: for every integer qp, if na*nb == qp*da*db then the call
+      returns True. x is a and n is b (R-FN-2); the order does not matter, the
+      expressions are symmetric. Readings taken: the product or the sum suffices
+      (reading 1, this item and RA-RES-1-SUM together), exact rational
+      arithmetic (reading 1), whole number = integer (reading 1; under R-IN-2
+      both values are positive, so the three readings coincide), returns a bool
+      (reading 1).
+  - id: RA-RES-1-SUM
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'sum_n == qs * den', cond: 'ret_true'}
+    note: >-
+      If x + n = (na*db + nb*da)/(da*db) is a whole number, simplify returns the
+      bool True (literal "or": either expression being whole suffices).
+  - id: RA-RES-2
+    req: R-RES-2
+    pattern: implies
+    args:
+      trigger: 'qp * den < prod_n && prod_n < (qp + 1) * den && qs * den < sum_n && sum_n < (qs + 1) * den'
+      cond: 'ret_false'
+    note: >-
+      "otherwise" = neither x * n nor x + n is a whole number (reading 1).
+      A positive rational p/d is not whole exactly when some integer q has
+      q*d < p < (q+1)*d, so for all qp, qs: if both the product and the sum
+      lie strictly between consecutive integers, simplify returns the bool False.
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'a == "1/5" && b == "5/1"', cond: 'ret_true'}
+    note: >-
+      The example is an equation about a call, so I state it as a property (the
+      call returns True), together with the scenario RA-EX-1-S that the
+      requirement kind asks for. It agrees with the reading taken for R-RES-1
+      (product 1 is whole; the sum 26/5 is not).
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'a == "1/6" && b == "2/1"', cond: 'ret_false'}
+    note: Product 1/3 and sum 13/6 are not whole; the call returns False.
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'a == "7/10" && b == "10/2"', cond: 'ret_false'}
+    note: >-
+      Product 7/2 and sum 57/10 are not whole; the call returns False. "10/2"
+      is not in lowest terms; nothing in the prompt requires lowest terms.
+
+scenarios:
+  - {id: RA-EX-1-S, req: R-EX-1, cover: 'a == "1/5" && b == "5/1" && ret_true'}
+  - {id: RA-EX-2-S, req: R-EX-2, cover: 'a == "1/6" && b == "2/1" && ret_false'}
+  - {id: RA-EX-3-S, req: R-EX-3, cover: 'a == "7/10" && b == "10/2" && ret_false'}
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      The function name and its two parameters are fixed by the function
+      adapter (design.yaml `function`: simplify(a, b)); they are not a property
+      of the trace of calls.
+  - req: R-FN-2
+    reason: >-
+      Definition (reading 1: x is a, n is b by position). Realized by the defs
+      na, da (from a) and nb, db (from b) used by the result properties.
+    covered_by: [RA-RES-1-PROD, RA-RES-1-SUM, RA-RES-2]
+  - req: R-FN-3
+    reason: >-
+      Definition of the expressions considered: both x * n and x + n (reading
+      3), and "simplify" read as a loose description of a bool-valued test
+      (reading 1). Realized by the defs prod_n, sum_n, den in the result
+      properties.
+    covered_by: [RA-RES-1-PROD, RA-RES-1-SUM, RA-RES-2]
+  - req: R-FR-1
+    reason: Frame rule of the function adapter, added to every formalization set by design.yaml.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-2, phrase: 'a, b', reading: 1}
+  - {req: R-FN-3, phrase: 'simplify the expression', reading: 1}
+  - {req: R-FN-3, phrase: 'x * n, or x + n', reading: 3}
+  - {req: R-IN-1, phrase: '<numerator>/<denominator>', reading: 1}
+  - {req: R-IN-2, phrase: 'positive whole numbers', reading: 1}
+  - {req: R-IN-3, phrase: 'valid fractions', reading: 1}
+  - {req: R-IN-4, phrase: 'do not have zero as denominator', reading: 1}
+  - {req: R-RES-1, phrase: 'x * n or x + n evaluates to a whole number', reading: 1}
+  - {req: R-RES-1, phrase: 'evaluates', reading: 1}
+  - {req: R-RES-1, phrase: 'whole number', reading: 1}
+  - {req: R-RES-1, phrase: 'returns True', reading: 1}
+  - {req: R-RES-2, phrase: 'otherwise', reading: 1}
+  - {req: R-RES-2, phrase: 'False', reading: 1}
+  - {req: R-EX-1, phrase: 'simplify("1/5", "5/1") = True', reading: 1}

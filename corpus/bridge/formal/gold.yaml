@@ -1,0 +1,57 @@
+fcp: "0.1"
+set: gold
+origin:
+  kind: human
+  id: gold
+  role: formalizer
+  note: >
+    Expert reference formalization. Decisions: D-1 R-RSP-6 is a permission
+    that R-CMD-2 forbids; R-CMD-2 takes precedence and the permission is not
+    required. D-2 R-CMD-2 is read as "if and only if idle" (otherwise the
+    bridge could stall forever).
+defs:
+  acc:  "cmd_valid && cmd_ready"            # command accepted
+  cpl:  "psel && penable && pready"          # transfer completes
+  rhs:  "rsp_valid && rsp_ready"            # response accepted
+ghosts:
+  - name: st                                 # spec-model phase: 0 idle, 1 setup, 2 access, 3 response pending
+    range: [0, 3]
+    init: 0
+    next: "st == 0 ? (acc ? 1 : 0) : st == 1 ? 2 : st == 2 ? (pready ? 3 : 2) : (rsp_ready ? 0 : 3)"
+  - {name: r_write, width: 1, init: 0, next: "cpl ? pwrite : r_write", desc: kind of the transfer whose response is pending}
+assumptions:
+  - {id: G-A-1, req: R-CMD-3, pattern: hold_until, args: {trigger: "cmd_valid && !cmd_ready", hold: "cmd_valid && stable(cmd_write) && stable(cmd_addr) && stable(cmd_wdata)", release: "cmd_ready"}}
+  - {id: G-A-2, req: R-APB-9, pattern: bounded_wait, args: {cond: "psel && penable && !pready", max: 3}}
+properties:
+  - {id: G-OV-1,  req: R-OV-1,  expr: "!(cmd_ready && (psel || rsp_valid))"}
+  - {id: G-CMD-2, req: R-CMD-2, expr: "cmd_ready == (st == 0)", decision: D-2}
+  - {id: G-APB-1a, req: R-APB-1, pattern: inorder, args: {in_fire: acc, in_data: cmd_addr,  out_fire: cpl, out_data: paddr,  capacity: 1}}
+  - {id: G-APB-1b, req: R-APB-1, pattern: inorder, args: {in_fire: acc, in_data: cmd_wdata, out_fire: cpl, out_data: pwdata, capacity: 1}}
+  - {id: G-APB-1c, req: R-APB-1, pattern: inorder, args: {in_fire: acc, in_data: cmd_write, out_fire: cpl, out_data: pwrite, capacity: 1}}
+  - {id: G-APB-2, req: R-APB-2, pattern: inorder, args: {in_fire: acc, in_data: cmd_addr, out_fire: cpl, out_data: paddr, capacity: 1}}
+  - {id: G-APB-3a, req: R-APB-3, pattern: next, args: {trigger: acc, cond: "psel && !penable"}}
+  - {id: G-APB-3b, req: R-APB-3, pattern: next, args: {trigger: "psel && !penable", cond: "psel && penable"}}
+  - {id: G-APB-3c, req: R-APB-3, expr: "rose(psel) -> prev(acc)"}
+  - {id: G-APB-4, req: R-APB-4, pattern: next, args: {trigger: "psel && penable && !pready", cond: "psel && penable"}}
+  - {id: G-APB-5, req: R-APB-5, pattern: next, args: {trigger: "psel && !cpl", cond: "psel && stable(pwrite) && stable(paddr) && stable(pwdata)"}}
+  - {id: G-APB-6, req: R-APB-6, expr: "penable -> psel"}
+  - {id: G-APB-7, req: R-APB-7, pattern: next, args: {trigger: cpl, cond: "!psel && !penable"}}
+  - {id: G-RSP-1, req: R-RSP-1, pattern: inorder, args: {in_fire: cpl, in_data: pslverr, out_fire: rhs, out_data: rsp_err, capacity: 1, peek: "rsp_valid"}}
+  - {id: G-RSP-2, req: R-RSP-2, pattern: inorder, args: {in_fire: "cpl && !pwrite", in_data: prdata, out_fire: "rhs && !r_write", out_data: rsp_rdata, capacity: 1, peek: "rsp_valid && !r_write"}}
+  - {id: G-RSP-3, req: R-RSP-3, pattern: next, args: {trigger: cpl, cond: rsp_valid}}
+  - {id: G-RSP-3b, req: R-RSP-3, expr: "rose(rsp_valid) -> prev(cpl)"}
+  - {id: G-RSP-4, req: R-RSP-4, pattern: next, args: {trigger: "rsp_valid && !rsp_ready", cond: "rsp_valid && stable(rsp_rdata) && stable(rsp_err)"}}
+  - {id: G-LAT-1, req: R-LAT-1, pattern: within, args: {trigger: acc, cond: rsp_valid, min: 1, max: 8}}
+  - {id: G-RST-1, req: R-RST-1, pattern: after_reset, args: {cond: "!psel && !penable && !rsp_valid && cmd_ready"}}
+scenarios:
+  - {id: S-RD-ERR, req: R-RSP-1, cover: "rhs && rsp_err"}
+  - {id: S-WAIT,   req: R-APB-4, cover: "psel && penable && !pready && prev(psel && penable && !pready)"}
+dont_cares:
+  - {id: G-D-1, req: R-APB-8, signal: pwrite, when: "!psel"}
+  - {id: G-D-2, req: R-APB-8, signal: paddr,  when: "!psel"}
+  - {id: G-D-3, req: R-APB-8, signal: pwdata, when: "!psel"}
+  - {id: G-D-4, req: R-RSP-5, signal: rsp_rdata, when: "!rsp_valid"}
+  - {id: G-D-5, req: R-RSP-5, signal: rsp_err,   when: "!rsp_valid"}
+unformalized:
+  - {req: R-CMD-1, reason: "Definition of acceptance; used as def `acc`."}
+  - {req: R-RSP-6, reason: "Permission that R-CMD-2 forbids (a response is pending in the handshake cycle); R-CMD-2 takes precedence.", decision: D-1}

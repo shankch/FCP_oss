@@ -1,0 +1,553 @@
+{
+ "task": "pay",
+ "readers": {
+  "variant1": {
+   "k": 1,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-RET-1",
+     "phrase": "once a charge returns",
+     "reading": 1,
+     "text": "as soon as a charge returns \"ok\", with no further call"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-RET-1",
+     "phrase": "once a charge returns",
+     "reading": 1
+    }
+   ],
+   "pairs": {
+    "agent_a|variant1": {
+     "seconds": 7,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-SIG-1": {
+       "plain": "ONLY-A",
+       "bounded": 10
+      },
+      "R-CALL-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-RETRY-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-DECL-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-WAIT-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "EQUIVALENT"
+      },
+      "R-ONCE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-KEEP-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-EX-1": {
+       "plain": "ONLY-A",
+       "bounded": 10
+      }
+     },
+     "under": {
+      "assumptions": "EQUIVALENT",
+      "engine": "47a823a",
+      "seconds": 0
+     }
+    },
+    "agent_b|variant1": {
+     "seconds": 7,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-SIG-1": {
+       "plain": "ONLY-A",
+       "bounded": 10
+      },
+      "R-CALL-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-ERR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-RET-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-RETRY-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-DECL-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-WAIT-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "EQUIVALENT"
+      },
+      "R-ONCE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-KEEP-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-EX-1": {
+       "plain": "ONLY-A",
+       "bounded": 10
+      }
+     },
+     "under": {
+      "assumptions": "EQUIVALENT",
+      "engine": "47a823a",
+      "seconds": 0
+     }
+    }
+   }
+  },
+  "variant2": {
+   "k": 2,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-RET-1",
+     "phrase": "once a charge returns",
+     "reading": 2,
+     "text": "if some charge has returned \"ok\""
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-RET-1",
+     "phrase": "once a charge returns",
+     "reading": 2
+    }
+   ],
+   "pairs": {
+    "agent_a|variant2": {
+     "seconds": 12,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-SIG-1": {
+       "plain": "ONLY-A",
+       "bounded": 10
+      },
+      "R-CALL-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=1]",
+         "api.sleep(2)",
+         "api.charge(1048575, 0) -> \"declined\"",
+         "api.sleep(254)"
+        ]
+       }
+      },
+      "R-ERR-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=0]",
+         "returns True"
+        ]
+       }
+      },
+      "R-RET-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=1]",
+         "api.charge(1048575, 1) -> \"ok\"",
+         "returns False"
+        ]
+       }
+      },
+      "R-RETRY-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=0]",
+         "api.charge(1048575, 0) -> \"error\"",
+         "returns raised ValueError"
+        ]
+       }
+      },
+      "R-DECL-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=0]",
+         "api.charge(1048575, 0) -> \"declined\"",
+         "api.sleep(2)",
+         "api.charge(1048575, 0) -> \"ok\"",
+         "api.sleep(250)"
+        ]
+       }
+      },
+      "R-WAIT-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=0]",
+         "api.charge(1048575, 0) -> \"error\"",
+         "api.sleep(130)",
+         "api.charge(1048575, 0) -> \"ok\"",
+         "api.sleep(254)"
+        ]
+       }
+      },
+      "R-ONCE-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "EQUIVALENT"
+      },
+      "R-KEEP-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=1]",
+         "returns False"
+        ]
+       }
+      },
+      "R-EX-1": {
+       "plain": "ONLY-A",
+       "bounded": 10
+      }
+     },
+     "under": {
+      "assumptions": "A-WEAKER",
+      "engine": "47a823a",
+      "relations": {
+       "R-FR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-FR-2": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-FR-3": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-SIG-1": {
+        "plain": "ONLY-A",
+        "bounded": 10
+       },
+       "R-CALL-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-ERR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-RET-1": {
+        "plain": "A-STRONGER",
+        "bounded": 10,
+        "context": "A-STRONGER",
+        "b_not_a": {
+         "lines": [
+          "[order_id=1048575, amount=1]",
+          "api.sleep(252)"
+         ]
+        }
+       },
+       "R-RETRY-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-DECL-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-WAIT-1": {
+        "plain": "A-STRONGER",
+        "bounded": 10,
+        "context": "EQUIVALENT"
+       },
+       "R-ONCE-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-KEEP-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-EX-1": {
+        "plain": "ONLY-A",
+        "bounded": 10
+       }
+      },
+      "seconds": 6
+     }
+    },
+    "agent_b|variant2": {
+     "seconds": 11,
+     "engine": "33a0f99",
+     "by": "effects_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-2": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-FR-3": {
+       "plain": "EQUIVALENT",
+       "bounded": 10
+      },
+      "R-SIG-1": {
+       "plain": "ONLY-A",
+       "bounded": 10
+      },
+      "R-CALL-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=1]",
+         "api.sleep(4)",
+         "api.charge(1048575, 0) -> \"error\""
+        ]
+       }
+      },
+      "R-ERR-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=1048448]",
+         "returns True"
+        ]
+       }
+      },
+      "R-RET-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=1]",
+         "api.charge(1048575, 1) -> \"ok\"",
+         "returns False"
+        ]
+       }
+      },
+      "R-RETRY-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=0]",
+         "api.charge(1048575, 0) -> \"error\"",
+         "returns raised ValueError"
+        ]
+       }
+      },
+      "R-DECL-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048574, amount=0]",
+         "api.charge(1048574, 0) -> \"declined\"",
+         "api.sleep(2)",
+         "api.charge(1048574, 0) -> \"error\"",
+         "api.charge(1048574, 1) -> \"error\""
+        ]
+       }
+      },
+      "R-WAIT-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=0]",
+         "(no call)",
+         "api.charge(1048575, 0) -> \"error\"",
+         "api.charge(1048575, 0) -> \"declined\"",
+         "api.sleep(254)"
+        ]
+       }
+      },
+      "R-ONCE-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "EQUIVALENT"
+      },
+      "R-KEEP-1": {
+       "plain": "A-STRONGER",
+       "bounded": 10,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "lines": [
+         "[order_id=1048575, amount=1]",
+         "returns False"
+        ]
+       }
+      },
+      "R-EX-1": {
+       "plain": "ONLY-A",
+       "bounded": 10
+      }
+     },
+     "under": {
+      "assumptions": "A-WEAKER",
+      "engine": "47a823a",
+      "relations": {
+       "R-FR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-FR-2": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-FR-3": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-SIG-1": {
+        "plain": "ONLY-A",
+        "bounded": 10
+       },
+       "R-CALL-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-ERR-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-RET-1": {
+        "plain": "A-STRONGER",
+        "bounded": 10,
+        "context": "A-STRONGER",
+        "b_not_a": {
+         "lines": [
+          "[order_id=1048575, amount=0]",
+          "api.charge(1048575, 0) -> \"ok\"",
+          "api.sleep(4)"
+         ]
+        }
+       },
+       "R-RETRY-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-DECL-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-WAIT-1": {
+        "plain": "A-STRONGER",
+        "bounded": 10,
+        "context": "EQUIVALENT"
+       },
+       "R-ONCE-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-KEEP-1": {
+        "plain": "EQUIVALENT",
+        "bounded": 10
+       },
+       "R-EX-1": {
+        "plain": "ONLY-A",
+        "bounded": 10
+       }
+      },
+      "seconds": 6
+     }
+    }
+   }
+  }
+ },
+ "settings": {
+  "jobs": 2,
+  "bit_jobs": 1
+ }
+}

@@ -1,0 +1,126 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. frame.md: every cycle is one independent call and the
+# function keeps no state between calls, so the reference model is a pure
+# function of the current argument: no ghost state is needed. Every output is
+# checked against the model value `pal` (and `returned`).
+defs:
+  # R-DEF-1, strict reading: text equals its own reversal, character code by
+  # character code (case, spaces, punctuation and every other code count).
+  pal: 'all(i < len(text): text[i] == text[len(text) - 1 - i])'
+  # The call ended by returning a bool (True or False).
+  returned: 'outcome == 0'
+
+properties:
+  - id: RB-PAL-1
+    req: R-PAL-1
+    pattern: implies
+    args: {trigger: 'pal', cond: 'returned && result'}
+    note: >-
+      "palindrome" read strictly (R-DEF-1 reading 1): text equals its reversal
+      character by character. "returns True" is read as a normal return of the
+      bool True, i.e. outcome 0 with result 1.
+
+  - id: RB-PAL-2
+    req: R-PAL-2
+    pattern: implies
+    args: {trigger: '!pal', cond: 'returned && !result'}
+    note: >-
+      Strict reading of "palindrome" as in RB-PAL-1. "returns False" is read as
+      a normal return of the bool False, i.e. outcome 0 with result 0.
+
+  - id: RB-RET-1
+    req: R-RET-1
+    expr: 'returned'
+    note: >-
+      "Checks" read as returning exactly a bool (reading 1, as the doctest
+      outputs True/False show), so returning another type (outcome 2) is a
+      violation, as is raising or not finishing (outcome 1).
+
+  - id: RB-EX-1-P
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'text == ""', cond: 'returned && result'}
+    note: >-
+      The doctest is an executable assertion on a memoryless function, so
+      besides the scenario it is stated as a guarantee for every call with the
+      empty string. Consistent with every reading of "palindrome".
+
+  - id: RB-EX-2-P
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'text == "aba"', cond: 'returned && result'}
+    note: Doctest stated as a guarantee for every call with 'aba' (see RB-EX-1-P).
+
+  - id: RB-EX-3-P
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'text == "aaaaa"', cond: 'returned && result'}
+    note: Doctest stated as a guarantee for every call with 'aaaaa' (see RB-EX-1-P).
+
+  - id: RB-EX-4-P
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'text == "zbcd"', cond: 'returned && !result'}
+    note: Doctest stated as a guarantee for every call with 'zbcd' (see RB-EX-1-P).
+
+scenarios:
+  - id: RB-EX-1
+    req: R-EX-1
+    cover: 'text == "" && returned && result'
+    note: The call is_palindrome('') returning True must be possible.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    cover: 'text == "aba" && returned && result'
+    note: The call is_palindrome('aba') returning True must be possible.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    cover: 'text == "aaaaa" && returned && result'
+    note: The call is_palindrome('aaaaa') returning True must be possible.
+
+  - id: RB-EX-4
+    req: R-EX-4
+    cover: 'text == "zbcd" && returned && !result'
+    note: The call is_palindrome('zbcd') returning False must be possible.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional statement about the form of the deliverable (complete the
+      given stub). Taken literally (reading 1): only the body is written and the
+      signature and docstring are kept. Source form is not observable on the
+      call trace; the behaviour the completed function must have is formalized
+      by the items of R-PAL-1, R-PAL-2, R-RET-1 and R-EX-1..4.
+  - req: R-IF-2
+    reason: >-
+      Definition of the interface (name is_palindrome, one parameter text). It
+      is realized by the function section of design.yaml, which calls
+      is_palindrome(text) in every cycle; there is nothing to state on the trace.
+  - req: R-IF-3
+    reason: >-
+      Environment obligation that the argument is a str. The interface encoding
+      (frame.md) can only carry str arguments of at most 16 Latin-1 characters;
+      arguments of any other type are not part of the trace, so the obligation
+      holds by construction and no assumption over `text` is needed.
+  - req: R-DEF-1
+    reason: >-
+      Definition, not an obligation. Realized as the def `pal` (strict reading:
+      text equals its reversal code by code), which the guarantees use.
+    covered_by: [RB-PAL-1, RB-PAL-2]
+  - req: R-FR-1
+    reason: >-
+      Adapter frame rule; design.yaml already declares it as frame item F-ZERO
+      (outcome != 0 -> !result), which is added to every formalization set and
+      by frame.md "need not be restated".
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IF-1, phrase: "Complete this function", reading: 1}
+  - {req: R-DEF-1, phrase: "palindrome", reading: 1}
+  - {req: R-PAL-1, phrase: "palindrome", reading: 1}
+  - {req: R-PAL-2, phrase: "palindrome", reading: 1}
+  - {req: R-RET-1, phrase: "Checks", reading: 1}

@@ -1,0 +1,128 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+assumptions:
+  - id: RV-CAR-1
+    req: R-CAR-1
+    expr: "n >= 1"
+    note: >-
+      Reading taken as instructed for this set, although reading 1 (n = 0 is a
+      road without cars) seems more natural: "n cars" means n is at least 1,
+      and a road without cars (n = 0) is outside the request. The request
+      therefore says nothing about a call with n = 0, so calls are restricted
+      to n >= 1 instead of fixing an answer for n = 0.
+
+properties:
+  - id: RV-FN-1
+    req: R-FN-1
+    expr: "outcome == 0 && result == n * n"
+    note: >-
+      Reading taken as instructed for this set: "Complete this function" means
+      return the number of collisions between the left-to-right cars and the
+      right-to-left cars, the quantity the truncated docstring leads up to,
+      although the docstring stops before saying so. The count n * n is
+      derived from the opposite-direction horn of the car model: n cars drive
+      left to right (R-CAR-1) and n cars drive right to left (R-CAR-2, read as
+      instructed as "driving right to left", which the same-velocity reading
+      of R-CAR-4 contradicts); every left-to-right car starts to the left of
+      every right-to-left car, so each approaches each (R-CAR-3, "very far
+      from each other", reading as instructed); two cars collide when a
+      left-to-right car meets a right-to-left car (R-COL-1, "Two cars are said
+      to collide", reading as instructed) and cars continue as if they had not
+      collided (R-COL-1, "collide", reading as instructed), so every one of
+      the n * n pairs meets exactly once on the infinite road (R-RD-1). Both
+      sets starting at the same instant (R-CAR-2, "simultaneously", reading as
+      instructed) and a speed constant over time (R-CAR-4, "move in the same
+      speed", reading as instructed) do not change this count. The
+      instructed reading of "the same speed" (R-CAR-4: one common velocity,
+      speed and direction) contradicts this horn; that is formalized in
+      RV-CAR-4, which conflicts with this property for every n >= 1. The
+      contradiction is kept, not repaired. n * n is at most 1,046,529 for
+      n <= 1,023, so it fits result and outcome 0 is required (the body is
+      complete for every n in the request, RV-CAR-1).
+  - id: RV-CAR-4
+    req: R-CAR-4
+    expr: "result == 0"
+    note: >-
+      Reading taken as instructed for this set, although reading 1 (same speed
+      magnitude, opposite directions) seems more natural: "the same speed"
+      means every car has the same velocity, speed and direction, which
+      contradicts the two sets driving in opposite directions (R-CAR-1,
+      R-CAR-2; R-CAR-2 "driving right to left" is read as instructed as
+      stating that very contradiction). "Move in the same speed" is read as
+      instructed: the common velocity is constant over time. Then the
+      distance between any two cars never changes; the sets start very far
+      from each other (R-CAR-3, every left-to-right car to the left of every
+      right-to-left car, reading as instructed), so no car ever meets another,
+      no left-to-right car meets a right-to-left car (R-COL-1 "Two cars are
+      said to collide", reading as instructed; R-COL-1 "collide",
+      cars continuing after a collision, is moot here), and the number of
+      collisions the function returns (R-FN-1 "Complete this function",
+      reading as instructed) is 0. This is the literal consequence of the
+      same-velocity horn. It contradicts RV-FN-1 (result == n * n with
+      outcome 0) for every n >= 1 (RV-CAR-1), so no implementation can meet
+      both; the contradiction is in the text under these readings and is
+      deliberately left visible rather than repaired.
+
+unformalized:
+  - req: R-FN-2
+    reason: >-
+      Interface definition: the function name candidate, its single argument
+      n annotated int and the absence of a declared return type are realized
+      by the function section of design.yaml (argument n on input n, the
+      returned value on result, the way the call ended on outcome), not by a
+      property of the trace.
+  - req: R-RD-1
+    reason: >-
+      Definition of the model road. Its only observable effect is that no car
+      reaches an end of the road before meeting the cars coming towards it,
+      which the collision count in RV-FN-1 relies on.
+    covered_by: [RV-FN-1]
+  - req: R-CAR-2
+    reason: >-
+      Definition of the second set of cars; not observable on its own. Readings
+      taken as instructed: "simultaneously" means both sets start moving at
+      the same instant, which does not change the count; "driving right to
+      left" is read as stating that, if R-CAR-4 means one common velocity,
+      every car moves in one direction, contradicting this set driving right
+      to left. The right-to-left set enters the count n * n in RV-FN-1; the
+      contradiction with the same-velocity reading of R-CAR-4 is exposed by
+      the conflict between RV-FN-1 and RV-CAR-4.
+    covered_by: [RV-FN-1]
+  - req: R-CAR-3
+    reason: >-
+      The starting positions concern the cars of the model, not the argument
+      n, so this is not an environment obligation on an input. Reading taken
+      as instructed: "very far from each other" means every left-to-right car
+      starts to the left of every right-to-left car, so each left-to-right car
+      approaches each right-to-left car, which gives every pair one meeting
+      in RV-FN-1; under the same-velocity reading of R-CAR-4 the same start
+      means no pair ever meets, which gives RV-CAR-4.
+    covered_by: [RV-FN-1, RV-CAR-4]
+  - req: R-COL-1
+    reason: >-
+      Definition of a collision; not observable on its own. Readings taken as
+      instructed, although the sentence stops before giving any condition:
+      "Two cars are said to collide" means a left-to-right car meets a
+      right-to-left car, and after a collision the cars continue as if they
+      had not collided. These give one collision per meeting pair, n * n in
+      RV-FN-1, and none when no pair meets, 0 in RV-CAR-4.
+    covered_by: [RV-FN-1, RV-CAR-4]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter; frame.md states it is part of every
+      formalization set and need not be restated. It is realized by frame item
+      F-ZERO of design.yaml (outcome != 0 -> result == 0).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-1, phrase: "Complete this function", reading: 1}
+  - {req: R-CAR-1, phrase: "n cars", reading: 2}
+  - {req: R-CAR-2, phrase: "simultaneously", reading: 2}
+  - {req: R-CAR-2, phrase: "driving right to left", reading: 2}
+  - {req: R-CAR-3, phrase: "very far from each other", reading: 1}
+  - {req: R-CAR-4, phrase: "the same speed", reading: 2}
+  - {req: R-CAR-4, phrase: "move in the same speed", reading: 1}
+  - {req: R-COL-1, phrase: "Two cars are said to collide", reading: 1}
+  - {req: R-COL-1, phrase: "collide", reading: 1}

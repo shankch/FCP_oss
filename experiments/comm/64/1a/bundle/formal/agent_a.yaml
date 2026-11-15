@@ -1,0 +1,140 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-IN-1 (reading 1): s is a word, a non-empty string of ASCII letters only.
+  word: 'len(s) >= 1 && all(k < len(s): isalpha(s[k]))'
+  # R-VOW-1 (readings 2 and 1): a, e, i, o, u in either case, and nothing else.
+  n_aeiou: 'count(k < len(s): (s[k] in "aeiouAEIOU"))'
+  # R-Y-1 / R-Y-2 (readings 2 and 1): a 'y' or 'Y' is a vowel only as the last character of s.
+  y_end: 'len(s) >= 1 && (s[len(s) - 1] in "yY")'
+  # R-RET-2: the number of vowels, every occurrence counted.
+  nv: 'n_aeiou + (y_end ? 1 : 0)'
+
+assumptions:
+  - id: RA-IN-1
+    req: R-IN-1
+    expr: 'word'
+    note: >-
+      "takes a string representing a word as input" read literally as a
+      constraint on the caller (reading 1): s is one word (reading 1 of "a
+      word"), so it is not empty and holds only ASCII letters a-z, A-Z. No
+      property constrains calls on any other string (the empty string, digits,
+      spaces, punctuation, Latin-1 characters). Because the input has no
+      spaces, "the end of the given word" is the last character of s.
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    expr: 'outcome == 0'
+    note: >-
+      "returns the number of ...": every call on a word returns normally with
+      an integer count. A count over at most 32 characters is between 0 and 32,
+      so it fits the 0..63 range of outcome 0; an exception (outcome 1) or a
+      value of another type or a negative number (outcome 2) breaks it.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    expr: 'outcome == 0 && (result == len(s) || result == nv)'
+    note: >-
+      "returns the number of characters or vowels in the string" read
+      literally (reading 3): a call returns either the number of characters,
+      len(s), or the number of vowels. The text does not say which, so either
+      value is accepted on every call, and the choice may differ from call to
+      call. The examples (RA-EX-1, RA-EX-2) only fix the two calls they show.
+      Reading 1 (vowels only) would require dropping the words "characters
+      or", and reading 2 (len(s) only) contradicts both examples. Vowels are
+      counted per occurrence ("the number of ... vowels", reading 1): "aa"
+      counts 2. The vowel count nv uses R-VOW-1 (a, e, i, o, u in either
+      case, an exhaustive list), R-Y-1 (a final 'y' or 'Y' counts once) and
+      R-Y-2 (no other 'y' or 'Y' counts).
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 's == "abcde"', cond: 'outcome == 0 && result == 2'}
+    note: >-
+      The doctest says candidate("abcde") returns 2. The function is
+      deterministic and keeps no state, so every call on "abcde" must return 2.
+      This matches the vowel alternative of RA-RET-2 ('a', 'e'), not len(s) = 5.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 's == "ACEDY"', cond: 'outcome == 0 && result == 3'}
+    note: >-
+      The doctest says candidate("ACEDY") returns 3. This matches the vowel
+      alternative of RA-RET-2 only if 'A', 'E' and the final 'Y' all count,
+      which is why the case-insensitive readings of R-VOW-1 and R-Y-1 were
+      taken. It does not match len(s) = 5.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: 's == "abcde" && outcome == 0 && result == 2'
+    note: The example call candidate("abcde") returning 2 must be possible.
+
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: 's == "ACEDY" && outcome == 0 && result == 3'
+    note: The example call candidate("ACEDY") returning 3 must be possible.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      "Complete this function:" asks for a completed function body. That is
+      the form of the deliverable, which the call trace cannot observe.
+  - req: R-IF-2
+    reason: >-
+      The interface encoding fixes the signature: one string argument s, which
+      drives the sequence input s (design.yaml function.args). It places no
+      constraint on the call trace beyond that encoding.
+  - req: R-VOW-1
+    reason: >-
+      A definition. The def n_aeiou (a, e, i, o, u in either case, no other
+      character) realizes it inside the vowel count of RA-RET-2. Under the
+      reading taken for R-RET-2, it has no observable effect apart from that
+      count.
+    covered_by: [RA-RET-2]
+  - req: R-Y-1
+    reason: >-
+      The def y_end (the last character of s is 'y' or 'Y') adds one to the
+      vowel count nv of RA-RET-2. Because R-RET-2 is read as "len(s) or the
+      vowel count", a final 'y' constrains the result only through that
+      alternative, so a separate property would just restate RA-RET-2.
+    covered_by: [RA-RET-2]
+  - req: R-Y-2
+    reason: >-
+      n_aeiou never counts 'y' or 'Y', and y_end looks only at the last
+      character, so the vowel count nv of RA-RET-2 never counts a 'y' or 'Y'
+      before the end. As with R-Y-1, a separate property would just restate
+      RA-RET-2.
+    covered_by: [RA-RET-2]
+  - req: R-FIX-1
+    reason: >-
+      Read as an instruction to add more test cases (reading 1). Test cases
+      are part of the deliverable, not of what candidate(s) returns, so the
+      call trace cannot observe them. Under reading 2 there is no obligation
+      at all.
+  - req: R-FR-1
+    reason: >-
+      This is frame rule F-ZERO of design.yaml (outcome != 0 -> result == 0).
+      Frame rules are added to every formalization set and need not be
+      restated (frame.md, "Frame rules").
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "a string representing a word", reading: 1}
+  - {req: R-IN-1, phrase: "a word", reading: 1}
+  - {req: R-RET-2, phrase: "the number of characters or vowels", reading: 3}
+  - {req: R-RET-2, phrase: "the number of ... vowels", reading: 1}
+  - {req: R-VOW-1, phrase: "'a', 'e', 'i', 'o', 'u'", reading: 2}
+  - {req: R-VOW-1, phrase: "Vowels in this case are", reading: 1}
+  - {req: R-Y-1, phrase: "'y'", reading: 2}
+  - {req: R-Y-1, phrase: "at the end of the given word", reading: 1}
+  - {req: R-Y-2, phrase: "'y'", reading: 2}
+  - {req: R-Y-2, phrase: "at the end of the given word", reading: 1}
+  - {req: R-EX-1, phrase: "2", reading: 1}
+  - {req: R-EX-2, phrase: "3", reading: 1}
+  - {req: R-FIX-1, phrase: "Add more test cases.", reading: 1}

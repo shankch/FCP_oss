@@ -1,0 +1,219 @@
+fcp: '0.1'
+set: agent_a+c
+origin:
+  kind: tool
+  role: contract
+  id: fcp.agent.contract(agent_a)
+rigids:
+- name: o
+  range:
+  - 0
+  - 1
+- name: a
+  range:
+  - 0
+  - 511
+properties:
+- id: PA-ID-1
+  req: R-ID-1
+  pattern: implies
+  args:
+    trigger: lookup
+    cond: once(verify && id_ok)
+  note: '"Verify the customer''s identity" is read as a verify call that confirmed the identity (id_ok), not a mere attempt. Any successful verification earlier in the conversation counts, even if a later
+    verify failed; it covers lookups of every order. once() includes the current turn, but the frame (F-ONE) keeps verify and lookup out of the same turn, so the verification is strictly earlier.'
+- id: PA-ID-2
+  req: R-ID-2
+  pattern: next
+  args:
+    trigger: verify && !id_ok && prev(once(verify && !id_ok))
+    cond: handoff
+  note: 'Readings chosen. "Fails twice" = two failed verify calls in total in the conversation, not necessarily in a row (a successful verify in between does not reset the count). "Hand off" = in the next
+    turn: the text gives no deadline (contrast "at once" in rule 8), and the next turn is the most literal reading of an instruction triggered by the event. The trigger fires at every failure after the
+    first. Consequences: no turn is left after the second failure for the explanation that R-TONE-1 asks for, and with PA-END-1 the "anything else" question must already have been asked before the second
+    failed verify.'
+- id: PA-ELIG-1
+  req: R-ELIG-1
+  pattern: implies
+  args:
+    trigger: refund && ord == o
+    cond: since(!(lookup && ord == o), lookup && ord == o && elig)
+  note: 'Reading chosen for "is eligible": the most recent lookup of the refunded order in this conversation reported it eligible (present tense: its current eligibility as last fetched). An earlier eligible
+    lookup followed by an ineligible one does not count, and a lookup of the other order does not count. Requires that the order was looked up before the refund.'
+- id: PA-CONF-1
+  req: R-CONF-1
+  pattern: implies
+  args:
+    trigger: refund && ord == o && amt == a
+    cond: once(confirm && accepted && ord == o && amt == a)
+  note: Readings chosen. "Confirm the amount" = a confirm call for the same order and the same amount as the refund, because confirm is defined as a Yes/No button "for a refund of that amount on that order"
+    (R-TOOL-2); a confirmation on another order is a confirmation of a different refund. "After they press Yes" = some earlier confirm for that order and amount was answered Yes (accepted). The text does
+    not say that this Yes must answer the most recent confirmation or that a Yes is used up by a refund, so under this literal reading a later No, or a later confirmation of another amount, does not revoke
+    an earlier Yes. (Together with PA-ONCE-1 a Yes can serve at most one refund, since it names the order.) F-ONE keeps confirm out of the refund's own turn, so the Yes is strictly earlier.
+- id: PA-TOT-1
+  req: R-TOT-1
+  pattern: implies
+  args:
+    trigger: refund && ord == o && amt == a
+    cond: since(!(lookup && ord == o), lookup && ord == o && total >= a)
+  note: '"The order total" is observable only as the total input in a turn in which lookup ran; it is taken from the most recent lookup of the refunded order. The text does not say what to do when two lookups
+    of one order report different totals; the most recent is used. A refund on an order that was never looked up has no known total and violates this property. Per-refund reading: each refund''s amount
+    is at most the total (the cumulative reading, sum of refunds on an order, coincides under R-ONCE-1). Abstraction limit: the frame rounds amounts with cents up, so a refund a few cents above a total
+    that rounds to the same dollar is not visible in the trace.'
+- id: PA-BIG-1
+  req: R-BIG-1
+  pattern: implies
+  args:
+    trigger: refund
+    cond: amt <= 150
+  note: The prohibition half of the rule. "Over $150" = strictly more than $150; a refund of exactly $150 is allowed. The frame rounds cents up, so $150.01 is 151 and is excluded.
+- id: PA-BIG-2
+  req: R-BIG-1
+  pattern: implies
+  args:
+    trigger: '!done && p_act == 5 && p_amt > 150'
+    cond: handoff
+  note: 'The obligation half: "hand off instead" is an explicit instruction, so it is formalized and not read as a mere prohibition. The only observable sign of "a refund over $150" that is not issued is
+    the model''s proposal (p_act 5 = refund, p_amt > 150); "instead" = in that same turn, in place of the refund. The trigger does not depend on whether the refund would otherwise be allowed (verified,
+    eligible, confirmed). !done excludes proposals after the end, when F-STOP forbids every tool. The same-turn handoff leaves no turn to explain the decision (R-TONE-1). Conflict: with PA-END-1, such a
+    proposal before any "anything else" question (for example in the first turn) cannot be answered by any behaviour.'
+- id: PA-ONCE-1
+  req: R-ONCE-1
+  pattern: implies
+  args:
+    trigger: refund && ord == o
+    cond: '!prev(once(refund && ord == o))'
+  note: At most one refund per order in the conversation, whatever the amounts. The property looks back one turn and so is not evaluated in the first turn, where no earlier refund can exist.
+- id: PA-HUM-1
+  req: R-HUM-1
+  pattern: implies
+  args:
+    trigger: human && !done
+    cond: handoff
+  note: 'Reading chosen: "at once" = in the same turn. human reports a press since the previous turn, so the first turn after the press must be a handoff, with no message before it. !done: after the conversation
+    has ended there is nothing to hand off and F-STOP forbids every tool. Conflict: with PA-END-1 (a handoff ends the conversation, so it needs an earlier "anything else" question), a press before the agent
+    has asked "anything else" (for example in the first turn) cannot be answered by any behaviour; the button is a free input (R-BTN-1).'
+- id: PA-END-1
+  req: R-END-1
+  pattern: implies
+  args:
+    trigger: handoff || close
+    cond: once(say && more)
+  note: 'Readings chosen. "End a conversation" = handoff or close: the text says handoff "ends the conversation" (R-TOOL-3) and close ends it (R-TOOL-4). "Before" = at some earlier turn of the conversation,
+    not necessarily the message just before the end. once() includes the current turn, but F-ONE keeps say out of a handoff or close turn. Contradiction in the specification: this conflicts with "hand off
+    at once" (PA-HUM-1) and "hand off instead" (PA-BIG-2) whenever the forced handoff comes before any "anything else" question; and with PA-ID-2 the question must have been asked before a verify that turns
+    out to be the second failure. The close-only reading would remove the conflict but is not the literal one.'
+- id: C-PA-ID-1
+  req: R-ID-1
+  note: PA-ID-1 restated over the proposal
+  pattern: implies
+  args:
+    trigger: p_act == 3 && !done
+    cond: once(verify && id_ok)
+- id: C-PA-ID-2
+  req: R-ID-2
+  note: PA-ID-2 restated over the proposal
+  pattern: next
+  args:
+    trigger: verify && !id_ok && prev(once(verify && !id_ok))
+    cond: p_act == 6 && !done
+- id: C-PA-ELIG-1
+  req: R-ELIG-1
+  note: PA-ELIG-1 restated over the proposal
+  pattern: implies
+  args:
+    trigger: 'p_act == 5 && !done && ((p_act == 3 || p_act == 4 || p_act == 5) && !done ? p_ord : false) == o'
+    cond: since(!(lookup && ord == o), lookup && ord == o && elig)
+- id: C-PA-CONF-1
+  req: R-CONF-1
+  note: PA-CONF-1 restated over the proposal
+  pattern: implies
+  args:
+    trigger: 'p_act == 5 && !done && ((p_act == 3 || p_act == 4 || p_act == 5) && !done ? p_ord : false) == o && ((p_act == 4 || p_act == 5) && !done ? p_amt : 9''d0) == a'
+    cond: once(confirm && accepted && ord == o && amt == a)
+- id: C-PA-TOT-1
+  req: R-TOT-1
+  note: PA-TOT-1 restated over the proposal
+  pattern: implies
+  args:
+    trigger: 'p_act == 5 && !done && ((p_act == 3 || p_act == 4 || p_act == 5) && !done ? p_ord : false) == o && ((p_act == 4 || p_act == 5) && !done ? p_amt : 9''d0) == a'
+    cond: since(!(lookup && ord == o), lookup && ord == o && total >= a)
+- id: C-PA-BIG-1
+  req: R-BIG-1
+  note: PA-BIG-1 restated over the proposal
+  pattern: implies
+  args:
+    trigger: p_act == 5 && !done
+    cond: '((p_act == 4 || p_act == 5) && !done ? p_amt : 9''d0) <= 150'
+- id: C-PA-BIG-2
+  req: R-BIG-1
+  note: PA-BIG-2 restated over the proposal
+  pattern: implies
+  args:
+    trigger: '!done && p_act == 5 && p_amt > 150'
+    cond: p_act == 6 && !done
+- id: C-PA-ONCE-1
+  req: R-ONCE-1
+  note: PA-ONCE-1 restated over the proposal
+  pattern: implies
+  args:
+    trigger: 'p_act == 5 && !done && ((p_act == 3 || p_act == 4 || p_act == 5) && !done ? p_ord : false) == o'
+    cond: '!prev(once(refund && ord == o))'
+- id: C-PA-HUM-1
+  req: R-HUM-1
+  note: PA-HUM-1 restated over the proposal
+  pattern: implies
+  args:
+    trigger: human && !done
+    cond: p_act == 6 && !done
+- id: C-PA-END-1
+  req: R-END-1
+  note: PA-END-1 restated over the proposal
+  pattern: implies
+  args:
+    trigger: p_act == 6 && !done || p_act == 7 && !done
+    cond: once(say && more)
+unformalized:
+- req: R-TOOL-1
+  covered_by:
+  - F-ONE
+  reason: 'Definition of the interaction model. "One tool call per turn" is encoded by the frame as at most one tool running per turn (F-ONE). The exactly-one reading is not imposed, since the frame allows
+    a turn in which no tool runs (p_act 0 is no call or a malformed one, and the scaffold decides what runs). "Act only through tools" is the encoding itself: the trace records only tool calls.'
+- req: R-TOOL-2
+  reason: 'Definition of the confirm tool, realized by the interface encoding: when confirm runs, ord and amt are its order and amount, and the input accepted is the customer''s Yes. It places no obligation
+    of its own; PA-CONF-1 relies on it to bind a confirmation to an order and amount.'
+- req: R-TOOL-3
+  covered_by:
+  - F-DONE
+  - F-STOP
+  reason: 'Definition of handoff. "This ends the conversation" is encoded by the frame: done becomes true in the turn after a handoff (F-DONE) and no tool runs once done is true (F-STOP). The transfer to
+    a human colleague is the tool''s effect outside the trace.'
+- req: R-TOOL-4
+  covered_by:
+  - F-DONE
+  - F-STOP
+  reason: 'Definition of close. Ending the conversation is encoded by the frame: done becomes true in the turn after a close (F-DONE) and no tool runs once done is true (F-STOP).'
+- req: R-BTN-1
+  reason: 'Definition of an environment freedom: the button is the free input human, and "at any time" means that no assumption may restrict it. This set has no assumptions. The response to a press is PA-HUM-1.'
+- req: R-NOTE-1
+  reason: 'Order notes are not part of the trace: the interface carries only the eligibility and total from a lookup, and neither the notes nor the model''s reasons for a proposal. Whether a note was treated
+    as an instruction is not observable. The other properties constrain what runs for every proposed call, including one induced by a note, but that is not this rule.'
+- req: R-TONE-1
+  reason: 'Non-functional: courtesy and explanations are properties of message text, which is not in the trace (only the "anything else" flag more is extracted from it).'
+- req: R-FR-1
+  covered_by:
+  - F-ONE
+  reason: Frame rule of the adapter, stated by frame item F-ONE.
+- req: R-FR-2
+  covered_by:
+  - F-ARG
+  reason: Frame rule of the adapter, stated by frame item F-ARG.
+- req: R-FR-3
+  covered_by:
+  - F-DONE0
+  - F-DONE
+  reason: Frame rule of the adapter, stated by frame items F-DONE0 and F-DONE.
+- req: R-FR-4
+  covered_by:
+  - F-STOP
+  reason: Frame rule of the adapter, stated by frame item F-STOP.

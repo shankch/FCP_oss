@@ -1,0 +1,133 @@
+== 1. The prompt, before any code
+[gold] trigger situations consistent: True; boundary conflicts: 1 (5742 pairs, 16.75s); tautologies: none
+    R-COUP-1 + R-FR-1 + R-MONO-1 + R-RET-1 + R-ROUND-1 + R-SHIP-1 + R-STACK-1:  checkout(4999, 0, False) | checkout(5000, 0, False)
+    open: price on checkout(5, 0, True): 4 or 5
+[agent_a] trigger situations consistent: True; boundary conflicts: 3 (15448 pairs, 65.03s); tautologies: none
+    R-COUP-1 + R-MONO-1 + R-RET-1 + R-ROUND-1 + R-SHIP-1:  checkout(4999, 0, False) | checkout(5000, 0, False)
+    R-MONO-1 + R-RET-1 + R-ROUND-1 + R-SHIP-1 + R-STACK-1:  checkout(4999, 1, True) | checkout(5000, 1, True)
+    R-MONO-1 + R-RET-1 + R-ROUND-1 + R-SHIP-1 + R-STACK-1:  checkout(4999, 31, False) | checkout(5000, 31, False)
+    open: price on checkout(5, 0, True): 4 or 5
+[agent_b] trigger situations consistent: True; boundary conflicts: 3 (11108 pairs, 50.97s); tautologies: none
+    R-COUP-1 + R-FR-1 + R-MONO-1 + R-RET-1 + R-ROUND-1 + R-SHIP-1:  checkout(4999, 0, False) | checkout(5000, 0, False)
+    R-FR-1 + R-MONO-1 + R-RET-1 + R-ROUND-1 + R-SHIP-1 + R-STACK-1:  checkout(4999, 1, True) | checkout(5000, 1, True)
+    R-FR-1 + R-MONO-1 + R-RET-1 + R-ROUND-1 + R-SHIP-1 + R-STACK-1:  checkout(4999, 21, True) | checkout(5000, 21, True)
+    open: price on checkout(5, 0, True): 4 or 5
+  gold vs agent_a: 
+    R-COUP-1   A-STRONGER    in context EQUIVALENT
+    R-MEM-1    A-STRONGER    in context EQUIVALENT
+    R-ROUND-1  A-STRONGER    in context EQUIVALENT
+    R-SHIP-1   A-STRONGER    in context EQUIVALENT
+    R-STACK-1  A-STRONGER    in context EQUIVALENT
+  gold vs agent_b: 
+    R-STACK-1  A-STRONGER    in context EQUIVALENT
+  agent_a vs agent_b: 
+    R-COUP-1   A-WEAKER      in context EQUIVALENT
+    R-MEM-1    A-WEAKER      in context EQUIVALENT
+    R-ROUND-1  A-WEAKER      in context EQUIVALENT
+    R-SHIP-1   A-WEAKER      in context EQUIVALENT
+    R-STACK-1  A-WEAKER      in context EQUIVALENT
+== 2. Every implementation against every reading (failing requirements)
+  haiku  1355700 calls  gold: R-SHIP-1  agent_a: R-SHIP-1  agent_b: R-SHIP-1
+      G-SHIP: checkout(5000, 0, False) -> (5000, 498)  (4800 failing calls, replay confirmed)
+  sonnet 1355700 calls  gold: R-MONO-1  agent_a: R-MONO-1  agent_b: R-MONO-1
+      G-MONO: checkout(4999, 0, False) -> (4999, 499) | checkout(5000, 0, False) -> (5000, 0)  (204 failing calls, replay confirmed)
+  opus   1355700 calls  gold: R-SHIP-1  agent_a: R-SHIP-1  agent_b: R-SHIP-1
+      G-SHIP: checkout(4998, 0, False) -> (4998, 2)  (4668 failing calls, replay confirmed)
+  ref    1355700 calls  gold: R-MONO-1  agent_a: R-MONO-1  agent_b: R-MONO-1
+      G-MONO: checkout(4999, 0, False) -> (4999, 499) | checkout(5000, 0, False) -> (5000, 0)  (204 failing calls, replay confirmed)
+  C1     1355700 calls  gold: R-MONO-1,R-SHIP-1  agent_a: R-MONO-1,R-SHIP-1  agent_b: R-MONO-1,R-SHIP-1
+      G-SHIP: checkout(5000, 0, False) -> (5000, 499)  (918 failing calls, replay confirmed)
+      G-MONO: checkout(5000, 0, False) -> (5000, 499) | checkout(5001, 0, False) -> (5001, 0)  (204 failing calls, replay confirmed)
+  C2     1355700 calls  gold: R-MONO-1,R-ROUND-1  agent_a: R-MONO-1,R-ROUND-1  agent_b: R-MONO-1,R-ROUND-1
+      G-ROUND: checkout(1, 0, True) -> (0, 499)  (348510 failing calls, replay confirmed)
+      G-MONO: checkout(4999, 0, False) -> (4999, 499) | checkout(5000, 0, False) -> (5000, 0)  (204 failing calls, replay confirmed)
+  C3     1355700 calls  gold: R-MONO-1,R-ROUND-1,R-STACK-1  agent_a: R-MONO-1,R-ROUND-1,R-STACK-1  agent_b: R-MONO-1,R-ROUND-1,R-STACK-1
+      G-STACK: checkout(60, 21, True) -> (41, 499)  (236772 failing calls, replay confirmed)
+      G-ROUND: checkout(18, 21, True) -> (12, 499)  (238518 failing calls, replay confirmed)
+      G-MONO: checkout(4999, 0, False) -> (4999, 499) | checkout(5000, 0, False) -> (5000, 0)  (204 failing calls, replay confirmed)
+  C4     1355700 calls  gold: R-MONO-1,R-ROUND-1,R-STACK-1  agent_a: R-MONO-1,R-ROUND-1,R-STACK-1  agent_b: R-MONO-1,R-ROUND-1,R-STACK-1
+      G-STACK: checkout(10, 1, True) -> (10, 499)  (228798 failing calls, replay confirmed)
+      G-ROUND: checkout(5, 1, True) -> (5, 499)  (230760 failing calls, replay confirmed)
+      G-MONO: checkout(4999, 0, False) -> (4999, 499) | checkout(5000, 0, False) -> (5000, 0)  (204 failing calls, replay confirmed)
+  C5     1355700 calls  gold: R-ERR-1,R-MONO-1  agent_a: R-ERR-1,R-MONO-1  agent_b: R-ERR-1,R-MONO-1
+      G-ERR: checkout(0, 51, False) -> (0, 499)  (361278 failing calls, replay confirmed)
+      G-MONO: checkout(4999, 0, False) -> (4999, 499) | checkout(5000, 0, False) -> (5000, 0)  (204 failing calls, replay confirmed)
+  C6     1355700 calls  gold: R-MONO-1  agent_a: R-MONO-1  agent_b: R-MONO-1
+      G-MONO: checkout(4999, 0, False) -> (4999, 499) | checkout(5000, 0, False) -> (5000, 0)  (204 failing calls, replay confirmed)
+  C7     1355700 calls  gold: R-COUP-1,R-MEM-1,R-MONO-1,R-RET-1,R-ROUND-1,R-STACK-1  agent_a: R-MONO-1,R-RET-1  agent_b: R-COUP-1,R-MEM-1,R-MONO-1,R-RET-1,R-ROUND-1,R-STACK-1
+      G-RET: checkout(1000000, 0, False) -> raised ValueError  (918 failing calls, replay confirmed)
+      G-MEM: checkout(1000000, 0, True) -> raised ValueError  (9 failing calls, replay confirmed)
+      G-COUP: checkout(1000000, 0, False) -> raised ValueError  (279 failing calls, replay confirmed)
+      G-STACK: checkout(1000000, 0, False) -> raised ValueError  (918 failing calls, replay confirmed)
+      G-ROUND: checkout(1000000, 0, False) -> raised ValueError  (918 failing calls, replay confirmed)
+      G-MONO: checkout(4999, 0, False) -> (4999, 499) | checkout(5000, 0, False) -> (5000, 0)  (204 failing calls, replay confirmed)
+  C8     1355700 calls  gold: R-COUP-1,R-EX-1,R-MEM-1,R-RET-1,R-ROUND-1,R-SHIP-1,R-STACK-1  agent_a: R-EX-1,R-RET-1  agent_b: R-COUP-1,R-EX-1,R-MEM-1,R-RET-1,R-ROUND-1,R-SHIP-1,R-STACK-1
+      G-RET: checkout(0, 0, False) -> returned (0.0, 499) (tuple)  (819774 failing calls, replay confirmed)
+      G-MEM: checkout(2, 0, True) -> returned something else  (8019 failing calls, replay confirmed)
+      G-COUP: checkout(1, 0, False) -> returned (1.0, 499) (tuple)  (248598 failing calls, replay confirmed)
+      G-STACK: checkout(1, 0, False) -> returned (1.0, 499) (tuple)  (817947 failing calls, replay confirmed)
+      G-ROUND: checkout(1, 0, False) -> returned (1.0, 499) (tuple)  (818856 failing calls, replay confirmed)
+      G-SHIP: checkout(0, 0, False) -> returned (0.0, 499) (tuple)  (746334 failing calls, replay confirmed)
+== 3. Where the AI implementations disagree
+     406 calls split [['haiku', 'opus'], ['sonnet']]: checkout(5000, 0, True) -> {'haiku': '(4500, 499)', 'sonnet': '(4500, 0)', 'opus': '(4500, 499)'}
+     134 calls split [['haiku'], ['opus'], ['sonnet']]: checkout(5000, 1, False) -> {'haiku': '(4950, 499)', 'sonnet': '(4950, 0)', 'opus': '(4950, 50)'}
+      44 calls split [['haiku'], ['sonnet', 'opus']]: checkout(5000, 0, False) -> {'haiku': '(5000, 498)', 'sonnet': '(5000, 0)', 'opus': '(5000, 0)'}
+      20 calls split [['haiku', 'sonnet'], ['opus']]: checkout(4998, 0, False) -> {'haiku': '(4998, 499)', 'sonnet': '(4998, 499)', 'opus': '(4998, 2)'}
+   answer key
+  [conflict] ['R-COUP-1', 'R-FR-1', 'R-MONO-1', 'R-RET-1', 'R-ROUND-1', 'R-SHIP-1', 'R-STACK-1']: checkout(4999, 0, False) | checkout(5000, 0, False)
+      haiku  (4999, 499) | (5000, 498)   broken: {'gold': ['G-SHIP'], 'agent_a': ['PA-SHIP-2'], 'agent_b': ['PB-SHIP-2']}
+      sonnet (4999, 499) | (5000, 0)   broken: {'gold': ['G-MONO'], 'agent_a': ['PA-MONO-1'], 'agent_b': ['PB-MONO-1']}
+      opus   (4999, 1) | (5000, 0)   broken: {'gold': ['G-SHIP'], 'agent_a': ['PA-SHIP-1'], 'agent_b': ['PB-SHIP-1']}
+      ref    (4999, 499) | (5000, 0)   broken: {'gold': ['G-MONO'], 'agent_a': ['PA-MONO-1'], 'agent_b': ['PB-MONO-1']}
+  [open] ['price']: checkout(5, 0, True)
+      haiku  (5, 499)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+      sonnet (5, 499)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+      opus   (5, 499)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+      ref    (5, 499)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+  [code split] [['haiku', 'opus'], ['sonnet']]: checkout(5000, 0, True)
+      haiku  (4500, 499)   broken: {'gold': ['G-SHIP'], 'agent_a': ['PA-SHIP-2'], 'agent_b': ['PB-SHIP-2']}
+      sonnet (4500, 0)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+      opus   (4500, 499)   broken: {'gold': ['G-SHIP'], 'agent_a': ['PA-SHIP-2'], 'agent_b': ['PB-SHIP-2']}
+      ref    (4500, 0)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+  [code split] [['haiku'], ['opus'], ['sonnet']]: checkout(5000, 1, False)
+      haiku  (4950, 499)   broken: {'gold': ['G-SHIP'], 'agent_a': ['PA-SHIP-2'], 'agent_b': ['PB-SHIP-2']}
+      sonnet (4950, 0)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+      opus   (4950, 50)   broken: {'gold': ['G-SHIP'], 'agent_a': ['PA-SHIP-2'], 'agent_b': ['PB-SHIP-2']}
+      ref    (4950, 0)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+  [code split] [['haiku'], ['sonnet', 'opus']]: checkout(5000, 0, False)
+      haiku  (5000, 498)   broken: {'gold': ['G-SHIP'], 'agent_a': ['PA-SHIP-2'], 'agent_b': ['PB-SHIP-2']}
+      sonnet (5000, 0)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+      opus   (5000, 0)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+      ref    (5000, 0)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+  [code split] [['haiku', 'sonnet'], ['opus']]: checkout(4998, 0, False)
+      haiku  (4998, 499)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+      sonnet (4998, 499)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+      opus   (4998, 2)   broken: {'gold': ['G-SHIP'], 'agent_a': ['PA-SHIP-1'], 'agent_b': ['PB-SHIP-1']}
+      ref    (4998, 499)   broken: {'gold': [], 'agent_a': [], 'agent_b': []}
+== 4. The tests each model wrote, against every implementation (tests failing / run)
+  haiku  haiku:0/134 sonnet:107/134 opus:5/134 ref:111/134 C1:110/134 C2:115/134 C3:113/134 C4:116/134 C5:112/134 C6:113/134 C7:112/134 C8:114/134
+  sonnet haiku:13/197 sonnet:0/196 opus:7/197 ref:20/196 C1:24/196 C2:36/196 C3:58/196 C4:56/196 C5:22/196 C6:25/196 C7:29/196 C8:26/196
+  opus   haiku:113/745 sonnet:212/745 opus:0/745 ref:219/745 C1:219/745 C2:327/745 C3:282/745 C4:550/745 C5:221/745 C6:311/745 C7:326/745 C8:312/745
+   planted bugs: requirements FCP flags (gold), and tests of each model that fail beyond the reference
+  C1: a $50.00 cart still pays shipping; planted ['R-SHIP-1']; FCP ['R-MONO-1', 'R-SHIP-1']; tests {'haiku': 0, 'sonnet': 4, 'opus': 1}
+  C2: the discounted price is truncated instead of rounded; planted ['R-ROUND-1']; FCP ['R-ROUND-1']; tests {'haiku': 4, 'sonnet': 16, 'opus': 108}
+  C3: the 30% cap is applied to the coupon only, before the member discount is added; planted ['R-STACK-1']; FCP ['R-ROUND-1', 'R-STACK-1']; tests {'haiku': 2, 'sonnet': 38, 'opus': 63}
+  C4: the member discount is dropped when there is a coupon; planted ['R-STACK-1']; FCP ['R-ROUND-1', 'R-STACK-1']; tests {'haiku': 5, 'sonnet': 36, 'opus': 331}
+  C5: coupons up to 100% are accepted; planted ['R-ERR-1']; FCP ['R-ERR-1']; tests {'haiku': 1, 'sonnet': 2, 'opus': 2}
+  C6: float arithmetic with round(), which rounds half a cent to even; planted []; FCP -; tests {'haiku': 2, 'sonnet': 5, 'opus': 92}
+  C7: a 1,000,000-cent cart is rejected; planted ['R-RET-1']; FCP ['R-COUP-1', 'R-MEM-1', 'R-RET-1', 'R-ROUND-1', 'R-STACK-1']; tests {'haiku': 1, 'sonnet': 9, 'opus': 107}
+  C8: the price is returned as a float; planted ['R-RET-1']; FCP ['R-COUP-1', 'R-MEM-1', 'R-MONO-1', 'R-RET-1', 'R-ROUND-1', 'R-SHIP-1', 'R-STACK-1']; tests {'haiku': 3, 'sonnet': 6, 'opus': 93}
+== 5. Mutants: observable, killed per reading, survivors
+  haiku  45/48 observable; killed gold:44 agent_a:44 agent_b:44
+      survives gold: line 52: 50 becomes 49: checkout(5, 0, True) -> (4, 499) instead of (5, 499)
+  sonnet 41/44 observable; killed gold:40 agent_a:40 agent_b:40
+      survives gold: line 96: 50 becomes 49: checkout(5, 0, True) -> (4, 499) instead of (5, 499)
+  opus   41/45 observable; killed gold:39 agent_a:39 agent_b:39
+      survives gold: line 11: 5000 becomes 4999: checkout(4998, 0, False) -> (4998, 1) instead of (4998, 2)
+      survives gold: line 53: 50 becomes 49: checkout(5, 0, True) -> (4, 499) instead of (5, 499)
+  ref    39/41 observable; killed gold:38 agent_a:38 agent_b:38
+      survives gold: line 16: 50 becomes 49: checkout(5, 0, True) -> (4, 499) instead of (5, 499)
+== 6. False assurance on the AI implementations (requirement violated under gold, but certified)
+  violations 3; naive (own tests pass) certifies 3; FCP certifies 0; FCP certified 9/27 cells
+total 467.5s
+EXIT checkout 0

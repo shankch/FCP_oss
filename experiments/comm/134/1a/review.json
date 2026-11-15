@@ -1,0 +1,238 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 197,
+    "checked": 197,
+    "seconds": 3.37
+   },
+   "open": {
+    "open": {},
+    "checked": 116
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 208,
+    "checked": 208,
+    "seconds": 19.52
+   },
+   "open": {
+    "open": {},
+    "checked": 121
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IF-2",
+   "phrase": "def candidate(txt):",
+   "taken": 1,
+   "variant": 2,
+   "text": "The docstring's 'given position' is authoritative: the position should be supplied by the caller, but the signature has no parameter for it, so the signature and the docstring contradict each other and the position is unspecified."
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "separated by space",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any whitespace character (space, tab, newline, carriage return, form feed, vertical tab, ...) separates words, as Python's str.split() with no argument does."
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "a group of characters",
+   "taken": 1,
+   "variant": 2,
+   "text": "A word is a run of alphabetical characters only: digits and punctuation do not belong to words, so in 'pi 1e' the 'e' is not part of a longer word."
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "\"word\" is a group of characters",
+   "taken": 2,
+   "variant": 1,
+   "text": "A group may consist of a single character, so a lone letter between spaces (the final 'e' of 'apple pi e') is itself a word; this contradicts the example candidate(\"apple pi e\") \u279e True, which requires that 'e' not be part of a word."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "the character with given position",
+   "taken": 1,
+   "variant": 2,
+   "text": "The first character of txt (txt[0]); the example candidate(\"apple pi e\") \u279e True contradicts this reading, since 'a' starts the word 'apple'."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "an alphabetical character",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any character for which Python's str.isalpha() is true, which in Latin-1 also includes letters such as '\u00e9' (233), '\u00df' (223), '\u00aa' (170) and '\u00b5' (181)."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "is not a part of a word",
+   "taken": 1,
+   "variant": 2,
+   "text": "The character is preceded by a space: a character at the very start of txt (e.g. txt == 'e') does not qualify, because there is no space before it."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "the character with given position",
+   "taken": 1,
+   "variant": 2,
+   "text": "The first character of txt (txt[0]); the example candidate(\"apple pi e\") \u279e True contradicts this reading, since 'a' starts the word 'apple'."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "an alphabetical character",
+   "taken": 1,
+   "variant": 2,
+   "text": "Any character for which Python's str.isalpha() is true, which in Latin-1 also includes letters such as '\u00e9' (233), '\u00df' (223), '\u00aa' (170) and '\u00b5' (181)."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "is not a part of a word",
+   "taken": 1,
+   "variant": 2,
+   "text": "The character is preceded by a space: a character at the very start of txt (e.g. txt == 'e') does not qualify, because there is no space before it."
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "candidate(\"apple pi e\") \u279e True",
+   "taken": 1,
+   "variant": 2,
+   "text": "The definition of 'word' (a group of characters separated by space) is authoritative: the final 'e' is a one-character word, so it is part of a word and the expected value would be False; the example contradicts the definition."
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(\"A\") -> False"
+   ]
+  },
+  "R-RET-2": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "candidate(\"b\") -> True"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-3",
+  "R-EX-4"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1",
+    "R-RET-2"
+   ],
+   "calls": [
+    "candidate(\"A\") -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1",
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"the character with given position\" can mean: The last character of txt (txt[-1]); this is consistent with all four examples. / The first character of txt (txt[0]); the example candidate(\"apple pi e\") \u279e True contradicts this reading, since 'a' starts the word 'apple'. / The last non-space character of txt; the example candidate(\"apple pi e \") \u279e False contradicts this reading, since the last non-space 'e' stands alone. / A position supplied by the caller; the signature def candidate(txt): has no parameter for it, so this contradicts the signature and the position is unspecified.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1",
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"an alphabetical character\" can mean: An ASCII letter only: A to Z or a to z. / Any character for which Python's str.isalpha() is true, which in Latin-1 also includes letters such as '\u00e9' (233), '\u00df' (223), '\u00aa' (170) and '\u00b5' (181).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1",
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"is not a part of a word\" can mean: The character stands alone: every neighbouring character that exists (before and after it) is a space, i.e. it forms a one-character group; for the last character this means txt has length 1 or the character before it is a space. / The character is preceded by a space: a character at the very start of txt (e.g. txt == 'e') does not qualify, because there is no space before it. / Literally, the character belongs to no space-separated group of characters; since every non-space character belongs to some group (by the definition of 'word'), the condition can never hold and the function always returns False, contradicting the example candidate(\"apple pi e\") \u279e True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"candidate(\"apple pi e\") \u279e True\" can mean: The example is authoritative: a lone letter separated by spaces (here the final 'e') is not part of a word, so a one-character group does not count as a word. / The definition of 'word' (a group of characters separated by space) is authoritative: the final 'e' is a one-character word, so it is part of a word and the expected value would be False; the example contradicts the definition.. Which is meant?"
+  }
+ ],
+ "limits": []
+}

@@ -1,0 +1,116 @@
+fcp: '0.1'
+design: hub2
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-OV-1
+  doc: SPEC
+  lines:
+  - 11
+  quote: One transaction is processed at a time.
+  text: At most one transaction in flight.
+  kind: guarantee
+- id: R-ARB-1
+  doc: SPEC
+  lines:
+  - 16
+  quote: At most one command is accepted per cycle.
+  text: Acceptances on the two ports are mutually exclusive.
+  kind: guarantee
+- id: R-ARB-2
+  doc: SPEC
+  lines:
+  - 16
+  - 18
+  quote: When both ports have a command pending, the port that was not accepted most recently is accepted first.
+  text: Round robin between ports.
+  kind: guarantee
+  ambiguity:
+  - phrase: not accepted most recently
+    readings:
+    - undefined before the first acceptance after reset
+    - port 0 first after reset
+- id: R-ARB-3
+  doc: SPEC
+  lines:
+  - 18
+  quote: A port whose command is pending is accepted within 12 cycles.
+  text: Pending commands are accepted within 12 cycles.
+  kind: guarantee
+  depends:
+  - R-ENV-2
+  - R-ENV-3
+- id: R-XFR-1
+  doc: SPEC
+  lines:
+  - 22
+  - 23
+  quote: Every accepted command results in exactly one APB transfer whose pwrite, paddr and pwdata equal the fields of that command, in acceptance order.
+  text: Each accepted command yields one transfer with its fields, in order.
+  kind: guarantee
+- id: R-XFR-2
+  doc: SPEC
+  lines:
+  - 23
+  - 25
+  quote: The APB timing (setup and access phases, stability, penable only with psel) is the same as for BRG-1.
+  text: APB timing as BRG-1.
+  kind: guarantee
+- id: R-RSP-1
+  doc: SPEC
+  lines:
+  - 29
+  - 30
+  quote: The response to a command is returned on the port that issued it, and never on the other port.
+  text: Responses are routed to the issuing port.
+  kind: guarantee
+- id: R-RSP-2
+  doc: SPEC
+  lines:
+  - 30
+  - 32
+  quote: rk_err equals the pslverr value sampled when the transfer completed, and for reads rk_rdata equals the prdata value sampled when the transfer completed.
+  text: Response payload equals the APB completion values.
+  kind: guarantee
+  depends:
+  - R-RSP-1
+- id: R-RSP-3
+  doc: SPEC
+  lines:
+  - 32
+  - 33
+  quote: Once asserted, rk_valid stays high and rk_rdata and rk_err stay stable until rk_ready is sampled high.
+  text: Responses held stable until accepted.
+  kind: guarantee
+- id: R-ENV-1
+  doc: SPEC
+  lines:
+  - 37
+  quote: Each requester keeps its command valid and stable until it is accepted.
+  text: Commands are held stable until accepted.
+  kind: assumption
+- id: R-ENV-2
+  doc: SPEC
+  lines:
+  - 37
+  - 38
+  quote: The APB slave asserts pready within 4 cycles of the start of the access phase.
+  text: Access phase lasts at most 4 cycles.
+  kind: assumption
+- id: R-ENV-3
+  doc: SPEC
+  lines:
+  - 39
+  quote: Each requester accepts a response within 2 cycles of it being presented.
+  text: Responses are accepted within 2 cycles.
+  kind: assumption
+- id: R-RST-1
+  doc: SPEC
+  lines:
+  - 43
+  - 44
+  quote: In the cycle after reset, psel, r0_valid and r1_valid are low, and both c0_ready and c1_ready may be high.
+  text: After reset psel=r0_valid=r1_valid=0.
+  kind: guarantee

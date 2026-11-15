@@ -1,0 +1,183 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # the call returned the bool True / False
+  ret_true: 'outcome == 0 && happy'
+  ret_false: 'outcome == 0 && !happy'
+  # "its length is at least 3": the number of characters of s
+  len_ok: 'len(s) >= 3'
+  # "substrings of letters are distinct": no substring made of letters occurs
+  # twice, i.e. every letter of s occurs in s exactly once (non-letters are
+  # not constrained; 'A' and 'a' are different letters)
+  letters_distinct: 'all(i < len(s): isalpha(s[i]) -> count(j < len(s): s[j] == s[i]) == 1)'
+  happy_str: 'len_ok && letters_distinct'
+
+properties:
+  - id: RA-OUT-1
+    req: R-OUT-1
+    expr: 'outcome == 0 && (happy <-> happy_str)'
+    note: >-
+      "check if the string is happy or not": every call returns True exactly
+      when s is happy (length at least 3 and every letter of s occurs once)
+      and False otherwise. The definition of happy_str follows the readings
+      recorded under decisions for R-HAP-1, R-HAP-2 and R-HAP-3.
+
+  - id: RA-OUT-2
+    req: R-OUT-2
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      Every call, on every string of the trace (including strings with
+      non-letters, upper-case letters or fewer than 3 characters), returns a
+      bool: no exception, no non-termination, no value of another type
+      (outcome 2 covers truthy/falsy non-bools such as 1/0). Reading: the
+      examples show the results True/False, and "a string s" admits any
+      string.
+
+  - id: RA-HAP-1
+    req: R-HAP-1
+    pattern: implies
+    args: {trigger: 'len(s) < 3', cond: 'ret_false'}
+    note: >-
+      Literal "if" states only a sufficient condition, but the sentence is the
+      definition of "happy" that the task asks to decide ("happy or not"), so
+      it is read as a definition (if and only if); the examples a and aa
+      agree. "its length" is the number of characters of s, len(s), not the
+      number of letters. Applies to the empty string too.
+
+  - id: RA-HAP-2
+    req: R-HAP-2
+    pattern: implies
+    args: {trigger: '!letters_distinct', cond: 'ret_false'}
+    note: >-
+      Most literal reading of "substrings of letters are distinct": the
+      substrings made of letters are pairwise distinct, i.e. no substring of
+      letters occurs twice; since single letters are such substrings, this
+      holds exactly when no letter occurs twice in s (reading 3 of the list).
+      No substring length (2 or 3) is stated, so none is assumed. "letters"
+      is taken literally as alphabetic characters: non-letter characters
+      (digits, spaces, punctuation, other codes) do not count and may repeat.
+      Letters are the ASCII letters a-z, A-Z (FCP-PL isalpha); Latin-1
+      letters such as codes 192-255 are treated as non-letters, a point the
+      text does not settle. Distinctness is case-sensitive ('A' != 'a').
+      "roughly" is read as a hedge: "approximately" sets no threshold, and
+      the examples xyy (one repeat) and aabb are not happy, so no repeat is
+      tolerated. "if" is read as definitional (if and only if), so a string
+      failing the condition is not happy whatever its length.
+
+  - id: RA-HAP-3
+    req: R-HAP-3
+    pattern: implies
+    args: {trigger: 'len_ok && letters_distinct', cond: 'ret_true'}
+    note: >-
+      A string of at least 3 characters in which every letter occurs exactly
+      once is happy (same readings as RA-HAP-1 and RA-HAP-2). Consequence of
+      the literal "letters" reading: "a1b1" (only the digit repeats) and
+      "!!!" (no letters at all) are happy.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 's == "a"', cond: 'ret_false'}
+    note: 'The argument is the string "a" (quotes omitted in the docstring).'
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 's == "aa"', cond: 'ret_false'}
+    note: 'The argument is the string "aa" (quotes omitted in the docstring).'
+
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 's == "abcd"', cond: 'ret_true'}
+    note: 'The argument is the string "abcd" (quotes omitted in the docstring).'
+
+  - id: RA-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 's == "aabb"', cond: 'ret_false'}
+    note: >-
+      The argument is the string "aabb". The example is taken as stated (not
+      overruled by a tolerant reading of "roughly"); under the reading of
+      RA-HAP-2 it is consistent with the definition.
+
+  - id: RA-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 's == "adb"', cond: 'ret_true'}
+    note: 'The argument is the string "adb" (quotes omitted in the docstring).'
+
+  - id: RA-EX-6
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 's == "xyy"', cond: 'ret_false'}
+    note: >-
+      The argument is the string "xyy". The example is taken as stated (not
+      overruled by a tolerant reading of "roughly"); under the reading of
+      RA-HAP-2 it is consistent with the definition.
+
+scenarios:
+  - {id: RA-EX-1-C, req: R-EX-1, cover: 's == "a" && ret_false', note: 'The call is_happy("a") returning False is possible.'}
+  - {id: RA-EX-2-C, req: R-EX-2, cover: 's == "aa" && ret_false', note: 'The call is_happy("aa") returning False is possible.'}
+  - {id: RA-EX-3-C, req: R-EX-3, cover: 's == "abcd" && ret_true', note: 'The call is_happy("abcd") returning True is possible.'}
+  - {id: RA-EX-4-C, req: R-EX-4, cover: 's == "aabb" && ret_false', note: 'The call is_happy("aabb") returning False is possible.'}
+  - {id: RA-EX-5-C, req: R-EX-5, cover: 's == "adb" && ret_true', note: 'The call is_happy("adb") returning True is possible.'}
+  - {id: RA-EX-6-C, req: R-EX-6, cover: 's == "xyy" && ret_false', note: 'The call is_happy("xyy") returning False is possible.'}
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the deliverable is an implementation of the stub. Not a
+      property of the call trace; its docstring contract is formalized by the
+      other items.
+  - req: R-API-2
+    reason: >-
+      Non-functional: the name is_happy and the single argument s are fixed by
+      the adapter (design.yaml, function section), which calls is_happy(s). A
+      missing function or a different arity makes every call raise, which
+      RA-OUT-2 (outcome == 0) detects, but the signature itself is not a
+      trace property.
+  - req: R-IN-1
+    reason: >-
+      Reading 1 ("any string"): the argument may be any string, so the
+      environment is not restricted beyond the interface, where every value
+      of s is already a string of at most 32 characters with codes 0-255
+      (frame.md). No assumption is needed; RA-OUT-2 requires every such
+      string to be answered.
+    covered_by: [RA-OUT-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md, F-ZERO in design.yaml): happy is
+      false unless outcome is 0. Frame items are added to every formalization
+      set by construction and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: 'a string s', reading: 1}
+  - {req: R-OUT-2, phrase: 'check if the string is happy or not', reading: 1}
+  - {req: R-OUT-2, phrase: 'check if the string is happy or not', reading: 1}
+  - {req: R-HAP-1, phrase: 'A string is happy if', reading: 1}
+  - {req: R-HAP-1, phrase: 'its length', reading: 1}
+  - {req: R-HAP-2, phrase: 'A string is happy if', reading: 1}
+  - {req: R-HAP-2, phrase: 'substrings of letters are distinct', reading: 3}
+  - {req: R-HAP-2, phrase: 'roughly', reading: 1}
+  - {req: R-HAP-2, phrase: 'roughly substrings of letters are distinct', reading: 1}
+  - {req: R-HAP-2, phrase: 'letters', reading: 2}
+  - {req: R-HAP-2, phrase: 'distinct', reading: 1}
+  - {req: R-HAP-3, phrase: 'substrings of letters are distinct', reading: 3}
+  - {req: R-HAP-3, phrase: 'roughly', reading: 1}
+  - {req: R-HAP-3, phrase: 'roughly substrings of letters are distinct', reading: 1}
+  - {req: R-HAP-3, phrase: 'letters', reading: 2}
+  - {req: R-HAP-3, phrase: 'distinct', reading: 1}
+  - {req: R-HAP-3, phrase: 'its length', reading: 1}
+  - {req: R-EX-1, phrase: 'is_happy(a)', reading: 1}
+  - {req: R-EX-2, phrase: 'is_happy(aa)', reading: 1}
+  - {req: R-EX-3, phrase: 'is_happy(abcd)', reading: 1}
+  - {req: R-EX-4, phrase: 'is_happy(aabb)', reading: 1}
+  - {req: R-EX-4, phrase: 'is_happy(aabb) => False', reading: 1}
+  - {req: R-EX-5, phrase: 'is_happy(adb)', reading: 1}
+  - {req: R-EX-6, phrase: 'is_happy(xyy)', reading: 1}
+  - {req: R-EX-6, phrase: 'is_happy(xyy) => False', reading: 1}

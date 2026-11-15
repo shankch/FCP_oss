@@ -1,0 +1,93 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete implementation of the given Python function largest_prime_factor, in place of the stub.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def largest_prime_factor(n: int):'
+  text: The function is named largest_prime_factor and takes one integer argument n.
+  kind: definition
+  lines:
+  - 4
+- id: R-FN-1
+  doc: SPEC
+  quote: Return the largest prime factor of n.
+  text: A call largest_prime_factor(n) returns, as an integer, the largest prime number that divides n.
+  kind: guarantee
+  depends:
+  - R-ENV-1
+  - R-ENV-2
+  ambiguity:
+  - phrase: the largest prime factor of n
+    readings:
+    - the greatest prime p that divides n, as the words say (for 13195 = 5 * 7 * 13 * 29 this is 29), which contradicts the example largest_prime_factor(13195) -> 5 (R-EX-1)
+    - 'the value the examples show: for 13195 the example gives 5, which is the smallest prime factor of 13195 (and 2 for 2048 fits both), so the intended result follows the examples (smallest prime factor)
+      rather than the words'
+  lines:
+  - 5
+- id: R-ENV-1
+  doc: SPEC
+  quote: Assume n > 1
+  text: The caller only passes arguments n greater than 1.
+  kind: assumption
+  ambiguity:
+  - phrase: Assume n > 1
+    readings:
+    - 'a precondition on the caller: for n <= 1 any outcome (any returned value, an exception, no answer) is acceptable'
+    - 'a statement of the valid domain that the function should enforce: for n <= 1 (no prime factor exists) it must raise an exception rather than return a value'
+  lines:
+  - 5
+- id: R-ENV-2
+  doc: SPEC
+  quote: and is not a prime
+  text: The caller only passes arguments n that are not prime numbers (n is composite).
+  kind: assumption
+  ambiguity:
+  - phrase: and is not a prime
+    readings:
+    - 'a precondition on the caller: for a prime n any outcome is acceptable'
+    - prime arguments are merely not expected; the largest prime factor of a prime n is n itself, so returning n is still required by R-FN-1
+  lines:
+  - 5
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> largest_prime_factor(13195) 5'
+  text: The call largest_prime_factor(13195) returns 5.
+  kind: scenario
+  depends:
+  - R-FN-1
+  ambiguity:
+  - phrase: largest_prime_factor(13195) 5
+    readings:
+    - 'the example is wrong: 13195 = 5 * 7 * 13 * 29, so by R-FN-1 the largest prime factor is 29 and the call must return 29, not 5'
+    - 'the example is authoritative: the call must return 5 (the smallest prime factor of 13195), and R-FN-1''s ''largest'' is to be read through the examples'
+  lines:
+  - 6
+  - 7
+- id: R-EX-2
+  doc: SPEC
+  quote: '>>> largest_prime_factor(2048) 2'
+  text: The call largest_prime_factor(2048) returns 2.
+  kind: scenario
+  depends:
+  - R-FN-1
+  lines:
+  - 8
+  - 9
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `factor` is 0 unless `outcome` is 0.'
+  text: In every call whose outcome is not 0 (exception, no answer, or a returned value that is not an integer fitting factor), the factor output is 0.
+  kind: guarantee
+  lines:
+  - 40

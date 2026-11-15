@@ -1,0 +1,163 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+dont_cares:
+  - id: RV-OUT-1-RET
+    req: R-OUT-1
+    signal: collisions
+    when: "true"
+    note: >-
+      Instructed reading of "outputs" (reading 2), taken as given although
+      "returns" seems the more natural reading: the function PRINTS the number
+      of collisions and its return value is unspecified. Printed text is not
+      part of the trace (frame.md records only the returned value and how the
+      call ended), so the returned number is intentionally unconstrained for
+      every n. Frame rule F-ZERO still makes it 0 whenever outcome != 0.
+      R-OUT-1 depends on R-ENV-1, read (as instructed, reading 2 of "n: int")
+      as allowing any Python int: no assumption restricts n, so every n of the
+      trace (0 to 1,023) is a valid argument.
+
+  - id: RV-OUT-1-END
+    req: R-OUT-1
+    signal: outcome
+    when: "true"
+    note: >-
+      Instructed reading of "outputs" (reading 2): the function prints the
+      number of collisions; the return value is unspecified. The type of the
+      returned value is therefore free, so a call that prints and returns None
+      (outcome 2) conforms as well as one that returns an int (outcome 0).
+      The text names no exception and states no obligation beyond printing;
+      because printing is not observable, a call that prints and then raises
+      or does not finish (outcome 1) cannot be told apart from a call that
+      never printed, so outcome is left free rather than repaired to "the
+      call returns normally". As for RV-OUT-1-RET, R-ENV-1 is read (as
+      instructed) as allowing any int, so this holds for every n of the trace.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a Python implementation keeping the
+      name car_race_collision and its single parameter n. This is fixed by the
+      function section of design.yaml (how calls become cycles), not by any
+      property of the trace.
+
+  - req: R-ENV-1
+    reason: >-
+      Instructed reading of "n: int" (reading 2), taken as given although "n
+      counts cars, so n >= 0" seems the more natural reading: n may be any
+      Python int and negative n must also be handled, with an unstated result.
+      This places no obligation on the environment, so no assumption is made.
+      The result for negative n is unstated and would be a don't-care, but
+      frame.md excludes negative arguments from the trace (n is a 10-bit
+      unsigned input, 0 to 1,023), so there is no observable behaviour to
+      leave free or to constrain. Every n of the trace is a valid argument.
+
+  - req: R-RD-1
+    reason: >-
+      Definition of the road (a straight infinite line) in the model that
+      determines the number of collisions. It constrains only that number,
+      which R-OUT-2 says the function outputs; under the instructed reading 2
+      of "outputs" (R-OUT-1) the number is printed, not returned, and is not in
+      the trace, so nothing observable follows from it.
+
+  - req: R-CAR-1
+    reason: >-
+      Instructed readings, taken as given: "2*n or n cars" means exactly n cars
+      drive left to right (reading 1), and "2*n or n" means one fixed count
+      consistent with a single number of collisions (reading 1). This defines
+      the model behind the collision count only. The count is printed
+      (instructed reading 2 of "outputs", R-OUT-1) and not in the trace, so
+      the definition has no observable consequence and is not formalized.
+
+  - req: R-CAR-2
+    reason: >-
+      Instructed readings, taken as given: "2*n or n cars" means exactly n cars
+      drive right to left (reading 1); "2*n or n" means one fixed count
+      (reading 1); and "a different set" means a set of a different size: if
+      one set has n cars the other has 2*n cars (reading 2). These contradict
+      each other: the left-to-right set has exactly n cars (R-CAR-1, reading
+      1), so "a different size" makes this set 2*n cars, while "2*n or n cars"
+      makes it exactly n; for every n > 0 both cannot hold (for n = 0, n and
+      2*n coincide). The contradiction is recorded, not repaired. It concerns
+      only the model behind the collision count, which is printed (instructed
+      reading 2 of "outputs", R-OUT-1) and not in the trace, so it is not
+      formalized.
+
+  - req: R-POS-1
+    reason: >-
+      Instructed reading of "start out being very far from each other"
+      (reading 2), taken as given: only the distance between the sets is
+      stated, not which side each starts on; if the left-to-right set starts
+      on the right, the sets move apart and no collision ever happens. The
+      number of collisions is then either (left-to-right count) x
+      (right-to-left count) or 0 depending on an unstated choice, which
+      contradicts "the number" being a single number determined by n (R-OUT-2,
+      instructed reading 1). This concerns only the printed count (instructed
+      reading 2 of "outputs", R-OUT-1), which is not in the trace, so it is not
+      formalized.
+
+  - req: R-SPD-1
+    reason: >-
+      Definition: all cars move at the same speed, so same-direction cars
+      never meet. It constrains only the number of collisions, which is printed
+      (instructed reading 2 of "outputs", R-OUT-1) and not in the trace, so it
+      has no observable consequence.
+
+  - req: R-COL-1
+    reason: >-
+      Instructed reading of "said to collide" (reading 2), taken as given:
+      since the cars continue as if they did not collide (R-COL-2), a meeting
+      of opposite-direction cars is not a collision and is not counted. This
+      contradicts the sentence's own definition of a collision, and makes the
+      number of collisions 0 for every n, contradicting n*n (R-OUT-2,
+      instructed reading 1) for every n > 0. The contradiction is recorded, not
+      repaired. It concerns only the printed count (instructed reading 2 of
+      "outputs", R-OUT-1), which is not in the trace, so it is not formalized.
+
+  - req: R-COL-2
+    reason: >-
+      Instructed reading of "as if they did not collide" (reading 2), taken as
+      given: the collision is treated as not having happened, so it is not
+      counted, contradicting the definition of a collision (R-COL-1) and, for
+      n > 0, the value n*n (R-OUT-2, instructed reading 1). The contradiction
+      is recorded, not repaired. It concerns only the printed count
+      (instructed reading 2 of "outputs", R-OUT-1), which is not in the trace,
+      so it is not formalized.
+
+  - req: R-OUT-2
+    reason: >-
+      Instructed readings, taken as given: "the number of such collisions" is
+      n*n, with n cars in each direction (reading 1), and "the number" is a
+      single number determined by n, so one fixed car count is meant (reading
+      1). The quote is the same sentence as R-OUT-1, whose "outputs" is read
+      (as instructed, reading 2) as "prints; the return value is unspecified".
+      The value n*n is therefore the printed number, which the trace does not
+      carry; stating collisions == n*n would contradict the unspecified return
+      value (RV-OUT-1-RET), so no item constrains the returned value. The
+      instructed readings also contradict one another: R-CAR-2 "a different
+      set" (sizes n and 2*n, giving 2*n*n), R-COL-1 / R-COL-2 (meetings are not
+      counted, giving 0) and R-POS-1 (side unstated, giving n*n or 0) each
+      disagree with n*n as a single number for n > 0. These conflicts are
+      recorded here because the printed value cannot be checked on the trace.
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter (frame.md), not of the prompt: it is
+      added to every formalization set as frame item F-ZERO and need not be
+      restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-1, phrase: "n: int", reading: 2}
+  - {req: R-CAR-1, phrase: "2*n or n cars", reading: 1}
+  - {req: R-CAR-1, phrase: "2*n or n", reading: 1}
+  - {req: R-CAR-2, phrase: "2*n or n cars", reading: 1}
+  - {req: R-CAR-2, phrase: "a different set", reading: 2}
+  - {req: R-CAR-2, phrase: "2*n or n", reading: 1}
+  - {req: R-POS-1, phrase: "start out being very far from each other", reading: 2}
+  - {req: R-COL-1, phrase: "said to collide", reading: 2}
+  - {req: R-COL-2, phrase: "as if they did not collide", reading: 2}
+  - {req: R-OUT-1, phrase: "outputs", reading: 2}
+  - {req: R-OUT-2, phrase: "the number of such collisions", reading: 1}
+  - {req: R-OUT-2, phrase: "the number", reading: 1}

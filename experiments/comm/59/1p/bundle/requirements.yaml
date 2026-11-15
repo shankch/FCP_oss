@@ -1,0 +1,123 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def candidate(n: int):'
+  text: The implementation is a Python function named candidate that takes a single integer argument n.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-DEF-1
+  doc: SPEC
+  quote: is not a prime
+  text: A prime is an integer greater than 1 whose only positive divisors are 1 and itself.
+  kind: definition
+  lines:
+  - 5
+- id: R-ENV-1
+  doc: SPEC
+  quote: Assume n > 1
+  text: candidate(n) is only called with n greater than 1.
+  kind: assumption
+  lines:
+  - 5
+- id: R-ENV-2
+  doc: SPEC
+  quote: is not a prime
+  text: candidate(n) is only called with an n that is not a prime number.
+  kind: assumption
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: is not a prime
+    readings:
+    - n may be any composite number, including one with several distinct prime factors (such as 6 = 2 * 3), so 'the prime factor' (R-RET-4) has to pick one of them or accept any
+    - n is meant to have a single prime factor, as 'the prime factor' (R-RET-4) presupposes, i.e. n is a prime power such as 4, 8 or 9; a call whose n has several distinct prime factors is outside the contract
+      (contradicts reading 1, which the words 'not a prime' alone allow)
+  lines:
+  - 5
+- id: R-ENV-3
+  doc: SPEC
+  quote: Assume n > 1 and is not a prime.
+  text: 'When n is at most 1 or n is prime, the request places no obligation on candidate(n): how the call ends and what it returns are unconstrained.'
+  kind: dont_care
+  depends:
+  - R-ENV-1
+  - R-ENV-2
+  ambiguity:
+  - phrase: Assume
+    readings:
+    - 'a pure precondition: on n <= 1 or prime n any behaviour is acceptable, including raising an exception or not finishing'
+    - on n <= 1 or prime n the call must still return an integer normally; only the returned value is unconstrained
+    - only n <= 1 is unconstrained; for a prime n, n is its own prime factor and should be returned (the assumption only spares the implementer from handling it specially)
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: Return the prime factor of n.
+  text: For every n greater than 1 that is not prime, candidate(n) returns normally (raises no exception and finishes) with an integer value.
+  kind: guarantee
+  depends:
+  - R-ENV-1
+  - R-ENV-2
+  ambiguity:
+  - phrase: Return
+    readings:
+    - the returned value must be a Python int
+    - any number numerically equal to the required prime factor (for example the float 3.0) is acceptable
+  lines:
+  - 5
+- id: R-RET-2
+  doc: SPEC
+  quote: Return the prime factor of n.
+  text: For every n greater than 1 that is not prime, the value returned by candidate(n) divides n exactly (n % result == 0).
+  kind: guarantee
+  depends:
+  - R-ENV-1
+  - R-ENV-2
+  lines:
+  - 5
+- id: R-RET-3
+  doc: SPEC
+  quote: Return the prime factor of n.
+  text: For every n greater than 1 that is not prime, the value returned by candidate(n) is a prime number.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-ENV-1
+  - R-ENV-2
+  lines:
+  - 5
+- id: R-RET-4
+  doc: SPEC
+  quote: Return the prime factor of n.
+  text: For every n greater than 1 that is not prime, the value returned by candidate(n) is the particular prime factor of n that the request designates as 'the prime factor'; when n has several distinct
+    prime factors, which one is meant is not stated.
+  kind: guarantee
+  depends:
+  - R-RET-2
+  - R-RET-3
+  - R-ENV-1
+  - R-ENV-2
+  ambiguity:
+  - phrase: the prime factor
+    readings:
+    - any prime factor of n is acceptable (the definite article is loose)
+    - the smallest prime factor of n
+    - the largest prime factor of n
+    - 'the unique prime factor of n: defined only when n has exactly one distinct prime factor (n is a prime power), with calls on n having several distinct prime factors outside the contract (contradicts
+      ''is not a prime'' in R-ENV-2, which admits such n)'
+  lines:
+  - 5
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `factor` is 0 unless `outcome` is 0.'
+  text: In every call, the factor output is 0 unless outcome is 0 (the call returned an integer from 0 to 65,535).
+  kind: guarantee
+  lines:
+  - 38

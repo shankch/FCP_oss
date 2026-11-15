@@ -1,0 +1,137 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # 2^n as an exact integer (n is 0 .. 2047; FCP-PL arithmetic does not wrap).
+  pow2n: "1 << n"
+  # (2^n) modulo p for p in 1 .. 127, and 0 for p = 0. `%` needs a constant
+  # divisor, so the variable divisor p is selected among the constants 1 .. 127.
+  pow2n_mod_p: "sum(k < 127: p == k + 1 ? pow2n % (k + 1) : 0)"
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "p != 0", cond: "outcome == 0"}
+    note: >-
+      "Return ..." read literally: for every p >= 1 the call returns an integer
+      (outcome 0), it does not raise and does not return another type such as a
+      float. p = 0 is excluded because 2^n modulo 0 is undefined and the text says
+      nothing about it (decision: "modulo p" reading 1, see RA-RET-3 and RA-RET-4).
+
+  - id: RA-RET-2
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "p != 0", cond: "result == pow2n_mod_p"}
+    note: >-
+      The formula read literally and for every call with p >= 1: "2^n" is 2 to the
+      power n (decision reading 1; the XOR reading of Python's ^ is not taken, the
+      text is prose), and the returned value is the remainder of 2^n divided by p,
+      in 0 .. p-1. The formula governs on every call, including the five docstring
+      calls (decision "Return 2^n modulo p" reading 1). This makes RA-RET-2
+      contradict every docstring example (RA-EX-1 .. RA-EX-5): each example shows
+      the result p, which is never a remainder modulo p (2^3 mod 5 = 3,
+      2^1101 mod 101 = 2, 2^0 mod 101 = 1, 2^3 mod 11 = 8, 2^100 mod 101 = 1).
+      The contradiction is in the specification and is kept, not repaired.
+
+dont_cares:
+  - id: RA-RET-3
+    req: R-RET-1
+    signal: result
+    when: "p == 0"
+    note: >-
+      Decision "modulo p" reading 1: 2^n modulo 0 is undefined and the text gives
+      no behaviour for p = 0, so the returned value is unconstrained (the frame
+      rule F-ZERO still applies).
+
+  - id: RA-RET-4
+    req: R-RET-1
+    signal: outcome
+    when: "p == 0"
+    note: >-
+      Decision "modulo p" reading 1: for p = 0 the call may return, raise or
+      return another kind of value; the text does not say.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "n == 3 && p == 5 && outcome == 0 && result == 5"
+    note: >-
+      The docstring example taken as written (decision reading 1): modp(3, 5)
+      returns the integer 5. It contradicts RA-RET-2 (2^3 modulo 5 is 3), so with
+      RA-RET-2 this scenario is unreachable; the conflict is the specification's.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: "n == 1101 && p == 101 && outcome == 0 && result == 101"
+    note: >-
+      The docstring example taken as written (decision reading 1): modp(1101, 101)
+      returns the integer 101. It contradicts RA-RET-2 (2^1101 modulo 101 is 2),
+      so with RA-RET-2 this scenario is unreachable; the conflict is the
+      specification's.
+
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: "n == 0 && p == 101 && outcome == 0 && result == 101"
+    note: >-
+      The docstring example taken as written (decision reading 1): modp(0, 101)
+      returns the integer 101. It contradicts RA-RET-2 (2^0 modulo 101 is 1), so
+      with RA-RET-2 this scenario is unreachable; the conflict is the
+      specification's.
+
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: "n == 3 && p == 11 && outcome == 0 && result == 11"
+    note: >-
+      The docstring example taken as written (decision reading 1): modp(3, 11)
+      returns the integer 11. It contradicts RA-RET-2 (2^3 modulo 11 is 8), so
+      with RA-RET-2 this scenario is unreachable; the conflict is the
+      specification's.
+
+  - id: RA-EX-5
+    req: R-EX-5
+    cover: "n == 100 && p == 101 && outcome == 0 && result == 101"
+    note: >-
+      The docstring example taken as written (decision reading 1): modp(100, 101)
+      returns the integer 101. It contradicts RA-RET-2 (2^100 modulo 101 is 1), so
+      with RA-RET-2 this scenario is unreachable; the conflict is the
+      specification's.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Definition of the interface (name modp, integer parameters n then p). It is
+      realized by the adapter (design.yaml `function` section and the inputs n
+      and p) and states no behaviour of its own.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: it is about the form of the submitted code (a body is
+      supplied, name and parameters kept), not about the values of a call. Its
+      only observable trace is that the adapter can call modp(n, p) at all; a
+      function that cannot be called ends with outcome 1, which RA-RET-1 rejects
+      for p >= 1, but the requirement itself is not a property of the trace.
+  - req: R-NUM-1
+    reason: >-
+      Decision reading 1 (exactness). Its observable content, an exact integer
+      result (not a float, outcome 2; no overflow error, outcome 1; no rounded
+      value), is already required for every p >= 1 by RA-RET-1 (outcome 0) and
+      RA-RET-2 (the exact value, FCP-PL arithmetic is exact). The efficiency
+      reading would add nothing observable on the frame's scope (n <= 2047).
+    covered_by: [RA-RET-1, RA-RET-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, added to every formalization set by design.yaml
+      (F-ZERO: outcome != 0 -> result == 0); frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-RET-1, phrase: "2^n", reading: 1}
+  - {req: R-RET-1, phrase: "modulo p", reading: 1}
+  - {req: R-RET-1, phrase: "Return 2^n modulo p", reading: 1}
+  - {req: R-NUM-1, phrase: "be aware of numerics", reading: 1}
+  - {req: R-EX-1, phrase: ">>> modp(3, 5) 5", reading: 1}
+  - {req: R-EX-2, phrase: ">>> modp(1101, 101) 101", reading: 1}
+  - {req: R-EX-3, phrase: ">>> modp(0, 101) 101", reading: 1}
+  - {req: R-EX-4, phrase: ">>> modp(3, 11) 11", reading: 1}
+  - {req: R-EX-5, phrase: ">>> modp(100, 101) 101", reading: 1}

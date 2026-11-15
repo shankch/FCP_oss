@@ -1,0 +1,8 @@
+defects:
+  - {id: SD1, kind: contradiction, reqs: [R-OV-1, R-G-3], planted: true,
+     desc: "overview: granted in the same cycle it is raised vs registered grant visible in the next cycle"}
+  - {id: SD2, kind: contradiction, reqs: [R-PRI-3, R-FAIR-1], planted: true,
+     desc: "requester 3 always wins vs every requester granted within N cycles (starvation)"}
+  - {id: SD3, kind: ambiguity, reqs: [R-PRI-2], planted: true,
+     desc: "'rotates by one position after each grant': true round robin vs shift of the priority order"}
+  - {id: SD4, kind: ambiguity, reqs: [R-FAIR-1], planted: true, desc: "fairness window 'within N cycles' is not anchored"}

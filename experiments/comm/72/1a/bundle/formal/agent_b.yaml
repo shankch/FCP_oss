@@ -1,0 +1,149 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. will_it_fly keeps no state between calls (frame.md,
+# "Calls"), so the reference model is combinational: the defs below compute,
+# from the inputs of the current call alone, what the prompt says the call
+# must return. No ghost state is needed; every output is checked against
+# `flies`.
+defs:
+  # R-FLY-2: balanced = palindromic list, q[i] == q[len(q) - 1 - i] for every
+  # position i. Vacuously true for [] (decision: reading 1).
+  balanced: "all(i < len(q): q[i] == q[len(q) - 1 - i])"
+  # R-FLY-3: the sum of the elements of q (0 for []).
+  total: "sum(i < len(q): q[i])"
+  # R-FLY-3, taken literally (decision: reading 3): "more than, or less than
+  # or equal [to], w". This holds for every sum, so w never matters.
+  weight_ok: "total > w || total <= w"
+  # R-FLY-1: q will fly exactly when it is balanced and meets the weight
+  # condition (decision: reading 1, "if" of a definition read as "iff").
+  flies: "balanced && weight_ok"
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "flies", cond: "outcome == 0 && fly"}
+    note: >-
+      "returns True" is read as returning the bool True: the call ends normally
+      with a bool (outcome 0) and the value is True (fly). Because the weight
+      condition is taken literally (R-FLY-3, reading 3) and is always met, this
+      requires True for every balanced q whatever w is, including
+      will_it_fly([3, 2, 3], 1), which contradicts example R-EX-2.
+
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "!flies", cond: "outcome == 0 && !fly"}
+    note: >-
+      "False otherwise": when q will not fly the call returns the bool False
+      (outcome 0, fly false). Since the weight condition is always met under
+      the literal reading, "will not fly" here means "is not balanced".
+
+  - id: RB-FLY-1
+    req: R-FLY-1
+    pattern: implies
+    args: {trigger: "outcome == 0", cond: "fly <-> (balanced && weight_ok)"}
+    note: >-
+      Definition of "will fly", seen through the returned bool. "will fly if"
+      is read as a definition, that is "if and only if" (reading 1): the
+      examples explain a False result by naming the condition that fails ("but
+      it's unbalanced"), which only makes sense under that reading. Under
+      reading 2 (sufficient only) the value for a q that fails a condition
+      would be unconstrained. RB-RET-1 and RB-RET-2 together imply this item;
+      it is kept so that the reading of R-FLY-1 is visible on its own.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "q == [1, 2] && w == 5", cond: "outcome == 0 && !fly"}
+    note: >-
+      The example as a guarantee for its call: will_it_fly([1, 2], 5) returns
+      the bool False ([1, 2] is not a palindrome). Consistent with the rule
+      under every reading.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "q == [3, 2, 3] && w == 9", cond: "outcome == 0 && fly"}
+    note: >-
+      The example as a guarantee for its call: will_it_fly([3, 2, 3], 9)
+      returns the bool True. Consistent with the literal rule (balanced).
+
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "q == [3] && w == 5", cond: "outcome == 0 && fly"}
+    note: >-
+      The example as a guarantee for its call: will_it_fly([3], 5) returns the
+      bool True. Consistent with the literal rule (a one-element list is
+      balanced).
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "q == [1, 2] && w == 5 && outcome == 0 && !fly"
+    note: The call will_it_fly([1, 2], 5) returning False must be possible.
+
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "q == [3, 2, 3] && w == 9 && outcome == 0 && fly"
+    note: The call will_it_fly([3, 2, 3], 9) returning True must be possible.
+
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: "q == [3] && w == 5 && outcome == 0 && fly"
+    note: The call will_it_fly([3], 5) returning True must be possible.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the function name will_it_fly and its two arguments
+      (q a list, w a number) are fixed by the adapter binding in design.yaml
+      (`function`, signals q and w); they are not a property of the trace.
+
+  - req: R-FLY-2
+    reason: >-
+      Definition, realized by the def `balanced`
+      (all(i < len(q): q[i] == q[len(q) - 1 - i])) and checked through the
+      items that use it. The empty list is taken as palindromic (reading 1):
+      it equals its own reverse, and the condition holds vacuously.
+    covered_by: [RB-FLY-1, RB-RET-1, RB-RET-2]
+
+  - req: R-FLY-3
+    reason: >-
+      Definition, realized by the defs `total` and `weight_ok` and checked
+      through the items that use them. Taken literally (reading 3), "more than
+      or less than or equal the maximum possible weight w" holds for every sum,
+      so the weight condition is a tautology and w never affects the result;
+      on its own it constrains nothing. This contradicts example R-EX-2 and
+      the words "maximum possible weight"; the literal rule is kept to govern
+      (reading 2 of "the sum of its elements is more than"), so a balanced q
+      whose sum exceeds w still flies.
+    covered_by: [RB-FLY-1, RB-RET-1, RB-RET-2]
+
+  - req: R-EX-2
+    reason: >-
+      Contradicts the rule. Under the literal weight condition (R-FLY-3,
+      reading 3) [3, 2, 3] is balanced and therefore flies for every w, so
+      RB-RET-1 requires will_it_fly([3, 2, 3], 1) to return True, while the
+      example expects False. Following the reading taken (reading 2: the rule
+      governs and the example's expected False is wrong), the example is not
+      formalized; stating it would make this set inconsistent. Under the other
+      reading (the example governs, weight condition sum(q) <= w) it would be
+      the guarantee q == [3, 2, 3] && w == 1 -> outcome == 0 && !fly.
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter: F-ZERO (outcome != 0 -> !fly) in design.yaml
+      carries this requirement and is added to every formalization set;
+      frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FLY-1, phrase: "will fly if", reading: 1}
+  - {req: R-FLY-2, phrase: "palindromic list", reading: 1}
+  - {req: R-FLY-3, phrase: "more than or less than or equal", reading: 3}
+  - {req: R-FLY-3, phrase: "the sum of its elements is more than", reading: 2}
+  - {req: R-EX-2, phrase: "3+2+3 is more than the maximum possible weight", reading: 2}

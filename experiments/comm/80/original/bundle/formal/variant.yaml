@@ -1,0 +1,261 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # number of alphabetic letters (ASCII a-z, A-Z) in s; non-letters are skipped
+  nlet: 'count(i < len(s): isalpha(s[i]))'
+  # Every complete non-overlapping block of three letters (letters 0-2, 3-5, ...
+  # of the sequence of letters of s) has its adjacent letters different,
+  # compared ignoring case. s[i] and s[j] are letters number r and r + 1
+  # (r = count of letters before i); they lie in the same block when r % 3 != 2,
+  # and that block (letters r - r % 3 .. r - r % 3 + 2) is complete when
+  # r - r % 3 + 3 <= nlet.
+  blocks_ok: >-
+    all(i < len(s): all(j < len(s):
+      isalpha(s[i]) && isalpha(s[j])
+      && count(m < j: isalpha(s[m])) == count(m < i: isalpha(s[m])) + 1
+      && (count(m < i: isalpha(s[m])) % 3) != 2
+      && count(m < i: isalpha(s[m])) - (count(m < i: isalpha(s[m])) % 3) + 3 <= nlet
+      -> lower(s[i]) != lower(s[j])))
+
+assumptions:
+  - id: RV-IN-1
+    req: R-IN-1
+    expr: 'all(i < len(s): islower(s[i]))'
+    note: >-
+      Reading taken for 'a string' (as instructed, R-IN-1 reading 2): s contains
+      only lower-case letters, as in every example, so the result for any other
+      string is not specified. Formalized as an obligation on the caller: every
+      character of s is an ASCII lower-case letter a-z. The empty string meets it
+      vacuously (the reading constrains only the characters). Calls with any
+      other string are outside the contract, so no item constrains their outcome
+      or returned value. This also makes the 'letters' and 'letters are
+      distinct' readings of R-HAP-1/3/4 (skip non-letters, ignore case) have no
+      effect on calls inside the contract; the items still state them.
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    expr: 'outcome != 1'
+    note: >-
+      Reading taken for 'check' (as instructed, R-RET-1 reading 2): is_happy may
+      return any truthy or falsy value (for example 1 or 0, or a non-empty or
+      empty object). So a returned value that is not a bool (outcome 2) is
+      allowed, and only raising an exception or not finishing (outcome 1) is
+      excluded. The requirement text 'returns a bool (True or False)' is
+      therefore not imposed. 'For every string s' is limited by RV-IN-1 (reading
+      2 of 'a string') to strings of lower-case letters.
+
+  - id: RV-HAP-4
+    req: R-HAP-4
+    expr: 'len(s) >= 3 && blocks_ok -> happy || outcome == 2'
+    note: >-
+      If the string is at least 3 characters long and every 3 consecutive
+      letters are distinct, is_happy returns True. Readings taken, as instructed:
+      'every 3 consecutive letters' (reading 2) means non-overlapping blocks of
+      three (letters 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') gives
+      True; 'letters' (reading 2) means only alphabetic letters (isalpha, ASCII)
+      count, non-letters are skipped and the blocks are taken over the sequence
+      of letters; 'distinct' (reading 2) means only adjacent letters of a block
+      must differ, so 'aba' gives True; 'letters are distinct' (reading 2) means
+      letters are compared ignoring case (lower), so 'aAb' does not meet the
+      condition. Most literal choices of this set: 'its length' is len(s), the
+      number of characters (not of letters); a trailing incomplete block of one
+      or two letters is not '3 consecutive letters' and is not checked, so
+      'abcd' (block 'abc', then 'd') meets the condition. Under the reading of
+      'check' (R-RET-1 reading 2) 'returns True' means any truthy value: a bool
+      True (outcome 0, happy) or a value that is not a bool (outcome 2), whose
+      truth the trace does not show; raising (outcome 1) is excluded.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    expr: 's == "a" -> outcome != 1 && !happy'
+    note: >-
+      is_happy('a') returns False. Under the reading of 'check' (R-RET-1
+      reading 2) 'returns False' means any falsy value: a bool False (outcome 0,
+      not happy) or a value that is not a bool (outcome 2, truth not shown in
+      the trace). Raising is excluded.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    expr: 's == "aa" -> outcome != 1 && !happy'
+    note: >-
+      is_happy('aa') returns False. Under the reading of 'check' (R-RET-1
+      reading 2) 'returns False' means any falsy value: a bool False (outcome 0,
+      not happy) or a value that is not a bool (outcome 2). Raising is excluded.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    expr: 's == "abcd" -> happy || outcome == 2'
+    note: >-
+      is_happy('abcd') returns True. Under the reading of 'check' (R-RET-1
+      reading 2) 'returns True' means any truthy value: a bool True (outcome 0,
+      happy) or a value that is not a bool (outcome 2, truth not shown in the
+      trace). Raising is excluded. Consistent with RV-HAP-4: block 'abc' has
+      adjacent letters that differ and the trailing 'd' is not a full block.
+
+  - id: RV-EX-4
+    req: R-EX-4
+    expr: 's == "aabb" -> outcome != 1 && !happy'
+    note: >-
+      is_happy('aabb') returns False, formalized as written. Reading taken for
+      the example (as instructed, R-EX-4 reading 2): it contradicts the rule
+      when 'distinct' means 'not all three the same' or 'no 3-character window
+      repeats', since 'aab' and 'abb' then pass and the rule gives True. This
+      set reads 'distinct' as 'adjacent letters differ' (R-HAP-1/3/4 reading 2)
+      over non-overlapping blocks, under which the block 'aab' fails, and reads
+      'happy if' as a sufficient condition only, so the example contradicts no
+      item here. 'Returns False' means any falsy value (R-RET-1 reading 2):
+      bool False (outcome 0) or a value that is not a bool (outcome 2).
+
+  - id: RV-EX-5
+    req: R-EX-5
+    expr: 's == "adb" -> happy || outcome == 2'
+    note: >-
+      is_happy('adb') returns True. Under the reading of 'check' (R-RET-1
+      reading 2) 'returns True' means any truthy value: a bool True (outcome 0,
+      happy) or a value that is not a bool (outcome 2). Raising is excluded.
+
+  - id: RV-EX-6
+    req: R-EX-6
+    expr: 's == "xyy" -> outcome != 1 && !happy'
+    note: >-
+      is_happy('xyy') returns False, formalized as written. Reading taken for
+      the example (as instructed, R-EX-6 reading 2): it contradicts the rule
+      when 'distinct' means 'not all three the same' or 'no 3-character window
+      repeats', since the single window 'xyy' then passes and the rule gives
+      True. This set reads 'distinct' as 'adjacent letters differ' (R-HAP-1/3/4
+      reading 2), under which the block 'xyy' fails, and reads 'happy if' as a
+      sufficient condition only, so the example contradicts no item here.
+      'Returns False' means any falsy value (R-RET-1 reading 2): bool False
+      (outcome 0) or a value that is not a bool (outcome 2).
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 's == "a" && outcome != 1 && !happy'
+    note: >-
+      The call is_happy('a') returning False (any falsy value, R-RET-1 reading
+      2) must be possible together with every other item.
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 's == "aa" && outcome != 1 && !happy'
+    note: >-
+      The call is_happy('aa') returning False (any falsy value, R-RET-1 reading
+      2) must be possible together with every other item.
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 's == "abcd" && (happy || outcome == 2)'
+    note: >-
+      The call is_happy('abcd') returning True (any truthy value, R-RET-1
+      reading 2) must be possible together with every other item.
+  - id: RV-EX-4-S
+    req: R-EX-4
+    cover: 's == "aabb" && outcome != 1 && !happy'
+    note: >-
+      The call is_happy('aabb') returning False (any falsy value, R-RET-1
+      reading 2) must be possible together with every other item. Under R-EX-4
+      reading 2 this would fail if 'distinct' meant 'not all three the same'
+      or 'no window repeats' read as 'if and only if'; with this set's readings
+      it is consistent.
+  - id: RV-EX-5-S
+    req: R-EX-5
+    cover: 's == "adb" && (happy || outcome == 2)'
+    note: >-
+      The call is_happy('adb') returning True (any truthy value, R-RET-1
+      reading 2) must be possible together with every other item.
+  - id: RV-EX-6-S
+    req: R-EX-6
+    cover: 's == "xyy" && outcome != 1 && !happy'
+    note: >-
+      The call is_happy('xyy') returning False (any falsy value, R-RET-1
+      reading 2) must be possible together with every other item. Under R-EX-6
+      reading 2 this would fail if 'distinct' meant 'not all three the same'
+      or 'no window repeats' read as 'if and only if'; with this set's readings
+      it is consistent.
+
+dont_cares:
+  - id: RV-HAP-2
+    req: R-HAP-2
+    signal: happy
+    when: 'len(s) < 3 && s != "a" && s != "aa"'
+    note: >-
+      Reading taken for 'happy if' (as instructed, R-HAP-2 reading 2): 'if'
+      gives only a sufficient condition, so the rule leaves the result for
+      strings shorter than 3 open, and only the examples 'a' and 'aa' give
+      False (RV-EX-1, RV-EX-2, excluded here). The requirement text (False for
+      every string shorter than 3) is therefore not imposed: for the empty
+      string and every other string of length 1 or 2 the returned value is
+      free. outcome is still constrained by RV-RET-1 (no exception).
+
+  - id: RV-HAP-3
+    req: R-HAP-3
+    signal: happy
+    when: 'len(s) >= 3 && !blocks_ok && s != "aabb" && s != "xyy"'
+    note: >-
+      Readings taken, as instructed: 'happy if' (R-HAP-3 reading 2) gives only
+      a sufficient condition, so the rule leaves the result open for strings of
+      length at least 3 that fail the condition; the requirement text (returns
+      False for them) is therefore not imposed, and only the examples 'aabb'
+      and 'xyy' (RV-EX-4, RV-EX-6, excluded here) give False. The condition is
+      the one of RV-HAP-4 under the same readings: 'every 3 consecutive
+      letters' (reading 2) is non-overlapping blocks of three (letters 0-2,
+      3-5, ...), so 'abccde' (blocks 'abc', 'cde') would be happy; 'letters'
+      (reading 2) counts only alphabetic letters, skipping non-letters;
+      'distinct' (reading 2) requires only adjacent letters to differ, so 'aba'
+      gives True; 'letters are distinct' (reading 2) compares ignoring case, so
+      'aAb' fails the condition (and its result is then free here, not False).
+      A trailing incomplete block is not checked. outcome is still constrained
+      by RV-RET-1.
+
+unformalized:
+  - req: R-HAP-1
+    covered_by: [RV-HAP-4, RV-HAP-2, RV-HAP-3]
+    reason: >-
+      A definition, realized by the defs nlet and blocks_ok and by the items
+      that cover it. Readings taken, as instructed: 'happy if' (reading 2) is
+      only a sufficient condition, so the definition makes strings meeting it
+      happy (RV-HAP-4) and says nothing about strings that fail it (left free
+      by RV-HAP-2 and RV-HAP-3); 'every 3 consecutive letters' (reading 2) is
+      non-overlapping blocks of three, so 'abccde' would be happy; 'letters'
+      (reading 2) counts only alphabetic letters, non-letters skipped;
+      'distinct' (reading 2) requires only adjacent letters to differ, so 'aba'
+      is happy; 'letters are distinct' (reading 2) compares ignoring case, so
+      'a' and 'A' are the same letter.
+  - req: R-IF-1
+    reason: >-
+      Non-functional: it says what the deliverable is (a completed function
+      body), not how a call behaves. Nothing on the trace expresses it.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the name is_happy and the single parameter s are fixed by
+      the function adapter (design.yaml function section), which calls
+      is_happy(s); a different signature shows as outcome 1 on every call,
+      which RV-RET-1 already rejects. Not expressible in FCP-PL beyond that.
+  - req: R-FR-1
+    covered_by: [F-ZERO]
+    reason: >-
+      Frame rule F-ZERO of the adapter (outcome != 0 -> !happy), added to every
+      formalization set by design.yaml; frame.md says it need not be restated.
+
+decisions:
+  - {req: R-IN-1, phrase: 'a string', reading: 2}
+  - {req: R-RET-1, phrase: 'check', reading: 2}
+  - {req: R-HAP-1, phrase: 'happy if', reading: 2}
+  - {req: R-HAP-1, phrase: 'every 3 consecutive letters', reading: 2}
+  - {req: R-HAP-1, phrase: 'letters', reading: 2}
+  - {req: R-HAP-1, phrase: 'distinct', reading: 2}
+  - {req: R-HAP-1, phrase: 'letters are distinct', reading: 2}
+  - {req: R-HAP-2, phrase: 'happy if', reading: 2}
+  - {req: R-HAP-3, phrase: 'happy if', reading: 2}
+  - {req: R-HAP-3, phrase: 'every 3 consecutive letters', reading: 2}
+  - {req: R-HAP-3, phrase: 'letters', reading: 2}
+  - {req: R-HAP-3, phrase: 'distinct', reading: 2}
+  - {req: R-HAP-3, phrase: 'letters are distinct', reading: 2}
+  - {req: R-HAP-4, phrase: 'every 3 consecutive letters', reading: 2}
+  - {req: R-HAP-4, phrase: 'letters', reading: 2}
+  - {req: R-HAP-4, phrase: 'distinct', reading: 2}
+  - {req: R-HAP-4, phrase: 'letters are distinct', reading: 2}
+  - {req: R-EX-4, phrase: 'is_happy(aabb) => False', reading: 2}
+  - {req: R-EX-6, phrase: 'is_happy(xyy) => False', reading: 2}

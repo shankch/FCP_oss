@@ -1,0 +1,199 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. frame.md: every cycle is one independent call and the
+# function keeps no state, so the model is combinational in the argument of
+# the current call (no ghost state is needed). Every output (outcome, the
+# length, contents and order of result) is checked against it below.
+defs:
+  # R-DEF-1: first and last values of the given (unsorted) array as passed.
+  psum: "array[0] + array[len(array) - 1]"
+  psum_odd: "psum % 2 == 1"
+  psum_even: "psum % 2 == 0"
+  # R-ORD-1 condition, literally "if the sum ... is odd or even".
+  sel_asc: "len(array) > 0 && (psum_odd || psum_even)"
+  # R-ORD-2 condition, literally "if the sum ... is even or odd".
+  sel_desc: "len(array) > 0 && (psum_even || psum_odd)"
+  returned: "outcome == 0"
+  res_perm: "len(result) == len(array) && all(i < len(array): count(j < len(array): array[j] == array[i]) == count(j < len(result): result[j] == array[i]))"
+  res_asc: "all(i < len(result) - 1: result[i] <= result[i + 1])"
+  res_desc: "all(i < len(result) - 1: result[i] >= result[i + 1])"
+
+assumptions:
+  - id: RB-IN-1
+    req: R-IN-1
+    expr: "all(i < len(array): array[i] >= 0)"
+    note: >-
+      The argument is a list of non-negative integers. In this encoding every
+      element is an unsigned 8-bit slot, and frame.md excludes negative
+      numbers and non-integers from the trace, so the obligation holds by
+      construction; it is stated to record the environment obligation.
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: "returned"}
+    note: >-
+      Every call (all arguments satisfy R-IN-1 by construction) returns a list
+      that fits the result signal: outcome is 0, never 1 (raised / did not
+      finish) or 2 (returned something else). A copy of an argument of at most
+      8 numbers 0..255 always fits, so outcome 0 is the literal meaning of
+      "return a copy of the given array".
+
+  - id: RB-RET-2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "returned", cond: "res_perm"}
+    note: >-
+      Whenever the call returns a list, it has the same length as array and
+      every value occurs in it exactly as often as in array (a permutation of
+      the argument as passed). Guarded by outcome 0 because the text speaks
+      of the returned list; that a list is returned at all is R-RET-1.
+      Reading 1 of "a copy of the given array after sorting" (copy, then sort
+      the copy). Under either reading the trace, which records only the
+      argument as passed and the returned list, is constrained identically.
+
+  - id: RB-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args: {trigger: "sel_asc", cond: "res_asc"}
+    note: >-
+      LITERAL READING (reading 2 of "is odd or even"): the condition "the sum
+      is odd or even" is true for every sum, so every non-empty argument is
+      sorted in non-decreasing order. The requirement's paraphrase ("whose
+      parity sum is odd") repairs the quote; this item follows the quoted
+      specification text instead. Read this way the specification is
+      contradictory: together with RB-ORD-2 (literally descending for every
+      non-empty argument), RB-RET-1 and RB-RET-2 no output exists for an
+      argument with two distinct values, and the example RB-EX-4 (sum 8,
+      result descending) violates it. The parity sum (R-DEF-1) is kept in
+      the condition to show the text but does not affect it. "In ascending
+      order" is non-decreasing (duplicates kept, reading 1). When outcome is
+      not 0 the result is empty (F-EMPTY) and the order holds trivially.
+
+  - id: RB-ORD-2
+    req: R-ORD-2
+    pattern: implies
+    args: {trigger: "sel_desc", cond: "res_desc"}
+    note: >-
+      LITERAL READING (reading 2 of "is even or odd"): the condition "the sum
+      is even or odd" is true for every sum, so every non-empty argument is
+      sorted in non-increasing order. The requirement's paraphrase ("whose
+      parity sum is even") repairs the quote; this item follows the quoted
+      specification text instead. Read this way the specification is
+      contradictory: together with RB-ORD-1 (literally ascending for every
+      non-empty argument), RB-RET-1 and RB-RET-2 no output exists for an
+      argument with two distinct values, and the example RB-EX-3 (sum 7,
+      result ascending) violates it. "In descending order" is non-increasing
+      (duplicates kept, reading 1); "sort it" sorts the returned copy
+      (reading 1), which the trace cannot distinguish from sorting in place.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "len(array) == 0", cond: "returned && len(result) == 0"}
+    note: >-
+      "sort_array([]) => []": the call with the empty list returns the empty
+      list. An example of a function's value is stated as a guarantee for
+      that argument; RB-EX-1-S states that the behaviour is possible.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "array == [5]", cond: "returned && result == [5]"}
+    note: >-
+      "sort_array([5]) => [5]". Consistent with every other item (one element
+      is both ascending and descending).
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "array == [2, 4, 3, 0, 1, 5]", cond: "returned && result == [0, 1, 2, 3, 4, 5]"}
+    note: >-
+      "sort_array([2, 4, 3, 0, 1, 5]) => [0, 1, 2, 3, 4, 5]", kept exactly as
+      written (reading 2: it contradicts R-ORD-2 read literally, which is the
+      reading RB-ORD-2 takes; under it the result would be [5, 4, 3, 2, 1, 0]).
+      The example is consistent with RB-ORD-1 and RB-RET-2.
+
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "array == [2, 4, 3, 0, 1, 5, 6]", cond: "returned && result == [6, 5, 4, 3, 2, 1, 0]"}
+    note: >-
+      "sort_array([2, 4, 3, 0, 1, 5, 6]) => [6, 5, 4, 3, 2, 1, 0]", kept
+      exactly as written (reading 2: it contradicts R-ORD-1 read literally,
+      which is the reading RB-ORD-1 takes; under it the result would be
+      [0, 1, 2, 3, 4, 5, 6]). The example is consistent with RB-ORD-2 and
+      RB-RET-2.
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "len(array) == 0 && returned && len(result) == 0"
+    note: "The call sort_array([]) returning [] is possible."
+
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: "array == [5] && returned && result == [5]"
+    note: "The call sort_array([5]) returning [5] is possible."
+
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "array == [2, 4, 3, 0, 1, 5] && returned && result == [0, 1, 2, 3, 4, 5]"
+    note: >-
+      The call sort_array([2, 4, 3, 0, 1, 5]) returning [0, 1, 2, 3, 4, 5] is
+      possible. Expected to be unreachable under the literal reading of
+      R-ORD-2 (RB-ORD-2); this exposes the contradiction in the prompt.
+
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: "array == [2, 4, 3, 0, 1, 5, 6] && returned && result == [6, 5, 4, 3, 2, 1, 0]"
+    note: >-
+      The call sort_array([2, 4, 3, 0, 1, 5, 6]) returning
+      [6, 5, 4, 3, 2, 1, 0] is possible. Expected to be unreachable under the
+      literal reading of R-ORD-1 (RB-ORD-1); this exposes the contradiction
+      in the prompt.
+
+unformalized:
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md, design.yaml frame F-EMPTY:
+      outcome != 0 -> len(result) == 0). Frame items are added to every
+      formalization set and need not be restated.
+    covered_by: [F-EMPTY]
+  - req: R-API-1
+    reason: >-
+      Non-functional: the function name sort_array and its single parameter
+      array are fixed by the function section of design.yaml (the adapter
+      calls sort_array(array)); not a property of the trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition: the parity sum array[0] + array[len(array) - 1] of the given
+      (unsorted) array is the def psum (reading 1 of both flagged phrases).
+      Under the literal readings of R-ORD-1 and R-ORD-2 the conditions that
+      use it ("odd or even", "even or odd") are true for every sum, so the
+      definition has no effect on any item.
+    covered_by: [RB-ORD-1, RB-ORD-2]
+  - req: R-MUT-1
+    reason: >-
+      Not observable: frame.md says the trace records the argument as passed
+      and the returned list, and nothing else about the call, so whether the
+      call modifies the list passed as array cannot be expressed over the
+      trace (reading 1: the argument is left unmodified and the sorting is
+      applied to a copy).
+
+decisions:
+  - {req: R-RET-2, phrase: "a copy of the given array after sorting", reading: 1}
+  - {req: R-DEF-1, phrase: "first index value, last index value", reading: 1}
+  - {req: R-DEF-1, phrase: "the sum( first index value, last index value)", reading: 1}
+  - {req: R-ORD-1, phrase: "is odd or even", reading: 2}
+  - {req: R-ORD-1, phrase: "in ascending order", reading: 1}
+  - {req: R-ORD-1, phrase: "you will sort the given array", reading: 1}
+  - {req: R-ORD-2, phrase: "is even or odd", reading: 2}
+  - {req: R-ORD-2, phrase: "in descending order", reading: 1}
+  - {req: R-ORD-2, phrase: "sort it", reading: 1}
+  - {req: R-MUT-1, phrase: "don't change the given array", reading: 1}
+  - {req: R-EX-3, phrase: "[0, 1, 2, 3, 4, 5]", reading: 2}
+  - {req: R-EX-4, phrase: "[6, 5, 4, 3, 2, 1, 0]", reading: 2}

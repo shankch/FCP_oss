@@ -1,0 +1,82 @@
+fcp: '0.1'
+design: code_change
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def checkout(subtotal: int, coupon: int, member: bool, student: bool = False) -> tuple[int, int]:'
+  text: The changed function takes a fourth argument, student, which defaults to False.
+  kind: definition
+  lines:
+  - 5
+- id: R-TEST-1
+  doc: SPEC
+  quote: Change the function as follows, and update the tests
+  text: The tests are updated with the function.
+  kind: non_functional
+  lines:
+  - 3
+- id: R-STU-1
+  doc: SPEC
+  quote: Students get 15% off.
+  text: A student gets a 15% discount.
+  kind: guarantee
+  lines:
+  - 7
+- id: R-CAP-1
+  doc: SPEC
+  quote: This adds to the other discounts, and the total discount is still never more than 30%.
+  text: The student discount adds to the member and coupon discounts, and the total is at most 30%.
+  kind: guarantee
+  lines:
+  - 7
+- id: R-SHIP-1
+  doc: SPEC
+  quote: Free shipping now starts at $75 instead of $50.
+  text: Orders of $75 or more ship free; below that they pay the shipping fee.
+  kind: guarantee
+  ambiguity:
+  - phrase: Free shipping now starts at $75
+    readings:
+    - for every customer
+    - for students only
+  lines:
+  - 8
+- id: R-SAME-1
+  doc: SPEC
+  quote: Nothing may change for customers who are not students.
+  text: For a customer who is not a student, the changed function answers every call as the function before the change did.
+  kind: guarantee
+  lines:
+  - 9
+- id: R-KEEP-1
+  doc: SPEC
+  quote: Keep everything else as it is.
+  text: Apart from rules 1 and 2, a student is treated as before the change (ranges, errors, rounding, the shipping fee).
+  kind: guarantee
+  lines:
+  - 10
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: a student with a $100.00 cart, no coupon and no membership gets `(8500, 0)`.'
+  text: A student with a 10,000-cent cart, no coupon and no membership gets (8500, 0).
+  kind: scenario
+  lines:
+  - 12
+- id: R-FR-1
+  doc: FRAME
+  quote: '`price` and `ship` are 0 unless `outcome` is 0.'
+  text: The price and shipping outputs are 0 unless the call returned a pair that fits.
+  kind: definition
+  lines:
+  - 47
+- id: R-FR-2
+  doc: FRAME
+  quote: '`old_price` and `old_ship` are 0 unless `old_outcome` is 0.'
+  text: The old answer is 0 unless the old call returned a pair that fits.
+  kind: definition
+  lines:
+  - 48

@@ -1,0 +1,62 @@
+design: agent_desk
+kernel: scaffold/desk.py
+bugs:
+- id: G1
+  file: bugs/G1.v
+  desc: the confirmation is not bound to the order (only the amount must match)
+  class: guard-binding
+  violates: [R-CONF-1]
+  patch:
+  - ['        confirmed = r.c_yes and r.c_ord == i.p_ord and r.c_amt == i.p_amt', '        confirmed = r.c_yes and r.c_amt == i.p_amt']
+- id: G2
+  file: bugs/G2.v
+  desc: the refund amount is not compared with the confirmed amount
+  class: guard-binding
+  violates: [R-CONF-1]
+  patch:
+  - ['        confirmed = r.c_yes and r.c_ord == i.p_ord and r.c_amt == i.p_amt', '        confirmed = r.c_yes and r.c_ord == i.p_ord']
+- id: G3
+  file: bugs/G3.v
+  desc: the total check uses the most recent lookup, not the lookup of the refunded order
+  class: guard-state
+  violates: [R-TOT-1]
+  patch:
+  - ["    'tot1': (9, 0),\n", "    'tot1': (9, 0),\n    'last': (9, 0),       # total of the most recent lookup\n"]
+  - ['        total = r.tot1 if i.p_ord else r.tot0', '        total = r.last']
+  - ['        bit = 1 << o.ord', "        n.last = i.total\n        bit = 1 << o.ord"]
+- id: G4
+  file: bugs/G4.v
+  desc: the forced handoff comes after the third failed verification (off by one)
+  class: guard-count
+  violates: [R-ID-2]
+  patch:
+  - ['MAX_FAILS = 2', 'MAX_FAILS = 3']
+- id: G5
+  file: bugs/G5.v
+  desc: the "Talk to a human" button is honoured only when the model proposes nothing
+  class: guard-priority
+  violates: [R-HUM-1]
+  patch:
+  - ['    elif i.human:', '    elif i.human and act == NONE:']
+- id: G6
+  file: bugs/G6.v
+  desc: handoffs require a verified customer, so a customer who failed verification twice is never handed off
+  class: guard-overreach
+  violates: [R-ID-2]
+  patch:
+  - ['    elif r.fails >= MAX_FAILS:', '    elif r.fails >= MAX_FAILS and r.verified:']
+  - ['    elif act == CLOSE:', "    elif act == HANDOFF:\n        if not r.verified:\n            act = NONE                              # only verified customers are escalated\n    elif act == CLOSE:"]
+- id: G7
+  file: bugs/G7.v
+  desc: an eligible lookup is never revoked by a later lookup of the same order that says ineligible
+  class: guard-state
+  violates: [R-ELIG-1]
+  patch:
+  - ['        n.okay = (r.okay | bit) if i.elig else (r.okay & ~bit)', '        n.okay = (r.okay | bit) if i.elig else r.okay']
+- id: G8
+  file: bugs/G8.v
+  desc: a handoff does not end the conversation; the loop keeps running
+  class: loop-control
+  violates: [R-FR-3]
+  patch:
+  - ["    if o.handoff or o.close:\n        n.done = 1", "    if o.close:\n        n.done = 1"]

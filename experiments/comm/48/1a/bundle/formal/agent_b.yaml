@@ -1,0 +1,175 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate is memoryless (frame.md: calls are
+# independent), so the model is a combinational function of the argument:
+# no ghost state is needed. Every output is checked against `expect`.
+defs:
+  # R-DEF-1, reading 1 (exact): character i equals character len-1-i,
+  # codes compared as is (case and spaces matter). True for '' and for
+  # every one-character string.
+  pal: 'all(i < len(text): text[i] == text[len(text) - 1 - i])'
+  # R-DEF-2, reading 2: no letter occurs twice, ignoring case; non-letters
+  # may repeat. "Letter" is an ASCII letter, as the FCP-PL character
+  # functions define it (frame.md: a character beyond code 127 is no
+  # letter and has no case). True for ''.
+  iso: 'all(i < len(text): all(j < i: !(isalpha(text[i]) && lower(text[j]) == lower(text[i]))))'
+  # R-CHK-1/R-CHK-2, reading 1: "Isogram/Palindrome" is "isogram or palindrome".
+  expect: 'iso || pal'
+  returned_true: 'outcome == 0 && result'
+  returned_false: 'outcome == 0 && !result'
+
+properties:
+  - id: RB-RET-1
+    req: R-RET-1
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      Every call returns True or False: no exception, no non-termination and
+      no value of another type (outcome 1 and 2 are both excluded).
+
+  - id: RB-CHK-1
+    req: R-CHK-1
+    pattern: implies
+    args: {trigger: 'expect', cond: 'returned_true'}
+    note: >-
+      Reading 1 of "Isogram/Palindrome": the slash read literally as "or", so
+      being an isogram or a palindrome suffices for True. This contradicts
+      R-EX-4: 'zbcd' has no repeated letter, so it is an isogram and this
+      property requires True, while the example requires False
+      (RB-EX-4, RB-EX-4-S). The contradiction is in the specification and is
+      left in place, not repaired.
+
+  - id: RB-CHK-2
+    req: R-CHK-2
+    pattern: implies
+    args: {trigger: '!expect', cond: 'returned_false'}
+    note: >-
+      Reading 1 of "Isogram/Palindrome" (either suffices): False exactly when
+      the text is neither an isogram nor a palindrome. Together with RB-CHK-1
+      this fixes result == (iso || pal) on every call.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'len(text) == 0', cond: 'returned_true'}
+    note: The doctest candidate('') -> True, read as a fixed expectation for that call.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'text == "aba"', cond: 'returned_true'}
+    note: >-
+      Reading 1: the example is right. 'aba' is a palindrome but not an
+      isogram; consistent with RB-CHK-1 under the "either" reading.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'text == "aaaaa"', cond: 'returned_true'}
+    note: >-
+      Reading 1: the example is right. 'aaaaa' is a palindrome but not an
+      isogram; consistent with RB-CHK-1 under the "either" reading.
+
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'text == "zbcd"', cond: 'returned_false'}
+    note: >-
+      Reading 1: the example is right, as written. 'zbcd' is an isogram (no
+      letter repeats) and not a palindrome, so under the literal "either"
+      reading of the docstring RB-CHK-1 requires True. This property and
+      RB-CHK-1 cannot both hold on the call candidate('zbcd'): the
+      specification is contradictory and the conflict is deliberately kept.
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: 'len(text) == 0 && returned_true'
+    note: The call candidate('') returning True must be possible.
+
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: 'text == "aba" && returned_true'
+    note: The call candidate('aba') returning True must be possible.
+
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: 'text == "aaaaa" && returned_true'
+    note: The call candidate('aaaaa') returning True must be possible.
+
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: 'text == "zbcd" && returned_false'
+    note: >-
+      The call candidate('zbcd') returning False must be possible. Expected to
+      be unreachable together with RB-CHK-1 (see the note on RB-EX-4).
+
+  - id: RB-CHK-1-S-ISO
+    req: R-CHK-1
+    cover: 'iso && !pal && returned_true'
+    note: >-
+      Under the "either" reading an isogram that is not a palindrome (such as
+      'ab') returns True; this must be possible.
+
+  - id: RB-CHK-1-S-PAL
+    req: R-CHK-1
+    cover: 'pal && !iso && returned_true'
+    note: >-
+      A palindrome that is not an isogram (such as 'aba') returns True; this
+      must be possible.
+
+  - id: RB-CHK-2-S
+    req: R-CHK-2
+    cover: '!iso && !pal && returned_false'
+    note: >-
+      A text that is neither an isogram nor a palindrome (such as 'aab')
+      returns False; this must be possible.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Interface definition (function name candidate, single parameter text).
+      It has no behavioural content; the binding of the argument to the input
+      signal text is fixed by the function section of design.yaml.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the deliverable is a complete body for candidate that
+      keeps its name and signature. Not a property of the call trace; the
+      behaviour the body must have is formalized under R-RET-1, R-CHK-1,
+      R-CHK-2 and R-EX-1..4.
+  - req: R-ENV-1
+    reason: >-
+      Reading 1: "text: str" is a type hint that constrains the caller only.
+      The trace interface carries only str arguments (frame.md, Inputs: text
+      is a string of at most 32 Latin-1 characters), so the obligation holds by
+      construction and no FCP-PL expression over the trace can state or break
+      it. Behaviour on non-str arguments is left unspecified.
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized by the def `pal` (reading 1, exact comparison),
+      which the check properties and scenarios use.
+    covered_by: [RB-CHK-1, RB-CHK-2, RB-CHK-1-S-PAL]
+  - req: R-DEF-2
+    reason: >-
+      Definition, realized by the def `iso` (reading 2, no ASCII letter
+      repeated ignoring case, non-letters may repeat), which the check
+      properties and scenarios use.
+    covered_by: [RB-CHK-1, RB-CHK-2, RB-CHK-1-S-ISO]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md F-ZERO). design.yaml declares it as
+      frame item F-ZERO, which is added to every formalization set, and
+      frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-1, phrase: 'text: str', reading: 1}
+  - {req: R-DEF-1, phrase: Palindrome, reading: 1}
+  - {req: R-DEF-2, phrase: Isogram, reading: 2}
+  - {req: R-CHK-1, phrase: Isogram/Palindrome, reading: 1}
+  - {req: R-CHK-2, phrase: Isogram/Palindrome, reading: 1}
+  - {req: R-EX-2, phrase: "candidate('aba')", reading: 1}
+  - {req: R-EX-3, phrase: "candidate('aaaaa')", reading: 1}
+  - {req: R-EX-4, phrase: "candidate('zbcd')", reading: 1}

@@ -1,0 +1,46 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+defs:
+  valid: 'subtotal <= 1000000 && coupon <= 50'
+  disc: 'min(coupon + (member ? 10 : 0) + (student ? 15 : 0), 30)'   # R-STU-1, R-CAP-1: the percentages add up, capped
+  x100: 'subtotal * (100 - disc)'
+  dev: '100 * price - x100'
+properties:
+- id: G-SAME
+  req: R-SAME-1
+  pattern: implies
+  args: {trigger: '!student', cond: 'outcome == old_outcome && price == old_price && ship == old_ship'}
+  note: 'a customer who is not a student gets exactly the old answer, including the old error and the old shipping fee'
+- id: G-STU
+  req: R-STU-1
+  pattern: implies
+  args: {trigger: 'student && valid', cond: 'outcome == 0 && dev > -100 && dev < 100'}
+  note: 'a student pays the subtotal less the combined discount, to within a cent (rounding is R-KEEP-1)'
+- id: G-CAP
+  req: R-CAP-1
+  pattern: implies
+  args: {trigger: 'student && valid && outcome == 0', cond: '100 * price >= 70 * subtotal - 50'}
+  note: 'the total discount is at most 30%, up to rounding half a cent'
+- id: G-SHIP
+  req: R-SHIP-1
+  pattern: implies
+  args: {trigger: 'outcome == 0', cond: 'ship == (subtotal < 7500 ? 499 : 0)'}
+  note: 'literal: the new threshold is for every customer, which rule 3 forbids for those who are not students'
+- id: G-KEEP-ERR
+  req: R-KEEP-1
+  pattern: implies
+  args: {trigger: student, cond: '(outcome == 1) == (old_outcome == 1)'}
+  note: 'a student gets ValueError exactly when the old code raised it'
+- id: G-KEEP-ROUND
+  req: R-KEEP-1
+  pattern: implies
+  args: {trigger: 'student && valid && outcome == 0', cond: 'dev > -50 && dev <= 50'}
+  note: 'the old rounding: to the nearest cent, half a cent up'
+scenarios:
+- {id: S-EX, req: R-EX-1, cover: 'subtotal == 10000 && coupon == 0 && !member && student && outcome == 0 && price == 8500 && ship == 0'}
+unformalized:
+- {req: R-SIG-1, reason: 'the interface itself', covered_by: [G-STU]}
+- {req: R-TEST-1, reason: 'about the tests, not the behaviour of the function'}
+- {req: R-FR-1, reason: 'the frame rule F-ZERO, part of every set', covered_by: [F-ZERO]}
+- {req: R-FR-2, reason: 'the frame rule F-OLD, part of every set', covered_by: [F-OLD]}

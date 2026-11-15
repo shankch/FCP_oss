@@ -1,0 +1,213 @@
+fcp: '0.1'
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# One cycle is one call of mask_card(number) (frame.md). The function keeps no
+# state, so every item relates the argument and the result of the same call;
+# there are no ghosts and no temporal operators.
+defs:
+  # R-IN-1, R-ERR-1: the digits of the number are the characters 0 to 9.
+  nd: 'count(k < len(number): isdigit(number[k]))'
+  # R-ERR-1 clause 1: some character is not a digit, a space or a hyphen.
+  bad_char: 'any(k < len(number): !(isdigit(number[k]) || number[k] == " " || number[k] == "-"))'
+  # R-ERR-1 clause 3: Luhn sum over the digits, every other character skipped.
+  # A digit with an odd number of digits after it (2nd, 4th, ... from the
+  # right) is doubled, minus 9 when the double exceeds 9.
+  luhn_sum: 'sum(k < len(number): isdigit(number[k]) ? ((count(m < len(number): m > k && isdigit(number[m])) % 2 == 1) ? ((2 * (number[k] - "0") > 9) ? (2 * (number[k] - "0") - 9) : (2 * (number[k] - "0"))) : (number[k] - "0")) : 0)'
+  # R-RET-1: a number that rule 1 does not reject.
+  valid: '(!bad_char && nd >= 12 && nd <= 19 && luhn_sum % 10 == 0)'
+  # R-QUARTER-1, R-RET-1: digits shown by the result.
+  shown: 'count(k < len(masked): isdigit(masked[k]))'
+
+properties:
+  # ---------------------------------------------------------------- rule 1
+  - id: PA-ERR-1
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: bad_char, cond: 'outcome == 1'}
+    note: >-
+      Clause 1 of rule 1. "Digits" is read as the ten characters 0 to 9 (first
+      reading of the recorded ambiguity: the literal meaning for a card number,
+      and FCP-PL isdigit). So the Latin-1 characters that Python's str.isdigit
+      also accepts (superscript one, two, three: codes 185, 178, 179) are
+      "anything other than digits" and must raise. "Spaces" and "hyphens" are
+      read as the characters " " (32) and "-" (45) only; a tab, a no-break space
+      (160) or a soft hyphen (173) must raise. Spaces and hyphens are accepted
+      anywhere and in any number (first reading of R-IN-2).
+
+  - id: PA-ERR-2
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: 'nd < 12 || nd > 19', cond: 'outcome == 1'}
+    note: >-
+      Clause 2 of rule 1. The digit count is the number of characters 0 to 9 in
+      number; spaces, hyphens and other characters are not counted.
+
+  - id: PA-ERR-3
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: 'luhn_sum % 10 != 0', cond: 'outcome == 1'}
+    note: >-
+      Clause 3 of rule 1. The prompt names the Luhn check but does not define
+      it; the standard check is used. Over the digits of number in order (other
+      characters skipped), counting from the rightmost digit, every second digit
+      (2nd, 4th, ... from the right) is doubled, minus 9 when the double exceeds
+      9; the check passes when the sum of all digits so obtained is a multiple
+      of 10. A number with characters other than digits raises under PA-ERR-1
+      whatever its Luhn sum.
+
+  # ---------------------------------------------------------- the result
+  - id: PA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: valid, cond: 'outcome == 0'}
+    note: >-
+      "It returns" is read as: every call that rule 1 does not require to raise
+      returns a string (outcome 0), that is a number of digits, spaces and
+      hyphens only, with 12 to 19 digits, that passes the Luhn check. Spaces and
+      hyphens may be anywhere (first reading of R-IN-2). The returned string
+      fits the trace, since rule 3 gives it the length of number.
+
+  - id: PA-RET-2
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'outcome == 0', cond: '2 * shown < nd'}
+    note: >-
+      "With most of its digits hidden": "most" is read literally as more than
+      half of the digits of number; a digit is shown when the result contains a
+      character 0 to 9 for it, hidden otherwise. For a number with at least one
+      digit this follows from PA-QUARTER-1.
+
+  # ---------------------------------------------------------------- rule 2
+  - id: PA-MASK-1
+    req: R-MASK-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'all(i < len(number): (isdigit(number[i]) && count(j < len(number): j > i && isdigit(number[j])) >= 4) -> masked[i] == "*")'
+    note: >-
+      "The last four digits" are the last four characters 0 to 9 of number,
+      counted from the end over digits only (spaces and hyphens are skipped): a
+      digit is one of them when fewer than four digits follow it. Every other
+      digit is replaced by "*". "Replace" is read as in place: the "*" stands at
+      the position of the digit it replaces (rule 3 keeps the length).
+
+  - id: PA-LAST4-1
+    req: R-LAST4-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'all(i < len(number): (isdigit(number[i]) && count(j < len(number): j > i && isdigit(number[j])) < 4) -> masked[i] == number[i])'
+    note: >-
+      Each of the last four digits (fewer than four digits follow it) is
+      unchanged at its position. CONTRADICTION, formalized literally and not
+      repaired: a valid number with 12 to 15 digits must be returned (R-RET-1),
+      this rule then shows 4 of its digits, and R-QUARTER-1 allows at most a
+      quarter of them (3 to 3.75). No result meets R-RET-1, R-LAST4-1 and
+      R-QUARTER-1 on such a call, for example "411111111117" (12 digits, passes
+      the Luhn check). The rules agree only for 16 to 19 digits; scenario
+      PA-RET-S12 makes the conflict visible.
+
+  # ---------------------------------------------------------------- rule 3
+  - id: PA-SEP-1
+    req: R-SEP-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'all(i < len(number): (number[i] == " " || number[i] == "-") -> masked[i] == number[i])'
+    note: >-
+      Every space and every hyphen of number is at the same position in the
+      result. Spaces and hyphens may stand anywhere in number, including
+      leading, trailing and repeated ones (first reading of R-IN-2).
+
+  - id: PA-SEP-2
+    req: R-SEP-1
+    pattern: implies
+    args: {trigger: 'outcome == 0', cond: 'len(masked) == len(number)'}
+    note: >-
+      "So the result has the same length as number" is stated as a consequence
+      of keeping the separators; it is formalized as a guarantee of its own.
+
+  # ---------------------------------------------------------------- rule 4
+  - id: PA-QUARTER-1
+    req: R-QUARTER-1
+    pattern: invariant
+    args: {cond: '4 * shown <= nd'}
+    note: >-
+      "Show" is read as: the returned string contains a character 0 to 9 for
+      the digit; "a quarter of the digits" as nd / 4, compared exactly (4 *
+      shown <= nd, no rounding). "Never" is every call; a call that does not
+      return a string has an empty result (F-EMPTY). Only the returned string is
+      observable: digits shown in an exception message are not part of the
+      trace. CONTRADICTION with R-LAST4-1 for valid numbers of 12 to 15 digits
+      (see PA-LAST4-1 and PA-RET-S12), formalized literally.
+
+  # --------------------------------------------------------------- example
+  - id: PA-EX-2
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'number == "4111 1111 1111 1111"'
+      cond: 'outcome == 0 && masked == "**** **** **** 1111"'
+    note: >-
+      The example is also a guarantee: the result of a call depends only on its
+      argument, so "returns" holds for every call with this argument. It agrees
+      with the rules (16 digits, Luhn sum 30, 4 of 16 digits shown).
+
+scenarios:
+  - id: PA-EX-1
+    req: R-EX-1
+    cover: 'number == "4111 1111 1111 1111" && outcome == 0 && masked == "**** **** **** 1111"'
+    note: >-
+      The example call and its result must be possible under the other
+      requirements.
+
+  - id: PA-RET-S12
+    req: R-RET-1
+    cover: 'valid && nd == 12 && outcome == 0'
+    note: >-
+      "It returns the card number", for the shortest card number of R-IN-1 (12
+      digits): returning a valid 12-digit number must be possible. Expected to be
+      UNREACHABLE under the literal rules, because R-LAST4-1 shows 4 digits and
+      R-QUARTER-1 allows at most 3 of 12 (see PA-LAST4-1). Kept as evidence of
+      the contradiction, not as a repair.
+
+  - id: PA-RET-S19
+    req: R-RET-1
+    cover: 'valid && nd == 19 && outcome == 0'
+    note: >-
+      "It returns the card number", for the longest card number of R-IN-1 (19
+      digits): returning a valid 19-digit number must be possible.
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Interface definition. The name mask_card, the argument number and the
+      result are realized by the function section of design.yaml (argument to
+      signal number, result to masked, the way the call ends to outcome). The
+      result type "-> str" is checked where a call must return: a valid number
+      returns a string (PA-RET-1); every other number raises (PA-ERR-1..3).
+    covered_by: [PA-RET-1]
+  - req: R-IN-1
+    reason: >-
+      Definition of the digit count of a card number (def nd), used by rule 1:
+      the bounds 12 and 19 appear in PA-ERR-2 and in def valid (PA-RET-1). It is
+      not an environment assumption, since rule 1 says what happens to numbers
+      with fewer or more digits.
+    covered_by: [PA-ERR-2, PA-RET-1]
+  - req: R-IN-2
+    reason: >-
+      Definition: spaces and hyphens may appear in a number. "Between groups of
+      digits" is read as descriptive (first reading: anywhere and in any
+      number, including leading, trailing and repeated), because the sentence
+      says what customers often type, not what is allowed, and rule 1, the only
+      rule on characters, rejects only characters other than digits, spaces and
+      hyphens. Realized by def bad_char (PA-ERR-1), def valid (PA-RET-1) and
+      PA-SEP-1.
+    covered_by: [PA-ERR-1, PA-RET-1, PA-SEP-1]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter: F-EMPTY in design.yaml holds by
+      construction of the trace and is part of every formalization set
+      (frame.md), so it is not restated.
+    covered_by: [F-EMPTY]

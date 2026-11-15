@@ -1,0 +1,240 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a Python implementation of the given function pluck, which takes one argument arr and returns the result.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-DEF-1
+  doc: SPEC
+  quote: Given an array representing a branch of a tree
+  text: 'The argument arr represents a branch of a tree: each element of arr is a node, whose value is the element and whose index is its position in arr.'
+  kind: definition
+  ambiguity:
+  - phrase: a branch of a tree
+    readings:
+    - arr is a flat list of node values; the tree structure plays no role in the result
+    - arr encodes tree structure (e.g. parent/child positions) that affects which node may be plucked
+  lines:
+  - 6
+- id: R-IN-1
+  doc: SPEC
+  quote: that has non-negative integer nodes
+  text: Every element of arr is a non-negative integer.
+  kind: assumption
+  lines:
+  - 6
+- id: R-IN-2
+  doc: SPEC
+  quote: 1 <= nodes.length <= 10000
+  text: arr has at least 1 element (arr is never empty).
+  kind: assumption
+  ambiguity:
+  - phrase: 1 <= nodes.length
+    readings:
+    - arr is never empty, so the empty-array behaviour of R-EMP-1 and Example 3 (R-EX-3) is outside the input domain (don't care); contradicts R-EMP-1 and R-EX-3
+    - the lower bound is stale or describes typical inputs only; an empty arr is a legal input that must return [] as R-EMP-1 and R-EX-3 say
+  - phrase: nodes.length
+    readings:
+    - the length of arr
+    - the number of nodes of the whole tree, of which arr is only one branch
+  lines:
+  - 34
+- id: R-IN-3
+  doc: SPEC
+  quote: 1 <= nodes.length <= 10000
+  text: arr has at most 10000 elements.
+  kind: assumption
+  ambiguity:
+  - phrase: nodes.length
+    readings:
+    - the length of arr
+    - the number of nodes of the whole tree, of which arr is only one branch
+  lines:
+  - 34
+- id: R-IN-4
+  doc: SPEC
+  quote: 0 <= node.value
+  text: Every node value (element of arr) is at least 0; this restates R-IN-1.
+  kind: assumption
+  depends:
+  - R-IN-1
+  ambiguity:
+  - phrase: node.value
+    readings:
+    - the integer element of arr itself
+    - a value attribute of a node object, i.e. arr holds node objects rather than integers
+  lines:
+  - 35
+- id: R-SEL-1
+  doc: SPEC
+  quote: your task is to pluck one of the nodes and return it.
+  text: The function plucks exactly one node of arr and returns it.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: pluck one of the nodes
+    readings:
+    - a node is plucked and returned for every input; contradicts R-EMP-1 and R-EMP-2, which return [] for some inputs
+    - a node is plucked only when arr is non-empty and some node qualifies (R-SEL-2); otherwise [] is returned (R-EMP-1, R-EMP-2)
+  - phrase: return it
+    readings:
+    - return the plucked node itself, i.e. its value alone; contradicts R-OUT-1, which returns the list [value, index]
+    - return the plucked node in the form R-OUT-1 gives, the list [value, index]
+  - phrase: pluck
+    readings:
+    - select a node and leave arr unchanged
+    - remove the node from arr (mutate the argument) and return it
+  lines:
+  - 7
+- id: R-SEL-2
+  doc: SPEC
+  quote: The plucked node should be the node with the value.
+  text: The plucked node is a node whose value meets the selection criterion named by 'the value'.
+  kind: guarantee
+  depends:
+  - R-SEL-1
+  ambiguity:
+  - phrase: the node with the value
+    readings:
+    - the node with the smallest even value (a qualifier seems to have been dropped; this is the only stated-style rule consistent with all four examples)
+    - the node with the smallest value; contradicts Example 2 (R-EX-2), where [1,2,3] would give [1, 0] instead of [2, 1]
+    - no criterion is given, so any node of arr may be plucked (only the examples constrain the choice)
+    - the node at index 1 (every example output is [arr[1], 1])
+  lines:
+  - 8
+- id: R-SEL-3
+  doc: SPEC
+  quote: If multiple nodes with the value are found return the node that has smallest index.
+  text: If several nodes of arr have the selected value, the plucked node is the one with the smallest index among them.
+  kind: guarantee
+  depends:
+  - R-SEL-2
+  ambiguity:
+  - phrase: the value
+    readings:
+    - the smallest even value of arr (as in R-SEL-2 reading 1)
+    - the smallest value of arr (as in R-SEL-2 reading 2)
+    - whatever value the plucked node has, under an unconstrained choice (as in R-SEL-2 reading 3)
+  - phrase: return the node
+    readings:
+    - return the node's value alone
+    - return the node as the list [value, index] of R-OUT-1
+  lines:
+  - 9
+- id: R-OUT-1
+  doc: SPEC
+  quote: The plucked node should be returned in a list, [ value, its index ],
+  text: When a node is plucked, the function returns a list of exactly two elements whose first element is the plucked node's value.
+  kind: guarantee
+  depends:
+  - R-SEL-1
+  ambiguity:
+  - phrase: returned in a list, [ value, its index ]
+    readings:
+    - the result is the two-element list [value, index]
+    - the result is the node itself as R-SEL-1 says ('return it'); the list form contradicts R-SEL-1
+  lines:
+  - 11
+- id: R-OUT-2
+  doc: SPEC
+  quote: '[ value, its index ]'
+  text: The second element of the returned list is the index of the plucked node in arr, so the first element equals the element of arr at that index.
+  kind: guarantee
+  depends:
+  - R-OUT-1
+  - R-DEF-1
+  ambiguity:
+  - phrase: its index
+    readings:
+    - the 0-based position of the plucked node in arr (as Examples 1, 2 and 4 show)
+    - the 1-based position of the plucked node in arr
+  lines:
+  - 11
+- id: R-EMP-1
+  doc: SPEC
+  quote: the given array is empty, return [].
+  text: If arr is empty, the function returns the empty list [].
+  kind: guarantee
+  ambiguity:
+  - phrase: the given array is empty
+    readings:
+    - an empty arr is a legal input and must return []
+    - an empty arr is excluded by the constraint 1 <= nodes.length (R-IN-2), so this clause is vacuous; contradicts R-IN-2
+  - phrase: return []
+    readings:
+    - return [] even though R-SEL-1 says a node is always plucked (this clause overrides R-SEL-1)
+    - R-SEL-1 requires a node to be plucked for every input, contradicting this clause
+  lines:
+  - 12
+- id: R-EMP-2
+  doc: SPEC
+  quote: If there are no values or the given array is empty, return [].
+  text: If arr has no node with the selected value ('no values'), the function returns the empty list [].
+  kind: guarantee
+  depends:
+  - R-SEL-2
+  ambiguity:
+  - phrase: no values
+    readings:
+    - no node of arr has the value R-SEL-2 selects (e.g. no even value), so a non-empty arr can return []; seemingly contradicts R-SEL-1 ('pluck one of the nodes')
+    - arr contains no elements, the same case as an empty array (R-EMP-1)
+  lines:
+  - 12
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example 1: Input: [4,2,3] Output: [2, 1]'
+  text: pluck([4,2,3]) returns [2, 1].
+  kind: scenario
+  lines:
+  - 14
+  - 16
+- id: R-EX-2
+  doc: SPEC
+  quote: 'Example 2: Input: [1,2,3] Output: [2, 1]'
+  text: pluck([1,2,3]) returns [2, 1].
+  kind: scenario
+  ambiguity:
+  - phrase: 'Output: [2, 1]'
+    readings:
+    - 'the example is authoritative: the selection rule must give [2, 1] here (e.g. smallest even value, R-SEL-2 reading 1)'
+    - 'the example is in error: under the smallest-value reading of R-SEL-2 the answer is [1, 0]; contradicts R-SEL-2 reading 2'
+  lines:
+  - 19
+  - 21
+- id: R-EX-3
+  doc: SPEC
+  quote: 'Example 3: Input: [] Output: []'
+  text: pluck([]) returns [].
+  kind: scenario
+  ambiguity:
+  - phrase: 'Input: []'
+    readings:
+    - the empty list is a legal input and the call must return []
+    - the empty list is excluded by the constraint 1 <= nodes.length (R-IN-2); contradicts R-IN-2
+  lines:
+  - 24
+  - 26
+- id: R-EX-4
+  doc: SPEC
+  quote: 'Example 4: Input: [5, 0, 3, 0, 4, 2] Output: [0, 1]'
+  text: pluck([5, 0, 3, 0, 4, 2]) returns [0, 1] (value 0 occurs at indices 1 and 3; the smaller index is chosen).
+  kind: scenario
+  lines:
+  - 28
+  - 30
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `plucked` is the empty list unless `outcome` is 0.'
+  text: Whenever outcome is not 0 (the call raised, did not finish, or returned something that does not fit), plucked is the empty list.
+  kind: guarantee
+  lines:
+  - 48

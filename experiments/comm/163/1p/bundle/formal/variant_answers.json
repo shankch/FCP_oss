@@ -1,0 +1,93 @@
+[
+ {
+  "req": "R-IF-2",
+  "phrase": "generate_integers",
+  "taken": 1,
+  "variant": 2,
+  "text": "The name is meant: the function generates integers of any size (even integers between a and b), which contradicts the docstring's 'even digits' (contradiction with R-RET-2)."
+ },
+ {
+  "req": "R-IN-1",
+  "phrase": "positive",
+  "taken": 1,
+  "variant": 2,
+  "text": "Used loosely for non-negative: a >= 0 and b >= 0; calls with 0 must also satisfy every other requirement."
+ },
+ {
+  "req": "R-IN-1",
+  "phrase": "a and b",
+  "taken": 1,
+  "variant": 2,
+  "text": "a <= b is implicitly assumed: a call with a > b is outside the precondition and its behaviour is unconstrained."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "return",
+  "taken": 1,
+  "variant": 2,
+  "text": "Any collection of the values is acceptable (a list, tuple, set, generator, ...)."
+ },
+ {
+  "req": "R-RET-2",
+  "phrase": "even digits",
+  "taken": 1,
+  "variant": 2,
+  "text": "'Digits' is used loosely for numbers: every element is an even integer of any size, as the function name generate_integers suggests (contradiction with R-IF-2)."
+ },
+ {
+  "req": "R-RET-3",
+  "phrase": "between",
+  "taken": 1,
+  "variant": 2,
+  "text": "Exclusive: only values strictly greater than the lower bound and strictly less than the upper bound lie between a and b."
+ },
+ {
+  "req": "R-RET-3",
+  "phrase": "a and b",
+  "taken": 1,
+  "variant": 2,
+  "text": "Ordered: the range runs from a up to b, so nothing lies between them when a > b and the list is empty."
+ },
+ {
+  "req": "R-RET-3",
+  "phrase": "even digits",
+  "taken": 1,
+  "variant": 2,
+  "text": "Even integers of any size, as the function name generate_integers suggests: each element itself lies between a and b."
+ },
+ {
+  "req": "R-RET-4",
+  "phrase": "between",
+  "taken": 1,
+  "variant": 2,
+  "text": "Exclusive: a and b themselves never appear; only values strictly between them are required."
+ },
+ {
+  "req": "R-RET-4",
+  "phrase": "a and b",
+  "taken": 1,
+  "variant": 2,
+  "text": "Ordered: the even digits from a up to b must appear; nothing is required when a > b."
+ },
+ {
+  "req": "R-RET-4",
+  "phrase": "even digits",
+  "taken": 1,
+  "variant": 2,
+  "text": "Every even integer of any size between a and b must appear, as the function name generate_integers suggests (contradiction with R-IF-2)."
+ },
+ {
+  "req": "R-RET-5",
+  "phrase": "the even digits",
+  "taken": 1,
+  "variant": 2,
+  "text": "One entry per occurrence (for instance per occurrence of a digit in the decimal writing of the numbers between a and b): duplicates are allowed or required."
+ },
+ {
+  "req": "R-RET-6",
+  "phrase": "return the even digits",
+  "taken": 1,
+  "variant": 2,
+  "text": "Ascending order is implied, as is conventional for a list of numbers in a range."
+ }
+]

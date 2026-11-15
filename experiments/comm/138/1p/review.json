@@ -1,0 +1,226 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 38,
+    "checked": 38,
+    "seconds": 0.03
+   },
+   "open": {
+    "open": {},
+    "checked": 210
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 36,
+    "checked": 36,
+    "seconds": 0.02
+   },
+   "open": {
+    "open": {},
+    "checked": 210
+   }
+  }
+ },
+ "readings": {
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SUM-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SUM-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IF-2",
+   "phrase": "is_equal_to_sum_even",
+   "taken": 1,
+   "variant": 2,
+   "text": "The name is only an identifier and adds no constraint; the kind of summands is whatever the truncated docstring meant."
+  },
+  {
+   "req": "R-DOM-1",
+   "phrase": "the given number n",
+   "taken": 3,
+   "variant": 1,
+   "text": "n is a non-negative integer."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "Evaluate whether",
+   "taken": 1,
+   "variant": 2,
+   "text": "Return any truthy or falsy value (for example 1 or 0) that encodes the answer."
+  },
+  {
+   "req": "R-SUM-1",
+   "phrase": "the sum of exactly 4",
+   "taken": 3,
+   "variant": 1,
+   "text": "exactly 4 positive even numbers: True exactly when n is even and n >= 8 (the kind suggested by the function name is_equal_to_sum_even)."
+  },
+  {
+   "req": "R-SUM-1",
+   "phrase": "exactly 4",
+   "taken": 1,
+   "variant": 2,
+   "text": "four pairwise distinct summands (for positive even summands, True only when n is even and n >= 20 = 2 + 4 + 6 + 8)."
+  },
+  {
+   "req": "R-SUM-1",
+   "phrase": "is_equal_to_sum_even",
+   "taken": 1,
+   "variant": 2,
+   "text": "The function name adds nothing; the kind of summand is not stated by the request."
+  },
+  {
+   "req": "R-SUM-2",
+   "phrase": "the sum of exactly 4",
+   "taken": 3,
+   "variant": 1,
+   "text": "exactly 4 positive even numbers: False exactly when n is odd or n < 8 (the kind suggested by the function name is_equal_to_sum_even)."
+  },
+  {
+   "req": "R-SUM-2",
+   "phrase": "exactly 4",
+   "taken": 1,
+   "variant": 2,
+   "text": "four pairwise distinct summands (for positive even summands, False whenever n < 20 = 2 + 4 + 6 + 8)."
+  },
+  {
+   "req": "R-SUM-2",
+   "phrase": "is_equal_to_sum_even",
+   "taken": 1,
+   "variant": 2,
+   "text": "The function name adds nothing; the kind of summand is not stated by the request."
+  }
+ ],
+ "depends": {
+  "R-SUM-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_equal_to_sum_even(0) -> False"
+   ]
+  },
+  "R-SUM-2": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_equal_to_sum_even(0) -> True"
+   ]
+  }
+ },
+ "certified": [
+  "R-RET-1"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-SUM-1",
+    "R-SUM-2"
+   ],
+   "calls": [
+    "is_equal_to_sum_even(0) -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"Evaluate whether\" can mean: Return the bool True or False. / Return any truthy or falsy value (for example 1 or 0) that encodes the answer.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SUM-1"
+   ],
+   "calls": [],
+   "question": "\"the sum of exactly 4\" can mean: exactly 4 positive even numbers: True exactly when n is even and n >= 8 (the kind suggested by the function name is_equal_to_sum_even). / exactly 4 non-negative even numbers (zero allowed): True exactly when n is even and n >= 0. / exactly 4 even integers (negative values allowed): True exactly when n is even. / exactly 4 positive integers (no parity constraint): True exactly when n >= 4. / exactly 4 non-negative integers or any integers (no constraint on the summands): True for every n >= 0.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SUM-1"
+   ],
+   "calls": [],
+   "question": "\"exactly 4\" can mean: four summands, the same value may be used more than once (for example 8 = 2 + 2 + 2 + 2). / four pairwise distinct summands (for positive even summands, True only when n is even and n >= 20 = 2 + 4 + 6 + 8).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SUM-1",
+    "R-SUM-2"
+   ],
+   "calls": [],
+   "question": "\"is_equal_to_sum_even\" can mean: The function name supplies the missing kind of summand: the 4 summands are even numbers. / The function name adds nothing; the kind of summand is not stated by the request.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SUM-2"
+   ],
+   "calls": [],
+   "question": "\"the sum of exactly 4\" can mean: exactly 4 positive even numbers: False exactly when n is odd or n < 8 (the kind suggested by the function name is_equal_to_sum_even). / exactly 4 non-negative even numbers (zero allowed): False exactly when n is odd or n < 0. / exactly 4 even integers (negative values allowed): False exactly when n is odd. / exactly 4 positive integers (no parity constraint): False exactly when n < 4. / exactly 4 non-negative integers or any integers (no constraint on the summands): never False for n >= 0.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-SUM-2"
+   ],
+   "calls": [],
+   "question": "\"exactly 4\" can mean: four summands, the same value may be used more than once (for example 8 = 2 + 2 + 2 + 2). / four pairwise distinct summands (for positive even summands, False whenever n < 20 = 2 + 4 + 6 + 8).. Which is meant?"
+  }
+ ],
+ "limits": []
+}

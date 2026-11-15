@@ -1,0 +1,126 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `result` is the empty list unless `outcome` is 0.'
+  text: In every call whose outcome is not 0, result is the empty list.
+  kind: guarantee
+  lines:
+  - 46
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete Python implementation of the given function stub remove_duplicates, keeping its name and signature.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def remove_duplicates(numbers: List[int])'
+  text: The function is named remove_duplicates and takes exactly one argument, numbers, which is a list of integers.
+  kind: definition
+  lines:
+  - 7
+- id: R-IF-3
+  doc: SPEC
+  quote: '-> List[int]:'
+  text: For every valid argument, remove_duplicates returns a list of integers (it does not raise an exception, fail to finish, or return a value of another type).
+  kind: guarantee
+  ambiguity:
+  - phrase: -> List[int]
+    readings:
+    - the return annotation obliges the function to return normally with a list of integers for every list of integers passed in
+    - the annotation only describes the type of the value when the function returns; raising an exception on some inputs is not excluded
+  lines:
+  - 7
+- id: R-IN-1
+  doc: SPEC
+  quote: From a list of integers
+  text: The argument numbers is a list of integers.
+  kind: assumption
+  lines:
+  - 8
+- id: R-DEF-1
+  doc: SPEC
+  quote: elements that occur more than once
+  text: A value occurs more than once in numbers when it is equal to the elements at two or more different positions of numbers.
+  kind: definition
+  ambiguity:
+  - phrase: occur more than once
+    readings:
+    - the value appears at two or more positions anywhere in numbers (not necessarily adjacent)
+    - the value appears in a run of two or more adjacent equal elements (as Unix uniq treats duplicates)
+  lines:
+  - 8
+- id: R-RM-1
+  doc: SPEC
+  quote: remove all elements that occur more than once.
+  text: 'For each value that occurs more than once in numbers, the result does not contain all of its occurrences: under reading 1 the value does not appear in the result at all; under reading 2 it appears
+    in the result exactly once.'
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: remove all elements that occur more than once
+    readings:
+    - remove every occurrence of each value that occurs more than once, so no such value appears in the result (remove_duplicates([1, 2, 3, 2, 4]) would be [1, 3, 4]); this contradicts the example R-EX-1,
+      which returns [1, 2, 3, 4]
+    - remove only the extra (repeated) occurrences of each value that occurs more than once, so exactly one occurrence of it remains in the result (remove_duplicates([1, 2, 3, 2, 4]) == [1, 2, 3, 4]); this
+      agrees with the example R-EX-1 and the function name remove_duplicates
+  lines:
+  - 8
+- id: R-RM-2
+  doc: SPEC
+  quote: remove all elements that occur more than once.
+  text: Every value that occurs exactly once in numbers appears exactly once in the result (only elements that occur more than once are removed).
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  lines:
+  - 8
+- id: R-RM-3
+  doc: SPEC
+  quote: From a list of integers, remove all elements
+  text: 'The result contains only values taken from numbers: every element of the result is equal to some element of numbers, and the result is never longer than numbers.'
+  kind: guarantee
+  ambiguity:
+  - phrase: From a list of integers, remove
+    readings:
+    - build and return a new list; the list passed as numbers is left unchanged
+    - remove the elements from the list passed as numbers in place (and return that list)
+  lines:
+  - 8
+- id: R-ORD-1
+  doc: SPEC
+  quote: Keep order of elements left the same as in the input.
+  text: The elements of the result appear in the same relative order as the corresponding elements appear in numbers (the result is a subsequence of numbers).
+  kind: guarantee
+  depends:
+  - R-RM-1
+  - R-RM-2
+  ambiguity:
+  - phrase: Keep order of elements left the same as in the input
+    readings:
+    - a value that is kept once out of several occurrences takes the position of its first occurrence in numbers (the example R-EX-1 gives [1, 2, 3, 4])
+    - a value that is kept once out of several occurrences takes the position of its last occurrence in numbers (would give [1, 3, 2, 4] for [1, 2, 3, 2, 4])
+    - the order only constrains elements that occur exactly once; the position of a kept repeated value is free
+  lines:
+  - 9
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> remove_duplicates([1, 2, 3, 2, 4]) [1, 2, 3, 4]'
+  text: remove_duplicates([1, 2, 3, 2, 4]) returns [1, 2, 3, 4].
+  kind: scenario
+  ambiguity:
+  - phrase: '[1, 2, 3, 4]'
+    readings:
+    - 'the example is authoritative: one occurrence (the first) of the repeated value 2 is kept, so R-RM-1 means removing only the extra copies'
+    - the example contradicts R-RM-1 read literally (remove every element that occurs more than once), under which the call returns [1, 3, 4]; the example is in error
+  lines:
+  - 10
+  - 11

@@ -1,0 +1,225 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. is_happy keeps no state between calls (frame.md), so the
+# model is combinational: the defs below compute, from the input s alone, the
+# answer the request prescribes, and every output is checked against them.
+# There is no ghost register because nothing has to be remembered across calls.
+defs:
+  # "its length": the number of characters of s (reading 1).
+  long_enough: "len(s) >= 3"
+  # "substrings of letters are distinct", literal reading: the substrings made
+  # of letters are pairwise distinct (no such substring occurs twice). That
+  # holds exactly when no letter occurs twice in s; non-letters are skipped,
+  # comparison is case-sensitive. A letter is a character Python's str.isalpha
+  # accepts in Latin-1: ASCII a-z, A-Z, and codes 170, 181, 186, 192-214,
+  # 216-246, 248-255.
+  distinct: "!any(i < len(s): any(j < len(s): i < j && s[i] == s[j] && (isalpha(s[i]) || s[i] == 170 || s[i] == 181 || s[i] == 186 || (s[i] >= 192 && s[i] != 215 && s[i] != 247))))"
+  spec_happy: "long_enough && distinct"
+  returned_bool: "outcome == 0"
+
+assumptions: []
+
+properties:
+  - id: RB-OUT-1
+    req: R-OUT-1
+    pattern: invariant
+    args: {cond: "returned_bool && happy == spec_happy"}
+    note: >-
+      Every call returns, and the returned bool equals the model's verdict
+      spec_happy (length at least 3 and no letter occurring twice). "Returns
+      True ... and False" is read as including that the call returns.
+
+  - id: RB-OUT-2
+    req: R-OUT-2
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Every call, for every string (including empty strings and strings with
+      non-letters), returns True or False: no exception, no non-bool value.
+      Readings: the result must be a bool (examples show True/False), and every
+      string must be answered (R-IN-1 admits any string).
+
+  - id: RB-HAP-1
+    req: R-HAP-1
+    pattern: implies
+    args: {trigger: "!long_enough", cond: "returned_bool && !happy"}
+    note: >-
+      "A string is happy if ..." is a definition, read as "if and only if", so
+      a length of at least 3 is necessary. Length counts every character of s.
+
+  - id: RB-HAP-2
+    req: R-HAP-2
+    pattern: implies
+    args: {trigger: "!distinct", cond: "returned_bool && !happy"}
+    note: >-
+      Definitional "if" read as "if and only if": distinctness is necessary.
+      "Substrings of letters are distinct" is taken literally: the substrings
+      consisting of letters are pairwise different, which is equivalent to no
+      letter occurring twice anywhere in s (not only adjacently or within a
+      window of 3; e.g. "abca" is not happy). "Letters" means alphabetic
+      characters, so non-letters are skipped and may repeat ("a11", "111" and
+      "   " count as distinct). Case-sensitive: "A" and "a" differ. "Roughly"
+      is treated as a filler word, because the examples aabb and xyy (a single
+      repeat each) are unhappy and the text gives no tolerance. Letters are the
+      Latin-1 characters Python's str.isalpha accepts; the spec does not say
+      whether non-ASCII letters such as "é" count.
+
+  - id: RB-HAP-3
+    req: R-HAP-3
+    pattern: implies
+    args: {trigger: "long_enough && distinct", cond: "returned_bool && happy"}
+    note: >-
+      Length at least 3 (characters) and no letter occurring twice (same
+      reading of "substrings of letters are distinct" as RB-HAP-2) make the
+      string happy: the call returns True. Consequence of the literal reading
+      of "letters": a string of length 3 or more without any letter, or whose
+      only repeats are non-letters, is happy.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 's == "a"', cond: "returned_bool && !happy"}
+    note: The argument a is the one-character string "a" (quotes omitted in the spec).
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 's == "aa"', cond: "returned_bool && !happy"}
+    note: The argument aa is the string "aa".
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 's == "abcd"', cond: "returned_bool && happy"}
+    note: The argument abcd is the string "abcd".
+
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 's == "aabb"', cond: "returned_bool && !happy"}
+    note: >-
+      The argument aabb is the string "aabb". The example stands: it fixes the
+      distinctness condition as strict and is not overruled by "roughly".
+
+  - id: RB-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 's == "adb"', cond: "returned_bool && happy"}
+    note: The argument adb is the string "adb".
+
+  - id: RB-EX-6
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 's == "xyy"', cond: "returned_bool && !happy"}
+    note: >-
+      The argument xyy is the string "xyy". The example stands: a single
+      repeated letter makes the string unhappy.
+
+scenarios:
+  - id: RB-IN-1a
+    req: R-IN-1
+    cover: "any(i < len(s): !isalpha(s[i]))"
+    note: >-
+      "A string s" is read as any string: a call whose argument contains a
+      character that is not an ASCII letter (digit, space, punctuation, other
+      code) is part of the contract. No assumption restricts s; the interface
+      already bounds it to 32 characters with codes 0-255.
+
+  - id: RB-IN-1b
+    req: R-IN-1
+    cover: "len(s) == 0"
+    note: The empty string is a string, so a call with it is part of the contract.
+
+  - id: RB-HAP-1s
+    req: R-HAP-1
+    cover: "!long_enough && returned_bool && !happy"
+    note: A short string answered False is possible.
+
+  - id: RB-HAP-2s
+    req: R-HAP-2
+    cover: "long_enough && !distinct && returned_bool && !happy"
+    note: A string long enough but with a repeated letter, answered False, is possible.
+
+  - id: RB-HAP-3s
+    req: R-HAP-3
+    cover: "spec_happy && returned_bool && happy"
+    note: A happy string answered True is possible.
+
+  - id: RB-EX-1s
+    req: R-EX-1
+    cover: 's == "a" && returned_bool && !happy'
+    note: The example call is_happy("a") => False is possible.
+
+  - id: RB-EX-2s
+    req: R-EX-2
+    cover: 's == "aa" && returned_bool && !happy'
+    note: The example call is_happy("aa") => False is possible.
+
+  - id: RB-EX-3s
+    req: R-EX-3
+    cover: 's == "abcd" && returned_bool && happy'
+    note: The example call is_happy("abcd") => True is possible.
+
+  - id: RB-EX-4s
+    req: R-EX-4
+    cover: 's == "aabb" && returned_bool && !happy'
+    note: The example call is_happy("aabb") => False is possible.
+
+  - id: RB-EX-5s
+    req: R-EX-5
+    cover: 's == "adb" && returned_bool && happy'
+    note: The example call is_happy("adb") => True is possible.
+
+  - id: RB-EX-6s
+    req: R-EX-6
+    cover: 's == "xyy" && returned_bool && !happy'
+    note: The example call is_happy("xyy") => False is possible.
+
+dont_cares: []
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the deliverable is Python source completing the stub.
+      Not a property of the call trace; the adapter (design.yaml function
+      section) runs whatever implementation is supplied.
+  - req: R-API-2
+    reason: >-
+      Non-functional: the function name is_happy and its single argument s are
+      fixed by the adapter's function section (name is_happy, one argument s
+      driving signal s), not by a trace property. A wrong signature shows as
+      outcome 1 on every call, which RB-OUT-2 rejects.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, added to every formalization set by
+      construction (frame.md: "need not be restated").
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "a string s", reading: 1}
+  - {req: R-OUT-2, phrase: "check if the string is happy or not", reading: 1}
+  - {req: R-OUT-2, phrase: "check if the string is happy or not", reading: 1}
+  - {req: R-HAP-1, phrase: "A string is happy if", reading: 1}
+  - {req: R-HAP-1, phrase: "its length", reading: 1}
+  - {req: R-HAP-2, phrase: "A string is happy if", reading: 1}
+  - {req: R-HAP-2, phrase: "substrings of letters are distinct", reading: 3}
+  - {req: R-HAP-2, phrase: "roughly", reading: 1}
+  - {req: R-HAP-2, phrase: "roughly substrings of letters are distinct", reading: 1}
+  - {req: R-HAP-2, phrase: "letters", reading: 2}
+  - {req: R-HAP-2, phrase: "distinct", reading: 1}
+  - {req: R-HAP-3, phrase: "substrings of letters are distinct", reading: 3}
+  - {req: R-HAP-3, phrase: "roughly", reading: 1}
+  - {req: R-HAP-3, phrase: "roughly substrings of letters are distinct", reading: 1}
+  - {req: R-HAP-3, phrase: "letters", reading: 2}
+  - {req: R-HAP-3, phrase: "distinct", reading: 1}
+  - {req: R-HAP-3, phrase: "its length", reading: 1}
+  - {req: R-EX-1, phrase: "is_happy(a)", reading: 1}
+  - {req: R-EX-2, phrase: "is_happy(aa)", reading: 1}
+  - {req: R-EX-3, phrase: "is_happy(abcd)", reading: 1}
+  - {req: R-EX-4, phrase: "is_happy(aabb)", reading: 1}
+  - {req: R-EX-4, phrase: "is_happy(aabb) => False", reading: 1}
+  - {req: R-EX-5, phrase: "is_happy(adb)", reading: 1}
+  - {req: R-EX-6, phrase: "is_happy(xyy)", reading: 1}
+  - {req: R-EX-6, phrase: "is_happy(xyy) => False", reading: 1}

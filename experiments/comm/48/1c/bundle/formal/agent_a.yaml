@@ -1,0 +1,108 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # R-DEF-1: text equals its reverse, every character compared by its exact
+  # code; vacuously true for the empty string and for one-character strings.
+  pal: 'all(i < len(text): text[i] == text[len(text) - 1 - i])'
+
+properties:
+  - id: RA-FN-1
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: 'pal', cond: 'outcome == 0 && result'}
+    note: >-
+      Literal reading of the description "Checks if given string is a
+      palindrome": every palindrome (exact comparison, empty string included)
+      yields the bool True. This contradicts the doctests R-EX-1 (''), R-EX-2
+      ('aba') and R-EX-3 ('aaaaa'), which are formalized as stated in
+      RA-EX-1..3; the conflict is left visible, not repaired.
+
+  - id: RA-FN-2
+    req: R-FN-2
+    pattern: implies
+    args: {trigger: '!pal', cond: 'outcome == 0 && !result'}
+    note: >-
+      Literal reading of the description: every string that is not a
+      palindrome yields the bool False (outcome 0 is required, so an exception
+      does not count as returning False). This contradicts the doctest R-EX-4
+      ('zbcd' gives True), formalized as stated in RA-EX-4.
+
+  - id: RA-FN-3
+    req: R-FN-3
+    expr: 'outcome == 0'
+    note: >-
+      Every call returns exactly True or False: no exception, no hang
+      (outcome 1) and no value of another type (outcome 2). Reading 1 of
+      "Checks": a truthy non-bool value (outcome 2) is not accepted.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: 'text == "" && outcome == 0 && !result'
+    note: >-
+      Doctest is_palindrome('') -> False, taken as correct. The function is
+      memoryless, so the cover requires exactly this answer on this input.
+      Under the reading of R-DEF-1 taken here the empty string is a
+      palindrome, so this example contradicts RA-FN-1; the scenario is
+      expected to be unreachable under the properties, which exposes the
+      contradiction in the prompt.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: 'text == "aba" && outcome == 0 && !result'
+    note: >-
+      Doctest is_palindrome('aba') -> False, taken as correct. 'aba' is a
+      palindrome, so this contradicts RA-FN-1 (description); left visible.
+
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: 'text == "aaaaa" && outcome == 0 && !result'
+    note: >-
+      Doctest is_palindrome('aaaaa') -> False, taken as correct. 'aaaaa' is a
+      palindrome, so this contradicts RA-FN-1 (description); left visible.
+
+  - id: RA-EX-4
+    req: R-EX-4
+    cover: 'text == "zbcd" && outcome == 0 && result'
+    note: >-
+      Doctest is_palindrome('zbcd') -> True, taken as correct. 'zbcd' is not a
+      palindrome, so this contradicts RA-FN-2 (description); left visible.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is the completed function body with the
+      given name and signature. This concerns the form of the code, not any
+      call's behaviour; the adapter (design.yaml function section) calls
+      is_palindrome(text) by that name.
+  - req: R-IF-2
+    reason: >-
+      Definition of the interface: the single str argument text is the input
+      sequence signal text, fixed by the design.yaml interface and function
+      sections and by frame.md. There is no behaviour to constrain beyond
+      that encoding.
+  - req: R-DEF-1
+    reason: >-
+      Definition of a palindrome; realized by the def pal (exact,
+      case-sensitive character comparison, every character counts, the empty
+      string is a palindrome) used in the properties that cite it.
+    covered_by: [RA-FN-1, RA-FN-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (F-ZERO in design.yaml), added to every
+      formalization set by construction; frame.md says it need not be
+      restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-DEF-1, phrase: palindrome, reading: 1}
+  - {req: R-DEF-1, phrase: given string, reading: 1}
+  - {req: R-FN-1, phrase: Checks if given string is a palindrome, reading: 1}
+  - {req: R-FN-2, phrase: Checks if given string is a palindrome, reading: 1}
+  - {req: R-FN-3, phrase: Checks, reading: 1}
+  - {req: R-EX-1, phrase: 'False', reading: 1}
+  - {req: R-EX-2, phrase: 'False', reading: 1}
+  - {req: R-EX-3, phrase: 'False', reading: 1}
+  - {req: R-EX-4, phrase: 'True', reading: 1}

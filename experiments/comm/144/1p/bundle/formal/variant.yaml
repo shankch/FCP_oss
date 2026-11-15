@@ -1,0 +1,151 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # position of the '/' in x and n (meaningful when there is exactly one)
+  x_slash: 'sum(i < len(x): x[i] == "/" ? i : 0)'
+  n_slash: 'sum(i < len(n): n[i] == "/" ? i : 0)'
+
+  # valid fraction: exactly one '/', every other character a decimal digit,
+  # numerator and denominator each contain a digit other than '0' (non-empty, positive)
+  x_valid: 'count(i < len(x): x[i] == "/") == 1 && all(i < len(x): x[i] == "/" || isdigit(x[i])) && any(i < len(x): i < x_slash && x[i] != "0") && any(i < len(x): i > x_slash && x[i] != "0")'
+  n_valid: 'count(i < len(n): n[i] == "/") == 1 && all(i < len(n): n[i] == "/" || isdigit(n[i])) && any(i < len(n): i < n_slash && n[i] != "0") && any(i < len(n): i > n_slash && n[i] != "0")'
+
+  # numeric values of the four parts (a part of a 16-character fraction has at most 14 digits)
+  x_num: 'sum(i < len(x): i < x_slash ? (x[i] - "0") * (i == x_slash - 1 ? 1 : i == x_slash - 2 ? 10 : i == x_slash - 3 ? 100 : i == x_slash - 4 ? 1000 : i == x_slash - 5 ? 10000 : i == x_slash - 6 ? 100000 : i == x_slash - 7 ? 1000000 : i == x_slash - 8 ? 10000000 : i == x_slash - 9 ? 100000000 : i == x_slash - 10 ? 1000000000 : i == x_slash - 11 ? 10000000000 : i == x_slash - 12 ? 100000000000 : i == x_slash - 13 ? 1000000000000 : i == x_slash - 14 ? 10000000000000 : 0) : 0)'
+  x_den: 'sum(i < len(x): i > x_slash ? (x[i] - "0") * (i == len(x) - 1 ? 1 : i == len(x) - 2 ? 10 : i == len(x) - 3 ? 100 : i == len(x) - 4 ? 1000 : i == len(x) - 5 ? 10000 : i == len(x) - 6 ? 100000 : i == len(x) - 7 ? 1000000 : i == len(x) - 8 ? 10000000 : i == len(x) - 9 ? 100000000 : i == len(x) - 10 ? 1000000000 : i == len(x) - 11 ? 10000000000 : i == len(x) - 12 ? 100000000000 : i == len(x) - 13 ? 1000000000000 : i == len(x) - 14 ? 10000000000000 : 0) : 0)'
+  n_num: 'sum(i < len(n): i < n_slash ? (n[i] - "0") * (i == n_slash - 1 ? 1 : i == n_slash - 2 ? 10 : i == n_slash - 3 ? 100 : i == n_slash - 4 ? 1000 : i == n_slash - 5 ? 10000 : i == n_slash - 6 ? 100000 : i == n_slash - 7 ? 1000000 : i == n_slash - 8 ? 10000000 : i == n_slash - 9 ? 100000000 : i == n_slash - 10 ? 1000000000 : i == n_slash - 11 ? 10000000000 : i == n_slash - 12 ? 100000000000 : i == n_slash - 13 ? 1000000000000 : i == n_slash - 14 ? 10000000000000 : 0) : 0)'
+  n_den: 'sum(i < len(n): i > n_slash ? (n[i] - "0") * (i == len(n) - 1 ? 1 : i == len(n) - 2 ? 10 : i == len(n) - 3 ? 100 : i == len(n) - 4 ? 1000 : i == len(n) - 5 ? 10000 : i == len(n) - 6 ? 100000 : i == len(n) - 7 ? 1000000 : i == len(n) - 8 ? 10000000 : i == len(n) - 9 ? 100000000 : i == len(n) - 10 ? 1000000000 : i == len(n) - 11 ? 10000000000 : i == len(n) - 12 ? 100000000000 : i == len(n) - 13 ? 1000000000000 : i == len(n) - 14 ? 10000000000000 : 0) : 0)'
+
+  # the product x * n, multiplied out as (x_num * n_num) / (x_den * n_den), is not in lowest
+  # terms: some factor k > 1 divides a numerator and a denominator (checked for k in 2..49)
+  product_reducible: 'any(k < 48: (x_num % (k + 2) == 0 || n_num % (k + 2) == 0) && (x_den % (k + 2) == 0 || n_den % (k + 2) == 0))'
+
+assumptions:
+  - id: RV-A-IN-1
+    req: R-IN-1
+    expr: 'x_valid'
+    note: >-
+      Instructed variant reading of R-IN-1 'valid fractions': a string '<numerator>/<denominator>'
+      whose two parts are non-empty strings of decimal digits denoting positive whole numbers.
+      Formalized as: exactly one '/', every other character a digit 0-9, and each part holds a
+      digit other than '0' (so it is non-empty and its value is positive). The words of this
+      reading do not exclude leading zeros, so '01/2' counts as valid. Instructed variant reading
+      of 'valid fractions, and do not have zero as denominator': 'valid' already excludes a zero
+      denominator and the second clause only repeats it, so this item already rules out every
+      zero denominator ('1/0', '1/00'); the clause is also stated separately as RV-A-IN-3.
+
+  - id: RV-A-IN-2
+    req: R-IN-2
+    expr: 'n_valid'
+    note: >-
+      Instructed variant reading of R-IN-2 'valid fractions': a string '<numerator>/<denominator>'
+      whose two parts are non-empty strings of decimal digits denoting positive whole numbers.
+      Formalized as: exactly one '/', every other character a digit 0-9, and each part holds a
+      digit other than '0' (so it is non-empty and its value is positive). The words of this
+      reading do not exclude leading zeros, so '01/2' counts as valid. Instructed variant reading
+      of 'valid fractions, and do not have zero as denominator': 'valid' already excludes a zero
+      denominator and the second clause only repeats it, so this item already rules out every
+      zero denominator ('1/0', '1/00'); the clause is also stated separately as RV-A-IN-4.
+
+  - id: RV-A-IN-3
+    req: R-IN-3
+    expr: '!(len(x) >= 2 && x[len(x) - 2] == "/" && x[len(x) - 1] == "0")'
+    note: >-
+      Instructed variant reading of R-IN-3 'zero as denominator': the denominator is not the single
+      character '0'. Formalized as: x does not end in '/0', i.e. the text after its (last) '/' is
+      not exactly '0'; a string without '/' has no denominator and is not constrained. '1/00' is
+      not excluded by this item. Following the instructed R-IN-1 reading ('valid' already excludes
+      a zero denominator), this item is implied by RV-A-IN-1.
+
+  - id: RV-A-IN-4
+    req: R-IN-4
+    expr: '!(len(n) >= 2 && n[len(n) - 2] == "/" && n[len(n) - 1] == "0")'
+    note: >-
+      Instructed variant reading of R-IN-4 'zero as denominator': the denominator is not the single
+      character '0'. Formalized as: n does not end in '/0', i.e. the text after its (last) '/' is
+      not exactly '0'; a string without '/' has no denominator and is not constrained. '1/00' is
+      not excluded by this item. Following the instructed R-IN-2 reading ('valid' already excludes
+      a zero denominator), this item is implied by RV-A-IN-2.
+
+properties:
+  - id: RV-P-OUT-1
+    req: R-OUT-1
+    pattern: implies
+    args:
+      trigger: 'x_valid && n_valid && product_reducible'
+      cond: 'outcome != 1'
+    note: >-
+      Instructed variant reading of R-OUT-1 'will simplify the expression': the function may signal
+      some valid inputs (for example an expression that cannot be simplified further) by raising
+      an exception; only the inputs it can simplify must return. I read 'the inputs it can
+      simplify' as the calls whose expression can still be simplified, with 'the expression' the
+      product x * n (the instructed R-OUT-2 reading): multiplied out as (a*c)/(b*d) it is not yet
+      in lowest terms, i.e. some factor k > 1 divides a or c and also b or d. On valid calls whose
+      product is already in lowest terms (for example '1/2', '1/3') outcome 1 is allowed.
+      Limitation: FCP-PL has no modulo by a variable, so a common factor can only be searched
+      over a fixed range, and the range 2..255 exceeds the tool's memory limit. The trigger
+      searches common factors 2..49 (that is, every common prime up to 47). On a call whose only
+      common factors are primes of 53 or more (for example '53/2', '1/53'), this property is
+      weaker than the reading. 'Must return' is checked
+      as outcome != 1; outcome 1 covers both raising and not finishing, so the item cannot tell
+      that the reading permits raising but not hanging on the other inputs. For 'simplify the
+      expression' I took reading 2 (the returned value is the simplified expression), so a return
+      shows up as outcome 2 (RV-P-OUT-2). The trigger uses the instructed R-IN-1/R-IN-2 reading
+      of 'valid fractions' (digit parts denoting positive whole numbers), under which 'valid'
+      already excludes a zero denominator.
+
+  - id: RV-P-OUT-2
+    req: R-OUT-2
+    pattern: implies
+    args:
+      trigger: 'x_valid && n_valid'
+      cond: 'outcome != 1 -> outcome == 2'
+    note: >-
+      Instructed variant readings of R-OUT-2: 'the expression' is the product x * n; for
+      'simplify (form of a simplified fraction)', a whole-number result keeps the denominator 1
+      (for example '2/1'). For 'simplify' I took reading 2 (the product reduced to lowest terms
+      as a fraction string '<numerator>/<denominator>'), the literal sense and the only reading
+      consistent with the instructed '2/1' form. For 'simplify the expression' I took reading 2
+      (the returned value is the simplified expression, not a boolean). The adapter records any
+      returned value that is not a boolean as outcome 2 and does not record the string. So the
+      only observable consequence is: on valid inputs, a call that does not raise or hang
+      (outcome != 1) ends with outcome 2, never 0; returning True or False violates it.
+      Unformalized remainder: which fraction is returned (the reduced product, for example
+      '2/4' * '1/1' -> '1/2') and the '2/1' form for whole numbers are not visible on the
+      interface. This reading contradicts the adapter's boolean result (design.yaml, frame.md);
+      it is recorded, not repaired. Outcome 1 on valid inputs is constrained only by RV-P-OUT-1
+      (instructed R-OUT-1 reading). The trigger uses the instructed R-IN-1/R-IN-2 reading of
+      'valid fractions', under which 'valid' already excludes a zero denominator.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional: the request asks for a complete implementation. That is a property of the
+      deliverable, not of any call. Its observable part, that calls on valid input finish and
+      return the simplified expression, is RV-P-OUT-1 and RV-P-OUT-2.
+  - req: R-FN-2
+    reason: >-
+      Definition of the interface: the name simplify and the parameters x, n in that order are
+      fixed by the adapter's function section (design.yaml), and every cycle is the call
+      simplify(x, n). There is no trace property to state.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md): F-ZERO is added to every formalization set and need
+      not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-OUT-1, phrase: 'will simplify the expression', reading: 2}
+  - {req: R-OUT-1, phrase: 'simplify the expression', reading: 2}
+  - {req: R-OUT-2, phrase: 'the expression', reading: 1}
+  - {req: R-OUT-2, phrase: 'simplify', reading: 2}
+  - {req: R-OUT-2, phrase: 'simplify the expression', reading: 2}
+  - {req: R-OUT-2, phrase: 'simplify (form of a simplified fraction)', reading: 2}
+  - {req: R-IN-1, phrase: 'valid fractions', reading: 1}
+  - {req: R-IN-1, phrase: 'valid fractions, and do not have zero as denominator', reading: 1}
+  - {req: R-IN-2, phrase: 'valid fractions', reading: 1}
+  - {req: R-IN-2, phrase: 'valid fractions, and do not have zero as denominator', reading: 1}
+  - {req: R-IN-3, phrase: 'zero as denominator', reading: 2}
+  - {req: R-IN-4, phrase: 'zero as denominator', reading: 2}

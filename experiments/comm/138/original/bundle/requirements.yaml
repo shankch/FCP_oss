@@ -1,0 +1,145 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-API-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete implementation (a working body) of the given Python function, not a stub.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-API-2
+  doc: SPEC
+  quote: 'def is_equal_to_sum_even(n):'
+  text: The function is named is_equal_to_sum_even and takes exactly one parameter, named n.
+  kind: non_functional
+  lines:
+  - 4
+- id: R-OUT-1
+  doc: SPEC
+  quote: Evaluate whether the given number n
+  text: Every call of is_equal_to_sum_even(n) returns a boolean, True or False; it does not raise an exception, fail to finish, or return a value of another type.
+  kind: guarantee
+  ambiguity:
+  - phrase: Evaluate whether
+    readings:
+    - the function returns the bool True or False
+    - the function may return any value that compares equal to True or False (such as 1 or 0), which the `== True` / `== False` examples would also accept
+  - phrase: the given number n
+    readings:
+    - every non-negative integer n must get an answer
+    - every integer n, including negative ones, must get an answer (False for n <= 0)
+    - n may be any number, including non-integers such as 8.0 or 7.5, and must get an answer
+  lines:
+  - 5
+- id: R-SUM-1
+  doc: SPEC
+  quote: Evaluate whether the given number n can be written as the sum of exactly 4 positive even numbers
+  text: If n can be written as the sum of exactly 4 positive even numbers, is_equal_to_sum_even(n) returns True.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-DEF-2
+  lines:
+  - 5
+- id: R-SUM-2
+  doc: SPEC
+  quote: Evaluate whether the given number n can be written as the sum of exactly 4 positive even numbers
+  text: If n cannot be written as the sum of exactly 4 positive even numbers, is_equal_to_sum_even(n) returns False.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-DEF-2
+  lines:
+  - 5
+- id: R-DEF-1
+  doc: SPEC
+  quote: positive even numbers
+  text: A positive even number is an integer 2k with k >= 1 (2, 4, 6, ...); zero and negative numbers are not positive even numbers.
+  kind: definition
+  ambiguity:
+  - phrase: positive
+    readings:
+    - 'strictly greater than zero: 0 is not a positive even number (consistent with R-EX-1 and R-EX-2)'
+    - 'non-negative: 0 counts as a positive even number; this contradicts R-EX-1 (4 = 4 + 0 + 0 + 0) and R-EX-2 (6 = 2 + 2 + 2 + 0), which say False'
+  lines:
+  - 5
+- id: R-DEF-2
+  doc: SPEC
+  quote: the sum of exactly 4 positive even numbers
+  text: n is the sum of exactly 4 positive even numbers when n = a + b + c + d for some positive even numbers a, b, c, d; exactly four terms are used, and the same value may appear more than once.
+  kind: definition
+  depends:
+  - R-DEF-1
+  ambiguity:
+  - phrase: exactly 4 positive even numbers
+    readings:
+    - four terms, not necessarily distinct (8 = 2 + 2 + 2 + 2 qualifies; consistent with R-EX-3)
+    - four pairwise distinct positive even numbers (the least sum is 2 + 4 + 6 + 8 = 20); this contradicts R-EX-3, which says 8 gives True
+  lines:
+  - 5
+- id: R-EX-1
+  doc: SPEC
+  quote: is_equal_to_sum_even(4) == False
+  text: A call is_equal_to_sum_even(4) returns False.
+  kind: scenario
+  depends:
+  - R-SUM-2
+  ambiguity:
+  - phrase: is_equal_to_sum_even(4) == False
+    readings:
+    - 'consistent with R-DEF-1 when ''positive'' excludes zero: the least sum of four positive even numbers is 8, so 4 gives False'
+    - 'contradicts R-DEF-1 / R-SUM-1 when ''positive'' includes zero: 4 = 4 + 0 + 0 + 0 would make the answer True'
+  - phrase: == False
+    readings:
+    - the call returns the bool False
+    - the call returns any value equal to False, such as 0
+  lines:
+  - 7
+- id: R-EX-2
+  doc: SPEC
+  quote: is_equal_to_sum_even(6) == False
+  text: A call is_equal_to_sum_even(6) returns False.
+  kind: scenario
+  depends:
+  - R-SUM-2
+  ambiguity:
+  - phrase: is_equal_to_sum_even(6) == False
+    readings:
+    - 'consistent with R-DEF-1 when ''positive'' excludes zero: the least sum of four positive even numbers is 8, so 6 gives False'
+    - 'contradicts R-DEF-1 / R-SUM-1 when ''positive'' includes zero: 6 = 2 + 2 + 2 + 0 would make the answer True'
+  - phrase: == False
+    readings:
+    - the call returns the bool False
+    - the call returns any value equal to False, such as 0
+  lines:
+  - 8
+- id: R-EX-3
+  doc: SPEC
+  quote: is_equal_to_sum_even(8) == True
+  text: A call is_equal_to_sum_even(8) returns True.
+  kind: scenario
+  depends:
+  - R-SUM-1
+  ambiguity:
+  - phrase: is_equal_to_sum_even(8) == True
+    readings:
+    - 'consistent with R-DEF-2 when the four terms may repeat: 8 = 2 + 2 + 2 + 2'
+    - 'contradicts R-DEF-2 / R-SUM-2 when the four terms must be distinct: 8 is below the least distinct sum 20, so the answer would be False'
+  - phrase: == True
+    readings:
+    - the call returns the bool True
+    - the call returns any value equal to True, such as 1
+  lines:
+  - 9
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, the result signal is false unless outcome is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 38

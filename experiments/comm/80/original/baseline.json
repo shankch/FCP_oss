@@ -1,0 +1,32 @@
+{
+ "b1": {
+  "reply": "```python\ndef is_happy(s):\n    \"\"\"You are given a string s.\n    Your task is to check if the string is happy or not.\n    A string is happy if its length is at least 3 and every 3 consecutive letters are distinct\n    For example:\n    is_happy(a) => False\n    is_happy(aa) => False\n    is_happy(abcd) => True\n    is_happy(aabb) => False\n    is_happy(adb) => True\n    is_happy(xyy) => False\n    \"\"\"\n    if len(s) < 3:\n        return False\n\n    for i in range(len(s) - 2):\n        a, b, c = s[i], s[i + 1], s[i + 2]\n        if a == b or b == c or a == c:\n            return False\n\n    return True\n```",
+  "seconds": 3.4,
+  "cost_usd": 0.0121212,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b2": {
+  "reply": "NO_QUESTIONS",
+  "seconds": 2.6,
+  "cost_usd": 0.0097834,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ },
+ "b0": {
+  "reply": "```python\ndef is_happy(s):\n    \"\"\"You are given a string s.\n    Your task is to check if the string is happy or not.\n    A string is happy if its length is at least 3 and every 3 consecutive letters are distinct\n    For example:\n    is_happy(a) => False\n    is_happy(aa) => False\n    is_happy(abcd) => True\n    is_happy(aabb) => False\n    is_happy(adb) => True\n    is_happy(xyy) => False\n    \"\"\"\n    if len(s) < 3:\n        return False\n\n    for i in range(len(s) - 2):\n        a, b, c = s[i], s[i + 1], s[i + 2]\n        if a == b or b == c or a == c:\n            return False\n\n    return True\n```\n\n**How it works:**\n\n1. **Length check:** Strings shorter than 3 characters are not happy.\n2. **Sliding window:** The loop looks at each group of 3 consecutive characters (`s[i]`, `s[i+1]`, `s[i+2]`). If any two of them are equal, the function returns `False`.\n3. If every window passes, the string is happy.\n\n**Checking the examples:**\n- `\"a\"`, `\"aa\"` \u2192 too short \u2192 `False`\n- `\"abcd\"` \u2192 windows `abc`, `bcd` are all distinct \u2192 `True`\n- `\"aabb\"` \u2192 window `aab` has a repeat \u2192 `False`\n- `\"adb\"` \u2192 window `adb` is distinct \u2192 `True`\n- `\"xyy\"` \u2192 window `xyy` has a repeat \u2192 `False`\n\nIt runs in O(n) time and O(1) extra space.",
+  "seconds": 5.2,
+  "cost_usd": 0.017220399999999997,
+  "models": [
+   "claude-haiku-5-5",
+   "claude-opus-5-5"
+  ],
+  "error": false
+ }
+}

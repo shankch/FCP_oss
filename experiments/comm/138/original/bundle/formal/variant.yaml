@@ -1,0 +1,213 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-DEF-1 reading 2 (0 counts as positive) and R-DEF-2 reading 2 (the four
+  # terms are pairwise distinct): n = a + b + c + d with a < b < c < d even and
+  # >= 0. The least such sum is 0 + 2 + 4 + 6 = 12, every such sum is even, and
+  # every even n >= 12 is 0 + 2 + 4 + (n - 6) with n - 6 > 4. A quantifier over
+  # the terms cannot reach n = 65,535 (bound 256), so the set is stated closed.
+  sum4: 'n % 2 == 0 && n >= 0 + 2 + 4 + 6'
+  # R-OUT-1 reading 2: the call may return any value that compares equal to
+  # True or False. A bool shows as outcome 0 with its value on result; an int
+  # 1 or 0 shows as outcome 2, whose value the trace does not carry (result is
+  # 0 by F-ZERO), so outcome 2 is accepted on both sides.
+  eq_true: '(outcome == 0 && result) || outcome == 2'
+  eq_false: '(outcome == 0 && !result) || outcome == 2'
+
+properties:
+  - id: RV-OUT-1
+    req: R-OUT-1
+    expr: 'outcome == 0 || outcome == 2'
+    note: >-
+      Variant reading 2 of "Evaluate whether" (taken as instructed, not the
+      more natural reading 1): the function may return any value that compares
+      equal to True or False, such as 1 or 0, which the `== True` / `== False`
+      examples would also accept. So the call must return (no exception, no
+      hang: outcome != 1), but a non-bool return (outcome 2) is allowed. The
+      adapter puts every non-bool return in outcome 2, so this also admits
+      returns such as None or a string that do not compare equal to True or
+      False; the trace cannot tell them from 1 or 0. "the given number n" is
+      read as reading 1 (every non-negative integer gets an answer); the trace
+      only carries n in 0..65,535, where readings 1 to 3 coincide.
+
+  - id: RV-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args:
+      trigger: sum4
+      cond: eq_true
+    note: >-
+      "can be written as the sum of exactly 4 positive even numbers", with
+      R-DEF-1 reading 2 ("positive" read as non-negative, so 0 counts, taken
+      as instructed; this contradicts R-EX-1 and R-EX-2 on its own) and R-DEF-2
+      reading 2 (four pairwise distinct terms, taken as instructed; this
+      contradicts R-EX-3). Together: four distinct non-negative even numbers,
+      least sum 0 + 2 + 4 + 6 = 12 (not the 2 + 4 + 6 + 8 = 20 that reading 2
+      of R-DEF-2 names, because 0 is now a term), so exactly the even n >= 12.
+      "returns True" under R-OUT-1 reading 2 of "Evaluate whether" (taken as
+      instructed): the bool True, or a non-bool return (outcome 2) such as 1;
+      the trace cannot check the value of a non-bool return.
+
+  - id: RV-SUM-2
+    req: R-SUM-2
+    pattern: implies
+    args:
+      trigger: '!sum4'
+      cond: eq_false
+    note: >-
+      Complement of RV-SUM-1 over the same set: with R-DEF-1 reading 2 (0
+      counts as positive, taken as instructed) and R-DEF-2 reading 2 (pairwise
+      distinct terms, taken as instructed), n cannot be written exactly when n
+      is odd or n < 12. "returns False" under R-OUT-1 reading 2 of "Evaluate
+      whether" (taken as instructed): the bool False, or a non-bool return
+      (outcome 2) such as 0. This conflicts with R-EX-3 at n = 8 (8 < 12); the
+      conflict is left in place, not repaired. Because both RV-SUM-2 and
+      RV-EX-3 accept outcome 2, a trace with outcome 2 at n = 8 meets both,
+      although no Python value equals both True and False: the contradiction
+      shows through scenario RV-EX-3-S instead.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'n == 4'
+      cond: eq_false
+    note: >-
+      Example formalized literally as a guarantee on the call with n = 4.
+      "is_equal_to_sum_even(4) == False" taken as reading 2 (as instructed):
+      it contradicts R-DEF-1 / R-SUM-1 when "positive" includes zero, since
+      4 = 4 + 0 + 0 + 0 would make the answer True. In this set, however,
+      R-DEF-2 reading 2 (taken as instructed) requires distinct terms, so
+      4 + 0 + 0 + 0 does not count and 4 < 12 is not a sum: RV-SUM-2 agrees
+      with this example here. "== False" taken as reading 2 (as instructed):
+      any value equal to False, such as 0, so outcome 2 is accepted (R-OUT-1
+      reading 2 of "Evaluate whether" likewise); the trace cannot check the
+      value of a non-bool return.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'n == 6'
+      cond: eq_false
+    note: >-
+      Example formalized literally as a guarantee on the call with n = 6.
+      "is_equal_to_sum_even(6) == False" taken as reading 2 (as instructed):
+      it contradicts R-DEF-1 / R-SUM-1 when "positive" includes zero, since
+      6 = 2 + 2 + 2 + 0 would make the answer True. In this set R-DEF-2
+      reading 2 (taken as instructed) requires distinct terms, so 2 + 2 + 2 + 0
+      does not count and 6 < 12 is not a sum: RV-SUM-2 agrees with this
+      example here. "== False" taken as reading 2 (as instructed): any value
+      equal to False, such as 0, so outcome 2 is accepted (R-OUT-1 reading 2
+      of "Evaluate whether" likewise); the trace cannot check the value of a
+      non-bool return.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'n == 8'
+      cond: eq_true
+    note: >-
+      Example formalized literally as a guarantee on the call with n = 8.
+      "is_equal_to_sum_even(8) == True" taken as reading 2 (as instructed):
+      it contradicts R-DEF-2 / R-SUM-2 when the four terms must be distinct.
+      In this set the least distinct sum is 0 + 2 + 4 + 6 = 12 (0 counts by
+      R-DEF-1 reading 2, taken as instructed), and 8 is below it, so RV-SUM-2
+      requires False at n = 8. The contradiction is kept, not repaired.
+      "== True" taken as reading 2 (as instructed): any value equal to True,
+      such as 1, so outcome 2 is accepted (R-OUT-1 reading 2 of "Evaluate
+      whether" likewise); the trace cannot check the value of a non-bool
+      return.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'n == 4 && outcome == 0 && !result'
+    note: >-
+      The call shown in the example must be possible with the value it shows,
+      the bool False. Under "== False" reading 2 (taken as instructed) other
+      values equal to False are also allowed (RV-EX-1), but only the bool is
+      visible on the trace, so the cover asks for it. With R-DEF-1 reading 2
+      and R-DEF-2 reading 2 (both taken as instructed), 4 is not a sum of four
+      distinct non-negative even numbers, so reading 2 of
+      "is_equal_to_sum_even(4) == False" (the zero-term contradiction) does
+      not bite in this set.
+
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'n == 6 && outcome == 0 && !result'
+    note: >-
+      The call shown in the example must be possible with the value it shows,
+      the bool False. Under "== False" reading 2 (taken as instructed) other
+      values equal to False are also allowed (RV-EX-2), but only the bool is
+      visible on the trace, so the cover asks for it. With R-DEF-1 reading 2
+      and R-DEF-2 reading 2 (both taken as instructed), 6 is not a sum of four
+      distinct non-negative even numbers, so reading 2 of
+      "is_equal_to_sum_even(6) == False" (the zero-term contradiction) does
+      not bite in this set.
+
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'n == 8 && outcome == 0 && result'
+    note: >-
+      The call shown in the example must be possible with the value it shows,
+      the bool True. Under "== True" reading 2 (taken as instructed) other
+      values equal to True are also allowed (RV-EX-3), but only the bool is
+      visible on the trace, so the cover asks for it. Taking
+      "is_equal_to_sum_even(8) == True" as reading 2 (as instructed), this
+      contradicts RV-SUM-2: with distinct terms (R-DEF-2 reading 2) and 0
+      allowed (R-DEF-1 reading 2) the least sum is 12, so this cover is
+      expected to be unreachable. That is the specification's contradiction
+      under these readings, left visible on purpose.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      "Complete this function" is about the deliverable (a body, not a stub),
+      not about any call's behaviour, so it is not a trace property. A stub
+      that raises (outcome 1) is rejected by RV-OUT-1, but under R-OUT-1
+      reading 2 of "Evaluate whether" (taken as instructed) a stub that
+      returns None (outcome 2) is not rejected by any item of this set.
+  - req: R-API-2
+    reason: >-
+      The name and the single parameter n are fixed by the function section of
+      design.yaml, through which every call is made; they are not a property
+      of the trace. A missing function would make every call fail, which
+      RV-OUT-1 rejects, but the parameter's name is not observable.
+  - req: R-DEF-1
+    reason: >-
+      A definition, realized by def sum4 in RV-SUM-1 and RV-SUM-2. "positive"
+      taken as reading 2 (as instructed): non-negative, so 0 counts as a
+      positive even number; on its own this contradicts R-EX-1 (4 = 4 + 0 +
+      0 + 0) and R-EX-2 (6 = 2 + 2 + 2 + 0), but combined with R-DEF-2
+      reading 2 (distinct terms) those decompositions are excluded.
+    covered_by: [RV-SUM-1, RV-SUM-2]
+  - req: R-DEF-2
+    reason: >-
+      A definition, realized by def sum4 in RV-SUM-1 and RV-SUM-2. "exactly 4
+      positive even numbers" taken as reading 2 (as instructed): four pairwise
+      distinct positive even numbers. With R-DEF-1 reading 2 (0 counts) the
+      least sum is 0 + 2 + 4 + 6 = 12 rather than 20; either way this
+      contradicts R-EX-3 (8 gives True).
+    covered_by: [RV-SUM-1, RV-SUM-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (result is false unless outcome is 0)
+      is part of every formalization set by construction and need not be
+      restated (frame.md).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-OUT-1, phrase: 'Evaluate whether', reading: 2}
+  - {req: R-OUT-1, phrase: 'the given number n', reading: 1}
+  - {req: R-DEF-1, phrase: 'positive', reading: 2}
+  - {req: R-DEF-2, phrase: 'exactly 4 positive even numbers', reading: 2}
+  - {req: R-EX-1, phrase: 'is_equal_to_sum_even(4) == False', reading: 2}
+  - {req: R-EX-1, phrase: '== False', reading: 2}
+  - {req: R-EX-2, phrase: 'is_equal_to_sum_even(6) == False', reading: 2}
+  - {req: R-EX-2, phrase: '== False', reading: 2}
+  - {req: R-EX-3, phrase: 'is_equal_to_sum_even(8) == True', reading: 2}
+  - {req: R-EX-3, phrase: '== True', reading: 2}

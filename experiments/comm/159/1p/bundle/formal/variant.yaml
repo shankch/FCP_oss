@@ -1,0 +1,242 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # eat returned the two-element list of R-OUT-1 (instructed reading 2):
+  # [total carrots eaten after the meal, carrots left after the meal]
+  pair: 'outcome == 0 && len(result) == 2'
+  # carrots eaten in this call: total eaten after the meal minus number, the
+  # carrots already eaten (R-DEF-2 and R-OUT-1 readings treat number so)
+  ate: 'result[0] - number'
+  # carrots still to be eaten for the day (R-DEF-2 instructed reading 2:
+  # need is the day's total, number of them already eaten); none when
+  # number already reaches need
+  still_needed: 'max(need - number, 0)'
+
+assumptions:
+  - id: RV-ENV-2
+    req: R-ENV-2
+    expr: 'need >= 0'
+    note: >-
+      Instructed reading of "need to eat more carrots" (R-ENV-2): need is at
+      least 0 and a need of 0 is a valid call (reading 2), so the only
+      environment obligation is need >= 0; need 0 is not excluded (see
+      RV-ENV-2-S). The 11-bit unsigned encoding of need already meets this,
+      so the assumption restricts nothing on this interface.
+  - id: RV-ENV-3
+    req: R-ENV-3
+    expr: 'remaining >= 0'
+    note: >-
+      Reading 1 (most literal for "a count of carrots"): remaining is a
+      non-negative integer with no upper bound. The 2,047 upper limit of the
+      trace comes from the adapter, not from the prompt. The unsigned encoding
+      already meets this assumption.
+
+properties:
+  - id: RV-API-1
+    req: R-API-1
+    expr: 'outcome != 1'
+    note: >-
+      "A call eat(number, need, remaining) is accepted": every call ends
+      without an exception and finishes (outcome 1 is any exception or no
+      answer; the adapter cannot tell a signature TypeError from other
+      exceptions, so all are excluded). Instructed reading of
+      "eat(number, need, remaining)" (R-API-1): the arguments may be any
+      numbers, including non-integers (reading 2). The trace carries only
+      integer arguments from 0 to 2,047, so calls with non-integer or negative
+      arguments, which this reading also requires to be accepted, cannot be
+      checked here. Also realizes R-TASK-1 under its instructed reading 2
+      (any implementation of eat with this signature is acceptable).
+
+  - id: RV-OUT-1
+    req: R-OUT-1
+    expr: 'outcome == 0 && len(result) == 2 && result[0] == number + min(need, remaining) && result[1] == max(remaining - need, 0)'
+    note: >-
+      Instructed reading of "complete the day's meals." (R-OUT-1): eat returns
+      the list [total carrots eaten after the meal, carrots left after the
+      meal], that is [number + min(need, remaining), max(remaining - need, 0)]
+      (reading 2). requirements.yaml files R-OUT-1 as a dont_care (the prompt
+      states no return value), but under this reading the value is fixed, so
+      it is a property, not a dont_care. Every result fits the list signal
+      (at most 2,047 + 2,047), so outcome 0 is required. This formula treats
+      need as the number of additional carrots and number as the carrots
+      already eaten. That conflicts with the instructed reading of R-DEF-2
+      (need is the day's total, so need - number are still to be eaten; see
+      RV-CTX-1a, RV-EAT-1) whenever number > 0, need > 0 and
+      remaining > max(need - number, 0). It also conflicts with the instructed
+      reading of R-DEF-1 ("a certain number of carrots" is not tied to any
+      argument). And it conflicts with RV-EAT-2 when
+      number + remaining < need. These conflicts are kept, not repaired.
+
+  - id: RV-CTX-1a
+    req: R-CTX-1
+    pattern: implies
+    args: {trigger: pair, cond: 'ate <= still_needed'}
+    note: >-
+      Instructed reading of "hungry rabbit" (R-CTX-1): the rabbit eats as many
+      carrots as it can, up to what it needs (reading 2). This item is the
+      "up to what it needs" half: the carrots eaten in the call do not exceed
+      what is still needed. "What it needs" follows the instructed reading of
+      "need to eat more carrots" (R-DEF-2): need - number, with none still
+      needed once number reaches need. The eaten amount is read from the
+      result through the instructed reading of R-OUT-1 (result[0] is the total
+      eaten after the meal), with number as the carrots eaten before the call
+      as R-DEF-2 and R-OUT-1 take it, although the instructed reading of R-DEF-1
+      unties that count from number. Applies only when eat returns a
+      two-element list; the form itself is RV-OUT-1. Conflicts with RV-OUT-1,
+      which has the rabbit eat min(need, remaining).
+
+  - id: RV-CTX-1b
+    req: R-CTX-1
+    pattern: implies
+    args: {trigger: pair, cond: 'ate >= min(still_needed, remaining)'}
+    note: >-
+      Instructed reading of "hungry rabbit" (R-CTX-1), reading 2: the rabbit
+      never declines carrots it needs while some are available. It eats at
+      least the smaller of what is still needed and what is available.
+      "Available" is remaining (instructed reading 1 of "remaining" in R-DEF-3:
+      the carrots left in stock). "Still needed" is need - number (instructed
+      reading 2 of R-DEF-2), never below 0. The eaten amount is read from
+      result[0] as in RV-CTX-1a (instructed reading 2 of R-OUT-1). Together
+      with RV-CTX-1a and RV-DEF-3a, this fixes the eaten amount at
+      min(need - number, remaining).
+
+  - id: RV-DEF-3a
+    req: R-DEF-3
+    pattern: implies
+    args: {trigger: pair, cond: 'ate <= remaining'}
+    note: >-
+      Instructed reading of "remaining" (R-DEF-3): the carrots left in stock
+      that the rabbit can still eat (reading 1), so the carrots eaten in the
+      call never exceed remaining. Instructed reading of "need, remaining"
+      (R-DEF-3): this contradicts R-EAT-2 (reading 1). With remaining below
+      the carrots still needed, the meals cannot be completed, but RV-EAT-2
+      requires that they are. The contradiction is kept as stated: RV-DEF-3a
+      and RV-EAT-2 cannot both hold when number + remaining < need. The eaten
+      amount is read from result[0] (instructed reading 2 of R-OUT-1), with
+      number as the carrots already eaten.
+
+  - id: RV-DEF-3b
+    req: R-DEF-3
+    pattern: implies
+    args: {trigger: pair, cond: 'result[1] == remaining - ate'}
+    note: >-
+      Instructed reading of "remaining" (R-DEF-3), reading 1: remaining is the
+      stock before the call. The carrots left after the meal, result[1] under
+      the instructed reading 2 of R-OUT-1, are that stock minus the carrots
+      eaten in the call.
+
+  - id: RV-EAT-1
+    req: R-EAT-1
+    pattern: implies
+    args: {trigger: pair, cond: 'result[0] == number + min(still_needed, remaining)'}
+    note: >-
+      Reading 2 of "eat more carrots": the rabbit eats up to the carrots it
+      still needs, limited by the carrots that remain. This is the only reading
+      that fits the instructed readings of R-DEF-3 (remaining is the stock) and
+      R-CTX-1 (it eats as many as it can, up to what it needs). The phrase
+      overlaps the instructed reading of "need to eat more carrots" (R-DEF-2,
+      reading 2: need is the day's total and need - number are still to be
+      eaten). So the "need more carrots" of this reading is need - number,
+      never below 0, not need itself. "Beyond the number it has already eaten,
+      and the result reflects those carrots": result[0], the total eaten after
+      the meal (instructed reading 2 of R-OUT-1), is number plus the carrots
+      eaten now. Number is taken as the count already eaten, as R-DEF-2 and
+      R-OUT-1 do, although the instructed reading of R-DEF-1 unties that count
+      from number. Conflicts with RV-OUT-1 (number + min(need, remaining))
+      whenever number > 0, need > 0 and remaining > max(need - number, 0).
+
+  - id: RV-EAT-2
+    req: R-EAT-2
+    pattern: implies
+    args: {trigger: pair, cond: 'result[0] >= need'}
+    note: >-
+      Reading 1 of "to complete" (most literal for the guarantee "after the
+      call, the rabbit has eaten enough carrots to complete the day's meals"):
+      the meals are always complete after the call. Under the instructed
+      reading 2 of R-DEF-2, the day's meals total need carrots, so the total
+      eaten after the call must be at least need. That total is result[0]
+      under the instructed reading 2 of R-OUT-1, and "total" also matches the
+      instructed reading 2 of "already have eaten" in R-DEF-1. Instructed
+      reading of "complete the day's meals" (R-EAT-2): this contradicts R-DEF-3
+      (reading 1). With remaining as the stock, the meals cannot be completed
+      when number + remaining < need. The contradiction is not repaired:
+      RV-EAT-2 conflicts with RV-DEF-3a, and with RV-OUT-1, on exactly those
+      calls.
+
+scenarios:
+  - id: RV-ENV-2-S
+    req: R-ENV-2
+    cover: 'need == 0 && outcome == 0'
+    note: >-
+      Instructed reading of "need to eat more carrots" (R-ENV-2): a need of 0
+      is a valid call (reading 2). There must be a call with need 0 that eat
+      answers normally with a list.
+
+unformalized:
+  - req: R-TASK-1
+    covered_by: [RV-API-1]
+    reason: >-
+      Instructed reading of "Complete this function" (R-TASK-1): any
+      implementation of a function eat with this signature is acceptable, and
+      the docstring may be changed or dropped (reading 2). What the response
+      supplies, and whether the docstring is kept, cannot be seen in a trace of
+      calls. The observable part, a function eat that accepts the call
+      eat(number, need, remaining), is RV-API-1.
+  - req: R-DEF-1
+    reason: >-
+      Instructed reading of "a certain number of carrots" (R-DEF-1): the count
+      is narrative only and not tied to any argument (reading 2). Instructed
+      reading of "already have eaten": carrots eaten in total, not only toward
+      today's meals (reading 2). Under these readings R-DEF-1 binds no signal,
+      so it constrains nothing. Note that the instructed readings of R-DEF-2
+      ("of which number are already eaten") and R-OUT-1 (total eaten =
+      number + min(need, remaining)) still treat number as the carrots already
+      eaten. The items that follow them (RV-OUT-1, RV-CTX-1a, RV-CTX-1b,
+      RV-DEF-3a, RV-DEF-3b, RV-EAT-1) do the same. The specification's
+      instructed readings disagree with one another on this point.
+  - req: R-DEF-2
+    covered_by: [RV-CTX-1a, RV-CTX-1b, RV-EAT-1, RV-EAT-2]
+    reason: >-
+      A definition with no obligation of its own. Instructed reading of "need
+      to eat more carrots" (R-DEF-2): need is the total for the day's meals, of
+      which number are already eaten, so need - number are still to be eaten
+      (reading 2). It is realized by the def still_needed = max(need - number,
+      0), used in RV-CTX-1a, RV-CTX-1b and RV-EAT-1, and by RV-EAT-2, where
+      completing the day's meals means a total of at least need. The value 0
+      when number exceeds need is stated openly: a negative count of carrots
+      cannot be eaten. This reading conflicts with the formula of RV-OUT-1
+      (the instructed reading of R-OUT-1), which adds min(need, remaining) to
+      number.
+  - req: R-ENV-1
+    reason: >-
+      Instructed reading of "a certain number" (R-ENV-1): any integer, with no
+      bound at all on number (reading 2). So the prompt places no environment
+      obligation on number, and no assumption is made. Every property must
+      hold for every number in the trace. The adapter limits the trace to 0 to
+      2,047 and excludes negative arguments, so the negative values this
+      reading admits cannot be checked.
+  - req: R-FR-1
+    covered_by: [F-EMPTY]
+    reason: >-
+      Frame rule of the function adapter: holds by construction and is
+      added to every formalization set (design.yaml frame F-EMPTY), so it is
+      not restated.
+
+decisions:
+  - {req: R-TASK-1, phrase: 'Complete this function', reading: 2}
+  - {req: R-API-1, phrase: 'eat(number, need, remaining)', reading: 2}
+  - {req: R-CTX-1, phrase: 'hungry rabbit', reading: 2}
+  - {req: R-DEF-1, phrase: 'a certain number of carrots', reading: 2}
+  - {req: R-DEF-1, phrase: 'already have eaten', reading: 2}
+  - {req: R-DEF-2, phrase: 'need to eat more carrots', reading: 2}
+  - {req: R-DEF-3, phrase: 'remaining', reading: 1}
+  - {req: R-DEF-3, phrase: 'need, remaining', reading: 1}
+  - {req: R-ENV-3, phrase: 'remaining', reading: 1}
+  - {req: R-ENV-1, phrase: 'a certain number', reading: 2}
+  - {req: R-ENV-2, phrase: 'need to eat more carrots', reading: 2}
+  - {req: R-EAT-1, phrase: 'eat more carrots', reading: 2}
+  - {req: R-EAT-2, phrase: 'to complete', reading: 1}
+  - {req: R-EAT-2, phrase: "complete the day's meals", reading: 1}
+  - {req: R-OUT-1, phrase: "complete the day's meals.", reading: 2}

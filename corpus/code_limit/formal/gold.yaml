@@ -1,0 +1,51 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+rigids:
+  - {name: U, range: [0, 1000], desc: an arbitrary customer}
+ghosts:
+  # the specification model of customer U: the times of U's three most recent
+  # allowed attempts (-100: none), and when U's penalty ends
+  - {name: a1, range: [-100, 65535], init: -100, next: 'user == U && outcome == 0 && allowed ? now : a1'}
+  - {name: a2, range: [-100, 65535], init: -100, next: 'user == U && outcome == 0 && allowed ? a1 : a2'}
+  - {name: a3, range: [-100, 65535], init: -100, next: 'user == U && outcome == 0 && allowed ? a2 : a3'}
+  - {name: pen, range: [-100, 65545], init: -100, next: 'user == U && outcome == 0 && !allowed ? now + 10 : pen'}
+  # the time of the previous call that did not have to raise (-1: none)
+  - {name: last, range: [-1, 65535], init: -1, next: 'user <= 1000 && now >= last ? now : last'}
+defs:
+  valid: 'user <= 1000 && now >= last'
+  recent: '(now - a1 < 60 ? 1 : 0) + (now - a2 < 60 ? 1 : 0) + (now - a3 < 60 ? 1 : 0)'
+properties:
+- id: G-RET
+  req: R-RET-1
+  pattern: implies
+  args: {trigger: valid, cond: 'outcome == 0'}
+- id: G-ERR
+  req: R-ERR-1
+  pattern: implies
+  args: {trigger: '!valid', cond: 'outcome == 1'}
+  note: 'decision: "the previous call" is the previous call that did not have to raise, of any customer'
+- id: G-MAX
+  req: R-MAX-1
+  pattern: implies
+  args: {trigger: 'user == U && outcome == 0 && allowed', cond: 'now - a3 >= 60'}
+  note: 'decision: two attempts are within 60 seconds of each other when their times differ by less than 60'
+- id: G-FAIR
+  req: R-FAIR-1
+  pattern: implies
+  args: {trigger: 'user == U && valid && recent < 3', cond: 'outcome == 0 && allowed'}
+  note: 'literal: rule 4 does not exempt a customer under the penalty of rule 5'
+- id: G-PEN
+  req: R-PEN-1
+  pattern: implies
+  args: {trigger: 'user == U && valid && now < pen', cond: '!allowed'}
+  note: 'decision: the penalty covers attempts less than 10 seconds after a denial, and every denial, including one by this rule, starts it again'
+scenarios:
+- id: S-EX
+  req: R-EX-1
+  cover: 'now == 3 && outcome == 0 && !allowed && prev(now) == 2 && prev(allowed) && prev(now, 2) == 1 && prev(allowed, 2) && prev(now, 3) == 0 && prev(allowed, 3) && user == prev(user) && user == prev(user, 2) && user == prev(user, 3)'
+unformalized:
+- {req: R-COUNT-1, reason: 'a definition: only allowed attempts count, which is how the model ghosts a1-a3 are kept', covered_by: [G-MAX, G-FAIR]}
+- {req: R-IN-1, reason: 'a definition of the arguments, used by G-RET and G-ERR', covered_by: [G-RET, G-ERR]}
+- {req: R-SIG-1, reason: 'the interface itself', covered_by: [G-RET]}
+- {req: R-FR-1, reason: 'the frame rule F-ZERO, part of every set', covered_by: [F-ZERO]}

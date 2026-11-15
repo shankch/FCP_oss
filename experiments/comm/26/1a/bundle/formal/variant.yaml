@@ -1,0 +1,137 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # Greedy in-order matching of result against numbers: mJ is how many leading
+  # elements of result are matched, in order, by the first J elements of numbers.
+  # result is a subsequence of numbers exactly when m8 == len(result).
+  m1: "(0 < len(numbers) && 0 < len(result) && numbers[0] == result[0])"
+  m2: "m1 + (1 < len(numbers) && m1 < len(result) && numbers[1] == result[m1])"
+  m3: "m2 + (2 < len(numbers) && m2 < len(result) && numbers[2] == result[m2])"
+  m4: "m3 + (3 < len(numbers) && m3 < len(result) && numbers[3] == result[m3])"
+  m5: "m4 + (4 < len(numbers) && m4 < len(result) && numbers[4] == result[m4])"
+  m6: "m5 + (5 < len(numbers) && m5 < len(result) && numbers[5] == result[m5])"
+  m7: "m6 + (6 < len(numbers) && m6 < len(result) && numbers[6] == result[m6])"
+  m8: "m7 + (7 < len(numbers) && m7 < len(result) && numbers[7] == result[m7])"
+
+properties:
+  - id: RV-IO-2
+    req: R-IO-2
+    expr: "outcome == 0"
+    note: >-
+      Every call returns a list: outcome 0. Outcome 1 (exception, no answer) and
+      outcome 2 (another type) are what the requirement excludes. Outcome 2 also
+      covers a returned list longer than 8 or with an element outside 0..255,
+      which the text does not exclude as such; within the trace (inputs of at
+      most 8 elements in 0..255) a returned list obeying RV-FN-3 always fits, so
+      outcome == 0 is taken as the literal reading.
+
+  - id: RV-FN-1
+    req: R-FN-1
+    expr: "all(i < len(numbers): count(j < len(numbers): numbers[j] == numbers[i]) >= 2 -> !(numbers[i] in result))"
+    note: >-
+      Every value that occurs 2 or more times in numbers is absent from the
+      returned list. Readings imposed for this variant, not the most natural
+      ones: 'K' is read as 'more than once' (as in the usual remove-duplicates
+      task), and 'occur K time(s)' as 'at least K times', so the threshold is
+      'occurs 2 or more times'. 'time(s)' is read as contradicting the example
+      R-EX-1: the singular 'time' admits K = 1 (giving [2, 2] for
+      [1, 2, 3, 2, 4]) and any K of 3 or more removes nothing. This item does not
+      repair that: it takes the threshold from the reading of 'K', which excludes
+      K = 1 and K >= 3, and the contradiction is only recorded here. 'remove' is
+      read as deleting the elements from the argument numbers in place and
+      returning that list; the trace records the argument as passed and the
+      returned list only, so the in-place mutation of the argument is not
+      observable and is formalized only through result (the returned, mutated
+      list). If the call does not return (outcome != 0) result is empty by
+      F-EMPTY and this item holds trivially; RV-IO-2 covers that case.
+
+  - id: RV-FN-2
+    req: R-FN-2
+    expr: "all(k < len(result): count(j < len(numbers): numbers[j] == result[k]) < 2)"
+    note: >-
+      Only values that occur fewer than 2 times in numbers may be left in the
+      returned list. Readings imposed for this variant, not the most natural
+      ones: 'K' is read as 'more than once', and 'occur K time(s)' as 'at least K
+      times', so a value occurring more than K times is also removed and only
+      values occurring fewer than K (= 2) times are kept. 'remove all elements
+      that occur K time(s)' is read as obliging only the removal of those
+      elements and stating nothing about keeping the others; therefore the
+      requirement's claim that every other value keeps all its occurrences is
+      NOT formalized, and nothing here forces a value occurring once to be kept
+      (the empty list satisfies this item for every input). Under these readings
+      R-FN-2 adds nothing beyond R-FN-1 and this item is equivalent to RV-FN-1,
+      stated from the side of the returned list. Elements that are not in
+      numbers at all (count 0) are not excluded here; RV-FN-3 excludes them.
+
+  - id: RV-FN-3
+    req: R-FN-3
+    expr: "m8 == len(result)"
+    note: >-
+      The returned list is a subsequence of numbers: its elements can be matched,
+      in order, to distinct positions of numbers with increasing indices (greedy
+      matching m1..m8, numbers has at most 8 elements). This expresses 'keep the
+      order of the elements left the same as in the input', with 'elements left'
+      read as elements of the input, so nothing is added. Holds trivially when
+      result is empty (including outcome != 0).
+
+  - id: RV-EX-1-CALL
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "numbers == [1, 2, 3, 2, 4]"
+      cond: "outcome == 0 && result == [1, 3, 4]"
+    note: >-
+      The doctest states what the call returns; calls are independent and
+      stateless, so every call candidate([1, 2, 3, 2, 4]) must return [1, 3, 4].
+      Reading imposed for this variant: '[1, 3, 4]' is read as contradicting
+      R-FN-1, since for any K other than 2 the rule gives another result (K = 1,
+      allowed by the singular 'time', gives [2, 2]; K >= 3 gives
+      [1, 2, 3, 2, 4]). The example is formalized as written and not adjusted;
+      with 'K' read as 'more than once' (RV-FN-1, RV-FN-2) the rule removes only
+      the value 2 here, so no conflict arises inside this set. Under the
+      readings of R-FN-2 taken here this item is the only one that obliges 1, 3
+      and 4 to be kept for this input.
+
+scenarios:
+  - id: RV-EX-1-COVER
+    req: R-EX-1
+    cover: "numbers == [1, 2, 3, 2, 4] && outcome == 0 && result == [1, 3, 4]"
+    note: >-
+      The example behaviour must be possible together with every other item.
+      Reading imposed for this variant: '[1, 3, 4]' is read as contradicting
+      R-FN-1 for any K other than 2 (K = 1 gives [2, 2], K >= 3 gives
+      [1, 2, 3, 2, 4]); the example is kept as written. With 'K' read as 'more
+      than once' this set removes exactly the value 2 from this input, so the
+      scenario is expected to be consistent.
+
+unformalized:
+  - req: R-NF-1
+    reason: >-
+      Non-functional: it concerns the deliverable (a Python body for the given
+      signature), not the behaviour of a call. The observable part, that a call
+      with one list argument returns a list without raising, is checked by
+      RV-IO-2.
+  - req: R-IO-1
+    reason: >-
+      The environment obligation is discharged by the interface encoding: the
+      input signal numbers can only carry a list of at most 8 integers 0..255
+      (frame.md, Inputs), so there is no residual constraint on inputs to
+      assume. Note that this also leaves negative integers and lists longer
+      than 8 outside the trace, although the signature List[int] allows them.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter, added to every formalization set by
+      design.yaml (frame item F-EMPTY); frame.md says it need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-FN-1, phrase: "K", reading: 2}
+  - {req: R-FN-1, phrase: "occur K time(s)", reading: 2}
+  - {req: R-FN-1, phrase: "time(s)", reading: 1}
+  - {req: R-FN-1, phrase: "remove", reading: 2}
+  - {req: R-FN-2, phrase: "K", reading: 2}
+  - {req: R-FN-2, phrase: "occur K time(s)", reading: 2}
+  - {req: R-FN-2, phrase: "remove all elements that occur K time(s)", reading: 2}
+  - {req: R-EX-1, phrase: "[1, 3, 4]", reading: 2}

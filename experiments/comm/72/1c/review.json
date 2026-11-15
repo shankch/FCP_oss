@@ -1,0 +1,379 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 444,
+    "checked": 444,
+    "seconds": 4.9
+   },
+   "open": {
+    "open": {},
+    "checked": 262
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 575,
+    "checked": 575,
+    "seconds": 7.18
+   },
+   "open": {
+    "open": {},
+    "checked": 319
+   }
+  }
+ },
+ "readings": {
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [
+    "RA-EX-1",
+    "RA-EX-2",
+    "RA-EX-3",
+    "RA-EX-4"
+   ],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [
+    "RB-EX-1",
+    "RB-EX-2",
+    "RB-EX-3",
+    "RB-EX-4"
+   ],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-DEF-1",
+   "phrase": "palindromic list",
+   "taken": 1,
+   "variant": 2,
+   "text": "The empty list is not a balanced object, so it is not balanced (and does not fly)."
+  },
+  {
+   "req": "R-DEF-3",
+   "phrase": "will fly if",
+   "taken": 1,
+   "variant": 2,
+   "text": "Sufficient condition only: being balanced with sum at most w is enough to fly, but whether any other q flies (and so whether the call returns False for it) is not stated."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "returns True if the object q will fly",
+   "taken": 1,
+   "variant": 2,
+   "text": "As the examples show (contradiction): a balanced q with sum at most w makes the call return False, e.g. will_it_fly([3, 2, 3], 9) \u279e False and will_it_fly([3], 5) \u279e False; all four examples return the opposite of the stated rule."
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "False otherwise",
+   "taken": 1,
+   "variant": 2,
+   "text": "As the example shows (contradiction): an unbalanced q with sum at most w makes the call return True, e.g. will_it_fly([1, 2], 5) \u279e True."
+  },
+  {
+   "req": "R-RET-3",
+   "phrase": "False otherwise",
+   "taken": 1,
+   "variant": 2,
+   "text": "As the example shows (contradiction): a balanced q whose sum exceeds w makes the call return True, e.g. will_it_fly([3, 2, 3], 1) \u279e True."
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "\u279e True",
+   "taken": 1,
+   "variant": 2,
+   "text": "The expected value is an error: the call returns False, as the rule and the comment imply."
+  },
+  {
+   "req": "R-WHY-1",
+   "phrase": "but it's unbalanced",
+   "taken": 1,
+   "variant": 2,
+   "text": "The comment is consistent with the stated result True, i.e. the returned value is True when q does not fly (inverted output)."
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "\u279e True",
+   "taken": 1,
+   "variant": 2,
+   "text": "The expected value is an error: the call returns False, as the rule and the comment imply."
+  },
+  {
+   "req": "R-WHY-2",
+   "phrase": "but 3+2+3 is more than the maximum possible weight",
+   "taken": 1,
+   "variant": 2,
+   "text": "The comment is consistent with the stated result True, i.e. the returned value is True when q does not fly (inverted output)."
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "\u279e False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The expected value is an error: the call returns True, as the rule and the comment imply."
+  },
+  {
+   "req": "R-WHY-3",
+   "phrase": "and it's balanced",
+   "taken": 1,
+   "variant": 2,
+   "text": "The comment is consistent with the stated result False, i.e. the returned value is False when q flies (inverted output)."
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "\u279e False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The expected value is an error: the call returns True, as the rule and the comment imply."
+  },
+  {
+   "req": "R-WHY-4",
+   "phrase": "and it's balanced",
+   "taken": 1,
+   "variant": 2,
+   "text": "The comment is consistent with the stated result False, i.e. the returned value is False when q flies (inverted output)."
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "will_it_fly([0], 0) -> True"
+   ]
+  },
+  "R-RET-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "will_it_fly([0, 1, 1, 1, 1, 1, 1, 233], 239) -> False"
+   ]
+  },
+  "R-RET-3": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "will_it_fly([2], 0) -> False"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-1 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-2 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-3 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-4 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-1 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-2 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-3 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "reading": "agent_b",
+   "calls": [],
+   "question": "the behaviour RB-EX-4 describes can never happen under agent_b: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1",
+    "R-RET-2",
+    "R-RET-3"
+   ],
+   "calls": [
+    "will_it_fly([0], 0) -> True"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"returns True if the object q will fly\" can mean: As stated: a balanced q with sum at most w makes the call return True. / As the examples show (contradiction): a balanced q with sum at most w makes the call return False, e.g. will_it_fly([3, 2, 3], 9) \u279e False and will_it_fly([3], 5) \u279e False; all four examples return the opposite of the stated rule.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"False otherwise\" can mean: As stated: an unbalanced q makes the call return False. / As the example shows (contradiction): an unbalanced q with sum at most w makes the call return True, e.g. will_it_fly([1, 2], 5) \u279e True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-3"
+   ],
+   "calls": [],
+   "question": "\"False otherwise\" can mean: As stated: a q whose sum exceeds w makes the call return False. / As the example shows (contradiction): a balanced q whose sum exceeds w makes the call return True, e.g. will_it_fly([3, 2, 3], 1) \u279e True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"\u279e True\" can mean: As written: the call returns True. This contradicts the rule (R-RET-2: [1, 2] is not a palindrome, so the call returns False) and the example's own comment (R-WHY-1: it's unbalanced). / The expected value is an error: the call returns False, as the rule and the comment imply.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-WHY-1"
+   ],
+   "calls": [],
+   "question": "\"but it's unbalanced\" can mean: The comment explains a False result: an unbalanced list does not fly. This contradicts the stated result will_it_fly([1, 2], 5) \u279e True (R-EX-1). / The comment is consistent with the stated result True, i.e. the returned value is True when q does not fly (inverted output).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"\u279e True\" can mean: As written: the call returns True. This contradicts the rule (R-RET-3: 3+2+3 = 8 is greater than 1, so the call returns False) and the example's own comment (R-WHY-2: more than the maximum possible weight). / The expected value is an error: the call returns False, as the rule and the comment imply.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-WHY-2"
+   ],
+   "calls": [],
+   "question": "\"but 3+2+3 is more than the maximum possible weight\" can mean: The comment explains a False result: an overweight list does not fly. This contradicts the stated result will_it_fly([3, 2, 3], 1) \u279e True (R-EX-2). / The comment is consistent with the stated result True, i.e. the returned value is True when q does not fly (inverted output).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"\u279e False\" can mean: As written: the call returns False. This contradicts the rule (R-RET-1: [3, 2, 3] is a palindrome and 3+2+3 = 8 is at most 9, so the call returns True) and the example's own comment (R-WHY-3: less than the maximum weight, and balanced). / The expected value is an error: the call returns True, as the rule and the comment imply.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-WHY-3"
+   ],
+   "calls": [],
+   "question": "\"and it's balanced\" can mean: The comment explains a True result: a balanced list within the weight limit flies. This contradicts the stated result will_it_fly([3, 2, 3], 9) \u279e False (R-EX-3). / The comment is consistent with the stated result False, i.e. the returned value is False when q flies (inverted output).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"\u279e False\" can mean: As written: the call returns False. This contradicts the rule (R-RET-1: [3] is a palindrome and 3 is at most 5, so the call returns True) and the example's own comment (R-WHY-4: less than the maximum weight, and balanced). / The expected value is an error: the call returns True, as the rule and the comment imply.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-WHY-4"
+   ],
+   "calls": [],
+   "question": "\"and it's balanced\" can mean: The comment explains a True result: a balanced list within the weight limit flies. This contradicts the stated result will_it_fly([3], 5) \u279e False (R-EX-4). / The comment is consistent with the stated result False, i.e. the returned value is False when q flies (inverted output).. Which is meant?"
+  }
+ ],
+ "limits": []
+}

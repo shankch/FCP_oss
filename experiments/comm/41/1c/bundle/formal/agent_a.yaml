@@ -1,0 +1,95 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+defs:
+  # R-CAR-1/R-CAR-2: n cars each way; R-CAR-3 (reading 1): the sets approach;
+  # R-CAR-4, R-COL-1, R-COL-2: same speed, cars pass through, so every
+  # (left-to-right, right-to-left) pair meets exactly once.
+  all_pairs: "n * n"
+properties:
+  - id: RA-OUT-1-RET
+    req: R-OUT-1
+    expr: "outcome == 0"
+    note: >-
+      "This function outputs the number of such collisions": for every n the
+      call ends by returning an integer (outcome 0), never by raising,
+      hanging, or returning a non-integer. Reading taken for "outputs": the
+      count is the return value, not printed text. n is at most 1,023, so the
+      count n*n is at most 1,046,529 and always fits the 20-bit collisions
+      signal; outcome 0 is therefore always achievable.
+  - id: RA-OUT-1-VAL
+    req: R-OUT-1
+    expr: "collisions == all_pairs"
+    note: >-
+      The returned value equals the number of collisions, n*n. Readings
+      taken: the docstring governs over the name is_prime (the name is a
+      misnomer, R-FN-2 reading 1); the two sets approach each other
+      (R-CAR-3 reading 1); a collision is counted per (left-to-right car,
+      right-to-left car) pair that meets, and since cars pass through each
+      other (R-COL-2) every one of the n*n pairs meets exactly once. The
+      text never states the relative order of the two sets explicitly, so
+      reading 1 of R-CAR-3 is an interpretation of "very far from each
+      other" in the context of a count of collisions.
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional: the deliverable is a complete body for the given
+      function. The trace observes only calls of is_prime(n); that every call
+      returns an integer is stated by RA-OUT-1-RET, but the form of the
+      deliverable itself is not observable.
+  - req: R-FN-2
+    reason: >-
+      Definition of the function name and its single integer argument; the
+      adapter (design.yaml function section) fixes this as the call
+      is_prime(n) driving input n. The name's apparent meaning (primality) is
+      not formalized: reading 1 is taken, the name is a misnomer and the
+      behaviour is the collision count of R-OUT-1.
+    covered_by: [RA-OUT-1-RET, RA-OUT-1-VAL]
+  - req: R-ROAD-1
+    reason: >-
+      Definition of the scenario (a single straight infinite road); it has no
+      signal of its own and only determines the count n*n used in R-OUT-1.
+    covered_by: [RA-OUT-1-VAL]
+  - req: R-CAR-1
+    reason: >-
+      Definition: the argument n is the number of left-to-right cars; used as
+      the factor n in the count n*n.
+    covered_by: [RA-OUT-1-VAL]
+  - req: R-CAR-2
+    reason: >-
+      Definition: a disjoint second set of n right-to-left cars; used as the
+      second factor n in the count n*n.
+    covered_by: [RA-OUT-1-VAL]
+  - req: R-CAR-3
+    reason: >-
+      Definition of the initial configuration; under reading 1 (every
+      left-to-right car starts left of every right-to-left car) every
+      opposite pair eventually meets, which gives the count n*n.
+    covered_by: [RA-OUT-1-VAL]
+  - req: R-CAR-4
+    reason: >-
+      Definition: all cars have the same speed, so no car overtakes another
+      in its own set and every opposite pair meets; folded into the count n*n.
+    covered_by: [RA-OUT-1-VAL]
+  - req: R-COL-1
+    reason: >-
+      Definition of a collision (a left-to-right car meeting a right-to-left
+      car); it determines what RA-OUT-1-VAL counts.
+    covered_by: [RA-OUT-1-VAL]
+  - req: R-COL-2
+    reason: >-
+      Definition: cars pass through each other unchanged, so every opposite
+      pair meets exactly once; folded into the count n*n.
+    covered_by: [RA-OUT-1-VAL]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md: "part of every formalization set
+      and need not be restated"); realized by the design's frame item F-ZERO,
+      which is added to every set.
+    covered_by: [F-ZERO]
+decisions:
+  - {req: R-FN-2, phrase: "is_prime", reading: 1}
+  - {req: R-CAR-3, phrase: "very far from each other", reading: 1}
+  - {req: R-OUT-1, phrase: "This function outputs the number of such collisions", reading: 1}
+  - {req: R-OUT-1, phrase: "outputs", reading: 1}
+  - {req: R-OUT-1, phrase: "the number of such collisions", reading: 1}

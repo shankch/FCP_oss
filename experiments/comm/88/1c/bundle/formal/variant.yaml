@@ -1,0 +1,207 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-DEF-1, index reading: the first index (0) plus the last index (len - 1);
+  # an empty array counts its missing indices as 0, a one-element array counts
+  # its single index 0 once. The parity depends only on the length.
+  psum: 'len(array) == 0 ? 0 : 0 + (len(array) - 1)'
+  # strictly increasing / strictly decreasing returned list
+  asc_strict: 'all(i < len(result) - 1: result[i] < result[i + 1])'
+  desc_strict: 'all(i < len(result) - 1: result[i] > result[i + 1])'
+  # same length and same multiset of values as the argument
+  same_elems: 'len(result) == len(array) && all(i < len(array): count(j < len(array): array[j] == array[i]) == count(j < len(result): result[j] == array[i]))'
+
+assumptions:
+  - id: RV-IN-1
+    req: R-IN-1
+    expr: 'all(i < len(array): array[i] >= 0)'
+    note: >-
+      Every element of the argument is a non-negative integer. The list adapter
+      already restricts elements to integers 0 to 255 (calls with negative or
+      larger elements are not part of the trace), so this assumption only makes
+      the obligation explicit and excludes nothing further.
+
+properties:
+  - id: RV-RES-1
+    req: R-RES-1
+    expr: 'outcome == 0'
+    note: >-
+      Every call returns a list of at most 8 numbers 0 to 255: no exception,
+      no hang, no value of another kind. Note that under the strict order
+      readings taken for R-ORD-1 and R-ORD-2 (variant readings, see
+      RV-ORD-1/RV-ORD-2) no list satisfies RV-RES-2 together with the order
+      rule when the argument of length 2 or more has duplicates, so this
+      property conflicts with them on such calls.
+
+  - id: RV-RES-2
+    req: R-RES-2
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: same_elems
+    note: >-
+      Whenever a list is returned, it has the argument's length and every value
+      as many times as the argument has it. Variant reading taken, as
+      instructed, for "a copy": only the contents of the returned list matter;
+      returning the argument object itself is acceptable when it already holds
+      the right contents (object identity is not visible in the trace anyway).
+      Variant reading taken, as instructed, for "a copy of the given array after
+      sorting": the given array itself is sorted and then a copy of it is
+      returned, which contradicts "don't change the given array" (R-MUT-1).
+      The argument after the call has no signal in the trace, so the in-place
+      sort is not observable; `array` is the argument as passed, and the
+      returned copy of the sorted argument is a permutation of it, which is
+      what this property states.
+
+  - id: RV-ORD-1
+    req: R-ORD-1
+    pattern: implies
+    args:
+      trigger: 'psum % 2 == 0'
+      cond: asc_strict
+    note: >-
+      Variant reading taken, as instructed, for "in ascending order if the
+      sum( first index value, last index value) is odd": the example R-EX-3 is
+      right, an odd sum gives descending order, and the rule has odd and even
+      swapped; so the ascending rule applies when the sum is EVEN. Variant
+      reading taken, as instructed, for "ascending order": strictly increasing,
+      each element less than the next, which is impossible while keeping every
+      element (RV-RES-2) when the argument has duplicates. Variant reading
+      taken, as instructed, for "you will sort the given array": the argument
+      itself is sorted in place, contradicting "don't change the given array"
+      (R-MUT-1); the argument after the call has no signal in the trace, so
+      only the returned copy is checked. Sum per R-DEF-1 under the variant
+      readings taken, as instructed: "first index value" means the indices
+      themselves, 0 + (len(array) - 1), so the parity depends only on the
+      length (even sum = odd length); "sum( first index value, last index
+      value)" counts the single element of a one-element array once, read
+      here as its index 0 counted once, so the sum is 0; "last index value"
+      for an empty array counts the missing values as 0, so the sum is 0
+      (even). That reading says the descending rule applies to the empty
+      array, but with odd and even swapped an even sum selects this ascending
+      rule; for a list of 0 or 1 elements both orders hold, so this has no
+      effect on a correct-length result.
+
+  - id: RV-ORD-2
+    req: R-ORD-2
+    pattern: implies
+    args:
+      trigger: 'psum % 2 == 1'
+      cond: desc_strict
+    note: >-
+      Variant reading taken, as instructed, for "in descending order if the
+      sum( first index value, last index value) is even": the example R-EX-4
+      is right, an even sum gives ascending order, and the rule has odd and
+      even swapped; so the descending rule applies when the sum is ODD.
+      Variant reading taken, as instructed, for "descending order": strictly
+      decreasing, each element greater than the next, which is impossible
+      while keeping every element (RV-RES-2) when the argument has duplicates.
+      Variant reading taken, as instructed, for "sort it": the argument itself
+      is sorted in place, contradicting "don't change the given array"
+      (R-MUT-1); the argument after the call has no signal in the trace, so
+      only the returned copy is checked. Sum per R-DEF-1 under the variant
+      readings taken, as instructed: "first index value" means the indices
+      themselves, 0 + (len(array) - 1), so an odd sum means an even length of
+      at least 2; "sum( first index value, last index value)" counts the
+      single element of a one-element array once (index 0, sum 0, even);
+      "last index value" makes the empty array's sum 0 (even), so neither of
+      those falls under this rule.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'array == [] && outcome == 0 && result == []'
+    note: >-
+      sort_array([]) returns []. outcome == 0 distinguishes a returned empty
+      list from a failed call. Under the variant reading taken, as instructed,
+      for "last index value" of R-DEF-1 the empty array's sum is 0 (even); with
+      the rules swapped (R-ORD-1/R-ORD-2 variant readings) the ascending rule
+      applies, which [] satisfies.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'array == [5] && outcome == 0 && result == [5]'
+    note: >-
+      sort_array([5]) returns [5]. Under the variant readings taken, as
+      instructed, for R-DEF-1 ("first index value": indices; "sum( first index
+      value, last index value)": the single element counted once) the sum is 0
+      (even) and the ascending rule applies (rules swapped per the R-ORD-1 and
+      R-ORD-2 variant readings), which [5] satisfies.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'array == [2, 4, 3, 0, 1, 5] && outcome == 0 && result == [5, 4, 3, 2, 1, 0]'
+    note: >-
+      sort_array([2, 4, 3, 0, 1, 5]) returns [5, 4, 3, 2, 1, 0]. The example is
+      taken as right, consistent with the variant reading taken, as
+      instructed, for R-ORD-1 ("an odd sum gives descending order, and the
+      rule has odd and even swapped"): under the variant index reading of
+      R-DEF-1 the sum is 0 + 5 = 5 (odd), so RV-ORD-2 requires strictly
+      descending order, which this result has (no duplicates).
+
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'array == [2, 4, 3, 0, 1, 5, 6] && outcome == 0 && result == [0, 1, 2, 3, 4, 5, 6]'
+    note: >-
+      sort_array([2, 4, 3, 0, 1, 5, 6]) returns [0, 1, 2, 3, 4, 5, 6]. The
+      example is taken as right, consistent with the variant reading taken,
+      as instructed, for R-ORD-2 ("an even sum gives ascending order, and the
+      rule has odd and even swapped"): under the variant index reading of
+      R-DEF-1 the sum is 0 + 6 = 6 (even), so RV-ORD-1 requires strictly
+      ascending order, which this result has (no duplicates).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Interface fact (name and parameter list of the function), not a property
+      of a trace: the adapter calls sort_array(array) as declared in the
+      function section of design.yaml. A missing or differently shaped
+      function makes every call fail, which RV-RES-1 rejects.
+    covered_by: [RV-RES-1]
+  - req: R-DEF-1
+    reason: >-
+      A definition, realized by the def psum and used by RV-ORD-1 and RV-ORD-2.
+      Variant readings taken, as instructed: "first index value" means the
+      indices themselves, 0 + (len(array) - 1), so the parity depends only on
+      the length; "sum( first index value, last index value)" counts the
+      single element of a one-element array once (read as its index 0 counted
+      once, sum 0, keeping the parity a function of the length only as the
+      first reading states; the parenthetical array[0] of that reading would
+      make it depend on the value, but a one-element list is in every order,
+      so the choice has no effect on a correct-length result); "last index
+      value" counts the missing values of an empty array as 0, sum 0 (even).
+    covered_by: [RV-ORD-1, RV-ORD-2]
+  - req: R-MUT-1
+    reason: >-
+      Not observable: the trace has no signal for the contents of the argument
+      after the call (frame.md, Inputs). Moreover, under the variant reading
+      taken, as instructed, for "don't change the given array", the statements
+      "you will sort the given array", "sort it" and "return a copy of the
+      given array after sorting" win: the argument is sorted in place and then
+      copied, contradicting this note, so the note imposes no obligation. The
+      observable part (the returned copy is the sorted argument) is stated by
+      RV-RES-2, RV-ORD-1 and RV-ORD-2.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the list adapter, already part of every formalization set
+      as frame item F-EMPTY (outcome != 0 -> len(result) == 0); frame.md says
+      it need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-RES-2, phrase: 'a copy', reading: 2}
+  - {req: R-RES-2, phrase: 'a copy of the given array after sorting', reading: 2}
+  - {req: R-DEF-1, phrase: 'first index value', reading: 2}
+  - {req: R-DEF-1, phrase: 'sum( first index value, last index value)', reading: 2}
+  - {req: R-DEF-1, phrase: 'last index value', reading: 2}
+  - {req: R-ORD-1, phrase: 'ascending order', reading: 2}
+  - {req: R-ORD-1, phrase: 'you will sort the given array', reading: 2}
+  - {req: R-ORD-1, phrase: 'in ascending order if the sum( first index value, last index value) is odd', reading: 2}
+  - {req: R-ORD-2, phrase: 'descending order', reading: 2}
+  - {req: R-ORD-2, phrase: 'sort it', reading: 2}
+  - {req: R-ORD-2, phrase: 'in descending order if the sum( first index value, last index value) is even', reading: 2}
+  - {req: R-MUT-1, phrase: "don't change the given array", reading: 2}
+  - {req: R-EX-3, phrase: '[5, 4, 3, 2, 1, 0]', reading: 1}
+  - {req: R-EX-4, phrase: '[0, 1, 2, 3, 4, 5, 6]', reading: 1}

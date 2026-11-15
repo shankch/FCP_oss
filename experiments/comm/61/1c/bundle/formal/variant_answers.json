@@ -1,0 +1,79 @@
+[
+ {
+  "req": "R-FN-2",
+  "phrase": "Complete this function",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only the behaviour the docstring and examples state is required; what the function returns (or whether it returns at all) where the docstring is silent is unconstrained."
+ },
+ {
+  "req": "R-IN-1",
+  "phrase": "\"(\" and \")\"",
+  "taken": 1,
+  "variant": 2,
+  "text": "Other characters may occur and are to be ignored (skipped) when checking the bracketing."
+ },
+ {
+  "req": "R-IN-1",
+  "phrase": "a string of",
+  "taken": 1,
+  "variant": 2,
+  "text": "The prompt does not address the empty string; its result is unconstrained."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "return True if",
+  "taken": 1,
+  "variant": 2,
+  "text": "Biconditional: True is returned exactly when every opening bracket has a corresponding closing bracket, and False otherwise."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "a corresponding closing bracket",
+  "taken": 1,
+  "variant": 2,
+  "text": "Counting: the number of \")\" is at least the number of \"(\", wherever they are in the string (a \")\" before a \"(\" may correspond to it)."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "every opening bracket",
+  "taken": 1,
+  "variant": 2,
+  "text": "The whole string must be correctly bracketed, as the name correct_bracketing suggests: a \")\" with no earlier unmatched \"(\" also makes the bracketing incorrect."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "return True if every opening bracket has a corresponding closing bracket",
+  "taken": 1,
+  "variant": 2,
+  "text": "The examples are authoritative: all four of them are the negation of standard bracket matching, so the function returns True exactly when the string is NOT correctly bracketed and this sentence (and the name) is inverted."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "correct_bracketing(\"(\")",
+  "taken": 1,
+  "variant": 2,
+  "text": "R-RET-1 read as a biconditional holds and this example is wrong: correct_bracketing(\"(\") returns False."
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "correct_bracketing(\"()\")",
+  "taken": 1,
+  "variant": 2,
+  "text": "R-RET-1 holds and this example is wrong: correct_bracketing(\"()\") returns True."
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "correct_bracketing(\"(()())\")",
+  "taken": 1,
+  "variant": 2,
+  "text": "R-RET-1 holds and this example is wrong: correct_bracketing(\"(()())\") returns True."
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "correct_bracketing(\")(()\")",
+  "taken": 1,
+  "variant": 2,
+  "text": "R-RET-1 read as a biconditional with nested matching (or whole-string correctness) holds and this example is wrong: correct_bracketing(\")(()\") returns False."
+ }
+]

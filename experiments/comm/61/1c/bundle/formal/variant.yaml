@@ -1,0 +1,164 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-IN-1 reading 2: only "(" and ")" are counted, every other character is skipped.
+  nonempty: 'len(brackets) > 0'
+  n_open: 'count(i < len(brackets): brackets[i] == "(")'
+  n_close: 'count(i < len(brackets): brackets[i] == ")")'
+  # R-RET-1 "a corresponding closing bracket", reading 2 (counting).
+  opens_covered: 'n_close >= n_open'
+  # R-RET-1 "every opening bracket", reading 2 (whole string): every ")" needs an earlier unmatched "(".
+  no_stray_close: 'all(k < len(brackets): (brackets[k] == ")") -> (count(i < k: brackets[i] == "(") > count(i < k: brackets[i] == ")")))'
+  well_bracketed: 'opens_covered && no_stray_close'
+
+properties:
+  - id: RV-RET1-TRUE
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: 'nonempty && !well_bracketed'
+      cond: 'outcome == 0 && result'
+    note: >-
+      Imposed readings (not the most natural ones), all reading 2 of R-RET-1:
+      "return True if" is a biconditional; "a corresponding closing bracket" is counting
+      (#")" >= #"(" anywhere in the string); "every opening bracket" means the whole string
+      must be correctly bracketed (a ")" with no earlier unmatched "(" also makes it incorrect);
+      and the whole sentence is inverted because the examples are authoritative, so True is
+      returned exactly when the string is NOT correctly bracketed. Counting together with the
+      whole-string condition amounts to standard balanced brackets. R-IN-1 imposed readings:
+      characters other than "(" and ")" are skipped (the defs count only brackets), and the
+      empty string is unconstrained, so it is excluded from the trigger. A non-empty string with
+      no brackets (e.g. "a") is governed here, not by the empty-string reading.
+      This direction contradicts the imposed readings of R-EX-1 and R-EX-4 (see RV-EX1, RV-EX4).
+  - id: RV-RET1-FALSE
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: 'nonempty && well_bracketed'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      The False half of the biconditional (R-RET-1 "return True if", imposed reading 2) under the
+      inverted reading of the sentence (imposed reading 2 of the whole sentence): a correctly
+      bracketed string returns False. "Correctly bracketed" uses the imposed counting reading of
+      "a corresponding closing bracket" and the imposed whole-string reading of "every opening
+      bracket". Other characters are skipped and the empty string is excluded (R-IN-1, imposed
+      readings 2). This direction contradicts the imposed readings of R-EX-2 and R-EX-3
+      (see RV-EX2, RV-EX3).
+  - id: RV-EX1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'brackets == "("'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      Imposed reading 2 of R-EX-1: R-RET-1 as a biconditional holds and the doctest is wrong, so
+      correct_bracketing("(") returns False (the doctest prints True). Formalized as a property,
+      not a scenario, because the reading fixes the value of a deterministic call. This
+      contradicts RV-RET1-TRUE, which under the imposed inverted reading of R-RET-1 requires True
+      for "(": the imposed readings are mutually inconsistent on this call.
+  - id: RV-EX2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'brackets == "()"'
+      cond: 'outcome == 0 && result'
+    note: >-
+      Imposed reading 2 of R-EX-2: R-RET-1 holds and the doctest is wrong, so
+      correct_bracketing("()") returns True (the doctest prints False). Formalized as a property
+      because the reading fixes the value of the call. This contradicts RV-RET1-FALSE, which under
+      the imposed inverted reading of R-RET-1 requires False for "()": the imposed readings are
+      mutually inconsistent on this call.
+  - id: RV-EX3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'brackets == "(()())"'
+      cond: 'outcome == 0 && result'
+    note: >-
+      Imposed reading 2 of R-EX-3: R-RET-1 holds and the doctest is wrong, so
+      correct_bracketing("(()())") returns True (the doctest prints False). Formalized as a
+      property because the reading fixes the value of the call. This contradicts RV-RET1-FALSE,
+      which under the imposed inverted reading of R-RET-1 requires False for "(()())": the imposed
+      readings are mutually inconsistent on this call.
+  - id: RV-EX4
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: 'brackets == ")(()"'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      Imposed reading 2 of R-EX-4: R-RET-1 read as a biconditional with nested matching (or
+      whole-string correctness) holds and the doctest is wrong, so correct_bracketing(")(()")
+      returns False (the doctest prints True). Formalized as a property because the reading fixes
+      the value of the call. This contradicts RV-RET1-TRUE, which under the imposed inverted
+      reading of R-RET-1 requires True for ")(()" (its leading ")" is unmatched): the imposed
+      readings are mutually inconsistent on this call.
+
+scenarios:
+  - id: RV-IN1-S-OTHER
+    req: R-IN-1
+    cover: 'nonempty && any(i < len(brackets): brackets[i] != "(" && brackets[i] != ")") && outcome == 0'
+    note: >-
+      Imposed reading 2 of R-IN-1 '"(" and ")"': characters other than "(" and ")" may occur, so
+      there is no assumption restricting the alphabet, and a call containing such a character must
+      be able to return a bool. That they are skipped in the bracket check is realized by the defs
+      n_open, n_close and no_stray_close used in RV-RET1-TRUE and RV-RET1-FALSE, which count only
+      brackets.
+
+dont_cares:
+  - id: RV-IN1-D-EMPTY-RESULT
+    req: R-IN-1
+    signal: result
+    when: 'len(brackets) == 0'
+    note: >-
+      Imposed reading 2 of R-IN-1 "a string of": the prompt does not address the empty string and
+      its result is unconstrained. Read literally as the string of length 0 only; a non-empty
+      string without brackets is still governed by R-RET-1.
+  - id: RV-IN1-D-EMPTY-OUTCOME
+    req: R-IN-1
+    signal: outcome
+    when: 'len(brackets) == 0'
+    note: >-
+      Imposed reading 2 of R-IN-1 "a string of": the empty string's result is unconstrained,
+      including how the call ends.
+  - id: RV-FN2-D-OUTCOME
+    req: R-FN-2
+    signal: outcome
+    when: 'len(brackets) == 0'
+    note: >-
+      Imposed reading 2 of R-FN-2 "Complete this function": only behaviour the docstring and
+      examples state is required; whether the call returns at all where the docstring is silent is
+      unconstrained. Under the readings taken for R-IN-1 and R-RET-1 the docstring is silent only on
+      the empty string. Everywhere else the R-RET-1 and R-EX properties already require a returned
+      bool (outcome 0), so R-FN-2 adds no obligation of its own.
+  - id: RV-FN2-D-RESULT
+    req: R-FN-2
+    signal: result
+    when: 'len(brackets) == 0'
+    note: >-
+      Imposed reading 2 of R-FN-2 "Complete this function": what the function returns where the
+      docstring is silent (the empty string) is unconstrained.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Interface definition (function name correct_bracketing, one str argument brackets). It is
+      encoded by the function section of design.yaml and is not a property of the trace.
+  - req: R-FR-1
+    reason: Frame rule of the function adapter; included in every set by construction as F-ZERO.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-2, phrase: 'Complete this function', reading: 2}
+  - {req: R-IN-1, phrase: '"(" and ")"', reading: 2}
+  - {req: R-IN-1, phrase: 'a string of', reading: 2}
+  - {req: R-RET-1, phrase: 'return True if', reading: 2}
+  - {req: R-RET-1, phrase: 'a corresponding closing bracket', reading: 2}
+  - {req: R-RET-1, phrase: 'every opening bracket', reading: 2}
+  - {req: R-RET-1, phrase: 'return True if every opening bracket has a corresponding closing bracket', reading: 2}
+  - {req: R-EX-1, phrase: 'correct_bracketing("(")', reading: 2}
+  - {req: R-EX-2, phrase: 'correct_bracketing("()")', reading: 2}
+  - {req: R-EX-3, phrase: 'correct_bracketing("(()())")', reading: 2}
+  - {req: R-EX-4, phrase: 'correct_bracketing(")(()")', reading: 2}

@@ -1,0 +1,32 @@
+design: hub2
+bugs:
+- id: B1
+  file: bugs/B1.v
+  desc: responses routed to the wrong port
+  class: routing
+  extra_files:
+  - rtl/apb_bridge.v
+- id: B2
+  file: bugs/B2.v
+  desc: owner of the transaction recorded inverted
+  class: routing
+  extra_files:
+  - rtl/apb_bridge.v
+- id: B3
+  file: bugs/B3.v
+  desc: port 1 sees ready while port 0 is selected (its command is silently dropped)
+  class: flow-control
+  extra_files:
+  - rtl/apb_bridge.v
+- id: B4
+  file: bugs/B4.v
+  desc: 'selector priority never rotates: port 1 starves'
+  class: arbitration
+  extra_files:
+  - rtl/apb_bridge.v
+- id: B5
+  file: bugs/B5.v
+  desc: response handshake always uses port 0 ready
+  class: routing
+  extra_files:
+  - rtl/apb_bridge.v

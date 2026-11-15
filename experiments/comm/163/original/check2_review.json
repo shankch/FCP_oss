@@ -1,0 +1,326 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 122,
+    "checked": 122,
+    "seconds": 1.5
+   },
+   "open": {
+    "open": {},
+    "checked": 77
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 237,
+    "checked": 237,
+    "seconds": 2.97
+   },
+   "open": {
+    "open": {},
+    "checked": 151,
+    "left_out": [
+     "RB-OUT-2",
+     "RB-OUT-3"
+    ],
+    "rejected": 8
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-ENV-1",
+    "req": "R-ENV-1",
+    "says": "every call meets `a >= 1 && b >= 1`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-1",
+    "req": "R-ENV-1",
+    "says": "every call meets `valid`",
+    "where": {
+     "valid": "a >= 1 && b >= 1"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-1-D1",
+    "req": "R-ENV-1",
+    "says": "`outcome` is free when `!valid`",
+    "where": {
+     "valid": "a >= 1 && b >= 1"
+    }
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-ENV-1-D2",
+    "req": "R-ENV-1",
+    "says": "`result` is free when `!valid`",
+    "where": {
+     "valid": "a >= 1 && b >= 1"
+    }
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IF-2",
+   "phrase": "generate_integers",
+   "taken": 1,
+   "variant": 2,
+   "text": "The name states the behaviour: the function generates the even integers between a and b of any size. This conflicts with 'return the even digits between a and b' and with the example generate_integers(10, 14) => []."
+  },
+  {
+   "req": "R-ENV-1",
+   "phrase": "positive integers",
+   "taken": 1,
+   "variant": 2,
+   "text": "a >= 0 and b >= 0 (non-negative); a call with 0 must also follow the rule, so whether 0 counts as an even digit matters."
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "return the even digits",
+   "taken": 1,
+   "variant": 2,
+   "text": "Return the digits in another form: as digit characters (strings such as '2'), or as another sequence type such as a tuple or a generator."
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "even digits",
+   "taken": 1,
+   "variant": 2,
+   "text": "The even single-digit numbers 2, 4, 6 and 8 only (0 not counted)."
+  },
+  {
+   "req": "R-OUT-2",
+   "phrase": "between a and b",
+   "taken": 1,
+   "variant": 2,
+   "text": "The integers strictly between min(a, b) and max(a, b), ends excluded. Contradicts the example generate_integers(2, 8) => [2, 4, 6, 8]."
+  },
+  {
+   "req": "R-OUT-3",
+   "phrase": "even digits",
+   "taken": 1,
+   "variant": 2,
+   "text": "The even single-digit numbers 2, 4, 6 and 8 only (0 not counted)."
+  },
+  {
+   "req": "R-OUT-3",
+   "phrase": "between a and b",
+   "taken": 1,
+   "variant": 2,
+   "text": "The integers strictly between min(a, b) and max(a, b), ends excluded. Contradicts the example generate_integers(2, 8) => [2, 4, 6, 8]."
+  },
+  {
+   "req": "R-OUT-4",
+   "phrase": "ascending order",
+   "taken": 1,
+   "variant": 2,
+   "text": "Non-decreasing: each element is at most the next, so a value may repeat (matters only if the same digit can be found more than once)."
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "generate_integers(2, 8) => [2, 4, 6, 8]",
+   "taken": 1,
+   "variant": 2,
+   "text": "Illustrative only: it conflicts with 'between a and b' read as excluding the ends (which gives [4, 6]), and the statement prevails."
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "generate_integers(8, 2) => [2, 4, 6, 8]",
+   "taken": 1,
+   "variant": 2,
+   "text": "Illustrative only: it conflicts with 'between a and b' read as from a up to b (which gives [] when a > b), and the statement prevails."
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "generate_integers(10, 14) => []",
+   "taken": 1,
+   "variant": 2,
+   "text": "Illustrative only: it conflicts with 'even digits' read as even integers (as the name generate_integers suggests, giving [10, 12, 14]) or as the even digits written in 10 to 14 (giving 0, 2 and 4), and the statement prevails."
+  }
+ ],
+ "depends": {
+  "R-OUT-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "generate_integers(0, 0) -> raised another exception or did not finish"
+   ]
+  },
+  "R-OUT-2": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "generate_integers(11, 0) -> [2, 4, 6, 8, 8, 8, 8, 8, 8, 10]"
+   ]
+  },
+  "R-OUT-3": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "generate_integers(1, 8) -> [2, 4, 6]"
+   ]
+  },
+  "R-OUT-4": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "generate_integers(8, 0) -> [2, 4, 2, 6, 2, 2, 2, 2, 2, 2]"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-OUT-1",
+    "R-OUT-2",
+    "R-OUT-3",
+    "R-OUT-4"
+   ],
+   "calls": [
+    "generate_integers(0, 0) -> raised another exception or did not finish"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"return the even digits\" can mean: Return a Python list of int values, as the examples show. / Return the digits in another form: as digit characters (strings such as '2'), or as another sequence type such as a tuple or a generator.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2",
+    "R-OUT-3"
+   ],
+   "calls": [],
+   "question": "\"even digits\" can mean: The even single-digit numbers 0, 2, 4, 6 and 8 (0 counts as an even digit). / The even single-digit numbers 2, 4, 6 and 8 only (0 not counted). / Every even integer, of any size (as the function name generate_integers suggests). Contradicts the example generate_integers(10, 14) => [], which would then be [10, 12, 14]. / The even digits that occur in the decimal writing of the integers between a and b. Contradicts the example generate_integers(10, 14) => [], which would then contain 0, 2 and 4.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-2",
+    "R-OUT-3"
+   ],
+   "calls": [],
+   "question": "\"between a and b\" can mean: The integers from min(a, b) to max(a, b), both ends included, whichever argument is larger (matches all three examples). / The integers strictly between min(a, b) and max(a, b), ends excluded. Contradicts the example generate_integers(2, 8) => [2, 4, 6, 8]. / The integers from a up to b only, none when a > b. Contradicts the example generate_integers(8, 2) => [2, 4, 6, 8].. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-4"
+   ],
+   "calls": [],
+   "question": "\"ascending order\" can mean: Strictly increasing: each element is smaller than the next, so no value is repeated. / Non-decreasing: each element is at most the next, so a value may repeat (matters only if the same digit can be found more than once).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"generate_integers(2, 8) => [2, 4, 6, 8]\" can mean: Binding: the call (2, 8) returns [2, 4, 6, 8], so a and b themselves count as lying between a and b. / Illustrative only: it conflicts with 'between a and b' read as excluding the ends (which gives [4, 6]), and the statement prevails.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"generate_integers(8, 2) => [2, 4, 6, 8]\" can mean: Binding: the call (8, 2) returns [2, 4, 6, 8], so 'between a and b' does not depend on which argument is larger. / Illustrative only: it conflicts with 'between a and b' read as from a up to b (which gives [] when a > b), and the statement prevails.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"generate_integers(10, 14) => []\" can mean: Binding: the call (10, 14) returns [], so 'even digits' means even single-digit numbers and none lies between 10 and 14. / Illustrative only: it conflicts with 'even digits' read as even integers (as the name generate_integers suggests, giving [10, 12, 14]) or as the even digits written in 10 to 14 (giving 0, 2 and 4), and the statement prevails.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the conflicts and open choices of agent_b: these searches leave out RB-OUT-2, RB-OUT-3 (rules stated for every value of a variable); 8 calls with two answers that break them are not reported"
+ ]
+}

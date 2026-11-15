@@ -1,0 +1,149 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md,
+# "Calls"), so the model is combinational: the expected answer of each call is
+# computed from the arguments a (the first word) and b (the second word), and
+# every output is checked against it.
+defs:
+  # R-DEF-2: b itself occurs in a as a run of adjacent characters,
+  # b == a[i:i+len(b)] for some 0 <= i <= len(a) - len(b). The quantifier bound
+  # keeps the window inside a, so a[i + j] never reads past the end of a (code 0
+  # is a legal character, so the zero padding must not be compared).
+  sub_b: 'any(i < len(a) - len(b) + 1: all(j < len(b): a[i + j] == b[j]))'
+  # R-DEF-1 + R-DEF-2: some rotation b[k:] + b[:k], 0 <= k < len(b), occurs in a.
+  # Character j of the rotation k is b[(k + j) mod len(b)]; as k, j < len(b) one
+  # subtraction of len(b) is enough.
+  sub_rot: 'any(k < len(b): any(i < len(a) - len(b) + 1: all(j < len(b): a[i + j] == b[k + j < len(b) ? k + j : k + j - len(b)])))'
+  # R-RES-1: "the second word or any of its rotations is a substring in the first word".
+  match: 'sub_b || sub_rot'
+
+properties:
+  - id: RB-RES-1
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'match', cond: 'outcome == 0 && result'}
+    note: >-
+      "return True" read as: the call returns (outcome 0) the value True (result 1).
+      R-DEF-1 lets k range over 0 <= k < len(b), so an empty b has no rotation;
+      the empty b is still covered by the "the second word ... is a substring"
+      clause (sub_b), and the empty string is a substring of every a, so the
+      result is True (reading 1 of "2 words" in R-IN-1). Substring is contiguous,
+      may be the whole of a, and compares character codes exactly (readings 1 and 1
+      of R-DEF-2).
+  - id: RB-RES-2
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: '!match', cond: 'outcome == 0 && !result'}
+    note: >-
+      The text literally states only when True is returned ("return True if").
+      Reading 1 (if and only if) is taken: the function returns a boolean, and the
+      three examples whose second word has no rotation in the first word
+      (lines 6, 8 and 10) all return False, so the text itself fixes the other
+      case to False. Under reading 2 this item would instead be a don't-care.
+  - id: RB-RES-3
+    req: R-RES-3
+    pattern: invariant
+    args: {cond: 'outcome == 0'}
+    note: >-
+      Every call returns True or False exactly (outcome 0): no exception, no
+      non-termination, and no value of another type (reading 1 of "return True").
+      No input is excluded, because R-IN-1 is read as admitting every string
+      (readings 1 and 1), so this holds for every call in the trace.
+
+  # Docstring examples. Each line "cycpattern_check(x, y) => v" states the value
+  # the function returns on that call, so it is formalized as a guarantee on the
+  # call (property) as well as a behaviour the requirements must allow (scenario,
+  # the kind given in requirements.yaml).
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'a == "abcd" && b == "abd"', cond: 'outcome == 0 && !result'}
+    note: The example states the returned value; formalized as a guarantee in addition to the scenario RB-EX-1-COV.
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'a == "hello" && b == "ell"', cond: 'outcome == 0 && result'}
+    note: The example states the returned value; formalized as a guarantee in addition to the scenario RB-EX-2-COV.
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'a == "whassup" && b == "psus"', cond: 'outcome == 0 && !result'}
+    note: The example states the returned value; formalized as a guarantee in addition to the scenario RB-EX-3-COV.
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'a == "abab" && b == "baa"', cond: 'outcome == 0 && result'}
+    note: The example states the returned value; formalized as a guarantee in addition to the scenario RB-EX-4-COV.
+  - id: RB-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 'a == "efef" && b == "eeff"', cond: 'outcome == 0 && !result'}
+    note: The example states the returned value; formalized as a guarantee in addition to the scenario RB-EX-5-COV.
+  - id: RB-EX-6
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 'a == "himenss" && b == "simen"', cond: 'outcome == 0 && result'}
+    note: The example states the returned value; formalized as a guarantee in addition to the scenario RB-EX-6-COV.
+
+scenarios:
+  # Each example must be consistent with the general rule and every other
+  # requirement; the last two conjuncts also check the model (match) against it.
+  - {id: RB-EX-1-COV, req: R-EX-1, cover: 'a == "abcd" && b == "abd" && !match && outcome == 0 && !result'}
+  - {id: RB-EX-2-COV, req: R-EX-2, cover: 'a == "hello" && b == "ell" && sub_b && outcome == 0 && result'}
+  - {id: RB-EX-3-COV, req: R-EX-3, cover: 'a == "whassup" && b == "psus" && !match && outcome == 0 && !result'}
+  - {id: RB-EX-4-COV, req: R-EX-4, cover: 'a == "abab" && b == "baa" && !sub_b && sub_rot && outcome == 0 && result'}
+  - {id: RB-EX-5-COV, req: R-EX-5, cover: 'a == "efef" && b == "eeff" && !match && outcome == 0 && !result'}
+  - {id: RB-EX-6-COV, req: R-EX-6, cover: 'a == "himenss" && b == "simen" && !sub_b && sub_rot && outcome == 0 && result'}
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is an implementation of the function. It is
+      not a property of the calls in the trace; the behaviour it must have is
+      formalized by the R-RES-* and R-EX-* items.
+  - req: R-IF-2
+    reason: >-
+      Definition: the first word is the argument a and the second word is the
+      argument b. Realized by the specification model (defs sub_b, sub_rot, match),
+      which searches for b and its rotations inside a.
+    covered_by: [RB-RES-1, RB-RES-2]
+  - req: R-IN-1
+    reason: >-
+      Taken with reading 1 of "words" (any string, whatever its characters) and
+      reading 1 of "2 words" (either argument may be empty), the only obligation
+      left is that both arguments are strings, which the interface encoding
+      already guarantees (frame.md, Inputs: every argument is a string of at most
+      12 characters). No assumption on a or b remains, so no call is outside the
+      contract. The text gives no definition of "word" (no character set, no
+      minimum length), and restricting the inputs would invent one.
+  - req: R-DEF-1
+    reason: >-
+      Definition: a rotation of b is b[k:] + b[:k] for 0 <= k < len(b) (cyclic
+      shifts only, reading 1 of "rotations"; the efef/eeff example rules out
+      permutations). Realized by the def sub_rot, used by the properties below.
+    covered_by: [RB-RES-1, RB-RES-2]
+  - req: R-DEF-2
+    reason: >-
+      Definition: s is a substring of a when s == a[i:i+len(s)] for some
+      0 <= i <= len(a) - len(s): contiguous, possibly the whole of a (reading 1 of
+      "a substring"), characters compared exactly by code, case-sensitive
+      (reading 1 of "substring in the first word"). Realized by the defs sub_b and
+      sub_rot, used by the properties below.
+    covered_by: [RB-RES-1, RB-RES-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter (frame.md, F-ZERO), part of every
+      formalization set by construction (design.yaml frame item F-ZERO); not
+      restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: words, reading: 1}
+  - {req: R-IN-1, phrase: 2 words, reading: 1}
+  - {req: R-DEF-1, phrase: rotations, reading: 1}
+  - {req: R-DEF-2, phrase: a substring, reading: 1}
+  - {req: R-DEF-2, phrase: substring in the first word, reading: 1}
+  - {req: R-RES-2, phrase: return True if, reading: 1}
+  - {req: R-RES-3, phrase: return True, reading: 1}

@@ -1,0 +1,33 @@
+fcp: '0.1'
+design: code_limit
+summary: A Python object treated as a chip with memory. A reset creates a RateLimiter; every later cycle is one call of allow(user, now) on it. The arguments are inputs, the returned boolean and the way the call ended are outputs, and the object's state stays inside the code. The prompt is the specification, and code written by AI models is checked by running it on sequences of calls.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt P-LIMIT-1: Fernwood Outfitters login rate limiter'}
+- {id: FRAME, path: frame.md, title: 'FCP object adapter, version 0.3'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: user, dir: in, width: 10, desc: 'user argument: the customer id'}
+  - {name: now, dir: in, width: 16, desc: 'now argument: the time in seconds'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a bool, 1 raised ValueError, 2 other exception or no answer, 3 returned anything else'}
+  - {name: allowed, dir: out, width: 1, desc: 'the returned value (outcome 0)'}
+environment: {initial_reset: true, reset_anytime: true, bmc_depth: 8, cover_depth: 8}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: 'outcome != 0 -> !allowed'}
+function:
+  name: allow
+  module: rate_limiter
+  class: RateLimiter
+  args:
+  - {name: user, signal: user, type: int}
+  - {name: now, signal: now, type: int}
+  returns: {signal: allowed, type: bool}
+  outcome: {signal: outcome, raises: [ValueError]}
+  scope:
+    sequences: 4000
+    length: [1, 14]
+    user: {values: [0, 1, 2, 1000, 1001]}
+    now: {steps: [0, 1, 2, 3, 8, 9, 10, 11, 12, 50, 57, 58, 59, 60, 61, 62]}

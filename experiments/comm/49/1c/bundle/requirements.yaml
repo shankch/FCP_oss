@@ -1,0 +1,139 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def modp(n: int, p: int):'
+  text: The function is named modp and takes two integer parameters, n first and p second.
+  kind: definition
+  lines:
+  - 4
+- id: R-IF-2
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The code supplies a body for the given modp function and keeps its name and parameters unchanged.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-RET-1
+  doc: SPEC
+  quote: Return 2^n modulo p
+  text: For every call, modp(n, p) returns the integer (2 to the power n) modulo p, which for p >= 1 is the remainder in 0 to p - 1.
+  kind: guarantee
+  ambiguity:
+  - phrase: 2^n
+    readings:
+    - 2 raised to the power n (Python 2 ** n)
+    - the Python expression 2 ^ n, i.e. bitwise XOR of 2 and n
+  - phrase: modulo p
+    readings:
+    - p = 0 is outside the intended domain; the result for p = 0 is unconstrained (don't care)
+    - for p = 0 the call fails with an exception, as Python's 2 ** n % 0 raises ZeroDivisionError
+    - for p = 0 the call returns some integer (for example 2 ** n unreduced, or 0)
+  - phrase: Return 2^n modulo p
+    readings:
+    - 'the formula governs: the result is (2 ** n) % p, which is always below p and therefore contradicts every docstring example (each shows the result p)'
+    - 'the docstring examples govern: modp(3, 5) is 5, modp(1101, 101) is 101, modp(0, 101) is 101, modp(3, 11) is 11 and modp(100, 101) is 101, so the formula does not describe the intended result (at
+      least on those calls)'
+  lines:
+  - 5
+- id: R-NUM-1
+  doc: SPEC
+  quote: (be aware of numerics)
+  text: 'The implementation takes care with numerics when computing 2^n modulo p for large n: the returned value is exact (no floating-point rounding or fixed-width overflow) and the computation stays practical
+    for large n.'
+  kind: non_functional
+  ambiguity:
+  - phrase: be aware of numerics
+    readings:
+    - 'exactness: the result must be the exact integer, not a float or a value damaged by floating-point rounding or overflow (observable in the returned value)'
+    - 'efficiency: avoid building the full 2^n for large n (e.g. use modular exponentiation); a performance hint with no effect on the returned value'
+    - a general caution only, adding no checkable obligation beyond R-RET-1
+  lines:
+  - 5
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> modp(3, 5) 5'
+  text: The call modp(3, 5) returns 5.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: '>>> modp(3, 5) 5'
+    readings:
+    - 'the example is authoritative: modp(3, 5) returns 5 (contradicts R-RET-1, since 2^3 modulo 5 is 3)'
+    - 'the example is erroneous and R-RET-1 governs: modp(3, 5) returns 3'
+  lines:
+  - 6
+  - 7
+- id: R-EX-2
+  doc: SPEC
+  quote: '>>> modp(1101, 101) 101'
+  text: The call modp(1101, 101) returns 101.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: '>>> modp(1101, 101) 101'
+    readings:
+    - 'the example is authoritative: modp(1101, 101) returns 101 (contradicts R-RET-1, since 2^1101 modulo 101 is 2)'
+    - 'the example is erroneous and R-RET-1 governs: modp(1101, 101) returns 2'
+  lines:
+  - 8
+  - 9
+- id: R-EX-3
+  doc: SPEC
+  quote: '>>> modp(0, 101) 101'
+  text: The call modp(0, 101) returns 101.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: '>>> modp(0, 101) 101'
+    readings:
+    - 'the example is authoritative: modp(0, 101) returns 101 (contradicts R-RET-1, since 2^0 modulo 101 is 1)'
+    - 'the example is erroneous and R-RET-1 governs: modp(0, 101) returns 1'
+  lines:
+  - 10
+  - 11
+- id: R-EX-4
+  doc: SPEC
+  quote: '>>> modp(3, 11) 11'
+  text: The call modp(3, 11) returns 11.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: '>>> modp(3, 11) 11'
+    readings:
+    - 'the example is authoritative: modp(3, 11) returns 11 (contradicts R-RET-1, since 2^3 modulo 11 is 8)'
+    - 'the example is erroneous and R-RET-1 governs: modp(3, 11) returns 8'
+  lines:
+  - 12
+  - 13
+- id: R-EX-5
+  doc: SPEC
+  quote: '>>> modp(100, 101) 101'
+  text: The call modp(100, 101) returns 101.
+  kind: scenario
+  depends:
+  - R-RET-1
+  ambiguity:
+  - phrase: '>>> modp(100, 101) 101'
+    readings:
+    - 'the example is authoritative: modp(100, 101) returns 101 (contradicts R-RET-1, since 2^100 modulo 101 is 1)'
+    - 'the example is erroneous and R-RET-1 governs: modp(100, 101) returns 1'
+  lines:
+  - 14
+  - 15
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is 0 unless `outcome` is 0.'
+  text: In every call, the result signal is 0 whenever outcome is not 0 (the call did not return an integer from 0 to 255).
+  kind: guarantee
+  lines:
+  - 39

@@ -1,0 +1,98 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # n can be written as the sum of exactly 4 even numbers (any even integers,
+  # repeats allowed): an even n is n + 0 + 0 + 0, a sum of evens is never odd.
+  sum4_even: "n % 2 == 0"
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    expr: "outcome == 0 || outcome == 2"
+    note: >-
+      "Terminates and returns normally" is a normal return: outcome 0 (returned
+      True/False) or 2 (returned another value). Outcome 1 (raised, or did not
+      finish) is excluded; code 3 is not produced by the adapter and is not a
+      normal return either. The quote's "every given number" also covers
+      negative and non-integer n (R-DOM-1, reading 3), which the adapter keeps
+      off the trace, so only n = 0..65535 is checked.
+
+  - id: RA-RET-2
+    req: R-RET-2
+    expr: "outcome != 2"
+    note: >-
+      Reading 1 of "Evaluate whether": the returned value is the bool True or
+      False, so returning anything else (1/0, None, ...; outcome 2) is
+      forbidden. This constrains only what is returned; that the call returns
+      at all is RA-RET-1.
+
+  - id: RA-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args: {trigger: "sum4_even", cond: "outcome == 0 && result"}
+    note: >-
+      The docstring is cut off after "the sum of exactly 4" and never names the
+      kind of summand. Only the function name supplies one ("sum_even"; reading
+      1 of is_equal_to_sum_even). The text does not say positive or distinct, so
+      the most literal reading is 4 even integers, zero and negatives allowed,
+      with repeats (reading 3 of "the sum of exactly 4", reading 1 of "exactly
+      4"). Under that reading n can be written so exactly when n is even. On the
+      trace (n >= 0) reading 2 (non-negative evens) gives the same condition.
+      The positive-even reading (1) would also need n >= 8, so it differs at
+      n = 0, 2, 4, 6. "Returns True" means a normal return of True (outcome 0,
+      result true).
+
+  - id: RA-SUM-2
+    req: R-SUM-2
+    pattern: implies
+    args: {trigger: "!sum4_even", cond: "outcome == 0 && !result"}
+    note: >-
+      Same reading as RA-SUM-1 (summands are even, from the function name; any
+      even integers with repeats allowed): n cannot be written as such a sum
+      exactly when n is odd. "Returns False" means a normal return of False
+      (outcome 0, result false), so a raise or a non-bool return on odd n
+      violates it. Under the positive-even reading, n = 0, 2, 4, 6 would also
+      have to return False; under this reading they return True (RA-SUM-1).
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: that the deliverable is a complete implementation of the
+      stub is a property of the submitted code, not of any call trace. Its
+      observable consequence, that every call returns normally with a bool, is
+      checked by RA-RET-1 and RA-RET-2.
+  - req: R-IF-2
+    reason: >-
+      Non-functional: the function's name and its single parameter n are fixed
+      by the adapter (design.yaml, function: is_equal_to_sum_even(n)), which is
+      how calls become cycles; they are not a property of the trace. The name's
+      meaning for the summands (reading 1: they are even) is used in RA-SUM-1
+      and RA-SUM-2.
+  - req: R-DOM-1
+    reason: >-
+      No environment obligation remains. Under the reading taken (reading 3:
+      the given number may be any number), the request does not restrict the
+      argument, so every value of the 16-bit input n (0..65535, the only
+      arguments the adapter puts on the trace) is a legal given number. Even
+      reading 1 (non-negative integer) holds on the trace by construction, so
+      any assumption would be a tautology. Negative and non-integer arguments,
+      which this reading also admits, are outside the trace (frame.md, Inputs).
+  - req: R-FR-1
+    covered_by: [F-ZERO]
+    reason: >-
+      Frame rule of the adapter (frame.md: "part of every formalization set and
+      need not be restated"). design.yaml frame item F-ZERO
+      ('outcome != 0 -> !result') realizes it and is added to every set.
+
+decisions:
+  - {req: R-IF-2, phrase: "is_equal_to_sum_even", reading: 1}
+  - {req: R-DOM-1, phrase: "the given number n", reading: 3}
+  - {req: R-RET-2, phrase: "Evaluate whether", reading: 1}
+  - {req: R-SUM-1, phrase: "the sum of exactly 4", reading: 3}
+  - {req: R-SUM-1, phrase: "exactly 4", reading: 1}
+  - {req: R-SUM-1, phrase: "is_equal_to_sum_even", reading: 1}
+  - {req: R-SUM-2, phrase: "the sum of exactly 4", reading: 3}
+  - {req: R-SUM-2, phrase: "exactly 4", reading: 1}
+  - {req: R-SUM-2, phrase: "is_equal_to_sum_even", reading: 1}

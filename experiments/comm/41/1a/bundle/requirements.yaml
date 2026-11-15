@@ -1,0 +1,166 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: 'The deliverable is a Python implementation of the given stub car_race_collision(n: int), keeping its name and its single parameter n.'
+  kind: non_functional
+  lines:
+  - 1
+- id: R-ENV-1
+  doc: SPEC
+  quote: 'def car_race_collision(n: int):'
+  text: The argument n is an integer that counts cars, so it is non-negative; behaviour for negative n is not specified.
+  kind: assumption
+  ambiguity:
+  - phrase: 'n: int'
+    readings:
+    - n is a car count, so only n >= 0 is meant and negative n is outside the specification
+    - n may be any Python int, so negative n must also be handled (with some unstated result)
+  lines:
+  - 4
+- id: R-RD-1
+  doc: SPEC
+  quote: Imagine a road that's a perfectly straight infinitely long line.
+  text: 'The road is a straight line of infinite length: cars move along one line, never reach an end and never leave it.'
+  kind: definition
+  lines:
+  - 6
+- id: R-CAR-1
+  doc: SPEC
+  quote: 2*n or n cars are driving left to right
+  text: The set of cars driving left to right contains either 2*n or n cars.
+  kind: definition
+  ambiguity:
+  - phrase: 2*n or n cars
+    readings:
+    - exactly n cars drive left to right
+    - exactly 2*n cars drive left to right
+    - 'the count is left open: either n or 2*n cars, at the implementer''s choice'
+  - phrase: 2*n or n
+    readings:
+    - one fixed count is meant, consistent with the function outputting a single number of collisions (R-OUT-2)
+    - the count is genuinely open, which contradicts the function outputting one determined number of collisions for each n (R-OUT-2)
+  lines:
+  - 7
+- id: R-CAR-2
+  doc: SPEC
+  quote: simultaneously, a different set of 2*n or n cars are driving right to left.
+  text: At the same time, a second set of cars, distinct from the first, drives right to left and contains either 2*n or n cars.
+  kind: definition
+  ambiguity:
+  - phrase: 2*n or n cars
+    readings:
+    - exactly n cars drive right to left
+    - exactly 2*n cars drive right to left
+    - 'the count is left open: either n or 2*n cars, at the implementer''s choice'
+  - phrase: a different set
+    readings:
+    - a disjoint set of cars (no car is in both sets); its size is independent of the first set's choice and may equal it
+    - 'a set of a different size: if one set has n cars the other has 2*n cars'
+    - a disjoint set of the same size as the first set (both n or both 2*n)
+  - phrase: 2*n or n
+    readings:
+    - one fixed count is meant, consistent with the function outputting a single number of collisions (R-OUT-2)
+    - the count is genuinely open, which contradicts the function outputting one determined number of collisions for each n (R-OUT-2)
+  lines:
+  - 7
+  - 8
+- id: R-POS-1
+  doc: SPEC
+  quote: The two sets of cars start out being very far from each other.
+  text: Initially the two sets are far apart, with no car of one set among the cars of the other, and they move toward each other, so every left-to-right car starts to the left of every right-to-left car.
+  kind: definition
+  ambiguity:
+  - phrase: start out being very far from each other
+    readings:
+    - the left-to-right set starts entirely to the left of the right-to-left set, so the sets approach and every opposing pair of cars meets
+    - 'only the distance is stated, not the side: if the left-to-right set starts on the right, the sets move apart and no collision ever happens'
+  lines:
+  - 8
+  - 9
+- id: R-SPD-1
+  doc: SPEC
+  quote: All cars move in the same speed.
+  text: Every car moves at the same constant speed, so cars moving in the same direction keep their spacing and never meet one another.
+  kind: definition
+  lines:
+  - 9
+- id: R-COL-1
+  doc: SPEC
+  quote: Two cars are said to collide when a car that's moving left to right hits a car that's moving right to left.
+  text: A collision is the meeting of one left-to-right car with one right-to-left car; cars moving in the same direction never count as colliding.
+  kind: definition
+  ambiguity:
+  - phrase: said to collide
+    readings:
+    - a meeting of opposite-direction cars counts as a collision even though both cars continue unaffected (R-COL-2)
+    - since the cars continue as if they did not collide (R-COL-2), the meeting is not a collision and is not counted, contradicting this definition
+  lines:
+  - 9
+  - 10
+- id: R-COL-2
+  doc: SPEC
+  quote: However, the cars are infinitely sturdy and strong; as a result, they continue moving in their trajectory as if they did not collide.
+  text: 'A collision neither stops, removes nor deflects either car: both cars keep moving on their original trajectories, so a car goes on to collide with every later oncoming car.'
+  kind: definition
+  ambiguity:
+  - phrase: as if they did not collide
+    readings:
+    - only the motion is unaffected; the collision still happened and is counted (R-COL-1)
+    - the collision is treated as not having happened, so it is not counted, contradicting the definition of a collision (R-COL-1)
+  lines:
+  - 11
+  - 12
+- id: R-OUT-1
+  doc: SPEC
+  quote: This function outputs the number of such collisions.
+  text: 'For every valid n, car_race_collision(n) returns a non-negative integer: it does not raise, fail to finish, or return a value of another type.'
+  kind: guarantee
+  depends:
+  - R-ENV-1
+  ambiguity:
+  - phrase: outputs
+    readings:
+    - returns the number of collisions as an int
+    - prints the number of collisions; the return value is unspecified
+  lines:
+  - 14
+- id: R-OUT-2
+  doc: SPEC
+  quote: This function outputs the number of such collisions.
+  text: The returned value equals the total number of collisions between a left-to-right car and a right-to-left car; because the sets approach, same-direction cars never meet, and cars pass through each
+    other, every opposing pair collides exactly once, so the value is the size of the left-to-right set times the size of the right-to-left set.
+  kind: guarantee
+  depends:
+  - R-CAR-1
+  - R-CAR-2
+  - R-POS-1
+  - R-SPD-1
+  - R-COL-1
+  - R-COL-2
+  ambiguity:
+  - phrase: the number of such collisions
+    readings:
+    - n*n (n cars in each direction)
+    - 4*n*n (2*n cars in each direction)
+    - 2*n*n (2*n cars in one direction and n in the other)
+    - any of n*n, 2*n*n or 4*n*n is acceptable, since the car counts are given as alternatives
+  - phrase: the number
+    readings:
+    - a single number determined by n, so one fixed car count must be meant (R-CAR-1, R-CAR-2)
+    - the car counts are left open (R-CAR-1, R-CAR-2), which contradicts there being one number of collisions for each n
+  lines:
+  - 14
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `collisions` is 0 unless `outcome` is 0.'
+  text: In every call, the collisions output is 0 unless the outcome is 0 (the call returned an integer that fits collisions).
+  kind: guarantee
+  lines:
+  - 41

@@ -1,0 +1,183 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-DEF-1, reading 2 (prescribed): case-insensitive, every character counted.
+  pal: 'all(i < len(text): lower(text[i]) == lower(text[len(text) - 1 - i]))'
+  # R-DEF-2, reading 1 (prescribed): no character of any kind occurs twice, compared exactly.
+  iso: 'all(i < len(text): all(j < i: text[j] != text[i]))'
+
+properties:
+  - id: RV-RET-1
+    req: R-RET-1
+    expr: 'outcome == 0'
+    note: >-
+      Every call with a string argument returns a bool: no exception, no hang,
+      no value of another type. The trace contains only str arguments, so the
+      prescribed reading of R-ENV-1 (the function must also handle or reject
+      non-str arguments) adds nothing that can be stated here.
+
+  - id: RV-CHK-1
+    req: R-CHK-1
+    pattern: implies
+    args: {trigger: 'iso && pal', cond: 'outcome == 0 && result'}
+    note: >-
+      Read as the request prescribes, even where another reading seems more
+      natural: 'Isogram/Palindrome' means both are needed (R-CHK-1 reading 2),
+      so True is required only when text is both an isogram and a palindrome.
+      'Palindrome' is case-insensitive with every character counted (R-DEF-1
+      reading 2, ASCII case only per the frame) and 'Isogram' means no
+      character of any kind occurs twice, compared exactly (R-DEF-2 reading 1,
+      broader than the requirement text's 'no letter'). Under these readings
+      'Aba' and 'aBbA' must return True. This contradicts the examples R-EX-2
+      and R-EX-3 as written ('aba', 'aaaaa' repeat a letter), which the
+      prescribed readings of those examples resolve in favour of the docstring.
+
+  - id: RV-CHK-2
+    req: R-CHK-2
+    pattern: implies
+    args: {trigger: '!(iso && pal)', cond: 'outcome == 0 && !result'}
+    note: >-
+      Read as the request prescribes, even where another reading seems more
+      natural: 'Isogram/Palindrome' means both are needed (R-CHK-2 reading 2),
+      so the call returns False whenever text is not an isogram or not a
+      palindrome. Same definitions as RV-CHK-1 (R-DEF-1 reading 2, R-DEF-2
+      reading 1, both prescribed). 'Returns False' is taken to require outcome
+      0; a raise does not count as False. Conflict: 'zbcd' is not a palindrome
+      under any reading of R-DEF-1, so this property requires False for it,
+      while the prescribed reading of R-EX-4 requires True (RV-EX-4). The
+      specification is not repaired; both are kept.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'text == ""', cond: 'outcome == 0 && result'}
+    note: >-
+      Doctest candidate('') -> True, read as a guarantee on every call with
+      the empty string. It agrees with RV-CHK-1 ('' is both an isogram and a
+      palindrome).
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'text == "aba"', cond: 'outcome == 0 && !result'}
+    note: >-
+      Read as the request prescribes, even where another reading seems more
+      natural: the docstring is right and requires an isogram (R-EX-2 reading
+      2), so 'aba' is not an isogram and returns False; the doctest's True is
+      taken to be wrong. Agrees with RV-CHK-2 under the prescribed 'both'
+      reading; contradicts the literal doctest.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'text == "aaaaa"', cond: 'outcome == 0 && !result'}
+    note: >-
+      Read as the request prescribes, even where another reading seems more
+      natural: the docstring is right and requires an isogram (R-EX-3 reading
+      2), so 'aaaaa' is not an isogram and returns False; the doctest's True
+      is taken to be wrong. Agrees with RV-CHK-2 under the prescribed 'both'
+      reading; contradicts the literal doctest.
+
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'text == "zbcd"', cond: 'outcome == 0 && result'}
+    note: >-
+      Read as the request prescribes, even where another reading seems more
+      natural: the docstring is right and an isogram suffices (R-EX-4 reading
+      2), so 'zbcd' is an isogram and returns True; the doctest's False is
+      taken to be wrong. This directly contradicts RV-CHK-2 under the
+      prescribed 'both' reading of R-CHK-2, since 'zbcd' is not a palindrome.
+      Kept as prescribed; the conflict is a defect of the prescribed reading
+      combination, not repaired here.
+
+scenarios:
+  - id: RV-EX-1-C
+    req: R-EX-1
+    cover: 'text == "" && outcome == 0 && result'
+    note: The doctest call candidate('') returning True must be possible.
+
+  - id: RV-EX-2-C
+    req: R-EX-2
+    cover: 'text == "aba" && outcome == 0 && !result'
+    note: >-
+      Prescribed reading 2 of R-EX-2 (the example is wrong): the call
+      candidate('aba') returning False must be possible.
+
+  - id: RV-EX-3-C
+    req: R-EX-3
+    cover: 'text == "aaaaa" && outcome == 0 && !result'
+    note: >-
+      Prescribed reading 2 of R-EX-3 (the example is wrong): the call
+      candidate('aaaaa') returning False must be possible.
+
+  - id: RV-EX-4-C
+    req: R-EX-4
+    cover: 'text == "zbcd" && outcome == 0 && result'
+    note: >-
+      Prescribed reading 2 of R-EX-4 (the example is wrong): the call
+      candidate('zbcd') returning True must be possible. Unreachable together
+      with RV-CHK-2 under the prescribed 'both' reading; kept as prescribed.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Interface naming. The adapter calls candidate(text) as declared in the
+      function section of design.yaml; a different name or parameter makes
+      every call fail, which RV-RET-1 detects.
+    covered_by: [RV-RET-1]
+
+  - req: R-IF-2
+    reason: >-
+      Form of the deliverable (a complete body keeping name and signature),
+      not a property of a call. Its observable part, that a call returns a
+      bool rather than None or an exception from a missing body, is RV-RET-1.
+    covered_by: [RV-RET-1]
+
+  - req: R-ENV-1
+    reason: >-
+      Read as the request prescribes, even where another reading seems more
+      natural: 'text: str' is a contract the function must enforce (reading
+      2), so candidate must also handle or reject arguments that are not str.
+      Under this reading there is no caller obligation, so no assumption is
+      made. The obligation itself concerns non-str arguments, which the
+      adapter never produces (the text signal is a string of at most 32
+      characters), and 'handle or reject' admits any return or raise, so it
+      cannot be stated over this trace.
+
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized as the def pal used by RV-CHK-1 and RV-CHK-2. Read
+      as the request prescribes, even where another reading seems more
+      natural: case-insensitive, every character counted (reading 2): 'Aba' is
+      a palindrome, 'ab a' is not. Case is folded with the FCP-PL lower(),
+      which per the frame maps ASCII letters only; Python's str.lower() would
+      also fold Latin-1 letters above code 127.
+    covered_by: [RV-CHK-1, RV-CHK-2]
+
+  - req: R-DEF-2
+    reason: >-
+      Definition, realized as the def iso used by RV-CHK-1 and RV-CHK-2. Read
+      as the request prescribes, even where another reading seems more
+      natural: no character of any kind occurs twice, compared exactly
+      (reading 1): 'aA' is an isogram, 'a b ' (two spaces) is not. This is
+      broader than the requirement text, which speaks only of letters.
+    covered_by: [RV-CHK-1, RV-CHK-2]
+
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the adapter, part of every formalization set by
+      construction; frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-1, phrase: 'text: str', reading: 2}
+  - {req: R-DEF-1, phrase: Palindrome, reading: 2}
+  - {req: R-DEF-2, phrase: Isogram, reading: 1}
+  - {req: R-CHK-1, phrase: Isogram/Palindrome, reading: 2}
+  - {req: R-CHK-2, phrase: Isogram/Palindrome, reading: 2}
+  - {req: R-EX-2, phrase: "candidate('aba')", reading: 2}
+  - {req: R-EX-3, phrase: "candidate('aaaaa')", reading: 2}
+  - {req: R-EX-4, phrase: "candidate('zbcd')", reading: 2}

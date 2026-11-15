@@ -1,0 +1,238 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 38,
+    "checked": 38,
+    "seconds": 0.04
+   },
+   "open": {
+    "open": {},
+    "checked": 111
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 32,
+    "checked": 32,
+    "seconds": 0.03
+   },
+   "open": {
+    "open": {},
+    "checked": 111
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SUM-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-SUM-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-OUT-1",
+   "phrase": "Evaluate whether",
+   "taken": 1,
+   "variant": 2,
+   "text": "the function may return any value that compares equal to True or False (such as 1 or 0), which the `== True` / `== False` examples would also accept"
+  },
+  {
+   "req": "R-DEF-1",
+   "phrase": "positive",
+   "taken": 1,
+   "variant": 2,
+   "text": "non-negative: 0 counts as a positive even number; this contradicts R-EX-1 (4 = 4 + 0 + 0 + 0) and R-EX-2 (6 = 2 + 2 + 2 + 0), which say False"
+  },
+  {
+   "req": "R-DEF-2",
+   "phrase": "exactly 4 positive even numbers",
+   "taken": 1,
+   "variant": 2,
+   "text": "four pairwise distinct positive even numbers (the least sum is 2 + 4 + 6 + 8 = 20); this contradicts R-EX-3, which says 8 gives True"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "is_equal_to_sum_even(4) == False",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-DEF-1 / R-SUM-1 when 'positive' includes zero: 4 = 4 + 0 + 0 + 0 would make the answer True"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "== False",
+   "taken": 1,
+   "variant": 2,
+   "text": "the call returns any value equal to False, such as 0"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "is_equal_to_sum_even(6) == False",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-DEF-1 / R-SUM-1 when 'positive' includes zero: 6 = 2 + 2 + 2 + 0 would make the answer True"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "== False",
+   "taken": 1,
+   "variant": 2,
+   "text": "the call returns any value equal to False, such as 0"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "is_equal_to_sum_even(8) == True",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicts R-DEF-2 / R-SUM-2 when the four terms must be distinct: 8 is below the least distinct sum 20, so the answer would be False"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "== True",
+   "taken": 1,
+   "variant": 2,
+   "text": "the call returns any value equal to True, such as 1"
+  }
+ ],
+ "depends": {
+  "R-SUM-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_equal_to_sum_even(10) -> False"
+   ]
+  },
+  "R-SUM-2": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_equal_to_sum_even(8) -> True"
+   ]
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-SUM-1",
+    "R-SUM-2"
+   ],
+   "calls": [
+    "is_equal_to_sum_even(10) -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"Evaluate whether\" can mean: the function returns the bool True or False / the function may return any value that compares equal to True or False (such as 1 or 0), which the `== True` / `== False` examples would also accept. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"the given number n\" can mean: every non-negative integer n must get an answer / every integer n, including negative ones, must get an answer (False for n <= 0) / n may be any number, including non-integers such as 8.0 or 7.5, and must get an answer. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"is_equal_to_sum_even(4) == False\" can mean: consistent with R-DEF-1 when 'positive' excludes zero: the least sum of four positive even numbers is 8, so 4 gives False / contradicts R-DEF-1 / R-SUM-1 when 'positive' includes zero: 4 = 4 + 0 + 0 + 0 would make the answer True. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1",
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"== False\" can mean: the call returns the bool False / the call returns any value equal to False, such as 0. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"is_equal_to_sum_even(6) == False\" can mean: consistent with R-DEF-1 when 'positive' excludes zero: the least sum of four positive even numbers is 8, so 6 gives False / contradicts R-DEF-1 / R-SUM-1 when 'positive' includes zero: 6 = 2 + 2 + 2 + 0 would make the answer True. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"is_equal_to_sum_even(8) == True\" can mean: consistent with R-DEF-2 when the four terms may repeat: 8 = 2 + 2 + 2 + 2 / contradicts R-DEF-2 / R-SUM-2 when the four terms must be distinct: 8 is below the least distinct sum 20, so the answer would be False. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"== True\" can mean: the call returns the bool True / the call returns any value equal to True, such as 1. Which is meant?"
+  }
+ ],
+ "limits": []
+}

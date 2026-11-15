@@ -1,0 +1,311 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+# Variable mapping, taken as instructed (R-SIG-1, R-VAR-1, R-VAR-2 and R-VAR-3,
+# reading 2 each), although the docstring order x = number, y = need,
+# z = remaining seems more natural. need and remaining are both x, so
+# remaining == need always holds and z plays no role.
+defs:
+  number: 'y'
+  need: 'x'
+  remaining: 'x'
+  valid: 'number <= 1000 && need <= 1000 && remaining <= 1000'
+
+properties:
+- id: RV-MEAL-1
+  req: R-MEAL-1
+  pattern: implies
+  args:
+    trigger: 'outcome == 0 && remaining >= need'
+    cond: 'result[0] >= number + need && result[0] <= number + remaining && result[1] == remaining - (result[0] - number)'
+  note: >-
+    'no or more carrots' taken as instructed as reading 2 ('need or more'), though 'zero or more' seems
+    more natural: when the stock suffices the rabbit eats e carrots with need <= e <= remaining, so the
+    total eaten is number + e and remaining - e stay in stock. The elements are read as R-RET-1's text
+    states them (first the total eaten, second the carrots left), because the R-RET-2 and R-RET-3 readings
+    give the elements other, mutually exclusive meanings. Mapping as instructed: number = y (R-VAR-1
+    reading 2), need = x (R-VAR-2 reading 2), remaining = x (R-VAR-3 reading 2), per R-SIG-1 reading 2
+    (other order). Under it the trigger always holds and e is forced to x, so the item requires [y + x, 0].
+
+- id: RV-RET-1
+  req: R-RET-1
+  pattern: implies
+  args:
+    trigger: 'valid'
+    cond: 'outcome != 1 && (outcome == 0 -> len(result) == 2)'
+  note: >-
+    'an array' taken as instructed as reading 2 (any array-like sequence of two integers: list, tuple,
+    array.array, ...), though 'a Python list' seems more natural. The adapter reports a non-list return as
+    outcome 2, which cannot be told apart from other non-list returns, so outcome 2 is accepted; only a
+    returned list (outcome 0) is checked for exactly two elements, which outcome 0 makes integers from 0 to
+    2,047. Scoped to arguments in range, because R-CON-1..3 are taken as checks that must reject the others
+    (reading 2). Mapping as instructed: valid means y <= 1000 and x <= 1000 (number = y, need = remaining
+    = x, R-VAR-1..3 reading 2, R-SIG-1 reading 2); z is not checked.
+
+- id: RV-RET-2-NEEDED
+  req: R-RET-2
+  pattern: implies
+  args:
+    trigger: 'outcome == 0'
+    cond: 'result[0] == number + need'
+  note: >-
+    'needed or eaten' taken as instructed as reading 2 ('needed': number + need regardless of the stock),
+    though 'eaten' (number + min(need, remaining)) seems more natural; the other two phrases at their
+    reading-1 sense as this reading's formula assumes. This item contradicts RV-RET-2-BEFORE and
+    RV-RET-2-TOTAL, which take the other phrases of the same sentence at reading 2. Mapping as instructed:
+    number = y, need = x (R-VAR-1, R-VAR-2 reading 2; R-SIG-1 reading 2), so result[0] == y + x.
+
+- id: RV-RET-2-BEFORE
+  req: R-RET-2
+  pattern: implies
+  args:
+    trigger: 'outcome == 0'
+    cond: 'result[0] == number'
+  note: >-
+    'before or after your meals' taken as instructed as reading 2 ('before the meal': the first element is
+    number alone), though 'after the meal' seems more natural; it contradicts every example (eat(5, 6, 10)
+    would give 5, or 6 under the instructed mapping, not 11), items RV-RET-2-NEEDED, RV-MEAL-1, RV-HUN-1
+    and RV-EX-1..4 whenever x > 0, and RV-RET-2-TOTAL whenever x != y. Mapping as instructed: number = y
+    (R-VAR-1 reading 2; R-SIG-1 reading 2).
+
+- id: RV-RET-2-TOTAL
+  req: R-RET-2
+  pattern: implies
+  args:
+    trigger: 'outcome == 0'
+    cond: 'result[0] == min(need, remaining)'
+  note: >-
+    'total number' taken as instructed as reading 2 (only the carrots eaten in this meal, min(need,
+    remaining)), though the total including number seems more natural; it contradicts every example
+    (eat(5, 6, 10) would give 6, or 5 under the instructed mapping, not 11), items RV-RET-2-NEEDED,
+    RV-MEAL-1, RV-HUN-1 and RV-EX-1..4 whenever y > 0, and RV-RET-2-BEFORE whenever x != y. Mapping as
+    instructed: need = x,
+    remaining = x (R-VAR-2, R-VAR-3 reading 2; R-SIG-1 reading 2), so result[0] == x.
+
+- id: RV-RET-3
+  req: R-RET-3
+  pattern: implies
+  args:
+    trigger: 'outcome == 0'
+    cond: 'result[1] == max(need - remaining, 0)'
+  note: >-
+    'needed or eaten left' taken as instructed as reading 2 (carrots still needed after the meal,
+    max(need - remaining, 0)), though the carrots left in stock seem more natural; with the docstring
+    mapping it contradicts eat(5, 6, 10) -> [11, 4], eat(4, 8, 9) -> [12, 1] and eat(2, 11, 5) -> [7, 0].
+    Mapping as instructed: need = remaining = x (R-VAR-2, R-VAR-3 reading 2; R-SIG-1 reading 2), so the
+    second element is always 0.
+
+- id: RV-HUN-1
+  req: R-HUN-1
+  pattern: implies
+  args:
+    trigger: 'outcome == 0 && remaining <= need'
+    cond: 'result[0] == number + remaining'
+  note: >-
+    'not enough remaining carrots' taken as instructed as reading 2 (remaining <= need), though
+    remaining < need seems more natural; at remaining == need both readings give the same list. The first
+    element is the total eaten, as the requirement text states. Mapping as instructed: number = y,
+    need = remaining = x (R-VAR-1..3 reading 2; R-SIG-1 reading 2), so the trigger holds on every returned
+    list and the item requires result[0] == y + x.
+
+- id: RV-HUN-2
+  req: R-HUN-2
+  pattern: implies
+  args:
+    trigger: 'outcome == 0 && remaining <= need'
+    cond: 'result[1] == 0'
+  note: >-
+    The condition is the clause 'if there are not enough remaining carrots' shared with R-HUN-1, read as
+    instructed for that phrase (reading 2, remaining <= need) instead of the requirement text's
+    remaining < need; at remaining == need no carrots are left either, so the requirement's own sense is
+    kept. The second element is 0 as the text states. Mapping as instructed: need = remaining = x
+    (R-VAR-2, R-VAR-3 reading 2; R-SIG-1 reading 2), so the trigger holds on every returned list; with
+    remaining < need the item would never trigger.
+
+- id: RV-HUN-3
+  req: R-HUN-3
+  pattern: implies
+  args:
+    trigger: 'outcome == 0 && remaining <= need'
+    cond: 'result[1] == need - remaining'
+  note: >-
+    'will still be hungry' taken as instructed as reading 2 (the returned list reports the unmet need
+    need - remaining), though a narrative-only reading seems more natural; the 'e.g.' is resolved to the
+    second element, the only one not taken by the total. With the docstring mapping it contradicts
+    eat(2, 11, 5) -> [7, 0]. Condition read as R-HUN-1's 'not enough remaining carrots', reading 2
+    (remaining <= need) as instructed. Mapping as instructed: need = remaining = x (R-VAR-2, R-VAR-3
+    reading 2; R-SIG-1 reading 2), so the unmet need is always 0.
+
+- id: RV-EX-1
+  req: R-EX-1
+  pattern: implies
+  args:
+    trigger: 'x == 5 && y == 6 && z == 10'
+    cond: 'outcome != 1 && (outcome == 0 -> result == [11, 0])'
+  note: >-
+    '[11, 4]' taken as instructed as reading 2 (the second element is the carrots still needed, reading 2
+    of R-RET-3), which gives [11, 0]: the example as printed contradicts that reading. A non-list
+    array-like answer (outcome 2) is accepted, per reading 2 of R-RET-1 'an array'. The instructed mapping
+    (number = 6, need = remaining = 5) gives the same values: 6 + 5 = 11, max(5 - 5, 0) = 0.
+
+- id: RV-EX-2
+  req: R-EX-2
+  pattern: implies
+  args:
+    trigger: 'x == 4 && y == 8 && z == 9'
+    cond: 'outcome != 1 && (outcome == 0 -> result == [12, 0])'
+  note: >-
+    '[12, 1]' taken as instructed as reading 2 (the second element is the carrots still needed, reading 2
+    of R-RET-3), which gives [12, 0]: the example as printed contradicts that reading. A non-list
+    array-like answer (outcome 2) is accepted, per reading 2 of R-RET-1 'an array'. The instructed mapping
+    (number = 8, need = remaining = 4) gives the same values: 8 + 4 = 12, max(4 - 4, 0) = 0.
+
+- id: RV-EX-3
+  req: R-EX-3
+  pattern: implies
+  args:
+    trigger: 'x == 1 && y == 10 && z == 10'
+    cond: 'outcome != 1 && (outcome == 0 -> result == [11, 0])'
+  note: >-
+    No phrase flagged; the example is taken literally. A non-list array-like answer (outcome 2) is
+    accepted, per reading 2 of R-RET-1 'an array', taken as instructed.
+
+- id: RV-EX-4
+  req: R-EX-4
+  pattern: implies
+  args:
+    trigger: 'x == 2 && y == 11 && z == 5'
+    cond: 'outcome != 1 && (outcome == 0 -> result == [13, 0])'
+  note: >-
+    '[7, 0]' taken as instructed as reading 2 (the first element is the total needed, reading 2 of R-RET-2
+    'needed or eaten'), which gives 13: the example as printed contradicts that reading. The second element
+    stays 0. A non-list array-like answer (outcome 2) is accepted, per reading 2 of R-RET-1 'an array'. The
+    instructed mapping (number = 11, need = remaining = 2) gives the same values: 11 + 2 = 13.
+
+- id: RV-CON-1
+  req: R-CON-1
+  pattern: implies
+  args:
+    trigger: 'number > 1000'
+    cond: 'outcome != 0'
+  note: >-
+    '0 <= number <= 1000' taken as instructed as reading 2 (a check the function must make), though a
+    precondition on the caller seems more natural: it must reject number outside 0..1000, so it returns no
+    list. Rejection is any outcome other than a returned list, since the text says 'e.g. by raising'.
+    Negative arguments are not in the trace, so only number > 1000 is checked. Mapping as instructed:
+    number = y (R-VAR-1 reading 2; R-SIG-1 reading 2).
+
+- id: RV-CON-2
+  req: R-CON-2
+  pattern: implies
+  args:
+    trigger: 'need > 1000'
+    cond: 'outcome != 0'
+  note: >-
+    '0 <= need <= 1000' taken as instructed as reading 2 (a check the function must make), though a
+    precondition on the caller seems more natural: it must reject need outside 0..1000, so it returns no
+    list. Rejection is any outcome other than a returned list, since the text says 'e.g. by raising'.
+    Negative arguments are not in the trace, so only need > 1000 is checked. Mapping as instructed:
+    need = x (R-VAR-2 reading 2; R-SIG-1 reading 2), so this item coincides with RV-CON-3.
+
+- id: RV-CON-3
+  req: R-CON-3
+  pattern: implies
+  args:
+    trigger: 'remaining > 1000'
+    cond: 'outcome != 0'
+  note: >-
+    '0 <= remaining <= 1000' taken as instructed as reading 2 (a check the function must make), though a
+    precondition on the caller seems more natural: it must reject remaining outside 0..1000, so it returns
+    no list. Rejection is any outcome other than a returned list, since the text says 'e.g. by raising'.
+    Negative arguments are not in the trace, so only remaining > 1000 is checked. Mapping as instructed:
+    remaining = x (R-VAR-3 reading 2; R-SIG-1 reading 2), so this item coincides with RV-CON-2 and z is
+    never checked.
+
+scenarios:
+- id: RV-EX-1-S
+  req: R-EX-1
+  cover: 'x == 5 && y == 6 && z == 10 && outcome == 0 && result == [11, 0]'
+  note: >-
+    The example call returns a list, as printed; values per reading 2 of '[11, 4]' taken as instructed
+    ([11, 0], the second element being the carrots still needed). Unreachable together with RV-RET-2-BEFORE
+    or RV-RET-2-TOTAL.
+
+- id: RV-EX-2-S
+  req: R-EX-2
+  cover: 'x == 4 && y == 8 && z == 9 && outcome == 0 && result == [12, 0]'
+  note: >-
+    The example call returns a list, as printed; values per reading 2 of '[12, 1]' taken as instructed
+    ([12, 0], the second element being the carrots still needed). Unreachable together with RV-RET-2-BEFORE
+    or RV-RET-2-TOTAL.
+
+- id: RV-EX-3-S
+  req: R-EX-3
+  cover: 'x == 1 && y == 10 && z == 10 && outcome == 0 && result == [11, 0]'
+  note: >-
+    The example call returns the printed list. Unreachable together with RV-RET-2-BEFORE or RV-RET-2-TOTAL
+    under the instructed mapping (number = 10, need = remaining = 1).
+
+- id: RV-EX-4-S
+  req: R-EX-4
+  cover: 'x == 2 && y == 11 && z == 5 && outcome == 0 && result == [13, 0]'
+  note: >-
+    The example call returns a list, as printed; values per reading 2 of '[7, 0]' taken as instructed
+    (first element the total needed, 2 + 11 = 13). Unreachable together with RV-RET-2-BEFORE or
+    RV-RET-2-TOTAL.
+
+unformalized:
+- req: R-SIG-1
+  reason: >-
+    Definition of the signature. The name eat and the positional parameters x, y, z are fixed by the
+    interface and the function section of design.yaml. 'x, y, z' taken as instructed as reading 2 (the
+    parameters map to number, need and remaining in some other order, nothing stating the mapping), though
+    the docstring order seems more natural; the mapping used by every item is the one the R-VAR readings
+    give (defs number = y, need = x, remaining = x), which leaves z unused.
+  covered_by: [RV-MEAL-1, RV-RET-1, RV-RET-2-NEEDED, RV-RET-2-BEFORE, RV-RET-2-TOTAL, RV-RET-3, RV-HUN-1, RV-HUN-2, RV-HUN-3, RV-CON-1, RV-CON-2, RV-CON-3]
+- req: R-CTX-1
+  reason: >-
+    Narrative definition of number as the carrots already eaten; that they count toward the total eaten is
+    realized by the items that add number to the first element.
+  covered_by: [RV-MEAL-1, RV-RET-2-NEEDED, RV-HUN-1]
+- req: R-VAR-1
+  reason: >-
+    Definition, realized by the def number. '@number' taken as instructed as reading 2 (number is y, the
+    second parameter), though x seems more natural.
+  covered_by: [RV-MEAL-1, RV-RET-1, RV-RET-2-NEEDED, RV-RET-2-BEFORE, RV-HUN-1, RV-CON-1]
+- req: R-VAR-2
+  reason: >-
+    Definition, realized by the def need. '@need' taken as instructed as reading 2 (need is x, the first
+    parameter), though y seems more natural; it makes need and remaining the same parameter.
+  covered_by: [RV-MEAL-1, RV-RET-1, RV-RET-2-NEEDED, RV-RET-2-TOTAL, RV-RET-3, RV-HUN-1, RV-HUN-2, RV-HUN-3, RV-CON-2]
+- req: R-VAR-3
+  reason: >-
+    Definition, realized by the def remaining. '@remaining' taken as instructed as reading 2 (remaining is
+    x, the first parameter), though z seems more natural; it makes need and remaining the same parameter.
+  covered_by: [RV-MEAL-1, RV-RET-1, RV-RET-2-TOTAL, RV-RET-3, RV-HUN-1, RV-HUN-2, RV-HUN-3, RV-CON-3]
+- req: R-FR-1
+  reason: >-
+    Frame rule of the function adapter, holding by construction; design.yaml adds it to every set as
+    F-EMPTY.
+  covered_by: [F-EMPTY]
+
+decisions:
+- {req: R-SIG-1, phrase: 'x, y, z', reading: 2}
+- {req: R-MEAL-1, phrase: 'no or more carrots', reading: 2}
+- {req: R-RET-1, phrase: 'an array', reading: 2}
+- {req: R-RET-2, phrase: 'needed or eaten', reading: 2}
+- {req: R-RET-2, phrase: 'before or after your meals', reading: 2}
+- {req: R-RET-2, phrase: 'total number', reading: 2}
+- {req: R-RET-3, phrase: 'needed or eaten left', reading: 2}
+- {req: R-HUN-1, phrase: 'not enough remaining carrots', reading: 2}
+- {req: R-HUN-3, phrase: 'will still be hungry', reading: 2}
+- {req: R-EX-1, phrase: '[11, 4]', reading: 2}
+- {req: R-EX-2, phrase: '[12, 1]', reading: 2}
+- {req: R-EX-4, phrase: '[7, 0]', reading: 2}
+- {req: R-VAR-1, phrase: '@number', reading: 2}
+- {req: R-VAR-2, phrase: '@need', reading: 2}
+- {req: R-VAR-3, phrase: '@remaining', reading: 2}
+- {req: R-CON-1, phrase: '0 <= number <= 1000', reading: 2}
+- {req: R-CON-2, phrase: '0 <= need <= 1000', reading: 2}
+- {req: R-CON-3, phrase: '0 <= remaining <= 1000', reading: 2}

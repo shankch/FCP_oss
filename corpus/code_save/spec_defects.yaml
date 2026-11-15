@@ -1,0 +1,13 @@
+# Defects planted in spec.md (hidden from every agent).
+design: code_save
+defects:
+- id: D-1
+  kind: conflict
+  reqs: [R-CLEAN-1, R-KEEP-1]
+  note: >
+    When os.replace fails, rule 7 says keep balance.txt.tmp and return False, and rule 6 says
+    leave no temporary file behind: no implementation can meet both. Trying os.replace again
+    does not help: a retry that succeeds puts the balance in balance.txt, so rule 5 asks for
+    True where rule 7 asks for False.
+- {id: D-2, kind: ambiguity, reqs: [R-SYNC-1], note: '"call os.fsync on the temporary file": on its descriptor alone, or after flushing Python''s buffer, without which the digits may not be on disk yet?'}
+- {id: D-3, kind: ambiguity, reqs: [R-CLEAN-1], note: '"leave no temporary file behind": when the function returns, or never create one that outlives a crash?'}

@@ -1,0 +1,146 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. frame.md: "Calls are independent: the function keeps no
+# state between them", so the model has no ghost state; it is a combinational
+# function of the argument n of the current call, and every output of the call
+# (outcome, factor) is checked against it.
+#
+# Primality (R-DEF-1) is decided by trial division by every d in 2..255 with
+# d*d <= x, which is exact for every 16-bit x (255*255 < 65535 < 256*256).
+# Divisors are written i + 2 (or i + 1) so that no expanded term divides by 0.
+defs:
+  # R-DEF-1 applied to the argument: n is a prime.
+  n_prime: "n >= 2 && all(i < 254: (i + 2) * (i + 2) <= n -> n % (i + 2) != 0)"
+  # R-DEF-1 applied to the returned value: factor is a prime.
+  factor_prime: "factor >= 2 && all(i < 254: (i + 2) * (i + 2) <= factor -> factor % (i + 2) != 0)"
+  # R-ENV-1 and R-ENV-2: the calls the request is about.
+  in_contract: "n > 1 && !n_prime"
+  # factor divides n exactly (n % factor == 0, factor >= 1). Since
+  # factor * (n / factor) = n <= 65535, the divisor or its cofactor is at most
+  # 255, so the two bounded searches are exact.
+  factor_divides_n: "factor >= 1 && (any(i < 255: factor == i + 1 && n % (i + 1) == 0) || any(q < 256: factor * q == n))"
+  # The unique prime factor of n when n = p^k for a prime p and k >= 2, else 0.
+  # p^2 <= 65535 forces p <= 255 and 2^16 > 65535 forces k <= 15. Powers of
+  # distinct primes are distinct, so at most one term of the sum is non-zero.
+  upf: >-
+    sum(p < 256: (p >= 2 && all(j < 14: (j + 2) * (j + 2) <= p -> p % (j + 2) != 0)
+    && (n == p*p || n == p*p*p || n == p*p*p*p || n == p*p*p*p*p || n == p*p*p*p*p*p
+    || n == p*p*p*p*p*p*p || n == p*p*p*p*p*p*p*p || n == p*p*p*p*p*p*p*p*p
+    || n == p*p*p*p*p*p*p*p*p*p || n == p*p*p*p*p*p*p*p*p*p*p
+    || n == p*p*p*p*p*p*p*p*p*p*p*p || n == p*p*p*p*p*p*p*p*p*p*p*p*p
+    || n == p*p*p*p*p*p*p*p*p*p*p*p*p*p || n == p*p*p*p*p*p*p*p*p*p*p*p*p*p*p)) ? p : 0)
+  # n has exactly one distinct prime factor and is not itself prime.
+  n_ppow: "upf != 0"
+
+assumptions:
+  - id: RB-A-ENV1
+    req: R-ENV-1
+    expr: "n > 1"
+    note: "'Assume n > 1' is an obligation on the caller: every call has n greater than 1."
+  - id: RB-A-ENV2
+    req: R-ENV-2
+    expr: "!n_prime"
+    note: >-
+      'Assume ... is not a prime' taken literally (ambiguity reading 1): n is any
+      non-prime, so together with RB-A-ENV1 any composite n, including n with
+      several distinct prime factors such as 6 = 2 * 3. This admits calls on
+      which 'the prime factor' (R-RET-4) designates no single value; the
+      specification is contradictory there and this set does not restrict the
+      environment to prime powers to hide that.
+
+properties:
+  - id: RB-P-RET1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "in_contract", cond: "outcome == 0"}
+    note: >-
+      'Return' read as returning an integer (ambiguity reading 1): the call
+      finishes without an exception and returns a Python int, which is outcome
+      0 in the adapter (a prime factor of a 16-bit n always fits in 0..65535).
+      A float such as 3.0 is outcome 2 and violates this item.
+  - id: RB-P-RET2
+    req: R-RET-2
+    pattern: implies
+    args: {trigger: "in_contract", cond: "outcome == 0 && factor_divides_n"}
+    note: >-
+      The value returned divides n exactly (n % factor == 0). 'The value
+      returned' presupposes a normal return, hence outcome == 0; by F-ZERO a
+      call that does not return has factor == 0, which divides no n > 1, so
+      the conjunct adds nothing beyond F-ZERO.
+  - id: RB-P-RET3
+    req: R-RET-3
+    pattern: implies
+    args: {trigger: "in_contract", cond: "outcome == 0 && factor_prime"}
+    note: >-
+      The value returned is a prime in the sense of R-DEF-1 (factor_prime:
+      greater than 1, no divisor other than 1 and itself).
+  - id: RB-P-RET4
+    req: R-RET-4
+    pattern: implies
+    args: {trigger: "in_contract && n_ppow", cond: "outcome == 0 && factor == upf"}
+    note: >-
+      'the prime factor' read literally as a definite description (ambiguity
+      reading 4): it designates the unique prime factor of n, which exists only
+      when n has exactly one distinct prime factor (n = p^k, k >= 2; upf = p).
+      For those n the returned value must be p. For a composite n with several
+      distinct prime factors the phrase designates nothing, so this item
+      constrains nothing there; such calls are nevertheless admitted by
+      R-ENV-2 (reading 1), where only R-RET-1..3 (a normal return of some prime
+      divisor of n) apply. This is a contradiction in the text ('the prime
+      factor' vs 'is not a prime'), recorded here, not repaired: no rule for
+      choosing among several prime factors (smallest, largest) is stated.
+
+scenarios:
+  - id: RB-S-ENV2-MULTI
+    req: R-ENV-2
+    cover: "in_contract && !n_ppow"
+    note: >-
+      Under reading 1 of 'is not a prime', a call on a composite n with
+      several distinct prime factors (for example 6 or 12) is inside the
+      contract and must be allowed by the assumptions.
+  - id: RB-S-ENV2-PPOW
+    req: R-ENV-2
+    cover: "in_contract && n_ppow"
+    note: "A call on a prime power (for example 4, 8 or 9) is inside the contract."
+
+dont_cares:
+  - id: RB-D-ENV3-OUTCOME
+    req: R-ENV-3
+    signal: outcome
+    when: "!in_contract"
+    note: >-
+      'Assume' read as a pure precondition (ambiguity reading 1): for n <= 1 or
+      prime n any way of ending the call is acceptable, including an exception
+      or not finishing. Reading 3 (return n for a prime n) is not taken.
+  - id: RB-D-ENV3-FACTOR
+    req: R-ENV-3
+    signal: factor
+    when: "!in_contract"
+    note: "Pure precondition (reading 1): for n <= 1 or prime n the returned value is unconstrained (beyond the adapter's F-ZERO)."
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional interface requirement (a Python function named candidate
+      with one integer argument n). It is fixed by the adapter (design.yaml
+      function section, frame.md) and is not a property of the trace of calls.
+  - req: R-DEF-1
+    reason: >-
+      Definition, not a behaviour. Realized by the defs n_prime and
+      factor_prime (x > 1 with no divisor d, 2 <= d, d*d <= x; exact for
+      16-bit x), used by the items listed.
+    covered_by: [RB-A-ENV2, RB-P-RET3, RB-D-ENV3-OUTCOME, RB-D-ENV3-FACTOR]
+  - req: R-FR-1
+    reason: >-
+      Adapter frame rule; design.yaml already states it as frame item F-ZERO
+      (outcome != 0 -> factor == 0), which is part of every formalization set
+      and need not be restated (frame.md).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-2, phrase: "is not a prime", reading: 1}
+  - {req: R-ENV-3, phrase: "Assume", reading: 1}
+  - {req: R-RET-1, phrase: "Return", reading: 1}
+  - {req: R-RET-4, phrase: "the prime factor", reading: 4}

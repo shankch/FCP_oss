@@ -1,0 +1,378 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 229,
+    "checked": 229,
+    "seconds": 8.1
+   },
+   "open": {
+    "open": {},
+    "checked": 137
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 238,
+    "checked": 238,
+    "seconds": 5.41
+   },
+   "open": {
+    "open": {},
+    "checked": 139
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-EX-5": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-EX-6": {
+   "plain": "ONLY-A",
+   "context": "ONLY-A",
+   "witness": null
+  },
+  "R-HAP-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-HAP-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-HAP-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "a string",
+   "taken": 1,
+   "variant": 2,
+   "text": "s contains only lower-case letters, as in every example, so the result for any other string is not specified."
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "check",
+   "taken": 1,
+   "variant": 2,
+   "text": "is_happy may return any truthy or falsy value (for example 1 or 0, or a non-empty or empty object)."
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "happy if",
+   "taken": 1,
+   "variant": 2,
+   "text": "'if' gives only a sufficient condition: the sentence says nothing about strings that fail a condition."
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "every 3 consecutive letters",
+   "taken": 1,
+   "variant": 2,
+   "text": "non-overlapping blocks of three (positions 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') would be happy."
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "letters",
+   "taken": 1,
+   "variant": 2,
+   "text": "only alphabetic letters count: non-letter characters are skipped and windows are taken over the sequence of letters."
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "only adjacent characters must differ (s[i] != s[i+1] and s[i+1] != s[i+2]), so 'aba' is happy. This matches every example."
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "letters are distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "characters are compared ignoring case, so 'a' and 'A' are the same letter."
+  },
+  {
+   "req": "R-HAP-2",
+   "phrase": "happy if",
+   "taken": 1,
+   "variant": 2,
+   "text": "'if' gives only a sufficient condition: the rule leaves the result for strings shorter than 3 open, and only the examples 'a' and 'aa' give False."
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "happy if",
+   "taken": 1,
+   "variant": 2,
+   "text": "'if' gives only a sufficient condition: the rule leaves the result for such strings open."
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "every 3 consecutive letters",
+   "taken": 1,
+   "variant": 2,
+   "text": "non-overlapping blocks of three (positions 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') would be happy."
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "letters",
+   "taken": 1,
+   "variant": 2,
+   "text": "only alphabetic letters count: non-letter characters are skipped and windows are taken over the sequence of letters."
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "only adjacent characters must differ (s[i] != s[i+1] and s[i+1] != s[i+2]), so 'aba' gives True. This matches every example."
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "letters are distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "characters are compared ignoring case, so 'aAb' gives False."
+  },
+  {
+   "req": "R-HAP-4",
+   "phrase": "every 3 consecutive letters",
+   "taken": 1,
+   "variant": 2,
+   "text": "non-overlapping blocks of three (positions 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') gives True."
+  },
+  {
+   "req": "R-HAP-4",
+   "phrase": "letters",
+   "taken": 1,
+   "variant": 2,
+   "text": "only alphabetic letters count: non-letter characters are skipped and windows are taken over the sequence of letters."
+  },
+  {
+   "req": "R-HAP-4",
+   "phrase": "distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "only adjacent characters must differ (s[i] != s[i+1] and s[i+1] != s[i+2]), so 'aba' gives True. This matches every example."
+  },
+  {
+   "req": "R-HAP-4",
+   "phrase": "letters are distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "characters are compared ignoring case, so 'aAb' does not meet the condition."
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "is_happy(aabb) => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradicts the rule when 'distinct' means 'not all three the same' or 'no 3-character window repeats': 'aab' and 'abb' then pass, so the rule gives True."
+  },
+  {
+   "req": "R-EX-6",
+   "phrase": "is_happy(xyy) => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "Contradicts the rule when 'distinct' means 'not all three the same' or 'no 3-character window repeats': the single window 'xyy' then passes, so the rule gives True."
+  }
+ ],
+ "depends": {
+  "R-HAP-4": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_happy(\"hacbabfhecdabigjklmnopqrstuvwxyz\") -> False"
+   ]
+  },
+  "R-RET-1": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": null
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-2",
+  "R-EX-3",
+  "R-EX-5"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-HAP-4",
+    "R-RET-1"
+   ],
+   "calls": [
+    "is_happy(\"hacbabfhecdabigjklmnopqrstuvwxyz\") -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"check\" can mean: is_happy returns the Python bool True or False. / is_happy may return any truthy or falsy value (for example 1 or 0, or a non-empty or empty object).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-2"
+   ],
+   "calls": [],
+   "question": "\"happy if\" can mean: 'if' means 'if and only if' (supported by 'happy or not'): every string shorter than 3 is not happy, so is_happy returns False. / 'if' gives only a sufficient condition: the rule leaves the result for strings shorter than 3 open, and only the examples 'a' and 'aa' give False.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"happy if\" can mean: 'if' means 'if and only if': a string with a window that is not distinct is not happy, so is_happy returns False. / 'if' gives only a sufficient condition: the rule leaves the result for such strings open.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"every 3 consecutive letters\" can mean: every overlapping window s[i], s[i+1], s[i+2] for i from 0 to len(s)-3. / non-overlapping blocks of three (positions 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') would be happy.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-3",
+    "R-HAP-4"
+   ],
+   "calls": [],
+   "question": "\"letters\" can mean: any characters: every window of 3 consecutive characters is checked, whatever the characters are. / only alphabetic letters count: non-letter characters are skipped and windows are taken over the sequence of letters. / a window that contains a non-letter character does not meet the condition, so such strings are not happy.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"distinct\" can mean: the three characters of each window are pairwise distinct (no two equal), so 'aba' gives False. / only adjacent characters must differ (s[i] != s[i+1] and s[i+1] != s[i+2]), so 'aba' gives True. This matches every example. / the three characters of a window are not all the same. This contradicts the examples is_happy(aabb) => False and is_happy(xyy) => False. / no 3-character window occurs twice in the string. This contradicts the examples is_happy(aabb) => False and is_happy(xyy) => False.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"letters are distinct\" can mean: characters are compared by code (case-sensitive), so 'aAb' gives True. / characters are compared ignoring case, so 'aAb' gives False.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-4"
+   ],
+   "calls": [],
+   "question": "\"every 3 consecutive letters\" can mean: every overlapping window s[i], s[i+1], s[i+2] for i from 0 to len(s)-3. / non-overlapping blocks of three (positions 0-2, 3-5, ...), so 'abccde' (blocks 'abc', 'cde') gives True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-4"
+   ],
+   "calls": [],
+   "question": "\"distinct\" can mean: the three characters of each window are pairwise distinct (no two equal). / only adjacent characters must differ (s[i] != s[i+1] and s[i+1] != s[i+2]), so 'aba' gives True. This matches every example. / the three characters of a window are not all the same. This contradicts the examples is_happy(aabb) => False and is_happy(xyy) => False. / no 3-character window occurs twice in the string. This contradicts the examples is_happy(aabb) => False and is_happy(xyy) => False.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-4"
+   ],
+   "calls": [],
+   "question": "\"letters are distinct\" can mean: characters are compared by code (case-sensitive), so 'aAb' gives True. / characters are compared ignoring case, so 'aAb' does not meet the condition.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"is_happy(aabb) => False\" can mean: Matches the rule when 'distinct' means pairwise distinct or adjacent characters differ: the window 'aab' repeats 'a'. / Contradicts the rule when 'distinct' means 'not all three the same' or 'no 3-character window repeats': 'aab' and 'abb' then pass, so the rule gives True.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-6"
+   ],
+   "calls": [],
+   "question": "\"is_happy(xyy) => False\" can mean: Matches the rule when 'distinct' means pairwise distinct or adjacent characters differ: 'y' is repeated in the window 'xyy'. / Contradicts the rule when 'distinct' means 'not all three the same' or 'no 3-character window repeats': the single window 'xyy' then passes, so the rule gives True.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the comparison of agent_a and variant",
+  "the comparison of agent_b and variant"
+ ]
+}

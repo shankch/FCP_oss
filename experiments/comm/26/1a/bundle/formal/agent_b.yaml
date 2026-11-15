@@ -1,0 +1,115 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate is memoryless (frame.md: every cycle is an
+# independent call, prev(x) is an arbitrary earlier call), so the model is a
+# combinational function of the argument `numbers` rather than ghost state
+# carried across cycles: a ghost would only accumulate unrelated calls.
+# The rigid v ranges over every possible element value (0 to 255) and stands
+# for "every value v" in the requirements.
+defs:
+  # The removal count. The prompt never defines K; 2 is the only value
+  # consistent with the example (decision R-FN-1/R-FN-2 "K", reading 1).
+  K: "2"
+  # The call returned a list of integers (frame.md: outcome 0).
+  returned: "outcome == 0"
+  # Model: how often v occurs in the argument and in the returned list.
+  occ_in: "count(j < len(numbers): numbers[j] == v)"
+  occ_out: "count(j < len(result): result[j] == v)"
+  # Model: v is one of the values the prompt says to remove (occurs exactly K
+  # times; decision "occur K time(s)", reading 1).
+  removed: "occ_in == K"
+  # result is a subsequence of numbers: some set of positions of numbers
+  # (bit i of the mask m selects numbers[i]) read in order spells result.
+  subseq: "any(m < 256: count(i < len(numbers): m % (2 << i) >= (1 << i)) == len(result) && all(i < len(numbers): m % (2 << i) >= (1 << i) -> result[count(j < i: m % (2 << j) >= (1 << j))] == numbers[i]))"
+
+rigids:
+  - {name: v, range: [0, 255]}
+
+properties:
+  - id: RB-IO-2
+    req: R-IO-2
+    expr: "outcome == 0"
+    note: >-
+      Every call returns a list of integers: no exception, no non-termination,
+      no value of another type or out of the list encoding (outcome 1 and 2 of
+      frame.md are both excluded).
+
+  - id: RB-FN-1
+    req: R-FN-1
+    expr: "returned && removed -> !(v in result)"
+    note: >-
+      A value occurring exactly K = 2 times in numbers does not appear in the
+      returned list. K is undefined in the prompt; K = 2 is taken because it is
+      the only value under which the example R-EX-1 holds, and 'occur K
+      time(s)' is read literally as exactly K times (a value occurring 3 or
+      more times is not removed by this item). The example cannot distinguish
+      'exactly' from 'at least'. Constrains only calls that return a list
+      (outcome 0); R-IO-2 separately requires that every call does. 'remove'
+      is read as producing the returned list; whether the argument is also
+      mutated is not observable in the trace.
+
+  - id: RB-FN-2
+    req: R-FN-2
+    expr: "returned && !removed -> occ_out == occ_in"
+    note: >-
+      Every value that does not occur exactly K = 2 times in numbers occurs in
+      the returned list exactly as often as in numbers. This includes values
+      absent from numbers (0 occurrences), so nothing is added. Read with
+      'remove all elements that occur K time(s)' meaning that only those
+      elements are removed (reading 1), and 'occur K time(s)' as exactly K, so
+      values occurring 3 or more times keep all their occurrences. Constrains
+      only calls that return a list (outcome 0).
+
+  - id: RB-FN-3
+    req: R-FN-3
+    expr: "returned -> subseq"
+    note: >-
+      The returned list is a subsequence of numbers: its elements can be
+      matched, in order, to elements of numbers at increasing positions.
+      Independent of K. Constrains only calls that return a list.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: "numbers == [1, 2, 3, 2, 4]"
+      cond: "outcome == 0 && result == [1, 3, 4]"
+    note: >-
+      The doctest states what the call returns, so it is also formalized as a
+      guarantee on this one argument, not only as a possible behaviour.
+      Consistent with R-FN-1/R-FN-2 only for K = 2 (exactly or at least 2).
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "numbers == [1, 2, 3, 2, 4] && outcome == 0 && result == [1, 3, 4]"
+    note: The call candidate([1, 2, 3, 2, 4]) returning [1, 3, 4] must be possible.
+
+unformalized:
+  - req: R-NF-1
+    reason: >-
+      Non-functional: the deliverable is Python source for the body of
+      candidate with the given signature. The signature is fixed by the
+      adapter (design.yaml function section); the return type part is checked
+      by RB-IO-2.
+  - req: R-IO-1
+    reason: >-
+      Holds by construction of the interface: the input signal numbers is
+      always a list of at most 8 integers from 0 to 255 (frame.md, Inputs), so
+      there is no environment obligation left to assume; an assumption here
+      would be a tautology.
+  - req: R-FR-1
+    reason: Frame rule of the adapter, part of every formalization set (frame.md says it need not be restated).
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-FN-1, phrase: "K", reading: 1}
+  - {req: R-FN-1, phrase: "occur K time(s)", reading: 1}
+  - {req: R-FN-1, phrase: "time(s)", reading: 2}
+  - {req: R-FN-1, phrase: "remove", reading: 1}
+  - {req: R-FN-2, phrase: "K", reading: 1}
+  - {req: R-FN-2, phrase: "occur K time(s)", reading: 1}
+  - {req: R-FN-2, phrase: "remove all elements that occur K time(s)", reading: 1}
+  - {req: R-EX-1, phrase: "[1, 3, 4]", reading: 1}

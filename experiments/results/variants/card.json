@@ -1,0 +1,287 @@
+{
+ "task": "card",
+ "readers": {
+  "variant": {
+   "k": 1,
+   "stored": true,
+   "answers": [
+    {
+     "req": "R-CAP-1",
+     "phrase": "a load that would take it over",
+     "reading": 1,
+     "text": "the balance plus the amount loaded is over $500.00"
+    }
+   ],
+   "recorded": [],
+   "pairs": {
+    "agent_a|variant": {
+     "seconds": 8,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-NEW-1": {
+       "plain": "A-STRONGER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-RANGE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-LOAD-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "calls": [
+         [
+          1,
+          49682
+         ]
+        ],
+        "lines": [
+         "load(49682) -> raised ValueError"
+        ],
+        "sequence": true
+       }
+      },
+      "R-CAP-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "calls": [
+         [
+          1,
+          49682
+         ]
+        ],
+        "lines": [
+         "load(49682) -> 500"
+        ],
+        "sequence": true
+       }
+      },
+      "R-BONUS-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-SPEND-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-BAL-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      }
+     }
+    },
+    "agent_b|variant": {
+     "seconds": 11,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-SIG-1": {
+       "plain": "ONLY-A",
+       "bounded": 8
+      },
+      "R-NEW-1": {
+       "plain": "A-STRONGER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-RANGE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-LOAD-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "calls": [
+         [
+          1,
+          49676
+         ]
+        ],
+        "lines": [
+         "load(49676) -> raised ValueError"
+        ],
+        "sequence": true
+       }
+      },
+      "R-CAP-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "A-STRONGER",
+       "b_not_a": {
+        "calls": [
+         [
+          1,
+          49676
+         ]
+        ],
+        "lines": [
+         "load(49676) -> 500"
+        ],
+        "sequence": true
+       }
+      },
+      "R-BONUS-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-SPEND-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-BAL-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-EX-1": {
+       "plain": "ONLY-A",
+       "bounded": 8
+      }
+     }
+    }
+   }
+  },
+  "variant2": {
+   "k": 2,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-CAP-1",
+     "phrase": "a load that would take it over",
+     "reading": 2,
+     "text": "the balance plus the amount and its bonus is over $500.00"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-CAP-1",
+     "phrase": "a load that would take it over",
+     "reading": 2
+    }
+   ],
+   "pairs": {
+    "agent_a|variant2": {
+     "seconds": 6,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-NEW-1": {
+       "plain": "A-STRONGER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-RANGE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-LOAD-1": {
+       "plain": "A-STRONGER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-CAP-1": {
+       "plain": "A-WEAKER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-BONUS-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-SPEND-1": {
+       "plain": "A-STRONGER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-BAL-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      }
+     }
+    },
+    "agent_b|variant2": {
+     "seconds": 18,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-SIG-1": {
+       "plain": "ONLY-A",
+       "bounded": 8
+      },
+      "R-NEW-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-RANGE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-LOAD-1": {
+       "plain": "A-STRONGER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-CAP-1": {
+       "plain": "A-WEAKER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-BONUS-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-SPEND-1": {
+       "plain": "A-STRONGER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-BAL-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-EX-1": {
+       "plain": "ONLY-A",
+       "bounded": 8
+      }
+     }
+    }
+   }
+  }
+ },
+ "settings": {
+  "jobs": 2,
+  "bit_jobs": 1
+ }
+}

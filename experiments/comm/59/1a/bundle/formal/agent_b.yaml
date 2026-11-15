@@ -1,0 +1,131 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. candidate(n) keeps no state between calls (frame.md),
+# so the model is combinational: defs compute, from the input n alone, the
+# reference values the outputs are checked against (primality of n, its
+# smallest prime factor, its largest prime factor). FCP-PL has no division and
+# `%` needs a constant divisor, so every divisibility test is expanded over
+# constant candidates. n is at most 65,535 < 256 * 256, hence:
+#   - n composite  <=>  n has a divisor d with 2 <= d <= 255 and d < n;
+#   - a composite n has its smallest prime factor among the primes <= 251;
+#   - n has at most one prime factor above 251, and then n = m * q with q that
+#     prime and m <= 255.
+defs:
+  # the 54 primes below 256 (253, 254 and 255 are composite)
+  small_primes: "[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251]"
+
+  # --- the input ---------------------------------------------------------
+  # n is a prime: n >= 2 and no d in 2 .. min(n-1, 255) divides it
+  n_prime: "n >= 2 && all(i < 254: i + 2 < n -> n % (i + 2) != 0)"
+  # the precondition of the guarantees: R-ENV-1 (n > 1) and R-ENV-2 (not a prime)
+  pre: "n > 1 && !n_prime"
+
+  # --- reference values (meaningful when pre holds) ------------------------
+  # smallest prime factor: the first small prime that divides n
+  spf: "sum(k < 54: small_primes[k] * (n % small_primes[k] == 0 && all(j < k: n % small_primes[j] != 0)))"
+  # largest prime factor of n among the primes <= 251 (0 if there is none)
+  lpf_small: "sum(k < 54: small_primes[k] * (n % small_primes[k] == 0 && all(j < 53 - k: n % small_primes[k + 1 + j] != 0)))"
+  # n has a prime factor above 251: n = m * q with m <= 255 and q = n / m >= 256
+  # having no prime factor <= 251 (such a q <= 65,535 is a prime)
+  big_pf: "any(i < 255: n % (i + 1) == 0 && n >= 256 * (i + 1) && all(k < 54: n % ((i + 1) * small_primes[k]) != 0))"
+
+  # --- the output ----------------------------------------------------------
+  # factor divides n: n = factor * c; one of factor and c is at most 255
+  f_divides: "any(i < 255: factor == i + 1 && n % (i + 1) == 0 || factor * (i + 1) == n)"
+  # factor is a prime: factor >= 2 and no d in 2 .. 255 with d * d <= factor divides it
+  f_prime: "factor >= 2 && all(i < 254: (i + 2) * (i + 2) <= factor -> factor % (i + 2) != 0)"
+  # factor is the largest prime factor of n: the prime factor above 251 if n
+  # has one (it is then the only one above 251), else the largest small one
+  f_lpf: "(big_pf ? (factor >= 256 && f_prime && f_divides) : factor == lpf_small)"
+
+assumptions:
+  - id: RB-A-ENV-1
+    req: R-ENV-1
+    expr: "n > 1"
+    note: >-
+      "Assume n > 1" is read as an obligation on the caller (reading 1). The
+      guarantees below are in addition guarded by n > 1 so that each call is
+      judged on its own; calls with n of 0 or 1 constrain nothing (see the
+      dont_cares RB-D-ENV-1-*).
+  - id: RB-A-ENV-2
+    req: R-ENV-2
+    expr: "!n_prime"
+    note: >-
+      "and is not a prime" is read as an obligation on the caller (reading 1):
+      for a prime n nothing is guaranteed (dont_cares RB-D-ENV-2-*), in
+      particular not that n itself is returned.
+
+properties:
+  - id: RB-P-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: "pre", cond: "outcome == 0"}
+    note: >-
+      "Return ..." under the precondition: the call returns an integer that
+      fits factor (no exception, no other value, no hang). Every prime factor
+      of n <= 65,535 fits 16 bits, so outcome 2 is never a correct answer.
+  - id: RB-P-FAC-1
+    req: R-FAC-1
+    pattern: implies
+    args: {trigger: "pre && outcome == 0", cond: "f_divides"}
+    note: >-
+      Judged only on calls that returned an integer (outcome 0), so that this
+      requirement stays separate from R-RET-1.
+  - id: RB-P-FAC-2
+    req: R-FAC-2
+    pattern: implies
+    args: {trigger: "pre && outcome == 0", cond: "f_prime"}
+    note: Judged only on calls that returned an integer (outcome 0).
+  - id: RB-P-FAC-3
+    req: R-FAC-3
+    pattern: implies
+    args: {trigger: "pre && outcome == 0", cond: "factor == spf || f_lpf"}
+    note: >-
+      "the smallest or largest prime factor" is read per call (reading 1):
+      every call may independently return either, no convention has to be
+      kept across calls, and the example candidate(13195) -> 29 does not rule
+      out the smallest (reading 1 of the contradiction phrase). A prime factor
+      strictly between the two is a violation.
+
+scenarios:
+  - id: RB-S-EX-1
+    req: R-EX-1
+    cover: "n == 13195 && outcome == 0 && factor == 29"
+    note: >-
+      Read as an illustration (reading 1): returning 29, the largest prime
+      factor of 13195 = 5 * 7 * 13 * 29, must be possible; it is not required,
+      and returning 5 is also allowed by RB-P-FAC-3. Consistent with "smallest
+      or largest" (reading 1 of the contradiction phrase).
+  - id: RB-S-EX-2
+    req: R-EX-2
+    cover: "n == 2048 && outcome == 0 && factor == 2"
+    note: 2048 = 2^11, so 2 is both the smallest and the largest prime factor; RB-P-FAC-3 forces it.
+
+dont_cares:
+  - {id: RB-D-ENV-1-OUTCOME, req: R-ENV-1, signal: outcome, when: "n <= 1", note: "Reading 1: for n of 0 or 1 any outcome (value, exception, no answer) is acceptable."}
+  - {id: RB-D-ENV-1-FACTOR, req: R-ENV-1, signal: factor, when: "n <= 1", note: "Reading 1: for n of 0 or 1 any returned value is acceptable (the frame rule F-ZERO still applies)."}
+  - {id: RB-D-ENV-2-OUTCOME, req: R-ENV-2, signal: outcome, when: "n_prime", note: "Reading 1: for a prime n any outcome is acceptable."}
+  - {id: RB-D-ENV-2-FACTOR, req: R-ENV-2, signal: factor, when: "n_prime", note: "Reading 1: for a prime n any returned value is acceptable (the frame rule F-ZERO still applies)."}
+
+unformalized:
+  - req: R-GEN-1
+    reason: >-
+      Non-functional: the deliverable is a function body with the given name
+      and signature. The adapter calls candidate(n) by that name, so a missing
+      or renamed function shows only as outcome 1 on every call; there is no
+      trace property of its own.
+  - req: R-ARG-1
+    reason: >-
+      Definition of the interface: the single integer argument n is the input
+      signal n (16 bits, 0 to 65,535 per frame.md). It constrains no behaviour
+      and is used by every item through the signal n.
+
+decisions:
+  - {req: R-ENV-1, phrase: "Assume n > 1", reading: 1}
+  - {req: R-ENV-2, phrase: "is not a prime", reading: 1}
+  - {req: R-FAC-3, phrase: "the smallest or largest prime factor", reading: 1}
+  - {req: R-FAC-3, phrase: "smallest or largest (contradiction with the example candidate(13195) -> 29)", reading: 1}
+  - {req: R-EX-1, phrase: ">>> candidate(13195) 29", reading: 1}
+  - {req: R-EX-1, phrase: "candidate(13195) returns 29 (contradiction with 'the smallest or largest prime factor')", reading: 1}

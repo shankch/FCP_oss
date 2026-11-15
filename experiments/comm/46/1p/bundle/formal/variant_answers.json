@@ -1,0 +1,58 @@
+[
+ {
+  "req": "R-IF-1",
+  "phrase": "n: int",
+  "taken": 1,
+  "variant": 2,
+  "text": "n is an index into the sequence, so only non-negative integers are valid arguments"
+ },
+ {
+  "req": "R-SEQ-1",
+  "phrase": "similar to the Fibbonacci sequnece",
+  "taken": 4,
+  "variant": 1,
+  "text": "fib4(0) to fib4(3) are the starting values and every later element is the sum of the four elements before it, fib4(n) = fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4) for n >= 4 (as the name Fib4 suggests), giving 0, 0, 2, 0, 2, 4, 8, 14, 28, 54, 104, ..."
+ },
+ {
+  "req": "R-BASE-3",
+  "phrase": "fib4(2) -> 2",
+  "taken": 1,
+  "variant": 2,
+  "text": "the Fibonacci rule of R-SEQ-1 applies from fib4(2) on (each element the sum of the two before it), so fib4(2) would be fib4(1) + fib4(0) = 0, which contradicts the listed value 2"
+ },
+ {
+  "req": "R-BASE-4",
+  "phrase": "fib4(3) -> 0",
+  "taken": 1,
+  "variant": 2,
+  "text": "the Fibonacci rule of R-SEQ-1 applies from fib4(2) on (each element the sum of the two before it), so fib4(3) would be fib4(2) + fib4(1) = 2, which contradicts the listed value 0"
+ },
+ {
+  "req": "R-NTH-1",
+  "phrase": "n-th element",
+  "taken": 1,
+  "variant": 2,
+  "text": "elements are counted from 1: the first element is the one written fib4(0), so fib4(n) returns the element written fib4(n-1) and fib4(0) has no element; this conflicts with the listed values read as calls (fib4(2) would return 0, not 2)"
+ },
+ {
+  "req": "R-NTH-1",
+  "phrase": "the fib4 number sequence",
+  "taken": 2,
+  "variant": 1,
+  "text": "the sequence extends to every n through the Fibonacci-like rule of R-SEQ-1, so the n-th element exists and must be returned for every n"
+ },
+ {
+  "req": "R-NTH-1",
+  "phrase": "compute",
+  "taken": 1,
+  "variant": 2,
+  "text": "fib4 may return any number equal to the element, so a float such as 2.0 also meets the requirement"
+ },
+ {
+  "req": "R-NF-2",
+  "phrase": "recursion",
+  "taken": 1,
+  "variant": 2,
+  "text": "only fib4 itself must not call itself, directly or indirectly; a recursive helper function is allowed"
+ }
+]

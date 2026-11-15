@@ -1,0 +1,108 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # number of mirrored index pairs (i, len-1-i), i in the first half, whose elements differ
+  mism: 'count(i < len(arr): 2 * i + 1 < len(arr) && arr[i] != arr[len(arr) - 1 - i])'
+
+properties:
+  - id: RA-RES-1-INT
+    req: R-RES-1
+    expr: 'outcome == 0'
+    note: >-
+      "find the minimum number" read as: the call returns the number, and the
+      number is an int (decisions: find = 1, the minimum number = 1). A call that
+      raises, does not finish, or returns another type (e.g. 4.0) breaks this.
+      This applies to every list the interface admits, including [] (R-IN-1,
+      reading 1).
+  - id: RA-RES-1-VAL
+    req: R-RES-1
+    expr: 'changes == mism'
+    note: >-
+      The minimum number of positions to change so that arr becomes element-wise
+      palindromic (R-DEF-1 reading 1) with one change rewriting one position
+      (R-DEF-2). FCP-PL cannot quantify over candidate arrays, so the minimum is
+      stated in closed form: each mirrored pair with differing elements needs at
+      least one change, and copying one side to the other fixes it with exactly
+      one, so the minimum is the number of differing pairs. The middle element of
+      an odd-length list is never counted. Under either reading of "any other
+      element" the minimum is the same. For [] the value is 0.
+  - id: RA-EX-1-P
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'arr == [1, 2, 3, 5, 4, 7, 9, 6]'
+      cond: 'outcome == 0 && changes == 4'
+    note: >-
+      The docstring states the equality as a fact about this call, so besides
+      the scenario it is also an obligation on this input.
+  - id: RA-EX-2-P
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'arr == [1, 2, 3, 4, 3, 2, 2]'
+      cond: 'outcome == 0 && changes == 1'
+    note: >-
+      The docstring states the equality as a fact about this call, so besides
+      the scenario it is also an obligation on this input.
+  - id: RA-EX-3-P
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'arr == [1, 2, 3, 2, 1]'
+      cond: 'outcome == 0 && changes == 0'
+    note: >-
+      The docstring states the equality as a fact about this call, so besides
+      the scenario it is also an obligation on this input.
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: 'arr == [1, 2, 3, 5, 4, 7, 9, 6] && outcome == 0 && changes == 4'
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: 'arr == [1, 2, 3, 4, 3, 2, 2] && outcome == 0 && changes == 1'
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: 'arr == [1, 2, 3, 2, 1] && outcome == 0 && changes == 0'
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the name smallest_change and the single parameter arr are
+      fixed by the function section of design.yaml (the adapter calls
+      smallest_change(arr)); a single call's trace cannot express it.
+  - req: R-IN-1
+    reason: >-
+      The interface already admits only lists of at most 10 integers from 0 to
+      15 as arr (frame.md, Inputs), which is reading 1 of "an array arr". Under
+      reading 1 of "an array arr of integers" every such list, the empty one
+      included, is a valid input, so there is no further environment obligation
+      to assume and no input for which the outputs are left free. RA-RES-1-INT
+      and RA-RES-1-VAL apply to all of them.
+  - req: R-DEF-1
+    reason: >-
+      Definition. Read element-wise (reading 1): arr is palindromic when
+      arr[i] == arr[len(arr) - 1 - i] for every index i; it enters the def mism
+      used by RA-RES-1-VAL.
+    covered_by: [RA-RES-1-VAL]
+  - req: R-DEF-2
+    reason: >-
+      Definition. One change rewrites the value of one position, to any integer
+      (reading 1); k changed positions cost k. It determines the minimum stated
+      in closed form by RA-RES-1-VAL.
+    covered_by: [RA-RES-1-VAL]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter; design.yaml adds it to every set as F-ZERO and
+      frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "an array arr", reading: 1}
+  - {req: R-IN-1, phrase: "an array arr of integers", reading: 1}
+  - {req: R-RES-1, phrase: "find", reading: 1}
+  - {req: R-RES-1, phrase: "the minimum number", reading: 1}
+  - {req: R-DEF-1, phrase: "read the same backwards and forwards", reading: 1}
+  - {req: R-DEF-2, phrase: "any other element", reading: 1}

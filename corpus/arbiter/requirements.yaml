@@ -1,0 +1,122 @@
+fcp: '0.1'
+design: rr_arbiter
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-OV-1
+  doc: SPEC
+  lines:
+  - 9
+  quote: The arbiter grants a request in the same cycle in which it is raised.
+  text: A raised request is granted in the same cycle.
+  kind: guarantee
+  ambiguity:
+  - phrase: in the same cycle
+    readings:
+    - combinational grant in the raising cycle (contradicts R-G-3 and R-G-1)
+    - informal statement of single-cycle arbitration latency
+- id: R-G-1
+  doc: SPEC
+  lines:
+  - 24
+  quote: At most one grant line is asserted in any cycle.
+  text: gnt is one-hot or zero.
+  kind: guarantee
+- id: R-G-2
+  doc: SPEC
+  lines:
+  - 24
+  - 26
+  quote: 'A requester is never granted unless it requested: gnt[i] is asserted only if req[i] was asserted in the previous cycle.'
+  text: gnt[i] implies req[i] in the previous cycle.
+  kind: guarantee
+- id: R-G-3
+  doc: SPEC
+  lines:
+  - 26
+  - 28
+  quote: 'gnt is a registered output: the arbitration decision is made on the request lines sampled in one cycle and becomes visible on gnt in the next cycle.'
+  text: The grant visible in cycle t+1 is the arbitration decision on req sampled in cycle t.
+  kind: guarantee
+  depends:
+  - R-PRI-2
+- id: R-WC-1
+  doc: SPEC
+  lines:
+  - 32
+  - 33
+  quote: If at least one request line is asserted in a cycle, exactly one grant line is asserted in the next cycle.
+  text: Any request in cycle t implies exactly one grant in cycle t+1.
+  kind: guarantee
+- id: R-PRI-1
+  doc: SPEC
+  lines:
+  - 37
+  - 38
+  quote: After reset, requester 0 has the highest priority, followed by requesters 1, 2 and 3.
+  text: The first arbitration after reset uses the priority order 0,1,2,3.
+  kind: guarantee
+- id: R-PRI-2
+  doc: SPEC
+  lines:
+  - 38
+  quote: The priority rotates by one position after each grant.
+  text: After a grant the priority order rotates.
+  kind: guarantee
+  depends:
+  - R-PRI-1
+  ambiguity:
+  - phrase: rotates by one position after each grant
+    readings:
+    - the granted requester becomes the lowest priority (true round robin)
+    - the priority order shifts by one position regardless of which requester was granted
+- id: R-PRI-3
+  doc: SPEC
+  lines:
+  - 38
+  - 39
+  quote: Requester 3 is reserved for maintenance traffic and always wins arbitration when it requests.
+  text: If req[3] is asserted, requester 3 is granted in the next cycle.
+  kind: guarantee
+  depends:
+  - R-FAIR-1
+- id: R-FAIR-1
+  doc: SPEC
+  lines:
+  - 43
+  quote: A requester that keeps its request asserted is granted within N cycles.
+  text: A continuously asserted request is granted within N cycles.
+  kind: guarantee
+  depends:
+  - R-ENV-1
+  ambiguity:
+  - phrase: within N cycles
+    readings:
+    - at most N cycles with the request pending and not granted
+    - granted no later than N-1 cycles after the request is raised
+- id: R-RST-1
+  doc: SPEC
+  lines:
+  - 47
+  quote: While rst_n is low, and in the cycle after it, no grant line is asserted.
+  text: gnt == 0 in every reset cycle and in the cycle after a reset cycle.
+  kind: guarantee
+- id: R-ENV-1
+  doc: SPEC
+  lines:
+  - 51
+  - 52
+  quote: A requester that has raised its request shall keep it asserted until it receives a grant.
+  text: A raised request stays asserted until granted.
+  kind: assumption
+- id: R-ENV-2
+  doc: SPEC
+  lines:
+  - 52
+  quote: A request may be withdrawn only after the grant.
+  text: A request is only withdrawn after its grant.
+  kind: assumption
+  depends:
+  - R-ENV-1

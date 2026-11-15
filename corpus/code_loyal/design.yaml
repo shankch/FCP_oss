@@ -1,0 +1,48 @@
+fcp: '0.1'
+design: code_loyal
+summary: A Python package treated as a chip with memory. Its entry is the class Account of loyalty/account.py, which uses loyalty/tiers.py and loyalty/points.py. A reset creates an Account; every later cycle is one call of earn(amount), redeem(points), tier() or balance() on it, chosen by the op input. The arguments are inputs, each method's result is on its own output signal, and the account's points stay inside the code. The prompt is the specification, and packages written by AI models are checked by running them on sequences of calls.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt P-LOY-1: Fernwood Outfitters loyalty points'}
+- {id: FRAME, path: frame.md, title: 'FCP object adapter for several methods, version 0.7'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: op, dir: in, width: 3, desc: 'the method: 1 earn, 2 redeem, 3 tier, 4 balance'}
+  - {name: amount, dir: in, width: 17, desc: 'the amount argument of earn, in cents (0 for the other methods)'}
+  - {name: points, dir: in, width: 17, desc: 'the points argument of redeem (0 for the other methods)'}
+  - {name: outcome, dir: out, width: 2, desc: 'how the call ended: 0 returned a value of the declared type, 1 raised ValueError, 2 other exception or no answer, 3 returned anything else'}
+  - {name: earned, dir: out, width: 13, desc: 'the value earn returned (op 1, outcome 0)'}
+  - {name: ok, dir: out, width: 1, desc: 'the value redeem returned (op 2, outcome 0)'}
+  - {name: t, dir: out, width: 2, desc: 'the value tier returned (op 3, outcome 0)'}
+  - {name: bal, dir: out, width: 17, desc: 'the value balance returned (op 4, outcome 0)'}
+environment: {initial_reset: true, reset_anytime: true, bmc_depth: 8, cover_depth: 8}
+frame:
+- {id: F-ZERO, req: R-FR-1, expr: '(op != 1 || outcome != 0 -> earned == 0) && (op != 2 || outcome != 0 -> !ok) && (op != 3 || outcome != 0 -> t == 0) && (op != 4 || outcome != 0 -> bal == 0)'}
+function:
+  class: Account
+  module: loyalty.account
+  op: {signal: op}
+  methods:
+  - name: earn
+    op: 1
+    args: [{name: amount, signal: amount, type: int}]
+    returns: {signal: earned, type: int}
+  - name: redeem
+    op: 2
+    args: [{name: points, signal: points, type: int}]
+    returns: {signal: ok, type: bool}
+  - name: tier
+    op: 3
+    returns: {signal: t, type: int}
+  - name: balance
+    op: 4
+    returns: {signal: bal, type: int}
+  outcome: {signal: outcome, raises: [ValueError]}
+  scope:
+    sequences: 3000
+    length: [1, 10]
+    amount: {values: [0, 1, 99, 100, 199, 250, 33300, 33400, 49900, 50000, 50100, 60000, 99900, 100000, 100001]}
+    points: {values: [0, 1, 2, 50, 499, 500, 501, 1000, 1999, 2000, 100000, 100001]}

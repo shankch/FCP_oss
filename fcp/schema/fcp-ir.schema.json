@@ -1,0 +1,1589 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openfcp.dev/schema/fcp-ir-0.1.json",
+  "title": "Formal Context Protocol IR, version 0.1",
+  "description": "A design bundle = design.yaml + requirements.yaml + formal/<set>.yaml. Each is validated against the corresponding definition below.",
+  "$defs": {
+    "design": {
+      "type": "object",
+      "required": [
+        "fcp",
+        "design",
+        "interface",
+        "docs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "fcp": {
+          "const": "0.1"
+        },
+        "design": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "docs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "path"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "interface": {
+          "type": "object",
+          "required": [
+            "clock",
+            "reset",
+            "signals"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "clock": {
+              "type": "string"
+            },
+            "reset": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "active_low": {
+                  "type": "boolean"
+                },
+                "synchronous": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": {
+                "type": [
+                  "string",
+                  "integer"
+                ],
+                "description": "constant expression over interface parameters"
+              }
+            },
+            "signals": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "dir"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+                  },
+                  "dir": {
+                    "enum": [
+                      "in",
+                      "out"
+                    ]
+                  },
+                  "width": {
+                    "type": [
+                      "string",
+                      "integer"
+                    ],
+                    "description": "constant expression over interface parameters"
+                  },
+                  "desc": {
+                    "type": "string"
+                  },
+                  "length": {
+                    "type": [
+                      "integer",
+                      "string"
+                    ],
+                    "description": "a bounded sequence (a string or a list): at most this many slots of `width` bits each. It is carried by two ports, the packed slots (slot k in bits [k*width+width-1 : k*width], zero beyond the length) and <name>__len, the length"
+                  },
+                  "group": {
+                    "type": "string",
+                    "description": "sequence signals with the same group always have the same length: the fields of a list of records, one signal per field (one direction, one length)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "environment": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "initial_reset": {
+              "type": "boolean",
+              "description": "reset is asserted in cycle 0 (default true)"
+            },
+            "reset_anytime": {
+              "type": "boolean",
+              "description": "reset may be re-asserted at any later cycle (default true)"
+            },
+            "bmc_depth": {
+              "type": "integer"
+            },
+            "cover_depth": {
+              "type": "integer"
+            }
+          }
+        },
+        "frame": {
+          "type": "array",
+          "description": "well-formedness of the interface encoding (e.g. how a text response is framed as a trace): properties every behaviour satisfies by construction. Injected into every formalization set; assumed by spec-only analyses and checked against every RTL variant.",
+          "items": {
+            "$ref": "#/$defs/formalization/properties/properties/items"
+          }
+        },
+        "cutpoint": {
+          "type": "object",
+          "description": "inputs that are the output of a black-box component outside the RTL (e.g. the model of an agent, whose proposed tool call is a free input of the scaffold). `passes` gives, for each design output, the value it takes when the RTL passes the proposal through unchanged; fcp.agent uses it to restate a requirement as a contract on the component.",
+          "additionalProperties": false,
+          "required": [
+            "inputs",
+            "passes"
+          ],
+          "properties": {
+            "component": {
+              "type": "string"
+            },
+            "inputs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "passes": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "decode": {
+              "type": "object",
+              "description": "names of the codes of an enumerated cut-point input, for reports",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "outputs that each mean \"this tool call ran\", for reports"
+            },
+            "show": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": "for reports: the actions with which a signal means something (a p_ signal: the proposed action; any other signal: the action that ran)"
+            }
+          }
+        },
+        "function": {
+          "type": "object",
+          "description": "the design is a software function, checked by running it (fcp.software). Each cycle is one call: the arguments drive input signals, the return value drives an output signal, and an outcome signal says how the call ended (0 returned a value that fits, 1.. the listed exceptions, then any other exception or no answer, then any other return value).",
+          "additionalProperties": false,
+          "required": [
+            "outcome"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "signal": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "int",
+                      "bool",
+                      "str",
+                      "list",
+                      "record",
+                      "records"
+                    ],
+                    "description": "str and list arguments drive a sequence signal (interface `length`); record: a dict (or an object of `class`) with one signal per field; records: a list of them, one sequence signal per field, the fields' signals one interface group"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "key"
+                      ],
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "signal": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "enum": [
+                            "int",
+                            "bool",
+                            "str",
+                            "list"
+                          ],
+                          "description": "the field's type; in a list of records (records), int or bool: the type of the elements of the field's sequence signal"
+                        }
+                      }
+                    },
+                    "description": "record and records: the fields, in order"
+                  },
+                  "class": {
+                    "type": "string",
+                    "description": "record and records: build each record as an object of this class of the implementation's module, with the fields as keyword arguments (default: a dict)"
+                  }
+                }
+              }
+            },
+            "returns": {
+              "type": "object",
+              "description": "signal: one returned value; signals: a returned tuple, one signal per element; type record or records with fields: a returned dict (or object of `class`), or a list of them, one signal per field",
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "signal": {
+                  "type": "string"
+                },
+                "signals": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "type": {
+                  "enum": [
+                    "int",
+                    "bool",
+                    "str",
+                    "list",
+                    "record",
+                    "records"
+                  ]
+                },
+                "types": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "int",
+                      "bool",
+                      "str",
+                      "list"
+                    ]
+                  },
+                  "description": "with signals: the type of every tuple element"
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "key"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "signal": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "enum": [
+                          "int",
+                          "bool",
+                          "str",
+                          "list"
+                        ],
+                        "description": "the field's type; in a list of records (records), int or bool: the type of the elements of the field's sequence signal"
+                      }
+                    }
+                  }
+                },
+                "class": {
+                  "type": "string",
+                  "description": "record and records: the returned records are objects of this class (fields read as attributes); default: dicts with exactly these keys"
+                }
+              }
+            },
+            "outcome": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "signal"
+              ],
+              "properties": {
+                "signal": {
+                  "type": "string"
+                },
+                "raises": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "scope": {
+              "type": "object",
+              "description": "test scope per argument: dense (inclusive range), values (extra values), random (number of random values); for strings and lists also alphabet or elements; defaults apply to arguments not listed; for objects, `sequences` (random call sequences) and `length` ([min, max] calls per sequence)",
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "dense": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer"
+                        }
+                      },
+                      "values": {
+                        "type": "array",
+                        "description": "extra values: integers, or strings and lists for sequence arguments"
+                      },
+                      "random": {
+                        "type": "integer"
+                      },
+                      "only": {
+                        "type": "boolean",
+                        "description": "interfaces: the conflict search takes this argument's configured values alone (an identifier no rule reads), without the ends of its range"
+                      },
+                      "alphabet": {
+                        "type": "string",
+                        "description": "sequence arguments: characters (str) to draw from, besides those of the readings and the code"
+                      },
+                      "elements": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer"
+                        },
+                        "description": "list arguments: element values to draw from, besides the constants of the readings and the code"
+                      },
+                      "steps": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer"
+                        },
+                        "description": "objects: increments to draw for this argument between consecutive calls (a non-decreasing time, for instance)"
+                      }
+                    }
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "length": {
+                        "type": "integer"
+                      },
+                      "random": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "class": {
+              "type": "string",
+              "description": "the function is a method of an object of this class: a reset creates the object (with `init` as constructor arguments) and every later cycle calls the method on it, so calls see the state left by earlier calls"
+            },
+            "init": {
+              "type": "array",
+              "description": "constructor arguments of `class` (constants)"
+            },
+            "module": {
+              "type": "string",
+              "description": "the module the implementation is in: a file name without .py, or for an implementation that is a package (a directory), the dotted module the function is in (shop.pricing); default: name"
+            },
+            "baseline": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "args",
+                "returns",
+                "outcome"
+              ],
+              "description": "a change: the code before it, run on the same calls with the listed arguments; its returned values and outcome drive the listed input signals, so a requirement can relate the new answer to the old one",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "returns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "outcome": {
+                  "type": "string"
+                }
+              }
+            },
+            "interface": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "methods",
+                "signals"
+              ],
+              "description": "the function acts through an interface (fcp.effects): every call it makes on it is an output event, every answer an input scripted by the scope. The code receives the interface (position), or calls names the sandbox patches (position null, `patch` per method); a method with `handle` returns an object (a file, a socket) whose methods are the methods declared `via` it",
+              "properties": {
+                "position": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "description": "position of the parameter that receives the interface (default 0); null: the code does not receive it, every method names its `patch`"
+                },
+                "methods": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "op"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "op": {
+                        "type": "integer"
+                      },
+                      "args": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "signal"
+                              ],
+                              "properties": {
+                                "signal": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "the parameter's name, to bind keyword arguments"
+                                },
+                                "default": {
+                                  "description": "the value when the call leaves the argument out"
+                                },
+                                "enum": {
+                                  "type": "array",
+                                  "description": "a string (or list) argument coded 1, 2, ... by its position here, 0 for any other value"
+                                },
+                                "parse": {
+                                  "enum": [
+                                    "int"
+                                  ],
+                                  "description": "text coded as the number its decimal digits spell"
+                                },
+                                "open_mode": {
+                                  "type": "boolean",
+                                  "description": "an open() mode coded 1 read, 2 write, 3 append, 4 create, 0 other"
+                                },
+                                "handle": {
+                                  "type": "boolean",
+                                  "description": "an object a `handle` method made, or its fileno(), coded as its number"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "description": "the arguments' signals, in order: a signal name, or an object with an encoding"
+                      },
+                      "answers": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "patch": {
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ],
+                        "description": "name(s) the code calls (time.sleep, payments.charge, builtins.open, pathlib.Path.write_text); the sandbox installs the recording stub there before the code is imported, creating a module it lacks"
+                      },
+                      "raises": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "description": "answers delivered as an exception instead of a return value: answer name -> exception (a builtin name or module.Name, created in a module the sandbox created)"
+                      },
+                      "handle": {
+                        "type": "boolean",
+                        "description": "the method returns an object (a file, a socket) unless it fails; the methods declared `via` this one are called on that object"
+                      },
+                      "via": {
+                        "type": "string",
+                        "description": "the method is called on an object the named `handle` method made (f.write)"
+                      },
+                      "var": {
+                        "type": "string",
+                        "description": "how objects this method makes are shown (f: f1, f2, ...)"
+                      },
+                      "fs": {
+                        "enum": [
+                          "open",
+                          "remove",
+                          "move"
+                        ],
+                        "description": "what the call does to the files the run sees: open creates its first argument in a writing mode; remove deletes it; move renames the first to the second. Removing or moving a file that does not exist raises FileNotFoundError"
+                      },
+                      "bytes": {
+                        "type": "boolean",
+                        "description": "answers are returned as bytes (a socket's recv)"
+                      }
+                    }
+                  }
+                },
+                "signals": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "phase",
+                    "op",
+                    "answer"
+                  ],
+                  "properties": {
+                    "phase": {
+                      "type": "string"
+                    },
+                    "op": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "handle": {
+                      "type": "string",
+                      "description": "output: at a call of a `handle` method, the number of the object it made (1 the first of the run); at a call on an object, its number"
+                    }
+                  }
+                },
+                "max_calls": {
+                  "type": "integer"
+                },
+                "files": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "exists": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "files that exist when a run starts"
+                    },
+                    "query": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "names the code asks whether a file exists with (os.path.exists, pathlib.Path.exists): answered from the run's own files"
+                    }
+                  },
+                  "description": "the files a run sees: what exists at the start, changed by methods with `fs`"
+                }
+              }
+            },
+            "op": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "signal"
+              ],
+              "properties": {
+                "signal": {
+                  "type": "string"
+                }
+              },
+              "description": "with methods: the input signal that says which method a call is (its `op`)"
+            },
+            "methods": {
+              "type": "array",
+              "minItems": 1,
+              "description": "an object with several methods (with class): each cycle is a call of the method whose op the `op` signal carries; the arguments it does not take are 0, and so are the results of the other methods (a frame rule should say so)",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "op"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "op": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "name"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "signal": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "enum": [
+                            "int",
+                            "bool",
+                            "str",
+                            "list",
+                            "record",
+                            "records"
+                          ],
+                          "description": "str and list arguments drive a sequence signal (interface `length`); record: a dict (or an object of `class`) with one signal per field; records: a list of them, one sequence signal per field, the fields' signals one interface group"
+                        },
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "key"
+                            ],
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "signal": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "enum": [
+                                  "int",
+                                  "bool",
+                                  "str",
+                                  "list"
+                                ],
+                                "description": "the field's type; in a list of records (records), int or bool: the type of the elements of the field's sequence signal"
+                              }
+                            }
+                          },
+                          "description": "record and records: the fields, in order"
+                        },
+                        "class": {
+                          "type": "string",
+                          "description": "record and records: build each record as an object of this class of the implementation's module, with the fields as keyword arguments (default: a dict)"
+                        }
+                      }
+                    }
+                  },
+                  "returns": {
+                    "type": "object",
+                    "description": "signal: one returned value; signals: a returned tuple, one signal per element; type record or records with fields: a returned dict (or object of `class`), or a list of them, one signal per field",
+                    "additionalProperties": false,
+                    "minProperties": 1,
+                    "properties": {
+                      "signal": {
+                        "type": "string"
+                      },
+                      "signals": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "type": {
+                        "enum": [
+                          "int",
+                          "bool",
+                          "str",
+                          "list",
+                          "record",
+                          "records"
+                        ]
+                      },
+                      "types": {
+                        "type": "array",
+                        "items": {
+                          "enum": [
+                            "int",
+                            "bool",
+                            "str",
+                            "list"
+                          ]
+                        },
+                        "description": "with signals: the type of every tuple element"
+                      },
+                      "fields": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "key"
+                          ],
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "signal": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "enum": [
+                                "int",
+                                "bool",
+                                "str",
+                                "list"
+                              ],
+                              "description": "the field's type; in a list of records (records), int or bool: the type of the elements of the field's sequence signal"
+                            }
+                          }
+                        }
+                      },
+                      "class": {
+                        "type": "string",
+                        "description": "record and records: the returned records are objects of this class (fields read as attributes); default: dicts with exactly these keys"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "name",
+                "args",
+                "returns"
+              ]
+            },
+            {
+              "required": [
+                "class",
+                "methods",
+                "op"
+              ]
+            }
+          ]
+        },
+        "rtl": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "top",
+              "files"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "top": {
+                "type": "string"
+              },
+              "files": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "params": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "integer"
+                  ],
+                  "description": "constant expression over interface parameters"
+                }
+              },
+              "port_map": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "desc": {
+                "type": "string"
+              },
+              "origin": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "requirements": {
+      "type": "object",
+      "required": [
+        "fcp",
+        "design",
+        "requirements"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "fcp": {
+          "const": "0.1"
+        },
+        "design": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "object",
+          "description": "who produced this artifact",
+          "properties": {
+            "kind": {
+              "enum": [
+                "human",
+                "agent",
+                "tool"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            },
+            "run": {
+              "type": "string"
+            },
+            "prompt_sha256": {
+              "type": "string"
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "doc",
+              "lines",
+              "quote",
+              "text",
+              "kind"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+              },
+              "doc": {
+                "type": "string"
+              },
+              "lines": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                },
+                "minItems": 1,
+                "maxItems": 2
+              },
+              "quote": {
+                "type": "string",
+                "minLength": 1,
+                "description": "verbatim text of the cited span (checked)"
+              },
+              "text": {
+                "type": "string",
+                "description": "atomic, self-contained restatement"
+              },
+              "kind": {
+                "enum": [
+                  "guarantee",
+                  "assumption",
+                  "dont_care",
+                  "scenario",
+                  "definition",
+                  "non_functional"
+                ]
+              },
+              "depends": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "ambiguity": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "phrase",
+                    "readings"
+                  ],
+                  "properties": {
+                    "phrase": {
+                      "type": "string"
+                    },
+                    "readings": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "note": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "confidence": {
+                "enum": [
+                  "high",
+                  "medium",
+                  "low"
+                ]
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "formalization": {
+      "type": "object",
+      "required": [
+        "fcp",
+        "set"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "fcp": {
+          "const": "0.1"
+        },
+        "set": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "object",
+          "description": "who produced this artifact",
+          "properties": {
+            "kind": {
+              "enum": [
+                "human",
+                "agent",
+                "tool"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            },
+            "run": {
+              "type": "string"
+            },
+            "prompt_sha256": {
+              "type": "string"
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "defs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "integer",
+              "boolean"
+            ],
+            "description": "FCP-PL expression (see docs/IR_spec.md)"
+          }
+        },
+        "ghosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "next"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "range": {
+                "type": "array",
+                "items": {
+                  "type": [
+                    "string",
+                    "integer"
+                  ],
+                  "description": "constant expression over interface parameters"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "width": {
+                "type": [
+                  "string",
+                  "integer"
+                ],
+                "description": "constant expression over interface parameters"
+              },
+              "init": {
+                "type": [
+                  "string",
+                  "integer"
+                ],
+                "description": "constant expression over interface parameters"
+              },
+              "next": {
+                "type": [
+                  "string",
+                  "integer",
+                  "boolean"
+                ],
+                "description": "FCP-PL expression (see docs/IR_spec.md)"
+              },
+              "desc": {
+                "type": "string"
+              }
+            },
+            "oneOf": [
+              {
+                "required": [
+                  "range"
+                ]
+              },
+              {
+                "required": [
+                  "width"
+                ]
+              }
+            ]
+          }
+        },
+        "rigids": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "range"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "range": {
+                "type": "array",
+                "items": {
+                  "type": [
+                    "string",
+                    "integer"
+                  ],
+                  "description": "constant expression over interface parameters"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "desc": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+              },
+              "req": {
+                "type": "string"
+              },
+              "source": {
+                "type": "object",
+                "properties": {
+                  "doc": {
+                    "type": "string"
+                  },
+                  "lines": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "minItems": 1,
+                    "maxItems": 2
+                  }
+                },
+                "additionalProperties": false
+              },
+              "note": {
+                "type": "string"
+              },
+              "reading": {
+                "type": "string"
+              },
+              "justification": {
+                "type": "string"
+              },
+              "pattern": {
+                "enum": [
+                  "invariant",
+                  "implies",
+                  "next",
+                  "within",
+                  "hold_until",
+                  "bounded_wait",
+                  "after_reset",
+                  "inorder"
+                ]
+              },
+              "args": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "integer",
+                    "boolean"
+                  ],
+                  "description": "FCP-PL expression (see docs/IR_spec.md)"
+                }
+              },
+              "expr": {
+                "type": [
+                  "string",
+                  "integer",
+                  "boolean"
+                ],
+                "description": "FCP-PL expression (see docs/IR_spec.md)"
+              },
+              "mode": {
+                "enum": [
+                  "operational",
+                  "always"
+                ]
+              },
+              "decision": {
+                "type": "string"
+              }
+            },
+            "oneOf": [
+              {
+                "required": [
+                  "pattern",
+                  "args"
+                ],
+                "not": {
+                  "required": [
+                    "expr"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "expr"
+                ],
+                "not": {
+                  "required": [
+                    "pattern"
+                  ]
+                }
+              }
+            ],
+            "additionalProperties": false
+          }
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+              },
+              "req": {
+                "type": "string"
+              },
+              "source": {
+                "type": "object",
+                "properties": {
+                  "doc": {
+                    "type": "string"
+                  },
+                  "lines": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "minItems": 1,
+                    "maxItems": 2
+                  }
+                },
+                "additionalProperties": false
+              },
+              "note": {
+                "type": "string"
+              },
+              "reading": {
+                "type": "string"
+              },
+              "justification": {
+                "type": "string"
+              },
+              "pattern": {
+                "enum": [
+                  "invariant",
+                  "implies",
+                  "next",
+                  "within",
+                  "hold_until",
+                  "bounded_wait",
+                  "after_reset",
+                  "inorder"
+                ]
+              },
+              "args": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "integer",
+                    "boolean"
+                  ],
+                  "description": "FCP-PL expression (see docs/IR_spec.md)"
+                }
+              },
+              "expr": {
+                "type": [
+                  "string",
+                  "integer",
+                  "boolean"
+                ],
+                "description": "FCP-PL expression (see docs/IR_spec.md)"
+              },
+              "mode": {
+                "enum": [
+                  "operational",
+                  "always"
+                ]
+              },
+              "decision": {
+                "type": "string"
+              }
+            },
+            "oneOf": [
+              {
+                "required": [
+                  "pattern",
+                  "args"
+                ],
+                "not": {
+                  "required": [
+                    "expr"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "expr"
+                ],
+                "not": {
+                  "required": [
+                    "pattern"
+                  ]
+                }
+              }
+            ],
+            "additionalProperties": false
+          }
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "cover"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+              },
+              "req": {
+                "type": "string"
+              },
+              "source": {
+                "type": "object",
+                "properties": {
+                  "doc": {
+                    "type": "string"
+                  },
+                  "lines": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "minItems": 1,
+                    "maxItems": 2
+                  }
+                },
+                "additionalProperties": false
+              },
+              "note": {
+                "type": "string"
+              },
+              "reading": {
+                "type": "string"
+              },
+              "justification": {
+                "type": "string"
+              },
+              "cover": {
+                "type": [
+                  "string",
+                  "integer",
+                  "boolean"
+                ],
+                "description": "FCP-PL expression (see docs/IR_spec.md)"
+              }
+            }
+          }
+        },
+        "dont_cares": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "signal",
+              "when"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+              },
+              "req": {
+                "type": "string"
+              },
+              "source": {
+                "type": "object",
+                "properties": {
+                  "doc": {
+                    "type": "string"
+                  },
+                  "lines": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "minItems": 1,
+                    "maxItems": 2
+                  }
+                },
+                "additionalProperties": false
+              },
+              "note": {
+                "type": "string"
+              },
+              "reading": {
+                "type": "string"
+              },
+              "justification": {
+                "type": "string"
+              },
+              "signal": {
+                "type": "string"
+              },
+              "when": {
+                "type": [
+                  "string",
+                  "integer",
+                  "boolean"
+                ],
+                "description": "FCP-PL expression (see docs/IR_spec.md)"
+              }
+            }
+          }
+        },
+        "unformalized": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "req",
+              "reason"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "req": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "covered_by": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "formal items that realize this requirement indirectly"
+              },
+              "decision": {
+                "type": "string",
+                "description": "recorded human resolution (conflict/ambiguity) that justifies the treatment"
+              }
+            }
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "description": "for every phrase that requirements.yaml flags under `ambiguity`: which of its listed readings this set takes (numbered from 1); a review compares sets on these and writes a variant reading for the answers no reader chose",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "req",
+              "phrase",
+              "reading"
+            ],
+            "properties": {
+              "req": {
+                "type": "string"
+              },
+              "phrase": {
+                "type": "string"
+              },
+              "reading": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

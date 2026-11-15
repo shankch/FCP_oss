@@ -1,0 +1,155 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # "2^n" read as 2 XOR n (Python's ^), as the request directs
+  x: "16'd2 ^ n"
+
+rigids:
+  # universally quantified quotient: for p >= 1 exactly one q has q*p <= x < (q+1)*p,
+  # and then x mod p is x - q*p (FCP-PL's % needs a constant divisor)
+  - {name: q, range: [0, 65535]}
+
+properties:
+  - id: RV-RES1-OUT
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: "p >= 1"
+      cond: "outcome == 0 || outcome == 2"
+    note: >-
+      "returns normally" for p >= 1: no exception and no hang (outcome 1). "Return" is read,
+      as the request directs, as reading 2 (any number equal to the residue is acceptable,
+      such as the float 3.0), although the doctest output 3 and the frame's outcome 2 for
+      other types argue for reading 1 (a Python int). The adapter records a non-int return
+      as outcome 2 with result 0, so its value cannot be seen in the trace; to accept the
+      float 3.0 this item accepts every outcome 2 return, which also lets through returns
+      that are not equal to the residue (another float, a string, a negative number).
+
+  - id: RV-RES1-VAL
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: "p >= 1 && n != 0 && outcome == 0 && q * p <= x && x < (q + 1) * p"
+      cond: "result == x - q * p"
+    note: >-
+      For p >= 1 and n != 0, an integer return is (2 XOR n) mod p. "2^n" is read, as the
+      request directs, as reading 2 (2 XOR n, what 2 ^ n means in Python code), although
+      reading 1 (2 to the power n) seems more natural: this reading contradicts the examples
+      modp(3, 5) = 3, modp(1101, 101) = 2 and modp(3, 11) = 8 (it gives 1, 93 and 1), so
+      the scenarios RV-EX1, RV-EX2 and RV-EX4 are unreachable together with this item.
+      "Return" is read as reading 2 (see RV-RES1-OUT): only an integer return (outcome 0)
+      is checked here. n = 0 is left to RV-RES1-ZERO under the "modulo p" reading.
+
+  - id: RV-RES1-ZERO
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: "p >= 1 && n == 0 && outcome == 0"
+      cond: "result == 1"
+    note: >-
+      "modulo p" is read, as the request directs, as reading 2: for n = 0 the value
+      2^0 = 1 is returned as is for every p (so modp(0, 1) is 1), although reading 1 (always
+      reduced into 0 .. p-1, so modp(0, 1) = 0) seems more natural. The reading states the
+      value 1 literally; under the "2^n" reading taken (2 XOR n) 2^0 would be 2, and the
+      value 1 is kept as written. The item is limited to p >= 1, the scope of R-RES-1's
+      text. "Return" is read as reading 2 (see RV-RES1-OUT): only an integer return
+      (outcome 0) is checked here.
+
+  - id: RV-RES2-RAISE
+    req: R-RES-2
+    pattern: implies
+    args:
+      trigger: "p == 0"
+      cond: "outcome == 1"
+    note: >-
+      "modulo p" is read, as the request directs, as reading 2: the call must raise an
+      exception for p = 0 (as 2**n % 0 raises ZeroDivisionError and pow(2, n, 0) raises
+      ValueError), although reading 1 (p = 0 outside the contract, any outcome acceptable;
+      the requirement's own kind is dont_care) seems more natural. The adapter's outcome 1
+      also covers a call that does not finish, so the trace cannot tell a hang from an
+      exception. Contradicts RV-EX3-ALL at modp(0, 0), which must return 1 under the
+      reading taken for R-EX-3: no behaviour meets both there.
+
+  - id: RV-EX3-ALL
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: "n == 0"
+      cond: "outcome == 0 && result == 1"
+    note: >-
+      "modp(0, 101)" is read, as the request directs, as reading 2: an illustration that
+      modp(0, p) is 1 for every p, although reading 1 (a single data point) seems more
+      natural. This contradicts the reduced result 2^0 mod 1 = 0 at p = 1 (it agrees with
+      RV-RES1-ZERO, which follows the "modulo p" reading taken). "every p" is taken
+      literally, p = 0 included, which contradicts RV-RES2-RAISE (modp(n, 0) must raise)
+      at modp(0, 0). The doctest output 1 is an int, so outcome 0 is required here.
+
+scenarios:
+  - id: RV-EX1
+    req: R-EX-1
+    cover: "n == 3 && p == 5 && outcome == 0 && result == 3"
+    note: >-
+      Doctest modp(3, 5) = 3. Unreachable together with RV-RES1-VAL under the "2^n" reading
+      taken for R-RES-1 (2 XOR 3 = 1, and 1 mod 5 = 1).
+
+  - id: RV-EX2
+    req: R-EX-2
+    cover: "n == 1101 && p == 101 && outcome == 0 && result == 2"
+    note: >-
+      Doctest modp(1101, 101) = 2. Unreachable together with RV-RES1-VAL under the "2^n"
+      reading taken for R-RES-1 (2 XOR 1101 = 1103, and 1103 mod 101 = 93).
+
+  - id: RV-EX3
+    req: R-EX-3
+    cover: "n == 0 && p == 101 && outcome == 0 && result == 1"
+    note: >-
+      Doctest modp(0, 101) = 1 as a must-be-possible behaviour; the generalization to every p
+      under the reading taken for "modp(0, 101)" is RV-EX3-ALL.
+
+  - id: RV-EX4
+    req: R-EX-4
+    cover: "n == 3 && p == 11 && outcome == 0 && result == 8"
+    note: >-
+      Doctest modp(3, 11) = 8. Unreachable together with RV-RES1-VAL under the "2^n" reading
+      taken for R-RES-1 (2 XOR 3 = 1, and 1 mod 11 = 1).
+
+  - id: RV-EX5
+    req: R-EX-5
+    cover: "n == 100 && p == 101 && outcome == 0 && result == 1"
+    note: >-
+      Doctest modp(100, 101) = 1. Consistent with the readings taken for R-RES-1
+      (2 XOR 100 = 102, and 102 mod 101 = 1).
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Concerns the form of the deliverable (a complete body for modp), not any behaviour of a
+      call; the behaviour the body must have is formalized under R-RES-1 and R-RES-2.
+  - req: R-SIG-1
+    reason: >-
+      Structural: the name modp and the parameters n then p are fixed by the function section
+      of design.yaml, which maps them to the signals n and p; there is nothing to check per call.
+  - req: R-NUM-1
+    reason: >-
+      "be aware of numerics" is read as reading 1 (efficiency: a call with large n must
+      finish, and a call that does not finish is outcome 1). The only observable consequence,
+      that a call with p >= 1 does not end in outcome 1, is RV-RES1-OUT, and exactness of an
+      integer return is RV-RES1-VAL / RV-RES1-ZERO. Cost beyond finishing is not visible in
+      the trace. Under the "2^n" reading taken for R-RES-1 (2 XOR n, at most 65,535) there is
+      no large intermediate value to be careful about.
+    covered_by: [RV-RES1-OUT, RV-RES1-VAL, RV-RES1-ZERO]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the function adapter (design.yaml frame), which holds by
+      construction and is added to every formalization set; frame.md says it need not be
+      restated.
+
+decisions:
+  - {req: R-RES-1, phrase: "2^n", reading: 2}
+  - {req: R-RES-1, phrase: "modulo p", reading: 2}
+  - {req: R-RES-1, phrase: "Return", reading: 2}
+  - {req: R-RES-2, phrase: "modulo p", reading: 2}
+  - {req: R-NUM-1, phrase: "be aware of numerics", reading: 1}
+  - {req: R-EX-3, phrase: "modp(0, 101)", reading: 2}

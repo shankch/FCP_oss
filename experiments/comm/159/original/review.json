@@ -1,0 +1,315 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 24300,
+    "checked": 24300,
+    "seconds": 13.17
+   },
+   "open": {
+    "open": {},
+    "checked": 20384
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 24300,
+    "checked": 24300,
+    "seconds": 13.47
+   },
+   "open": {
+    "open": {},
+    "checked": 20384
+   }
+  }
+ },
+ "readings": {
+  "R-EAT-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EAT-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EAT-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EAT-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EAT-5": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-3": {
+   "plain": "INCOMPARABLE",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `number <= 1000`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-2",
+    "req": "R-IN-2",
+    "says": "every call meets `need <= 1000`",
+    "where": {}
+   },
+   {
+    "reading": "agent_a",
+    "id": "RA-IN-3",
+    "req": "R-IN-3",
+    "says": "every call meets `remaining <= 1000`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-1",
+    "req": "R-IN-1",
+    "says": "every call meets `number <= 1000`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-2",
+    "req": "R-IN-2",
+    "says": "every call meets `need <= 1000`",
+    "where": {}
+   },
+   {
+    "reading": "agent_b",
+    "id": "RB-IN-3",
+    "req": "R-IN-3",
+    "says": "every call meets `remaining <= 1000`",
+    "where": {}
+   }
+  ],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-DEF-2",
+   "phrase": "the number of carrots that you need to eat",
+   "taken": 1,
+   "variant": 2,
+   "text": "need is the day's total requirement including the carrots already eaten, so only max(need - number, 0) more are needed (this contradicts eat(5, 6, 10) -> [11, 4], which would become [6, 9])"
+  },
+  {
+   "req": "R-RET-1",
+   "phrase": "return an array of [ total number of eaten carrots after your meals, the number of carrots left after your meals ]",
+   "taken": 1,
+   "variant": 2,
+   "text": "the result must also report that the rabbit is still hungry (R-EAT-5), which contradicts returning exactly two elements"
+  },
+  {
+   "req": "R-RET-2",
+   "phrase": "total number of eaten carrots",
+   "taken": 1,
+   "variant": 2,
+   "text": "only the carrots eaten in this call, without number"
+  },
+  {
+   "req": "R-RET-3",
+   "phrase": "the number of carrots left",
+   "taken": 1,
+   "variant": 2,
+   "text": "the carrots the rabbit still has left to eat: need minus the carrots eaten in this call"
+  },
+  {
+   "req": "R-EAT-1",
+   "phrase": "you need to eat more carrots",
+   "taken": 1,
+   "variant": 2,
+   "text": "the rabbit eats at least need carrots and may eat more, e.g. all remaining carrots"
+  },
+  {
+   "req": "R-EAT-2",
+   "phrase": "you need to eat more carrots",
+   "taken": 1,
+   "variant": 2,
+   "text": "the rabbit eats at least need carrots and may eat more, e.g. all remaining carrots"
+  },
+  {
+   "req": "R-EAT-3",
+   "phrase": "not enough remaining carrots",
+   "taken": 1,
+   "variant": 2,
+   "text": "remaining <= need (gives the same result when remaining == need)"
+  },
+  {
+   "req": "R-EAT-4",
+   "phrase": "not enough remaining carrots",
+   "taken": 1,
+   "variant": 2,
+   "text": "remaining <= need (gives the same result when remaining == need)"
+  },
+  {
+   "req": "R-EAT-5",
+   "phrase": "but will still be hungry",
+   "taken": 1,
+   "variant": 2,
+   "text": "the result must report that the rabbit is still hungry (a flag or the shortfall), which contradicts returning exactly two elements (R-RET-1)"
+  },
+  {
+   "req": "R-IN-1",
+   "phrase": "Constrain",
+   "taken": 1,
+   "variant": 2,
+   "text": "the function must reject number outside 0..1000 (for example by raising an exception)"
+  },
+  {
+   "req": "R-IN-2",
+   "phrase": "Constrain",
+   "taken": 1,
+   "variant": 2,
+   "text": "the function must reject need outside 0..1000 (for example by raising an exception)"
+  },
+  {
+   "req": "R-IN-3",
+   "phrase": "Constrain",
+   "taken": 1,
+   "variant": 2,
+   "text": "the function must reject remaining outside 0..1000 (for example by raising an exception)"
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "eat(0, 1, 0) -> returned something else"
+   ]
+  }
+ },
+ "certified": [
+  "R-EX-1",
+  "R-EX-2",
+  "R-EX-3",
+  "R-EX-4"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [
+    "eat(0, 1, 0) -> returned something else"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"array\" can mean: a Python list / a list or a tuple / any array-like sequence, such as array.array or a numpy array. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-1"
+   ],
+   "calls": [],
+   "question": "\"return an array of [ total number of eaten carrots after your meals, the number of carrots left after your meals ]\" can mean: exactly these two elements are returned and nothing else; that the rabbit is still hungry (R-EAT-5) is not reported separately / the result must also report that the rabbit is still hungry (R-EAT-5), which contradicts returning exactly two elements. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EAT-1",
+    "R-EAT-2"
+   ],
+   "calls": [],
+   "question": "\"you need to eat more carrots\" can mean: when there are enough carrots the rabbit eats exactly need carrots, no more (the examples follow this reading) / the rabbit eats at least need carrots and may eat more, e.g. all remaining carrots. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EAT-3",
+    "R-EAT-4"
+   ],
+   "calls": [],
+   "question": "\"not enough remaining carrots\" can mean: remaining < need / remaining <= need (gives the same result when remaining == need). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EAT-5"
+   ],
+   "calls": [],
+   "question": "\"but will still be hungry\" can mean: narrative only: it follows from eating fewer than need carrots and is not reported by any extra element / the result must report that the rabbit is still hungry (a flag or the shortfall), which contradicts returning exactly two elements (R-RET-1). Which is meant?"
+  }
+ ],
+ "limits": []
+}

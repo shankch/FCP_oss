@@ -1,0 +1,234 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # The call returned True. Reading 2 of R-RES-1 "return True": any truthy value
+  # counts. A non-bool return (outcome 2) is not visible as truthy or falsy in the
+  # trace, so every non-bool return counts as possibly truthy.
+  returns_true: 'outcome == 0 && result || outcome == 2'
+  # The call returned the boolean False.
+  returns_false: 'outcome == 0 && !result'
+  # b, or some rotation of b, is a substring in a, under the instructed readings:
+  #   rotation  = any permutation of b (R-DEF-2, reading 2; b itself is one),
+  #   substring = subsequence of a (R-DEF-3, reading 2),
+  #   letters compared ignoring case (R-DEF-3, reading 2),
+  #   empty b   = nothing to find, so the condition is false (R-RES-1, reading 2).
+  # Some permutation of b is a subsequence of a exactly when every character
+  # occurs in a at least as often as in b (multiset inclusion), so that is what
+  # is stated. Case folding is Python's str.lower() on Latin-1: A-Z and
+  # 192..222 except 215 (the multiplication sign) map to code + 32.
+  hit: >-
+    len(b) > 0 && all(j < len(b):
+      count(k < len(b): lower(b[k]) + (b[k] >= 192 && b[k] <= 222 && b[k] != 215 ? 32 : 0)
+                     == lower(b[j]) + (b[j] >= 192 && b[j] <= 222 && b[j] != 215 ? 32 : 0))
+      <= count(i < len(a): lower(a[i]) + (a[i] >= 192 && a[i] <= 222 && a[i] != 215 ? 32 : 0)
+                        == lower(b[j]) + (b[j] >= 192 && b[j] <= 222 && b[j] != 215 ? 32 : 0)))
+
+properties:
+  - id: RV-RES-1
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'hit', cond: 'returns_false'}
+    note: >-
+      Instructed readings. (1) R-RES-1 example phrases for ("hello","ell"), ("abab","baa"),
+      ("himenss","simen"), reading 2: the examples win and the rule does not hold as written;
+      the negated rule ("True exactly when neither b nor any rotation of b is a substring of a")
+      replaces it, so where R-RES-1's condition holds the call returns False. The three example
+      calls satisfy `hit` under the readings below, so this item also makes each of them return
+      False. (2) R-DEF-2 "rotations", reading 2: any permutation of b. (3) R-DEF-3 "substring",
+      reading 2: subsequence, not adjacent characters. (4) R-DEF-3 "is a substring in the first
+      word", reading 2: letters compared ignoring case (Latin-1 str.lower() folding; non-letters
+      compared exactly). (5) R-RES-1 "the second word or any of its rotations", reading 2: an
+      empty b has nothing to find, so `hit` is false for it (see RV-RES-1-EMPTY). (6) R-IN-1
+      "words", reading 1: any string is a legal call, so the rule applies to every input with no
+      assumption. (7) R-RES-1 "return True", reading 2 (any truthy value counts as True): this
+      does not widen this item, which requires False. "Returns False" is read literally as the
+      boolean False, so a falsy non-bool value (outcome 2) does not satisfy it. Problem: under
+      readings (2) to (4), b is "found" in a for all six examples, so the parenthetical claim
+      that all six examples fit the negated rule is false: R-EX-1, R-EX-3 and R-EX-5 (True)
+      contradict this item.
+  - id: RV-RES-1-EMPTY
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'len(b) == 0', cond: '!returns_true'}
+    note: >-
+      Instructed reading of R-RES-1 "the second word or any of its rotations", reading 2: "When
+      b is empty there is nothing to find, so the condition does not hold and the call does not
+      return True". The last clause is stated as a fact about the call, so it is formalized as
+      written. With R-RES-1 "return True", reading 2 (any truthy value counts as True), the call
+      must not return a truthy value. The trace does not show whether a non-bool value is
+      truthy, so every non-bool return (outcome 2) is ruled out. Raising an exception or
+      returning False satisfies it. R-IN-1 "words", reading 1: the empty string is a legal
+      argument. Conflict: under the negated rule adopted for R-RES-2 (RV-RES-2), an empty b
+      (condition false) requires True. No answer to a call with empty b meets both items.
+  - id: RV-RES-2
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: '!hit', cond: 'returns_true'}
+    note: >-
+      Instructed readings. (1) R-RES-2 example phrases for ("abcd","abd"), ("whassup","psus"),
+      ("efef","eeff"), reading 2: the examples win and the rule ("False when neither b nor any
+      rotation of b is a substring of a") does not hold as written. It is replaced by the
+      negated rule, so in R-RES-2's case the call returns True. (2) R-RES-2 "return True if",
+      reading 2: only the True case of the rule is specified. Applied to the negated rule, R-RES-2
+      says nothing when `hit` holds; R-RES-1 (RV-RES-1) covers that case. (3) R-RES-1 "return
+      True", reading 2, applied to the same phrase here: any truthy value counts. Every non-bool
+      return (outcome 2) is accepted as possibly truthy, including a falsy one, because truthiness
+      is not visible in the trace. (4) R-DEF-2 "rotations": permutations. (5) R-DEF-3
+      "substring": subsequence. (6) R-DEF-3 "is a substring in the first word": letters ignore
+      case. (7) R-RES-1 "the second word or any of its rotations": empty b is not a hit, so it
+      falls under this item, which conflicts with RV-RES-1-EMPTY. (8) R-IN-1 "words", reading 1:
+      no input restriction. R-RES-2's "in particular whenever b is longer than a": such calls are
+      never a hit, so under the negated rule they return True.
+  - id: RV-RES-2-EX1
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: 'a == "abcd" && b == "abd"', cond: 'returns_true'}
+    note: >-
+      Instructed reading of R-RES-2 phrase 'cycpattern_check("abcd","abd") => True', reading 2:
+      "The example R-EX-1 wins: the call returns True". Formalized as stated, with "True" read
+      as any truthy value (R-RES-1 "return True", reading 2). Problem: under the instructed
+      definitions (permutation, subsequence, ignore case), "abd" is a subsequence of "abcd". So
+      the call is a hit, the negated rule (RV-RES-1) gives False, and this item conflicts with
+      RV-RES-1. It also conflicts with RV-EX-1 (R-EX-1 reading 2: False).
+  - id: RV-RES-2-EX3
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: 'a == "whassup" && b == "psus"', cond: 'returns_true'}
+    note: >-
+      Instructed reading of R-RES-2 phrase 'cycpattern_check("whassup","psus") => True', reading
+      2: "The example R-EX-3 wins: the call returns True". Formalized as stated, with "True" read
+      as any truthy value (R-RES-1 "return True", reading 2). Problem: under the instructed
+      definitions, the permutation "ssup" of "psus" occurs in "whassup" ("whassup"[3:7]). So the
+      call is a hit, and this item conflicts with RV-RES-1 (False) and with RV-EX-3 (R-EX-3
+      reading 2: False).
+  - id: RV-RES-2-EX5
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: 'a == "efef" && b == "eeff"', cond: 'returns_true'}
+    note: >-
+      Instructed reading of R-RES-2 phrase 'cycpattern_check("efef","eeff") => True', reading 2:
+      "The example R-EX-5 wins: the call returns True". Formalized as stated, with "True" read as
+      any truthy value (R-RES-1 "return True", reading 2). Problem: under the instructed
+      definitions, the permutation "efef" of "eeff" is (a subsequence of) "efef". So the call is
+      a hit, and this item conflicts with RV-RES-1 (False) and with RV-EX-5 (R-EX-5 reading 2:
+      False).
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'a == "abcd" && b == "abd"', cond: 'returns_false'}
+    note: >-
+      Instructed reading of R-EX-1 'cycpattern_check("abcd","abd") => True', reading 2: "The
+      rule R-RES-2 is right: the call returns False and the example is wrong". Formalized as
+      stated: the boolean False. A property, not a cover: the example fixes the answer to one
+      call of a function without memory. Note: under the instructed definitions this call is a
+      hit, so R-RES-2's stated condition does not even apply to it. False here agrees with
+      RV-RES-1 but conflicts with RV-RES-2-EX1 (True).
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'a == "hello" && b == "ell"', cond: 'returns_true'}
+    note: >-
+      Instructed reading of R-EX-2 'cycpattern_check("hello","ell") => False', reading 2: "The
+      rule R-RES-1 is right: the call returns True and the example is wrong". "True" is the
+      rule's "return True", so R-RES-1 "return True", reading 2 applies and any truthy value (any
+      non-bool return) is accepted. Conflict: R-RES-1's own example reading (negated rule,
+      RV-RES-1) makes this call, a hit, return False.
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'a == "whassup" && b == "psus"', cond: 'returns_false'}
+    note: >-
+      Instructed reading of R-EX-3 'cycpattern_check("whassup","psus") => True', reading 2: "The
+      rule R-RES-2 is right: the call returns False and the example is wrong". Formalized as
+      stated: the boolean False. Note: under the instructed definitions this call is a hit, so
+      R-RES-2's stated condition does not apply to it. False agrees with RV-RES-1 but conflicts
+      with RV-RES-2-EX3 (True).
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'a == "abab" && b == "baa"', cond: 'returns_true'}
+    note: >-
+      Instructed reading of R-EX-4 'cycpattern_check("abab","baa") => False', reading 2: "The
+      rule R-RES-1 is right: the call returns True and the example is wrong". "True" is the
+      rule's "return True", so R-RES-1 "return True", reading 2 applies and any truthy value (any
+      non-bool return) is accepted. Conflict: RV-RES-1 (negated rule) makes this call, a hit,
+      return False.
+  - id: RV-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 'a == "efef" && b == "eeff"', cond: 'returns_false'}
+    note: >-
+      Instructed reading of R-EX-5 'cycpattern_check("efef","eeff") => True', reading 2: "The
+      rule R-RES-2 is right: the call returns False and the example is wrong". Formalized as
+      stated: the boolean False. Note: under the instructed definitions this call is a hit, so
+      R-RES-2's stated condition does not apply to it. False agrees with RV-RES-1 but conflicts
+      with RV-RES-2-EX5 (True).
+  - id: RV-EX-6
+    req: R-EX-6
+    pattern: implies
+    args: {trigger: 'a == "himenss" && b == "simen"', cond: 'returns_true'}
+    note: >-
+      Instructed reading of R-EX-6 'cycpattern_check("himenss","simen") => False', reading 2:
+      "The rule R-RES-1 is right: the call returns True and the example is wrong". "True" is the
+      rule's "return True", so R-RES-1 "return True", reading 2 applies and any truthy value (any
+      non-bool return) is accepted. Conflict: RV-RES-1 (negated rule) makes this call, a hit,
+      return False.
+
+unformalized:
+  - req: R-NF-1
+    reason: >-
+      Non-functional: the deliverable is Python source with the given signature. The function
+      section of design.yaml fixes the name and arguments; this is not a property of the call
+      trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition: a is the first word and b the second. Realized by the def `hit`, which searches
+      for b (and its rotations) in a, and is used by the items listed.
+    covered_by: [RV-RES-1, RV-RES-1-EMPTY, RV-RES-2]
+  - req: R-DEF-2
+    reason: >-
+      Definition. Instructed reading 2 of "rotations": any rearrangement (permutation) of the
+      characters of b, not only the cyclic shifts. Realized in the def `hit`: some permutation of
+      b is a subsequence of a exactly when every character occurs in a at least as often as in b.
+    covered_by: [RV-RES-1, RV-RES-2]
+  - req: R-DEF-3
+    reason: >-
+      Definition. Instructed reading 2 of "substring": subsequence (characters of s in a in
+      order, not necessarily adjacent). Instructed reading 2 of "is a substring in the first
+      word": letters are compared ignoring case. Realized in the def `hit`: case folding is
+      Python's str.lower() on Latin-1 letters; non-letters are compared exactly.
+    covered_by: [RV-RES-1, RV-RES-2]
+  - req: R-IN-1
+    reason: >-
+      Instructed reading 1 of "words": any string, including the empty string and strings with
+      spaces, digits or other non-letters, and every such call must follow the rule. This puts no
+      obligation on the environment beyond the frame (at most 16 Latin-1 characters), so there is
+      no assumption. The items listed hold for every input.
+    covered_by: [RV-RES-1, RV-RES-1-EMPTY, RV-RES-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO (outcome != 0 -> !result) is in design.yaml. By frame.md it is part of
+      every formalization set by construction and need not be restated.
+
+decisions:
+  - {req: R-DEF-2, phrase: rotations, reading: 2}
+  - {req: R-DEF-3, phrase: substring, reading: 2}
+  - {req: R-DEF-3, phrase: is a substring in the first word, reading: 2}
+  - {req: R-IN-1, phrase: words, reading: 1}
+  - {req: R-RES-1, phrase: return True, reading: 2}
+  - {req: R-RES-1, phrase: the second word or any of its rotations, reading: 2}
+  - {req: R-RES-1, phrase: 'cycpattern_check("hello","ell") => False', reading: 2}
+  - {req: R-RES-1, phrase: 'cycpattern_check("abab","baa") => False', reading: 2}
+  - {req: R-RES-1, phrase: 'cycpattern_check("himenss","simen") => False', reading: 2}
+  - {req: R-RES-2, phrase: return True if, reading: 2}
+  - {req: R-RES-2, phrase: 'cycpattern_check("abcd","abd") => True', reading: 2}
+  - {req: R-RES-2, phrase: 'cycpattern_check("whassup","psus") => True', reading: 2}
+  - {req: R-RES-2, phrase: 'cycpattern_check("efef","eeff") => True', reading: 2}
+  - {req: R-EX-1, phrase: 'cycpattern_check("abcd","abd") => True', reading: 2}
+  - {req: R-EX-2, phrase: 'cycpattern_check("hello","ell") => False', reading: 2}
+  - {req: R-EX-3, phrase: 'cycpattern_check("whassup","psus") => True', reading: 2}
+  - {req: R-EX-4, phrase: 'cycpattern_check("abab","baa") => False', reading: 2}
+  - {req: R-EX-5, phrase: 'cycpattern_check("efef","eeff") => True', reading: 2}
+  - {req: R-EX-6, phrase: 'cycpattern_check("himenss","simen") => False', reading: 2}

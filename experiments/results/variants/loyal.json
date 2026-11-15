@@ -1,0 +1,428 @@
+{
+ "task": "loyal",
+ "readers": {
+  "variant1": {
+   "k": 1,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-POINTS-1",
+     "phrase": "the account's tier",
+     "reading": 1,
+     "text": "the tier of the account before the purchase"
+    },
+    {
+     "req": "R-CAP-1",
+     "phrase": "No purchase earns more than",
+     "reading": 1,
+     "text": "a purchase that would earn more earns exactly 1,000"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-POINTS-1",
+     "phrase": "the account's tier",
+     "reading": 1
+    },
+    {
+     "req": "R-CAP-1",
+     "phrase": "No purchase earns more than",
+     "reading": 1
+    }
+   ],
+   "pairs": {
+    "agent_a|variant1": {
+     "seconds": 56,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-NEW-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-TIER-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-POINTS-1": {
+       "plain": "A-WEAKER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-CAP-1": {
+       "plain": "A-WEAKER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-RANGE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-EARN-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-REDEEM-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-GET-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-KEEP-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      }
+     }
+    },
+    "agent_b|variant1": {
+     "seconds": 1536,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-SIG-1": {
+       "plain": "ONLY-A",
+       "bounded": 8
+      },
+      "R-NEW-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-TIER-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 109
+       },
+       "context": "EQUIVALENT"
+      },
+      "R-POINTS-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 109,
+        "a_not_b": {
+         "calls": [
+          [
+           1,
+           100,
+           0
+          ]
+         ],
+         "lines": [
+          "earn(100) -> raised another exception or did not finish"
+         ],
+         "sequence": true
+        }
+       },
+       "context": "EQUIVALENT"
+      },
+      "R-CAP-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 109,
+        "a_not_b": {
+         "calls": [
+          [
+           1,
+           50028,
+           0
+          ],
+          [
+           1,
+           58112,
+           0
+          ]
+         ],
+         "lines": [
+          "earn(50028) -> 0",
+          "earn(58112) -> raised another exception or did not finish"
+         ],
+         "sequence": true
+        }
+       },
+       "context": "EQUIVALENT"
+      },
+      "R-RANGE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-EARN-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 109,
+        "b_not_a": {
+         "calls": [
+          [
+           1,
+           1,
+           0
+          ],
+          [
+           4,
+           0,
+           0
+          ]
+         ],
+         "lines": [
+          "earn(1) -> 0",
+          "balance() -> 120160"
+         ],
+         "sequence": true
+        }
+       },
+       "context": "EQUIVALENT"
+      },
+      "R-REDEEM-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 109,
+        "b_not_a": {
+         "calls": [
+          [
+           2,
+           0,
+           1
+          ],
+          [
+           4,
+           0,
+           0
+          ]
+         ],
+         "lines": [
+          "redeem(1) -> False",
+          "balance() -> 4803"
+         ],
+         "sequence": true
+        }
+       },
+       "context": "UNKNOWN",
+       "context_scope_check": {
+        "calls": 109,
+        "separated": false
+       }
+      },
+      "R-GET-1": {
+       "plain": "UNKNOWN",
+       "bounded": 8,
+       "plain_scope_check": {
+        "calls": 109
+       },
+       "context": "UNKNOWN",
+       "context_scope_check": {
+        "calls": 109,
+        "separated": false
+       }
+      },
+      "R-KEEP-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      }
+     }
+    }
+   }
+  },
+  "variant2": {
+   "k": 2,
+   "stored": false,
+   "answers": [
+    {
+     "req": "R-POINTS-1",
+     "phrase": "the account's tier",
+     "reading": 2,
+     "text": "the tier of the account once the purchase is added"
+    },
+    {
+     "req": "R-CAP-1",
+     "phrase": "No purchase earns more than",
+     "reading": 2,
+     "text": "a purchase that would earn more is refused"
+    }
+   ],
+   "recorded": [
+    {
+     "req": "R-POINTS-1",
+     "phrase": "the account's tier",
+     "reading": 2
+    },
+    {
+     "req": "R-CAP-1",
+     "phrase": "No purchase earns more than",
+     "reading": 2
+    }
+   ],
+   "pairs": {
+    "agent_a|variant2": {
+     "seconds": 401,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-NEW-1": {
+       "plain": "A-STRONGER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-TIER-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-POINTS-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "calls": [
+         [
+          1,
+          50045,
+          0
+         ],
+         [
+          3,
+          0,
+          0
+         ]
+        ],
+        "lines": [
+         "earn(50045) -> 500",
+         "tier() -> 1"
+        ],
+        "sequence": true
+       }
+      },
+      "R-CAP-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-RANGE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-EARN-1": {
+       "plain": "A-STRONGER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-REDEEM-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "UNKNOWN",
+       "context_scope_check": {
+        "calls": 150,
+        "separated": false
+       }
+      },
+      "R-GET-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "UNKNOWN",
+       "context_scope_check": {
+        "calls": 150,
+        "separated": false
+       }
+      },
+      "R-KEEP-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      }
+     }
+    },
+    "agent_b|variant2": {
+     "seconds": 29,
+     "engine": "33a0f99",
+     "by": "code_demo.readings",
+     "relations": {
+      "R-FR-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-SIG-1": {
+       "plain": "ONLY-A",
+       "bounded": 8
+      },
+      "R-NEW-1": {
+       "plain": "A-STRONGER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-TIER-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-POINTS-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "A-WEAKER",
+       "a_not_b": {
+        "calls": [
+         [
+          1,
+          50096,
+          0
+         ]
+        ],
+        "lines": [
+         "earn(50096) -> 500"
+        ],
+        "sequence": true
+       }
+      },
+      "R-CAP-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-RANGE-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      },
+      "R-EARN-1": {
+       "plain": "A-STRONGER",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-REDEEM-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-GET-1": {
+       "plain": "INCOMPARABLE",
+       "bounded": 8,
+       "context": "EQUIVALENT"
+      },
+      "R-KEEP-1": {
+       "plain": "EQUIVALENT",
+       "bounded": 8
+      }
+     }
+    }
+   }
+  }
+ },
+ "settings": {
+  "jobs": 2,
+  "bit_jobs": 1
+ }
+}

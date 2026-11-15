@@ -1,0 +1,207 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-IN-1 (reading 2): the argument consists of letters only
+  letters_only: 'all(i < len(s): isalpha(s[i]))'
+  # R-HAP-1 / R-HAP-3 "its length" (reading 2): the number of letters of s
+  nlet: 'count(i < len(s): isalpha(s[i]))'
+  # R-HAP-2 / R-HAP-3 "substrings of letters are distinct" (reading 1), every character
+  # counts ("letters" reading 1), compared case-insensitively ("distinct" reading 2):
+  # the number of 3-character substrings s[i..i+2] whose characters are not pairwise different
+  nbad: 'count(i < len(s) - 2: lower(s[i]) == lower(s[i + 1]) || lower(s[i]) == lower(s[i + 2]) || lower(s[i + 1]) == lower(s[i + 2]))'
+  # "roughly ... distinct" (roughly reading 2, contradiction reading 2): at most a small number
+  # (two) of the 3-character substrings repeat a character
+  rough_distinct: 'nbad <= 2'
+
+assumptions:
+  - id: RV-IN-1
+    req: R-IN-1
+    expr: 'letters_only'
+    note: >-
+      Reading 2 of "a string s", as instructed, although reading 1 (any string) is the more
+      natural one: s consists of letters only (isalpha, the ASCII letters a-z and A-Z, as the
+      adapter defines it). Strings with any non-letter character are outside the contract, so
+      every output for them, the returned value and the outcome alike, is a don't care. The
+      empty string is vacuously made of letters and stays in the contract.
+
+properties:
+  - id: RV-OUT-2
+    req: R-OUT-2
+    expr: 'outcome == 0 || outcome == 2'
+    note: >-
+      Reading 2 of the first ambiguity on "check if the string is happy or not", as instructed,
+      although reading 1 (a bool only) is the more natural one: any truthy or falsy value is an
+      acceptable answer, so returning a value of another type (outcome 2) is allowed. The call
+      must still return a value: no exception and no missing answer (outcome 1). For the second
+      ambiguity on the same phrase, which the instruction does not settle, I took reading 2 (only
+      strings of letters must be answered), because reading 1 (every string answered with True
+      or False) contradicts both the instructed reading of R-IN-1 and the truthy reading above.
+      Strings with non-letters are excluded by RV-IN-1, so no guard is needed here.
+
+  - id: RV-HAP-3
+    req: R-HAP-3
+    pattern: implies
+    args:
+      trigger: 'nlet >= 3 && rough_distinct'
+      cond: 'outcome == 0 && happy || outcome == 2'
+    note: >-
+      Sufficient condition for happy. Every reading here is the instructed one; for each the
+      instruction differs from the more natural reading. "its length" (reading 2) is the number
+      of letters of s; under RV-IN-1 it equals len(s). "substrings of letters are distinct"
+      (reading 1): a 3-character substring is distinct when s[i], s[i+1] and s[i+2] all differ.
+      "letters" (reading 1): every character counts. "distinct" (reading 2): case-insensitive,
+      so 'A' and 'a' are the same letter. "roughly" (reading 2): approximately, so a small
+      number of repeats is tolerated. "roughly substrings of letters are distinct" (reading 2):
+      the tolerant reading wins over the examples, so xyy and aabb are happy. The text gives no
+      number for "a small number", so I chose a tolerance of at most two 3-character substrings
+      that are not distinct (nbad <= 2). Two is the smallest tolerance that makes both xyy
+      (one such substring out of one) and aabb (two out of two) happy, as the contradiction
+      reading requires. Those two strings already break "most substrings must be distinct", so
+      that clause cannot also be enforced for short strings. A side effect is that aaa and aaaa
+      count as happy too. "returns True" is read through the truthy reading of R-OUT-2: outcome
+      2 (a returned value of another type) is accepted. The trace does not record whether such
+      a value is truthy, so this item cannot reject a falsy non-bool answer.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'outcome == 0 && !happy || outcome == 2'
+    note: >-
+      Reading 2 of "is_happy(a)", as instructed, although reading 1 (the string "a") is the more
+      natural one: a is a variable whose value is not given. The example then only shows that
+      some call (on some string of letters, RV-IN-1) answers False. It says nothing about the
+      string "a", whose result stays free (RV-HAP-1). Under the truthy reading of R-OUT-2 a
+      falsy value of another type also counts as False. The trace does not record the truth
+      value of a non-bool answer, so outcome 2 is accepted as it is.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'outcome == 0 && !happy || outcome == 2'
+    note: >-
+      Reading 2 of "is_happy(aa)", as instructed, although reading 1 (the string "aa") is the
+      more natural one: aa is a variable whose value is not given. The example then only shows
+      that some call answers False. It says nothing about the string "aa", whose result stays
+      free (RV-HAP-1). As in RV-EX-1, outcome 2 is accepted because of the truthy reading of
+      R-OUT-2.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'outcome == 0 && happy || outcome == 2'
+    note: >-
+      Reading 2 of "is_happy(abcd)", as instructed, although reading 1 (the string "abcd") is the
+      more natural one: abcd is a variable whose value is not given. The example then only shows
+      that some call answers True. The string "abcd" itself is still happy under RV-HAP-3. Under
+      the truthy reading of R-OUT-2 a truthy value of another type also counts as True. The
+      trace does not record the truth value of a non-bool answer, so outcome 2 is accepted as
+      it is.
+
+  - id: RV-EX-5
+    req: R-EX-5
+    cover: 'outcome == 0 && happy || outcome == 2'
+    note: >-
+      Reading 2 of "is_happy(adb)", as instructed, although reading 1 (the string "adb") is the
+      more natural one: adb is a variable whose value is not given. The example then only shows
+      that some call answers True. The string "adb" itself is still happy under RV-HAP-3. As in
+      RV-EX-3, outcome 2 is accepted because of the truthy reading of R-OUT-2.
+
+dont_cares:
+  - id: RV-HAP-1
+    req: R-HAP-1
+    signal: happy
+    when: 'nlet < 3'
+    note: >-
+      Reading 2 of "A string is happy if", as instructed, although reading 1 (if and only if) is
+      the more natural one: the sentence gives only a sufficient condition and says nothing about
+      strings shorter than 3. Reading 2 of "its length", also as instructed against the more
+      natural reading 1: the length is the number of letters of s (equal to len(s) under RV-IN-1).
+      The examples a and aa are read as variables (R-EX-1, R-EX-2), so no requirement fixes the
+      returned value for such strings. RV-OUT-2 still requires the call to return.
+
+  - id: RV-HAP-2
+    req: R-HAP-2
+    signal: happy
+    when: '!rough_distinct'
+    note: >-
+      Reading 2 of "A string is happy if", as instructed, although reading 1 (if and only if) is
+      the more natural one: the sentence gives only a sufficient condition and says nothing about
+      strings whose substrings are not (roughly) distinct, so their returned value is left free.
+      The other phrases are read as instructed, each against its more natural reading:
+      "substrings of letters are distinct" is reading 1 (s[i], s[i+1], s[i+2] all differ),
+      "letters" is reading 1 (every character counts), "distinct" is reading 2
+      (case-insensitive) and "roughly" is reading 2 (a small number of repeats is tolerated,
+      here at most two non-distinct 3-character substrings, nbad <= 2; see RV-HAP-3). The
+      contradiction is resolved by the definition (reading 2), so the examples aabb and xyy
+      (R-EX-4, R-EX-6) are overruled and cannot make a non-distinct string unhappy.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: the deliverable is a Python implementation that completes the stub. This
+      is a property of the artefact, not of the call trace.
+  - req: R-API-2
+    reason: >-
+      Interface fact: the function name is_happy and its single argument s are fixed by the
+      function section of design.yaml (the adapter), not by a trace property.
+  - req: R-OUT-1
+    reason: >-
+      The only definition of happy, read as a sufficient condition (R-HAP-1 and R-HAP-2, reading
+      2, as instructed), is length >= 3 with roughly distinct substrings. "Returns True when s
+      is happy" is therefore exactly RV-HAP-3, and "the call returns an answer" is RV-OUT-2. No
+      string is established as not happy: the definition gives no necessary condition, the
+      examples a, aa, aabb and xyy are variables or overruled, and the value for the remaining
+      strings is a don't care (RV-HAP-1, RV-HAP-2). So "False when s is not happy" never
+      applies. "True"/"False" are read through the truthy reading of R-OUT-2.
+    covered_by: [RV-HAP-3, RV-OUT-2]
+  - req: R-EX-4
+    reason: >-
+      Overruled. Reading 2 of "is_happy(aabb) => False", as instructed, although reading 1 (the
+      example decides) is the more natural one: the contradiction is resolved by the definition,
+      and roughly-distinct substrings make aabb happy (RV-HAP-3: two non-distinct substrings,
+      within the tolerance), so the example is dropped. Reading 2 of "is_happy(aabb)", also as
+      instructed against the more natural reading 1, makes aabb a variable whose value is not
+      given. Under it the example would only claim that some call answers False, which RV-EX-1
+      and RV-EX-2 already state. Since the example is overruled, no item is derived from it.
+  - req: R-EX-6
+    reason: >-
+      Overruled. Reading 2 of "is_happy(xyy) => False", as instructed, although reading 1 (the
+      example decides) is the more natural one: the contradiction is resolved by the definition,
+      and 'roughly' tolerates a single repeat, so xyy is happy (RV-HAP-3: one non-distinct
+      substring, within the tolerance), and the example is dropped. Reading 2 of "is_happy(xyy)",
+      also as instructed against the more natural reading 1, makes xyy a variable whose value is
+      not given. Under it the example would only claim that some call answers False, which
+      RV-EX-1 and RV-EX-2 already state. Since the example is overruled, no item is derived from
+      it.
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter. It is F-ZERO in design.yaml, which is part of every
+      formalization set by construction and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: 'a string s', reading: 2}
+  - {req: R-OUT-2, phrase: 'check if the string is happy or not', reading: 2}
+  - {req: R-OUT-2, phrase: 'check if the string is happy or not', reading: 2}
+  - {req: R-HAP-1, phrase: 'A string is happy if', reading: 2}
+  - {req: R-HAP-1, phrase: 'its length', reading: 2}
+  - {req: R-HAP-2, phrase: 'A string is happy if', reading: 2}
+  - {req: R-HAP-2, phrase: 'substrings of letters are distinct', reading: 1}
+  - {req: R-HAP-2, phrase: 'roughly', reading: 2}
+  - {req: R-HAP-2, phrase: 'roughly substrings of letters are distinct', reading: 2}
+  - {req: R-HAP-2, phrase: 'letters', reading: 1}
+  - {req: R-HAP-2, phrase: 'distinct', reading: 2}
+  - {req: R-HAP-3, phrase: 'substrings of letters are distinct', reading: 1}
+  - {req: R-HAP-3, phrase: 'roughly', reading: 2}
+  - {req: R-HAP-3, phrase: 'roughly substrings of letters are distinct', reading: 2}
+  - {req: R-HAP-3, phrase: 'letters', reading: 1}
+  - {req: R-HAP-3, phrase: 'distinct', reading: 2}
+  - {req: R-HAP-3, phrase: 'its length', reading: 2}
+  - {req: R-EX-1, phrase: 'is_happy(a)', reading: 2}
+  - {req: R-EX-2, phrase: 'is_happy(aa)', reading: 2}
+  - {req: R-EX-3, phrase: 'is_happy(abcd)', reading: 2}
+  - {req: R-EX-4, phrase: 'is_happy(aabb)', reading: 2}
+  - {req: R-EX-4, phrase: 'is_happy(aabb) => False', reading: 2}
+  - {req: R-EX-5, phrase: 'is_happy(adb)', reading: 2}
+  - {req: R-EX-6, phrase: 'is_happy(xyy)', reading: 2}
+  - {req: R-EX-6, phrase: 'is_happy(xyy) => False', reading: 2}

@@ -1,0 +1,135 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # n = a + b + c + d with a, b, c, d positive even (R-DEF-1 reading 1: > 0;
+  # R-DEF-2 reading 1: terms may repeat). Each term is >= 2 and even, so the sum
+  # is even and >= 8; conversely every even n >= 8 is 2 + 2 + 2 + (n - 6) with
+  # n - 6 >= 2 even. Hence the closed form below.
+  sum4: "n % 2 == 0 && n >= 8"
+  ret_true: "outcome == 0 && result"     # the call returned the bool True
+  ret_false: "outcome == 0 && !result"   # the call returned the bool False
+
+properties:
+  - id: RA-OUT-1
+    req: R-OUT-1
+    pattern: invariant
+    args: {cond: "outcome == 0"}
+    note: >-
+      Every call returns a bool: no exception, no hang (outcome 1) and no value
+      of another type (outcome 2). "Evaluate whether" taken as returning the
+      bool True or False (reading 1); a value merely equal to True/False, such
+      as 1 or 0, is outcome 2 and is rejected. "the given number n" taken
+      literally as any number (reading 3), but the trace only carries integer
+      arguments 0..65,535 (frame.md), so the property checks that domain only;
+      on it readings 1, 2 and 3 coincide.
+
+  - id: RA-SUM-1
+    req: R-SUM-1
+    pattern: implies
+    args: {trigger: "sum4", cond: "ret_true"}
+    note: >-
+      sum4 is the closed form of "n can be written as the sum of exactly 4
+      positive even numbers" under R-DEF-1 reading 1 (positive = strictly
+      greater than 0) and R-DEF-2 reading 1 (the four terms need not be
+      distinct): n even and n >= 8. "returns True" is read as returning the
+      bool True (outcome 0, result 1).
+
+  - id: RA-SUM-2
+    req: R-SUM-2
+    pattern: implies
+    args: {trigger: "!sum4", cond: "ret_false"}
+    note: >-
+      Complement of RA-SUM-1: odd n, and even n below 8 (0, 2, 4, 6), return
+      the bool False (outcome 0, result 0). Same readings of R-DEF-1 and
+      R-DEF-2 as RA-SUM-1.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 4", cond: "ret_false"}
+    note: >-
+      The example is an assertion about the call, so it is stated as a
+      property on every call with n == 4, besides the scenario RA-EX-1-S.
+      "== False" taken as returning the bool False (reading 1). Consistent with
+      RA-SUM-2 under R-DEF-1 reading 1 (the least sum is 8); it would
+      contradict R-SUM-1 if "positive" included 0 (4 = 4 + 0 + 0 + 0).
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 6", cond: "ret_false"}
+    note: >-
+      Stated as a property on every call with n == 6, besides the scenario
+      RA-EX-2-S. "== False" taken as returning the bool False (reading 1).
+      Consistent with RA-SUM-2 under R-DEF-1 reading 1; it would contradict
+      R-SUM-1 if "positive" included 0 (6 = 2 + 2 + 2 + 0).
+
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "n == 8", cond: "ret_true"}
+    note: >-
+      Stated as a property on every call with n == 8, besides the scenario
+      RA-EX-3-S. "== True" taken as returning the bool True (reading 1).
+      Consistent with RA-SUM-1 under R-DEF-2 reading 1 (8 = 2 + 2 + 2 + 2); it
+      would contradict R-SUM-2 if the four terms had to be distinct (least
+      distinct sum 20).
+
+scenarios:
+  - id: RA-EX-1-S
+    req: R-EX-1
+    cover: "n == 4 && ret_false"
+    note: The example call is_equal_to_sum_even(4) returning the bool False must be possible.
+  - id: RA-EX-2-S
+    req: R-EX-2
+    cover: "n == 6 && ret_false"
+    note: The example call is_equal_to_sum_even(6) returning the bool False must be possible.
+  - id: RA-EX-3-S
+    req: R-EX-3
+    cover: "n == 8 && ret_true"
+    note: The example call is_equal_to_sum_even(8) returning the bool True must be possible.
+
+unformalized:
+  - req: R-API-1
+    reason: >-
+      Non-functional: that the deliverable is a completed function body is a
+      property of the source code, not of a call trace. Its observable part (a
+      stub that returns None or raises fails on every call) is realized by the
+      behavioural properties.
+    covered_by: [RA-OUT-1, RA-SUM-1, RA-SUM-2]
+  - req: R-API-2
+    reason: >-
+      Non-functional: the function name and its single parameter n are an
+      interface fact, bound by the adapter (design.yaml `function`: name
+      is_equal_to_sum_even, one argument n), not a property of the trace.
+  - req: R-DEF-1
+    reason: >-
+      Definition of "positive even number" (strictly greater than 0, reading
+      1); realized by the def sum4 that RA-SUM-1 and RA-SUM-2 use.
+    covered_by: [RA-SUM-1, RA-SUM-2]
+  - req: R-DEF-2
+    reason: >-
+      Definition of "the sum of exactly 4 positive even numbers" (four terms,
+      repeats allowed, reading 1); realized by the def sum4 that RA-SUM-1 and
+      RA-SUM-2 use.
+    covered_by: [RA-SUM-1, RA-SUM-2]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of the adapter (frame.md): it holds by construction
+      of the encoding, design.yaml adds it to every formalization set, and
+      frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-OUT-1, phrase: "Evaluate whether", reading: 1}
+  - {req: R-OUT-1, phrase: "the given number n", reading: 3}
+  - {req: R-DEF-1, phrase: "positive", reading: 1}
+  - {req: R-DEF-2, phrase: "exactly 4 positive even numbers", reading: 1}
+  - {req: R-EX-1, phrase: "is_equal_to_sum_even(4) == False", reading: 1}
+  - {req: R-EX-1, phrase: "== False", reading: 1}
+  - {req: R-EX-2, phrase: "is_equal_to_sum_even(6) == False", reading: 1}
+  - {req: R-EX-2, phrase: "== False", reading: 1}
+  - {req: R-EX-3, phrase: "is_equal_to_sum_even(8) == True", reading: 1}
+  - {req: R-EX-3, phrase: "== True", reading: 1}

@@ -1,0 +1,132 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+properties:
+  - id: RV-SIG-2
+    req: R-SIG-2
+    expr: 'outcome == 0'
+    note: >-
+      Every call returns a list that fits the result signal: it neither raises,
+      nor fails to finish, nor returns another kind of value. Instructed
+      reading 2 of "remove" (taken in place of the reading the other readers
+      chose): the elements are deleted from the argument list in place and that
+      same mutated list is returned. Neither the mutation of the argument nor
+      the identity of the returned object is visible in the trace (numbers is
+      the argument as passed, result is the returned list's contents), so this
+      reading adds no observable constraint beyond the outcome. In-place
+      deletion would keep the remaining elements in their original order, but
+      R-RM-4 is read as imposing no order (see unformalized R-RM-4), so no
+      order is derived from this reading.
+
+  - id: RV-RM-1
+    req: R-RM-1
+    expr: >-
+      outcome == 0 -> all(i < len(numbers):
+        count(j < len(numbers): numbers[j] == numbers[i]) >= 2 -> !(numbers[i] in result))
+    note: >-
+      No value that occurs two or more times in numbers appears in the
+      returned list (all of its copies are removed). Instructed reading 2 of
+      "remove all elements that occur" (taken in place of the reading the other
+      readers chose): the sentence is cut short and means "that occur more than
+      once". Instructed reading 2 of "all elements that occur": the
+      restrictive clause presupposes that only some elements are removed, which
+      needs a selecting condition the sentence does not state; that condition
+      is supplied by the first reading, not by the prompt. The literal
+      sentence (every element occurs, so remove everything) is not what is
+      formalized here. Guarded by outcome == 0 because the requirement speaks
+      of the returned list; R-SIG-2 requires that a list is returned.
+
+  - id: RV-RM-2
+    req: R-RM-2
+    expr: >-
+      outcome == 0 -> all(i < len(result):
+        count(j < len(result): result[j] == result[i])
+          <= count(j < len(numbers): numbers[j] == result[i]))
+    note: >-
+      Every value of the returned list occurs in it at most as many times as in
+      numbers, so the result contains only elements of numbers and removal adds
+      or changes nothing. This holds under every reading of the removal
+      condition; no ambiguity is flagged for R-RM-2.
+
+  - id: RV-RM-3
+    req: R-RM-3
+    expr: >-
+      outcome == 0 -> all(i < len(numbers):
+        count(j < len(numbers): numbers[j] == numbers[i]) == 1 -> numbers[i] in result)
+    note: >-
+      Main clause: every element not selected for removal is kept, i.e. every
+      value that occurs exactly once in numbers appears in the returned list.
+      Instructed reading 2 of "remove all elements that occur" (taken in place
+      of the reading the other readers chose): the sentence is cut short and
+      means "that occur more than once", so values occurring exactly once are
+      kept and values occurring two or more times are not kept at all.
+      Instructed reading 2 of "all elements that occur": the restrictive
+      clause presupposes that some elements are kept, which needs a selecting
+      condition the prompt does not state; the condition comes from the first
+      reading. Guarded by outcome == 0 because the requirement speaks of the
+      returned list.
+
+  - id: RV-RM-3-EXACT
+    req: R-RM-3
+    expr: >-
+      outcome == 0 ->
+        len(result) == count(i < len(numbers): count(j < len(numbers): numbers[j] == numbers[i]) == 1)
+        && all(i < len(numbers):
+             count(j < len(numbers): numbers[j] == numbers[i]) == 1
+               -> count(j < len(result): result[j] == numbers[i]) == 1)
+    note: >-
+      Consequence clause "so the returned list has exactly the elements of
+      numbers minus the removed ones", as multisets (no order): every value
+      that occurs exactly once in numbers occurs exactly once in result, and
+      result has no other elements (its length is the number of such values).
+      Under instructed reading 2 of "remove all elements that occur" (taken in
+      place of the reading the other readers chose) the removed elements are
+      all copies of every value that occurs more than once, so values occurring
+      two or more times are not kept at all. Instructed reading 2 of "all
+      elements that occur": the selecting condition is not stated by the
+      prompt; it is supplied by the first reading. Order is deliberately left
+      free (R-RM-4 is read as "any order").
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      Non-functional: the deliverable is the completed Python function with
+      its header kept. This concerns the form of the submission, not any
+      behaviour visible in a trace of calls.
+  - req: R-SIG-1
+    reason: >-
+      Non-functional: the function name candidate and its single parameter
+      numbers (annotated List[int]) are fixed by the function section of
+      design.yaml, through which the adapter calls candidate(numbers); a name
+      or an annotation is not observable in the trace.
+  - req: R-IN-1
+    reason: >-
+      Environment obligation that the interface encoding already enforces:
+      numbers is a sequence signal of integers 0 to 255 of length at most 8,
+      and frame.md excludes every other call from the trace. Any assumption
+      written over numbers would be a tautology.
+  - req: R-RM-4
+    reason: >-
+      Instructed reading 2 of "remove" (taken in place of the reading the
+      other readers chose): the prompt states no order for the result, so the
+      remaining elements may be returned in any order and there is no order
+      constraint to formalize. Which elements remain, with their
+      multiplicities, is fixed independently of order by RV-RM-1, RV-RM-2,
+      RV-RM-3 and RV-RM-3-EXACT. A scenario requiring a reordered result is
+      not added, since "may" permits reordering without requiring it.
+    covered_by: [RV-RM-1, RV-RM-2, RV-RM-3, RV-RM-3-EXACT]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-EMPTY of design.yaml (result is the empty list unless
+      outcome is 0); frame items are added to every formalization set by
+      construction and need not be restated.
+    covered_by: [F-EMPTY]
+
+decisions:
+  - {req: R-SIG-2, phrase: 'remove', reading: 2}
+  - {req: R-RM-1, phrase: 'remove all elements that occur', reading: 2}
+  - {req: R-RM-1, phrase: 'all elements that occur', reading: 2}
+  - {req: R-RM-3, phrase: 'remove all elements that occur', reading: 2}
+  - {req: R-RM-3, phrase: 'all elements that occur', reading: 2}
+  - {req: R-RM-4, phrase: 'remove', reading: 2}

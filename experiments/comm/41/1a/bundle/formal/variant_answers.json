@@ -1,0 +1,86 @@
+[
+ {
+  "req": "R-ENV-1",
+  "phrase": "n: int",
+  "taken": 1,
+  "variant": 2,
+  "text": "n may be any Python int, so negative n must also be handled (with some unstated result)"
+ },
+ {
+  "req": "R-CAR-1",
+  "phrase": "2*n or n cars",
+  "taken": 3,
+  "variant": 1,
+  "text": "exactly n cars drive left to right"
+ },
+ {
+  "req": "R-CAR-1",
+  "phrase": "2*n or n",
+  "taken": 2,
+  "variant": 1,
+  "text": "one fixed count is meant, consistent with the function outputting a single number of collisions (R-OUT-2)"
+ },
+ {
+  "req": "R-CAR-2",
+  "phrase": "2*n or n cars",
+  "taken": 3,
+  "variant": 1,
+  "text": "exactly n cars drive right to left"
+ },
+ {
+  "req": "R-CAR-2",
+  "phrase": "a different set",
+  "taken": 1,
+  "variant": 2,
+  "text": "a set of a different size: if one set has n cars the other has 2*n cars"
+ },
+ {
+  "req": "R-CAR-2",
+  "phrase": "2*n or n",
+  "taken": 2,
+  "variant": 1,
+  "text": "one fixed count is meant, consistent with the function outputting a single number of collisions (R-OUT-2)"
+ },
+ {
+  "req": "R-POS-1",
+  "phrase": "start out being very far from each other",
+  "taken": 1,
+  "variant": 2,
+  "text": "only the distance is stated, not the side: if the left-to-right set starts on the right, the sets move apart and no collision ever happens"
+ },
+ {
+  "req": "R-COL-1",
+  "phrase": "said to collide",
+  "taken": 1,
+  "variant": 2,
+  "text": "since the cars continue as if they did not collide (R-COL-2), the meeting is not a collision and is not counted, contradicting this definition"
+ },
+ {
+  "req": "R-COL-2",
+  "phrase": "as if they did not collide",
+  "taken": 1,
+  "variant": 2,
+  "text": "the collision is treated as not having happened, so it is not counted, contradicting the definition of a collision (R-COL-1)"
+ },
+ {
+  "req": "R-OUT-1",
+  "phrase": "outputs",
+  "taken": 1,
+  "variant": 2,
+  "text": "prints the number of collisions; the return value is unspecified"
+ },
+ {
+  "req": "R-OUT-2",
+  "phrase": "the number of such collisions",
+  "taken": 4,
+  "variant": 1,
+  "text": "n*n (n cars in each direction)"
+ },
+ {
+  "req": "R-OUT-2",
+  "phrase": "the number",
+  "taken": 2,
+  "variant": 1,
+  "text": "a single number determined by n, so one fixed car count must be meant (R-CAR-1, R-CAR-2)"
+ }
+]

@@ -1,0 +1,683 @@
+fcp: "0.1"
+design: apb_bridge
+origin: {kind: agent, role: decomposer, id: decomposer}
+requirements:
+
+  # ===================================================================
+  # Section 1. Overview
+  # ===================================================================
+  - id: R-OV-1
+    doc: SPEC
+    quote: "BRG-1 converts single read and write commands received on a valid/ready command channel into APB3 transfers"
+    text: "BRG-1 accepts single read and write commands on a valid/ready command channel (cmd_valid, cmd_ready, cmd_write, cmd_addr, cmd_wdata) and converts each one into an APB3 transfer on its APB interface (psel, penable, pwrite, paddr, pwdata, pready, prdata, pslverr)."
+    kind: definition
+    ambiguity:
+      - phrase: "single read and write commands"
+        readings:
+          - "single means non-burst: each command is exactly one read access or exactly one write access and maps to exactly one APB transfer"
+          - "single means one command at a time (a restatement of R-OV-3 rather than a statement about the kind of command)"
+      - phrase: "APB3 transfers"
+        readings:
+          - "only the APB behaviour spelled out in section 4 is required of the bridge"
+          - "the full AMBA APB3 protocol rules also apply wherever section 4 is silent (for example when pready and pslverr are meaningful, or what pwdata carries during a read); the AMBA APB3 specification is not part of this document"
+    confidence: medium
+
+  - id: R-OV-2
+    doc: SPEC
+    quote: "returns the result on a valid/ready response channel"
+    text: "The bridge returns the result of each APB transfer to the requester on a valid/ready response channel (rsp_valid, rsp_ready, rsp_rdata, rsp_err)."
+    kind: definition
+    depends: [R-OV-1]
+    ambiguity:
+      - phrase: "the result"
+        readings:
+          - "the result is rsp_err for every transfer plus rsp_rdata for read transfers, as detailed in section 5"
+          - "the result is both rsp_rdata and rsp_err for every transfer including writes, in which case rsp_rdata of a write response needs a defined value that section 5 never gives"
+    confidence: medium
+
+  - id: R-OV-3
+    doc: SPEC
+    quote: "One transaction is processed at a time."
+    text: "The bridge processes only one transaction (one accepted command together with its APB transfer and its response) at a time."
+    kind: guarantee
+    depends: [R-OV-1]
+    ambiguity:
+      - phrase: "transaction"
+        readings:
+          - "a transaction runs from command acceptance until its response is accepted (rsp_valid and rsp_ready both high); accepting the next command in that same cycle (R-RSP-11) then makes two transactions touch in one cycle, which is the cycle on which R-CMD-4 and R-RSP-11 disagree"
+          - "a transaction runs from command acceptance until its APB transfer completes; the response phase of one transaction could then overlap the transfer of the next, which R-CMD-4 forbids"
+          - "a transaction runs from command acceptance until its response is first presented (rsp_valid high)"
+    confidence: medium
+
+  # ===================================================================
+  # Section 2. Interface
+  # ===================================================================
+  - id: R-IF-1
+    doc: SPEC
+    quote: "Clock, rising edge."
+    text: "clk is the clock of the design and the design is clocked on its rising edge; every cycle in this specification is one period of clk."
+    kind: definition
+    confidence: high
+
+  - id: R-IF-2
+    doc: SPEC
+    quote: "Synchronous active-low reset."
+    text: "rst_n is a synchronous, active-low reset: reset is asserted when rst_n is low and takes effect at a rising edge of clk."
+    kind: definition
+    depends: [R-IF-1]
+    confidence: high
+
+  - id: R-IF-3
+    doc: SPEC
+    quote: "1 for a write, 0 for a read."
+    text: "cmd_write is 1 for a write command and 0 for a read command."
+    kind: definition
+    confidence: high
+
+  # ===================================================================
+  # Section 3. Command channel
+  # ===================================================================
+  - id: R-CMD-1
+    doc: SPEC
+    quote: "A command is accepted in a cycle in which both cmd_valid and cmd_ready are high."
+    text: "A command is accepted in exactly those cycles in which cmd_valid and cmd_ready are both high; that cycle is the acceptance cycle of the command."
+    kind: definition
+    depends: [R-IF-1]
+    ambiguity:
+      - phrase: "A command is accepted in a cycle in which both cmd_valid and cmd_ready are high"
+        readings:
+          - "a handshake in a cycle in which rst_n is low counts as an acceptance; then R-APB-6 would demand psel high in the next cycle, which CONTRADICTS R-RST-1 (psel low in the cycle after reset), and cmd_ready can indeed be high during a multi-cycle reset under the first reading of 'the cycle after reset' in R-RST-4"
+          - "a handshake in a reset cycle is not an acceptance because reset takes precedence (the command is lost); the spec does not say so"
+    confidence: medium
+
+  - id: R-CMD-2
+    doc: SPEC
+    quote: "that is, while no transfer is in progress and no response is pending"
+    text: "The bridge is idle exactly when no APB transfer is in progress and no response is pending."
+    kind: definition
+    depends: [R-APB-10, R-RSP-5]
+    ambiguity:
+      - phrase: "no transfer is in progress"
+        readings:
+          - "a transfer is in progress from its setup cycle through its completion cycle inclusive (the cycles in which psel is high)"
+          - "a transfer is in progress from its setup cycle up to but excluding its completion cycle, so cmd_ready could already be high in the completion cycle; a command accepted there would start its setup phase in the very cycle in which the previous response appears"
+      - phrase: "no response is pending"
+        readings:
+          - "a response is pending from the cycle after the transfer completes (rsp_valid first high) up to and including the cycle in which it is accepted (rsp_valid and rsp_ready both high); under this reading cmd_ready must be low in the acceptance cycle, which CONTRADICTS R-RSP-11"
+          - "a response is pending from the cycle after the transfer completes up to but excluding the cycle in which it is accepted; under this reading cmd_ready may be high in the acceptance cycle and R-RSP-11 is consistent"
+    confidence: medium
+
+  - id: R-CMD-3
+    doc: SPEC
+    quote: "cmd_ready is asserted only while the bridge is idle, that is, while no transfer is in progress and no response is pending."
+    text: "cmd_ready is high only in cycles in which no APB transfer is in progress."
+    kind: guarantee
+    depends: [R-CMD-2]
+    ambiguity:
+      - phrase: "only while"
+        readings:
+          - "one-way implication: cmd_ready high implies the bridge is idle, but the bridge may keep cmd_ready low while idle; a bridge that never raised cmd_ready again after its first transaction would still conform, because the spec states no liveness and no maximum delay for cmd_ready (only the cycle after reset, R-RST-4)"
+          - "two-way: cmd_ready is high exactly when the bridge is idle (idle implies cmd_ready high)"
+      - phrase: "no transfer is in progress"
+        readings:
+          - "reset clears an in-flight transfer, so the bridge is idle in the cycle after reset and cmd_ready high there (R-RST-4) is consistent with this requirement"
+          - "reset does not clear an in-flight transfer: cmd_ready high in the cycle after a mid-transfer reset (R-RST-4) would CONTRADICT 'only while no transfer is in progress'; the spec does not say what reset clears"
+    confidence: medium
+
+  - id: R-CMD-4
+    doc: SPEC
+    quote: "cmd_ready is asserted only while the bridge is idle, that is, while no transfer is in progress and no response is pending."
+    text: "cmd_ready is high only in cycles in which no response is pending, that is, while no response is waiting to be accepted by the requester."
+    kind: guarantee
+    depends: [R-CMD-2]
+    ambiguity:
+      - phrase: "no response is pending"
+        readings:
+          - "CONTRADICTS R-RSP-11: in the cycle in which a response is accepted (rsp_valid and rsp_ready both high) that response is still pending, so cmd_ready must be low and no command can be accepted in that cycle, while R-RSP-11 says the next command may be accepted in that very cycle"
+          - "pending ends before the acceptance cycle: cmd_ready may be high when rsp_valid and rsp_ready are both high, which needs a combinational path from rsp_ready to cmd_ready; R-RSP-11 is then consistent, but the spec does not say which reading applies"
+      - phrase: "only while"
+        readings:
+          - "one-way implication: cmd_ready high implies no response is pending; nothing forces cmd_ready high once the response has been accepted"
+          - "two-way: cmd_ready is high exactly when the bridge is idle"
+      - phrase: "no response is pending (across a reset)"
+        readings:
+          - "reset discards a pending response, so the bridge is idle in the cycle after reset and cmd_ready high there (R-RST-4) is consistent with this requirement"
+          - "reset does not discard a pending response: cmd_ready high in the cycle after a reset that hits while rsp_valid is high (R-RST-4) would CONTRADICT 'only while no response is pending'; the spec does not say what reset clears"
+    confidence: medium
+
+  - id: R-CMD-5
+    doc: SPEC
+    quote: "The requester shall keep cmd_valid asserted and cmd_write, cmd_addr and cmd_wdata stable until the command is accepted."
+    text: "Once the requester has asserted cmd_valid for a command, it keeps cmd_valid asserted in every following cycle until that command is accepted (cmd_valid and cmd_ready both high)."
+    kind: assumption
+    depends: [R-CMD-1]
+    ambiguity:
+      - phrase: "shall keep cmd_valid asserted ... until the command is accepted"
+        readings:
+          - "unconditional: the requester may never drop cmd_valid before acceptance, even if rst_n is asserted in between"
+          - "reset cancels the obligation: the requester may drop cmd_valid when reset is asserted before acceptance; the spec is silent and design.yaml allows reset at any time"
+    confidence: medium
+
+  - id: R-CMD-6
+    doc: SPEC
+    quote: "The requester shall keep cmd_valid asserted and cmd_write, cmd_addr and cmd_wdata stable until the command is accepted."
+    text: "From the first cycle in which cmd_valid is high until the command is accepted, the requester holds cmd_write unchanged from cycle to cycle."
+    kind: assumption
+    depends: [R-CMD-5]
+    confidence: high
+
+  - id: R-CMD-7
+    doc: SPEC
+    quote: "The requester shall keep cmd_valid asserted and cmd_write, cmd_addr and cmd_wdata stable until the command is accepted."
+    text: "From the first cycle in which cmd_valid is high until the command is accepted, the requester holds cmd_addr unchanged from cycle to cycle."
+    kind: assumption
+    depends: [R-CMD-5]
+    confidence: high
+
+  - id: R-CMD-8
+    doc: SPEC
+    quote: "The requester shall keep cmd_valid asserted and cmd_write, cmd_addr and cmd_wdata stable until the command is accepted."
+    text: "From the first cycle in which cmd_valid is high until the command is accepted, the requester holds cmd_wdata unchanged from cycle to cycle."
+    kind: assumption
+    depends: [R-CMD-5]
+    ambiguity:
+      - phrase: "cmd_wdata stable"
+        readings:
+          - "literal: cmd_wdata must be held for every command, including read commands, where it is not used"
+          - "cmd_wdata must be held only for write commands (cmd_write = 1); for reads the requester may change it"
+    confidence: medium
+
+  # ===================================================================
+  # Section 4. APB transfer
+  # ===================================================================
+  - id: R-APB-1
+    doc: SPEC
+    quote: "For every accepted command the bridge performs exactly one APB transfer"
+    text: "Every accepted command results in exactly one APB transfer (a setup phase followed by an access phase that completes); a command is neither dropped nor transferred twice."
+    kind: guarantee
+    depends: [R-CMD-1, R-APB-10]
+    ambiguity:
+      - phrase: "exactly one APB transfer"
+        readings:
+          - "one-to-one: each accepted command yields one transfer, and no transfer (no psel assertion) ever occurs without an accepted command"
+          - "forward direction only: each accepted command yields exactly one transfer, while the text never states that psel stays low when no command was accepted"
+      - phrase: "For every accepted command"
+        readings:
+          - "literal, no exception: also for a command accepted shortly before a reset, which R-RST-1 and R-RST-2 (psel and penable low in the cycle after reset) make impossible to carry through to completion"
+          - "reset cancels the obligation: a command aborted by reset gets no (complete) transfer; the spec does not say so"
+    confidence: medium
+
+  - id: R-APB-2
+    doc: SPEC
+    quote: "For every accepted command the bridge performs exactly one APB transfer whose pwrite, paddr and pwdata equal cmd_write, cmd_addr and cmd_wdata of that command."
+    text: "The APB transfer generated for an accepted command carries pwrite equal to cmd_write of that command, that is, the value cmd_write had in the acceptance cycle."
+    kind: guarantee
+    depends: [R-APB-1, R-CMD-1, R-IF-3]
+    confidence: high
+
+  - id: R-APB-3
+    doc: SPEC
+    quote: "For every accepted command the bridge performs exactly one APB transfer whose pwrite, paddr and pwdata equal cmd_write, cmd_addr and cmd_wdata of that command."
+    text: "The APB transfer generated for an accepted command carries paddr equal to cmd_addr of that command, that is, the value cmd_addr had in the acceptance cycle."
+    kind: guarantee
+    depends: [R-APB-1, R-CMD-1]
+    confidence: high
+
+  - id: R-APB-4
+    doc: SPEC
+    quote: "For every accepted command the bridge performs exactly one APB transfer whose pwrite, paddr and pwdata equal cmd_write, cmd_addr and cmd_wdata of that command."
+    text: "The APB transfer generated for an accepted command carries pwdata equal to cmd_wdata of that command, that is, the value cmd_wdata had in the acceptance cycle."
+    kind: guarantee
+    depends: [R-APB-1, R-CMD-1]
+    ambiguity:
+      - phrase: "pwdata equal ... cmd_wdata of that command"
+        readings:
+          - "literal: the equality holds for every command, so pwdata must equal cmd_wdata for read transfers too, although a read carries no write data"
+          - "pwdata is meaningful only for writes: for read transfers pwdata is unconstrained (as in usual APB practice) and the sentence is meant for write commands; the spec states no read exception"
+    confidence: medium
+
+  - id: R-APB-5
+    doc: SPEC
+    quote: "Transfers are performed in the order in which the commands were accepted."
+    text: "APB transfers occur in the same order as the acceptance of the commands that caused them."
+    kind: guarantee
+    depends: [R-APB-1]
+    ambiguity:
+      - phrase: "in the order in which the commands were accepted"
+        readings:
+          - "a real ordering constraint between several commands that can be outstanding at the same time"
+          - "vacuous: with one transaction at a time (R-OV-3) and cmd_ready low while a transfer is in progress or a response is pending (R-CMD-3, R-CMD-4) there is never more than one outstanding command, so the sentence adds no obligation; it hints at a pipelined design that R-OV-3 excludes"
+    confidence: medium
+
+  - id: R-APB-6
+    doc: SPEC
+    quote: "The transfer starts in the cycle after the command is accepted with a setup phase (psel high, penable low)"
+    text: "In the cycle immediately after the cycle in which a command is accepted, psel is high and penable is low (the setup phase of the transfer for that command)."
+    kind: guarantee
+    depends: [R-CMD-1]
+    ambiguity:
+      - phrase: "in the cycle after the command is accepted"
+        readings:
+          - "CONFLICT with R-RST-1 when the acceptance cycle is itself a reset cycle (rst_n low, cmd_valid and cmd_ready high): psel would have to be high in the next cycle here (setup phase) and low in that same cycle in R-RST-1"
+          - "a command whose acceptance cycle is a reset cycle is dropped by the reset (reset takes precedence), so the setup phase does not occur; the spec does not say so"
+    confidence: medium
+
+  - id: R-APB-7
+    doc: SPEC
+    quote: "a setup phase (psel high, penable low) that lasts exactly one cycle"
+    text: "The setup phase (psel high, penable low) lasts exactly one cycle."
+    kind: guarantee
+    depends: [R-APB-6]
+    confidence: high
+
+  - id: R-APB-8
+    doc: SPEC
+    quote: "followed by an access phase (psel and penable high)"
+    text: "In the cycle after the one-cycle setup phase the access phase begins, with psel and penable both high."
+    kind: guarantee
+    depends: [R-APB-7]
+    ambiguity:
+      - phrase: "followed by"
+        readings:
+          - "immediately followed: the first cycle after the setup cycle is the first cycle of the access phase"
+          - "eventually followed: other cycles may sit between the setup cycle and the access phase; the sentence does not exclude this, although the exactly-one-cycle setup phase makes it implausible"
+    confidence: medium
+
+  - id: R-APB-9
+    doc: SPEC
+    quote: "The access phase lasts until pready is sampled high"
+    text: "Throughout the access phase psel and penable stay high until pready is sampled high; the access phase is not ended while pready is low, so the bridge waits for as long as pready stays low."
+    kind: guarantee
+    depends: [R-APB-8, R-APB-10]
+    ambiguity:
+      - phrase: "lasts until pready is sampled high"
+        readings:
+          - "CONFLICT with R-RST-1 and R-RST-2: if rst_n is asserted during the access phase, psel and penable must be low in the next cycle although pready has not been sampled high; the spec does not state that reset takes precedence"
+          - "reset takes precedence over the access phase (obligations are cancelled by reset): the phase lasts until pready is sampled high only if no reset intervenes"
+    confidence: medium
+
+  - id: R-APB-10
+    doc: SPEC
+    quote: "the transfer completes in that cycle"
+    text: "A transfer completes in the first cycle of its access phase in which pready is sampled high (the completion cycle)."
+    kind: definition
+    depends: [R-APB-8]
+    ambiguity:
+      - phrase: "pready is sampled high"
+        readings:
+          - "only pready values sampled in access-phase cycles (psel and penable high) count; pready high during the setup cycle or while psel is low is ignored, as in APB3"
+          - "any cycle with pready high after the command is accepted ends the transfer, including the setup cycle; this is inconsistent with the one-cycle setup phase and the access phase of R-APB-7 and R-APB-8"
+    confidence: medium
+
+  - id: R-APB-11
+    doc: SPEC
+    quote: "psel, pwrite, paddr and pwdata remain stable from the setup phase until the transfer completes."
+    text: "psel stays high, unchanged, in every cycle from the setup phase through the completion cycle of the transfer."
+    kind: guarantee
+    depends: [R-APB-6, R-APB-10]
+    ambiguity:
+      - phrase: "remain stable from the setup phase until the transfer completes"
+        readings:
+          - "CONFLICT with R-RST-1: if rst_n is asserted in the middle of a transfer, psel must be low in the cycle after the reset cycle, so psel cannot stay stable; the spec does not state that reset takes precedence"
+          - "reset takes precedence over stability (obligations are cancelled by reset): stability is required only in cycles not affected by a reset"
+    confidence: medium
+
+  - id: R-APB-12
+    doc: SPEC
+    quote: "psel, pwrite, paddr and pwdata remain stable from the setup phase until the transfer completes."
+    text: "pwrite does not change from the setup phase of a transfer through its completion cycle."
+    kind: guarantee
+    depends: [R-APB-2, R-APB-6, R-APB-10]
+    confidence: high
+
+  - id: R-APB-13
+    doc: SPEC
+    quote: "psel, pwrite, paddr and pwdata remain stable from the setup phase until the transfer completes."
+    text: "paddr does not change from the setup phase of a transfer through its completion cycle."
+    kind: guarantee
+    depends: [R-APB-3, R-APB-6, R-APB-10]
+    confidence: high
+
+  - id: R-APB-14
+    doc: SPEC
+    quote: "psel, pwrite, paddr and pwdata remain stable from the setup phase until the transfer completes."
+    text: "pwdata does not change from the setup phase of a transfer through its completion cycle."
+    kind: guarantee
+    depends: [R-APB-4, R-APB-6, R-APB-10]
+    ambiguity:
+      - phrase: "pwdata remain stable"
+        readings:
+          - "literal: stability applies to read transfers as well as writes"
+          - "stability matters only for write transfers, since pwdata carries no meaning during a read"
+    confidence: medium
+
+  - id: R-APB-15
+    doc: SPEC
+    quote: "penable is never asserted without psel."
+    text: "penable is high only in cycles in which psel is high."
+    kind: guarantee
+    confidence: high
+
+  - id: R-APB-16
+    doc: SPEC
+    quote: "After a transfer completes, psel and penable are low in the next cycle."
+    text: "In the cycle immediately after the completion cycle of a transfer, psel is low."
+    kind: guarantee
+    depends: [R-APB-10]
+    ambiguity:
+      - phrase: "in the next cycle"
+        readings:
+          - "a statement about the single cycle after completion only; psel stays low afterwards only because the next setup phase needs a newly accepted command (R-APB-6), and the spec never states that psel is low in the other idle cycles"
+          - "psel stays low from the cycle after completion until the next setup phase (stronger, not literally stated)"
+    confidence: medium
+
+  - id: R-APB-17
+    doc: SPEC
+    quote: "After a transfer completes, psel and penable are low in the next cycle."
+    text: "In the cycle immediately after the completion cycle of a transfer, penable is low."
+    kind: guarantee
+    depends: [R-APB-10]
+    ambiguity:
+      - phrase: "in the next cycle"
+        readings:
+          - "a statement about the single cycle after completion only; penable stays low afterwards only because penable requires psel (R-APB-15) and psel needs a newly accepted command, and the spec never states that penable is low in the other idle cycles"
+          - "penable stays low from the cycle after completion until the next access phase (stronger, not literally stated)"
+    confidence: medium
+
+  - id: R-APB-18
+    doc: SPEC
+    quote: "While psel is low, pwrite, paddr and pwdata are don't care."
+    text: "In cycles in which psel is low, the values of pwrite, paddr and pwdata are unconstrained."
+    kind: dont_care
+    confidence: high
+
+  - id: R-APB-19
+    doc: SPEC
+    quote: "The APB slave shall assert pready within 4 cycles of the start of the access phase."
+    text: "In every access phase the APB slave drives pready high in at least one cycle within 4 cycles of the start of that access phase."
+    kind: assumption
+    ambiguity:
+      - phrase: "within 4 cycles of the start of the access phase"
+        readings:
+          - "pready is high in at least one of the first 4 cycles of the access phase (the first access cycle counts as cycle 1), so the access phase lasts at most 4 cycles"
+          - "pready is high no later than 4 cycles after the first access cycle (offsets 0 to 4), so the access phase lasts at most 5 cycles"
+      - phrase: "shall assert pready"
+        readings:
+          - "environment assumption only: the behaviour of the bridge when the slave does not assert pready within 4 cycles is unspecified (no timeout, no error response, the bridge may hang in the access phase)"
+          - "the bridge must itself enforce a 4-cycle limit and report an error; no such mechanism is stated anywhere in the spec"
+    confidence: medium
+
+  # ===================================================================
+  # Section 5. Response channel
+  # ===================================================================
+  - id: R-RSP-1
+    doc: SPEC
+    quote: "For every completed transfer the bridge returns exactly one response, in order."
+    text: "Every completed APB transfer results in exactly one response on the response channel."
+    kind: guarantee
+    depends: [R-APB-10, R-OV-2]
+    ambiguity:
+      - phrase: "exactly one response"
+        readings:
+          - "one-to-one: one response (one rsp_valid episode ended by an rsp_valid and rsp_ready handshake) per completed transfer, and no rsp_valid assertion without a completed transfer"
+          - "forward direction only: each completed transfer gets exactly one response, but the spec never states that rsp_valid is low when no response is owed, nor that it must fall after the handshake"
+      - phrase: "For every completed transfer"
+        readings:
+          - "literal, no exception: also for a transfer that completed shortly before a reset, whose pending response R-RST-3 (rsp_valid low in the cycle after reset) would discard"
+          - "reset cancels the obligation: a response pending at reset is discarded and never delivered; the spec does not say so"
+    confidence: medium
+
+  - id: R-RSP-2
+    doc: SPEC
+    quote: "For every completed transfer the bridge returns exactly one response, in order."
+    text: "Responses are returned in the same order as the transfers, and hence the commands, to which they belong."
+    kind: guarantee
+    depends: [R-RSP-1, R-APB-5]
+    ambiguity:
+      - phrase: "in order"
+        readings:
+          - "the order of the responses equals the order of the transfers, which equals the order of command acceptance"
+          - "vacuous: with one transaction at a time (R-OV-3) at most one response can be outstanding, so there is nothing to order; the sentence hints at a pipelined design that R-OV-3 and R-CMD-4 exclude"
+    confidence: medium
+
+  - id: R-RSP-3
+    doc: SPEC
+    quote: "rsp_err equals the pslverr value sampled when the transfer completed."
+    text: "The rsp_err of the response to a transfer equals the value of pslverr sampled in the cycle in which that transfer completed, for read and write transfers alike."
+    kind: guarantee
+    depends: [R-APB-10, R-RSP-1]
+    ambiguity:
+      - phrase: "rsp_err equals the pslverr value sampled when the transfer completed"
+        readings:
+          - "CONTRADICTS R-RSP-9 if read as unconditional: rsp_err would have to equal the captured pslverr in every cycle after completion, including cycles in which rsp_valid is low, but R-RSP-9 declares rsp_err don't care while rsp_valid is low"
+          - "scoped to the response: rsp_err equals the captured pslverr only while rsp_valid is high (from the cycle after completion until the response is accepted); consistent with R-RSP-9"
+    confidence: medium
+
+  - id: R-RSP-4
+    doc: SPEC
+    quote: "For read transfers, rsp_rdata equals the prdata value sampled when the transfer completed."
+    text: "For a read transfer, the rsp_rdata of the response equals the value of prdata sampled in the cycle in which that transfer completed."
+    kind: guarantee
+    depends: [R-APB-10, R-RSP-1, R-IF-3]
+    ambiguity:
+      - phrase: "For read transfers"
+        readings:
+          - "for write transfers rsp_rdata is unconstrained (an implicit don't care), although the spec never says so: R-RSP-9 only frees rsp_rdata while rsp_valid is low"
+          - "for write transfers rsp_rdata must still hold a defined value (zero, or the sampled prdata); the spec gives no value, so the output is under-determined"
+      - phrase: "rsp_rdata equals the prdata value sampled when the transfer completed"
+        readings:
+          - "same issue as for rsp_err in R-RSP-3: CONTRADICTS R-RSP-9 if read as unconditional, because rsp_rdata would be fixed even while rsp_valid is low, where R-RSP-9 says it is don't care"
+          - "scoped to the response: equality is required only while rsp_valid is high; consistent with R-RSP-9"
+      - phrase: "prdata value sampled when the transfer completed"
+        readings:
+          - "rsp_rdata equals prdata even when pslverr is high (literal; no exception stated)"
+          - "rsp_rdata is meaningful only when the read completed without error; its value on an errored read is unspecified"
+    confidence: medium
+
+  - id: R-RSP-5
+    doc: SPEC
+    quote: "rsp_valid is asserted in the cycle after the transfer completes."
+    text: "rsp_valid is high in the cycle immediately after the completion cycle of a transfer."
+    kind: guarantee
+    depends: [R-APB-10]
+    ambiguity:
+      - phrase: "rsp_valid is asserted in the cycle after the transfer completes"
+        readings:
+          - "rsp_valid is high exactly while a response is owed: it rises one cycle after completion and falls once the response is accepted (if and only if)"
+          - "only the rising instant is specified; the spec never states that rsp_valid is low before the first completion or after the response is accepted, except indirectly through exactly-one-response (R-RSP-1) and the cycle after reset (R-RST-3)"
+    confidence: medium
+
+  - id: R-RSP-6
+    doc: SPEC
+    quote: "Once asserted, rsp_valid stays high, and rsp_rdata and rsp_err stay stable, until rsp_ready is sampled high."
+    text: "Once rsp_valid has been asserted for a response, it stays high in every following cycle until rsp_ready is sampled high (through the cycle in which rsp_ready is high)."
+    kind: guarantee
+    depends: [R-RSP-5]
+    ambiguity:
+      - phrase: "Once asserted, rsp_valid stays high"
+        readings:
+          - "CONFLICT with R-RST-3: if rst_n is asserted while a response is waiting for rsp_ready, rsp_valid must be low in the cycle after the reset cycle, so it cannot stay high; the spec does not state that reset takes precedence"
+          - "reset takes precedence (obligations are cancelled by reset): the hold applies only when no reset intervenes"
+      - phrase: "until rsp_ready is sampled high"
+        readings:
+          - "inclusive: rsp_valid is high in the cycle in which rsp_ready is high and falls afterwards, unless a new response is owed (which follows only from exactly-one-response, R-RSP-1)"
+          - "only the hold is stated: nothing explicitly says that rsp_valid falls after the handshake"
+    confidence: medium
+
+  - id: R-RSP-7
+    doc: SPEC
+    quote: "Once asserted, rsp_valid stays high, and rsp_rdata and rsp_err stay stable, until rsp_ready is sampled high."
+    text: "While a response is presented, from the cycle in which rsp_valid first goes high until rsp_ready is sampled high, rsp_rdata does not change from cycle to cycle."
+    kind: guarantee
+    depends: [R-RSP-5, R-RSP-6]
+    ambiguity:
+      - phrase: "rsp_rdata ... stay stable"
+        readings:
+          - "stability applies to every response, including write responses, for which the value of rsp_rdata is otherwise unspecified (see R-RSP-4)"
+          - "stability matters only for read responses, because rsp_rdata carries no meaning for writes"
+    confidence: medium
+
+  - id: R-RSP-8
+    doc: SPEC
+    quote: "Once asserted, rsp_valid stays high, and rsp_rdata and rsp_err stay stable, until rsp_ready is sampled high."
+    text: "While a response is presented, from the cycle in which rsp_valid first goes high until rsp_ready is sampled high, rsp_err does not change from cycle to cycle."
+    kind: guarantee
+    depends: [R-RSP-5, R-RSP-6]
+    confidence: high
+
+  - id: R-RSP-9
+    doc: SPEC
+    quote: "While rsp_valid is low, rsp_rdata and rsp_err are don't care."
+    text: "In cycles in which rsp_valid is low, the values of rsp_rdata and rsp_err are unconstrained."
+    kind: dont_care
+    depends: [R-RSP-5]
+    ambiguity:
+      - phrase: "are don't care"
+        readings:
+          - "CONTRADICTS R-RSP-3 and R-RSP-4 if those are read as unconditional equalities: the don't care frees rsp_err and rsp_rdata exactly where they would otherwise have to equal the captured pslverr and prdata"
+          - "the don't care applies while rsp_valid is low and the equalities of R-RSP-3 and R-RSP-4 apply only while rsp_valid is high; no conflict"
+      - phrase: "While rsp_valid is low"
+        readings:
+          - "the don't care window is exactly the cycles in which rsp_valid is low, so rsp_rdata of a write response (rsp_valid high) is not covered and stays under-specified"
+          - "the don't care implicitly extends to rsp_rdata of write responses, since rsp_rdata only carries meaning for reads"
+    confidence: medium
+
+  - id: R-RSP-10
+    doc: SPEC
+    quote: "To maximise throughput"
+    text: "The design is intended to maximise throughput; no throughput or latency figure is given."
+    kind: non_functional
+    depends: [R-RSP-11]
+    ambiguity:
+      - phrase: "To maximise throughput"
+        readings:
+          - "motivation for the optional same-cycle command acceptance (R-RSP-11) only; no obligation of its own"
+          - "a general obligation to minimise idle cycles between transactions (for example cmd_ready raised at the earliest legal cycle), which would make R-RSP-11 effectively mandatory and sharpen its conflict with R-CMD-4"
+          - "unmeasurable: no metric (cycles per transaction) and no threshold is given, so the sentence cannot be verified"
+    confidence: low
+
+  - id: R-RSP-11
+    doc: SPEC
+    quote: "the bridge may accept the next command in the same cycle in which the response is accepted"
+    text: "The bridge is permitted, but not stated to be required, to accept the next command (cmd_valid and cmd_ready both high) in the same cycle in which the current response is accepted (rsp_valid and rsp_ready both high)."
+    kind: dont_care
+    depends: [R-CMD-1, R-CMD-4, R-OV-3]
+    ambiguity:
+      - phrase: "may accept the next command in the same cycle in which the response is accepted"
+        readings:
+          - "CONTRADICTS R-CMD-4 (and the idle definition R-CMD-2): in the cycle in which the response is accepted that response is still pending, so cmd_ready must be low and no command can be accepted in that cycle; the permission is then unrealizable"
+          - "R-CMD-4 is read with pending ending before the acceptance cycle: cmd_ready may then be high when rsp_valid and rsp_ready are both high, which requires a combinational path from rsp_ready to cmd_ready, and the permission is realizable"
+      - phrase: "may"
+        readings:
+          - "pure permission: cmd_ready in the response-acceptance cycle is a free implementation choice and both behaviours conform"
+          - "throughput feature the design is expected to provide (a scenario that must be reachable), motivated by the preceding 'To maximise throughput' (R-RSP-10)"
+      - phrase: "the response is accepted"
+        readings:
+          - "the cycle in which rsp_valid and rsp_ready are both high (by analogy with command acceptance in R-CMD-1)"
+          - "any cycle in which rsp_ready is high, even if rsp_valid is low; the spec defines acceptance only for commands"
+    confidence: low
+
+  - id: R-RSP-12
+    doc: SPEC
+    quote: "A response is presented within 8 cycles of the command being accepted."
+    text: "The response to an accepted command is presented (rsp_valid asserted) within 8 cycles of the cycle in which that command was accepted."
+    kind: guarantee
+    depends: [R-CMD-1, R-APB-6, R-APB-19, R-RSP-5]
+    ambiguity:
+      - phrase: "within 8 cycles of the command being accepted"
+        readings:
+          - "rsp_valid is high in some cycle t with 1 <= t - t_accept <= 8, the acceptance cycle being cycle 0"
+          - "rsp_valid is high within the 8 cycles t_accept to t_accept + 7, the acceptance cycle counting as the first"
+          - "rsp_valid is high strictly before t_accept + 8"
+      - phrase: "is presented"
+        readings:
+          - "rsp_valid is asserted, that is, the response is offered to the requester"
+          - "the response is accepted by the requester (rsp_valid and rsp_ready both high), which the bridge cannot guarantee because the spec places no obligation on rsp_ready"
+      - phrase: "within 8 cycles"
+        readings:
+          - "conditional on R-APB-19: the bound holds only if the slave asserts pready within 4 cycles of the start of the access phase; with R-APB-6 to R-APB-10 and R-RSP-5 the worst case is then 6 cycles after acceptance (7 under the looser reading of R-APB-19), so the bound of 8 holds under every combination of readings (no slack at all for the looser reading of R-APB-19 combined with the window t_accept to t_accept + 7) and R-RSP-12 is derivable from the other requirements rather than independent"
+          - "unconditional: the bridge must respond within 8 cycles even if pready never arrives, which cannot be met without an undocumented timeout mechanism"
+    confidence: medium
+
+  # ===================================================================
+  # Section 6. Reset
+  # ===================================================================
+  - id: R-RST-1
+    doc: SPEC
+    quote: "In the cycle after reset, psel, penable and rsp_valid are low and cmd_ready is high."
+    text: "In the cycle after reset, psel is low."
+    kind: guarantee
+    depends: [R-IF-2]
+    ambiguity:
+      - phrase: "In the cycle after reset"
+        readings:
+          - "every cycle that immediately follows a cycle in which rst_n is low (so with a multi-cycle reset the reset values hold in each cycle after the first reset cycle)"
+          - "only the first cycle after rst_n returns high, that is, after the last reset cycle"
+          - "only the cycle after a single-cycle reset; behaviour after a longer reset is unspecified"
+      - phrase: "psel ... low"
+        readings:
+          - "CONFLICT with R-APB-9 and R-APB-11 when reset is asserted mid-transfer: psel must be low in the next cycle although the transfer has not completed and psel 'remains stable'; the spec does not state that reset aborts the transfer or takes precedence"
+          - "reset takes precedence over every in-flight obligation (hold, stability, exactly-one transfer or response); a command aborted by reset then gets no transfer and no response"
+      - phrase: "psel ... low (command presented in a reset cycle)"
+        readings:
+          - "CONFLICT with R-CMD-1, R-APB-6 and R-RST-4: a handshake (cmd_valid and cmd_ready high, possible because R-RST-4 makes cmd_ready high during a multi-cycle reset) in a cycle in which rst_n is low would be an accepted command, so psel would have to be high in the next cycle (setup phase), while this requirement forces psel low in the cycle after every reset cycle"
+          - "a handshake in a reset cycle is not an acceptance (reset takes precedence), so the case does not arise; the spec does not say so"
+    confidence: medium
+
+  - id: R-RST-2
+    doc: SPEC
+    quote: "In the cycle after reset, psel, penable and rsp_valid are low and cmd_ready is high."
+    text: "In the cycle after reset, penable is low."
+    kind: guarantee
+    depends: [R-IF-2]
+    ambiguity:
+      - phrase: "In the cycle after reset"
+        readings:
+          - "every cycle that immediately follows a cycle in which rst_n is low (so with a multi-cycle reset the reset values hold in each cycle after the first reset cycle)"
+          - "only the first cycle after rst_n returns high, that is, after the last reset cycle"
+          - "only the cycle after a single-cycle reset; behaviour after a longer reset is unspecified"
+      - phrase: "penable ... low"
+        readings:
+          - "CONFLICT with R-APB-9 when reset is asserted during the access phase: penable must be low in the next cycle although pready has not been sampled high; the spec does not state that reset takes precedence"
+          - "reset takes precedence over the access phase and over every other in-flight obligation"
+    confidence: medium
+
+  - id: R-RST-3
+    doc: SPEC
+    quote: "In the cycle after reset, psel, penable and rsp_valid are low and cmd_ready is high."
+    text: "In the cycle after reset, rsp_valid is low."
+    kind: guarantee
+    depends: [R-IF-2]
+    ambiguity:
+      - phrase: "In the cycle after reset"
+        readings:
+          - "every cycle that immediately follows a cycle in which rst_n is low (so with a multi-cycle reset the reset values hold in each cycle after the first reset cycle)"
+          - "only the first cycle after rst_n returns high, that is, after the last reset cycle"
+          - "only the cycle after a single-cycle reset; behaviour after a longer reset is unspecified"
+      - phrase: "rsp_valid ... low"
+        readings:
+          - "CONFLICT with R-RSP-6: if reset is asserted while a response is waiting for rsp_ready, rsp_valid must be low in the next cycle although it 'stays high until rsp_ready is sampled high'; the spec does not state that reset takes precedence"
+          - "reset takes precedence over the hold and discards a pending response; that response is then never accepted, contrary to the literal reading of exactly-one-response (R-RSP-1)"
+    confidence: medium
+
+  - id: R-RST-4
+    doc: SPEC
+    quote: "In the cycle after reset, psel, penable and rsp_valid are low and cmd_ready is high."
+    text: "In the cycle after reset, cmd_ready is high."
+    kind: guarantee
+    depends: [R-IF-2]
+    ambiguity:
+      - phrase: "In the cycle after reset"
+        readings:
+          - "every cycle that immediately follows a cycle in which rst_n is low (so with a multi-cycle reset the reset values hold in each cycle after the first reset cycle)"
+          - "only the first cycle after rst_n returns high, that is, after the last reset cycle"
+          - "only the cycle after a single-cycle reset; behaviour after a longer reset is unspecified"
+      - phrase: "cmd_ready is high"
+        readings:
+          - "reset clears any transfer or pending response, so the bridge is idle and cmd_ready high is consistent with R-CMD-3 and R-CMD-4 (a command presented during a reset cycle is not accepted or is lost; the spec is silent)"
+          - "reset does not clear an in-flight transfer or pending response: then cmd_ready high would contradict R-CMD-3 and R-CMD-4 (cmd_ready only while idle); the spec does not say what reset clears"
+      - phrase: "cmd_ready is high (during a multi-cycle reset)"
+        readings:
+          - "under the first reading of 'the cycle after reset', cmd_ready is high in every reset cycle after the first, so a handshake there is an acceptance per R-CMD-1 and R-APB-6 would start a transfer; that would CONFLICT with R-RST-1 (psel low in the cycle after every reset cycle)"
+          - "cmd_ready is high only once reset has been released, or a handshake in a reset cycle is not an acceptance; the spec does not say which"
+    confidence: medium

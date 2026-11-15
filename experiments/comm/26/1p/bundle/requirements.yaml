@@ -1,0 +1,103 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-TASK-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: 'The deliverable is a Python implementation of the given function candidate: its body is written and the given header is kept.'
+  kind: non_functional
+  lines:
+  - 1
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def candidate(numbers: List[int])'
+  text: The function is named candidate and takes exactly one parameter, named numbers, annotated as a list of integers.
+  kind: non_functional
+  lines:
+  - 7
+- id: R-IN-1
+  doc: SPEC
+  quote: From a list of integers
+  text: The argument numbers is a list of integers (the caller supplies only lists of integers).
+  kind: assumption
+  lines:
+  - 8
+- id: R-SIG-2
+  doc: SPEC
+  quote: -> List[int]
+  text: For every list of integers numbers, candidate returns a list of integers (the list left after the removal) and does not raise an exception or fail to finish.
+  kind: guarantee
+  ambiguity:
+  - phrase: remove
+    readings:
+    - Build and return a new list without the removed elements; the argument numbers is left unchanged.
+    - Delete the elements from the argument list numbers in place and return that same (mutated) list.
+  lines:
+  - 7
+- id: R-RM-1
+  doc: SPEC
+  quote: remove all elements that occur
+  text: No element of numbers that is selected for removal (an element 'that occurs') appears in the returned list.
+  kind: guarantee
+  ambiguity:
+  - phrase: remove all elements that occur
+    readings:
+    - 'Literal: every element of a list occurs in it, so every element is removed and the returned list is always empty.'
+    - 'The sentence is cut short and means ''that occur more than once'': every value that appears two or more times in numbers is removed entirely (all of its copies); values that appear exactly once remain.'
+    - 'Remove repeated occurrences (deduplicate): the first occurrence of each value is kept and every later occurrence of the same value is removed.'
+  - phrase: all elements that occur
+    readings:
+    - 'Contradiction with R-RM-3: ''all elements'' read literally removes every element, since every element of numbers occurs in numbers, so nothing is kept.'
+    - 'Contradiction with R-RM-3: the restrictive clause ''that occur'' presupposes that only some elements are removed and the others are kept, which requires a selecting condition the sentence does not
+      state.'
+  lines:
+  - 8
+- id: R-RM-2
+  doc: SPEC
+  quote: remove all elements that occur
+  text: 'The returned list contains only elements of numbers: every value appears in the returned list at most as many times as it appears in numbers (removal never adds or changes elements).'
+  kind: guarantee
+  lines:
+  - 8
+- id: R-RM-3
+  doc: SPEC
+  quote: remove all elements that occur
+  text: Every element of numbers that is not selected for removal (not an element 'that occurs') is kept in the returned list, so the returned list has exactly the elements of numbers minus the removed
+    ones.
+  kind: guarantee
+  ambiguity:
+  - phrase: remove all elements that occur
+    readings:
+    - 'Literal: every element of a list occurs in it, so no element is kept and the returned list is always empty.'
+    - 'The sentence is cut short and means ''that occur more than once'': every value that appears exactly once in numbers is kept; values that appear two or more times are not kept at all.'
+    - 'Remove repeated occurrences (deduplicate): the first occurrence of each distinct value is kept, so each distinct value of numbers appears exactly once in the returned list.'
+  - phrase: all elements that occur
+    readings:
+    - 'Contradiction with R-RM-1: ''all elements'' read literally removes every element, since every element of numbers occurs in numbers, so nothing is kept.'
+    - 'Contradiction with R-RM-1: the restrictive clause ''that occur'' presupposes that only some elements are removed and the others are kept, which requires a selecting condition the sentence does not
+      state.'
+  lines:
+  - 8
+- id: R-RM-4
+  doc: SPEC
+  quote: remove all elements that occur
+  text: The elements kept in the returned list appear in the same relative order as in numbers (the returned list is a subsequence of numbers).
+  kind: guarantee
+  ambiguity:
+  - phrase: remove
+    readings:
+    - 'Removing elements leaves the remaining elements in their original relative order: the returned list is a subsequence of numbers.'
+    - 'The prompt states no order for the result: the remaining elements may be returned in any order.'
+  lines:
+  - 8
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-EMPTY: `result` is the empty list unless `outcome` is 0.'
+  text: Whenever outcome is not 0 (the call raised, did not finish, or returned something other than a list of at most 8 integers from 0 to 255), result is the empty list.
+  kind: guarantee
+  lines:
+  - 47

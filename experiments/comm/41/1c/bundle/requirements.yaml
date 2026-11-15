@@ -1,0 +1,112 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-FN-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete implementation (body) of the given Python function, keeping the given signature.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-FN-2
+  doc: SPEC
+  quote: 'def is_prime(n: int):'
+  text: The function is named is_prime and takes a single integer argument n.
+  kind: definition
+  ambiguity:
+  - phrase: is_prime
+    readings:
+    - is_prime is only the function's name; its behaviour is the collision count described by the docstring (R-OUT-1), and the name is a misnomer.
+    - 'The name governs: is_prime(n) decides whether n is a prime number and returns a bool. This contradicts the docstring sentence ''This function outputs the number of such collisions.'' (R-OUT-1).'
+  lines:
+  - 4
+- id: R-ROAD-1
+  doc: SPEC
+  quote: Imagine a road that's a perfectly straight infinitely long line.
+  text: The cars of the scenario move along a single road that is a perfectly straight line of infinite length in both directions.
+  kind: definition
+  lines:
+  - 6
+- id: R-CAR-1
+  doc: SPEC
+  quote: n cars are driving left to right
+  text: The argument n is the number of cars driving left to right on the road.
+  kind: definition
+  lines:
+  - 7
+- id: R-CAR-2
+  doc: SPEC
+  quote: simultaneously, a different set of n cars are driving right to left.
+  text: At the same time, a second set of cars, disjoint from the left-to-right set and also containing exactly n cars, drives right to left on the same road.
+  kind: definition
+  lines:
+  - 7
+  - 8
+- id: R-CAR-3
+  doc: SPEC
+  quote: The two sets of cars start out being very far from each other.
+  text: Initially the left-to-right set and the right-to-left set are very far apart (no car of one set is near any car of the other).
+  kind: definition
+  ambiguity:
+  - phrase: very far from each other
+    readings:
+    - Every left-to-right car starts to the left of every right-to-left car, so the two sets approach each other and every pair of oppositely moving cars eventually meets.
+    - Only the distance between the sets is stated, not their order; the sets could be moving away from each other, in which case no car ever meets an oppositely moving car.
+  lines:
+  - 8
+  - 9
+- id: R-CAR-4
+  doc: SPEC
+  quote: All cars move in the same speed.
+  text: Every car, in either set, moves at the same speed.
+  kind: definition
+  lines:
+  - 9
+- id: R-COL-1
+  doc: SPEC
+  quote: Two cars are said to collide when a car that's moving left to right hits a car that's moving right to left.
+  text: A collision is the event of a left-to-right car meeting (hitting) a right-to-left car; contact between two cars moving in the same direction is not a collision.
+  kind: definition
+  lines:
+  - 9
+  - 10
+- id: R-COL-2
+  doc: SPEC
+  quote: However, the cars are infinitely sturdy and strong; as a result, they continue moving in their trajectory as if they did not collide.
+  text: 'A collision does not change any car''s motion: after colliding, both cars continue on their original trajectories at their original speeds, as if the collision had not happened.'
+  kind: definition
+  lines:
+  - 11
+  - 12
+- id: R-OUT-1
+  doc: SPEC
+  quote: This function outputs the number of such collisions.
+  text: For every n, the result of is_prime(n) is the number of collisions (as defined in R-COL-1) that occur in the scenario with n cars in each set.
+  kind: guarantee
+  ambiguity:
+  - phrase: This function outputs the number of such collisions
+    readings:
+    - is_prime(n) returns the collision count for n cars in each set; the docstring governs and the name is_prime is a misnomer.
+    - is_prime(n) decides whether n is prime and returns a bool, as its name says (R-FN-2); this sentence then contradicts the function's name.
+  - phrase: outputs
+    readings:
+    - The count is the function's return value (an int).
+    - The count is printed (e.g. to standard output); the return value is not specified.
+  - phrase: the number of such collisions
+    readings:
+    - The number of (left-to-right car, right-to-left car) pairs that meet over the whole, unbounded duration of the scenario; with the sets approaching each other (R-CAR-3 reading 1) and cars passing through
+      (R-COL-2), every pair meets exactly once, giving n*n.
+    - The number of distinct collision events, where several cars meeting at the same point at the same time count as a single collision.
+  lines:
+  - 14
+- id: R-FR-1
+  doc: FRAME
+  quote: '`collisions` is 0 unless `outcome` is 0.'
+  text: In every call, the collisions output is 0 unless outcome is 0 (the call returned an integer that fits collisions).
+  kind: guarantee
+  lines:
+  - 38

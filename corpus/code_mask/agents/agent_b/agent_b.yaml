@@ -1,0 +1,237 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model
+# -------------------
+# mask_card keeps no state between calls and the checker orders the calls
+# freely (frame.md), so the reference model is a pure function of the argument
+# `number`, given by the defs below; a ghost register would only carry a value
+# from an unrelated earlier call, so none is used. The model computes the digit
+# count, the three rejection conditions of rule 1, validity, and, for every
+# position i of the argument, what a returned string must hold there:
+#   digit with four or more digits after it  -> "*"            (PB-MASK-1)
+#   digit with fewer than four digits after it -> the digit    (PB-LAST4-1)
+#   space or hyphen                           -> the same char (PB-SEP-1)
+# Every output is checked against it: outcome by PB-RET-1 and PB-ERR-1..4,
+# masked by PB-MASK-1, PB-LAST4-1, PB-SEP-1, PB-SEP-2, PB-RET-2, PB-QUARTER-1.
+#
+# Readings used throughout (details in the notes):
+#   digit   = one of the ten characters 0 to 9 (FCP-PL isdigit; R-ERR-1 reading 1)
+#   space   = " " (code 32) only; hyphen = "-" (code 45) only
+#   spaces and hyphens may stand anywhere, in any number (R-IN-2 reading 1)
+#   shown   = a digit character that appears in the returned string
+defs:
+  n_digits: 'count(i < len(number): isdigit(number[i]))'
+  other_char: 'any(i < len(number): !(isdigit(number[i]) || number[i] == " " || number[i] == "-"))'
+  # Luhn: a digit with an odd number of digits to its right is doubled (minus 9 above 9).
+  luhn_sum: 'sum(i < len(number): isdigit(number[i]) ? (((count(j < len(number): j > i && isdigit(number[j])) % 2) == 1) ? (((number[i] - "0") >= 5) ? 2 * (number[i] - "0") - 9 : 2 * (number[i] - "0")) : number[i] - "0") : 0)'
+  luhn_pass: '((luhn_sum % 10) == 0)'
+  valid_card: '(!other_char && n_digits >= 12 && n_digits <= 19 && luhn_pass)'
+  n_shown: 'count(i < len(masked): isdigit(masked[i]))'
+
+properties:
+  # ---- R-RET-1: "It returns the card number with most of its digits hidden."
+  - id: PB-RET-1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'valid_card', cond: 'outcome == 0'}
+    note: >-
+      valid_card is the complement of the three conditions of rule 1: only
+      digits, spaces and hyphens, 12 to 19 digits, Luhn check passed. R-IN-2 is
+      read literally: spaces and hyphens are accepted anywhere and in any
+      number, since rule 1 rejects only other characters, so for example
+      " 4111--1111 1111 1111" must be returned. "returns a string" is read as
+      outcome 0, a returned string that fits the trace. A string of another
+      length would also break PB-SEP-2. Together with PB-LAST4-1 and
+      PB-QUARTER-1 this obligation cannot be met for a valid number of 12 to 15
+      digits (see PB-QUARTER-1).
+  - id: PB-RET-2
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'valid_card && outcome == 0', cond: '2 * n_shown < n_digits'}
+    note: >-
+      "with most of its digits hidden": more than half of the digits are hidden,
+      read as fewer than half of them shown (2 * shown < digits). A digit counts
+      as shown when it appears in the returned string, as in PB-QUARTER-1.
+
+  # ---- R-ERR-1: rule 1, one item per rejection condition
+  - id: PB-ERR-1
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: 'other_char', cond: 'outcome == 1'}
+    note: >-
+      "digits" is read as the ten characters 0 to 9 (reading 1 of the R-ERR-1
+      ambiguity, the meaning of FCP-PL isdigit). Characters that Python's
+      str.isdigit also accepts, such as superscript two (code 178), count as
+      "anything other" and must raise. "spaces" is read as " " (code 32) and
+      "hyphens" as "-" (code 45). Tab, no-break space (160) and soft hyphen
+      (173) therefore also raise.
+  - id: PB-ERR-2
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: 'n_digits < 12', cond: 'outcome == 1'}
+    note: "Digits are counted as in PB-ERR-1; spaces and hyphens do not count."
+  - id: PB-ERR-3
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: 'n_digits > 19', cond: 'outcome == 1'}
+    note: "Digits are counted as in PB-ERR-1; spaces and hyphens do not count."
+  - id: PB-ERR-4
+    req: R-ERR-1
+    pattern: implies
+    args: {trigger: '!luhn_pass', cond: 'outcome == 1'}
+    note: >-
+      The Luhn check runs over the digits only, ignoring spaces and hyphens.
+      Counting from the rightmost digit, every digit with an odd number of
+      digits to its right is doubled, minus 9 when the double exceeds 9. The
+      check passes when the sum is a multiple of 10. It is applied even when
+      another condition of rule 1 holds, which changes nothing because rule 1
+      is a disjunction.
+
+  # ---- R-MASK-1: rule 2, first half
+  - id: PB-MASK-1
+    req: R-MASK-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'all(i < len(number): isdigit(number[i]) && count(j < len(number): j > i && isdigit(number[j])) >= 4 -> masked[i] == "*")'
+    note: >-
+      "the last four digits" are the digits with fewer than four digits after
+      them. Every other digit of the number is replaced in place, at the same
+      position, by "*". This is read as a rule on every returned string
+      (outcome 0), not only on valid numbers, since the text does not limit it.
+
+  # ---- R-LAST4-1: rule 2, second half
+  - id: PB-LAST4-1
+    req: R-LAST4-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'all(i < len(number): isdigit(number[i]) && count(j < len(number): j > i && isdigit(number[j])) < 4 -> masked[i] == number[i])'
+    note: >-
+      "stay as they are" is read as: the same character at the same position of
+      the returned string. For a valid number of 12 to 15 digits this shows four
+      digits, more than the quarter that PB-QUARTER-1 allows. It is formalized
+      literally, not repaired (see PB-QUARTER-1).
+
+  # ---- R-SEP-1: rule 3
+  - id: PB-SEP-1
+    req: R-SEP-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'all(i < len(number): (number[i] == " " || number[i] == "-") -> masked[i] == number[i])'
+    note: "Every space and every hyphen of the number is at the same position in a returned string."
+  - id: PB-SEP-2
+    req: R-SEP-1
+    pattern: implies
+    args: {trigger: 'outcome == 0', cond: 'len(masked) == len(number)'}
+    note: >-
+      Rule 3 states the consequence "so the result has the same length as
+      number". It is formalized as its own obligation on every returned string.
+
+  # ---- R-QUARTER-1: rule 4
+  - id: PB-QUARTER-1
+    req: R-QUARTER-1
+    pattern: invariant
+    args: {cond: '4 * n_shown <= n_digits'}
+    note: >-
+      "never" is read as every call. "show" is read as a digit character (0 to
+      9) appearing in the returned string. "a quarter of the digits" is exact,
+      the digit count divided by 4 without rounding, so 4 * shown <= digits.
+      Calls that raise return no string (frame F-EMPTY) and show nothing. Error
+      messages are not part of the trace, so digits shown in an exception
+      message cannot be checked. CONTRADICTION with rule 2 (PB-LAST4-1):
+      keeping the last four digits shows 4 digits, more than a quarter of 12,
+      13, 14 or 15 digits (3, 3.25, 3.5, 3.75). Rule 1 accepts such numbers and
+      "It returns" (PB-RET-1) requires a result, so a valid card number of 12
+      to 15 digits has no conforming result. The text does not say which rule
+      wins, so both are formalized literally. Rounding the quarter up would
+      still conflict at 12 digits.
+
+  # ---- R-EX-1: the example
+  - id: PB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'number == "4111 1111 1111 1111"'
+      cond: 'outcome == 0 && masked == "**** **** **** 1111"'
+    note: >-
+      The example states what the call returns, so it is an obligation as well
+      as a scenario (PB-S-EX-1). 4111 1111 1111 1111 passes the Luhn check and
+      has 16 digits, and showing 4 of 16 is exactly a quarter, so the example
+      agrees with every rule.
+
+scenarios:
+  - id: PB-S-EX-1
+    req: R-EX-1
+    cover: 'number == "4111 1111 1111 1111" && outcome == 0 && masked == "**** **** **** 1111"'
+    note: "The behaviour of the example must be possible."
+  - id: PB-S-IN1-12
+    req: R-IN-1
+    cover: 'valid_card && n_digits == 12 && outcome == 0'
+    note: >-
+      "A card number has 12 to 19 digits": a card number at the low end of the
+      range must be returnable (with R-RET-1, "It returns the card number").
+      The range itself is part of valid_card (PB-RET-1) and of PB-ERR-2 and
+      PB-ERR-3. Expected to be unreachable because of the contradiction between
+      rules 2 and 4 (PB-QUARTER-1).
+  - id: PB-S-IN1-19
+    req: R-IN-1
+    cover: 'valid_card && n_digits == 19 && outcome == 0'
+    note: "As PB-S-IN1-12, at the high end of the range."
+  - id: PB-S-IN2-SPACE
+    req: R-IN-2
+    cover: 'valid_card && outcome == 0 && any(i < len(number): number[i] == " " && isdigit(number[i - 1]) && isdigit(number[i + 1]))'
+    note: >-
+      "spaces ... between groups of digits": a valid number with a space that
+      has a digit immediately before and after it must be returnable. Such a
+      number is a card number under both readings of R-IN-2. The literal
+      reading (spaces and hyphens anywhere) is the one used for validity
+      (PB-RET-1).
+  - id: PB-S-IN2-HYPHEN
+    req: R-IN-2
+    cover: 'valid_card && outcome == 0 && any(i < len(number): number[i] == "-" && isdigit(number[i - 1]) && isdigit(number[i + 1]))'
+    note: "As PB-S-IN2-SPACE, for a hyphen."
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Definition of the interface. The adapter binds the name and the argument
+      (design.yaml function section: mask_card, argument number driving the
+      signal number). The result type str is part of the outcome encoding:
+      outcome 0 is a returned string. PB-RET-1 requires it for every valid
+      number and PB-ERR-1 to PB-ERR-4 require ValueError for every other one,
+      so no call may return a value of another type. Python does not enforce
+      the annotation, and the trace cannot tell a value of another type from a
+      string too long for it (both are outcome 3), so no separate item is
+      added.
+    covered_by: [PB-RET-1, PB-ERR-1, PB-ERR-2, PB-ERR-3, PB-ERR-4]
+  - req: R-IN-1
+    reason: >-
+      Definition of the digit count of a card number; it places no obligation
+      by itself. The range is part of valid_card, which must be returned
+      (PB-RET-1), and a digit count outside it raises (PB-ERR-2, PB-ERR-3).
+      The scenarios PB-S-IN1-12 and PB-S-IN1-19, which carry this requirement,
+      require that card numbers at both ends of the range can be returned.
+    covered_by: [PB-RET-1, PB-ERR-2, PB-ERR-3, PB-S-IN1-12, PB-S-IN1-19]
+  - req: R-IN-2
+    reason: >-
+      Descriptive definition: it says what customers often type and places no
+      obligation by itself. Read literally (reading 1 of its ambiguity, since
+      rule 1 rejects only other characters), spaces and hyphens are accepted
+      anywhere and in any number: valid_card ignores them (PB-RET-1, PB-ERR-1)
+      and rule 3 keeps them in place (PB-SEP-1). Under reading 2 (one separator
+      at a time, only between two digits), other placements would not be card
+      numbers. Their result would then be unspecified, because rule 1 does not
+      reject them. The scenarios PB-S-IN2-SPACE and PB-S-IN2-HYPHEN, which
+      carry this requirement, require that numbers typed with separators
+      between groups of digits can be returned.
+    covered_by: [PB-RET-1, PB-ERR-1, PB-SEP-1, PB-S-IN2-SPACE, PB-S-IN2-HYPHEN]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md). It is the frame item F-EMPTY of
+      design.yaml, which is part of every formalization set and need not be
+      restated.
+    covered_by: [F-EMPTY]

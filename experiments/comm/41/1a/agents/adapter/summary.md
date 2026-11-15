@@ -1,0 +1,6 @@
+I wrote `design.yaml`, `frame.md` and `requirements.yaml`, and `fcp lint` reports clean. Each cycle after reset is one call of `car_race_collision(n)`. There are three signals:
+- **`n`:** a 10-bit input, 0 to 1,023. The request sets no upper bound, so that limit is my choice.
+- **`collisions`:** a 24-bit output, 0 to 16,777,215. That holds the largest count the "2*n or n cars" wording could give at n = 1,023 (about 4.19 million), with room to spare.
+- **`outcome`:** 2 bits, with `raises: []` because the request names no exception. 0 means it returned an integer that fits, 1 means any exception or no answer, and 2 means it returned anything else, such as another type or a negative or too-large number.
+
+The `function` section declares one `int` argument and an `int` return, with a scope of `n: {dense: [0, 300], random: 100}`. The one frame rule, F-ZERO (`outcome != 0 -> collisions == 0`), cites R-FR-1. That requirement quotes the matching line of `frame.md` verbatim, with `lines: [41]` computed by `fcp anchor`. `frame.md` describes only the encoding: the calls, the table of signals and their ranges, that negative numbers and `n` above 1,023 are not part of the trace, and that every exception is outcome 1. The `draft.yaml` used to run `fcp anchor` is still in the workspace.

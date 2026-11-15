@@ -1,0 +1,134 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. fib4 is memoryless (frame.md: calls are independent),
+# so the reference model is a combinational function of the argument n rather
+# than ghost state: fib4_n is the Fib4 element at index n, built only from the
+# four base values of the prompt (BASE) and the recurrence (through its
+# characteristic polynomial x^4 - x^3 - x^2 - x - 1, evaluated at x = 2^128 in
+# CP). Every output (outcome, result) is checked against fib4_n.
+#
+# Why fib4_n is the Fib4 sequence: write x^i mod (x^4 - x^3 - x^2 - x - 1) as
+# c(i,0) + c(i,1) x + c(i,2) x^2 + c(i,3) x^3. The c(i,j) are non-negative and,
+# for i <= 127, below 2^121, so 2^(128 i) mod CP is exactly that polynomial
+# evaluated at 2^128 and its base-2^128 digits are c(i,0..3). Every sequence
+# with s(k) = s(k-1) + s(k-2) + s(k-3) + s(k-4) for k >= 4 satisfies
+# s(i) = sum_j c(i,j) * s(j); with BASE = [s(0), s(1), s(2), s(3)] = [0, 0, 2, 0]
+# this gives 0, 0, 2, 0, 2, 4, 8, 14, 28, 54, 104, 200, 386, ...
+# (fib4(127) is about 2^117.5, so every element for n <= 127 fits `result`).
+defs:
+  BASE: "[0, 0, 2, 0]"
+  CP: "(1 << 512) - (1 << 384) - (1 << 256) - (1 << 128) - 1"
+  fib4_n: "sum(i < 128: (n == i) * sum(j < 4: BASE[j] * ((((1 << (128 * i)) % CP) >> (128 * j)) % (1 << 128))))"
+  returns_fib4_n: "outcome == 0 && result == fib4_n"
+
+properties:
+  - id: RB-BASE-1
+    req: R-BASE-1
+    pattern: implies
+    args: {trigger: "n == 0", cond: "outcome == 0 && result == 0"}
+    note: "'fib4(0) -> 0' read as: the call returns normally (outcome 0) with the integer 0. Written with the literal value, independently of the model fib4_n, so that it also cross-checks the model."
+
+  - id: RB-BASE-2
+    req: R-BASE-2
+    pattern: implies
+    args: {trigger: "n == 1", cond: "outcome == 0 && result == 0"}
+    note: "'fib4(1) -> 0': the call returns normally with the integer 0."
+
+  - id: RB-BASE-3
+    req: R-BASE-3
+    pattern: implies
+    args: {trigger: "n == 2", cond: "outcome == 0 && result == 2"}
+    note: "Reading 1 taken: fib4(2) -> 2 is a base value that the recurrence does not override; the recurrence applies from n = 4. The apparent clash (reading 2) arises only if the recurrence is applied at n = 2 with terms before index 0 taken as 0, which the text does not say."
+
+  - id: RB-BASE-4
+    req: R-BASE-4
+    pattern: implies
+    args: {trigger: "n == 3", cond: "outcome == 0 && result == 0"}
+    note: "Reading 1 taken: fib4(3) -> 0 is a base value; the recurrence applies from n = 4 (see RB-BASE-3)."
+
+  - id: RB-REC-1
+    req: R-REC-1
+    pattern: implies
+    args: {trigger: "n >= 4", cond: "returns_fib4_n"}
+    note: "Reading 1 taken: the recurrence line, which states no domain, holds for n >= 4. Within the trace (n is 0..127) reading 2 (every n) differs only through values at negative indices, which are not observable, unless those are taken as 0, which contradicts the base values fib4(2) -> 2 and fib4(3) -> 0. The value is the model fib4_n, which is defined by the base values and this recurrence. '->' is read as: the call returns that integer (outcome 0)."
+
+  - id: RB-REC-2
+    req: R-REC-1
+    pattern: implies
+    args:
+      trigger: "n >= 4 && prev(n) == n - 1 && prev(n, 2) == n - 2 && prev(n, 3) == n - 3 && prev(n, 4) == n - 4 && prev(outcome) == 0 && prev(outcome, 2) == 0 && prev(outcome, 3) == 0 && prev(outcome, 4) == 0"
+      cond: "outcome == 0 && result == prev(result) + prev(result, 2) + prev(result, 3) + prev(result, 4)"
+    note: "The recurrence written directly as a relation between calls, independently of the model: whenever the four previous calls were fib4(n-1), fib4(n-2), fib4(n-3), fib4(n-4) (in that order, most recent first) and all returned normally, this call returns the sum of their results. Calls are independent and their order is chosen by the checker (frame.md), so this item fires only on such runs of consecutive arguments; RB-REC-1 constrains every call. RB-REC-2 is implied by RB-REC-1 and is kept as an independent check of the model fib4_n."
+
+  - id: RB-FN-1
+    req: R-FN-1
+    expr: "returns_fib4_n"
+    note: "Every argument in the trace is a non-negative integer (0..127, frame.md), so this holds at every call: the call returns normally (outcome 0) with the Fib4 element at index n. Readings taken: 'the n-th element' counts from 0 (reading 1; agrees with the examples), 'compute' means return (reading 1), and the returned value must be an int (reading 1): outcome 0 means an integer was returned, and the frame records any other type, such as a float, as outcome 2 with result 0, so reading 2 could not be checked on this trace anyway. Every element up to n = 127 is below 2^118, so it fits `result`."
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 5", cond: "outcome == 0 && result == 4"}
+    note: "The doctest '>>> fib4(5)' / '4' states the value every call fib4(5) must return. Kept as a property alongside the scenario RB-EX-1S, and written with the literal value so it cross-checks the model fib4_n."
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 6", cond: "outcome == 0 && result == 8"}
+    note: "Doctest fib4(6) -> 8 as a property; see RB-EX-1."
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "n == 7", cond: "outcome == 0 && result == 14"}
+    note: "Doctest fib4(7) -> 14 as a property; see RB-EX-1."
+
+scenarios:
+  - id: RB-EX-1S
+    req: R-EX-1
+    cover: "n == 5 && outcome == 0 && result == 4"
+    note: "The doctest behaviour fib4(5) returning 4 must be possible."
+
+  - id: RB-EX-2S
+    req: R-EX-2
+    cover: "n == 6 && outcome == 0 && result == 8"
+    note: "The doctest behaviour fib4(6) returning 8 must be possible."
+
+  - id: RB-EX-3S
+    req: R-EX-3
+    cover: "n == 7 && outcome == 0 && result == 14"
+    note: "The doctest behaviour fib4(7) returning 14 must be possible."
+
+unformalized:
+  - req: R-SIG-1
+    reason: "Not a property of the call trace: the function name fib4 and its single parameter n are fixed by the adapter (design.yaml `function`), which calls fib4(n). A missing or renamed function makes every call raise (outcome 1), which RB-FN-1 already rejects."
+  - req: R-IN-1
+    reason: "Reading 1 taken ('n: int' allows any integer). The obligation that the caller passes an integer holds by construction of the trace: the n signal is always an integer 0..127, and negative or larger arguments are not part of the trace (frame.md, Inputs). An assumption would be the constant true, so there is nothing to constrain."
+  - req: R-IN-2
+    reason: "Reading 1 taken (behaviour for negative n is free). Negative arguments are not part of the trace (frame.md, Inputs: n is 0 to 127), so no call has outputs to leave free and a dont_care condition 'n < 0' could never hold."
+  - req: R-DEF-1
+    reason: "A definition, not a behaviour by itself. It is realized by the model fib4_n (defs), which is built only from the base values listed in the prompt and the recurrence, and is used by the items listed under covered_by. Readings taken: the listed rules define the Fib4 sequence itself (reading 1), and 'similar to the Fibbonacci sequnece' is informative only (reading 1)."
+    covered_by: [RB-BASE-1, RB-BASE-2, RB-BASE-3, RB-BASE-4, RB-REC-1, RB-REC-2, RB-FN-1]
+  - req: R-NF-1
+    reason: "Not observable in the call trace, which records no running time or memory. Reading 2 taken ('efficiently' means anything better than the exponential naive recursion). The only observable consequence, a call that does not finish (outcome 1), is already rejected by RB-FN-1 for every n in 0..127."
+  - req: R-NF-2
+    reason: "A property of the code's structure, not of its calls: recursion is not visible in the trace, whose outputs depend only on the returned value. Reading 2 taken (no recursion anywhere, including helpers, mutual and memoized recursion)."
+  - req: R-FR-1
+    reason: "Frame rule of the adapter (frame.md): it holds by construction and is added to every formalization set as F-ZERO, so it is not restated."
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: "n: int", reading: 1}
+  - {req: R-IN-2, phrase: "the n-th element", reading: 1}
+  - {req: R-DEF-1, phrase: "that's defined as follows", reading: 1}
+  - {req: R-DEF-1, phrase: "similar to the Fibbonacci sequnece", reading: 1}
+  - {req: R-BASE-3, phrase: "fib4(2) -> 2", reading: 1}
+  - {req: R-BASE-4, phrase: "fib4(3) -> 0", reading: 1}
+  - {req: R-REC-1, phrase: "fib4(n)", reading: 1}
+  - {req: R-FN-1, phrase: "the n-th element", reading: 1}
+  - {req: R-FN-1, phrase: "compute", reading: 1}
+  - {req: R-FN-1, phrase: "compute the n-th element", reading: 1}
+  - {req: R-NF-1, phrase: "efficiently", reading: 2}
+  - {req: R-NF-2, phrase: "Do not use recursion.", reading: 2}

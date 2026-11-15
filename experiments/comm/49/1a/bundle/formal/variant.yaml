@@ -1,0 +1,160 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-SIG-2 / R-MOD-1 "2^n modulo p", readings as instructed: x is the modulus p, y the exponent n
+  p: 'x'
+  n: 'y'
+  # R-MOD-1 "2^n", reading as instructed: 2 XOR n (Python ^), 0..127 for n in 0..127
+  two_n: "(n ^ 7'd2)"
+  # R-MOD-1 "modulo p", reading as instructed: result is congruent to two_n modulo p, i.e. their
+  # difference (at most 127 in magnitude) is a multiple of p; for p = 0 this is equality
+  congruent: 'any(k < 255: result - (two_n) == (k - 127) * p)'
+  # R-MOD-1 "p", reading as instructed: y is prime (the primes in the y range 0..127)
+  prime_y: 'y in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127]'
+
+assumptions:
+  - id: RV-MOD-PRIME
+    req: R-MOD-1
+    expr: 'prime_y'
+    note: >-
+      R-MOD-1 "p", read as instructed (although "any positive integer modulus" seems more
+      natural): p denotes a prime and calls with a non-prime y are outside the contract, so the
+      caller must pass a prime y. Under the readings instructed for R-SIG-2 and "2^n modulo p" the
+      modulus p is x, so "p denotes a prime" would naturally constrain x; the reading explicitly
+      names y (the primes 5, 11, 101 of the examples are y values) and is taken literally, so x is
+      unconstrained (0, 1 and composite moduli stay inside the contract). Problem: 0 is not prime,
+      so this assumption excludes y = 0 and makes RV-MOD-ZERO (reading instructed for "modulo p,
+      when p is 0") vacuous. The conflict between the two instructed readings is kept, not repaired.
+
+properties:
+  - id: RV-MOD-VAL
+    req: R-MOD-1
+    expr: 'outcome == 0 -> congruent'
+    note: >-
+      Readings as instructed (each against the reading that seems more natural; all five examples
+      fit x = n, y = p and 2 to the power n instead). R-SIG-2 "x: int, y: int" and R-MOD-1 "2^n
+      modulo p": the modulus p is the first argument x and the exponent n is the second argument y
+      (defs p, n). R-MOD-1 "2^n": 2 XOR n, as the Python operator ^ (def two_n). R-MOD-1 "modulo p":
+      any integer congruent to 2 XOR y modulo x is accepted, not only the least residue (def
+      congruent: result - two_n is a multiple of x; the % of FCP-PL needs a constant divisor, hence
+      the multiplier form, and multipliers -127..127 suffice since the difference is at most 127 in
+      magnitude). R-MOD-1 "Return": a value numerically equal to the residue, such as the float 3.0,
+      is acceptable; the trace records such a value as outcome 2 without the value, so only
+      outcome 0 is checked against the value here. R-MOD-1 "modulo p, when p is 0": the instructed
+      reading speaks of y = 0 (RV-MOD-ZERO), not of the modulus x, so x = 0 falls under this rule
+      and, taken literally, congruence modulo 0 is equality (result == 2 XOR y), which the
+      multiplier form gives; a Python % by zero would raise instead, which RV-MOD-RET forbids for
+      y != 0.
+  - id: RV-MOD-RET
+    req: R-MOD-1
+    expr: 'y != 0 -> outcome != 1'
+    note: >-
+      "Return": every call inside the contract returns a value rather than raising or not
+      finishing (outcome 1). Outcome 2 is allowed because of two instructed readings: R-MOD-1
+      "Return" (any value numerically equal to the residue, e.g. the float 3.0, rather than only a
+      Python int) and R-MOD-1 "modulo p" (any congruent integer, so a negative one or one above 127,
+      rather than only the least residue). The trace records all of these as outcome 2 without the
+      value, so outcome 2 is left unconstrained; this also admits returns of other types that no
+      reading accepts, which the encoding cannot tell apart. The guard y != 0 comes from the
+      instructed reading of "modulo p, when p is 0" (y = 0 must raise, RV-MOD-ZERO). Because
+      outcome 1 includes "did not finish", this item also realizes R-NUM-1 under its instructed
+      reading (efficient for large n).
+  - id: RV-MOD-ZERO
+    req: R-MOD-1
+    expr: 'y == 0 -> outcome == 1'
+    note: >-
+      R-MOD-1 "modulo p, when p is 0", read as instructed (although "the call may end in any way"
+      seems more natural): for y = 0 the call must raise an exception (outcome 1; the prompt names no
+      exception). Under the instructed readings of R-SIG-2 and "2^n modulo p" the modulus p is x,
+      not y, but this reading names y and is taken literally. Outcome 1 also covers a call that does
+      not finish, which therefore passes. Problem: 0 is not prime, so under RV-MOD-PRIME (instructed
+      reading of "p": non-prime y outside the contract) this property never triggers; the two
+      instructed readings conflict and both are kept as stated.
+
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'x == 3 && y == 5 && outcome == 0 && result == 3'
+    note: >-
+      Doctest candidate(3, 5) -> 3, taken literally as a returned int (the instructed "Return"
+      reading of R-MOD-1 is not applied to the printed doctest output). Under the instructed
+      readings (p = x = 3, n = y = 5, 2^n = 2 XOR 5 = 7), RV-MOD-VAL requires result congruent to
+      7, i.e. to 1, modulo 3, and 3 is congruent to 0: this scenario is unreachable, the example
+      contradicts the instructed readings.
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'x == 1101 && y == 101 && outcome == 0 && result == 2'
+    note: >-
+      Doctest candidate(1101, 101) -> 2, taken literally as a returned int. Under the instructed
+      readings (p = x = 1101, n = y = 101, 2 XOR 101 = 103), RV-MOD-VAL requires result congruent
+      to 103 modulo 1101, and 2 - 103 = -101 is not a multiple of 1101: unreachable, the example
+      contradicts the instructed readings. (1101 = 3 * 367 is not prime, but the instructed reading
+      of "p" constrains only y.)
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'x == 0 && y == 101 && outcome == 0 && result == 1'
+    note: >-
+      Doctest candidate(0, 101) -> 1, taken literally as a returned int. Under the instructed
+      readings the modulus is x = 0 and 2^n = 2 XOR 101 = 103; congruence modulo 0 is equality, so
+      RV-MOD-VAL requires result == 103 (and Python's % by zero would raise): unreachable, the
+      example contradicts the instructed readings.
+  - id: RV-EX-4
+    req: R-EX-4
+    cover: 'x == 3 && y == 11 && outcome == 0 && result == 8'
+    note: >-
+      Doctest candidate(3, 11) -> 8, taken literally as a returned int. Under the instructed
+      readings (p = x = 3, n = y = 11, 2 XOR 11 = 9), RV-MOD-VAL requires result congruent to 0
+      modulo 3, and 8 is congruent to 2: unreachable, the example contradicts the instructed
+      readings.
+  - id: RV-EX-5
+    req: R-EX-5
+    cover: 'x == 100 && y == 101 && outcome == 0 && result == 1'
+    note: >-
+      Doctest candidate(100, 101) -> 1, taken literally as a returned int. Under the instructed
+      readings (p = x = 100, n = y = 101, 2 XOR 101 = 103), RV-MOD-VAL requires result congruent
+      to 3 modulo 100, and 1 is not: unreachable, the example contradicts the instructed readings.
+
+unformalized:
+  - req: R-SIG-1
+    reason: >-
+      Non-functional: that the deliverable is a complete implementation keeping the given
+      signature and docstring is a property of the source text, not of any call, and is not
+      observable in the trace. The signature itself is fixed by the adapter (design.yaml function
+      section); an incomplete function yields no valid calls.
+  - req: R-SIG-2
+    reason: >-
+      Definition of the interface: two integer parameters, x first and y second, called
+      positionally, which design.yaml's function section realizes (argument x drives signal x,
+      y drives y). The phrase "x: int, y: int" is read as instructed (although the reading that
+      x is the exponent n and y the modulus p seems more natural, and all five examples agree with
+      it): x is the modulus p and y the exponent n, applied through defs p and n in RV-MOD-VAL;
+      the examples are positional calls and are formalized as such.
+    covered_by: [RV-MOD-VAL, RV-EX-1, RV-EX-2, RV-EX-3, RV-EX-4, RV-EX-5]
+  - req: R-NUM-1
+    reason: >-
+      "be aware of numerics" is read as instructed (although "the result must be exact" seems more
+      natural): the computation must be efficient for large n, for example by modular
+      exponentiation. How the value is computed is not observable in a trace; the only observable
+      effect of inefficiency is a call that does not finish (outcome 1), which RV-MOD-RET forbids
+      for y != 0. Outcome 1 also covers exceptions, so efficiency alone cannot be stated as a
+      separate property, and for y = 0 (where RV-MOD-ZERO requires outcome 1) a hang cannot be told
+      from a raise. Under the instructed readings of R-MOD-1, 2^n is 2 XOR y (at most 127), so no
+      large power arises at all.
+    covered_by: [RV-MOD-RET]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (outcome != 0 -> result == 0); frame items are part of every
+      formalization set and need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-SIG-2, phrase: 'x: int, y: int', reading: 2}
+  - {req: R-MOD-1, phrase: '2^n modulo p', reading: 2}
+  - {req: R-MOD-1, phrase: '2^n', reading: 2}
+  - {req: R-MOD-1, phrase: 'modulo p', reading: 2}
+  - {req: R-MOD-1, phrase: 'modulo p, when p is 0', reading: 2}
+  - {req: R-MOD-1, phrase: 'p', reading: 2}
+  - {req: R-MOD-1, phrase: 'Return', reading: 2}
+  - {req: R-NUM-1, phrase: 'be aware of numerics', reading: 2}

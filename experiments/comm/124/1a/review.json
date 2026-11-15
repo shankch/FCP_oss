@@ -1,0 +1,396 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 2083,
+    "checked": 2083,
+    "seconds": 52.38
+   },
+   "open": {
+    "open": {},
+    "checked": 1096
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [
+     {
+      "core": [
+       "RB-EX-2",
+       "RB-RET-1"
+      ],
+      "muses": [
+       [
+        "RB-EX-2",
+        "RB-FMT-3-DM"
+       ],
+       [
+        "RB-EX-2",
+        "RB-RET-1"
+       ]
+      ],
+      "calls": [
+       [
+        "15-01-2012"
+       ]
+      ],
+      "stimulus": [
+       "valid_date(\"15-01-2012\")"
+      ],
+      "reqs": [
+       "R-EX-2",
+       "R-FMT-3",
+       "R-RET-1"
+      ]
+     }
+    ],
+    "candidates": 3338,
+    "checked": 3338,
+    "seconds": 129.04
+   },
+   "open": {
+    "open": {},
+    "checked": 1745
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-5": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-DAY-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-DAY-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-DAY-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EMP-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FMT-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FMT-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-FMT-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-MON-1": {
+   "plain": "A-WEAKER",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [
+    "RA-EX-2"
+   ]
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-RET-2",
+   "phrase": "otherwise False",
+   "taken": 1,
+   "variant": 2,
+   "text": "Only well-formed strings with an out-of-range day or month must yield False; for malformed strings the behaviour (e.g. raising ValueError) is not specified."
+  },
+  {
+   "req": "R-VAL-1",
+   "phrase": "The date is valid if all of the following rules are satisfied",
+   "taken": 1,
+   "variant": 2,
+   "text": "The listed rules are necessary conditions only; the string must additionally denote a real calendar date (e.g. 29 February only in a leap year, a plausible year)."
+  },
+  {
+   "req": "R-DAY-1",
+   "phrase": "is not less than 1 or higher than 31 days",
+   "taken": 1,
+   "variant": 2,
+   "text": "(not less than 1) or (higher than 31): taken literally as a logical formula, only day >= 1 is required, so no upper bound."
+  },
+  {
+   "req": "R-DAY-2",
+   "phrase": "is not less than 1 or higher than 30 days",
+   "taken": 1,
+   "variant": 2,
+   "text": "(not less than 1) or (higher than 30): taken literally as a logical formula, only day >= 1 is required, so no upper bound."
+  },
+  {
+   "req": "R-DAY-3",
+   "phrase": "is not less than 1 or higher than 29",
+   "taken": 1,
+   "variant": 2,
+   "text": "(not less than 1) or (higher than 29): taken literally as a logical formula, only day >= 1 is required, so no upper bound."
+  },
+  {
+   "req": "R-DAY-3",
+   "phrase": "higher than 29 for the month 2",
+   "taken": 1,
+   "variant": 2,
+   "text": "Day 29 of month 2 is accepted only when the year is a leap year (a real calendar check, since the function 'validates a given date')."
+  },
+  {
+   "req": "R-MON-1",
+   "phrase": "should not be less than 1 or higher than 12",
+   "taken": 1,
+   "variant": 2,
+   "text": "(should not be less than 1) or (higher than 12): taken literally, only month >= 1 is required, so no upper bound."
+  },
+  {
+   "req": "R-FMT-2",
+   "phrase": "dd-mm-yyyy or mm-dd-yyyy",
+   "taken": 1,
+   "variant": 2,
+   "text": "dd and mm are day and month numbers written with one or two digits (e.g. '4-1-2040' is acceptable), and yyyy is the year as digits."
+  },
+  {
+   "req": "R-FMT-2",
+   "phrase": "The date should be in the format",
+   "taken": 1,
+   "variant": 2,
+   "text": "Surrounding whitespace is ignored (the string is stripped) before the format is checked."
+  },
+  {
+   "req": "R-FMT-2",
+   "phrase": "yyyy",
+   "taken": 1,
+   "variant": 2,
+   "text": "The year must be a real year, at least 1 (so '0000' is invalid)."
+  },
+  {
+   "req": "R-FMT-3",
+   "phrase": "dd-mm-yyyy or mm-dd-yyyy",
+   "taken": 1,
+   "variant": 2,
+   "text": "Only mm-dd-yyyy is accepted (the first field is the month), as the example valid_date('15-01-2012') => False requires; the dd-mm-yyyy alternative is an error in the prompt."
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "valid_date('15-01-2012') => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "The example is wrong: rule 4 accepts dd-mm-yyyy, under which '15-01-2012' is 15 January 2012 and satisfies every rule, so the call should return True."
+  }
+ ],
+ "depends": {
+  "R-RET-1": {
+   "relation": "A-WEAKER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "valid_date(\"\\r\\u0085\\u00a0\\u00851-9-4\\u00a0\\u0085\\u0085 \\f\\f\\r\") -> False"
+   ]
+  },
+  "R-RET-2": {
+   "relation": "A-STRONGER",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "valid_date(\"1-1\\u000e\\u0000./.-\\u0085\\t\\r\\f\\u00a0\\u00a0\\r\") -> raised another exception or did not finish"
+   ]
+  }
+ },
+ "certified": [
+  "R-EMP-1",
+  "R-FMT-1",
+  "R-EX-1",
+  "R-EX-3",
+  "R-EX-4",
+  "R-EX-5"
+ ],
+ "queue": [
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [
+    "valid_date(\"15-01-2012\")"
+   ],
+   "variants": 1,
+   "question": "no implementation can meet these requirements on these calls: which one gives way?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-2 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-RET-1",
+    "R-RET-2"
+   ],
+   "calls": [
+    "valid_date(\"\\r\\u0085\\u00a0\\u00851-9-4\\u00a0\\u0085\\u0085 \\f\\f\\r\") -> False"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-2"
+   ],
+   "calls": [],
+   "question": "\"otherwise False\" can mean: Every invalid string, including malformed ones (empty, wrong separators, non-digit characters, wrong field count), yields the return value False; the function never raises. / Only well-formed strings with an out-of-range day or month must yield False; for malformed strings the behaviour (e.g. raising ValueError) is not specified.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-DAY-1"
+   ],
+   "calls": [],
+   "question": "\"is not less than 1 or higher than 31 days\" can mean: not (less than 1 or higher than 31): the day must lie in 1..31. / (not less than 1) or (higher than 31): taken literally as a logical formula, only day >= 1 is required, so no upper bound.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-DAY-2"
+   ],
+   "calls": [],
+   "question": "\"is not less than 1 or higher than 30 days\" can mean: not (less than 1 or higher than 30): the day must lie in 1..30. / (not less than 1) or (higher than 30): taken literally as a logical formula, only day >= 1 is required, so no upper bound.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-DAY-3"
+   ],
+   "calls": [],
+   "question": "\"is not less than 1 or higher than 29\" can mean: not (less than 1 or higher than 29): the day must lie in 1..29. / (not less than 1) or (higher than 29): taken literally as a logical formula, only day >= 1 is required, so no upper bound.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-DAY-3"
+   ],
+   "calls": [],
+   "question": "\"higher than 29 for the month 2\" can mean: Day 29 of month 2 is accepted for every year, leap or not. / Day 29 of month 2 is accepted only when the year is a leap year (a real calendar check, since the function 'validates a given date').. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-MON-1"
+   ],
+   "calls": [],
+   "question": "\"should not be less than 1 or higher than 12\" can mean: should not be (less than 1 or higher than 12): the month must lie in 1..12. / (should not be less than 1) or (higher than 12): taken literally, only month >= 1 is required, so no upper bound.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-2"
+   ],
+   "calls": [],
+   "question": "\"dd-mm-yyyy or mm-dd-yyyy\" can mean: dd and mm are exactly two digits each (leading zero required) and yyyy exactly four digits: the valid string has exactly 10 characters. / dd and mm are day and month numbers written with one or two digits (e.g. '4-1-2040' is acceptable), and yyyy is the year as digits.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-2"
+   ],
+   "calls": [],
+   "question": "\"The date should be in the format\" can mean: Any character outside the format, including leading or trailing spaces, makes the string invalid. / Surrounding whitespace is ignored (the string is stripped) before the format is checked.. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-2"
+   ],
+   "calls": [],
+   "question": "\"yyyy\" can mean: Any four digits form an acceptable year, including '0000'. / The year must be a real year, at least 1 (so '0000' is invalid).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-FMT-3"
+   ],
+   "calls": [],
+   "question": "\"dd-mm-yyyy or mm-dd-yyyy\" can mean: Either order is accepted: the string is valid if the day and month rules hold when it is read as dd-mm-yyyy or when it is read as mm-dd-yyyy (so '15-01-2012', 15 January, is valid; this CONTRADICTS the example valid_date('15-01-2012') => False, R-EX-2). / Only mm-dd-yyyy is accepted (the first field is the month), as the example valid_date('15-01-2012') => False requires; the dd-mm-yyyy alternative is an error in the prompt. / The implementation may choose one of the two orders and apply it consistently (which one is left open). / The string is valid only if the day and month rules hold under both orders (consistent with all examples, including '15-01-2012' => False).. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"valid_date('15-01-2012') => False\" can mean: The example is correct: only mm-dd-yyyy order counts, month 15 is out of range, so the result is False. This CONTRADICTS rule 4's acceptance of dd-mm-yyyy (R-FMT-3). / The example is wrong: rule 4 accepts dd-mm-yyyy, under which '15-01-2012' is 15 January 2012 and satisfies every rule, so the call should return True.. Which is meant?"
+  }
+ ],
+ "limits": [
+  "request points of agent_b"
+ ]
+}

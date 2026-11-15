@@ -1,0 +1,150 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md,
+# "Calls"), so the reference model is per call: the defs below compute, from
+# the argument alone, whether the string is admissible and whether every "("
+# has its own closing ")" later in the string. No ghost carries anything from
+# one call to the next, since prev(x) may be any unrelated call.
+defs:
+  # R-IN-1: every character is "(" or ")" (the empty string included).
+  valid: 'all(i < len(brackets): brackets[i] == "(" || brackets[i] == ")")'
+  # R-RES-1/R-RES-2, reading "order-sensitive, only opening brackets
+  # constrained": the "(" at positions k.. can each be paired one-to-one with
+  # a distinct ")" after them (Hall's condition for the left-to-right
+  # matching). Surplus ")" that close nothing do not break it.
+  matched: 'all(k < len(brackets): count(j < len(brackets): j >= k && brackets[j] == "(") <= count(j < len(brackets): j >= k && brackets[j] == ")"))'
+
+assumptions:
+  - id: RB-A-IN-1
+    req: R-IN-1
+    expr: 'valid'
+    note: >-
+      Reading 1 of "a string of "(" and ")"": a precondition on the caller,
+      so only strings made of "(" and ")" are passed. Reading 1 of "a string
+      of": any length, the empty string included (valid holds vacuously for
+      it). The guarantees below are also guarded by valid, so they stay
+      per-call statements however the environment is checked.
+
+dont_cares:
+  - id: RB-D-IN-OUTCOME
+    req: R-IN-1
+    signal: outcome
+    when: '!valid'
+    note: Under reading 1, how a call with any character other than "(" or ")" ends is not specified.
+  - id: RB-D-IN-RESULT
+    req: R-IN-1
+    signal: result
+    when: '!valid'
+    note: Under reading 1, the value returned for a string with any character other than "(" or ")" is not specified.
+
+properties:
+  - id: RB-P-RES-1
+    req: R-RES-1
+    pattern: implies
+    args:
+      trigger: 'valid && matched'
+      cond: 'outcome == 0 && result'
+    note: >-
+      "return True" read as the bool True (reading 1), so the call must return
+      (outcome 0) and the value must be True. "corresponding closing bracket"
+      read as order-sensitive one-to-one matching with a later ")" (reading
+      1; reading 2 contradicts the example ")(()" -> False). "every opening
+      bracket has" read literally (reading 2): the sentence constrains only
+      opening brackets, so surplus ")" that close nothing do not prevent
+      True, e.g. "())" and ")" must return True. The function name
+      correct_bracketing and the usual meaning of balanced brackets suggest
+      full balance (reading 1) instead; the four examples do not distinguish
+      the two readings. The empty string satisfies the condition vacuously
+      and must return True.
+
+  - id: RB-P-RES-2
+    req: R-RES-2
+    pattern: implies
+    args:
+      trigger: 'valid && !matched'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      "return True if" read as if-and-only-if (reading 1): in a docstring of a
+      predicate this is the plain meaning, and the examples "(" and ")(()"
+      return False exactly where the condition fails. Taken as a bare logical
+      "if" (reading 2) the sentence would leave these strings unspecified. The
+      matching readings are the same as for RB-P-RES-1 (order-sensitive,
+      only opening brackets constrained), so a string returns False exactly
+      when some "(" has no distinct ")" after it.
+
+  - id: RB-P-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'brackets == "("'
+      cond: 'outcome == 0 && !result'
+    note: The example pins this call; it is checked as a guarantee for that input, not only as a possibility.
+  - id: RB-P-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'brackets == "()"'
+      cond: 'outcome == 0 && result'
+  - id: RB-P-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'brackets == "(()())"'
+      cond: 'outcome == 0 && result'
+  - id: RB-P-EX-4
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: 'brackets == ")(()"'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      Reading 1: consistent with R-RES-1 under order-sensitive matching (the
+      "(" at position 1 has only one ")" after it, which the "(" at position 2
+      needs). Under order-insensitive matching this example would contradict
+      R-RES-1; that reading is not taken.
+
+scenarios:
+  - id: RB-S-EX-1
+    req: R-EX-1
+    cover: 'brackets == "(" && outcome == 0 && !result'
+  - id: RB-S-EX-2
+    req: R-EX-2
+    cover: 'brackets == "()" && outcome == 0 && result'
+  - id: RB-S-EX-3
+    req: R-EX-3
+    cover: 'brackets == "(()())" && outcome == 0 && result'
+  - id: RB-S-EX-4
+    req: R-EX-4
+    cover: 'brackets == ")(()" && outcome == 0 && !result'
+  - id: RB-S-IN-EMPTY
+    req: R-IN-1
+    cover: 'len(brackets) == 0 && outcome == 0 && result'
+    note: Reading 1 of "a string of" admits the empty string; it has no opening bracket, so by R-RES-1 it returns True.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Asks for a deliverable (a body for the given function), not for a
+      behaviour of a call. Its observable consequence, that calls on admissible
+      strings return a bool, is part of RB-P-RES-1 and RB-P-RES-2.
+  - req: R-IF-2
+    reason: >-
+      The name, the single parameter brackets and its type str are fixed by
+      the adapter binding in design.yaml (function section); they are not a
+      property of the call trace.
+  - req: R-FR-1
+    reason: Frame rule F-ZERO of design.yaml, added to every formalization set by construction of the interface encoding (frame.md says frame rules need not be restated).
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-IN-1, phrase: 'a string of "(" and ")"', reading: 1}
+  - {req: R-IN-1, phrase: 'a string of', reading: 1}
+  - {req: R-RES-1, phrase: 'corresponding closing bracket', reading: 1}
+  - {req: R-RES-1, phrase: 'every opening bracket has', reading: 2}
+  - {req: R-RES-1, phrase: 'return True', reading: 1}
+  - {req: R-RES-2, phrase: 'return True if', reading: 1}
+  - {req: R-RES-2, phrase: 'corresponding closing bracket', reading: 1}
+  - {req: R-RES-2, phrase: 'every opening bracket has', reading: 2}
+  - {req: R-EX-4, phrase: 'correct_bracketing(")(()") False', reading: 1}

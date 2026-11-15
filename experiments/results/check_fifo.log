@@ -1,0 +1,55 @@
+[gold] 16 properties, 0 assumptions
+  gold:tautology: 0.01s
+  gold:consistency: 0.03s
+  gold:determinacy: 13.82s
+  gold:ref:verify: 0.01s
+  gold:ref:vacuity: 0.01s
+  gold:ref:receptive: 0.0s
+  gold:ai:verify: 0.01s
+  gold:ai:vacuity: 0.01s
+  gold:ai:receptive: 0.0s
+  gold:B3:verify: 0.33s
+  gold:B3:vacuity: 0.01s
+  gold:B3:receptive: 0.0s
+  gold:mutation: 0.23s
+[agent_a] 18 properties, 2 assumptions
+  agent_a:tautology: 0.01s
+  agent_a:consistency: 0.23s
+  agent_a:determinacy: 15.83s
+  agent_a:ref:verify: 0.01s
+  agent_a:ref:vacuity: 0.01s
+  agent_a:ref:receptive: 0.96s
+  agent_a:ai:verify: 0.01s
+  agent_a:ai:vacuity: 0.01s
+  agent_a:ai:receptive: 1.03s
+  agent_a:B3:verify: 0.01s
+  agent_a:B3:vacuity: 0.01s
+  agent_a:B3:receptive: 1.05s
+  agent_a:mutation: 4.78s
+[agent_b] 24 properties, 0 assumptions
+  agent_b:tautology: 0.01s
+  agent_b:consistency: 3.87s
+  agent_b:determinacy: 13.3s
+  agent_b:ref:verify: 0.12s
+  agent_b:ref:vacuity: 0.01s
+  agent_b:ref:receptive: 0.0s
+  agent_b:ai:verify: 0.12s
+  agent_b:ai:vacuity: 0.01s
+  agent_b:ai:receptive: 0.0s
+  agent_b:B3:verify: 0.6s
+  agent_b:B3:vacuity: 0.01s
+  agent_b:B3:receptive: 0.0s
+  agent_b:mutation: 8.09s
+  compare:gold|agent_a: 0.02s
+  compare:gold|agent_b: 0.01s
+  compare:agent_a|agent_b: 0.02s
+[gold / ref] {'COVERED-PROVED': 1, 'DONT-CARE': 1, 'PROVED-DISPUTED': 16, 'UNFORMALIZED': 3}  review queue: 22  -> corpus/fifo/.fcp/report/report_gold_ref.html
+[gold / ai] {'COVERED-PROVED': 1, 'DONT-CARE': 1, 'PROVED-DISPUTED': 16, 'UNFORMALIZED': 3}  review queue: 22  -> corpus/fifo/.fcp/report/report_gold_ai.html
+[gold / B3] {'COVERED-FAILED': 1, 'DONT-CARE': 1, 'FAILED': 10, 'PROVED-DISPUTED': 6, 'UNFORMALIZED': 3}  review queue: 32  -> corpus/fifo/.fcp/report/report_gold_B3.html
+[agent_a / ref] {'ASSUMED': 1, 'COVERED-INDIRECTLY': 1, 'DONT-CARE': 1, 'PROVED-DISPUTED': 15, 'PROVED-VACUOUS': 2, 'UNFORMALIZED': 1}  review queue: 25  -> corpus/fifo/.fcp/report/report_agent_a_ref.html
+[agent_a / ai] {'ASSUMED': 1, 'COVERED-INDIRECTLY': 1, 'DONT-CARE': 1, 'PROVED-DISPUTED': 15, 'PROVED-VACUOUS': 2, 'UNFORMALIZED': 1}  review queue: 25  -> corpus/fifo/.fcp/report/report_agent_a_ai.html
+[agent_a / B3] {'ASSUMED': 1, 'COVERED-INDIRECTLY': 1, 'DONT-CARE': 1, 'PROVED-DISPUTED': 15, 'PROVED-VACUOUS': 2, 'UNFORMALIZED': 1}  review queue: 25  -> corpus/fifo/.fcp/report/report_agent_a_B3.html
+[agent_b / ref] {'DONT-CARE': 1, 'FAILED': 2, 'PROVED-CONFLICTED': 3, 'PROVED-DISPUTED': 12, 'PROVED-UNVALIDATED': 1, 'UNFORMALIZED': 2}  review queue: 27  -> corpus/fifo/.fcp/report/report_agent_b_ref.html
+[agent_b / ai] {'DONT-CARE': 1, 'FAILED': 2, 'PROVED-CONFLICTED': 3, 'PROVED-DISPUTED': 12, 'PROVED-UNVALIDATED': 1, 'UNFORMALIZED': 2}  review queue: 27  -> corpus/fifo/.fcp/report/report_agent_b_ai.html
+[agent_b / B3] {'DONT-CARE': 1, 'FAILED': 14, 'PROVED-CONFLICTED': 1, 'PROVED-DISPUTED': 3, 'UNFORMALIZED': 2}  review queue: 39  -> corpus/fifo/.fcp/report/report_agent_b_B3.html
+total 68.18s; engine tasks run 135, cached 4597

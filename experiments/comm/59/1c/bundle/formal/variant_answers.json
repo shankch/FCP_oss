@@ -1,0 +1,30 @@
+[
+ {
+  "req": "R-FN-1",
+  "phrase": "the largest prime factor of n",
+  "taken": 1,
+  "variant": 2,
+  "text": "the value the examples show: for 13195 the example gives 5, which is the smallest prime factor of 13195 (and 2 for 2048 fits both), so the intended result follows the examples (smallest prime factor) rather than the words"
+ },
+ {
+  "req": "R-ENV-1",
+  "phrase": "Assume n > 1",
+  "taken": 1,
+  "variant": 2,
+  "text": "a statement of the valid domain that the function should enforce: for n <= 1 (no prime factor exists) it must raise an exception rather than return a value"
+ },
+ {
+  "req": "R-ENV-2",
+  "phrase": "and is not a prime",
+  "taken": 1,
+  "variant": 2,
+  "text": "prime arguments are merely not expected; the largest prime factor of a prime n is n itself, so returning n is still required by R-FN-1"
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "largest_prime_factor(13195) 5",
+  "taken": 2,
+  "variant": 1,
+  "text": "the example is wrong: 13195 = 5 * 7 * 13 * 29, so by R-FN-1 the largest prime factor is 29 and the call must return 29, not 5"
+ }
+]

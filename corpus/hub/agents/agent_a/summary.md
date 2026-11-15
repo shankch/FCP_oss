@@ -1,0 +1,3 @@
+49 items (20 properties, 5 assumptions, 9 dont_cares, 15 scenarios), no ghost state (prev/since over interface signals). R-RSP-1 'returned on the issuing port' only partly captured (liveness without a bound): formalized 'never on the other port' + reachability scenarios.
+Readings: 'within N cycles' as offsets 0..N; R-ARB-2 unconstrained before the first acceptance; 'may be high' as dont_care; BRG-1 timing carried over.
+Spec problems: R-ARB-3 12-cycle bound looks unachievable (13 at best, 17 with its readings) -- encoded as written; response timing never stated in HUB-2; off-by-one ambiguity of 'within N'; undefined 'processed', 'pending', 'accepted first'; 'may be high' cannot override R-ARB-1.

@@ -1,0 +1,243 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-CH-1 (reading 2): elements that differ from their mirrored element; the
+  # middle element of an odd-length array is its own mirror and never counts,
+  # both elements of every differing pair do.
+  mismatched: 'count(i < len(arr): arr[i] != arr[len(arr) - 1 - i])'
+  # R-DEF-1 (reading 2): number of decimal digits of the written-out elements,
+  # concatenated in order (each element 0..255 has 1, 2 or 3 digits).
+  digits_total: 'sum(k < len(arr): 1 + (arr[k] >= 10) + (arr[k] >= 100))'
+  # R-DEF-1 (reading 2): the digit string of arr reads the same backwards and
+  # forwards. Digit w of arr[i] (w = 0 units, 1 tens, 2 hundreds) sits at
+  # position E(i) - 1 - w of the string, where E(i) is the number of digits of
+  # arr[0..i]; it mirrors digit v of arr[j] exactly when the two positions add
+  # up to digits_total - 1, i.e. E(i) + E(j) == digits_total + 1 + w + v.
+  textpal: >-
+    all(i < len(arr): all(j < len(arr): all(w < 3: all(v < 3:
+      (w < 1 + (arr[i] >= 10) + (arr[i] >= 100)
+       && v < 1 + (arr[j] >= 10) + (arr[j] >= 100)
+       && sum(k < i + 1: 1 + (arr[k] >= 10) + (arr[k] >= 100))
+          + sum(k < j + 1: 1 + (arr[k] >= 10) + (arr[k] >= 100))
+          == digits_total + 1 + w + v)
+      -> (w == 0 ? arr[i] % 10
+          : (w == 1 ? count(q < 9: arr[i] % 100 >= 10 * q + 10)
+             : count(q < 2: arr[i] >= 100 * q + 100)))
+         == (v == 0 ? arr[j] % 10
+          : (v == 1 ? count(q < 9: arr[j] % 100 >= 10 * q + 10)
+             : count(q < 2: arr[j] >= 100 * q + 100)))))))
+
+properties:
+  - id: RV-CH-1
+    req: R-CH-1
+    pattern: implies
+    args:
+      trigger: 'len(arr) > 0'
+      cond: 'outcome == 0 && changes == mismatched'
+    note: >-
+      Reading 2 of "the number of elements that need to be changed", as
+      instructed: the count of elements that differ from their mirrored
+      element arr[len(arr)-1-i], so both elements of every differing pair are
+      counted (twice the number of differing pairs). The text and the
+      examples suggest otherwise: this reading contradicts R-EX-1 (gives 8,
+      not 4) and R-EX-2 (gives 2, not 1); the contradiction is kept, not
+      repaired. Reading 2 of "to make the array palindromic", as instructed:
+      the function also turns arr into a palindrome in place and returns how
+      many elements it changed; the returned count is formalized here, the
+      in-place mutation of arr is not observable on the interface (arr is an
+      input only) and is not formalized. The mirror is element-wise, as the
+      count reading says ("its mirrored element"), although R-DEF-1 is read
+      textually (reading 2), so this item conflicts with RV-DEF-1 on arrays
+      with multi-digit elements, e.g. [12, 21] (here 2, there 0) and [12]
+      (here 0, there non-zero). R-DEF-2 is read as "any other integer value"
+      (reading 1) and "any replacement counts as a change, even one that
+      leaves the value the same" (reading 2), which is compatible with
+      counting both elements of a differing pair. R-CH-2 is read as "output
+      (e.g. print) the number; the return value is unspecified" (reading 2),
+      which contradicts the "returns" of this reading of R-CH-1; this item
+      keeps R-CH-1's returned value. Restricted to non-empty arr because
+      R-IN-1 is read as "arr is implicitly non-empty; the result for the
+      empty array is unspecified" (reading 2).
+
+  - id: RV-DEF-1
+    req: R-DEF-1
+    pattern: implies
+    args:
+      trigger: 'len(arr) > 0 && outcome == 0'
+      cond: '(changes == 0 <-> textpal)'
+    note: >-
+      Reading 2 of "read the same backwards and forwards", as instructed:
+      textually, the written-out decimal digits of the elements, read in
+      reverse, are the same (e.g. [12, 21] reads 1221 and is palindromic;
+      [12] reads 12 and is not; [12, 12] reads 1212 and is not). A count of
+      elements that need to be changed to make arr palindromic is 0 exactly
+      when arr already is palindromic. This item does not itself require a
+      returned value (RV-CH-1 does). It contradicts RV-CH-1 (R-CH-1 reading
+      2, an element-wise mirror count) on multi-digit elements, e.g. [12, 21],
+      [12], [12, 12]; the contradiction is kept, not repaired. Restricted to
+      non-empty arr because R-IN-1 is read as "arr is implicitly non-empty;
+      the result for the empty array is unspecified" (reading 2).
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'arr == [1, 2, 3, 5, 4, 7, 9, 6]'
+      cond: 'outcome == 0 && changes == 4'
+    note: >-
+      The example as written: candidate([1,2,3,5,4,7,9,6]) returns 4. Reading
+      2 of "== 4", as instructed: this contradicts R-CH-1 read as counting
+      every element that differs from its mirror (reading 2 of "the number of
+      elements that need to be changed"), which gives 8; the conflict with
+      RV-CH-1 is kept, not repaired. It also states a return value although
+      R-CH-2 is read as "output (e.g. print) the number; the return value is
+      unspecified" (reading 2). Consistent with RV-DEF-1 (12354796 is not a
+      textual palindrome).
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'arr == [1, 2, 3, 4, 3, 2, 2]'
+      cond: 'outcome == 0 && changes == 1'
+    note: >-
+      The example as written: candidate([1, 2, 3, 4, 3, 2, 2]) returns 1.
+      Reading 2 of "== 1", as instructed: this contradicts R-CH-1 read as
+      counting every element that differs from its mirror (reading 2 of "the
+      number of elements that need to be changed"), which gives 2 (the pair
+      1, 2); the conflict with RV-CH-1 is kept, not repaired. It also states
+      a return value although R-CH-2 is read as "output (e.g. print) the
+      number; the return value is unspecified" (reading 2). Consistent with
+      RV-DEF-1 (1234322 is not a textual palindrome).
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'arr == [1, 2, 3, 2, 1]'
+      cond: 'outcome == 0 && changes == 0'
+    note: >-
+      The example as written: candidate([1, 2, 3, 2, 1]) returns 0. Agrees
+      with R-CH-1 reading 2 (no element differs from its mirror) and with
+      R-DEF-1 reading 2 (12321 is a textual palindrome). It states a return
+      value although R-CH-2 is read as "output (e.g. print) the number; the
+      return value is unspecified" (reading 2).
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'arr == [1, 2, 3, 5, 4, 7, 9, 6] && outcome == 0 && changes == 4'
+    note: >-
+      The call of the example returning 4 must be possible. Reading 2 of
+      "== 4", as instructed: unreachable together with RV-CH-1 (R-CH-1
+      reading 2 gives 8); kept as the evidence of that contradiction.
+
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'arr == [1, 2, 3, 4, 3, 2, 2] && outcome == 0 && changes == 1'
+    note: >-
+      The call of the example returning 1 must be possible. Reading 2 of
+      "== 1", as instructed: unreachable together with RV-CH-1 (R-CH-1
+      reading 2 gives 2); kept as the evidence of that contradiction.
+
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'arr == [1, 2, 3, 2, 1] && outcome == 0 && changes == 0'
+    note: The call of the example returning 0 must be possible.
+
+dont_cares:
+  - id: RV-IN-1-C
+    req: R-IN-1
+    signal: changes
+    when: 'len(arr) == 0'
+    note: >-
+      Reading 2 of "an array arr of integers", as instructed: arr is
+      implicitly non-empty and the result for the empty array is unspecified
+      (don't care), so the returned value for [] is free. That arr is a list
+      of integers is guaranteed by the adapter encoding (lists of at most 10
+      integers 0..255), so no assumption is needed for it.
+
+  - id: RV-IN-1-O
+    req: R-IN-1
+    signal: outcome
+    when: 'len(arr) == 0'
+    note: >-
+      Reading 2 of "an array arr of integers", as instructed: arr is
+      implicitly non-empty and the result for the empty array is unspecified
+      (don't care), so how the call on [] ends (return, exception, other
+      value) is free.
+
+  - id: RV-CH-2-C
+    req: R-CH-2
+    signal: changes
+    when: 'true'
+    note: >-
+      Reading 2 of "find the number", as instructed: the function outputs
+      (e.g. prints) the number and its return value is unspecified, so the
+      returned integer is free for every array. The printed output is not on
+      the interface and is not formalized. This contradicts R-CH-1 read as
+      "turns arr into a palindrome and returns how many elements it changed"
+      (reading 2) and the examples R-EX-1..3, which all state return values;
+      RV-CH-1 and RV-EX-1..3 constrain changes on non-empty arrays, so this
+      don't-care is overridden wherever they apply. Kept, not repaired.
+
+  - id: RV-CH-2-O
+    req: R-CH-2
+    signal: outcome
+    when: 'true'
+    note: >-
+      Reading 2 of "find the number", as instructed: the return value is
+      unspecified, so whether the call returns an integer, another value
+      (e.g. None after printing) or ends otherwise is free. The requirement's
+      "does not raise an exception or return a value of another type" belongs
+      to reading 1 and is not formalized. Contradicts RV-CH-1 and
+      RV-EX-1..3 (which require outcome 0 on non-empty arrays) and is
+      overridden by them; kept, not repaired.
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      Non-functional: the deliverable is a complete implementation of
+      candidate(arr). Not a property of a call; the adapter (design.yaml
+      function section) calls candidate(arr), and a missing or incomplete
+      function shows as outcome 1, which RV-CH-1 forbids on non-empty arrays.
+
+  - req: R-FN-2
+    reason: >-
+      Non-functional: the name candidate and the single parameter arr are
+      fixed by the adapter, which calls candidate(arr) with one positional
+      argument; a different signature raises (outcome 1), which RV-CH-1
+      forbids on non-empty arrays.
+
+  - req: R-DEF-2
+    covered_by: [RV-CH-1]
+    reason: >-
+      Definition of one change, used by R-CH-1. Reading 1 of "any other
+      element", as instructed: the new value may be any integer, whether or
+      not it occurs in arr. Reading 2 of "In one change, you can change one
+      element", as instructed: any replacement counts as a change, even one
+      that leaves the value the same. Neither has an observable consequence
+      beyond the count of RV-CH-1 (R-CH-1 reading 2: elements differing from
+      their mirror, both elements of a differing pair, one of which may be
+      replaced by its own value); the changes themselves are made to arr in
+      place (R-CH-1 reading 2 of "to make the array palindromic"), which the
+      interface does not show.
+
+  - req: R-FR-1
+    covered_by: [F-ZERO]
+    reason: >-
+      Frame rule F-ZERO of the adapter (design.yaml frame), which is part of
+      every formalization set by construction and need not be restated.
+
+decisions:
+  - {req: R-IN-1, phrase: 'an array arr of integers', reading: 2}
+  - {req: R-CH-1, phrase: 'the number of elements that need to be changed', reading: 2}
+  - {req: R-CH-1, phrase: 'to make the array palindromic', reading: 2}
+  - {req: R-CH-2, phrase: 'find the number', reading: 2}
+  - {req: R-DEF-1, phrase: 'read the same backwards and forwards', reading: 2}
+  - {req: R-DEF-2, phrase: 'any other element', reading: 1}
+  - {req: R-DEF-2, phrase: 'In one change, you can change one element', reading: 2}
+  - {req: R-EX-1, phrase: '== 4', reading: 2}
+  - {req: R-EX-2, phrase: '== 1', reading: 2}

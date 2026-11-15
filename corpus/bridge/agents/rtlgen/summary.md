@@ -1,0 +1,2 @@
+Four-state FSM (IDLE/SETUP/ACCESS/RESP), all outputs from flops, command latched on accept, pready sampled only in ACCESS, data registers reset. Self-tested (directed cycle-exact bench, random bench on 30 seeds, 21 self-inserted mutations caught; latency 3..7 cycles).
+Resolved: strict cmd_ready only in IDLE (does not use the same-cycle permission); rsp_rdata on writes = prdata captured; pwdata driven on reads; reset aborts in-flight commands without a response; 'within 4 cycles' irrelevant to the design.

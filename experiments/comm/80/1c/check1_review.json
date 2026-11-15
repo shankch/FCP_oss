@@ -1,0 +1,738 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 473,
+    "checked": 473,
+    "seconds": 11.35
+   },
+   "open": {
+    "open": {},
+    "checked": 272
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [
+     {
+      "core": [
+       "RB-EX-1-P",
+       "RB-HAP-2"
+      ],
+      "muses": [
+       [
+        "RB-EX-1-P",
+        "RB-HAP-2"
+       ]
+      ],
+      "calls": [
+       [
+        "a"
+       ]
+      ],
+      "stimulus": [
+       "is_happy(\"a\")"
+      ],
+      "reqs": [
+       "R-EX-1",
+       "R-HAP-2"
+      ]
+     },
+     {
+      "core": [
+       "RB-EX-5-P",
+       "RB-HAP-1"
+      ],
+      "muses": [
+       [
+        "RB-EX-5-P",
+        "RB-HAP-1"
+       ]
+      ],
+      "calls": [
+       [
+        "adb"
+       ]
+      ],
+      "stimulus": [
+       "is_happy(\"adb\")"
+      ],
+      "reqs": [
+       "R-EX-5",
+       "R-HAP-1"
+      ]
+     },
+     {
+      "core": [
+       "RB-EX-6-P",
+       "RB-HAP-3"
+      ],
+      "muses": [
+       [
+        "RB-EX-6-P",
+        "RB-HAP-3"
+       ]
+      ],
+      "calls": [
+       [
+        "xyy"
+       ]
+      ],
+      "stimulus": [
+       "is_happy(\"xyy\")"
+      ],
+      "reqs": [
+       "R-EX-6",
+       "R-HAP-3"
+      ]
+     },
+     {
+      "core": [
+       "RB-EX-4-P",
+       "RB-HAP-3"
+      ],
+      "muses": [
+       [
+        "RB-EX-4-P",
+        "RB-HAP-3"
+       ]
+      ],
+      "calls": [
+       [
+        "aabb"
+       ]
+      ],
+      "stimulus": [
+       "is_happy(\"aabb\")"
+      ],
+      "reqs": [
+       "R-EX-4",
+       "R-HAP-3"
+      ]
+     }
+    ],
+    "candidates": 230,
+    "checked": 76,
+    "seconds": 10.69
+   },
+   "open": {
+    "open": {},
+    "checked": 140
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-5": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-EX-6": {
+   "plain": "ONLY-B",
+   "context": "ONLY-B",
+   "witness": null
+  },
+  "R-HAP-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-HAP-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-HAP-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-OUT-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [
+    "RA-EX-1",
+    "RA-EX-2",
+    "RA-EX-3",
+    "RA-EX-4",
+    "RA-EX-5",
+    "RA-EX-6"
+   ],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-IN-1",
+   "phrase": "a string",
+   "taken": 1,
+   "variant": 2,
+   "text": "only strings made of letters are ever passed (the definition speaks of 'letters'), so the result for other strings is left open"
+  },
+  {
+   "req": "R-OUT-1",
+   "phrase": "check if the string is happy or not",
+   "taken": 1,
+   "variant": 2,
+   "text": "return any truthy value when the string is happy and any falsy value when it is not (for example 1 and 0, or None)"
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "letters",
+   "taken": 1,
+   "variant": 2,
+   "text": "only alphabetic characters count: other characters are dropped before the groups of 3 consecutive letters are formed"
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "its length",
+   "taken": 1,
+   "variant": 2,
+   "text": "the number of letters (alphabetic characters) in s"
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "3 consecutive letters",
+   "taken": 1,
+   "variant": 2,
+   "text": "the non-overlapping blocks s[0..2], s[3..5], ... (a trailing block shorter than 3 is ignored)"
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "the three characters are pairwise different when letter case is ignored"
+  },
+  {
+   "req": "R-HAP-1",
+   "phrase": "A string is happy if its length is at least 3 and every 3 consecutive letters are distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "the examples are authoritative: is_happy('abcd') and is_happy('adb') return False, so meeting both conditions does not force the result True"
+  },
+  {
+   "req": "R-HAP-2",
+   "phrase": "is happy if",
+   "taken": 1,
+   "variant": 2,
+   "text": "if only (a sufficient condition): the definition does not say whether a string with fewer than 3 characters is happy, so either answer is allowed"
+  },
+  {
+   "req": "R-HAP-2",
+   "phrase": "its length",
+   "taken": 1,
+   "variant": 2,
+   "text": "the number of letters (alphabetic characters) in s"
+  },
+  {
+   "req": "R-HAP-2",
+   "phrase": "its length is at least 3",
+   "taken": 1,
+   "variant": 2,
+   "text": "the examples are authoritative: is_happy('a') and is_happy('aa') return True, so a string shorter than 3 can be happy"
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "is happy if",
+   "taken": 1,
+   "variant": 2,
+   "text": "if only (a sufficient condition): the definition does not say whether such a string is happy, so either answer is allowed"
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "letters",
+   "taken": 1,
+   "variant": 2,
+   "text": "only alphabetic characters count: other characters are dropped before the groups of 3 consecutive letters are formed"
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "3 consecutive letters",
+   "taken": 1,
+   "variant": 2,
+   "text": "the non-overlapping blocks s[0..2], s[3..5], ... (a trailing block shorter than 3 is ignored)"
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "the three characters are pairwise different when letter case is ignored"
+  },
+  {
+   "req": "R-HAP-3",
+   "phrase": "every 3 consecutive letters are distinct",
+   "taken": 1,
+   "variant": 2,
+   "text": "the examples are authoritative: is_happy('aabb') and is_happy('xyy') return True, so a repeated character among 3 consecutive letters does not force the result False"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "is_happy(a)",
+   "taken": 1,
+   "variant": 2,
+   "text": "a is a variable whose value is not given, so the example fixes no particular call"
+  },
+  {
+   "req": "R-EX-1",
+   "phrase": "is_happy(a) => True",
+   "taken": 1,
+   "variant": 2,
+   "text": "the definition is authoritative: 'a' is shorter than 3 characters, so it is not happy and is_happy('a') returns False (R-HAP-2); the example contradicts the definition"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "is_happy(aa)",
+   "taken": 1,
+   "variant": 2,
+   "text": "aa is a variable whose value is not given, so the example fixes no particular call"
+  },
+  {
+   "req": "R-EX-2",
+   "phrase": "is_happy(aa) => True",
+   "taken": 1,
+   "variant": 2,
+   "text": "the definition is authoritative: 'aa' is shorter than 3 characters, so it is not happy and is_happy('aa') returns False (R-HAP-2); the example contradicts the definition"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "is_happy(abcd)",
+   "taken": 1,
+   "variant": 2,
+   "text": "abcd is a variable whose value is not given, so the example fixes no particular call"
+  },
+  {
+   "req": "R-EX-3",
+   "phrase": "is_happy(abcd) => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "the definition is authoritative: 'abcd' has 4 characters and its windows 'abc' and 'bcd' are each pairwise distinct, so it is happy and is_happy('abcd') returns True (R-HAP-1); the example contradicts the definition"
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "is_happy(aabb)",
+   "taken": 1,
+   "variant": 2,
+   "text": "aabb is a variable whose value is not given, so the example fixes no particular call"
+  },
+  {
+   "req": "R-EX-4",
+   "phrase": "is_happy(aabb) => True",
+   "taken": 1,
+   "variant": 2,
+   "text": "the definition is authoritative: the window 'aab' repeats 'a', so 'aabb' is not happy and is_happy('aabb') returns False (R-HAP-3); the example contradicts the definition"
+  },
+  {
+   "req": "R-EX-5",
+   "phrase": "is_happy(adb)",
+   "taken": 1,
+   "variant": 2,
+   "text": "adb is a variable whose value is not given, so the example fixes no particular call"
+  },
+  {
+   "req": "R-EX-5",
+   "phrase": "is_happy(adb) => False",
+   "taken": 1,
+   "variant": 2,
+   "text": "the definition is authoritative: 'adb' has 3 characters that are pairwise distinct, so it is happy and is_happy('adb') returns True (R-HAP-1); the example contradicts the definition"
+  },
+  {
+   "req": "R-EX-6",
+   "phrase": "is_happy(xyy)",
+   "taken": 1,
+   "variant": 2,
+   "text": "xyy is a variable whose value is not given, so the example fixes no particular call"
+  },
+  {
+   "req": "R-EX-6",
+   "phrase": "is_happy(xyy) => True",
+   "taken": 1,
+   "variant": 2,
+   "text": "the definition is authoritative: 'xyy' repeats 'y', so it is not happy and is_happy('xyy') returns False (R-HAP-3); the example contradicts the definition"
+  }
+ ],
+ "depends": {
+  "R-HAP-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_happy(\"abcd\") -> True"
+   ]
+  },
+  "R-HAP-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_happy(\"a\") -> False"
+   ]
+  },
+  "R-HAP-3": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "is_happy(\"xyy\") -> False"
+   ]
+  },
+  "R-OUT-1": {
+   "relation": "UNKNOWN",
+   "peers": [
+    "agent_a"
+   ],
+   "witness": null
+  }
+ },
+ "certified": [],
+ "queue": [
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-EX-1",
+    "R-HAP-2"
+   ],
+   "calls": [
+    "is_happy(\"a\")"
+   ],
+   "variants": 1,
+   "question": "no implementation can meet these requirements on these calls: which one gives way?"
+  },
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-EX-5",
+    "R-HAP-1"
+   ],
+   "calls": [
+    "is_happy(\"adb\")"
+   ],
+   "variants": 1,
+   "question": "no implementation can meet these requirements on these calls: which one gives way?"
+  },
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-EX-6",
+    "R-HAP-3"
+   ],
+   "calls": [
+    "is_happy(\"xyy\")"
+   ],
+   "variants": 1,
+   "question": "no implementation can meet these requirements on these calls: which one gives way?"
+  },
+  {
+   "kind": "conflict",
+   "reqs": [
+    "R-EX-4",
+    "R-HAP-3"
+   ],
+   "calls": [
+    "is_happy(\"aabb\")"
+   ],
+   "variants": 1,
+   "question": "no implementation can meet these requirements on these calls: which one gives way?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-1 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-2 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-3 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-4 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-5"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-5 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "scenario",
+   "reqs": [
+    "R-EX-6"
+   ],
+   "reading": "agent_a",
+   "calls": [],
+   "question": "the behaviour RA-EX-6 describes can never happen under agent_a: the reading's own rules forbid it. Is the example, or the rule, what is meant?"
+  },
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-HAP-1",
+    "R-HAP-2",
+    "R-HAP-3",
+    "R-OUT-1"
+   ],
+   "calls": [
+    "is_happy(\"abcd\") -> True"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-OUT-1"
+   ],
+   "calls": [],
+   "question": "\"check if the string is happy or not\" can mean: return the bool True when the string is happy and the bool False when it is not / return any truthy value when the string is happy and any falsy value when it is not (for example 1 and 0, or None). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-1",
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"letters\" can mean: every character of s counts as a letter, whatever its class / only alphabetic characters count: other characters are dropped before the groups of 3 consecutive letters are formed / a string that contains a character other than a letter is not happy. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-1",
+    "R-HAP-2"
+   ],
+   "calls": [],
+   "question": "\"its length\" can mean: the number of characters of s / the number of letters (alphabetic characters) in s. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-1",
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"3 consecutive letters\" can mean: every overlapping window s[i], s[i+1], s[i+2], for each start i from 0 to len(s)-3 / the non-overlapping blocks s[0..2], s[3..5], ... (a trailing block shorter than 3 is ignored). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-1",
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"distinct\" can mean: the three characters are pairwise different by exact character code (so 'a' and 'A' differ) / the three characters are pairwise different when letter case is ignored / the three characters are not all the same (at least two of them differ) / each group of 3 consecutive letters differs, as a substring, from every other such group. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-1"
+   ],
+   "calls": [],
+   "question": "\"A string is happy if its length is at least 3 and every 3 consecutive letters are distinct\" can mean: the definition is authoritative: 'abcd' and 'adb' meet both conditions, so is_happy returns True for them, which contradicts the examples R-EX-3 and R-EX-5 / the examples are authoritative: is_happy('abcd') and is_happy('adb') return False, so meeting both conditions does not force the result True / every example is the negation of the definition, so is_happy returns True exactly when the string is not happy. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-2"
+   ],
+   "calls": [],
+   "question": "\"is happy if\" can mean: if and only if: a string with fewer than 3 characters is not happy, so is_happy returns False for it / if only (a sufficient condition): the definition does not say whether a string with fewer than 3 characters is happy, so either answer is allowed. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-2"
+   ],
+   "calls": [],
+   "question": "\"its length is at least 3\" can mean: the definition is authoritative: 'a' and 'aa' are shorter than 3, so is_happy returns False for them, which contradicts the examples R-EX-1 and R-EX-2 / the examples are authoritative: is_happy('a') and is_happy('aa') return True, so a string shorter than 3 can be happy / every example is the negation of the definition, so is_happy returns True exactly when the string is not happy. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"is happy if\" can mean: if and only if: a string with a repeated character among some 3 consecutive letters is not happy, so is_happy returns False for it / if only (a sufficient condition): the definition does not say whether such a string is happy, so either answer is allowed. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-HAP-3"
+   ],
+   "calls": [],
+   "question": "\"every 3 consecutive letters are distinct\" can mean: the definition is authoritative: 'aabb' (window 'aab') and 'xyy' (window 'xyy') repeat a character, so is_happy returns False for them, which contradicts the examples R-EX-4 and R-EX-6 / the examples are authoritative: is_happy('aabb') and is_happy('xyy') return True, so a repeated character among 3 consecutive letters does not force the result False / every example is the negation of the definition, so is_happy returns True exactly when the string is not happy. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"is_happy(a)\" can mean: the argument is the string 'a' (the quotes are omitted) / a is a variable whose value is not given, so the example fixes no particular call. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-1"
+   ],
+   "calls": [],
+   "question": "\"is_happy(a) => True\" can mean: the example is authoritative: is_happy('a') returns True / the definition is authoritative: 'a' is shorter than 3 characters, so it is not happy and is_happy('a') returns False (R-HAP-2); the example contradicts the definition. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"is_happy(aa)\" can mean: the argument is the string 'aa' (the quotes are omitted) / aa is a variable whose value is not given, so the example fixes no particular call. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-2"
+   ],
+   "calls": [],
+   "question": "\"is_happy(aa) => True\" can mean: the example is authoritative: is_happy('aa') returns True / the definition is authoritative: 'aa' is shorter than 3 characters, so it is not happy and is_happy('aa') returns False (R-HAP-2); the example contradicts the definition. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"is_happy(abcd)\" can mean: the argument is the string 'abcd' (the quotes are omitted) / abcd is a variable whose value is not given, so the example fixes no particular call. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-3"
+   ],
+   "calls": [],
+   "question": "\"is_happy(abcd) => False\" can mean: the example is authoritative: is_happy('abcd') returns False / the definition is authoritative: 'abcd' has 4 characters and its windows 'abc' and 'bcd' are each pairwise distinct, so it is happy and is_happy('abcd') returns True (R-HAP-1); the example contradicts the definition. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"is_happy(aabb)\" can mean: the argument is the string 'aabb' (the quotes are omitted) / aabb is a variable whose value is not given, so the example fixes no particular call. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-4"
+   ],
+   "calls": [],
+   "question": "\"is_happy(aabb) => True\" can mean: the example is authoritative: is_happy('aabb') returns True / the definition is authoritative: the window 'aab' repeats 'a', so 'aabb' is not happy and is_happy('aabb') returns False (R-HAP-3); the example contradicts the definition. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-5"
+   ],
+   "calls": [],
+   "question": "\"is_happy(adb)\" can mean: the argument is the string 'adb' (the quotes are omitted) / adb is a variable whose value is not given, so the example fixes no particular call. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-5"
+   ],
+   "calls": [],
+   "question": "\"is_happy(adb) => False\" can mean: the example is authoritative: is_happy('adb') returns False / the definition is authoritative: 'adb' has 3 characters that are pairwise distinct, so it is happy and is_happy('adb') returns True (R-HAP-1); the example contradicts the definition. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-6"
+   ],
+   "calls": [],
+   "question": "\"is_happy(xyy)\" can mean: the argument is the string 'xyy' (the quotes are omitted) / xyy is a variable whose value is not given, so the example fixes no particular call. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-EX-6"
+   ],
+   "calls": [],
+   "question": "\"is_happy(xyy) => True\" can mean: the example is authoritative: is_happy('xyy') returns True / the definition is authoritative: 'xyy' repeats 'y', so it is not happy and is_happy('xyy') returns False (R-HAP-3); the example contradicts the definition. Which is meant?"
+  }
+ ],
+ "limits": [
+  "the comparison of agent_a and variant"
+ ]
+}

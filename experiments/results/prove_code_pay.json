@@ -1,0 +1,2596 @@
+{
+ "runs": 50000,
+ "implementations": {
+  "haiku": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.1,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"declined\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.3,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "sonnet": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.1,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.3,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "opus": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.1,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"declined\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.3,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "ref": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.1,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"declined\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.3,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C1": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-DECL"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"declined\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"declined\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-DECL-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"error\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"declined\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"declined\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"declined\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"declined\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-DECL-STOP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"declined\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"declined\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"declined\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"declined\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"declined\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"declined\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C2": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.2,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(8)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-MAX"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(8)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.6,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-RETRY-2"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(8)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"declined\", \"declined\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-RETRY-MAX"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(8)",
+       "api.charge(0, 1) -> \"ok\"",
+       "returns True"
+      ]
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C3": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.1,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(1)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-WAIT"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(1)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.5,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-EX-2"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"ok\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(1)",
+       "api.charge(0, 1) -> \"ok\"",
+       "returns True"
+      ]
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"ok\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-WAIT-1",
+       "YA-WAIT-2"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(1)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-EX-CALLS"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"ok\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(1)",
+       "api.charge(0, 1) -> \"ok\"",
+       "returns True"
+      ]
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"declined\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(1)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-WAIT-2"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"ok\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(1)",
+       "api.charge(0, 1) -> \"ok\"",
+       "returns True"
+      ]
+     }
+    }
+   }
+  },
+  "C4": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.1,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RET"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns True"
+      ]
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-RET-2"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"declined\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns True"
+      ]
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.3,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"error\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"declined\"",
+       "returns True"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-RET-FALSE"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns True"
+      ]
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C5": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.2,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-CALL"
+      ],
+      "call": "charge_order(api, 1, 100) with answers [\"error\", \"error\", \"ok\"]",
+      "conversation": [
+       "api.charge(1, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(1, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(1, 1) -> \"ok\"",
+       "returns True"
+      ]
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 0) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 0) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 0) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-CALL-1"
+      ],
+      "call": "charge_order(api, 1, 100) with answers [\"error\", \"error\", \"declined\"]",
+      "conversation": [
+       "api.charge(1, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(1, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(1, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"declined\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 0) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.3,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-CALL-ARGS"
+      ],
+      "call": "charge_order(api, 1, 100) with answers [\"declined\", \"declined\", \"declined\"]",
+      "conversation": [
+       "api.charge(1, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"ok\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 0) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C6": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.2,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-ERR"
+      ],
+      "call": "charge_order(api, 0, 0) with answers [\"declined\", \"ok\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 0) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.5,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-ERR-1"
+      ],
+      "call": "charge_order(api, 0, 0) with answers [\"error\", \"ok\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 0) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 0) -> \"ok\"",
+       "returns True"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"declined\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-ERR-RAISE"
+      ],
+      "call": "charge_order(api, 0, 0) with answers [\"ok\", \"error\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 0) -> \"ok\"",
+       "returns True"
+      ]
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"ok\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C7": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-ONCE"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"ok\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"ok\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RET",
+       "G-RET-NOW"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"ok\", \"declined\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"ok\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-EX-2"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"ok\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"ok\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-ONCE-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"ok\", \"error\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"ok\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"ok\"",
+       "returns True"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-RET-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"ok\", \"ok\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"ok\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"ok\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.7,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-EX-TRUE"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"ok\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"ok\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"declined\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-ONCE-NOCHG"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"ok\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"ok\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-RET-TRUE"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"ok\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"ok\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C8": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.1,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-RET"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns returned None (NoneType)"
+      ]
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.4,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"declined\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-RET-2"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns returned None (NoneType)"
+      ]
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-SIG-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns returned None (NoneType)"
+      ]
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.3,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns returned None (NoneType)"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-RET-FALSE"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns returned None (NoneType)"
+      ]
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-SIG-BOOL"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns returned None (NoneType)"
+      ]
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  },
+  "C9": {
+   "gold": {
+    "status": "ok",
+    "seconds": 1.1,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "G-KEEP"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"error\", \"error\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(4)",
+       "api.charge(0, 1) -> \"error\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_a": {
+    "status": "ok",
+    "seconds": 1.5,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YA-KEEP-1"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"error\", \"declined\", \"ok\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"error\"",
+       "api.sleep(2)",
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   },
+   "agent_b": {
+    "status": "ok",
+    "seconds": 1.3,
+    "requirements": {
+     "R-CALL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-DECL-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-ERR-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-EX-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-KEEP-1": {
+      "proof": "FAILS",
+      "scope": "FAIL",
+      "confirmed": true,
+      "items": [
+       "YB-KEEP-END"
+      ],
+      "call": "charge_order(api, 0, 1) with answers [\"declined\", \"declined\", \"declined\", \"ok\"]",
+      "conversation": [
+       "api.charge(0, 1) -> \"declined\"",
+       "returns False"
+      ]
+     },
+     "R-ONCE-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RET-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-RETRY-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-SIG-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     },
+     "R-WAIT-1": {
+      "proof": "PROVED",
+      "scope": "PASS"
+     }
+    }
+   }
+  }
+ },
+ "summary": {
+  "proved": 293,
+  "fails_both": 71,
+  "missed_by_scope": 0,
+  "scope_only": 0,
+  "unknown": 0,
+  "pairs": 39,
+  "untranslatable": [],
+  "seconds": [
+   1.1,
+   1.7
+  ]
+ },
+ "seconds": 83
+}

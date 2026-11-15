@@ -1,0 +1,110 @@
+fcp: '0.1'
+design: code_pay
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def charge_order(api, order_id: int, amount: int) -> bool:'
+  text: The function's name, arguments and result type.
+  kind: definition
+  lines:
+  - 5
+- id: R-CALL-1
+  doc: SPEC
+  quote: '`api.charge(order_id, amount)` asks the payment service to charge `amount` cents for the order'
+  text: Every charge is for the order and the amount the function was called with.
+  kind: guarantee
+  lines:
+  - 7
+- id: R-API-1
+  doc: SPEC
+  quote: returns `"ok"`, `"declined"` or `"error"`. `api.sleep(seconds)` waits that many seconds.
+  text: The answers of a charge, and what sleep does.
+  kind: definition
+  lines:
+  - 7
+- id: R-ERR-1
+  doc: SPEC
+  quote: Raise ValueError if `amount` is not between 1 and 1,000,000 cents.
+  text: With an amount outside 1 to 1,000,000 the function raises ValueError.
+  kind: guarantee
+  lines:
+  - 11
+- id: R-RET-1
+  doc: SPEC
+  quote: Return True once a charge returns `"ok"`, and False otherwise.
+  text: The function returns True when a charge has returned "ok", and False otherwise.
+  kind: guarantee
+  ambiguity:
+  - phrase: once a charge returns
+    readings:
+    - as soon as a charge returns "ok", with no further call
+    - if some charge has returned "ok"
+  lines:
+  - 12
+- id: R-RETRY-1
+  doc: SPEC
+  quote: If a charge returns `"error"`, try again, up to 3 attempts in total.
+  text: After an "error" the function charges again, and it makes at most 3 charges in all.
+  kind: guarantee
+  lines:
+  - 13
+- id: R-DECL-1
+  doc: SPEC
+  quote: Never try again after `"declined"`.
+  text: After a "declined" the function makes no further charge.
+  kind: guarantee
+  lines:
+  - 14
+- id: R-WAIT-1
+  doc: SPEC
+  quote: 'Before each new attempt, wait: 2 seconds before the second attempt and 4 seconds before the third.'
+  text: The function sleeps 2 seconds before its second charge and 4 seconds before its third.
+  kind: guarantee
+  lines:
+  - 15
+- id: R-ONCE-1
+  doc: SPEC
+  quote: Never charge an order again once a charge has returned `"ok"`.
+  text: After a charge returns "ok" the function makes no further charge.
+  kind: guarantee
+  lines:
+  - 16
+- id: R-KEEP-1
+  doc: SPEC
+  quote: Keep trying until the charge goes through, so that no order is lost.
+  text: The function does not give up on a charge that has not gone through.
+  kind: guarantee
+  lines:
+  - 17
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: if the first charge returns `"error"` and the second `"ok"`, the function calls `api.charge`, `api.sleep(2)` and `api.charge`, and returns True.'
+  text: With answers error then ok, the function charges, sleeps 2 seconds, charges again and returns True.
+  kind: scenario
+  lines:
+  - 19
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-END: once `phase` is 1 it stays 1, with the same `outcome` and `result`.'
+  text: The return is the last cycle of a run.
+  kind: definition
+  lines:
+  - 43
+- id: R-FR-2
+  doc: FRAME
+  quote: 'F-ZERO: at a call, `outcome` is 0 and `result` is false; once returned, `op` is 0; `result` is false unless `outcome` is 0.'
+  text: Unused outputs are zero.
+  kind: definition
+  lines:
+  - 44
+- id: R-FR-3
+  doc: FRAME
+  quote: 'F-LIMIT: a run makes at most 8 calls: after 8 calls, the next cycle is the return (a run that would go on ends there, with `outcome` 2).'
+  text: A run makes at most 8 calls on the interface.
+  kind: definition
+  lines:
+  - 45

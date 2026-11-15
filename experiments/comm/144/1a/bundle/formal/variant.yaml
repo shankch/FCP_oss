@@ -1,0 +1,204 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # --- form of the arguments (R-IN-1 .. R-IN-4) ---
+  shape_a: 'count(i < len(a): a[i] == "/") == 1 && a[0] != "/" && a[len(a) - 1] != "/"'
+  shape_b: 'count(i < len(b): b[i] == "/") == 1 && b[0] != "/" && b[len(b) - 1] != "/"'
+  digits_a: 'all(i < len(a): a[i] == "/" || isdigit(a[i]))'
+  digits_b: 'all(i < len(b): b[i] == "/" || isdigit(b[i]))'
+  form_a: 'all(i < len(a): isdigit(a[i]) || a[i] == " " || a[i] == "/") && count(i < len(a): a[i] == "/") <= 1 && any(i < len(a): isdigit(a[i]) && all(j < i: a[j] != "/")) && all(i < len(a): a[i] == "/" -> any(j < len(a): j > i && isdigit(a[j])))'
+  form_b: 'all(i < len(b): isdigit(b[i]) || b[i] == " " || b[i] == "/") && count(i < len(b): b[i] == "/") <= 1 && any(i < len(b): isdigit(b[i]) && all(j < i: b[j] != "/")) && all(i < len(b): b[i] == "/" -> any(j < len(b): j > i && isdigit(b[j])))'
+  den_a: 'all(i < len(a): a[i] == "/" -> any(j < len(a): j > i && isdigit(a[j]) && a[j] != "0"))'
+  den_b: 'all(i < len(b): b[i] == "/" -> any(j < len(b): j > i && isdigit(b[j]) && b[j] != "0"))'
+  ok: 'shape_a && digits_a && den_a && shape_b && digits_b && den_b'
+  # --- values: position of the '/', numerator and denominator (decimal, leading zeros allowed) ---
+  sa: 'sum(i < len(a): a[i] == "/" ? i : 0)'
+  sb: 'sum(i < len(b): b[i] == "/" ? i : 0)'
+  an: 'sum(k < 14: (k < sa ? a[sa - 1 - k] - "0" : 0) * [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000][k])'
+  ad: 'sum(k < 14: (k < len(a) - 1 - sa ? a[len(a) - 1 - k] - "0" : 0) * [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000][k])'
+  bn: 'sum(k < 14: (k < sb ? b[sb - 1 - k] - "0" : 0) * [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000][k])'
+  bd: 'sum(k < 14: (k < len(b) - 1 - sb ? b[len(b) - 1 - k] - "0" : 0) * [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000][k])'
+  # --- the product x * n = P / Q (symmetric in a and b) ---
+  P: 'an * bn'
+  Q: 'ad * bd'
+  # --- floating-point evaluation: one IEEE-754 double division P / Q, round to nearest, ties to even ---
+  big: 'P >= (Q << 52)'
+  fl: 'm * Q <= P && P < (m + 1) * Q'
+  r: 'P - m * Q'
+  near: 'any(j < 53: (Q << j) <= 2 * P && 2 * P < (Q << (j + 1)) && min(r, Q - r) * (1 << 54) <= (Q << j))'
+  fwhole: 'big || fl && (r == 0 || near)'
+  fnotwhole: '!big && fl && r != 0 && !near'
+
+rigids:
+  - {name: m, range: [0, 4503599627370495]}
+
+assumptions:
+  - id: RV-IN-1
+    req: R-IN-1
+    expr: 'shape_a && shape_b'
+    note: >-
+      Each argument is <numerator>/<denominator>: exactly one '/', with a non-empty numerator before it
+      and a non-empty denominator after it. What the numerator and denominator are made of is R-IN-2.
+      Reading taken as instructed (R-IN-1, '<numerator>/<denominator>', reading 2): numerator and
+      denominator may be written with leading zeros (e.g. '05/1'); only their values matter, so no
+      constraint on leading zeros is placed here, and the values an, ad, bn, bd used by RV-RES-1/2 are
+      read as decimal numbers with leading zeros ignored.
+  - id: RV-IN-2
+    req: R-IN-2
+    expr: 'digits_a && digits_b'
+    note: >-
+      The numerator and denominator are whole numbers: every character other than the '/' is a decimal
+      digit (no sign, point, space or other character). Reading taken as instructed (R-IN-2, 'positive
+      whole numbers', reading 2): whole numbers in the sense of non-negative integers, so the value 0 is
+      not excluded here; a numerator of 0 may be passed. This is in tension with the word 'positive',
+      which this reading does not enforce. The denominator is kept non-zero only by RV-IN-4 (R-IN-4,
+      reading 2: zero is excluded only for the denominator).
+  - id: RV-IN-3
+    req: R-IN-3
+    expr: 'form_a && form_b'
+    note: >-
+      Reading taken as instructed (R-IN-3, 'valid fractions', reading 2): any string that denotes a
+      fraction, possibly in other forms such as '3' or with spaces. Modelled, after the two examples the
+      reading names, as: only digits, spaces and '/'; at most one '/'; at least one digit before the '/'
+      (or anywhere, when there is none) and at least one digit after it. Signs, decimal points and other
+      notations are not admitted, since the reading names none. This is weaker than RV-IN-1 and RV-IN-2,
+      which still restrict the calls to the <numerator>/<denominator> format; the assumption only states
+      that behaviour on other strings is not specified.
+  - id: RV-IN-4
+    req: R-IN-4
+    expr: 'den_a && den_b'
+    note: >-
+      The denominator is not zero: after the '/', some digit is not '0' (leading zeros are allowed, so
+      '1/00' has denominator 0 and '1/01' does not). Reading taken as instructed (R-IN-4, 'do not have
+      zero as denominator', reading 2): zero is excluded only for the denominator; no constraint is
+      placed on the numerator, which may be 0 (in tension with 'positive' in R-IN-2).
+
+properties:
+  - id: RV-FN-3
+    req: R-FN-3
+    pattern: implies
+    args: {trigger: 'ok', cond: 'outcome == 2'}
+    note: >-
+      Readings taken as instructed (R-FN-3, 'simplify the expression', reading 2; 'x * n, or x + n',
+      reading 1): the function must produce the simplified expression, the product x * n only (e.g. a
+      reduced fraction). A simplified expression is not True or False, so on valid arguments the call
+      returns a value that is not a bool: outcome 2. The value itself cannot be observed on this
+      interface (result carries only a bool, and F-ZERO keeps it 0), so only its non-bool type is
+      checked. This deliberately contradicts RV-RES-1, RV-RES-2 and RV-EX-1..3, which require a bool
+      (outcome 0); the contradiction is in the prompt and is left in place, not repaired. x and n are
+      not tied to a and b (R-FN-2, reading 2), which does not matter for the product.
+  - id: RV-RES-1
+    req: R-RES-1
+    pattern: implies
+    args: {trigger: 'ok && fwhole', cond: 'outcome == 0 && result'}
+    note: >-
+      Readings taken as instructed. Condition (R-RES-1, 'x * n or x + n evaluates to a whole number',
+      reading 2): only the product x * n = (an * bn) / (ad * bd) = P / Q decides; the sum is not
+      considered. 'evaluates' (reading 2): floating-point evaluation, which can differ from exact
+      arithmetic through rounding. The reading does not fix the float algorithm; I take the 'float
+      division' it names: one IEEE-754 double division of the exact integer P by the exact integer Q,
+      rounded to nearest, ties to even (Python's P / Q on ints). Its result is whole when the quotient
+      is at least 2^52 (big: every double there is an integer), or when, with m the integer part of
+      P / Q (fl) and r the remainder, r is 0 or the distance min(r, Q - r) / Q to the nearest integer is
+      at most half the spacing of doubles in the binade 2^(j-1) <= P / Q < 2^j of the quotient (near).
+      Example where this differs from exact arithmetic: a = '99999999999999/1', b = '99/2' gives
+      4949999999999950.5, which rounds to 4949999999999950.0, so True is required. 'whole number'
+      (reading 2): a non-negative integer, 0 included, so a numerator of 0 (allowed by R-IN-2/R-IN-4,
+      reading 2) gives 0.0 and True. 'returns True' (reading 2): R-FN-3 says the function returns the
+      simplified expression, which contradicts returning True; the sentence's literal 'returns True'
+      is kept here and the contradiction with RV-FN-3 is left in place. x and n are not tied to a and b
+      (R-FN-2, reading 2); P and Q are symmetric in a and b, so no mapping is needed. m is a rigid
+      (universally quantified) value that fl pins to the integer part of P / Q below 2^52.
+  - id: RV-RES-2
+    req: R-RES-2
+    pattern: implies
+    args: {trigger: 'ok && fnotwhole', cond: 'outcome == 0 && !result'}
+    note: >-
+      Readings taken as instructed. 'otherwise' (R-RES-2, reading 2): False when the product x * n is
+      not a whole number, whatever the sum. Same evaluation as RV-RES-1 (R-RES-1 readings: product
+      only, floating-point 'evaluates', non-negative 'whole number'): the double nearest to P / Q is
+      not an integer, i.e. the quotient is below 2^52 (not big), m is its integer part (fl), the
+      remainder r is not 0, and the quotient is farther than half a double spacing from the nearest
+      integer (not near). 'False' (reading 2): R-FN-3 says the function returns the simplified
+      expression, which contradicts returning False; the literal 'False' is kept and the contradiction
+      with RV-FN-3 is left in place. x and n are not tied to a and b (R-FN-2, reading 2); P and Q are
+      symmetric, so no mapping is needed.
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'a == "1/5" && b == "5/1"', cond: 'outcome == 0 && result'}
+    note: >-
+      The docstring example states the returned value of this call, so it is a guarantee for the call.
+      Reading taken as instructed (R-EX-1, reading 2): the example contradicts R-RES-1 if the sum must be
+      whole (1/5 + 5/1 = 26/5); RV-RES-1 takes the product-only reading, under which 1/5 * 5/1 = 1 and
+      there is no conflict with it. Returning True does contradict RV-FN-3 (R-FN-3, reading 2), which
+      is left in place.
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'a == "1/6" && b == "2/1"', cond: 'outcome == 0 && !result'}
+    note: >-
+      The docstring example states the returned value of this call (product 1/3, sum 13/6), so it is a
+      guarantee for the call. Returning False contradicts RV-FN-3 (R-FN-3, reading 2), left in place.
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'a == "7/10" && b == "10/2"', cond: 'outcome == 0 && !result'}
+    note: >-
+      The docstring example states the returned value of this call (product 7/2, sum 57/10; '10/2' is
+      not in lowest terms), so it is a guarantee for the call. Returning False contradicts RV-FN-3
+      (R-FN-3, reading 2), left in place.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'a == "1/5" && b == "5/1" && outcome == 0 && result'
+    note: >-
+      The example call returning True must be possible. Reading taken as instructed (R-EX-1, reading 2):
+      it would contradict R-RES-1 only under a sum reading, which RV-RES-1 does not take; it does
+      contradict RV-FN-3 (R-FN-3, reading 2), so this cover is expected to be unreachable under the
+      whole set.
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'a == "1/6" && b == "2/1" && outcome == 0 && !result'
+    note: The example call returning False must be possible (it contradicts RV-FN-3, R-FN-3 reading 2).
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'a == "7/10" && b == "10/2" && outcome == 0 && !result'
+    note: The example call returning False must be possible (it contradicts RV-FN-3, R-FN-3 reading 2).
+
+unformalized:
+  - req: R-FN-1
+    reason: >-
+      A structural requirement on the code (a function named simplify with two parameters a and b), not
+      a property of the call trace; the adapter (design.yaml, function section) calls simplify(a, b) by
+      that name and arity in every cycle.
+  - req: R-FN-2
+    reason: >-
+      Definition. Reading taken as instructed (R-FN-2, 'a, b', reading 2): the docstring never ties x and
+      n to a and b, so the mapping is left unspecified; the items that use x and n compute only the
+      product (an * bn) / (ad * bd), which is symmetric in a and b, so they hold under either mapping.
+    covered_by: [RV-RES-1, RV-RES-2, RV-FN-3]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the adapter (frame.md): F-ZERO, 'outcome != 0 -> !result', holds by construction and
+      is part of every formalization set; it is not restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FN-2, phrase: 'a, b', reading: 2}
+  - {req: R-FN-3, phrase: 'simplify the expression', reading: 2}
+  - {req: R-FN-3, phrase: 'x * n, or x + n', reading: 1}
+  - {req: R-IN-1, phrase: '<numerator>/<denominator>', reading: 2}
+  - {req: R-IN-2, phrase: 'positive whole numbers', reading: 2}
+  - {req: R-IN-3, phrase: 'valid fractions', reading: 2}
+  - {req: R-IN-4, phrase: 'do not have zero as denominator', reading: 2}
+  - {req: R-RES-1, phrase: 'x * n or x + n evaluates to a whole number', reading: 2}
+  - {req: R-RES-1, phrase: 'evaluates', reading: 2}
+  - {req: R-RES-1, phrase: 'whole number', reading: 2}
+  - {req: R-RES-1, phrase: 'returns True', reading: 2}
+  - {req: R-RES-2, phrase: 'otherwise', reading: 2}
+  - {req: R-RES-2, phrase: 'False', reading: 2}
+  - {req: R-EX-1, phrase: 'simplify("1/5", "5/1") = True', reading: 2}

@@ -1,0 +1,195 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+defs:
+  # the five calls shown in the docstring
+  ex1: 'n == 3 && p == 5'
+  ex2: 'n == 1101 && p == 101'
+  ex3: 'n == 0 && p == 101'
+  ex4: 'n == 3 && p == 11'
+  ex5: 'n == 100 && p == 101'
+  example_call: 'ex1 || ex2 || ex3 || ex4 || ex5'
+  # "2^n" read as the Python expression 2 ^ n (bitwise XOR), as instructed
+  xor2: 'n ^ 2'
+properties:
+  - id: RV-RET-1-FORM
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: 'p != 0 && !example_call'
+      cond: 'outcome == 0 && all(k < 127: p == k + 1 -> result == xor2 % (k + 1))'
+    note: >-
+      Off the five docstring calls and for p >= 1, the call returns (2 XOR n) mod p, a value in
+      0 .. p - 1. I read "2^n" as the Python expression 2 ^ n (bitwise XOR of 2 and n), not as
+      2 ** n. I was told to take this reading even though exponentiation seems more natural.
+      "modulo p" is applied to the XOR value, i.e. (2 ^ n) % p. Python's unparenthesised
+      2 ^ n % p would instead parse as 2 ^ (n % p), which I did not use. I read "Return 2^n
+      modulo p" as letting the docstring examples govern on the calls they show, again as
+      instructed rather than the more natural reading. The formula is kept on every other call.
+      FCP-PL allows only a constant divisor for %, so the modulus is split over the 127 possible
+      values of p.
+  - id: RV-RET-1-ZERO
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: 'p == 0'
+      cond: 'outcome == 1'
+    note: >-
+      For p = 0 the call fails with an exception, as Python's (2 ^ n) % 0 (and 2 ** n % 0)
+      raises ZeroDivisionError. Outcome 1 covers any exception, because the request names none.
+      I was told to read "modulo p" this way rather than leave p = 0 unconstrained.
+  - id: RV-RET-1-EX1
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'ex1', cond: 'outcome == 0 && result == 5'}
+    note: >-
+      I read "Return 2^n modulo p" as letting the docstring examples govern, as instructed
+      rather than the more natural reading, so modp(3, 5) is 5. This conflicts with the formula
+      under either reading of "2^n": (2 XOR 3) mod 5 = 1 and 2 ** 3 mod 5 = 3. It also directly
+      conflicts with RV-EX-1, which the instructed reading of R-EX-1 pins to 3. The set is
+      therefore unsatisfiable on this call, and I have deliberately left that unrepaired.
+  - id: RV-RET-1-EX2
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'ex2', cond: 'outcome == 0 && result == 101'}
+    note: >-
+      I read "Return 2^n modulo p" as letting the docstring examples govern, as instructed
+      rather than the more natural reading, so modp(1101, 101) is 101. This conflicts with the
+      formula under either reading of "2^n": (2 XOR 1101) mod 101 = 93 and 2 ** 1101 mod 101 = 2.
+      It also directly conflicts with RV-EX-2, which the instructed reading pins to 2. The set is
+      unsatisfiable on this call, and I have left that unrepaired.
+  - id: RV-RET-1-EX3
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'ex3', cond: 'outcome == 0 && result == 101'}
+    note: >-
+      I read "Return 2^n modulo p" as letting the docstring examples govern, as instructed
+      rather than the more natural reading, so modp(0, 101) is 101. This conflicts with the
+      formula under either reading of "2^n": (2 XOR 0) mod 101 = 2 and 2 ** 0 mod 101 = 1. It
+      also directly conflicts with RV-EX-3, which the instructed reading pins to 1. The set is
+      unsatisfiable on this call, and I have left that unrepaired.
+  - id: RV-RET-1-EX4
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'ex4', cond: 'outcome == 0 && result == 11'}
+    note: >-
+      I read "Return 2^n modulo p" as letting the docstring examples govern, as instructed
+      rather than the more natural reading, so modp(3, 11) is 11. This conflicts with the
+      formula under either reading of "2^n": (2 XOR 3) mod 11 = 1 and 2 ** 3 mod 11 = 8. It also
+      directly conflicts with RV-EX-4, which the instructed reading pins to 8. The set is
+      unsatisfiable on this call, and I have left that unrepaired.
+  - id: RV-RET-1-EX5
+    req: R-RET-1
+    pattern: implies
+    args: {trigger: 'ex5', cond: 'outcome == 0 && result == 101'}
+    note: >-
+      I read "Return 2^n modulo p" as letting the docstring examples govern, as instructed
+      rather than the more natural reading, so modp(100, 101) is 101. This conflicts with the
+      formula under either reading of "2^n": (2 XOR 100) mod 101 = 1 and 2 ** 100 mod 101 = 1. It
+      also directly conflicts with RV-EX-5, which the instructed reading pins to 1. The set is
+      unsatisfiable on this call, and I have left that unrepaired.
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'ex1', cond: 'outcome == 0 && result == 3'}
+    note: >-
+      As instructed, and against the more natural reading, I treat the example as erroneous and
+      take the value the instruction gives for "R-RET-1 governs": modp(3, 5) returns 3. That
+      value is 2 ** 3 mod 5, which is not what R-RET-1 means in this set. Under the instructed
+      XOR reading the formula gives 1, and under the instructed examples-govern reading R-RET-1
+      gives 5 (RV-RET-1-EX1). This item therefore contradicts RV-RET-1-EX1. I formalized the
+      literal value 3 and did not repair the conflict.
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'ex2', cond: 'outcome == 0 && result == 2'}
+    note: >-
+      As instructed, and against the more natural reading, I treat the example as erroneous and
+      take the value the instruction gives for "R-RET-1 governs": modp(1101, 101) returns 2. That
+      value is 2 ** 1101 mod 101. The XOR formula gives 93, and the examples-govern reading of
+      R-RET-1 gives 101 (RV-RET-1-EX2), so this item contradicts RV-RET-1-EX2. I did not repair
+      the conflict.
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'ex3', cond: 'outcome == 0 && result == 1'}
+    note: >-
+      As instructed, and against the more natural reading, I treat the example as erroneous and
+      take the value the instruction gives for "R-RET-1 governs": modp(0, 101) returns 1. That
+      value is 2 ** 0 mod 101. The XOR formula gives 2, and the examples-govern reading of
+      R-RET-1 gives 101 (RV-RET-1-EX3), so this item contradicts RV-RET-1-EX3. I did not repair
+      the conflict.
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: 'ex4', cond: 'outcome == 0 && result == 8'}
+    note: >-
+      As instructed, and against the more natural reading, I treat the example as erroneous and
+      take the value the instruction gives for "R-RET-1 governs": modp(3, 11) returns 8. That
+      value is 2 ** 3 mod 11. The XOR formula gives 1, and the examples-govern reading of R-RET-1
+      gives 11 (RV-RET-1-EX4), so this item contradicts RV-RET-1-EX4. I did not repair the
+      conflict.
+  - id: RV-EX-5
+    req: R-EX-5
+    pattern: implies
+    args: {trigger: 'ex5', cond: 'outcome == 0 && result == 1'}
+    note: >-
+      As instructed, and against the more natural reading, I treat the example as erroneous and
+      take the value the instruction gives for "R-RET-1 governs": modp(100, 101) returns 1. Here
+      the XOR formula agrees ((2 XOR 100) mod 101 = 1), but the examples-govern reading of
+      R-RET-1 gives 101 (RV-RET-1-EX5), so this item contradicts RV-RET-1-EX5. I did not repair
+      the conflict.
+  - id: RV-NUM-1
+    req: R-NUM-1
+    expr: 'outcome != 2'
+    note: >-
+      I read "be aware of numerics" as exactness (reading 1): the call never returns a
+      non-integer, such as a float from 2 ** n or math.pow, or an integer outside the range of
+      the exact result. Either of those would be outcome 2. The exact value itself is pinned by
+      the RV-RET-1 items. The efficiency reading has no effect on the returned value at these
+      argument sizes (n <= 2047), so I did not formalize it.
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'ex1 && outcome == 0 && result == 3'
+    note: The behaviour of RV-EX-1 must be possible; under the instructed readings it is not, because RV-RET-1-EX1 requires 5.
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'ex2 && outcome == 0 && result == 2'
+    note: The behaviour of RV-EX-2 must be possible; under the instructed readings it is not, because RV-RET-1-EX2 requires 101.
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'ex3 && outcome == 0 && result == 1'
+    note: The behaviour of RV-EX-3 must be possible; under the instructed readings it is not, because RV-RET-1-EX3 requires 101.
+  - id: RV-EX-4-S
+    req: R-EX-4
+    cover: 'ex4 && outcome == 0 && result == 8'
+    note: The behaviour of RV-EX-4 must be possible; under the instructed readings it is not, because RV-RET-1-EX4 requires 11.
+  - id: RV-EX-5-S
+    req: R-EX-5
+    cover: 'ex5 && outcome == 0 && result == 1'
+    note: The behaviour of RV-EX-5 must be possible; under the instructed readings it is not, because RV-RET-1-EX5 requires 101.
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      A definition of the function's name and parameter order, not a property of a call. The
+      function section of design.yaml realizes it (modp, called as modp(n, p)), and an
+      implementation with another name or order shows up as failing calls against the
+      RV-RET-1 items.
+  - req: R-IF-2
+    reason: >-
+      A non-functional instruction about how the code is written (fill in the body, keep the
+      signature). It has no observable effect on a call beyond R-IF-1 and the returned values.
+  - req: R-FR-1
+    reason: The adapter's frame rule F-ZERO (design.yaml) holds by construction and is part of every set; frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+decisions:
+  - {req: R-RET-1, phrase: '2^n', reading: 2}
+  - {req: R-RET-1, phrase: 'modulo p', reading: 2}
+  - {req: R-RET-1, phrase: 'Return 2^n modulo p', reading: 2}
+  - {req: R-NUM-1, phrase: 'be aware of numerics', reading: 1}
+  - {req: R-EX-1, phrase: '>>> modp(3, 5) 5', reading: 2}
+  - {req: R-EX-2, phrase: '>>> modp(1101, 101) 101', reading: 2}
+  - {req: R-EX-3, phrase: '>>> modp(0, 101) 101', reading: 2}
+  - {req: R-EX-4, phrase: '>>> modp(3, 11) 11', reading: 2}
+  - {req: R-EX-5, phrase: '>>> modp(100, 101) 101', reading: 2}

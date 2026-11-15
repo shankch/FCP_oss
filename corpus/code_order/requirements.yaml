@@ -1,0 +1,128 @@
+fcp: '0.1'
+design: code_order
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def place_order(order_id: int, sku: int, qty: int, amount: int) -> bool:'
+  text: The function's name, arguments and result type.
+  kind: definition
+  lines:
+  - 5
+- id: R-ARGS-1
+  doc: SPEC
+  quote: It places the order `order_id` for `qty` units of the product `sku`, for `amount` cents.
+  text: Every call on a service is for this order - reserve and release with its sku and qty, charge and refund with its order_id and amount, book with its order_id.
+  kind: guarantee
+  lines:
+  - 7
+- id: R-API-1
+  doc: SPEC
+  quote: '`inventory.reserve`, `payments.charge` and `shipping.book` each return `"ok"` or `"refused"`.'
+  text: The answers of the three steps, the errors they can raise, and that release and refund do not fail.
+  kind: definition
+  lines:
+  - 13
+- id: R-ERR-1
+  doc: SPEC
+  quote: Raise ValueError if `qty` is less than 1 or more than 100, or if `amount` is less than 1 or more than 1,000,000. Call no service in that case.
+  text: With qty outside 1 to 100 or amount outside 1 to 1,000,000 the function raises ValueError without calling a service.
+  kind: guarantee
+  lines:
+  - 17
+- id: R-STEPS-1
+  doc: SPEC
+  quote: 'Take the three steps in this order: reserve the stock, charge the customer, book the delivery.'
+  text: The function goes on to the next step while the steps so far have answered "ok" - it returns only after a step failed or after the booking answered "ok".
+  kind: guarantee
+  lines:
+  - 18
+- id: R-ORDER-1
+  doc: SPEC
+  quote: We never charge for stock we do not hold, and never book a delivery for an order that is not paid.
+  text: The function charges only after the reservation answered "ok", and books only after the charge answered "ok".
+  kind: guarantee
+  lines:
+  - 19
+- id: R-ONCE-1
+  doc: SPEC
+  quote: Call each of `reserve`, `charge` and `book` at most once for an order.
+  text: A run calls reserve at most once, charge at most once and book at most once.
+  kind: guarantee
+  lines:
+  - 20
+- id: R-RET-1
+  doc: SPEC
+  quote: Return True when all three steps have answered `"ok"`, and call nothing else in that case.
+  text: The function returns True when all three steps answered "ok" and False otherwise, and makes no call after the booking answered "ok".
+  kind: guarantee
+  lines:
+  - 21
+- id: R-STOP-1
+  doc: SPEC
+  quote: 'If a step is refused or raises its error, stop there: take no later step, undo the earlier ones and return False. A service error never leaves the function.'
+  text: After a step is refused or raises, the function takes no further step, and it returns True or False - it never raises a service error.
+  kind: guarantee
+  lines:
+  - 22
+- id: R-UNDO-1
+  doc: SPEC
+  quote: To undo, refund the charge with `payments.refund(order_id, amount)` if the customer was charged, and release the stock with `inventory.release(sku, qty)` if it was reserved, each exactly once.
+  text: A run in which a step failed refunds exactly once if the charge answered "ok" and releases exactly once if the reservation answered "ok", before it returns.
+  kind: guarantee
+  ambiguity:
+  - phrase: refund the charge ... and release the stock
+    readings:
+    - in either order
+    - the refund before the release, as written (the reverse of the steps)
+  - phrase: if the customer was charged ... if it was reserved
+    readings:
+    - only then - no refund or release when there is nothing to undo
+    - at least then - a refund or release with nothing to undo is not ruled out
+  lines:
+  - 23
+- id: R-LIMIT-1
+  doc: SPEC
+  quote: 'The services bill us for every call: placing one order makes at most four calls on them in total.'
+  text: A run makes at most four calls on the services, of any kind.
+  kind: guarantee
+  lines:
+  - 24
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: `place_order(7, 3, 2, 500)`, when the stock is reserved and the charge is refused, calls `inventory.reserve(3, 2)`, `payments.charge(7, 500)` and `inventory.release(3, 2)`, and returns False.'
+  text: With answers ok then refused, the function reserves, charges, releases and returns False.
+  kind: scenario
+  lines:
+  - 26
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-END: once `phase` is 1 it stays 1, with the same `outcome` and `result`.'
+  text: The return is the last cycle of a run.
+  kind: definition
+  lines:
+  - 47
+- id: R-FR-2
+  doc: FRAME
+  quote: 'F-ZERO: at a call, `outcome` is 0 and `result` is false; once returned, `op` is 0; `result` is false unless `outcome` is 0.'
+  text: Unused outputs are zero.
+  kind: definition
+  lines:
+  - 48
+- id: R-FR-3
+  doc: FRAME
+  quote: 'F-LIMIT: a run makes at most 8 calls: after 8 calls, the next cycle is the return (a run that would go on ends there, with `outcome` 2).'
+  text: A run makes at most 8 calls on the services.
+  kind: definition
+  lines:
+  - 49
+- id: R-FR-4
+  doc: FRAME
+  quote: 'F-ANS: `answer` is 0 at every cycle that is not a call of `inventory.reserve`, `payments.charge` or `shipping.book`.'
+  text: The answer is zero where it means nothing.
+  kind: definition
+  lines:
+  - 50

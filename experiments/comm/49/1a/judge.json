@@ -1,0 +1,9 @@
+{
+ "b0": {
+  "questions": "```python\ndef candidate(x: int, y: int):\n    \"\"\"Return 2^n modulo p (be aware of numerics).\n    >>> candidate(3, 5)\n    3\n    >>> candidate(1101, 101)\n    2\n    >>> candidate(0, 101)\n    1\n    >>> candidate(3, 11)\n    8\n    >>> candidate(100, 101)\n    1\n    \"\"\"\n    n, p = x, y\n    result = 1 % p\n    base = 2 % p\n    while n > 0:\n        if n & 1:\n            result = (result * base) % p\n        base = (base * base) % p\n        n >>= 1\n    return result\n```\n\nThis uses square-and-multiply. It reduces modulo `p` at every step, so intermediate values stay below `p\u00b2` and 2^n is never built in full. It runs in O(log n) multiplications.\n\nThe `1 % p` initialization means that when `p == 1` the function returns 0, which is the correct answer.\n\nPython's built-in `pow(2, x, y)` does the same thing in a single call.",
+  "reply": "0",
+  "grade": 0,
+  "cost_usd": 0.014303799999999998,
+  "seconds": 3.0
+ }
+}

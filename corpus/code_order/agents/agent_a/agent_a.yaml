@@ -1,0 +1,196 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  bad_args: 'qty < 1 || qty > 100 || amount < 1 || amount > 1000000'
+  res: '!phase && op == 1'          # a call of inventory.reserve
+  chg: '!phase && op == 2'          # a call of payments.charge
+  bk: '!phase && op == 3'           # a call of shipping.book
+  ref: '!phase && op == 4'          # a call of payments.refund
+  rel: '!phase && op == 5'          # a call of inventory.release
+  step: 'res || chg || bk'
+  res_ok: 'res && answer == 0'      # the stock was reserved
+  chg_ok: 'chg && answer == 0'      # the customer was charged
+  bk_ok: 'bk && answer == 0'        # the delivery was booked
+  step_fail: 'step && answer != 0'  # a step was refused (1) or raised its error (2)
+  all_ok: 'once(res_ok) && once(chg_ok) && once(bk_ok)'
+
+assumptions:
+  - id: OA-A-ARGS
+    req: R-SIG-1
+    expr: 'stable(order_id) && stable(sku) && stable(qty) && stable(amount)'
+    note: >-
+      The four inputs are the arguments of the one call of place_order that a run
+      records, so they do not change within a run (frame.md, Inputs: "the same in
+      every cycle of a run"). Not checked in the first cycle of a run, where the
+      arguments take any value.
+  - id: OA-A-ANSWER
+    req: R-API-1
+    expr: 'answer <= 2'
+    note: >-
+      reserve, charge and book answer "ok" (0) or "refused" (1), or raise their
+      service's error (2); there is no fourth answer. The answer means nothing at
+      other cycles, so bounding it there constrains nothing.
+
+properties:
+  # R-ARGS-1: every call is for this order
+  - {id: OA-ARGS-RES, req: R-ARGS-1, expr: 'res -> r_sku == sku && r_qty == qty'}
+  - {id: OA-ARGS-CHG, req: R-ARGS-1, expr: 'chg -> c_order == order_id && c_amount == amount'}
+  - {id: OA-ARGS-BK, req: R-ARGS-1, expr: 'bk -> b_order == order_id'}
+  - id: OA-ARGS-REF
+    req: R-ARGS-1
+    expr: 'ref -> f_order == order_id && f_amount == amount'
+    note: Also the argument list that rule 7 (R-UNDO-1) gives for the refund, payments.refund(order_id, amount).
+  - id: OA-ARGS-REL
+    req: R-ARGS-1
+    expr: 'rel -> l_sku == sku && l_qty == qty'
+    note: Also the argument list that rule 7 (R-UNDO-1) gives for the release, inventory.release(sku, qty).
+
+  # R-ERR-1: invalid arguments
+  - id: OA-ERR-1
+    req: R-ERR-1
+    expr: 'bad_args -> phase && outcome == 1'
+    note: >-
+      With qty outside 1..100 or amount outside 1..1,000,000 every cycle of the run
+      is the return with ValueError, so no service is called. Rule 1 says "if", not
+      "only if": nothing here forbids ValueError for valid arguments (other rules
+      fix the outcome of those runs).
+
+  # R-STEPS-1: the three steps, in order, carried on while they answer ok
+  - id: OA-STEPS-ORD
+    req: R-STEPS-1
+    expr: '(chg -> once(res)) && (bk -> once(chg))'
+    note: The charge is called only after the reserve has been called, and the booking only after the charge.
+  - id: OA-STEPS-GO
+    req: R-STEPS-1
+    expr: 'phase && !bad_args -> once(step_fail) || once(bk_ok)'
+    note: >-
+      Read as the requirement text states it: with valid arguments the function
+      returns only after a step was refused or raised, or after the booking answered
+      "ok". It does not require the next step to be the very next call.
+
+  # R-ORDER-1: no charge without held stock, no booking without payment
+  - id: OA-ORDER-CHG
+    req: R-ORDER-1
+    expr: 'chg -> since(!rel, res_ok)'
+    note: >-
+      "Stock we hold" read literally: the reservation answered "ok" and the stock has
+      not been released since. A reserve that is refused or raises holds nothing
+      ("a call that raises has done nothing").
+  - id: OA-ORDER-BK
+    req: R-ORDER-1
+    expr: 'bk -> since(!ref, chg_ok)'
+    note: '"Paid" read literally: the charge answered "ok" and has not been refunded since.'
+
+  # R-ONCE-1: each step at most once
+  - {id: OA-ONCE-RES, req: R-ONCE-1, expr: 'res -> !prev(once(res))'}
+  - {id: OA-ONCE-CHG, req: R-ONCE-1, expr: 'chg -> !prev(once(chg))'}
+  - {id: OA-ONCE-BK, req: R-ONCE-1, expr: 'bk -> !prev(once(bk))'}
+
+  # R-RET-1: success
+  - id: OA-RET-TRUE
+    req: R-RET-1
+    expr: 'phase && all_ok -> outcome == 0 && result'
+  - id: OA-RET-STOP
+    req: R-RET-1
+    pattern: next
+    args: {trigger: 'bk_ok && once(res_ok) && once(chg_ok)', cond: 'phase'}
+    note: Once the third step has answered "ok" (after the other two did), the next cycle is the return - no call follows.
+  - id: OA-RET-NOTHING
+    req: R-RET-1
+    expr: 'phase && all_ok -> hist(!phase -> op == 1 || op == 2 || op == 3)'
+    note: >-
+      "Call nothing else in that case" read literally over the whole run: a run in
+      which all three steps answered "ok" made no call other than reserve, charge and
+      book (in particular no refund or release), before or after the booking.
+  - id: OA-RET-FALSE
+    req: R-RET-1
+    expr: 'phase && result -> all_ok'
+    note: >-
+      "False otherwise" is in the requirement's text, not in the quote of rule 5;
+      rule 6 states it for runs where a step failed.
+
+  # R-STOP-1: stop at a failed step, return False
+  - id: OA-STOP-STEP
+    req: R-STOP-1
+    expr: 'step -> !prev(once(step_fail))'
+    note: >-
+      "Stop there: take no later step" read as: once a step was refused or raised, no
+      reserve, charge or book is called again in the run. A later step in the order
+      is ruled out directly; repeating the same or an earlier step is also ruled out
+      by R-ONCE-1. The undo calls of rule 6 are formalized under R-UNDO-1.
+  - id: OA-STOP-FALSE
+    req: R-STOP-1
+    expr: 'phase && once(step_fail) -> outcome == 0 && !result'
+    note: >-
+      A run in which a step failed returns False. Outcome 0 also means that no
+      service error leaves the function ("A service error never leaves the
+      function").
+
+  # R-UNDO-1: undo the earlier steps
+  - id: OA-UNDO-REF
+    req: R-UNDO-1
+    expr: 'phase && once(step_fail) && once(chg_ok) -> once(ref)'
+    note: In a run where a step failed and the customer was charged, a refund was made before the return.
+  - id: OA-UNDO-REL
+    req: R-UNDO-1
+    expr: 'phase && once(step_fail) && once(res_ok) -> once(rel)'
+    note: In a run where a step failed and the stock was reserved, a release was made before the return.
+  - id: OA-UNDO-REF1
+    req: R-UNDO-1
+    expr: 'ref -> !prev(once(ref))'
+    note: '"Exactly once": never a second refund in a run.'
+  - id: OA-UNDO-REL1
+    req: R-UNDO-1
+    expr: 'rel -> !prev(once(rel))'
+    note: '"Exactly once": never a second release in a run.'
+  - id: OA-UNDO-REF-ONLY
+    req: R-UNDO-1
+    expr: 'ref -> once(chg_ok)'
+    note: >-
+      Ambiguity "if the customer was charged": reading 1 (only then). The example of
+      the prompt (charge refused: reserve, charge, release, no refund) supports it.
+  - id: OA-UNDO-REL-ONLY
+    req: R-UNDO-1
+    expr: 'rel -> once(res_ok)'
+    note: >-
+      Ambiguity "if it was reserved": reading 1 (only then) - no release when the
+      stock was never reserved.
+
+  # R-LIMIT-1: at most four calls
+  - id: OA-LIMIT-1
+    req: R-LIMIT-1
+    expr: '!phase -> !(prev(!phase) && prev(!phase, 2) && prev(!phase, 3) && prev(!phase, 4))'
+    note: >-
+      A call is never the fifth call of the run. The calls of a run are its first
+      cycles (the return is absorbing, F-END), so four call cycles before a call mean
+      four earlier calls. CONTRADICTION: if reserve and charge answer "ok" and book is
+      refused or raises, rules 2, 4, 6 and 7 require reserve, charge, book, refund and
+      release - five calls - which this rule forbids. Formalized literally, not
+      repaired.
+
+scenarios:
+  - id: OA-EX-1
+    req: R-EX-1
+    cover: >-
+      rose(phase) && order_id == 7 && sku == 3 && qty == 2 && amount == 500
+      && outcome == 0 && !result
+      && prev(rel && l_sku == 3 && l_qty == 2)
+      && prev(chg && c_order == 7 && c_amount == 500 && answer == 1, 2)
+      && prev(res && r_sku == 3 && r_qty == 2 && answer == 0, 3)
+      && hist(!phase -> res || chg || rel)
+    note: >-
+      place_order(7, 3, 2, 500) with the reserve answering "ok" and the charge
+      "refused": the last three calls before the return are reserve(3, 2),
+      charge(7, 500) and release(3, 2), every call of the run is one of those three
+      kinds, and it returns False.
+
+unformalized:
+  - {req: R-FR-1, reason: 'Frame rule of the interface adapter (frame.md); design.yaml adds it to every set as F-END.'}
+  - {req: R-FR-2, reason: 'Frame rule of the interface adapter (frame.md); design.yaml adds it to every set as F-ZERO.'}
+  - {req: R-FR-3, reason: 'Frame rule of the interface adapter (frame.md); design.yaml adds it to every set as F-LIMIT.'}
+
+decisions:
+  - {req: R-UNDO-1, phrase: 'refund the charge ... and release the stock', reading: 1}
+  - {req: R-UNDO-1, phrase: 'if the customer was charged ... if it was reserved', reading: 1}

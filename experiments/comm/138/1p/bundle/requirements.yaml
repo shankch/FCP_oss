@@ -1,0 +1,115 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete Python implementation of the function stub given in the request, keeping the stub's signature.
+  kind: non_functional
+  lines:
+  - 1
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def is_equal_to_sum_even(n):'
+  text: The function is named is_equal_to_sum_even and takes exactly one parameter, n.
+  kind: non_functional
+  ambiguity:
+  - phrase: is_equal_to_sum_even
+    readings:
+    - 'The name constrains the summands: they are even numbers (the name supplies the word that the truncated docstring leaves out).'
+    - The name is only an identifier and adds no constraint; the kind of summands is whatever the truncated docstring meant.
+  lines:
+  - 4
+- id: R-DOM-1
+  doc: SPEC
+  quote: the given number n
+  text: The caller passes the number to be evaluated as the argument n.
+  kind: assumption
+  ambiguity:
+  - phrase: the given number n
+    readings:
+    - n is a non-negative integer.
+    - n is any integer, negative values included.
+    - n is any number, non-integer (float) values included.
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: Evaluate whether the given number n
+  text: 'For every given number n, the function terminates and returns normally: it does not raise an exception and does not run forever.'
+  kind: guarantee
+  lines:
+  - 5
+- id: R-RET-2
+  doc: SPEC
+  quote: Evaluate whether
+  text: The value the function returns is a Boolean, True or False, giving the yes/no answer to the question.
+  kind: guarantee
+  ambiguity:
+  - phrase: Evaluate whether
+    readings:
+    - Return the bool True or False.
+    - Return any truthy or falsy value (for example 1 or 0) that encodes the answer.
+  lines:
+  - 5
+- id: R-SUM-1
+  doc: SPEC
+  quote: Evaluate whether the given number n can be written as the sum of exactly 4
+  text: If n can be written as the sum of exactly 4 summands of the intended kind, the function returns True.
+  kind: guarantee
+  depends:
+  - R-RET-2
+  ambiguity:
+  - phrase: the sum of exactly 4
+    readings:
+    - 'exactly 4 positive even numbers: True exactly when n is even and n >= 8 (the kind suggested by the function name is_equal_to_sum_even).'
+    - 'exactly 4 non-negative even numbers (zero allowed): True exactly when n is even and n >= 0.'
+    - 'exactly 4 even integers (negative values allowed): True exactly when n is even.'
+    - 'exactly 4 positive integers (no parity constraint): True exactly when n >= 4.'
+    - 'exactly 4 non-negative integers or any integers (no constraint on the summands): True for every n >= 0.'
+  - phrase: exactly 4
+    readings:
+    - four summands, the same value may be used more than once (for example 8 = 2 + 2 + 2 + 2).
+    - four pairwise distinct summands (for positive even summands, True only when n is even and n >= 20 = 2 + 4 + 6 + 8).
+  - phrase: is_equal_to_sum_even
+    readings:
+    - 'The function name supplies the missing kind of summand: the 4 summands are even numbers.'
+    - The function name adds nothing; the kind of summand is not stated by the request.
+  lines:
+  - 5
+- id: R-SUM-2
+  doc: SPEC
+  quote: Evaluate whether the given number n can be written as the sum of exactly 4
+  text: If n cannot be written as the sum of exactly 4 summands of the intended kind, the function returns False.
+  kind: guarantee
+  depends:
+  - R-RET-2
+  ambiguity:
+  - phrase: the sum of exactly 4
+    readings:
+    - 'exactly 4 positive even numbers: False exactly when n is odd or n < 8 (the kind suggested by the function name is_equal_to_sum_even).'
+    - 'exactly 4 non-negative even numbers (zero allowed): False exactly when n is odd or n < 0.'
+    - 'exactly 4 even integers (negative values allowed): False exactly when n is odd.'
+    - 'exactly 4 positive integers (no parity constraint): False exactly when n < 4.'
+    - 'exactly 4 non-negative integers or any integers (no constraint on the summands): never False for n >= 0.'
+  - phrase: exactly 4
+    readings:
+    - four summands, the same value may be used more than once (for example 8 = 2 + 2 + 2 + 2).
+    - four pairwise distinct summands (for positive even summands, False whenever n < 20 = 2 + 4 + 6 + 8).
+  - phrase: is_equal_to_sum_even
+    readings:
+    - 'The function name supplies the missing kind of summand: the 4 summands are even numbers.'
+    - The function name adds nothing; the kind of summand is not stated by the request.
+  lines:
+  - 5
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: In every call, the result signal is false unless the outcome signal is 0 (the call returned True or False).
+  kind: guarantee
+  lines:
+  - 36

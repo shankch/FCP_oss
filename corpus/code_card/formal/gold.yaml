@@ -1,0 +1,56 @@
+fcp: '0.1'
+set: gold
+origin: {kind: human, role: formalizer, id: gold}
+ghosts:
+  # the specification model: the balance, after every call that went through
+  - {name: b, range: [-1048576, 1048575], init: 0, next: 'op == 1 && outcome == 0 ? b + amount + earned : (op == 2 && outcome == 0 && ok ? b - amount : b)'}
+defs:
+  valid: 'amount >= 1 && amount <= 50000'
+properties:
+- id: G-RANGE
+  req: R-RANGE-1
+  pattern: implies
+  args: {trigger: '(op == 1 || op == 2) && !valid', cond: 'outcome == 1'}
+- id: G-LOAD
+  req: R-LOAD-1
+  pattern: implies
+  args: {trigger: 'op == 1 && valid && b + amount <= 50000', cond: 'outcome == 0'}
+  note: 'decision: "would take it over" is the balance plus the amount loaded; the model ghost b adds the amount'
+- id: G-CAPLOAD
+  req: R-CAP-1
+  pattern: implies
+  args: {trigger: 'op == 1 && valid && b + amount > 50000', cond: 'outcome == 1'}
+- id: G-CAP
+  req: R-CAP-1
+  pattern: implies
+  args: {trigger: 'op == 3 && outcome == 0', cond: 'bal <= 50000'}
+- id: G-BONUS
+  req: R-BONUS-1
+  pattern: implies
+  args: {trigger: 'op == 1 && outcome == 0', cond: 'earned == (amount >= 10000 ? 500 : 0)'}
+  note: the bonus is on the card because b adds what load returned
+- id: G-SPENDRET
+  req: R-SPEND-1
+  pattern: implies
+  args: {trigger: 'op == 2 && valid', cond: 'outcome == 0'}
+- id: G-SPEND
+  req: R-SPEND-1
+  pattern: implies
+  args: {trigger: 'op == 2 && outcome == 0', cond: 'ok == (amount <= b)'}
+  note: 'decision: a spend of exactly the balance is covered'
+- id: G-BAL
+  req: R-BAL-1
+  pattern: implies
+  args: {trigger: 'op == 3', cond: 'outcome == 0 && bal == b'}
+- id: G-NEW
+  req: R-NEW-1
+  pattern: implies
+  args: {trigger: 'op == 3 && !once(op == 1 && outcome == 0)', cond: 'bal == 0'}
+  note: before any load went through, the balance is 0
+scenarios:
+- id: G-EX
+  req: R-EX-1
+  cover: 'op == 3 && outcome == 0 && bal == 1500 && prev(op) == 2 && prev(amount) == 500 && prev(ok) && prev(op, 2) == 1 && prev(amount, 2) == 2000 && prev(outcome, 2) == 0'
+unformalized:
+- {req: R-SIG-1, reason: 'the interface itself: the methods and their op codes', covered_by: [G-BAL]}
+- {req: R-FR-1, reason: 'the frame rule F-ZERO, part of every set', covered_by: [F-ZERO]}

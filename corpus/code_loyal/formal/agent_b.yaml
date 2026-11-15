@@ -1,0 +1,291 @@
+fcp: '0.1'
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model.
+#   pts      the points the account holds, as the prompt defines them (R-NEW-1,
+#            R-EARN-1, R-REDEEM-1); driven by the inputs only.
+#   top      the highest tier that tier() has returned on this account
+#            (R-KEEP-1 is a statement about returned values, so this ghost is
+#            driven by the output t).
+#   calls    how many calls have been made on this account (used to say
+#            "a new account" in the example of R-EX-1).
+# Every output is checked against the model by the properties below.
+
+defs:
+  # R-RANGE-1: the valid argument ranges.
+  amt_ok: 'amount >= 1 && amount <= 100000'
+  pts_ok: 'points >= 1 && points <= 100000'
+  # A call of earn with a valid amount, a call of redeem with valid points.
+  earn_call: 'op == 1 && amt_ok'
+  redeem_call: 'op == 2 && pts_ok'
+  # R-TIER-1: the account's tier, from the points it holds before this call.
+  acct_tier: 'pts < 500 ? 0 : (pts < 2000 ? 1 : 2)'
+  # R-RATE-1: points per dollar of the account's tier.
+  rate: 'acct_tier == 0 ? 1 : (acct_tier == 1 ? 2 : 3)'
+  # Whole dollars of amount, floor(amount / 100), without division:
+  # hundreds of dollars, then the dollars of the remainder.
+  hdollars: 'count(i < 14: amount >= 10000 * (i + 1))'
+  dollars: '100 * hdollars + count(j < 100: amount - 10000 * hdollars >= 100 * (j + 1))'
+  # R-POINTS-1 (reading 1: the tier before the purchase): points before the cap.
+  would: 'rate * dollars'
+  # R-CAP-1 (reading 1: capped at exactly 1,000): the points the purchase earns.
+  gain: 'min(would, 1000)'
+  # R-REDEEM-1: the account has that many points.
+  has_pts: 'pts >= points'
+
+ghosts:
+  - name: pts
+    range: [0, 131071]
+    init: 0
+    next: 'earn_call ? min(pts + gain, 131071) : (redeem_call && has_pts ? pts - points : pts)'
+  - name: top
+    range: [0, 3]
+    init: 0
+    next: 'op == 3 && outcome == 0 ? max(top, t) : top'
+  - name: calls
+    range: [0, 4]
+    init: 0
+    next: 'min(calls + 1, 4)'
+
+assumptions:
+  - id: LB-SIG-1
+    req: R-SIG-1
+    expr: 'op >= 1 && op <= 4'
+    note: >-
+      The class has exactly four methods and the frame encodes a call of each
+      as op 1 to 4; every cycle after a reset is one call (frame.md, Calls).
+      Other op values are not calls of the class, so the environment never
+      drives them.
+
+properties:
+  - id: LB-SIG-2
+    req: R-SIG-1
+    expr: 'outcome != 3'
+    note: >-
+      The signature declares the result types (earn -> int, redeem -> bool,
+      tier -> int, balance -> int); outcome 3 means a call returned a value
+      of another form. Caveat: the frame also counts an int outside the
+      signal width (for example a balance above 131,071) as outcome 3; such a
+      balance needs more than 131 purchases and lies outside every analysis
+      depth of this bundle.
+
+  - id: LB-NEW-1
+    req: R-NEW-1
+    pattern: implies
+    args:
+      trigger: 'op == 4 && hist(op != 1 && op != 2)'
+      cond: 'bal == 0'
+    note: >-
+      A new account has 0 points: before any earn or redeem call on the
+      account, balance returns 0 (the frame makes bal 0 if balance does not
+      return, so whether it returns is left to R-GET-1). The model ghost pts
+      also starts at 0.
+
+  - id: LB-TIER-1
+    req: R-TIER-1
+    pattern: implies
+    args:
+      trigger: 'op == 3 && outcome == 0'
+      cond: 't == acct_tier'
+    note: >-
+      Literal reading: the tier is a function of the points the account holds
+      now (below 500 basic, 500 to 1,999 silver, 2,000 or more gold), so it
+      goes down when redeem takes the points below a threshold. This
+      contradicts R-KEEP-1 (LB-KEEP-1): after tier() has returned 2, a redeem
+      that leaves fewer than 2,000 points makes this property demand a lower
+      tier, which LB-KEEP-1 forbids. Not repaired here. The same tier sets
+      the earning rate (def rate, LB-POINTS-1).
+
+  - id: LB-POINTS-1
+    req: R-POINTS-1
+    pattern: implies
+    args:
+      trigger: 'earn_call && outcome == 0 && would <= 1000'
+      cond: 'earned == would'
+    note: >-
+      Reading 1 of "the account's tier": the tier before the purchase is
+      added. The example (R-EX-1) supports it: earn(60000) on a new account
+      must earn 600 points (rate 1) for balance to be 550 after redeem(50).
+      Whole dollars are floor(amount / 100). The rule is stated only where
+      the cap of R-CAP-1 does not apply (rate times dollars at most 1,000);
+      taken alone it would contradict rule 4 for every larger purchase,
+      which rule 4 plainly qualifies.
+
+  - id: LB-CAP-1
+    req: R-CAP-1
+    pattern: implies
+    args:
+      trigger: 'op == 1 && outcome == 0'
+      cond: 'earned <= 1000'
+    note: 'Literal content: a purchase that earn returns never earns more than 1,000 points.'
+
+  - id: LB-CAP-2
+    req: R-CAP-1
+    pattern: implies
+    args:
+      trigger: 'earn_call && outcome == 0 && would > 1000'
+      cond: 'earned == 1000'
+    note: >-
+      Reading 1 of "No purchase earns more than": a purchase that would earn
+      more than 1,000 points (rate times whole dollars) earns exactly 1,000.
+      The model adds those 1,000 points to the account (def gain). Reading 2
+      (the purchase is refused) is not taken; the text does not say how a
+      refusal would show (an exception, a return of 0, or neither).
+
+  - id: LB-RANGE-1
+    req: R-RANGE-1
+    pattern: implies
+    args:
+      trigger: 'op == 1 && (amount < 1 || amount > 100000)'
+      cond: 'outcome == 1'
+    note: >-
+      The amount condition applies to calls of earn, the only method with an
+      amount argument; the frame drives amount to 0 in calls of the other
+      methods, which must not make them raise. Negative amounts are not part
+      of the trace, so "less than 1" is amount 0 here. The text does not say
+      what a raising call does to the account; the model leaves it unchanged.
+
+  - id: LB-RANGE-2
+    req: R-RANGE-1
+    pattern: implies
+    args:
+      trigger: 'op == 2 && (points < 1 || points > 100000)'
+      cond: 'outcome == 1'
+    note: >-
+      The points condition applies to calls of redeem, the only method with a
+      points argument (points is 0 in the other calls). The model leaves the
+      account unchanged by a raising redeem; the text does not say.
+
+  - id: LB-EARN-1
+    req: R-EARN-1
+    pattern: implies
+    args:
+      trigger: 'earn_call'
+      cond: 'outcome == 0 && earned == gain'
+    note: >-
+      An earn with a valid amount returns the points the purchase earns
+      (R-POINTS-1 reading 1, capped by R-CAP-1 reading 1). The other half,
+      "adds them to the account", is the update of ghost pts and is checked
+      where the account is observed (LB-EARN-2, LB-GET-1, LB-GET-2).
+
+  - id: LB-EARN-2
+    req: R-EARN-1
+    pattern: implies
+    args:
+      trigger: 'op == 4 && outcome == 0 && prev(earn_call)'
+      cond: 'bal == prev(pts + gain)'
+    note: >-
+      "adds the points the purchase earns to the account": a balance call
+      right after a valid earn returns the points held before the earn plus
+      the points it earned.
+
+  - id: LB-REDEEM-1
+    req: R-REDEEM-1
+    pattern: implies
+    args:
+      trigger: 'redeem_call && has_pts'
+      cond: 'outcome == 0 && ok'
+    note: '"if the account has that many": the points held before the call are at least points.'
+
+  - id: LB-REDEEM-2
+    req: R-REDEEM-1
+    pattern: implies
+    args:
+      trigger: 'redeem_call && !has_pts'
+      cond: 'outcome == 0 && !ok'
+
+  - id: LB-REDEEM-3
+    req: R-REDEEM-1
+    pattern: implies
+    args:
+      trigger: 'op == 4 && outcome == 0 && prev(redeem_call)'
+      cond: 'bal == prev(has_pts ? pts - points : pts)'
+    note: >-
+      "takes points off the account" when it has that many, and otherwise
+      "the account stays as it was": a balance call right after a valid
+      redeem returns the points held before it, less points if the redeem
+      succeeded. The model ghost pts makes the same change for every later
+      observation.
+
+  - id: LB-GET-1
+    req: R-GET-1
+    pattern: implies
+    args:
+      trigger: 'op == 3'
+      cond: 'outcome == 0 && t == acct_tier'
+    note: >-
+      tier returns the account's tier as R-TIER-1 defines it from the points
+      held now. Conflicts with LB-KEEP-1 once redeem takes the points below a
+      threshold the account had reached and tier() had reported.
+
+  - id: LB-GET-2
+    req: R-GET-1
+    pattern: implies
+    args:
+      trigger: 'op == 4'
+      cond: 'outcome == 0 && bal == pts'
+    note: >-
+      balance returns the points the account holds (ghost pts). The model
+      saturates at 131,071, the width of bal; reaching it needs more than 131
+      purchases.
+
+  - id: LB-KEEP-1
+    req: R-KEEP-1
+    pattern: implies
+    args:
+      trigger: 'op == 3 && outcome == 0'
+      cond: 't >= top'
+    note: >-
+      Literal reading of "the tier that tier returns never goes down": every
+      tier that tier() returns on an account is at least every tier it
+      returned earlier on that account (ghost top). This contradicts R-TIER-1
+      with R-GET-1 (LB-TIER-1, LB-GET-1): e.g. on a new account earn(50000)
+      (500 points), tier() returns 1, redeem(1) (499 points), then tier()
+      must return 0 by R-TIER-1 and at least 1 by this rule. Another reading ("members keep what they have
+      reached": the account's tier is the highest tier its points ever
+      reached, also for the earning rate) would remove the conflict but
+      rewrites R-TIER-1; it is not taken.
+
+scenarios:
+  - id: LB-EX-1
+    req: R-EX-1
+    cover: >-
+      calls == 3 && op == 3 && outcome == 0 && t == 1
+      && prev(op == 4 && outcome == 0 && bal == 550)
+      && prev(op == 2 && points == 50, 2)
+      && prev(op == 1 && amount == 60000, 3)
+    note: >-
+      On a new account (the earn is the first call after the reset):
+      earn(60000), redeem(50), then balance() returns 550 and tier() returns
+      1, in the order the text lists them.
+  - id: LB-EX-2
+    req: R-EX-1
+    cover: >-
+      calls == 3 && op == 4 && outcome == 0 && bal == 550
+      && prev(op == 3 && outcome == 0 && t == 1)
+      && prev(op == 2 && points == 50, 2)
+      && prev(op == 1 && amount == 60000, 3)
+    note: >-
+      The same example with the two queries in the other order; the text
+      does not fix the order of balance() and tier() after the redeem.
+
+unformalized:
+  - req: R-PKG-1
+    reason: >-
+      The package layout (loyalty/tiers.py, points.py, account.py) is not
+      observable in the trace of calls on Account.
+  - req: R-RATE-1
+    reason: >-
+      Definition of the earning rate per tier, realized by def rate (1, 2, 3
+      points per dollar for tiers 0, 1, 2) and used by the items that compute
+      the points of a purchase.
+    covered_by: [LB-POINTS-1, LB-CAP-2, LB-EARN-1]
+  - req: R-FR-1
+    reason: >-
+      Encoding rule of the adapter, realized by the frame rule F-ZERO of
+      design.yaml, which is added to every formalization set.
+
+decisions:
+  - {req: R-POINTS-1, phrase: "the account's tier", reading: 1}
+  - {req: R-CAP-1, phrase: "No purchase earns more than", reading: 1}

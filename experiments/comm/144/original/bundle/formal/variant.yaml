@@ -1,0 +1,237 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+defs:
+  # R-IN-2, forced reading 2 of "<numerator>/<denominator>": decimal digits, one "/", decimal digits;
+  # leading zeros allowed, no signs or spaces. nsl_s counts the slashes of s, sl_s is the position of the only one.
+  nsl_x: 'count(i < len(x): x[i] == "/")'
+  sl_x: 'sum(i < len(x): x[i] == "/" ? i : 0)'
+  fmt_x: 'nsl_x == 1 && x[0] != "/" && x[len(x) - 1] != "/" && all(i < len(x): isdigit(x[i]) || x[i] == "/")'
+  nsl_n: 'count(i < len(n): n[i] == "/")'
+  sl_n: 'sum(i < len(n): n[i] == "/" ? i : 0)'
+  fmt_n: 'nsl_n == 1 && n[0] != "/" && n[len(n) - 1] != "/" && all(i < len(n): isdigit(n[i]) || n[i] == "/")'
+  # R-IN-3/R-IN-4, forced reading 2 of "positive whole numbers": any notation Python int() accepts.
+  # The numerator of s is the text before its only "/", the denominator the text after it. int() strips
+  # whitespace as str.isspace has it (codes 9-13, 28-32, 133, 160); [bn_s, en_s) and [bd_s, ed_s) are the
+  # numerator and the denominator without that leading and trailing whitespace.
+  bn_x: 'count(i < len(x): i < sl_x && all(m < len(x): m <= i -> x[m] >= 9 && x[m] <= 13 || x[m] >= 28 && x[m] <= 32 || x[m] == 133 || x[m] == 160))'
+  en_x: 'sl_x - count(i < len(x): i < sl_x && all(m < len(x): m >= i && m < sl_x -> x[m] >= 9 && x[m] <= 13 || x[m] >= 28 && x[m] <= 32 || x[m] == 133 || x[m] == 160))'
+  bd_x: 'sl_x + 1 + count(i < len(x): i > sl_x && all(m < len(x): m > sl_x && m <= i -> x[m] >= 9 && x[m] <= 13 || x[m] >= 28 && x[m] <= 32 || x[m] == 133 || x[m] == 160))'
+  ed_x: 'len(x) - count(i < len(x): i > sl_x && all(m < len(x): m >= i -> x[m] >= 9 && x[m] <= 13 || x[m] >= 28 && x[m] <= 32 || x[m] == 133 || x[m] == 160))'
+  bn_n: 'count(i < len(n): i < sl_n && all(m < len(n): m <= i -> n[m] >= 9 && n[m] <= 13 || n[m] >= 28 && n[m] <= 32 || n[m] == 133 || n[m] == 160))'
+  en_n: 'sl_n - count(i < len(n): i < sl_n && all(m < len(n): m >= i && m < sl_n -> n[m] >= 9 && n[m] <= 13 || n[m] >= 28 && n[m] <= 32 || n[m] == 133 || n[m] == 160))'
+  bd_n: 'sl_n + 1 + count(i < len(n): i > sl_n && all(m < len(n): m > sl_n && m <= i -> n[m] >= 9 && n[m] <= 13 || n[m] >= 28 && n[m] <= 32 || n[m] == 133 || n[m] == 160))'
+  ed_n: 'len(n) - count(i < len(n): i > sl_n && all(m < len(n): m >= i -> n[m] >= 9 && n[m] <= 13 || n[m] >= 28 && n[m] <= 32 || n[m] == 133 || n[m] == 160))'
+  # pnum_s / pden_s: an optional "+", then digits with single underscores between digits, some digit not 0.
+  pnum_x: 'any(i < len(x): bn_x <= i && i < en_x && isdigit(x[i]) && x[i] != "0") && all(i < len(x): bn_x <= i && i < en_x -> isdigit(x[i]) || x[i] == "_" && isdigit(x[i - 1]) && isdigit(x[i + 1]) || x[i] == "+" && i == bn_x)'
+  pden_x: 'any(i < len(x): bd_x <= i && i < ed_x && isdigit(x[i]) && x[i] != "0") && all(i < len(x): bd_x <= i && i < ed_x -> isdigit(x[i]) || x[i] == "_" && isdigit(x[i - 1]) && isdigit(x[i + 1]) || x[i] == "+" && i == bd_x)'
+  pnum_n: 'any(i < len(n): bn_n <= i && i < en_n && isdigit(n[i]) && n[i] != "0") && all(i < len(n): bn_n <= i && i < en_n -> isdigit(n[i]) || n[i] == "_" && isdigit(n[i - 1]) && isdigit(n[i + 1]) || n[i] == "+" && i == bn_n)'
+  pden_n: 'any(i < len(n): bd_n <= i && i < ed_n && isdigit(n[i]) && n[i] != "0") && all(i < len(n): bd_n <= i && i < ed_n -> isdigit(n[i]) || n[i] == "_" && isdigit(n[i - 1]) && isdigit(n[i + 1]) || n[i] == "+" && i == bd_n)'
+  # zden_s: the denominator is zero in int() notation: an optional sign, then zeros with single underscores.
+  zden_x: 'any(i < len(x): bd_x <= i && i < ed_x && isdigit(x[i])) && all(i < len(x): bd_x <= i && i < ed_x -> x[i] == "0" || x[i] == "_" && isdigit(x[i - 1]) && isdigit(x[i + 1]) || (x[i] == "+" || x[i] == "-") && i == bd_x)'
+  zden_n: 'any(i < len(n): bd_n <= i && i < ed_n && isdigit(n[i])) && all(i < len(n): bd_n <= i && i < ed_n -> n[i] == "0" || n[i] == "_" && isdigit(n[i - 1]) && isdigit(n[i + 1]) || (n[i] == "+" || n[i] == "-") && i == bd_n)'
+  # R-IN-5, forced reading 2 of "valid fractions" (well-formed, zero numerator allowed), and R-IN-6 (no zero denominator).
+  valid: 'fmt_x && fmt_n && !zden_x && !zden_n'
+  # R-DEF-1, forced reading 2 of "x * n": the Python expression on the two str arguments. It raises
+  # TypeError, so it never evaluates to a number, whole or not.
+  xn_whole: 'false'
+properties:
+  - id: RV-FN-1
+    req: R-FN-1
+    pattern: implies
+    args:
+      trigger: 'valid'
+      cond: 'outcome == 2'
+    note: >-
+      Forced reading 2 of 'simplify the expression x * n': the function must produce the simplified
+      product (for example a reduced fraction), not a bool. The trace records only that a call returned
+      a value that is not a bool (outcome 2), not the value itself, so this item checks only that. It
+      applies to valid calls: both arguments are well-formed fractions in the R-IN-2 format (forced
+      reading 2 of '<numerator>/<denominator>': digits, one '/', digits, leading zeros allowed), zero
+      numerators included (forced reading 2 of 'valid fractions', R-IN-5), and neither has a zero
+      denominator (R-IN-6). Under forced reading 2 of 'x * n' (R-DEF-1: the Python expression on the two
+      str arguments, which raises TypeError) the expression has no value, so the content of the
+      'simplified product' is undefined. This item does not depend on that content. As the forced
+      readings of 'returns True if ...' (R-RET-1) and 'False otherwise' (R-RET-2) state, this
+      contradicts R-RET-1 and R-RET-2, which require a True/False answer. The contradiction is not
+      repaired. It shows against the examples RV-EX-1 to RV-EX-3, which return bools on valid calls, and
+      against RV-IN-3, which must reject zero numerators such as '0/1'. It does not show against
+      RV-RET-1 or RV-RET-2: under their truthy/falsy readings outcome 2 is allowed, because the trace
+      cannot tell a truthy non-bool from a falsy one.
+  - id: RV-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: 'valid && xn_whole'
+      cond: 'outcome == 0 && result || outcome == 2'
+    note: >-
+      Forced reading 2 of 'x * n' (R-DEF-1, on which R-RET-1 depends): x * n is the Python expression
+      applied to the two str arguments. It raises TypeError, so it never evaluates to anything, and
+      xn_whole is false. This item therefore never triggers and constrains nothing. The other forced
+      readings of R-RET-1 are applied but have no effect under that one. 'whole number' (reading 2)
+      means a positive integer, so 0 would not count. 'evaluates to' (reading 2) means the product
+      computed in floating point is integral. That presupposes a numeric product, which the R-DEF-1
+      reading does not provide. 'returns True' (reading 2) means any truthy value, written as: returns
+      True (outcome 0, result) or returns a non-bool (outcome 2). This over-approximates, because the
+      trace records a non-bool return without its value. 'returns True if x * n evaluates to a whole
+      number' (reading 2) contradicts R-FN-1's forced reading (the simplified product, not a bool). The
+      contradiction is not repaired, but because this item never triggers it cannot show here.
+  - id: RV-RET-2
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: '!(valid && xn_whole)'
+      cond: 'outcome == 0 && !result || outcome == 2'
+    note: >-
+      Forced reading 2 of 'otherwise': every case other than R-RET-1's, including arguments that are not
+      valid fractions, and the call must not raise. Forced reading 2 of 'False': any falsy value,
+      written as: returns False (outcome 0, not result) or returns a non-bool (outcome 2). This
+      over-approximates, because the trace does not record whether a non-bool return is falsy. Forced
+      reading 2 of 'False otherwise': this contradicts R-FN-1's forced reading (the simplified product,
+      not a bool). The contradiction is not repaired. Forced reading 2 of 'x * n' (R-DEF-1): x * n (str *
+      str) raises TypeError and never evaluates to a whole number, so 'otherwise' covers every call. The
+      trigger is always true: every call must return a falsy value and must not raise. This contradicts
+      RV-EX-1 (simplify("1/5", "5/1") = True). The forced readings of 'whole number' and 'evaluates to'
+      (R-RET-1) would shape this complement only if R-RET-1's condition could hold.
+  - id: RV-IN-2
+    req: R-IN-2
+    pattern: implies
+    args:
+      trigger: '!(fmt_x && fmt_n)'
+      cond: 'outcome == 1 || outcome == 0 && !result'
+    note: >-
+      Forced reading 2 of '<numerator>/<denominator>': decimal digits, a single '/', decimal digits, with
+      leading zeros allowed (such as '05/1') and no signs or spaces. Forced reading 2 of 'have the
+      following format': an obligation on the function, not a promise by the caller. For an argument of
+      any other form, the function must reject it: raise or return False. So this is a property, not an
+      assumption. Positivity of the numerator and denominator is left to RV-IN-3 and RV-IN-4. RV-RET-2
+      and RV-IN-5 also forbid raising on these calls.
+  - id: RV-IN-3
+    req: R-IN-3
+    pattern: implies
+    args:
+      trigger: 'nsl_x == 1 && !pnum_x || nsl_n == 1 && !pnum_n'
+      cond: 'outcome == 1 || outcome == 0 && !result'
+    note: >-
+      Forced reading 2 of 'positive whole numbers': an integer of at least 1 in any notation Python int()
+      accepts. That notation allows surrounding whitespace (codes 9-13, 28-32, 133, 160, as
+      str.isspace), an optional '+', and decimal digits with leading zeros and single underscores
+      between digits. The value is at least 1 when some digit is not 0. The numerator is the text before
+      the '/' of an argument with exactly one '/'. This 'where ...' clause belongs to the format
+      sentence, which forced reading 2 of 'have the following format' (R-IN-2) makes an obligation on
+      the function. So it is stated as a property: when the numerator is not such a number, the call
+      must be rejected (raise or return False). It is not an assumption, because an assumption would
+      exempt from every check the calls that the forced readings of R-IN-2, R-IN-5 and R-RET-2
+      constrain. The int() notation adds no rejection beyond RV-IN-2, which already rejects signs and
+      spaces; it only narrows this item. This item conflicts with RV-FN-1 on zero numerators such as
+      '0/1', which forced reading 2 of 'valid fractions' (R-IN-5) admits.
+  - id: RV-IN-4
+    req: R-IN-4
+    pattern: implies
+    args:
+      trigger: 'nsl_x == 1 && !pden_x || nsl_n == 1 && !pden_n'
+      cond: 'outcome == 1 || outcome == 0 && !result'
+    note: >-
+      Forced reading 2 of 'positive whole numbers': an integer of at least 1 in any notation Python int()
+      accepts. That notation allows surrounding whitespace (codes 9-13, 28-32, 133, 160, as
+      str.isspace), an optional '+', and decimal digits with leading zeros and single underscores
+      between digits. The value is at least 1 when some digit is not 0. The denominator is the text
+      after the '/' of an argument with exactly one '/'. This clause belongs to the format sentence,
+      which forced reading 2 of 'have the following format' (R-IN-2) makes an obligation on the
+      function. So it is stated as a property: when the denominator is not such a number, the call must
+      be rejected (raise or return False). It is not an assumption, because an assumption would exempt
+      the calls that the forced readings of R-IN-2, R-IN-5 and R-RET-2 constrain. A zero denominator is
+      also covered by RV-IN-6, which forbids raising.
+  - id: RV-IN-5
+    req: R-IN-5
+    pattern: implies
+    args:
+      trigger: '!(fmt_x && fmt_n)'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      Forced reading 2 of 'valid fractions': any well-formed fraction. Here that means the R-IN-2 format
+      (forced reading 2: digits, one '/', digits, leading zeros allowed), with a zero numerator allowed.
+      A zero denominator is left to RV-IN-6, because the sentence names it separately. Forced reading 2
+      of 'You can assume': this is not an assumption. The function must still behave sensibly on other
+      arguments, taken as the reading's own example: return False rather than raise (outcome 0, result
+      false).
+  - id: RV-IN-6
+    req: R-IN-6
+    pattern: implies
+    args:
+      trigger: 'nsl_x == 1 && zden_x || nsl_n == 1 && zden_n'
+      cond: 'outcome == 0 && !result'
+    note: >-
+      R-IN-6 has no flagged phrase. It is the second clause of the sentence governed by 'You can assume'
+      (R-IN-5), and forced reading 2 of that phrase makes it an obligation on the function, not the
+      caller. For an argument with exactly one '/' whose denominator is zero, the function must return
+      False rather than raise. Zero is read in the int() notation of forced reading 2 of 'positive whole
+      numbers' (R-IN-4), for example '1/0', '1/00', '1/ 0', '1/+0', '1/-0' or '1/0_0'.
+scenarios:
+  - id: RV-EX-1
+    req: R-EX-1
+    cover: 'x == "1/5" && n == "5/1" && outcome == 0 && result'
+    note: >-
+      The example's '= True' is taken literally as the bool True (outcome 0, result), not under the
+      truthy reading of R-RET-1's 'returns True'. Under the forced readings, RV-RET-2 and RV-FN-1
+      contradict this example. RV-RET-2 requires every call to return a falsy value, because under
+      forced reading 2 of 'x * n' (R-DEF-1) x * n never evaluates to a whole number. RV-FN-1 requires
+      this valid call to return the simplified product, not a bool (forced reading 2 of 'simplify the
+      expression x * n').
+  - id: RV-EX-2
+    req: R-EX-2
+    cover: 'x == "1/6" && n == "2/1" && outcome == 0 && !result'
+    note: >-
+      The example's '= False' is taken literally as the bool False (outcome 0, not result). RV-FN-1
+      contradicts it: under forced reading 2 of 'simplify the expression x * n', this valid call must
+      return the simplified product, not a bool.
+  - id: RV-EX-3
+    req: R-EX-3
+    cover: 'x == "7/10" && n == "10/2" && outcome == 0 && !result'
+    note: >-
+      The example's '= False' is taken literally as the bool False (outcome 0, not result). RV-FN-1
+      contradicts it: under forced reading 2 of 'simplify the expression x * n', this valid call must
+      return the simplified product, not a bool.
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Interface declaration. The adapter (design.yaml function section, frame.md) calls simplify(x, n)
+      with x first and n second, and every cycle of the trace is such a call, so there is no further
+      trace property to state.
+  - req: R-DEF-1
+    reason: >-
+      Definition, realized by the def xn_whole that RV-RET-1 and RV-RET-2 use. Forced reading 2 of 'x * n':
+      the Python expression x * n applied to the two str arguments, which raises TypeError. It never
+      evaluates to a number, let alone a whole number, so xn_whole is false. RV-RET-1 then never
+      triggers and RV-RET-2 applies to every call. RV-FN-1 does not use the product's value, which the
+      trace does not carry; its note records the effect there.
+    covered_by: [RV-RET-1, RV-RET-2]
+  - req: R-IN-1
+    reason: >-
+      The trace carries x and n as strings by construction (frame.md). R-IN-2 to R-IN-4 say what a
+      string representation of a fraction is. Under forced reading 2 of 'have the following format'
+      (R-IN-2) and of 'You can assume' (R-IN-5), conformance is an obligation on the function (reject,
+      or return False), realized by RV-IN-2 and RV-IN-5. It is not stated as an assumption, because an
+      assumption would remove from every check exactly the calls those readings constrain.
+    covered_by: [RV-IN-2, RV-IN-5]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml. It is part of every formalization set by construction
+      (frame.md) and need not be restated.
+    covered_by: [F-ZERO]
+decisions:
+  - {req: R-FN-1, phrase: 'simplify the expression x * n', reading: 2}
+  - {req: R-DEF-1, phrase: 'x * n', reading: 2}
+  - {req: R-RET-1, phrase: 'whole number', reading: 2}
+  - {req: R-RET-1, phrase: 'evaluates to', reading: 2}
+  - {req: R-RET-1, phrase: 'returns True', reading: 2}
+  - {req: R-RET-1, phrase: 'returns True if x * n evaluates to a whole number', reading: 2}
+  - {req: R-RET-2, phrase: 'otherwise', reading: 2}
+  - {req: R-RET-2, phrase: 'False', reading: 2}
+  - {req: R-RET-2, phrase: 'False otherwise', reading: 2}
+  - {req: R-IN-2, phrase: '<numerator>/<denominator>', reading: 2}
+  - {req: R-IN-2, phrase: 'have the following format', reading: 2}
+  - {req: R-IN-3, phrase: 'positive whole numbers', reading: 2}
+  - {req: R-IN-4, phrase: 'positive whole numbers', reading: 2}
+  - {req: R-IN-5, phrase: 'valid fractions', reading: 2}
+  - {req: R-IN-5, phrase: 'You can assume', reading: 2}

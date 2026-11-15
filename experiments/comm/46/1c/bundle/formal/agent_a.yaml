@@ -1,0 +1,140 @@
+fcp: "0.1"
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # FIB4[k] is fib4(k) for k = 0 .. 63: the base values fib4(0..3) = 0, 0, 2, 0 (R-BASE-1..4)
+  # extended by fib4(k) = fib4(k-1) + fib4(k-2) + fib4(k-3) + fib4(k-4) (R-REC-1).
+  # Every entry was checked twice: as the four-term sum and as 2*fib4(k-1) - fib4(k-5).
+  # fib4(63) = 132419948094134672 fits the 57-bit result (max 144115188075855871).
+  FIB4: "[0, 0, 2, 0, 2, 4, 8, 14, 28, 54, 104, 200, 386, 744, 1434, 2764, 5328, 10270, 19796, 38158,
+    73552, 141776, 273282, 526768, 1015378, 1957204, 3772632, 7271982, 14017196, 27019014,
+    52080824, 100389016, 193506050, 372994904, 718970794, 1385860764, 2671332512, 5149158974,
+    9925323044, 19131675294, 36877489824, 71083647136, 137018135298, 264110947552, 509090219810,
+    981302949796, 1891522252456, 3646026369614, 7027941791676, 13546793363542, 26112283777288,
+    50333045302120, 97020064234626, 187012186677576, 360477579991610, 694842876205932,
+    1339352707109744, 2581685349984862, 4976358513292148, 9592239446592686, 18489636016979440,
+    35639919326849136, 68698153303713410, 132419948094134672]"
+
+properties:
+  - id: RA-BASE-1
+    req: R-BASE-1
+    pattern: implies
+    args: {trigger: "n == 0", cond: "outcome == 0 && result == 0"}
+    note: "'fib4(0) -> 0' read as: the call returns the integer 0 (outcome 0), not merely a result signal of 0, which an exception would also give."
+  - id: RA-BASE-2
+    req: R-BASE-2
+    pattern: implies
+    args: {trigger: "n == 1", cond: "outcome == 0 && result == 0"}
+    note: "'fib4(1) -> 0': the call returns the integer 0 (outcome 0)."
+  - id: RA-BASE-3
+    req: R-BASE-3
+    pattern: implies
+    args: {trigger: "n == 2", cond: "outcome == 0 && result == 2"}
+    note: "'fib4(2) -> 2': the call returns the integer 2 (outcome 0)."
+  - id: RA-BASE-4
+    req: R-BASE-4
+    pattern: implies
+    args: {trigger: "n == 3", cond: "outcome == 0 && result == 0"}
+    note: "'fib4(3) -> 0': the call returns the integer 0 (outcome 0)."
+  - id: RA-REC-1
+    req: R-REC-1
+    pattern: implies
+    args:
+      trigger: "n >= 4"
+      cond: "outcome == 0 && result == FIB4[n - 1] + FIB4[n - 2] + FIB4[n - 3] + FIB4[n - 4]"
+    note: >-
+      For every n >= 4 the call returns the sum of the four preceding sequence elements, which FIB4
+      tabulates from the base values and this same recurrence. Calls are independent and arrive in any
+      order, so the recurrence is stated against the sequence (FIB4), not against the results of other
+      calls. Reading 1 of 'fib4(n)': the recurrence covers n >= 4 only; negative n is not part of the
+      trace, so the readings agree on it. CONTRADICTION: the docstring examples say fib4(5) = 0,
+      fib4(6) = 0, fib4(7) = 2, but the base values and the recurrence give 4, 8, 14. Reading 1 taken:
+      the definition is authoritative, because the prompt says the sequence is 'defined as follows' and
+      the examples cannot be squared with the recurrence at n = 5 and n = 6. Under reading 2 this
+      property would fail at n = 5 and n = 6.
+  - id: RA-FN-1-INT
+    req: R-FN-1
+    expr: "outcome == 0"
+    note: >-
+      Reading 1 of 'compute': fib4 returns the element as a Python int that fits result. It does not
+      raise, time out or return another type, for any n in the trace (0 .. 63); every element up to
+      fib4(63) fits the 57-bit result.
+  - id: RA-FN-1-VAL
+    req: R-FN-1
+    expr: "result == FIB4[n]"
+    note: >-
+      Reading 1 of 'the n-th element': the element at index n counting from 0, the index of the base
+      values fib4(0) .. fib4(3). Together with RA-FN-1-INT this pins the returned value for every n.
+
+scenarios:
+  - id: RA-EX-1
+    req: R-EX-1
+    cover: "n == 5 && outcome == 0 && result == 4"
+    note: >-
+      CONTRADICTION with R-REC-1: the doctest shows fib4(5) -> 0, but fib4(5) = fib4(4) + fib4(3) +
+      fib4(2) + fib4(1) = 2 + 0 + 2 + 0 = 4. Reading 1 taken (the example is wrong): what must be
+      possible is the call fib4(5) returning 4. The example's literal value 0 is not formalized; a cover
+      of result == 0 at n = 5 would be unreachable under RA-REC-1 and RA-FN-1-VAL.
+  - id: RA-EX-2
+    req: R-EX-2
+    cover: "n == 6 && outcome == 0 && result == 8"
+    note: >-
+      CONTRADICTION with R-REC-1: the doctest shows fib4(6) -> 0, but fib4(6) = 4 + 2 + 0 + 2 = 8.
+      Reading 1 taken (the example is wrong): what must be possible is the call fib4(6) returning 8.
+      The literal value 0 is not formalized.
+  - id: RA-EX-3
+    req: R-EX-3
+    cover: "n == 7 && outcome == 0 && result == 14"
+    note: >-
+      CONTRADICTION with R-REC-1: the doctest shows fib4(7) -> 2, but fib4(7) = 8 + 4 + 2 + 0 = 14.
+      (2 is what the recurrence gives at n = 7 if fib4(5) = fib4(6) = 0, as the other two examples say.)
+      Reading 1 taken (the example is wrong): what must be possible is the call fib4(7) returning 14.
+      The literal value 2 is not formalized.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      The deliverable (a completed function body keeping the name and signature) is a property of the
+      source code, not of any call. The adapter calls fib4(n), so code without that name and signature
+      does not produce a trace at all.
+  - req: R-IF-1
+    reason: >-
+      Interface definition, realized by design.yaml (function fib4 with the single argument n driving
+      the input n). It places no constraint on the values of a call.
+  - req: R-ENV-1
+    reason: >-
+      Reading 1 of 'n: int': the caller passes any Python int; nothing more is promised. The encoding
+      already makes n an integer (6 bits, 0 .. 63), and negative or larger arguments are not part of the
+      trace, so no environment assumption is left to state.
+  - req: R-DEF-1
+    reason: >-
+      Definition of the sequence. It is realized by the def FIB4 (the base values extended by the
+      recurrence) and by the properties for the base values and the recurrence.
+    covered_by: [RA-BASE-1, RA-BASE-2, RA-BASE-3, RA-BASE-4, RA-REC-1]
+  - req: R-NF-1
+    reason: >-
+      Reading 2 of 'efficiently': time linear in n, with no bound on memory (the prompt names no memory
+      limit). Running time and memory are not visible in a trace of calls. The only trace-visible
+      consequence, a call that does not finish (outcome 1), is excluded by RA-FN-1-INT.
+  - req: R-NF-2
+    reason: >-
+      Reading 2 of 'recursion': no recursion of any kind (direct, mutual, through helpers or memoized).
+      How the code is structured is not visible in a trace of calls; it needs a review of the source.
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO (design.yaml frame), which is added to every formalization set by construction
+      and, per frame.md, need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-ENV-1, phrase: "n: int", reading: 1}
+  - {req: R-REC-1, phrase: "fib4(n)", reading: 1}
+  - {req: R-REC-1, phrase: "fib4(n) -> fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4)", reading: 1}
+  - {req: R-FN-1, phrase: "the n-th element", reading: 1}
+  - {req: R-FN-1, phrase: "compute", reading: 1}
+  - {req: R-NF-1, phrase: "efficiently", reading: 2}
+  - {req: R-NF-2, phrase: "recursion", reading: 2}
+  - {req: R-EX-1, phrase: ">>> fib4(5) 0", reading: 1}
+  - {req: R-EX-2, phrase: ">>> fib4(6) 0", reading: 1}
+  - {req: R-EX-3, phrase: ">>> fib4(7) 2", reading: 1}

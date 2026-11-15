@@ -1,0 +1,1 @@
+15 items (10 properties, 5 scenarios), 10 ghosts plus rigids over orders and amounts. Predicted that its first-turn button scenario PB-S-BTN-1 is inconsistent (R-END-1 vs R-HUM-1 and R-BIG-1). Same workspace defect and symlink as agent_a.

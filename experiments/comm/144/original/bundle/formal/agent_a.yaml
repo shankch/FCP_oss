@@ -1,0 +1,115 @@
+fcp: '0.1'
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+defs:
+  # powers of ten, p10[k] = 10^k (a string of at most 12 digits needs k <= 11)
+  p10: '[1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000]'
+  # position of the first "/" (the length of the string when there is none)
+  sx: 'count(i < len(x): all(j < i + 1: x[j] != "/"))'
+  sn: 'count(i < len(n): all(j < i + 1: n[j] != "/"))'
+  # decimal value of the characters before the first "/" (numerator) and after it (denominator)
+  nx: 'sum(i < len(x): i < sx ? (x[i] - "0") * p10[sx - 1 - i] : 0)'
+  dx: 'sum(i < len(x): i > sx ? (x[i] - "0") * p10[len(x) - 1 - i] : 0)'
+  nn: 'sum(i < len(n): i < sn ? (n[i] - "0") * p10[sn - 1 - i] : 0)'
+  dn: 'sum(i < len(n): i > sn ? (n[i] - "0") * p10[len(n) - 1 - i] : 0)'
+  # <numerator>/<denominator>: two decimal digit strings around a single "/", no leading zeros
+  fx: 'count(i < len(x): x[i] == "/") == 1 && all(i < len(x): x[i] == "/" || isdigit(x[i])) && sx >= 1 && sx + 1 < len(x) && !(sx > 1 && x[0] == "0") && !(len(x) - sx > 2 && x[sx + 1] == "0")'
+  fn: 'count(i < len(n): n[i] == "/") == 1 && all(i < len(n): n[i] == "/" || isdigit(n[i])) && sn >= 1 && sn + 1 < len(n) && !(sn > 1 && n[0] == "0") && !(len(n) - sn > 2 && n[sn + 1] == "0")'
+  # valid fraction: the format with a positive numerator and a positive denominator
+  vx: 'fx && nx >= 1 && dx >= 1'
+  vn: 'fn && nn >= 1 && dn >= 1'
+  ok_true: 'outcome == 0 && result'
+  ok_false: 'outcome == 0 && !result'
+
+rigids:
+  # a whole number; a valid numerator has at most 10 digits, so x * n < 10^20
+  - {name: q, range: [0, 100000000000000000000]}
+
+assumptions:
+  - id: RA-IN-2
+    req: R-IN-2
+    expr: 'fx && fn'
+    note: 'Reading 1 of "<numerator>/<denominator>": exactly one "/", a non-empty decimal digit string on each side, nothing else, no leading zero (a lone "0" is not a leading zero; zero is excluded by R-IN-3/R-IN-4/R-IN-6). The text does not mention leading zeros, spaces or signs; the literal decimal numeral was taken. Reading 1 of "have the following format": a promise by the caller, hence an assumption.'
+  - id: RA-IN-3
+    req: R-IN-3
+    expr: 'all(i < sx: isdigit(x[i])) && nx >= 1 && all(i < sn: isdigit(n[i])) && nn >= 1'
+    note: 'Reading 1 of "positive whole numbers": the numerator (the characters before the "/") is written in decimal digits and its value is at least 1.'
+  - id: RA-IN-4
+    req: R-IN-4
+    expr: 'all(i < len(x): i > sx -> isdigit(x[i])) && dx >= 1 && all(i < len(n): i > sn -> isdigit(n[i])) && dn >= 1'
+    note: 'Reading 1 of "positive whole numbers": the denominator (the characters after the "/") is written in decimal digits and its value is at least 1, so a string without "/" (empty denominator, value 0) is excluded.'
+  - id: RA-IN-5
+    req: R-IN-5
+    expr: 'vx && vn'
+    note: 'Reading 1 of "valid fractions": the format of R-IN-2 with a positive numerator and denominator (R-IN-3, R-IN-4); fractions need not be in lowest terms (the example "10/2" is not). Reading 1 of "You can assume": an environment promise; the outputs on other arguments are left free (RA-DC-RES, RA-DC-OUT).'
+  - id: RA-IN-6
+    req: R-IN-6
+    expr: 'dx != 0 && dn != 0'
+    note: 'Implied by R-IN-4 (denominator at least 1); stated on its own because the text states it on its own.'
+
+properties:
+  - id: RA-RET-1
+    req: R-RET-1
+    pattern: implies
+    args:
+      trigger: 'vx && vn && nx * nn == q * dx * dn'
+      cond: 'ok_true'
+    note: 'x * n = (nx * nn) / (dx * dn) exactly (R-DEF-1 reading 1, "evaluates to" reading 1: exact rational arithmetic). With q universally quantified, the property says: if the product equals some whole number q, the call returns True. "whole number" reading 1 (q >= 0); on valid inputs the product is positive, so readings 1-3 agree. "returns True" reading 1: the bool True (outcome 0, result 1). The text conditions on valid inputs, so validity is part of the trigger.'
+  - id: RA-RET-2
+    req: R-RET-2
+    pattern: implies
+    args:
+      trigger: 'vx && vn && q * dx * dn < nx * nn && nx * nn < (q + 1) * dx * dn'
+      cond: 'ok_false'
+    note: 'Not a whole number = the product lies strictly between some whole number q and q + 1 (dx * dn >= 1 on valid inputs). "otherwise" reading 1: only valid inputs whose product is not whole; invalid inputs are left free. "False" reading 1: the bool False (outcome 0, result 0).'
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: 'x == "1/5" && n == "5/1"', cond: 'ok_true'}
+    note: 'The docstring states the returned value of this call, so it is a property as well as a scenario (RA-EX-1-S).'
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: 'x == "1/6" && n == "2/1"', cond: 'ok_false'}
+    note: 'The docstring states the returned value of this call, so it is a property as well as a scenario (RA-EX-2-S).'
+  - id: RA-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: 'x == "7/10" && n == "10/2"', cond: 'ok_false'}
+    note: 'The docstring states the returned value of this call, so it is a property as well as a scenario (RA-EX-3-S).'
+
+scenarios:
+  - {id: RA-EX-1-S, req: R-EX-1, cover: 'x == "1/5" && n == "5/1" && ok_true'}
+  - {id: RA-EX-2-S, req: R-EX-2, cover: 'x == "1/6" && n == "2/1" && ok_false'}
+  - {id: RA-EX-3-S, req: R-EX-3, cover: 'x == "7/10" && n == "10/2" && ok_false'}
+
+dont_cares:
+  - {id: RA-DC-RES, req: R-IN-5, signal: result, when: '!(vx && vn)',
+     note: '"You can assume" reading 1 (and "otherwise" reading 1 of R-RET-2): any answer or exception on arguments that are not valid fractions.'}
+  - {id: RA-DC-OUT, req: R-IN-5, signal: outcome, when: '!(vx && vn)',
+     note: '"You can assume" reading 1 (and "otherwise" reading 1 of R-RET-2): any answer or exception on arguments that are not valid fractions.'}
+
+unformalized:
+  - {req: R-IF-1, reason: 'Name and parameter order of the Python function: an interface fact fixed by the function section of design.yaml, not a property of a trace.'}
+  - {req: R-FN-1, reason: 'Statement of purpose; its observable obligation is the True/False answer.', covered_by: [RA-RET-1, RA-RET-2]}
+  - {req: R-DEF-1, reason: 'Definition of x * n as the product of the two fractions; realized by the defs nx, dx, nn, dn used in the return properties.', covered_by: [RA-RET-1, RA-RET-2]}
+  - {req: R-IN-1, reason: 'What a string representing a fraction is, is given by the format (R-IN-2) and validity (R-IN-5); that the arguments are strings is the signal type.', covered_by: [RA-IN-2, RA-IN-5]}
+  - {req: R-FR-1, reason: 'Frame rule of the function adapter, added to every formalization set from design.yaml.', covered_by: [F-ZERO]}
+
+decisions:
+  - {req: R-FN-1, phrase: 'simplify the expression x * n', reading: 1}
+  - {req: R-DEF-1, phrase: 'x * n', reading: 1}
+  - {req: R-RET-1, phrase: 'whole number', reading: 1}
+  - {req: R-RET-1, phrase: 'evaluates to', reading: 1}
+  - {req: R-RET-1, phrase: 'returns True', reading: 1}
+  - {req: R-RET-1, phrase: 'returns True if x * n evaluates to a whole number', reading: 1}
+  - {req: R-RET-2, phrase: 'otherwise', reading: 1}
+  - {req: R-RET-2, phrase: 'False', reading: 1}
+  - {req: R-RET-2, phrase: 'False otherwise', reading: 1}
+  - {req: R-IN-2, phrase: '<numerator>/<denominator>', reading: 1}
+  - {req: R-IN-2, phrase: 'have the following format', reading: 1}
+  - {req: R-IN-3, phrase: 'positive whole numbers', reading: 1}
+  - {req: R-IN-4, phrase: 'positive whole numbers', reading: 1}
+  - {req: R-IN-5, phrase: 'valid fractions', reading: 1}
+  - {req: R-IN-5, phrase: 'You can assume', reading: 1}

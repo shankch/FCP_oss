@@ -1,0 +1,75 @@
+fcp: '0.1'
+design: code_save
+summary: A Python function that works on files. A reset starts a run of save_balance(cents); every later cycle is one call the function makes on open, the file object open returned, os.fsync, os.replace or os.remove, all stand-ins that record and touch no disk, with os.replace's scripted answer as an input, and then the return. The prompt is the specification, and code written by AI models is checked by running it against every script of answers in the scope.
+docs:
+- {id: SPEC, path: spec.md, title: 'Prompt P-SAVE-1: Fernwood ledger balance file'}
+- {id: FRAME, path: frame.md, title: 'FCP file adapter, version 0.6'}
+interface:
+  clock: clk
+  reset: {name: rst_n, active_low: true, synchronous: true}
+  signals:
+  - {name: clk, dir: in, width: 1}
+  - {name: rst_n, dir: in, width: 1}
+  - {name: cents, dir: in, width: 27, desc: 'cents argument, held through the run'}
+  - {name: answer, dir: in, width: 1, desc: 'at os.replace: 1 the script made it raise OSError, 0 otherwise'}
+  - {name: phase, dir: out, width: 1, desc: '0 a call, 1 returned'}
+  - {name: op, dir: out, width: 3, desc: 'the call: 1 open, 2 write, 3 flush, 4 close, 5 os.fsync, 6 os.replace, 7 os.remove'}
+  - {name: of, dir: out, width: 3, desc: 'the file object open made, or write, flush and close called (1 the first of the run)'}
+  - {name: o_path, dir: out, width: 2, desc: 'open: 1 balance.txt, 2 balance.txt.tmp, 0 any other path'}
+  - {name: o_mode, dir: out, width: 3, desc: 'open: 1 read, 2 write, 3 append, 4 create, 0 other'}
+  - {name: w_value, dir: out, width: 27, desc: 'write: the number the text spells in decimal digits, 0 if none'}
+  - {name: s_handle, dir: out, width: 3, desc: 'os.fsync: the file object synced'}
+  - {name: r_src, dir: out, width: 2, desc: 'os.replace: its first argument, coded as o_path'}
+  - {name: r_dst, dir: out, width: 2, desc: 'os.replace: its second argument, coded as o_path'}
+  - {name: d_path, dir: out, width: 2, desc: 'os.remove: its argument, coded as o_path'}
+  - {name: outcome, dir: out, width: 2, desc: 'once returned: 0 returned a bool, 1 ValueError, 2 other exception or no answer, 3 anything else'}
+  - {name: result, dir: out, width: 1, desc: 'the returned value'}
+environment: {initial_reset: true, reset_anytime: true, bmc_depth: 12, cover_depth: 12}
+frame:
+- {id: F-END, req: R-FR-1, expr: 'prev(phase) -> phase && stable(outcome) && stable(result)'}
+- {id: F-ZERO, req: R-FR-2, expr: '(!phase -> outcome == 0 && !result) && (phase -> op == 0) && (outcome != 0 -> !result)'}
+- {id: F-LIMIT, req: R-FR-3, expr: 'phase || !(prev(!phase) && prev(!phase, 2) && prev(!phase, 3) && prev(!phase, 4) && prev(!phase, 5) && prev(!phase, 6) && prev(!phase, 7) && prev(!phase, 8) && prev(!phase, 9) && prev(!phase, 10))'}
+function:
+  name: save_balance
+  args:
+  - {name: cents, signal: cents, type: int}
+  interface:
+    position: null
+    methods:
+    - name: open
+      op: 1
+      patch: [builtins.open, io.open]
+      handle: true
+      var: f
+      fs: open
+      args:
+      - {name: file, signal: o_path, enum: [balance.txt, balance.txt.tmp]}
+      - {name: mode, signal: o_mode, open_mode: true, default: r}
+    - {name: write, op: 2, via: open, args: [{name: s, signal: w_value, parse: int}]}
+    - {name: flush, op: 3, via: open}
+    - {name: close, op: 4, via: open}
+    - {name: fsync, op: 5, patch: os.fsync, args: [{name: fd, signal: s_handle, handle: true}]}
+    - name: replace
+      op: 6
+      patch: os.replace
+      fs: move
+      args:
+      - {name: src, signal: r_src, enum: [balance.txt, balance.txt.tmp]}
+      - {name: dst, signal: r_dst, enum: [balance.txt, balance.txt.tmp]}
+      answers: [ok, fail]
+      raises: {fail: OSError}
+    - name: remove
+      op: 7
+      patch: [os.remove, os.unlink]
+      fs: remove
+      args: [{name: path, signal: d_path, enum: [balance.txt, balance.txt.tmp]}]
+    signals: {phase: phase, op: op, answer: answer, handle: of}
+    files:
+      exists: [balance.txt]
+      query: [os.path.exists, os.path.isfile, os.path.lexists, pathlib.Path.exists, pathlib.Path.is_file]
+    max_calls: 10
+  returns: {signal: result, type: bool}
+  outcome: {signal: outcome, raises: [ValueError]}
+  scope:
+    script: {length: 4, random: 100}
+    cents: {values: [0, 1, 1250, 99999999, 100000000, 100000001, 134217727]}

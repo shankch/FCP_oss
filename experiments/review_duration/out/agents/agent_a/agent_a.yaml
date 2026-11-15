@@ -1,0 +1,249 @@
+fcp: '0.1'
+set: agent_a
+origin: {kind: agent, role: formalizer, id: agent_a}
+
+# Readings chosen (each also stated in the note of the items that depend on it):
+#  - a "whole number" is a non-empty run of the ASCII digits 0-9, no sign, leading
+#    zeros allowed, valued as the integer its digits denote ("007s" is 7 seconds);
+#  - the units are the lowercase letters h, m, s only;
+#  - "in the order h, m, s" is the relative order of the units present (a unit may
+#    be skipped: "1h5s" is valid);
+#  - "between 1 and 99" is inclusive and applies to every unit (no clock limit);
+#  - "Spaces" is the space character (code 32);
+#  - "A duration is never longer than one day" is part of what a duration is: a
+#    text over 86400 seconds is not a duration and raises ValueError.
+# A part ends at position u when text[u] is a unit letter and text[u-1] is a digit;
+# its number is the maximal run of digits before u. The codes of h, m, s are
+# increasing (104 < 109 < 115), so "units in the order h, m, s, each at most once"
+# is "the unit codes are strictly increasing".
+defs:
+  # every character is a digit or a unit letter
+  only_digits_units: 'all(i < len(text): isdigit(text[i]) || text[i] == "h" || text[i] == "m" || text[i] == "s")'
+  # the text is not empty and its last character is not a digit (with only_digits_units: it is a unit)
+  ends_with_unit: 'len(text) >= 1 && !isdigit(text[len(text) - 1])'
+  # every unit letter is immediately preceded by a digit (no unit without a number)
+  units_have_number: 'all(i < len(text): (text[i] == "h" || text[i] == "m" || text[i] == "s") -> isdigit(text[i - 1]))'
+  # the unit letters appear in strictly increasing order h < m < s (each at most once, in order)
+  units_increasing: 'all(i < len(text): all(j < i: ((text[j] == "h" || text[j] == "m" || text[j] == "s") && (text[i] == "h" || text[i] == "m" || text[i] == "s")) -> text[j] < text[i]))'
+  # some part has number 0: a unit preceded by a digit run made only of zeros
+  zero_part: 'any(u < len(text): (text[u] == "h" || text[u] == "m" || text[u] == "s") && isdigit(text[u - 1]) && all(k < u: (isdigit(text[k]) && text[k] != "0") -> any(j < u: k < j && !isdigit(text[j]))))'
+  # some part has number above 99: a nonzero digit followed by at least two more digits, all before a unit
+  big_part: 'any(u < len(text): (text[u] == "h" || text[u] == "m" || text[u] == "s") && any(k < u: isdigit(text[k]) && text[k] != "0" && k + 3 <= u && all(j < u: k < j -> isdigit(text[j]))))'
+  # rules 1 to 4 of the request: one or more parts, number 1..99 + unit, each unit at most once in order h, m, s, nothing else (no spaces)
+  well_formed: 'ends_with_unit && only_digits_units && units_have_number && units_increasing && !zero_part && !big_part'
+  # the length in seconds of a well-formed text (meaningless otherwise): 3600 h + 60 m + s,
+  # each number being the last two digits of its run (any earlier digits of a well-formed run are 0)
+  total: 'sum(u < len(text): ((text[u] == "h") ? 3600 : ((text[u] == "m") ? 60 : ((text[u] == "s") ? 1 : 0))) * (isdigit(text[u - 1]) ? ((text[u - 1] - "0") + (isdigit(text[u - 2]) ? 10 * (text[u - 2] - "0") : 0)) : 0))'
+  # a duration: rules 1 to 4 and rule 6 (never longer than one day)
+  duration: 'well_formed && total <= 86400'
+
+properties:
+  - id: RA-CONV-1
+    req: R-CONV-1
+    pattern: implies
+    args:
+      trigger: 'duration'
+      cond: 'outcome == 0 && seconds == total'
+    note: >-
+      Every duration is converted to 3600 h + 60 m + s. Reading of "a duration": rules 1 to 4
+      AND rule 6, because the request itself says "A duration is never longer than one day",
+      so a text over 86400 seconds is not a duration and is not converted by this item.
+      The requirement text lists only rules 1 to 4; under that reading this item would
+      require "25h" to return 90000, which contradicts R-MAX-1 (RA-MAX-1a requires
+      ValueError). Other readings fixed here: whole number = ASCII digits, no sign,
+      leading zeros allowed ("01h" = 3600); lowercase units only; a unit may be skipped
+      ("1h5s" = 3605); numbers 1..99 inclusive for every unit ("1h90m" = 9000).
+
+  - id: RA-ERR-1
+    req: R-ERR-1
+    pattern: implies
+    args:
+      trigger: '!well_formed'
+      cond: 'outcome == 1'
+    note: >-
+      Every text that breaks rules 1 to 4 raises ValueError. Reading of "anything else":
+      anything that does not meet rules 1 to 4, which precede rule 5 (the requirement text
+      enumerates exactly these rules). A well-formed text longer than one day is not
+      covered here; RA-MAX-1a makes it raise ValueError, so together they say every
+      non-duration raises ValueError under either reading. Characters other than the
+      digits 0-9 and lowercase h, m, s (signs, uppercase units, tabs, non-ASCII digits)
+      make a text not well formed.
+
+  - id: RA-ERR-2
+    req: R-ERR-2
+    pattern: implies
+    args:
+      trigger: 'len(text) == 0'
+      cond: 'outcome == 1'
+
+  - id: RA-FMT-4
+    req: R-FMT-4
+    pattern: implies
+    args:
+      trigger: 'any(i < len(text): any(j < i: text[j] == text[i] && (text[i] == "h" || text[i] == "m" || text[i] == "s") && isdigit(text[i - 1]) && isdigit(text[j - 1])))'
+      cond: 'outcome == 1'
+    note: >-
+      Two parts (a digit immediately followed by a unit letter) end with the same unit
+      letter. Only units that end a part are counted, as the requirement says; a repeated
+      letter that ends no part makes the text ill-formed and is handled by RA-ERR-1.
+
+  - id: RA-FMT-5
+    req: R-FMT-5
+    pattern: implies
+    args:
+      trigger: 'any(i < len(text): any(j < i: text[j] > text[i] && (text[i] == "h" || text[i] == "m" || text[i] == "s") && (text[j] == "h" || text[j] == "m" || text[j] == "s") && isdigit(text[i - 1]) && isdigit(text[j - 1])))'
+      cond: 'outcome == 1'
+    note: >-
+      An earlier part ends with a later unit than a later part (s before m or h, m before
+      h; the codes of h, m, s are increasing). Reading of "in the order h, m, s": the
+      relative order of the units present; a unit may be skipped, so "1h5s" does not
+      trigger this item (see scenario RA-FMT-5s).
+
+  - id: RA-NUM-1
+    req: R-NUM-1
+    pattern: implies
+    args:
+      trigger: 'zero_part || big_part'
+      cond: 'outcome == 1'
+    note: >-
+      Some part (a maximal digit run followed by a unit letter) has number 0 (only zeros,
+      e.g. "0m", "00s") or above 99 (a nonzero digit followed by two more digits, e.g.
+      "100s", "0100s"). Readings: "between 1 and 99" is inclusive; leading zeros are
+      allowed and do not count ("007s" is 7). The clause "every number from 1 to 99 is
+      allowed for every unit" means no per-unit limit (no clock limit below 60); it is
+      realized by RA-CONV-1, whose duration admits 1..99 for every unit, and witnessed
+      by scenario RA-NUM-1s. It is not a promise that "99h" is accepted: that text is
+      longer than one day and R-MAX-1 rejects it (the request's rules 3 and 6 overlap
+      there, see RA-MAX-1a).
+
+  - id: RA-FMT-6
+    req: R-FMT-6
+    pattern: implies
+    args:
+      trigger: 'any(i < len(text): text[i] == " ")'
+      cond: 'outcome == 1'
+    note: >-
+      Reading of "Spaces": the space character (code 32), anywhere in the text (leading,
+      trailing, between or inside parts; no trimming). Other whitespace (tab, newline)
+      is rejected by RA-ERR-1 because it is not a digit or a unit.
+
+  - id: RA-MAX-1a
+    req: R-MAX-1
+    pattern: implies
+    args:
+      trigger: 'well_formed && total > 86400'
+      cond: 'outcome == 1'
+    note: >-
+      Reading: a validity rule. A text that meets rules 1 to 4 but totals more than one
+      day (86400 s), such as "25h" or "24h1s", is not a duration and raises ValueError.
+      The request's rule 3 admits numbers up to 99 for every unit, so up to "99h99m99s"
+      (362439 s); this item, not the number rule, rejects the texts above one day. Under
+      the alternative reading that R-CONV-1 converts every well-formed text, this item
+      and R-CONV-1 cannot both hold for "25h".
+
+  - id: RA-MAX-1b
+    req: R-MAX-1
+    pattern: implies
+    args:
+      trigger: 'outcome == 0'
+      cond: 'seconds <= 86400'
+    note: >-
+      "parse_duration never returns a value above 86400". A returned integer above
+      524287 shows as outcome 3 and is excluded by RA-IF-2.
+
+  - id: RA-IF-2
+    req: R-IF-2
+    pattern: invariant
+    args:
+      cond: 'outcome != 3'
+    note: >-
+      The trace does not separate "returned a non-int" from "returned an int outside 0 to
+      524287": both are outcome 3. This item excludes both, so on its own it is slightly
+      stronger than R-IF-2; every normal return required by the other items is an int in
+      1..86400, so in their context it says exactly R-IF-2.
+
+  - id: RA-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'text == "1h30m"'
+      cond: 'outcome == 0 && seconds == 5400'
+    note: >-
+      The example says what the call returns, and the function is deterministic, so it is
+      stated as a guarantee on every call with "1h30m" in addition to the scenario RA-EX-1s.
+
+  - id: RA-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'text == "45s"'
+      cond: 'outcome == 0 && seconds == 45'
+    note: >-
+      "45s" is given as a duration, which RA-CONV-1 converts to 45; stated as a guarantee
+      on every call with "45s" in addition to the scenario RA-EX-2s.
+
+scenarios:
+  - id: RA-EX-1s
+    req: R-EX-1
+    cover: 'text == "1h30m" && outcome == 0 && seconds == 5400'
+
+  - id: RA-EX-2s
+    req: R-EX-2
+    cover: 'text == "45s" && outcome == 0 && seconds == 45'
+
+  - id: RA-MAX-1s
+    req: R-MAX-1
+    cover: 'text == "24h" && outcome == 0 && seconds == 86400'
+    note: Exactly one day is not longer than one day and is accepted.
+
+  - id: RA-NUM-1s
+    req: R-NUM-1
+    cover: 'text == "1h99m99s" && outcome == 0 && seconds == 9639'
+    note: >-
+      Both bounds are inclusive (1 and 99 accepted) and 99 is accepted for minutes and
+      seconds after a larger unit (no clock limit).
+
+  - id: RA-FMT-5s
+    req: R-FMT-5
+    cover: 'text == "1h5s" && outcome == 0 && seconds == 3605'
+    note: Reading of the order rule in which a unit may be skipped.
+
+unformalized:
+  - req: R-NF-1
+    reason: >-
+      Non-functional: the deliverable is a Python function for a scheduling app. This is
+      realized by the function adapter (design.yaml `function` section, frame.md), not by
+      a property of the trace.
+  - req: R-IF-1
+    reason: >-
+      Interface: the name parse_duration and the single str parameter text are fixed by
+      the function adapter (design.yaml `function` section); a call that does not match
+      the signature produces no trace, so there is nothing to state on the trace.
+  - req: R-FMT-1
+    reason: >-
+      Definition. Realized by the def well_formed (ends_with_unit requires a non-empty
+      text ending in a part), used by the items listed; the empty string raises
+      ValueError by RA-ERR-1 and RA-ERR-2.
+    covered_by: [RA-CONV-1, RA-ERR-1, RA-ERR-2]
+  - req: R-FMT-2
+    reason: >-
+      Definition. Realized by the defs units_have_number, ends_with_unit,
+      only_digits_units and total, used by the items listed. Readings: a whole number is
+      a non-empty run of the ASCII digits 0-9 with no sign ("+1h" raises ValueError) and
+      leading zeros allowed, valued as the integer its digits denote ("01h" is 3600 s,
+      "007s" is 7 s, "0100s" is 100 and raises by RA-NUM-1). The spec does not say
+      whether leading zeros or signs are allowed; this is the most literal reading of
+      "a whole number".
+    covered_by: [RA-CONV-1, RA-ERR-1]
+  - req: R-FMT-3
+    reason: >-
+      Definition. Realized by the defs only_digits_units and total (h = 3600 s,
+      m = 60 s, s = 1 s), used by the items listed. Reading: only the lowercase letters
+      h, m, s, as written in the request ("1H30M" raises ValueError).
+    covered_by: [RA-CONV-1, RA-ERR-1]
+  - req: R-FR-1
+    reason: >-
+      Frame rule of the function adapter: it is design.yaml frame item F-ZERO
+      ('outcome != 0 -> seconds == 0'), which is added to every formalization set and
+      need not be restated (frame.md).
+    covered_by: [F-ZERO]

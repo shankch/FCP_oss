@@ -1,0 +1,250 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # fib4 at negative indices: not in the trace (n is 7 bits unsigned), fixed by running the
+  # recurrence backward from fib4(0..3) = 0, 0, 2, 0 (R-IN-2, reading 2)
+  fib4_m1: '-2'
+  fib4_m2: '4'
+  fib4_m3: '-2'
+  fib4_m4: '0'
+
+assumptions:
+- id: RV-IN-1
+  req: R-IN-1
+  expr: 'n >= 0'
+  note: >-
+    'n: int' is read as instructed (reading 2), even though "any integer" seems at least as
+    natural from the annotation alone: n is a non-negative integer only, since it indexes a
+    sequence that starts at fib4(0). This also matches the Fibonacci convention for the domain
+    of n, which applies under the instructed reading 2 of R-DEF-1 ("similar to the Fibbonacci
+    sequnece"). In the trace n is a 7-bit unsigned argument, so this assumption holds by
+    construction. The upper bound 127 comes from frame.md, not from the requirement.
+
+properties:
+- id: RV-BASE-1
+  req: R-BASE-1
+  pattern: implies
+  args: {trigger: 'n == 0', cond: 'outcome == 0 && result == 0'}
+  note: >-
+    Literal: "fib4(0) -> 0" is read as the integer the call returns. R-DEF-1 is read as
+    instructed (reading 2): the listed rules define the Fibonacci-like sequence that the Fib4
+    sequence is similar to. This item still states the rule about fib4 itself, as R-BASE-1
+    words it.
+
+- id: RV-BASE-2
+  req: R-BASE-2
+  pattern: implies
+  args: {trigger: 'n == 1', cond: 'outcome == 0 && result == 0'}
+  note: >-
+    Literal: "fib4(1) -> 0" is read as the integer the call returns. R-DEF-1 is read as
+    instructed (reading 2): the listed rules define the Fibonacci-like sequence that the Fib4
+    sequence is similar to. This item still states the rule about fib4 itself, as R-BASE-2
+    words it.
+
+- id: RV-BASE-3
+  req: R-BASE-3
+  pattern: implies
+  args: {trigger: 'n == 2', cond: 'outcome == 0 && result == 2'}
+  note: >-
+    "fib4(2) -> 2" is read as instructed (reading 2): an apparent contradiction with the
+    recurrence read for every n. If the terms before fib4(0) were 0, the recurrence would give
+    fib4(2) = 0 + 0 + 0 + 0 = 0. The stated value 2 is formalized literally and is not
+    overridden. The recurrence is also stated at n = 2 (RV-REC-3), with the terms before the
+    start fixed by running the recurrence backward (instructed reading 2 of R-IN-2:
+    fib4(-1) = -2, fib4(-2) = 4). That gives 0 + 0 - 2 + 4 = 2, so under the instructed readings
+    together the contradiction does not show up in the set. It would show up if the terms
+    before the start were taken as 0. R-DEF-1 is read as instructed (reading 2): the rules
+    define the Fibonacci-like sequence that Fib4 is similar to. This item still states the rule
+    about fib4 itself, as R-BASE-3 words it.
+
+- id: RV-BASE-4
+  req: R-BASE-4
+  pattern: implies
+  args: {trigger: 'n == 3', cond: 'outcome == 0 && result == 0'}
+  note: >-
+    "fib4(3) -> 0" is read as instructed (reading 2): an apparent contradiction with the
+    recurrence read for every n. If the terms before fib4(0) were 0, the recurrence would give
+    fib4(3) = 2 + 0 + 0 + 0 = 2. The stated value 0 is formalized literally and is not
+    overridden. The recurrence is also stated at n = 3 (RV-REC-2), with fib4(-1) = -2 from the
+    backward recurrence (instructed reading 2 of R-IN-2). That gives 2 + 0 + 0 - 2 = 0, so under
+    the instructed readings together the contradiction does not show up in the set. It would
+    show up if the terms before the start were taken as 0. R-DEF-1 is read as instructed
+    (reading 2): the rules define the Fibonacci-like sequence that Fib4 is similar to. This item
+    still states the rule about fib4 itself, as R-BASE-4 words it.
+
+- id: RV-REC-1
+  req: R-REC-1
+  pattern: implies
+  args:
+    trigger: >-
+      n >= 4 && prev(n) == n - 1 && prev(n, 2) == n - 2 && prev(n, 3) == n - 3 && prev(n, 4) == n - 4
+      && prev(outcome) == 0 && prev(outcome, 2) == 0 && prev(outcome, 3) == 0 && prev(outcome, 4) == 0
+    cond: 'outcome == 0 && result == prev(result) + prev(result, 2) + prev(result, 3) + prev(result, 4)'
+  note: >-
+    "fib4(n)" is read as instructed (reading 2): the recurrence holds for every n, not only
+    from n = 4. This item covers n >= 4; RV-REC-2..5 cover n = 3, 2, 1, 0. The recurrence is
+    stated as a direct relation between calls. The function is stateless and prev() is an
+    arbitrary earlier call, so the item constrains a call fib4(n) whose four preceding calls
+    were n-1, n-2, n-3, n-4 (in that order) and returned normally. The value is read as the
+    integer the call returns. R-DEF-1 is read as instructed (reading 2): the rules define the
+    Fibonacci-like sequence that Fib4 is similar to. This item still states the recurrence about
+    fib4 itself, as R-REC-1 words it.
+
+- id: RV-REC-2
+  req: R-REC-1
+  pattern: implies
+  args:
+    trigger: 'n == 3 && prev(n) == 2 && prev(n, 2) == 1 && prev(n, 3) == 0 && prev(outcome) == 0 && prev(outcome, 2) == 0 && prev(outcome, 3) == 0'
+    cond: 'outcome == 0 && result == prev(result) + prev(result, 2) + prev(result, 3) + fib4_m1'
+  note: >-
+    The n = 3 instance of the recurrence, which is read for every n as instructed (reading 2
+    of R-REC-1). fib4(-1) is outside the trace. Under the instructed reading 2 of R-IN-2 it is
+    fixed by running the recurrence backward, so fib4(-1) = -2 (fib4_m1). Together with
+    RV-BASE-1..4 this instance holds. With fib4(-1) = 0 it would require fib4(3) = 2, which is
+    the contradiction with "fib4(3) -> 0" named by the instructed reading 2 of R-BASE-4.
+
+- id: RV-REC-3
+  req: R-REC-1
+  pattern: implies
+  args:
+    trigger: 'n == 2 && prev(n) == 1 && prev(n, 2) == 0 && prev(outcome) == 0 && prev(outcome, 2) == 0'
+    cond: 'outcome == 0 && result == prev(result) + prev(result, 2) + fib4_m1 + fib4_m2'
+  note: >-
+    The n = 2 instance of the recurrence, which is read for every n as instructed (reading 2
+    of R-REC-1). fib4(-1) and fib4(-2) are outside the trace. Under the instructed reading 2 of
+    R-IN-2 they are fixed by running the recurrence backward: -2 and 4 (fib4_m1, fib4_m2).
+    Together with RV-BASE-1..4 this instance holds. With both terms 0 it would require
+    fib4(2) = 0, which is the contradiction with "fib4(2) -> 2" named by the instructed
+    reading 2 of R-BASE-3.
+
+- id: RV-REC-4
+  req: R-REC-1
+  pattern: implies
+  args:
+    trigger: 'n == 1 && prev(n) == 0 && prev(outcome) == 0'
+    cond: 'outcome == 0 && result == prev(result) + fib4_m1 + fib4_m2 + fib4_m3'
+  note: >-
+    The n = 1 instance of the recurrence, which is read for every n as instructed (reading 2
+    of R-REC-1). fib4(-1..-3) are outside the trace. Under the instructed reading 2 of R-IN-2
+    they are fixed by running the recurrence backward: -2, 4, -2 (sum 0). Taking them as 0 gives
+    the same constraint, fib4(1) = fib4(0).
+
+- id: RV-REC-5
+  req: R-REC-1
+  pattern: implies
+  args:
+    trigger: 'n == 0'
+    cond: 'outcome == 0 && result == fib4_m1 + fib4_m2 + fib4_m3 + fib4_m4'
+  note: >-
+    The n = 0 instance of the recurrence, which is read for every n as instructed (reading 2
+    of R-REC-1). Here all four terms are at negative indices. Under the instructed reading 2 of
+    R-IN-2 they are fixed by running the recurrence backward: -2, 4, -2, 0 (sum 0). Taking them
+    as 0 gives the same value. The recurrence at n = 0..3 is also what "defines values at
+    negative n" in that reading.
+
+scenarios:
+- id: RV-EX-1
+  req: R-EX-1
+  cover: 'n == 5 && outcome == 0 && result == 4'
+  note: >-
+    Doctest example. The function is deterministic and stateless, so if this behaviour is
+    possible on the code, then fib4(5) returns 4. The instructed reading 2 of R-FN-1 ("the
+    n-th element" counting from 1) would make the 5th element the value at index 4, which is 2.
+    That disagrees with this example. That reading is not formalized: under the instructed
+    "print" reading of "compute", R-FN-1 says nothing about the returned value.
+
+- id: RV-EX-2
+  req: R-EX-2
+  cover: 'n == 6 && outcome == 0 && result == 8'
+  note: >-
+    Doctest example. The function is deterministic and stateless, so if this behaviour is
+    possible on the code, then fib4(6) returns 8. The instructed counting-from-1 reading of
+    R-FN-1 would give the value at index 5, which is 4. That disagrees with this example and is
+    not formalized (see R-FN-1).
+
+- id: RV-EX-3
+  req: R-EX-3
+  cover: 'n == 7 && outcome == 0 && result == 14'
+  note: >-
+    Doctest example. The function is deterministic and stateless, so if this behaviour is
+    possible on the code, then fib4(7) returns 14. The instructed counting-from-1 reading of
+    R-FN-1 would give the value at index 6, which is 8. That disagrees with this example and is
+    not formalized (see R-FN-1).
+
+unformalized:
+- req: R-SIG-1
+  reason: >-
+    The name and the single parameter of the deliverable are fixed by the design's function
+    section (fib4, argument n). That section defines how the trace is produced; it is not a
+    property of the trace.
+
+- req: R-IN-2
+  reason: >-
+    "the n-th element" is read as instructed (reading 2): values at negative n are not free.
+    Running the recurrence backward fixes them (fib4(-1) = -2, fib4(-2) = 4, fib4(-3) = -2,
+    fib4(-4) = 0, ...). So no dont_care is stated, unlike what the requirement's kind
+    (dont_care) suggests. Negative arguments are not part of the trace (frame.md; n is 7 bits
+    unsigned), so the required values at negative n cannot be stated as properties. They enter
+    the set only as the constants fib4_m1..fib4_m4 used by RV-REC-2..5. These values are
+    negative, so a call returning them would be recorded as outcome 2 if it were in the trace.
+
+- req: R-DEF-1
+  reason: >-
+    A definition. Both flagged phrases are read as instructed (reading 2 each). "that's defined
+    as follows": the listed rules define the Fibonacci-like sequence that the Fib4 sequence is
+    similar to, not Fib4 itself. "similar to the Fibbonacci sequnece": Fibonacci conventions
+    apply where the listed rules are silent (such as indexing from 0 and n >= 0). "Similar to"
+    has no checkable content, so R-DEF-1 adds no constraint of its own. The rules are formalized
+    under their own requirements (RV-BASE-1..4 for R-BASE-1..4, RV-REC-1..5 for R-REC-1), whose
+    texts state them as values returned by fib4. The Fibonacci domain convention (n >= 0) agrees
+    with RV-IN-1. The convention of indexing from 0 conflicts with the instructed
+    counting-from-1 reading of R-FN-1.
+
+- req: R-FN-1
+  reason: >-
+    All three flagged phrases are read as instructed (reading 2 each). "compute" means print
+    the element. "the n-th element" counts from 1: it is the value the definition gives for
+    index n-1. "compute the n-th element" accepts any numerically equal value, such as a float.
+    Printed output is not part of the trace (frame.md: the only outputs are outcome and
+    result). Under the print reading, R-FN-1 says nothing about the returned value or the
+    outcome, so nothing about the trace can be stated. Under these readings the requirement
+    disagrees with the examples: fib4(5) would print the value at index 4, which is 2, while the
+    doctest shows 4. For n = 0 the element would be the value at index -1, which is -2 under
+    R-IN-2 reading 2. It also departs from the decomposed text ("returns normally, as an
+    integer"), which R-BASE-1..4 and R-REC-1 still follow.
+
+- req: R-NF-1
+  reason: >-
+    "efficiently" is read as instructed (reading 1): linear time in n with constant memory (an
+    iterative loop keeping the last four values). Running time and memory use cannot be seen in
+    the trace of calls and results. A call that does not finish within the adapter's limit is
+    recorded as outcome 1, but that limit belongs to the adapter. For n <= 127 it cannot tell
+    linear time and constant memory from, say, quadratic time or a full table.
+
+- req: R-NF-2
+  reason: >-
+    "Do not use recursion." is read as instructed (reading 1): fib4 must not call itself.
+    Whether the code calls itself is a property of the source, not of the calls' results, so it
+    cannot be seen in the trace.
+
+- req: R-FR-1
+  reason: >-
+    A frame rule of the function adapter. It holds by construction of the trace and is already
+    part of every formalization set as F-ZERO (design.yaml frame), so it is not restated.
+  covered_by: [F-ZERO]
+
+decisions:
+- {req: R-IN-1, phrase: 'n: int', reading: 2}
+- {req: R-IN-2, phrase: the n-th element, reading: 2}
+- {req: R-DEF-1, phrase: that's defined as follows, reading: 2}
+- {req: R-DEF-1, phrase: similar to the Fibbonacci sequnece, reading: 2}
+- {req: R-BASE-3, phrase: fib4(2) -> 2, reading: 2}
+- {req: R-BASE-4, phrase: fib4(3) -> 0, reading: 2}
+- {req: R-REC-1, phrase: fib4(n), reading: 2}
+- {req: R-FN-1, phrase: the n-th element, reading: 2}
+- {req: R-FN-1, phrase: compute, reading: 2}
+- {req: R-FN-1, phrase: compute the n-th element, reading: 2}
+- {req: R-NF-1, phrase: efficiently, reading: 1}
+- {req: R-NF-2, phrase: Do not use recursion., reading: 1}

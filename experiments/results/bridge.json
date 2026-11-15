@@ -1,0 +1,4755 @@
+{
+ "design": "bridge",
+ "variants": [
+  "ref",
+  "B1",
+  "B2",
+  "B3",
+  "B4",
+  "B5",
+  "B6",
+  "B7",
+  "B8",
+  "ai"
+ ],
+ "agent_sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "sets": {
+  "gold": {
+   "n_properties": 20,
+   "n_assumptions": 2,
+   "proved_on_ref": 20,
+   "failed_on_ref": [],
+   "detected": {
+    "B1": true,
+    "B2": true,
+    "B3": true,
+    "B4": true,
+    "B5": true,
+    "B6": true,
+    "B7": true,
+    "B8": true,
+    "ai": false
+   },
+   "detection_rate": 0.889,
+   "injected_detected": 8,
+   "injected_total": 8,
+   "other_variants": {
+    "ai": {
+     "gold_says_buggy": false,
+     "detected": false
+    }
+   },
+   "ref_levels": {
+    "R-OV-1": "PROVED-DISPUTED",
+    "R-CMD-2": "PROVED-DISPUTED",
+    "R-APB-1": "PROVED-DISPUTED",
+    "R-APB-2": "PROVED-DISPUTED",
+    "R-APB-3": "PROVED-DISPUTED",
+    "R-APB-4": "PROVED-DISPUTED",
+    "R-APB-5": "PROVED-DISPUTED",
+    "R-APB-6": "PROVED-DISPUTED",
+    "R-APB-7": "PROVED-DISPUTED",
+    "R-RSP-1": "PROVED-DISPUTED",
+    "R-RSP-2": "PROVED-DISPUTED",
+    "R-RSP-3": "PROVED-DISPUTED",
+    "R-RSP-4": "PROVED-DISPUTED",
+    "R-LAT-1": "PROVED-DISPUTED",
+    "R-RST-1": "PROVED-DISPUTED"
+   },
+   "violations": 31,
+   "false_assurance_naive": 0,
+   "false_assurance_fcp": 0,
+   "design_false_assurance_naive": 0,
+   "design_false_assurance_fcp": 0,
+   "mutation_coverage": 1.0,
+   "mutants_observable": 57,
+   "mutants_killed": 57,
+   "receptive": true,
+   "conflicts": [],
+   "unreachable_scenarios": [],
+   "tautologies": [],
+   "vacuous_on_ref": [],
+   "lint": [],
+   "per_variant": {
+    "ref": {
+     "summary": {
+      "ASSUMED": 2,
+      "DONT-CARE": 2,
+      "PROVED-DISPUTED": 15,
+      "UNFORMALIZED": 2
+     },
+     "queue": 19,
+     "failed": [],
+     "triage": {}
+    },
+    "B1": {
+     "summary": {
+      "ASSUMED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 7,
+      "PROVED-DISPUTED": 8,
+      "UNFORMALIZED": 2
+     },
+     "queue": 27,
+     "failed": [
+      "G-APB-1a",
+      "G-APB-1b",
+      "G-APB-1c",
+      "G-APB-2",
+      "G-APB-3a",
+      "G-APB-7",
+      "G-RSP-1",
+      "G-RSP-2",
+      "G-RSP-3"
+     ],
+     "triage": {
+      "G-APB-1a": "RTL-DEVIATION",
+      "G-APB-1b": "RTL-DEVIATION",
+      "G-APB-1c": "RTL-DEVIATION",
+      "G-APB-2": "RTL-DEVIATION",
+      "G-APB-3a": "RTL-DEVIATION",
+      "G-APB-7": "RTL-DEVIATION",
+      "G-RSP-1": "RTL-DEVIATION",
+      "G-RSP-2": "RTL-DEVIATION",
+      "G-RSP-3": "RTL-DEVIATION"
+     }
+    },
+    "B2": {
+     "summary": {
+      "ASSUMED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 1,
+      "PROVED-DISPUTED": 14,
+      "UNFORMALIZED": 2
+     },
+     "queue": 20,
+     "failed": [
+      "G-APB-5"
+     ],
+     "triage": {
+      "G-APB-5": "RTL-DEVIATION"
+     }
+    },
+    "B3": {
+     "summary": {
+      "ASSUMED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 2,
+      "PROVED-DISPUTED": 13,
+      "UNFORMALIZED": 2
+     },
+     "queue": 21,
+     "failed": [
+      "G-RSP-1",
+      "G-RSP-4"
+     ],
+     "triage": {
+      "G-RSP-1": "RTL-DEVIATION",
+      "G-RSP-4": "RTL-DEVIATION"
+     }
+    },
+    "B4": {
+     "summary": {
+      "ASSUMED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 6,
+      "PROVED-DISPUTED": 9,
+      "UNFORMALIZED": 2
+     },
+     "queue": 25,
+     "failed": [
+      "G-OV-1",
+      "G-CMD-2",
+      "G-APB-1a",
+      "G-APB-1b",
+      "G-APB-1c",
+      "G-APB-2",
+      "G-APB-3a",
+      "G-LAT-1"
+     ],
+     "triage": {
+      "G-OV-1": "RTL-DEVIATION",
+      "G-CMD-2": "RTL-DEVIATION",
+      "G-APB-1a": "RTL-DEVIATION",
+      "G-APB-1b": "RTL-DEVIATION",
+      "G-APB-1c": "RTL-DEVIATION",
+      "G-APB-2": "RTL-DEVIATION",
+      "G-APB-3a": "ENV-DEPENDENT",
+      "G-LAT-1": "ENV-DEPENDENT"
+     }
+    },
+    "B5": {
+     "summary": {
+      "ASSUMED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 4,
+      "PROVED-DISPUTED": 11,
+      "UNFORMALIZED": 2
+     },
+     "queue": 23,
+     "failed": [
+      "G-CMD-2",
+      "G-RSP-1",
+      "G-RSP-2",
+      "G-RSP-4"
+     ],
+     "triage": {
+      "G-CMD-2": "RTL-DEVIATION",
+      "G-RSP-1": "ENV-DEPENDENT",
+      "G-RSP-2": "ENV-DEPENDENT",
+      "G-RSP-4": "RTL-DEVIATION"
+     }
+    },
+    "B6": {
+     "summary": {
+      "ASSUMED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 2,
+      "PROVED-DISPUTED": 13,
+      "UNFORMALIZED": 2
+     },
+     "queue": 21,
+     "failed": [
+      "G-RSP-2",
+      "G-RSP-4"
+     ],
+     "triage": {
+      "G-RSP-2": "RTL-DEVIATION",
+      "G-RSP-4": "RTL-DEVIATION"
+     }
+    },
+    "B7": {
+     "summary": {
+      "ASSUMED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 8,
+      "PROVED-DISPUTED": 7,
+      "UNFORMALIZED": 2
+     },
+     "queue": 27,
+     "failed": [
+      "G-CMD-2",
+      "G-APB-1a",
+      "G-APB-1b",
+      "G-APB-1c",
+      "G-APB-2",
+      "G-APB-4",
+      "G-APB-5",
+      "G-RSP-1",
+      "G-RSP-2",
+      "G-RSP-3b"
+     ],
+     "triage": {
+      "G-CMD-2": "RTL-DEVIATION",
+      "G-APB-1a": "RTL-DEVIATION",
+      "G-APB-1b": "RTL-DEVIATION",
+      "G-APB-1c": "RTL-DEVIATION",
+      "G-APB-2": "RTL-DEVIATION",
+      "G-APB-4": "RTL-DEVIATION",
+      "G-APB-5": "RTL-DEVIATION",
+      "G-RSP-1": "RTL-DEVIATION",
+      "G-RSP-2": "RTL-DEVIATION",
+      "G-RSP-3b": "RTL-DEVIATION"
+     }
+    },
+    "B8": {
+     "summary": {
+      "ASSUMED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 1,
+      "PROVED-DISPUTED": 13,
+      "PROVED-VACUOUS": 1,
+      "UNFORMALIZED": 2
+     },
+     "queue": 21,
+     "failed": [
+      "G-APB-1c"
+     ],
+     "triage": {
+      "G-APB-1c": "RTL-DEVIATION"
+     }
+    },
+    "ai": {
+     "summary": {
+      "ASSUMED": 2,
+      "DONT-CARE": 2,
+      "PROVED-DISPUTED": 15,
+      "UNFORMALIZED": 2
+     },
+     "queue": 19,
+     "failed": [],
+     "triage": {}
+    }
+   }
+  },
+  "agent_a": {
+   "n_properties": 17,
+   "n_assumptions": 2,
+   "proved_on_ref": 17,
+   "failed_on_ref": [],
+   "detected": {
+    "B1": true,
+    "B2": true,
+    "B3": true,
+    "B4": true,
+    "B5": true,
+    "B6": true,
+    "B7": true,
+    "B8": true,
+    "ai": false
+   },
+   "detection_rate": 0.889,
+   "injected_detected": 8,
+   "injected_total": 8,
+   "other_variants": {
+    "ai": {
+     "gold_says_buggy": false,
+     "detected": false
+    }
+   },
+   "ref_levels": {
+    "R-OV-1": "PROVED-DISPUTED",
+    "R-CMD-2": "PROVED-DISPUTED",
+    "R-APB-1": "PROVED-DISPUTED",
+    "R-APB-3": "PROVED-DISPUTED",
+    "R-APB-4": "PROVED-DISPUTED",
+    "R-APB-5": "PROVED-DISPUTED",
+    "R-APB-6": "PROVED-DISPUTED",
+    "R-APB-7": "PROVED-DISPUTED",
+    "R-RSP-1": "PROVED-DISPUTED",
+    "R-RSP-2": "PROVED-DISPUTED",
+    "R-RSP-3": "PROVED-DISPUTED",
+    "R-RSP-4": "PROVED-DISPUTED",
+    "R-LAT-1": "PROVED-DISPUTED",
+    "R-RST-1": "PROVED-DISPUTED"
+   },
+   "violations": 28,
+   "false_assurance_naive": 6,
+   "false_assurance_fcp": 0,
+   "design_false_assurance_naive": 0,
+   "design_false_assurance_fcp": 0,
+   "mutation_coverage": 1.0,
+   "mutants_observable": 57,
+   "mutants_killed": 57,
+   "receptive": true,
+   "conflicts": [],
+   "unreachable_scenarios": [
+    "scenario(BA-S-RSP-6)"
+   ],
+   "tautologies": [],
+   "vacuous_on_ref": [],
+   "lint": [],
+   "per_variant": {
+    "ref": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-INDIRECTLY": 1,
+      "COVERED-PROVED": 1,
+      "DONT-CARE": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 14
+     },
+     "queue": 17,
+     "failed": [],
+     "triage": {}
+    },
+    "B1": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-FAILED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 6,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 7,
+      "PROVED-VACUOUS": 1
+     },
+     "queue": 25,
+     "failed": [
+      "BA-P-APB-1w",
+      "BA-P-APB-1a",
+      "BA-P-APB-1d",
+      "BA-P-APB-3a",
+      "BA-P-APB-7",
+      "BA-P-RSP-1",
+      "BA-P-RSP-3",
+      "BA-P-LAT-1"
+     ],
+     "triage": {
+      "BA-P-APB-1w": "RTL-DEVIATION",
+      "BA-P-APB-1a": "RTL-DEVIATION",
+      "BA-P-APB-1d": "RTL-DEVIATION",
+      "BA-P-APB-3a": "RTL-DEVIATION",
+      "BA-P-APB-7": "RTL-DEVIATION",
+      "BA-P-RSP-1": "RTL-DEVIATION",
+      "BA-P-RSP-3": "RTL-DEVIATION",
+      "BA-P-LAT-1": "ENV-DEPENDENT"
+     }
+    },
+    "B2": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-FAILED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 12
+     },
+     "queue": 19,
+     "failed": [
+      "BA-P-APB-1a",
+      "BA-P-APB-5"
+     ],
+     "triage": {
+      "BA-P-APB-1a": "RTL-DEVIATION",
+      "BA-P-APB-5": "RTL-DEVIATION"
+     }
+    },
+    "B3": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-INDIRECTLY": 1,
+      "COVERED-PROVED": 1,
+      "DONT-CARE": 2,
+      "FAILED": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 12
+     },
+     "queue": 19,
+     "failed": [
+      "BA-P-RSP-1",
+      "BA-P-RSP-4"
+     ],
+     "triage": {
+      "BA-P-RSP-1": "RTL-DEVIATION",
+      "BA-P-RSP-4": "RTL-DEVIATION"
+     }
+    },
+    "B4": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-FAILED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 5,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 9
+     },
+     "queue": 22,
+     "failed": [
+      "BA-P-OV-1",
+      "BA-P-CMD-2",
+      "BA-P-APB-1w",
+      "BA-P-APB-1a",
+      "BA-P-APB-1d",
+      "BA-P-APB-3a",
+      "BA-P-LAT-1"
+     ],
+     "triage": {
+      "BA-P-OV-1": "RTL-DEVIATION",
+      "BA-P-CMD-2": "RTL-DEVIATION",
+      "BA-P-APB-1w": "RTL-DEVIATION",
+      "BA-P-APB-1a": "RTL-DEVIATION",
+      "BA-P-APB-1d": "RTL-DEVIATION",
+      "BA-P-APB-3a": "ENV-DEPENDENT",
+      "BA-P-LAT-1": "ENV-DEPENDENT"
+     }
+    },
+    "B5": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-INDIRECTLY": 1,
+      "COVERED-PROVED": 1,
+      "DONT-CARE": 2,
+      "FAILED": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 12
+     },
+     "queue": 19,
+     "failed": [
+      "BA-P-RSP-1",
+      "BA-P-RSP-4"
+     ],
+     "triage": {
+      "BA-P-RSP-1": "ENV-DEPENDENT",
+      "BA-P-RSP-4": "RTL-DEVIATION"
+     }
+    },
+    "B6": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-INDIRECTLY": 1,
+      "COVERED-PROVED": 1,
+      "DONT-CARE": 2,
+      "FAILED": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 12
+     },
+     "queue": 19,
+     "failed": [
+      "BA-P-RSP-2",
+      "BA-P-RSP-4"
+     ],
+     "triage": {
+      "BA-P-RSP-2": "RTL-DEVIATION",
+      "BA-P-RSP-4": "RTL-DEVIATION"
+     }
+    },
+    "B7": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-FAILED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 4,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 10
+     },
+     "queue": 21,
+     "failed": [
+      "BA-P-APB-1w",
+      "BA-P-APB-1a",
+      "BA-P-APB-1d",
+      "BA-P-APB-4",
+      "BA-P-APB-5",
+      "BA-P-RSP-1"
+     ],
+     "triage": {
+      "BA-P-APB-1w": "RTL-DEVIATION",
+      "BA-P-APB-1a": "RTL-DEVIATION",
+      "BA-P-APB-1d": "RTL-DEVIATION",
+      "BA-P-APB-4": "RTL-DEVIATION",
+      "BA-P-APB-5": "RTL-DEVIATION",
+      "BA-P-RSP-1": "RTL-DEVIATION"
+     }
+    },
+    "B8": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-FAILED": 2,
+      "DONT-CARE": 2,
+      "FAILED": 1,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 12,
+      "PROVED-VACUOUS": 1
+     },
+     "queue": 19,
+     "failed": [
+      "BA-P-APB-1w"
+     ],
+     "triage": {
+      "BA-P-APB-1w": "RTL-DEVIATION"
+     }
+    },
+    "ai": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-INDIRECTLY": 1,
+      "COVERED-PROVED": 1,
+      "DONT-CARE": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 14
+     },
+     "queue": 17,
+     "failed": [],
+     "triage": {}
+    }
+   },
+   "accuracy": {
+    "per_req": {
+     "R-OV-1": "WEAKER",
+     "R-CMD-2": "INCOMPARABLE",
+     "R-APB-1": "STRONGER",
+     "R-APB-2": "MISSING",
+     "R-APB-3": "WEAKER",
+     "R-APB-4": "EQUIVALENT",
+     "R-APB-5": "WEAKER",
+     "R-APB-6": "EQUIVALENT",
+     "R-APB-7": "EQUIVALENT",
+     "R-RSP-1": "EQUIVALENT",
+     "R-RSP-2": "WEAKER",
+     "R-RSP-3": "WEAKER",
+     "R-RSP-4": "EQUIVALENT",
+     "R-LAT-1": "EQUIVALENT",
+     "R-RST-1": "EQUIVALENT"
+    },
+    "counts": {
+     "WEAKER": 5,
+     "INCOMPARABLE": 1,
+     "STRONGER": 1,
+     "MISSING": 1,
+     "EQUIVALENT": 7
+    },
+    "assumptions_vs_gold": "INCOMPARABLE",
+    "equivalent_rate": 0.467
+   }
+  },
+  "agent_b": {
+   "n_properties": 18,
+   "n_assumptions": 2,
+   "proved_on_ref": 18,
+   "failed_on_ref": [],
+   "detected": {
+    "B1": true,
+    "B2": true,
+    "B3": true,
+    "B4": true,
+    "B5": true,
+    "B6": true,
+    "B7": true,
+    "B8": true,
+    "ai": false
+   },
+   "detection_rate": 0.889,
+   "injected_detected": 8,
+   "injected_total": 8,
+   "other_variants": {
+    "ai": {
+     "gold_says_buggy": false,
+     "detected": false
+    }
+   },
+   "ref_levels": {
+    "R-OV-1": "PROVED-DISPUTED",
+    "R-CMD-2": "PROVED-DISPUTED",
+    "R-APB-1": "PROVED-DISPUTED",
+    "R-APB-2": "PROVED-UNVALIDATED",
+    "R-APB-3": "PROVED-DISPUTED",
+    "R-APB-4": "PROVED-DISPUTED",
+    "R-APB-5": "PROVED-DISPUTED",
+    "R-APB-6": "PROVED-DISPUTED",
+    "R-APB-7": "PROVED-DISPUTED",
+    "R-RSP-1": "PROVED-DISPUTED",
+    "R-RSP-2": "PROVED-DISPUTED",
+    "R-RSP-3": "PROVED-DISPUTED",
+    "R-RSP-4": "PROVED-DISPUTED",
+    "R-LAT-1": "PROVED-DISPUTED",
+    "R-RST-1": "PROVED-DISPUTED"
+   },
+   "violations": 31,
+   "false_assurance_naive": 6,
+   "false_assurance_fcp": 0,
+   "design_false_assurance_naive": 0,
+   "design_false_assurance_fcp": 0,
+   "mutation_coverage": 1.0,
+   "mutants_observable": 57,
+   "mutants_killed": 57,
+   "receptive": true,
+   "conflicts": [],
+   "unreachable_scenarios": [
+    "scenario(BB-S-RSP-6)"
+   ],
+   "tautologies": [],
+   "vacuous_on_ref": [],
+   "lint": [],
+   "per_variant": {
+    "ref": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-INDIRECTLY": 1,
+      "DONT-CARE": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 14,
+      "PROVED-UNVALIDATED": 1
+     },
+     "queue": 17,
+     "failed": [],
+     "triage": {}
+    },
+    "B1": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-FAILED": 1,
+      "DONT-CARE": 2,
+      "FAILED": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 13
+     },
+     "queue": 20,
+     "failed": [
+      "BB-P-APB-2",
+      "BB-P-APB-3a"
+     ],
+     "triage": {
+      "BB-P-APB-2": "RTL-DEVIATION",
+      "BB-P-APB-3a": "RTL-DEVIATION"
+     }
+    },
+    "B2": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-FAILED": 1,
+      "DONT-CARE": 2,
+      "FAILED": 3,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 12
+     },
+     "queue": 20,
+     "failed": [
+      "BB-P-APB-1a",
+      "BB-P-APB-2",
+      "BB-P-APB-5"
+     ],
+     "triage": {
+      "BB-P-APB-1a": "RTL-DEVIATION",
+      "BB-P-APB-2": "RTL-DEVIATION",
+      "BB-P-APB-5": "RTL-DEVIATION"
+     }
+    },
+    "B3": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-INDIRECTLY": 1,
+      "DONT-CARE": 2,
+      "FAILED": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 12,
+      "PROVED-UNVALIDATED": 1
+     },
+     "queue": 19,
+     "failed": [
+      "BB-P-RSP-1b",
+      "BB-P-RSP-4"
+     ],
+     "triage": {
+      "BB-P-RSP-1b": "RTL-DEVIATION",
+      "BB-P-RSP-4": "RTL-DEVIATION"
+     }
+    },
+    "B4": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-FAILED": 1,
+      "DONT-CARE": 2,
+      "FAILED": 12,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 3
+     },
+     "queue": 29,
+     "failed": [
+      "BB-P-OV-1",
+      "BB-P-CMD-2",
+      "BB-P-APB-1b",
+      "BB-P-APB-2",
+      "BB-P-APB-3a",
+      "BB-P-APB-3b",
+      "BB-P-APB-4",
+      "BB-P-APB-5",
+      "BB-P-APB-7",
+      "BB-P-RSP-1a",
+      "BB-P-RSP-1b",
+      "BB-P-RSP-2",
+      "BB-P-RSP-3",
+      "BB-P-LAT-1"
+     ],
+     "triage": {
+      "BB-P-OV-1": "RTL-DEVIATION",
+      "BB-P-CMD-2": "RTL-DEVIATION",
+      "BB-P-APB-1b": "ENV-DEPENDENT",
+      "BB-P-APB-2": "ENV-DEPENDENT",
+      "BB-P-APB-3a": "ENV-DEPENDENT",
+      "BB-P-APB-3b": "ENV-DEPENDENT",
+      "BB-P-APB-4": "RTL-DEVIATION",
+      "BB-P-APB-5": "ENV-DEPENDENT",
+      "BB-P-APB-7": "ENV-DEPENDENT",
+      "BB-P-RSP-1a": "ENV-DEPENDENT",
+      "BB-P-RSP-1b": "ENV-DEPENDENT",
+      "BB-P-RSP-2": "ENV-DEPENDENT",
+      "BB-P-RSP-3": "ENV-DEPENDENT",
+      "BB-P-LAT-1": "ENV-DEPENDENT"
+     }
+    },
+    "B5": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-INDIRECTLY": 1,
+      "DONT-CARE": 2,
+      "FAILED": 6,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 8,
+      "PROVED-UNVALIDATED": 1
+     },
+     "queue": 23,
+     "failed": [
+      "BB-P-OV-1",
+      "BB-P-CMD-2",
+      "BB-P-APB-1b",
+      "BB-P-RSP-1a",
+      "BB-P-RSP-1b",
+      "BB-P-RSP-2",
+      "BB-P-RSP-4"
+     ],
+     "triage": {
+      "BB-P-OV-1": "ENV-DEPENDENT",
+      "BB-P-CMD-2": "RTL-DEVIATION",
+      "BB-P-APB-1b": "ENV-DEPENDENT",
+      "BB-P-RSP-1a": "RTL-DEVIATION",
+      "BB-P-RSP-1b": "ENV-DEPENDENT",
+      "BB-P-RSP-2": "ENV-DEPENDENT",
+      "BB-P-RSP-4": "RTL-DEVIATION"
+     }
+    },
+    "B6": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-INDIRECTLY": 1,
+      "DONT-CARE": 2,
+      "FAILED": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 12,
+      "PROVED-UNVALIDATED": 1
+     },
+     "queue": 19,
+     "failed": [
+      "BB-P-RSP-2",
+      "BB-P-RSP-4"
+     ],
+     "triage": {
+      "BB-P-RSP-2": "RTL-DEVIATION",
+      "BB-P-RSP-4": "RTL-DEVIATION"
+     }
+    },
+    "B7": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-INDIRECTLY": 1,
+      "DONT-CARE": 2,
+      "FAILED": 8,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 6,
+      "PROVED-UNVALIDATED": 1
+     },
+     "queue": 25,
+     "failed": [
+      "BB-P-CMD-2",
+      "BB-P-APB-1b",
+      "BB-P-APB-4",
+      "BB-P-APB-5",
+      "BB-P-APB-7",
+      "BB-P-RSP-1a",
+      "BB-P-RSP-1b",
+      "BB-P-RSP-2",
+      "BB-P-RSP-3"
+     ],
+     "triage": {
+      "BB-P-CMD-2": "RTL-DEVIATION",
+      "BB-P-APB-1b": "ENV-DEPENDENT",
+      "BB-P-APB-4": "RTL-DEVIATION",
+      "BB-P-APB-5": "RTL-DEVIATION",
+      "BB-P-APB-7": "ENV-DEPENDENT",
+      "BB-P-RSP-1a": "RTL-DEVIATION",
+      "BB-P-RSP-1b": "RTL-DEVIATION",
+      "BB-P-RSP-2": "RTL-DEVIATION",
+      "BB-P-RSP-3": "RTL-DEVIATION"
+     }
+    },
+    "B8": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-FAILED": 1,
+      "DONT-CARE": 2,
+      "FAILED": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 13
+     },
+     "queue": 19,
+     "failed": [
+      "BB-P-APB-1a",
+      "BB-P-APB-2"
+     ],
+     "triage": {
+      "BB-P-APB-1a": "RTL-DEVIATION",
+      "BB-P-APB-2": "RTL-DEVIATION"
+     }
+    },
+    "ai": {
+     "summary": {
+      "ASSUMED": 2,
+      "COVERED-INDIRECTLY": 1,
+      "DONT-CARE": 2,
+      "MISSING": 1,
+      "PROVED-DISPUTED": 14,
+      "PROVED-UNVALIDATED": 1
+     },
+     "queue": 17,
+     "failed": [],
+     "triage": {}
+    }
+   },
+   "accuracy": {
+    "per_req": {
+     "R-OV-1": "INCOMPARABLE",
+     "R-CMD-2": "WEAKER",
+     "R-APB-1": "INCOMPARABLE",
+     "R-APB-2": "INCOMPARABLE",
+     "R-APB-3": "WEAKER",
+     "R-APB-4": "INCOMPARABLE",
+     "R-APB-5": "INCOMPARABLE",
+     "R-APB-6": "EQUIVALENT",
+     "R-APB-7": "INCOMPARABLE",
+     "R-RSP-1": "INCOMPARABLE",
+     "R-RSP-2": "INCOMPARABLE",
+     "R-RSP-3": "INCOMPARABLE",
+     "R-RSP-4": "EQUIVALENT",
+     "R-LAT-1": "EQUIVALENT",
+     "R-RST-1": "EQUIVALENT"
+    },
+    "counts": {
+     "INCOMPARABLE": 9,
+     "WEAKER": 2,
+     "EQUIVALENT": 4
+    },
+    "assumptions_vs_gold": "WEAKER",
+    "equivalent_rate": 0.267
+   }
+  }
+ },
+ "disagreement_as_error_detector": {
+  "tp": 15,
+  "fp": 0,
+  "fn": 0,
+  "tn": 0
+ },
+ "faults": {
+  "injected": 51,
+  "semantic": 48,
+  "equivalent_mutations": 3,
+  "flagged": 48,
+  "hides_bug_naive": 27,
+  "hides_bug_fcp": 0,
+  "by_operator": {
+   "placeholder-consequent": {
+    "n": 13,
+    "flagged": 13,
+    "hides_bug_naive": 9,
+    "hides_bug_fcp": 0,
+    "flagged_by": {
+     "vacuity": 13,
+     "peer-disagreement": 13
+    }
+   },
+   "loose-bound": {
+    "n": 4,
+    "flagged": 4,
+    "hides_bug_naive": 0,
+    "hides_bug_fcp": 0,
+    "flagged_by": {
+     "peer-disagreement": 4,
+     "vacuity": 1
+    }
+   },
+   "reset-polarity-trigger": {
+    "n": 8,
+    "flagged": 8,
+    "hides_bug_naive": 7,
+    "hides_bug_fcp": 0,
+    "flagged_by": {
+     "vacuity": 8,
+     "peer-disagreement": 8
+    }
+   },
+   "dropped-conjunct": {
+    "n": 7,
+    "flagged": 7,
+    "hides_bug_naive": 2,
+    "hides_bug_fcp": 0,
+    "flagged_by": {
+     "vacuity": 2,
+     "peer-disagreement": 7
+    }
+   },
+   "same-cycle": {
+    "n": 7,
+    "flagged": 7,
+    "hides_bug_naive": 1,
+    "hides_bug_fcp": 0,
+    "flagged_by": {
+     "vacuity": 3,
+     "peer-disagreement": 7,
+     "fails-on-reference": 6
+    }
+   },
+   "masking-assumption": {
+    "n": 8,
+    "flagged": 8,
+    "hides_bug_naive": 8,
+    "hides_bug_fcp": 0,
+    "flagged_by": {
+     "vacuity": 8,
+     "peer-disagreement": 8,
+     "receptiveness": 4
+    }
+   },
+   "tight-bound": {
+    "n": 1,
+    "flagged": 1,
+    "hides_bug_naive": 0,
+    "hides_bug_fcp": 0,
+    "flagged_by": {
+     "peer-disagreement": 1
+    }
+   }
+  }
+ },
+ "runtime": {
+  "gold:spec": 2.7,
+  "gold:receptive": 67.9,
+  "gold:ref:rtl": 0.0,
+  "gold:B1:rtl": 0.5,
+  "gold:B2:rtl": 0.1,
+  "gold:B3:rtl": 0.1,
+  "gold:B4:rtl": 0.6,
+  "gold:B5:rtl": 0.3,
+  "gold:B6:rtl": 0.2,
+  "gold:B7:rtl": 0.7,
+  "gold:B8:rtl": 0.1,
+  "gold:ai:rtl": 0.0,
+  "gold:mutation": 0.2,
+  "agent_a:spec": 9.0,
+  "agent_a:receptive": 86.8,
+  "agent_a:ref:rtl": 3.0,
+  "agent_a:B1:rtl": 4.1,
+  "agent_a:B2:rtl": 3.1,
+  "agent_a:B3:rtl": 3.1,
+  "agent_a:B4:rtl": 6.7,
+  "agent_a:B5:rtl": 7.9,
+  "agent_a:B6:rtl": 6.5,
+  "agent_a:B7:rtl": 8.8,
+  "agent_a:B8:rtl": 3.8,
+  "agent_a:ai:rtl": 3.0,
+  "agent_a:mutation": 29.3,
+  "agent_b:spec": 3.3,
+  "agent_b:receptive": 47.9,
+  "agent_b:ref:rtl": 0.0,
+  "agent_b:B1:rtl": 0.1,
+  "agent_b:B2:rtl": 0.2,
+  "agent_b:B3:rtl": 0.1,
+  "agent_b:B4:rtl": 0.9,
+  "agent_b:B5:rtl": 0.5,
+  "agent_b:B6:rtl": 0.1,
+  "agent_b:B7:rtl": 0.6,
+  "agent_b:B8:rtl": 0.1,
+  "agent_b:ai:rtl": 0.0,
+  "agent_b:mutation": 0.2,
+  "compare:gold|agent_a": 1.5,
+  "compare:gold|agent_b": 0.0,
+  "compare:agent_a|agent_b": 1.4,
+  "compare_env:gold|agent_a": 0.9,
+  "compare_env:gold|agent_b": 0.0,
+  "fault_study": 87.9
+ },
+ "fault_rows": [
+  {
+   "prop": "G-OV-1",
+   "req": "R-OV-1",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-CMD-2",
+   "req": "R-CMD-2",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-1a",
+   "req": "R-APB-1",
+   "fault": "loose-bound",
+   "semantic_fault": false
+  },
+  {
+   "prop": "G-APB-1b",
+   "req": "R-APB-1",
+   "fault": "loose-bound",
+   "semantic_fault": false
+  },
+  {
+   "prop": "G-APB-1c",
+   "req": "R-APB-1",
+   "fault": "loose-bound",
+   "semantic_fault": false
+  },
+  {
+   "prop": "G-APB-2",
+   "req": "R-APB-2",
+   "fault": "loose-bound",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "ONLY-A",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-APB-3a",
+   "req": "R-APB-3",
+   "fault": "reset-polarity-trigger",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-3a",
+   "req": "R-APB-3",
+   "fault": "dropped-conjunct",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-APB-3a",
+   "req": "R-APB-3",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-3a",
+   "req": "R-APB-3",
+   "fault": "same-cycle",
+   "semantic_fault": true,
+   "relation_to_gold": "INCOMPARABLE",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement",
+    "fails-on-reference"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-APB-3a",
+   "req": "R-APB-3",
+   "fault": "masking-assumption",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-3b",
+   "req": "R-APB-3",
+   "fault": "reset-polarity-trigger",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-3b",
+   "req": "R-APB-3",
+   "fault": "dropped-conjunct",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-APB-3b",
+   "req": "R-APB-3",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-3b",
+   "req": "R-APB-3",
+   "fault": "same-cycle",
+   "semantic_fault": true,
+   "relation_to_gold": "A-WEAKER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement",
+    "fails-on-reference"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-APB-3b",
+   "req": "R-APB-3",
+   "fault": "masking-assumption",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "receptiveness",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-3c",
+   "req": "R-APB-3",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-4",
+   "req": "R-APB-4",
+   "fault": "reset-polarity-trigger",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-4",
+   "req": "R-APB-4",
+   "fault": "dropped-conjunct",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-APB-4",
+   "req": "R-APB-4",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-4",
+   "req": "R-APB-4",
+   "fault": "same-cycle",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-4",
+   "req": "R-APB-4",
+   "fault": "masking-assumption",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-5",
+   "req": "R-APB-5",
+   "fault": "reset-polarity-trigger",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-5",
+   "req": "R-APB-5",
+   "fault": "dropped-conjunct",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-APB-5",
+   "req": "R-APB-5",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-5",
+   "req": "R-APB-5",
+   "fault": "same-cycle",
+   "semantic_fault": true,
+   "relation_to_gold": "INCOMPARABLE",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "peer-disagreement",
+    "fails-on-reference"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-APB-5",
+   "req": "R-APB-5",
+   "fault": "masking-assumption",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "receptiveness",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-6",
+   "req": "R-APB-6",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-7",
+   "req": "R-APB-7",
+   "fault": "reset-polarity-trigger",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-7",
+   "req": "R-APB-7",
+   "fault": "dropped-conjunct",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-APB-7",
+   "req": "R-APB-7",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-APB-7",
+   "req": "R-APB-7",
+   "fault": "same-cycle",
+   "semantic_fault": true,
+   "relation_to_gold": "A-WEAKER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "peer-disagreement",
+    "fails-on-reference"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-APB-7",
+   "req": "R-APB-7",
+   "fault": "masking-assumption",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "receptiveness",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-1",
+   "req": "R-RSP-1",
+   "fault": "loose-bound",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-2",
+   "req": "R-RSP-2",
+   "fault": "loose-bound",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-3",
+   "req": "R-RSP-3",
+   "fault": "reset-polarity-trigger",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-3",
+   "req": "R-RSP-3",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-3",
+   "req": "R-RSP-3",
+   "fault": "same-cycle",
+   "semantic_fault": true,
+   "relation_to_gold": "INCOMPARABLE",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "peer-disagreement",
+    "fails-on-reference"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-3",
+   "req": "R-RSP-3",
+   "fault": "masking-assumption",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "receptiveness",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-3b",
+   "req": "R-RSP-3",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-4",
+   "req": "R-RSP-4",
+   "fault": "reset-polarity-trigger",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-4",
+   "req": "R-RSP-4",
+   "fault": "dropped-conjunct",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-4",
+   "req": "R-RSP-4",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-4",
+   "req": "R-RSP-4",
+   "fault": "same-cycle",
+   "semantic_fault": true,
+   "relation_to_gold": "INCOMPARABLE",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "peer-disagreement",
+    "fails-on-reference"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-RSP-4",
+   "req": "R-RSP-4",
+   "fault": "masking-assumption",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-LAT-1",
+   "req": "R-LAT-1",
+   "fault": "reset-polarity-trigger",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-LAT-1",
+   "req": "R-LAT-1",
+   "fault": "loose-bound",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-LAT-1",
+   "req": "R-LAT-1",
+   "fault": "tight-bound",
+   "semantic_fault": true,
+   "relation_to_gold": "A-WEAKER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "INCOMPARABLE"
+   },
+   "flagged_by": [
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": false,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-LAT-1",
+   "req": "R-LAT-1",
+   "fault": "masking-assumption",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": true,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  },
+  {
+   "prop": "G-RST-1",
+   "req": "R-RST-1",
+   "fault": "dropped-conjunct",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "INCOMPARABLE",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": false
+    }
+   }
+  },
+  {
+   "prop": "G-RST-1",
+   "req": "R-RST-1",
+   "fault": "placeholder-consequent",
+   "semantic_fault": true,
+   "relation_to_gold": "A-STRONGER",
+   "peers": {
+    "agent_a": "A-WEAKER",
+    "agent_b": "A-WEAKER"
+   },
+   "flagged_by": [
+    "vacuity",
+    "peer-disagreement"
+   ],
+   "variants": {
+    "ref": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B1": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B2": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B3": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B4": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B5": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B6": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B7": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "B8": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    },
+    "ai": {
+     "gold_fail": false,
+     "naive_assured": true,
+     "fcp_assured": false,
+     "vacuous": true
+    }
+   }
+  }
+ ],
+ "wall_seconds": 394.6
+}

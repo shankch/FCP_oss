@@ -1,0 +1,225 @@
+fcp: "0.1"
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # The Fib4 number sequence at indices 0..63 under the readings of this set:
+  # indices 0-3 are the base values (R-BASE-1..4), indices 5 and 6 are the
+  # docstring examples (R-EX-1, R-EX-2, taken as authoritative), and every
+  # other index is the sum of the four preceding entries (R-REC-1).
+  fib4_seq: "[0, 0, 2, 0, 2, 0, 0, 2, 4, 6, 12, 24, 46, 88, 170, 328, 632, 1218, 2348, 4526, 8724, 16816, 32414, 62480, 120434, 232144, 447472, 862530, 1662580, 3204726, 6177308, 11907144, 22951758, 44240936, 85277146, 164376984, 316846824, 610741890, 1177242844, 2269208542, 4374040100, 8431233376, 16251724862, 31326206880, 60383205218, 116392370336, 224353507296, 432455289730, 833584372580, 1606785539942, 3097178709548, 5970003911800, 11507552533870, 22181520695160, 42756255850378, 82415332991208, 158860662070616, 306213771607362, 590246022519564, 1137735789188750, 2193056245386292, 4227251828701968, 8148289885796574, 15706333749073584]"
+
+assumptions:
+  - id: RV-ENV-1
+    req: R-ENV-1
+    expr: "n >= 0"
+    note: >-
+      Variant reading of "n: int" (prescribed for this set, taken even though
+      another reading may seem more natural): n is a non-negative integer, an
+      index into the sequence, and negative n is never passed. The caller
+      obligation is therefore n >= 0. The interface already encodes n as an
+      unsigned 6-bit signal (frame.md: negative arguments are not part of the
+      trace), so this assumption only records the obligation and constrains no
+      trace that the adapter can produce.
+
+properties:
+  - id: RV-BASE-1
+    req: R-BASE-1
+    pattern: implies
+    args: {trigger: "n == 0", cond: "outcome == 0 && result == 0"}
+    note: >-
+      "fib4(0) -> 0" read as: the call fib4(0) returns the integer 0. Note that
+      under the variant reading of R-FN-1 ("the n-th element" counted from 1)
+      fib4(0) has no meaning for R-FN-1; this base value is stated by the
+      docstring independently and is kept as written.
+
+  - id: RV-BASE-2
+    req: R-BASE-2
+    pattern: implies
+    args: {trigger: "n == 1", cond: "outcome == 0 && result == 0"}
+    note: '"fib4(1) -> 0" read as: the call fib4(1) returns the integer 0.'
+
+  - id: RV-BASE-3
+    req: R-BASE-3
+    pattern: implies
+    args: {trigger: "n == 2", cond: "outcome == 0 && result == 2"}
+    note: >-
+      "fib4(2) -> 2" read as: the call fib4(2) returns the integer 2. This
+      conflicts with RV-FN-1 under the variant reading of R-FN-1, which makes
+      fib4(2) the element at index 1, that is 0.
+
+  - id: RV-BASE-4
+    req: R-BASE-4
+    pattern: implies
+    args: {trigger: "n == 3", cond: "outcome == 0 && result == 0"}
+    note: >-
+      "fib4(3) -> 0" read as: the call fib4(3) returns the integer 0. This
+      conflicts with RV-FN-1 under the variant reading of R-FN-1, which makes
+      fib4(3) the element at index 2, that is 2.
+
+  - id: RV-REC-1
+    req: R-REC-1
+    pattern: implies
+    args:
+      trigger: "n != 0 && n != 1 && n != 2 && n != 3 && n != 5 && n != 6"
+      cond: "outcome == 0 && result == fib4_seq[n - 1] + fib4_seq[n - 2] + fib4_seq[n - 3] + fib4_seq[n - 4]"
+    note: >-
+      Variant readings (prescribed for this set, taken even though other
+      readings may seem more natural). (1) "fib4(n)": the recurrence applies to
+      every integer n not listed as a base value, including negative n, where
+      it extends the sequence backwards; negative n is not part of the trace
+      (unsigned n), so in the trace the recurrence covers every n from 4 to 63.
+      (2) "fib4(n) -> fib4(n-1) + ... + fib4(n-4)": the recurrence contradicts
+      the docstring examples and the examples are authoritative, so
+      fib4(5) = 0, fib4(6) = 0, fib4(7) = 2 and the recurrence does not hold at
+      n = 5 and n = 6; those two n are excluded from the trigger. The reading
+      leaves the meaning of the recurrence for larger n unclear; the most
+      literal choice, taken here, is that it still holds at every other n, with
+      the example values fib4(5) = fib4(6) = 0 as its terms. fib4_seq is that
+      sequence (base values, the two example values, and the four-term sum
+      elsewhere), so the recurrence gives fib4(4) = 2, fib4(7) = 2 (agreeing
+      with R-EX-3), fib4(8) = 4, fib4(9) = 6, fib4(10) = 12, and so on. The
+      arrow is read as for the base values: the call returns that integer
+      (every value up to fib4(63) = 15706333749073584 fits the 57-bit result).
+      This conflicts with RV-FN-1 under the variant reading of R-FN-1.
+
+  - id: RV-FN-1
+    req: R-FN-1
+    pattern: implies
+    args: {trigger: "n >= 1 && outcome == 0", cond: "result == fib4_seq[n - 1]"}
+    note: >-
+      Variant readings (prescribed for this set, taken even though other
+      readings may seem more natural). (1) "the n-th element": counted from 1,
+      so fib4(n) is the value at index n - 1 of the Fib4 sequence, and fib4(0)
+      has no meaning; R-FN-1 therefore places no requirement on the call
+      fib4(0) (the trigger needs n >= 1). (2) "compute": fib4 only has to
+      produce the value somehow (print it, return it as a float, ...); the form
+      of the answer is not fixed, so R-FN-1 does not require outcome 0. The only
+      observable consequence is that when the call does return an integer that
+      fits result (outcome 0), that integer is the element at index n - 1. The
+      sequence is fib4_seq, the Fib4 sequence under the readings this set takes
+      for R-REC-1, R-EX-1 and R-EX-2 (base values 0, 0, 2, 0; 0 at indices 5
+      and 6 because the examples are authoritative; the four-term sum
+      elsewhere). Taken together with the other items this reading conflicts
+      with the base values fib4(2) = 2 and fib4(3) = 0, with the recurrence
+      for n = 4 and n >= 8, and with the examples fib4(5) = 0 and fib4(7) = 2
+      (it gives fib4(2) = 0, fib4(3) = 2, fib4(4) = 0, fib4(5) = 2,
+      fib4(7) = 0, fib4(8) = 2, ...); only fib4(1) = 0 and fib4(6) = 0 agree.
+
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "n == 5", cond: "outcome == 0 && result == 0"}
+    note: >-
+      Variant reading of ">>> fib4(5) 0" (prescribed for this set, taken even
+      though another reading may seem more natural): the example contradicts
+      the recurrence and base values (which give 4), the example is
+      authoritative, fib4(5) returns 0, and the recurrence does not hold at
+      n = 5 (RV-REC-1 excludes n = 5). Because the example is authoritative it
+      is stated as a guarantee on every call fib4(5), in addition to the
+      scenario RV-EX-1-S.
+
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "n == 6", cond: "outcome == 0 && result == 0"}
+    note: >-
+      Variant reading of ">>> fib4(6) 0" (prescribed for this set, taken even
+      though another reading may seem more natural): the example contradicts
+      the recurrence and base values (which give 8), the example is
+      authoritative, fib4(6) returns 0, and the recurrence does not hold at
+      n = 6 (RV-REC-1 excludes n = 6). Because the example is authoritative it
+      is stated as a guarantee on every call fib4(6), in addition to the
+      scenario RV-EX-2-S.
+
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "n == 7", cond: "outcome == 0 && result == 2"}
+    note: >-
+      Variant reading of ">>> fib4(7) 2" (prescribed for this set, taken even
+      though another reading may seem more natural): the example contradicts
+      the recurrence and base values (which give 14), the example is
+      authoritative, fib4(7) returns 2, and the recurrence's value 14 is
+      wrong. 2 is what the recurrence gives at n = 7 once fib4(5) = fib4(6) = 0,
+      so this agrees with RV-REC-1 as formalized here. Because the example is
+      authoritative it is stated as a guarantee on every call fib4(7), in
+      addition to the scenario RV-EX-3-S.
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: "n == 5 && outcome == 0 && result == 0"
+    note: >-
+      The doctest call fib4(5) returning 0 must be possible. Variant reading of
+      ">>> fib4(5) 0" (prescribed for this set): the example is authoritative,
+      see RV-EX-1.
+
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: "n == 6 && outcome == 0 && result == 0"
+    note: >-
+      The doctest call fib4(6) returning 0 must be possible. Variant reading of
+      ">>> fib4(6) 0" (prescribed for this set): the example is authoritative,
+      see RV-EX-2.
+
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: "n == 7 && outcome == 0 && result == 2"
+    note: >-
+      The doctest call fib4(7) returning 2 must be possible. Variant reading of
+      ">>> fib4(7) 2" (prescribed for this set): the example is authoritative,
+      see RV-EX-3.
+
+unformalized:
+  - req: R-TASK-1
+    reason: >-
+      The form of the deliverable (completing the given stub, keeping its name
+      and signature) is a property of the source code, not of the values its
+      calls return, so no trace property can state it.
+
+  - req: R-IF-1
+    reason: >-
+      Interface definition. The name fib4 and the single argument n are fixed
+      by the function section of design.yaml, which defines how calls become
+      cycles; it is not a property of the trace.
+
+  - req: R-DEF-1
+    reason: >-
+      Definition of the Fib4 sequence; it is realized by the def fib4_seq and
+      by the items for the base values and the recurrence. Under the variant
+      readings this set takes for R-REC-1, R-EX-1 and R-EX-2 the sequence is
+      not fully defined by the base values and the recurrence alone: the
+      docstring examples fix the values at indices 5 and 6 to 0 and the
+      recurrence does not hold there.
+    covered_by: [RV-BASE-1, RV-BASE-2, RV-BASE-3, RV-BASE-4, RV-REC-1]
+
+  - req: R-NF-1
+    reason: >-
+      Variant reading of "efficiently" (prescribed for this set, taken even
+      though another reading may seem more natural): time linear in n (an
+      iterative loop over the sequence) with constant extra memory. Time and
+      memory complexity are properties of the code, not of the values its calls
+      return; the trace shows only outcome 1 for a call that did not finish,
+      and outcome 1 also covers exceptions, which efficiency says nothing
+      about, so no trace property states this requirement.
+
+  - req: R-NF-2
+    reason: >-
+      Variant reading of "recursion" (prescribed for this set, taken even
+      though another reading may seem more natural): only fib4 calling itself
+      directly is forbidden; recursive helper functions are allowed. Whether
+      fib4 calls itself is a structural property of the code and is not
+      observable in the trace of call results.
+
+decisions:
+  - {req: R-ENV-1, phrase: "n: int", reading: 2}
+  - {req: R-REC-1, phrase: "fib4(n)", reading: 2}
+  - {req: R-REC-1, phrase: "fib4(n) -> fib4(n-1) + fib4(n-2) + fib4(n-3) + fib4(n-4)", reading: 2}
+  - {req: R-FN-1, phrase: "the n-th element", reading: 2}
+  - {req: R-FN-1, phrase: "compute", reading: 2}
+  - {req: R-NF-1, phrase: "efficiently", reading: 1}
+  - {req: R-NF-2, phrase: "recursion", reading: 1}
+  - {req: R-EX-1, phrase: ">>> fib4(5) 0", reading: 2}
+  - {req: R-EX-2, phrase: ">>> fib4(6) 0", reading: 2}
+  - {req: R-EX-3, phrase: ">>> fib4(7) 2", reading: 2}

@@ -1,0 +1,114 @@
+[
+ {
+  "req": "R-CTX-1",
+  "phrase": "you need to eat more carrots",
+  "taken": 1,
+  "variant": 2,
+  "text": "The rabbit eats at least `need` further carrots and may eat more when stock allows."
+ },
+ {
+  "req": "R-DEF-2",
+  "phrase": "the number of carrots that you need to eat",
+  "taken": 1,
+  "variant": 2,
+  "text": "need is the day's total requirement including the carrots already eaten, so only max(0, need - number) more carrots are needed."
+ },
+ {
+  "req": "R-RET-1",
+  "phrase": "an array",
+  "taken": 1,
+  "variant": 2,
+  "text": "Any two-element sequence, such as a tuple, would do."
+ },
+ {
+  "req": "R-TOT-1",
+  "phrase": "total number of eaten carrots",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only the carrots eaten in these meals: need."
+ },
+ {
+  "req": "R-TOT-1",
+  "phrase": "the number of carrots that you need to eat",
+  "taken": 1,
+  "variant": 2,
+  "text": "need is the day's total, so the first element is max(number, need)."
+ },
+ {
+  "req": "R-TOT-2",
+  "phrase": "total number of eaten carrots",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only the carrots eaten in these meals: remaining."
+ },
+ {
+  "req": "R-LEFT-1",
+  "phrase": "the number of carrots left after your meals",
+  "taken": 1,
+  "variant": 2,
+  "text": "The remaining argument unchanged, as all three of those examples show, so the second element is remaining (contradicting the literal prose 'left after your meals')."
+ },
+ {
+  "req": "R-LEFT-2",
+  "phrase": "you will eat all remaining carrots",
+  "taken": 1,
+  "variant": 2,
+  "text": "The second element is the remaining argument unchanged, as eat(2, 11, 5) -> [7, 5] shows, even though all of it is eaten."
+ },
+ {
+  "req": "R-HUN-1",
+  "phrase": "will still be hungry",
+  "taken": 1,
+  "variant": 2,
+  "text": "The returned value must somehow report the unmet need (e.g. an extra element or flag), which would conflict with the two-element list of R-RET-1."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "eat(5, 6, 10) -> [11, 10]",
+  "taken": 1,
+  "variant": 2,
+  "text": "The second element is an error; following R-LEFT-1 the intended result is [11, 4]."
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "eat(4, 8, 9) -> [12, 9]",
+  "taken": 1,
+  "variant": 2,
+  "text": "The second element is an error; following R-LEFT-1 the intended result is [12, 1]."
+ },
+ {
+  "req": "R-EX-3",
+  "phrase": "eat(1, 10, 10) -> [11, 10]",
+  "taken": 1,
+  "variant": 2,
+  "text": "The second element is an error; following R-LEFT-1 the intended result is [11, 0]."
+ },
+ {
+  "req": "R-EX-4",
+  "phrase": "eat(2, 11, 5) -> [7, 5]",
+  "taken": 1,
+  "variant": 2,
+  "text": "The second element is an error; following R-LEFT-2 the intended result is [7, 0]."
+ },
+ {
+  "req": "R-ENV-1",
+  "phrase": "0 <= number <= 1000",
+  "taken": 1,
+  "variant": 2,
+  "text": "A rule the function enforces: it must reject (e.g. raise on) number outside 0..1000."
+ },
+ {
+  "req": "R-ENV-2",
+  "phrase": "0 <= need <= 1000",
+  "taken": 1,
+  "variant": 2,
+  "text": "A rule the function enforces: it must reject (e.g. raise on) need outside 0..1000."
+ },
+ {
+  "req": "R-ENV-3",
+  "phrase": "0 <= remaining <= 1000",
+  "taken": 1,
+  "variant": 2,
+  "text": "A rule the function enforces: it must reject (e.g. raise on) remaining outside 0..1000."
+ }
+]

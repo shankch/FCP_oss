@@ -1,0 +1,65 @@
+[
+ {
+  "req": "R-IN-1",
+  "phrase": "an array arr of integers",
+  "taken": 1,
+  "variant": 2,
+  "text": "arr is implicitly non-empty; the result for the empty array is unspecified (don't care)"
+ },
+ {
+  "req": "R-CH-1",
+  "phrase": "the number of elements that need to be changed",
+  "taken": 1,
+  "variant": 2,
+  "text": "the number of elements that differ from their mirrored element, i.e. both elements of every differing pair are counted (twice the number of differing pairs); this reading contradicts R-EX-1 (8, not 4) and R-EX-2 (2, not 1)"
+ },
+ {
+  "req": "R-CH-1",
+  "phrase": "to make the array palindromic",
+  "taken": 1,
+  "variant": 2,
+  "text": "the function also turns arr into a palindrome (in place) and returns how many elements it changed"
+ },
+ {
+  "req": "R-CH-2",
+  "phrase": "find the number",
+  "taken": 1,
+  "variant": 2,
+  "text": "output (e.g. print) the number; the return value is unspecified"
+ },
+ {
+  "req": "R-DEF-1",
+  "phrase": "read the same backwards and forwards",
+  "taken": 1,
+  "variant": 2,
+  "text": "textually: the written-out digits of the elements, read in reverse, are the same (e.g. [12, 21] reads 1221 and is palindromic)"
+ },
+ {
+  "req": "R-DEF-2",
+  "phrase": "any other element",
+  "taken": 2,
+  "variant": 1,
+  "text": "any other integer value, whether or not it occurs in the array"
+ },
+ {
+  "req": "R-DEF-2",
+  "phrase": "In one change, you can change one element",
+  "taken": 1,
+  "variant": 2,
+  "text": "any replacement counts as a change, even one that leaves the value the same"
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "== 4",
+  "taken": 1,
+  "variant": 2,
+  "text": "contradicts R-CH-1 read as counting every element that differs from its mirror, which gives 8"
+ },
+ {
+  "req": "R-EX-2",
+  "phrase": "== 1",
+  "taken": 1,
+  "variant": 2,
+  "text": "contradicts R-CH-1 read as counting every element that differs from its mirror, which gives 2"
+ }
+]

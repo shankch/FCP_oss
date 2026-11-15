@@ -1,0 +1,170 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'def candidate(text: str):'
+  text: The function to implement is named candidate and takes a single parameter named text.
+  kind: definition
+  lines:
+  - 4
+- id: R-IF-2
+  doc: SPEC
+  quote: 'Complete this function:'
+  text: The deliverable is a complete implementation (body) of the given function candidate, keeping its name and signature.
+  kind: non_functional
+  depends:
+  - R-IF-1
+  lines:
+  - 1
+- id: R-ENV-1
+  doc: SPEC
+  quote: 'text: str'
+  text: The caller always passes a string (a Python str) as the text argument of candidate.
+  kind: assumption
+  ambiguity:
+  - phrase: 'text: str'
+    readings:
+    - 'a type hint that constrains only the caller: candidate is only ever called with a str, and behaviour on other types is unspecified'
+    - 'a contract the function must enforce: candidate must also handle or reject arguments that are not str'
+  lines:
+  - 4
+- id: R-RET-1
+  doc: SPEC
+  quote: Checks if given string is an Isogram/Palindrome or not
+  text: For every string argument, candidate(text) returns a bool (True or False); it does not raise an exception, fail to finish, or return a value of another type such as None, a number or a string.
+  kind: guarantee
+  lines:
+  - 6
+- id: R-DEF-1
+  doc: SPEC
+  quote: Palindrome
+  text: 'A palindrome is a string that reads the same forwards and backwards: for every position i, the character at i equals the character at len(text)-1-i. The empty string and every one-character string
+    are palindromes.'
+  kind: definition
+  ambiguity:
+  - phrase: Palindrome
+    readings:
+    - 'exact: every character is compared as is, so letter case and spaces matter (''Aba'' and ''ab a'' are not palindromes)'
+    - 'case-insensitive, every character counted: ''Aba'' is a palindrome, ''ab a'' is not'
+    - 'case-insensitive, only letters (or letters and digits) compared, spaces and punctuation skipped: ''Aba'' and ''ab a'' are palindromes'
+    - 'case-sensitive, only letters (or letters and digits) compared, spaces and punctuation skipped: ''ab a'' is a palindrome, ''Aba'' is not'
+  lines:
+  - 6
+- id: R-DEF-2
+  doc: SPEC
+  quote: an Isogram
+  text: An isogram is a string in which no letter occurs more than once. The empty string is an isogram.
+  kind: definition
+  ambiguity:
+  - phrase: Isogram
+    readings:
+    - 'no character of any kind occurs twice, compared exactly: ''aA'' is an isogram, ''a b '' (two spaces) is not'
+    - 'no letter occurs twice ignoring case; spaces, hyphens and other non-letters may repeat: ''aA'' is not an isogram, ''a b c'' is'
+    - 'no letter occurs twice, case-sensitive; non-letters may repeat: ''aA'' and ''a b c'' are isograms'
+    - 'higher-order isogram: every letter that occurs, occurs the same number of times: ''aaaaa'' and ''aabb'' are isograms, ''aba'' is not'
+  lines:
+  - 6
+- id: R-CHK-1
+  doc: SPEC
+  quote: Checks if given string is an Isogram/Palindrome
+  text: If the text argument is an isogram/palindrome (the property the docstring names), candidate(text) returns True.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-DEF-2
+  ambiguity:
+  - phrase: Isogram/Palindrome
+    readings:
+    - 'either suffices: True when text is an isogram or a palindrome; contradicts R-EX-4, since ''zbcd'' has no repeated letter and so is an isogram'
+    - 'both are needed: True only when text is both an isogram and a palindrome; contradicts R-EX-2 and R-EX-3, since ''aba'' and ''aaaaa'' repeat a letter'
+    - 'palindrome only: the check is whether text is a palindrome and ''Isogram'' is a mislabel; the only reading consistent with all four examples'
+    - 'isogram only: the check is whether text is an isogram; contradicts R-EX-2, R-EX-3 and R-EX-4'
+  lines:
+  - 6
+- id: R-CHK-2
+  doc: SPEC
+  quote: Isogram/Palindrome or not
+  text: If the text argument is not an isogram/palindrome (the property the docstring names), candidate(text) returns False.
+  kind: guarantee
+  depends:
+  - R-DEF-1
+  - R-DEF-2
+  ambiguity:
+  - phrase: Isogram/Palindrome
+    readings:
+    - 'either suffices: False only when text is neither an isogram nor a palindrome; contradicts R-EX-4, since ''zbcd'' has no repeated letter and so is an isogram'
+    - 'both are needed: False whenever text is not an isogram or not a palindrome; contradicts R-EX-2 and R-EX-3, since ''aba'' and ''aaaaa'' repeat a letter'
+    - 'palindrome only: False exactly when text is not a palindrome and ''Isogram'' is a mislabel; the only reading consistent with all four examples'
+    - 'isogram only: False exactly when text is not an isogram; contradicts R-EX-2, R-EX-3 and R-EX-4'
+  lines:
+  - 6
+- id: R-EX-1
+  doc: SPEC
+  quote: '>>> candidate('''') True'
+  text: candidate('') (the empty string) returns True.
+  kind: scenario
+  depends:
+  - R-CHK-1
+  lines:
+  - 7
+  - 8
+- id: R-EX-2
+  doc: SPEC
+  quote: '>>> candidate(''aba'') True'
+  text: candidate('aba') returns True.
+  kind: scenario
+  depends:
+  - R-CHK-1
+  ambiguity:
+  - phrase: candidate('aba')
+    readings:
+    - 'the example is right: ''aba'' returns True although the letter ''a'' repeats, so being an isogram is not required; this contradicts R-CHK-1/R-CHK-2 when ''Isogram/Palindrome'' is read as ''both''
+      or ''isogram only'''
+    - 'the docstring is right and requires an isogram: ''aba'' is not an isogram and returns False, so the example is wrong'
+  lines:
+  - 9
+  - 10
+- id: R-EX-3
+  doc: SPEC
+  quote: '>>> candidate(''aaaaa'') True'
+  text: candidate('aaaaa') returns True.
+  kind: scenario
+  depends:
+  - R-CHK-1
+  ambiguity:
+  - phrase: candidate('aaaaa')
+    readings:
+    - 'the example is right: ''aaaaa'' returns True although the letter ''a'' repeats, so being an isogram (in the usual no-repeated-letter sense) is not required; this contradicts R-CHK-1/R-CHK-2 when
+      ''Isogram/Palindrome'' is read as ''both'' or ''isogram only'''
+    - 'the docstring is right and requires an isogram: ''aaaaa'' is not an isogram and returns False, so the example is wrong'
+  lines:
+  - 11
+  - 12
+- id: R-EX-4
+  doc: SPEC
+  quote: '>>> candidate(''zbcd'') False'
+  text: candidate('zbcd') returns False.
+  kind: scenario
+  depends:
+  - R-CHK-2
+  ambiguity:
+  - phrase: candidate('zbcd')
+    readings:
+    - 'the example is right: ''zbcd'' returns False although no letter repeats, so being an isogram is not enough for True; this contradicts R-CHK-1/R-CHK-2 when ''Isogram/Palindrome'' is read as ''either
+      suffices'' or ''isogram only'''
+    - 'the docstring is right and an isogram suffices: ''zbcd'' is an isogram and returns True, so the example is wrong'
+  lines:
+  - 13
+  - 14
+- id: R-FR-1
+  doc: FRAME
+  quote: 'F-ZERO: `result` is false unless `outcome` is 0.'
+  text: Whenever a call does not return a bool (outcome is not 0), the result output is 0 (false).
+  kind: guarantee
+  lines:
+  - 49

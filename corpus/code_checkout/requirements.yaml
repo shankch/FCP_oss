@@ -1,0 +1,121 @@
+fcp: '0.1'
+design: code_checkout
+origin:
+  kind: human
+  id: gold
+  role: decomposer
+requirements:
+- id: R-SIG-1
+  doc: SPEC
+  quote: 'def checkout(subtotal: int, coupon: int, member: bool) -> tuple[int, int]:'
+  text: The function's name, arguments and result type.
+  kind: definition
+  lines:
+  - 5
+- id: R-RET-1
+  doc: SPEC
+  quote: 'It returns `(price, shipping)`: the discounted price of the cart and the shipping fee, both in cents.'
+  text: For arguments in range, the function returns a pair of whole numbers of cents, the discounted price and the shipping fee.
+  kind: guarantee
+  lines:
+  - 7
+- id: R-IN-1
+  doc: SPEC
+  quote: '`subtotal` is the cart total in cents, from 0 to 1,000,000.'
+  text: The valid range of subtotal.
+  kind: definition
+  lines:
+  - 9
+- id: R-IN-2
+  doc: SPEC
+  quote: '`coupon` is the discount of the customer''s coupon code in percent, from 0 to 50, where 0 means no coupon.'
+  text: The valid range and meaning of coupon.
+  kind: definition
+  lines:
+  - 9
+- id: R-IN-3
+  doc: SPEC
+  quote: '`member` says whether the customer is in our loyalty program.'
+  text: The meaning of member.
+  kind: definition
+  lines:
+  - 9
+- id: R-ERR-1
+  doc: SPEC
+  quote: Raise ValueError if `subtotal` or `coupon` is out of range.
+  text: A call with subtotal or coupon outside its range raises ValueError.
+  kind: guarantee
+  lines:
+  - 13
+- id: R-MEM-1
+  doc: SPEC
+  quote: Members get 10% off.
+  text: A member's price is 10% below the subtotal, before other discounts.
+  kind: guarantee
+  lines:
+  - 14
+- id: R-COUP-1
+  doc: SPEC
+  quote: A coupon takes `coupon` percent off.
+  text: A coupon reduces the price by its percentage.
+  kind: guarantee
+  lines:
+  - 15
+- id: R-STACK-1
+  doc: SPEC
+  quote: Discounts stack, but the total discount is never more than 30%.
+  text: The member discount and the coupon combine, and the combined discount is at most 30% of the subtotal.
+  kind: guarantee
+  ambiguity:
+  - phrase: Discounts stack
+    readings:
+    - the percentages add up
+    - the discounts apply one after the other
+  lines:
+  - 16
+- id: R-ROUND-1
+  doc: SPEC
+  quote: Round the discounted price to the nearest cent.
+  text: The price is the discounted amount rounded to a whole number of cents, to the nearest cent.
+  kind: guarantee
+  ambiguity:
+  - phrase: the nearest cent
+    readings:
+    - at exactly half a cent, either neighbour
+    - at exactly half a cent, round up
+    - at exactly half a cent, round to even
+  lines:
+  - 17
+- id: R-SHIP-1
+  doc: SPEC
+  quote: Orders under $50 pay $4.99 shipping. Orders of $50 or more ship free.
+  text: Shipping is 499 cents for an order under 5,000 cents and 0 otherwise.
+  kind: guarantee
+  ambiguity:
+  - phrase: Orders under $50
+    readings:
+    - the subtotal before discounts is under $50
+    - the discounted price is under $50
+  lines:
+  - 18
+- id: R-MONO-1
+  doc: SPEC
+  quote: Adding items to the cart must never lower the amount charged, which is the price plus shipping.
+  text: With the same coupon and membership, a larger subtotal never gives a smaller price plus shipping.
+  kind: guarantee
+  lines:
+  - 19
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: a member with a $100.00 cart and no coupon gets `(9000, 0)`.'
+  text: A member with a 10,000-cent cart and no coupon gets (9000, 0).
+  kind: scenario
+  lines:
+  - 21
+- id: R-FR-1
+  doc: FRAME
+  quote: '`price` and `ship` are 0 unless `outcome` is 0.'
+  text: The price and shipping outputs are 0 unless the call returned a pair that fits.
+  kind: definition
+  lines:
+  - 39

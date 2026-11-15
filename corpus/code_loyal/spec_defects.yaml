@@ -1,0 +1,12 @@
+# Defects planted in spec.md (hidden from every agent).
+design: code_loyal
+defects:
+- id: D-1
+  kind: conflict
+  reqs: [R-TIER-1, R-GET-1, R-KEEP-1]
+  note: >
+    On a new account, earn(50000) earns 500 points and tier() returns 1. After redeem(1) the account
+    has 499 points, so by rules 1 and 8 the next tier() returns 0, which rule 9 forbids. Any redeem
+    that takes an account below a threshold after tier() returned the higher tier hits it.
+- {id: D-2, kind: ambiguity, reqs: [R-POINTS-1], note: '"the rate of the account''s tier": the tier before the purchase, or the tier once its points are added?'}
+- {id: D-3, kind: ambiguity, reqs: [R-CAP-1], note: '"No purchase earns more than 1,000 points": a larger purchase earns exactly 1,000, or is refused?'}

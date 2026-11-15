@@ -1,0 +1,137 @@
+fcp: "0.1"
+set: agent_b
+origin: {kind: agent, role: formalizer, id: agent_b}
+
+# Specification model. The function keeps no state between calls (frame.md),
+# so the model is a combinational function of the current call's arguments;
+# every output is checked against it.
+defs:
+  weight: "sum(i < len(q): q[i])"                               # R-WT-1: the weight of q is the sum of its elements
+  balanced: "all(i < len(q): q[i] == q[len(q) - 1 - i])"        # R-BAL-1 reading 1: q is a palindrome
+  light: "weight <= w"                                          # R-WT-2/R-WT-3 reading 1: w is the largest weight allowed
+  fly: "balanced && light"                                      # R-FLY-1 reading 1: flies exactly when balanced and light enough
+  ret_true: "outcome == 0 && flies"                             # the call returned the bool True
+  ret_false: "outcome == 0 && !flies"                           # the call returned the bool False
+
+properties:
+  - id: RB-FLY-1
+    req: R-FLY-1
+    pattern: implies
+    args: {trigger: "fly", cond: "ret_true"}
+    note: >-
+      "Will fly" is read as balanced (palindrome, see RB-BAL-1) and weight
+      sum(q) <= w; the prompt never defines flying, but the example comment
+      ("less than the maximum possible weight, but it's unbalanced") names
+      these two conditions as the only reasons. "Returns True" is read as the
+      bool True (outcome 0, flies 1), not any truthy value. The empty list is
+      a list: it is balanced (vacuously a palindrome) and weighs 0, so it
+      flies for every w >= 0.
+
+  - id: RB-FLY-2
+    req: R-FLY-2
+    pattern: implies
+    args: {trigger: "!fly", cond: "ret_false"}
+    note: >-
+      "Otherwise" is the complement of the fly model of RB-FLY-1. "False" is
+      read as the bool False (outcome 0, flies 0), not any falsy value such
+      as 0, None or [].
+
+  - id: RB-WT-3
+    req: R-WT-3
+    pattern: implies
+    args: {trigger: "weight > w", cond: "ret_false"}
+    note: >-
+      "1+2 is less than the maximum possible weight" describes the example;
+      "maximum possible weight" is read literally, so a weight equal to w is
+      still allowed and only a weight strictly above w forces False. The
+      balance of q does not matter here.
+
+  - id: RB-BAL-1
+    req: R-BAL-1
+    pattern: implies
+    args: {trigger: "!balanced", cond: "ret_false"}
+    note: >-
+      The prompt never defines "unbalanced". It is read as "not a palindrome"
+      (q[i] != q[len(q)-1-i] for some i), i.e. not mirror-symmetric. The
+      examples ([1, 2] unbalanced; [3, 2, 3] and [3] balanced) also fit the
+      other readings (first and last differ; half sums differ) and do not
+      pick one.
+
+  - id: RB-EX-1
+    req: R-EX-1
+    pattern: implies
+    args: {trigger: "q == [1, 2] && w == 5", cond: "ret_false"}
+    note: The example is a fixed input/output pair, so it is also checked as a guarantee for that call.
+
+  - id: RB-EX-2
+    req: R-EX-2
+    pattern: implies
+    args: {trigger: "q == [3, 2, 3] && w == 1", cond: "ret_false"}
+    note: The example is a fixed input/output pair, so it is also checked as a guarantee for that call.
+
+  - id: RB-EX-3
+    req: R-EX-3
+    pattern: implies
+    args: {trigger: "q == [3, 2, 3] && w == 9", cond: "ret_true"}
+    note: The example is a fixed input/output pair, so it is also checked as a guarantee for that call.
+
+  - id: RB-EX-4
+    req: R-EX-4
+    pattern: implies
+    args: {trigger: "q == [3] && w == 5", cond: "ret_true"}
+    note: The example is a fixed input/output pair, so it is also checked as a guarantee for that call.
+
+scenarios:
+  - id: RB-EX-1-S
+    req: R-EX-1
+    cover: "q == [1, 2] && w == 5 && ret_false"
+  - id: RB-EX-2-S
+    req: R-EX-2
+    cover: "q == [3, 2, 3] && w == 1 && ret_false"
+  - id: RB-EX-3-S
+    req: R-EX-3
+    cover: "q == [3, 2, 3] && w == 9 && ret_true"
+  - id: RB-EX-4-S
+    req: R-EX-4
+    cover: "q == [3] && w == 5 && ret_true"
+  - id: RB-FLY-1-S-EMPTY
+    req: R-FLY-1
+    cover: "len(q) == 0 && ret_true"
+    note: Reading 1 of "the object q" means the empty list is a valid object that flies.
+  - id: RB-WT-3-S-EQ
+    req: R-WT-3
+    cover: "balanced && len(q) > 0 && weight == w && ret_true"
+    note: Reading 1 of "less than the maximum possible weight" means a balanced q whose weight equals w still flies.
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: whether the deliverable is a body for the given stub is
+      a property of the submitted code, not of the trace of calls.
+  - req: R-IF-2
+    reason: >-
+      Definition: the adapter binds the name and the positional order of the
+      parameters (design.yaml, function section: will_it_fly(q, w)), so this
+      is not a property of the trace. A missing or misnamed function makes
+      every call end with outcome 1, which the items below reject because
+      they require outcome 0 in every call.
+    covered_by: [RB-FLY-1, RB-FLY-2]
+  - req: R-WT-1
+    reason: Definition of the weight. It is realized by the def `weight` (sum of the elements of q), which the items below use.
+    covered_by: [RB-FLY-1, RB-FLY-2, RB-WT-3]
+  - req: R-WT-2
+    reason: Definition of w as the maximum possible weight. It is realized by the def `light` (weight <= w), which the items below use.
+    covered_by: [RB-FLY-1, RB-FLY-2, RB-WT-3]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO (outcome != 0 -> !flies) is added to every
+      formalization set by design.yaml; frame.md says it need not be restated.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FLY-1, phrase: "will fly", reading: 1}
+  - {req: R-FLY-1, phrase: "returns True", reading: 1}
+  - {req: R-FLY-1, phrase: "the object q", reading: 1}
+  - {req: R-FLY-2, phrase: "False", reading: 1}
+  - {req: R-WT-3, phrase: "less than the maximum possible weight", reading: 1}
+  - {req: R-BAL-1, phrase: "unbalanced", reading: 1}

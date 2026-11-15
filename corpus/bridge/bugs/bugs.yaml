@@ -1,0 +1,34 @@
+design: apb_bridge
+bugs:
+- id: B1
+  file: bugs/B1.v
+  desc: 'no setup phase: penable rises together with psel'
+  class: protocol
+- id: B2
+  file: bugs/B2.v
+  desc: paddr taken from the command bus during setup (unstable once the requester moves on)
+  class: datapath-stability
+- id: B3
+  file: bugs/B3.v
+  desc: 'response error not captured: follows pslverr combinationally'
+  class: datapath-capture
+- id: B4
+  file: bugs/B4.v
+  desc: cmd_ready high while a response is pending
+  class: flow-control
+- id: B5
+  file: bugs/B5.v
+  desc: response dropped after one cycle even without rsp_ready
+  class: handshake
+- id: B6
+  file: bugs/B6.v
+  desc: read data never captured
+  class: datapath-capture
+- id: B7
+  file: bugs/B7.v
+  desc: transfer completes after one access cycle regardless of pready
+  class: protocol
+- id: B8
+  file: bugs/B8.v
+  desc: every transfer issued as a write
+  class: datapath

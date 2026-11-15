@@ -1,0 +1,51 @@
+[
+ {
+  "req": "R-SIG-1",
+  "phrase": "remove_duplicates",
+  "taken": 1,
+  "variant": 2,
+  "text": "The name states the behaviour: duplicates are removed so that each value is kept once, as its first occurrence (so [1, 2, 3, 2, 4] gives [1, 2, 3, 4]); this contradicts the docstring sentence of R-RM-1 and the example of R-EX-1."
+ },
+ {
+  "req": "R-SIG-2",
+  "phrase": "-> List[int]",
+  "taken": 1,
+  "variant": 2,
+  "text": "The return annotation only describes the type of the value when the function returns; raising an exception on some inputs is not excluded."
+ },
+ {
+  "req": "R-RM-1",
+  "phrase": "remove all elements that occur more than once",
+  "taken": 1,
+  "variant": 2,
+  "text": "Only the repeated (extra) occurrences are removed, so each value that occurs more than once is kept exactly once (the reading suggested by the function name remove_duplicates in R-SIG-1, which contradicts the example of R-EX-1)."
+ },
+ {
+  "req": "R-RM-1",
+  "phrase": "From a list of integers, remove",
+  "taken": 1,
+  "variant": 2,
+  "text": "The elements are deleted from the given list in place, and that list is returned."
+ },
+ {
+  "req": "R-ORD-1",
+  "phrase": "Keep order of elements left the same as in the input",
+  "taken": 1,
+  "variant": 2,
+  "text": "The remaining elements keep their original positions (indices) in the list."
+ },
+ {
+  "req": "R-ORD-1",
+  "phrase": "elements left",
+  "taken": 1,
+  "variant": 2,
+  "text": "Under the deduplicating reading of R-RM-1 and R-SIG-1, a kept value is ordered by the position of its first occurrence in numbers."
+ },
+ {
+  "req": "R-EX-1",
+  "phrase": "[1, 3, 4]",
+  "taken": 1,
+  "variant": 2,
+  "text": "The example contradicts the function name remove_duplicates of R-SIG-1, under which the call would return [1, 2, 3, 4]."
+ }
+]

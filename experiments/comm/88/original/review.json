@@ -1,0 +1,297 @@
+{
+ "sets": [
+  "agent_a",
+  "agent_b"
+ ],
+ "prompt": {
+  "agent_a": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 180,
+    "checked": 180,
+    "seconds": 7.88
+   },
+   "open": {
+    "open": {},
+    "checked": 104
+   }
+  },
+  "agent_b": {
+   "conflicts": {
+    "conflicts": [],
+    "candidates": 242,
+    "checked": 242,
+    "seconds": 12.14
+   },
+   "open": {
+    "open": {},
+    "checked": 146
+   }
+  }
+ },
+ "readings": {
+  "R-EX-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-3": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-EX-4": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-ORD-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-ORD-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-1": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  },
+  "R-RET-2": {
+   "plain": "EQUIVALENT",
+   "context": "EQUIVALENT",
+   "witness": null
+  }
+ },
+ "code": null,
+ "given": {
+  "contract": [],
+  "free": []
+ },
+ "scenarios": {
+  "agent_a": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  },
+  "agent_b": {
+   "impossible": [],
+   "forbidden": [],
+   "blocked": [],
+   "undecided": []
+  }
+ },
+ "variant_answers": [
+  {
+   "req": "R-RET-3",
+   "phrase": "a copy of the given array after sorting",
+   "taken": 1,
+   "variant": 2,
+   "text": "the given array is sorted (in place) and then a copy of it is returned; this contradicts \"don't change the given array\" (R-NC-1)"
+  },
+  {
+   "req": "R-RET-3",
+   "phrase": "a copy",
+   "taken": 1,
+   "variant": 2,
+   "text": "only the values matter; returning the given list object itself is acceptable when its order already matches"
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "first index value, last index value",
+   "taken": 1,
+   "variant": 2,
+   "text": "the first and the last index numbers themselves: 0 + (len(array) - 1), i.e. the parity of len(array) - 1 (the examples agree with both readings)"
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "ascending order",
+   "taken": 1,
+   "variant": 2,
+   "text": "strictly increasing order: result[i] < result[i + 1] (impossible together with R-RET-2 when the array has repeated values)"
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "you will sort the given array",
+   "taken": 1,
+   "variant": 2,
+   "text": "the given list itself is sorted in place; this contradicts \"don't change the given array\" (R-NC-1)"
+  },
+  {
+   "req": "R-ORD-1",
+   "phrase": "the sum( first index value, last index value) is odd",
+   "taken": 1,
+   "variant": 2,
+   "text": "for the empty array the sum is taken over the missing values as 0 (even), so the descending rule applies instead"
+  },
+  {
+   "req": "R-ORD-2",
+   "phrase": "first index value, last index value",
+   "taken": 1,
+   "variant": 2,
+   "text": "the first and the last index numbers themselves: 0 + (len(array) - 1), i.e. the parity of len(array) - 1 (the examples agree with both readings)"
+  },
+  {
+   "req": "R-ORD-2",
+   "phrase": "descending order",
+   "taken": 1,
+   "variant": 2,
+   "text": "strictly decreasing order: result[i] > result[i + 1] (impossible together with R-RET-2 when the array has repeated values)"
+  },
+  {
+   "req": "R-ORD-2",
+   "phrase": "sort it",
+   "taken": 1,
+   "variant": 2,
+   "text": "\"it\" is the given array, sorted in place; this contradicts \"don't change the given array\" (R-NC-1)"
+  },
+  {
+   "req": "R-ORD-2",
+   "phrase": "the sum( first index value, last index value) is even",
+   "taken": 1,
+   "variant": 2,
+   "text": "for the empty array the sum is taken over the missing values as 0, which is even, so this descending rule applies"
+  },
+  {
+   "req": "R-NC-1",
+   "phrase": "don't change the given array",
+   "taken": 1,
+   "variant": 2,
+   "text": "contradicted by \"you will sort the given array\" and \"sort it\" (R-ORD-1, R-ORD-2) and by \"a copy of the given array after sorting\" (R-RET-3), which read as sorting the given list itself"
+  }
+ ],
+ "depends": {
+  "R-ORD-1": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "sort_array([1, 1, 7, 1, 1, 6, 1, 1]) -> [7, 6, 1, 1, 1, 1, 1, 1]"
+   ]
+  },
+  "R-ORD-2": {
+   "relation": "INCOMPARABLE",
+   "peers": [
+    "agent_a",
+    "agent_b"
+   ],
+   "witness": [
+    "sort_array([8, 7, 8, 8, 8, 6, 8]) -> [8, 8, 8, 8, 8, 7, 6]"
+   ]
+  }
+ },
+ "certified": [
+  "R-RET-1",
+  "R-RET-2",
+  "R-EX-1",
+  "R-EX-2",
+  "R-EX-3",
+  "R-EX-4"
+ ],
+ "queue": [
+  {
+   "kind": "depends",
+   "reqs": [
+    "R-ORD-1",
+    "R-ORD-2"
+   ],
+   "calls": [
+    "sort_array([1, 1, 7, 1, 1, 6, 1, 1]) -> [7, 6, 1, 1, 1, 1, 1, 1]"
+   ],
+   "question": "both readers gave the same answer to every ambiguity listed under \"Shared answers\"; read the other way, these requirements mean something else: are those answers meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-3"
+   ],
+   "calls": [],
+   "question": "\"a copy of the given array after sorting\" can mean: a new list holding the elements of the given array in sorted order; the given array itself is left as it was / the given array is sorted (in place) and then a copy of it is returned; this contradicts \"don't change the given array\" (R-NC-1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-RET-3"
+   ],
+   "calls": [],
+   "question": "\"a copy\" can mean: a distinct list object, so the caller can modify the result without affecting the given array / only the values matter; returning the given list object itself is acceptable when its order already matches. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1",
+    "R-ORD-2"
+   ],
+   "calls": [],
+   "question": "\"first index value, last index value\" can mean: the values stored at the first and the last index: array[0] + array[len(array) - 1] / the first and the last index numbers themselves: 0 + (len(array) - 1), i.e. the parity of len(array) - 1 (the examples agree with both readings). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"ascending order\" can mean: non-decreasing order, equal values kept: result[i] <= result[i + 1] / strictly increasing order: result[i] < result[i + 1] (impossible together with R-RET-2 when the array has repeated values). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"you will sort the given array\" can mean: the values of the given array are sorted into the returned copy; the given array itself is not modified / the given list itself is sorted in place; this contradicts \"don't change the given array\" (R-NC-1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-1"
+   ],
+   "calls": [],
+   "question": "\"the sum( first index value, last index value) is odd\" can mean: the condition is defined only for a non-empty array; the empty array falls under neither order rule / for the empty array the sum is taken over the missing values as 0 (even), so the descending rule applies instead. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-2"
+   ],
+   "calls": [],
+   "question": "\"descending order\" can mean: non-increasing order, equal values kept: result[i] >= result[i + 1] / strictly decreasing order: result[i] > result[i + 1] (impossible together with R-RET-2 when the array has repeated values). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-2"
+   ],
+   "calls": [],
+   "question": "\"sort it\" can mean: \"it\" is the copy to be returned; the values of the given array are sorted into the returned list and the given array is not modified / \"it\" is the given array, sorted in place; this contradicts \"don't change the given array\" (R-NC-1). Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-ORD-2"
+   ],
+   "calls": [],
+   "question": "\"the sum( first index value, last index value) is even\" can mean: the condition is defined only for a non-empty array; the empty array falls under neither order rule / for the empty array the sum is taken over the missing values as 0, which is even, so this descending rule applies. Which is meant?"
+  },
+  {
+   "kind": "ambiguity",
+   "reqs": [
+    "R-NC-1"
+   ],
+   "calls": [],
+   "question": "\"don't change the given array\" can mean: the list passed as array keeps its elements and their order; only a copy is sorted / contradicted by \"you will sort the given array\" and \"sort it\" (R-ORD-1, R-ORD-2) and by \"a copy of the given array after sorting\" (R-RET-3), which read as sorting the given list itself. Which is meant?"
+  }
+ ],
+ "limits": []
+}

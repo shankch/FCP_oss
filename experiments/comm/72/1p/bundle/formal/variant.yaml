@@ -1,0 +1,210 @@
+fcp: '0.1'
+set: variant
+origin: {kind: agent, role: formalizer, id: variant}
+
+defs:
+  # R-WT-1: the weight of q is the sum of its elements
+  weight: 'sum(i < len(q): q[i])'
+  # R-BAL-1 (variant reading 2): balanced means the first and last elements are equal
+  balanced: 'q[0] == q[len(q) - 1]'
+  # the necessary conditions for flying the prompt fixes: a non-empty q (R-FLY-1,
+  # "the object q" reading 2), balanced (R-BAL-1) and strictly lighter than w (R-WT-3, reading 2)
+  may_fly: 'len(q) > 0 && balanced && weight < w'
+  # "returns True" read as any truthy value (R-FLY-1 reading 2): the bool True, or a
+  # non-bool value (outcome 2), whose truth value the adapter does not record
+  ret_true: 'outcome == 2 || (outcome == 0 && flies)'
+  # "False" read as any falsy value (R-FLY-2 reading 2): the bool False, or a non-bool
+  # value (outcome 2) such as 0, None or []
+  ret_false: 'outcome == 2 || (outcome == 0 && !flies)'
+
+properties:
+  - id: RV-FLY-1-RET
+    req: R-FLY-1
+    pattern: implies
+    args:
+      trigger: 'may_fly'
+      cond: 'outcome == 0 || outcome == 2'
+    note: >-
+      Variant reading of "will fly" (as instructed, reading 2): flying is never defined,
+      so for a non-empty, balanced q lighter than w the prompt fixes only that q flies or
+      does not; R-FLY-1 then requires a truthy return and R-FLY-2 a falsy one, so the call
+      must return some value (no exception, no hang) and which one is left open (see
+      RV-FLY-1-OPEN). Variant reading of "returns True" (reading 2): any truthy value, so a
+      non-bool return (outcome 2) is allowed. The trigger uses the variant readings of
+      "the object q" (empty q excluded), "unbalanced" (first and last elements differ) and
+      "less than the maximum possible weight" (strictly less than w).
+  - id: RV-FLY-1-EMPTY
+    req: R-FLY-1
+    pattern: implies
+    args:
+      trigger: 'len(q) == 0'
+      cond: 'ret_false'
+    note: >-
+      Variant reading of "the object q" (as instructed, reading 2): an empty q is no object
+      and does not fly, so the function returns False for it, whatever w is. "False" is
+      taken as in R-FLY-2 under its variant reading 2: any falsy value (the bool False, or
+      a non-bool value such as 0, None or [], recorded as outcome 2).
+  - id: RV-FLY-2
+    req: R-FLY-2
+    pattern: implies
+    args:
+      trigger: '!may_fly'
+      cond: 'ret_false'
+    note: >-
+      Variant reading of "False" (as instructed, reading 2): any falsy value, so the bool
+      False (outcome 0, flies 0) or any non-bool return (outcome 2) is accepted; the
+      adapter does not record whether a non-bool value is falsy, so a truthy non-bool
+      value also passes. Variant reading of "will fly" (reading 2): the only cases in
+      which q is known not to fly are those the prompt fixes: an empty q (variant reading
+      2 of "the object q"), an unbalanced q (variant reading 2 of "unbalanced": first and
+      last elements differ) and a q whose weight is not strictly less than w (variant
+      reading 2 of "less than the maximum possible weight"). The two False examples lie
+      in this region.
+  - id: RV-WT-3
+    req: R-WT-3
+    pattern: implies
+    args:
+      trigger: 'weight >= w'
+      cond: 'ret_false'
+    note: >-
+      Variant reading of "less than the maximum possible weight" (as instructed, reading
+      2): the weight must be strictly less than w, so q does not fly when sum(q) >= w,
+      balanced or not; this includes sum(q) == w, although R-WT-2 calls w the maximum
+      weight q may have and still fly. "Returns False" is taken under the variant reading
+      2 of "False" in R-FLY-2: any falsy value (bool False, or a non-bool return recorded
+      as outcome 2).
+  - id: RV-BAL-1
+    req: R-BAL-1
+    pattern: implies
+    args:
+      trigger: '!balanced'
+      cond: 'ret_false'
+    note: >-
+      Variant reading of "unbalanced" (as instructed, reading 2): the first and last
+      elements of q differ, q[0] != q[len(q)-1]; inner elements are not compared. No
+      weight condition: an unbalanced q returns False however light it is. A list of one
+      element, and the empty list, count as balanced here (the empty list is handled by
+      RV-FLY-1-EMPTY). "Returns False" is taken under the variant reading 2 of "False" in
+      R-FLY-2: any falsy value (bool False, or a non-bool return recorded as outcome 2).
+  - id: RV-EX-1
+    req: R-EX-1
+    pattern: implies
+    args:
+      trigger: 'q == [1, 2] && w == 5'
+      cond: 'ret_false'
+    note: >-
+      The example states the result of a call of a memoryless function, so it is a
+      guarantee on that call as well as a possible behaviour (scenario RV-EX-1-S). The
+      "➞ False" of the example is read like "False" in R-FLY-2 under its variant reading
+      2 (as instructed): any falsy value. Under the variant reading 2 of "unbalanced"
+      [1, 2] is unbalanced (1 != 2).
+  - id: RV-EX-2
+    req: R-EX-2
+    pattern: implies
+    args:
+      trigger: 'q == [3, 2, 3] && w == 1'
+      cond: 'ret_false'
+    note: >-
+      Guarantee on the example call (also scenario RV-EX-2-S). The "➞ False" of the
+      example is read like "False" in R-FLY-2 under its variant reading 2 (as instructed):
+      any falsy value. The weight 8 is not below 1 under either reading of "less than the
+      maximum possible weight".
+  - id: RV-EX-3
+    req: R-EX-3
+    pattern: implies
+    args:
+      trigger: 'q == [3, 2, 3] && w == 9'
+      cond: 'ret_true'
+    note: >-
+      Guarantee on the example call (also scenario RV-EX-3-S); under the variant reading 2
+      of "will fly" (as instructed) this example is one of the few fixed points where q
+      flies. The "➞ True" of the example is read like "returns True" in R-FLY-1 under its
+      variant reading 2: any truthy value (the bool True, or a non-bool return recorded as
+      outcome 2, whose truth value the adapter does not record).
+  - id: RV-EX-4
+    req: R-EX-4
+    pattern: implies
+    args:
+      trigger: 'q == [3] && w == 5'
+      cond: 'ret_true'
+    note: >-
+      Guarantee on the example call (also scenario RV-EX-4-S); under the variant reading 2
+      of "will fly" (as instructed) this example is one of the few fixed points where q
+      flies. The "➞ True" of the example is read like "returns True" in R-FLY-1 under its
+      variant reading 2: any truthy value (the bool True, or a non-bool return recorded as
+      outcome 2).
+
+scenarios:
+  - id: RV-EX-1-S
+    req: R-EX-1
+    cover: 'q == [1, 2] && w == 5 && ret_false'
+    note: >-
+      The call will_it_fly([1, 2], 5) returning False is possible. "False" under the
+      variant reading 2 of R-FLY-2 (as instructed): any falsy value.
+  - id: RV-EX-2-S
+    req: R-EX-2
+    cover: 'q == [3, 2, 3] && w == 1 && ret_false'
+    note: >-
+      The call will_it_fly([3, 2, 3], 1) returning False is possible. "False" under the
+      variant reading 2 of R-FLY-2 (as instructed): any falsy value.
+  - id: RV-EX-3-S
+    req: R-EX-3
+    cover: 'q == [3, 2, 3] && w == 9 && ret_true'
+    note: >-
+      The call will_it_fly([3, 2, 3], 9) returning True is possible. "True" under the
+      variant reading 2 of "returns True" in R-FLY-1 (as instructed): any truthy value.
+  - id: RV-EX-4-S
+    req: R-EX-4
+    cover: 'q == [3] && w == 5 && ret_true'
+    note: >-
+      The call will_it_fly([3], 5) returning True is possible. "True" under the variant
+      reading 2 of "returns True" in R-FLY-1 (as instructed): any truthy value.
+
+dont_cares:
+  - id: RV-FLY-1-OPEN
+    req: R-FLY-1
+    signal: flies
+    when: 'may_fly && !(q == [3, 2, 3] && w == 9) && !(q == [3] && w == 5)'
+    note: >-
+      Variant reading of "will fly" (as instructed, reading 2): a non-empty, balanced q
+      strictly lighter than w may or may not fly, so apart from the two True examples the
+      answer is intentionally left open (RV-FLY-1-RET still requires a return). The region
+      uses the variant readings of "the object q", "unbalanced" and "less than the maximum
+      possible weight".
+
+unformalized:
+  - req: R-IF-1
+    reason: >-
+      Non-functional: the deliverable is a body for the given stub. This is a property of
+      the submitted program text, not of any trace of calls.
+  - req: R-IF-2
+    reason: >-
+      The function name and the positional order of q and w are fixed by the adapter's
+      function section in design.yaml, which binds q to signal q and w to signal w; there
+      is no trace property to state. A misnamed or misordered function would end its calls
+      with outcome 1, which RV-FLY-1-RET and RV-FLY-2 rule out.
+  - req: R-WT-1
+    reason: >-
+      Definition: realized by the def weight = sum(i < len(q): q[i]), used by the items
+      listed.
+    covered_by: [RV-WT-3, RV-FLY-2, RV-FLY-1-RET]
+  - req: R-WT-2
+    reason: >-
+      Definition: w is the weight bound compared with the weight in RV-WT-3. Under the
+      instructed strict reading of R-WT-3 a q whose weight equals w does not fly, which
+      contradicts the literal wording of this definition ("the maximum possible weight
+      that q may have and still fly"); the conflict is recorded here, not repaired.
+    covered_by: [RV-WT-3, RV-FLY-2, RV-FLY-1-RET]
+  - req: R-FR-1
+    reason: >-
+      Frame rule F-ZERO of design.yaml (outcome != 0 -> !flies) holds by construction and
+      is added to every formalization set.
+    covered_by: [F-ZERO]
+
+decisions:
+  - {req: R-FLY-1, phrase: will fly, reading: 2}
+  - {req: R-FLY-1, phrase: returns True, reading: 2}
+  - {req: R-FLY-1, phrase: the object q, reading: 2}
+  - {req: R-FLY-2, phrase: 'False', reading: 2}
+  - {req: R-WT-3, phrase: less than the maximum possible weight, reading: 2}
+  - {req: R-BAL-1, phrase: unbalanced, reading: 2}

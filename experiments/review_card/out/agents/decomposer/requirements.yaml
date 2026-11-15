@@ -1,0 +1,287 @@
+fcp: '0.1'
+design: review
+origin:
+  kind: agent
+  role: decomposer
+  id: decomposer
+requirements:
+- id: R-IF-1
+  doc: SPEC
+  quote: 'Write a Python class for our gift cards: class GiftCard:'
+  text: 'The code is a Python class named GiftCard with three methods: load(amount), spend(amount) and balance().'
+  kind: non_functional
+  lines:
+  - 3
+  - 5
+- id: R-IF-2
+  doc: SPEC
+  quote: 'def load(self, amount: int) -> int:'
+  text: A call of load(amount) that does not raise ValueError returns an int.
+  kind: guarantee
+  lines:
+  - 6
+- id: R-IF-3
+  doc: SPEC
+  quote: 'def spend(self, amount: int) -> bool:'
+  text: A call of spend(amount) that does not raise ValueError returns a bool (True or False).
+  kind: guarantee
+  lines:
+  - 7
+- id: R-IF-4
+  doc: SPEC
+  quote: 'def balance(self) -> int:'
+  text: A call of balance() returns an int.
+  kind: guarantee
+  lines:
+  - 8
+- id: R-UNIT-1
+  doc: SPEC
+  quote: All amounts are in cents.
+  text: Every amount (the amount argument of load and spend, the card's balance, the bonus, and the values returned by load and balance) is an integer number of cents; $500.00 is 50,000 cents, $100.00 is
+    10,000 cents and $5.00 is 500 cents.
+  kind: definition
+  lines:
+  - 10
+- id: R-INIT-1
+  doc: SPEC
+  quote: A new card has a balance of 0.
+  text: A newly created GiftCard has a balance of 0 cents.
+  kind: guarantee
+  lines:
+  - 10
+- id: R-VAL-1
+  doc: SPEC
+  quote: Raise ValueError if `amount` is less than 1 or more than 50,000.
+  text: A call of load(amount) with amount less than 1 raises ValueError.
+  kind: guarantee
+  ambiguity:
+  - phrase: Raise ValueError
+    readings:
+    - a call that raises ValueError leaves the balance unchanged
+    - the request does not say what happens to the balance when a call raises ValueError
+  lines:
+  - 14
+- id: R-VAL-2
+  doc: SPEC
+  quote: Raise ValueError if `amount` is less than 1 or more than 50,000.
+  text: A call of load(amount) with amount more than 50,000 raises ValueError.
+  kind: guarantee
+  ambiguity:
+  - phrase: Raise ValueError
+    readings:
+    - a call that raises ValueError leaves the balance unchanged
+    - the request does not say what happens to the balance when a call raises ValueError
+  lines:
+  - 14
+- id: R-VAL-3
+  doc: SPEC
+  quote: Raise ValueError if `amount` is less than 1 or more than 50,000.
+  text: A call of spend(amount) with amount less than 1 raises ValueError.
+  kind: guarantee
+  ambiguity:
+  - phrase: Raise ValueError if `amount` is less than 1
+    readings:
+    - the rule covers every method with an amount argument, so spend(0) raises ValueError; this contradicts R-SPD-2, under which any balance covers 0 and spend(0) returns True
+    - the rule covers load only (or rule 5 takes precedence for spend), so spend(0) returns True by R-SPD-2
+  - phrase: Raise ValueError
+    readings:
+    - a call that raises ValueError leaves the balance unchanged
+    - the request does not say what happens to the balance when a call raises ValueError
+  lines:
+  - 14
+- id: R-VAL-4
+  doc: SPEC
+  quote: Raise ValueError if `amount` is less than 1 or more than 50,000.
+  text: A call of spend(amount) with amount more than 50,000 raises ValueError.
+  kind: guarantee
+  ambiguity:
+  - phrase: or more than 50,000
+    readings:
+    - the rule covers every method with an amount argument, so spend(50001) raises ValueError; this contradicts R-SPD-3, under which a balance of at most 50,000 cents (R-CAP-1) never covers 50,001 and spend(50001)
+      returns False
+    - the rule covers load only (or rule 5 takes precedence for spend), so spend(50001) returns False by R-SPD-3
+  - phrase: Raise ValueError
+    readings:
+    - a call that raises ValueError leaves the balance unchanged
+    - the request does not say what happens to the balance when a call raises ValueError
+  lines:
+  - 14
+- id: R-LOAD-1
+  doc: SPEC
+  quote: '`load` adds `amount` to the balance.'
+  text: A call of load(amount) that does not raise ValueError adds amount cents to the card's balance.
+  kind: guarantee
+  ambiguity:
+  - phrase: adds `amount` to the balance
+    readings:
+    - the balance grows by amount plus any bonus the load earns (R-BON-1)
+    - the balance grows by exactly amount and any bonus is not part of the balance; this contradicts R-BON-1 if 'on the card' means credited to the balance
+  lines:
+  - 15
+- id: R-CAP-1
+  doc: SPEC
+  quote: The balance is never more than $500.00
+  text: The card's balance never exceeds 50,000 cents ($500.00).
+  kind: guarantee
+  ambiguity:
+  - phrase: The balance is never more than $500.00
+    readings:
+    - 'the cap is absolute and includes bonuses: no call ever leaves the balance above 50,000 cents'
+    - only loaded amounts are capped and a bonus may take the balance above 50,000 cents (e.g. load(50000) on a new card leaves 50,500); this contradicts the literal 'never' and is what R-BON-1 forces when
+      R-CAP-2 counts only amount
+  lines:
+  - 16
+- id: R-CAP-2
+  doc: SPEC
+  quote: raise ValueError for a load that would take it over
+  text: A call of load(amount) that would take the balance above 50,000 cents raises ValueError.
+  kind: guarantee
+  depends:
+  - R-CAP-1
+  ambiguity:
+  - phrase: a load that would take it over
+    readings:
+    - balance + amount > 50,000 (the bonus is not counted); together with R-BON-1 this lets a load such as load(50000) on a new card leave 50,500, contradicting R-CAP-1
+    - balance + amount + the bonus the load would earn > 50,000 (the bonus is counted), e.g. load(50000) on a new card raises ValueError
+  - phrase: raise ValueError for a load
+    readings:
+    - the rejected load has no effect on the balance
+    - the balance after the rejected load is not specified beyond R-CAP-1
+  lines:
+  - 16
+- id: R-BON-1
+  doc: SPEC
+  quote: Every load of $100.00 or more earns a $5.00 bonus on the card.
+  text: A call of load(amount) with amount of at least 10,000 cents that does not raise ValueError earns a bonus of 500 cents, which is added to the card's balance in addition to amount.
+  kind: guarantee
+  ambiguity:
+  - phrase: a $5.00 bonus
+    readings:
+    - a flat 500 cents per qualifying load, whatever its size
+    - 500 cents for every full $100.00 in the load (e.g. 1,000 cents for load(20000))
+  - phrase: on the card
+    readings:
+    - the bonus is added to the balance, so balance() includes it and spend can use it
+    - the bonus is recorded on the card separately and is not part of the balance returned by balance()
+  - phrase: Every load of $100.00 or more earns a $5.00 bonus
+    readings:
+    - every qualifying load that succeeds earns the full 500 cents even when that takes the balance over 50,000 cents; this contradicts R-CAP-1 (e.g. load(50000) on a new card would leave 50,500)
+    - a qualifying load whose amount plus bonus would take the balance over 50,000 cents raises ValueError and earns nothing (R-CAP-2 counts the bonus)
+    - the bonus is cut so that the balance stops at 50,000 cents
+    - the bonus is forfeited when it would take the balance over 50,000 cents
+  lines:
+  - 17
+- id: R-BON-2
+  doc: SPEC
+  quote: '`load` returns the bonus it earned, in cents'
+  text: A call of load(amount) that earns a bonus returns that bonus in cents (500 for a $5.00 bonus).
+  kind: guarantee
+  depends:
+  - R-BON-1
+  ambiguity:
+  - phrase: the bonus it earned
+    readings:
+    - 500 for every successful load of at least 10,000 cents
+    - the bonus actually added to the balance, which is less than 500 when the $500.00 cap cuts it
+    - 500 for every full $100.00 in the load
+  lines:
+  - 17
+- id: R-BON-3
+  doc: SPEC
+  quote: '`load` returns the bonus it earned, in cents (0 if none).'
+  text: A call of load(amount) that does not raise ValueError and earns no bonus returns 0; in particular a load of less than 10,000 cents returns 0.
+  kind: guarantee
+  depends:
+  - R-BON-1
+  lines:
+  - 17
+- id: R-SPD-1
+  doc: SPEC
+  quote: '`spend` takes `amount` off the balance and returns True if the balance covers it'
+  text: A call of spend(amount) for which the balance covers amount reduces the balance by exactly amount cents.
+  kind: guarantee
+  ambiguity:
+  - phrase: covers it
+    readings:
+    - the balance is at least amount (spending the whole balance is allowed)
+    - the balance is strictly more than amount
+  lines:
+  - 18
+- id: R-SPD-2
+  doc: SPEC
+  quote: returns True if the balance covers it
+  text: A call of spend(amount) for which the balance covers amount returns True.
+  kind: guarantee
+  ambiguity:
+  - phrase: covers it
+    readings:
+    - the balance is at least amount (spending the whole balance is allowed)
+    - the balance is strictly more than amount
+  - phrase: returns True if the balance covers it
+    readings:
+    - 'for every amount, including 0: any balance covers 0, so spend(0) returns True; this contradicts R-VAL-3'
+    - only for amounts that pass rule 1 (1 to 50,000); spend(0) raises ValueError by R-VAL-3
+  lines:
+  - 18
+- id: R-SPD-3
+  doc: SPEC
+  quote: otherwise it returns False
+  text: A call of spend(amount) for which the balance does not cover amount returns False.
+  kind: guarantee
+  ambiguity:
+  - phrase: otherwise
+    readings:
+    - the balance is less than amount
+    - the balance is at most amount
+  - phrase: otherwise it returns False
+    readings:
+    - 'for every amount the balance does not cover, including amounts above 50,000: spend(50001) returns False; this contradicts R-VAL-4'
+    - only for amounts that pass rule 1 (1 to 50,000); spend(50001) raises ValueError by R-VAL-4
+  lines:
+  - 18
+- id: R-SPD-4
+  doc: SPEC
+  quote: otherwise it returns False and the balance stays as it was
+  text: A call of spend(amount) for which the balance does not cover amount leaves the balance unchanged.
+  kind: guarantee
+  ambiguity:
+  - phrase: otherwise
+    readings:
+    - the balance is less than amount
+    - the balance is at most amount
+  lines:
+  - 18
+- id: R-BAL-1
+  doc: SPEC
+  quote: '`balance` returns the balance.'
+  text: A call of balance() returns the card's current balance in cents, as left by the earlier calls on the same card.
+  kind: guarantee
+  depends:
+  - R-INIT-1
+  - R-LOAD-1
+  - R-BON-1
+  - R-SPD-1
+  lines:
+  - 19
+- id: R-EX-1
+  doc: SPEC
+  quote: 'Example: after `load(2000)` and `spend(500)`, `balance()` returns 1500.'
+  text: On a new card, the calls load(2000), spend(500) and balance(), in that order, are possible, and that balance() returns 1500.
+  kind: scenario
+  lines:
+  - 21
+- id: R-FR-1
+  doc: FRAME
+  quote: '`bonus` and `balance` are 0 and `spent` is false unless `outcome` is 0.'
+  text: In every call, if outcome is not 0 then bonus is 0, balance is 0 and spent is false.
+  kind: guarantee
+  lines:
+  - 50
+- id: R-FR-2
+  doc: FRAME
+  quote: 'each result signal is 0 in a call of another method: `bonus` unless `op` is 1, `spent` unless `op` is 2, `balance` unless `op` is 3.'
+  text: In every call, bonus is 0 unless op is 1, spent is false unless op is 2, and balance is 0 unless op is 3.
+  kind: guarantee
+  lines:
+  - 51
+  - 52
